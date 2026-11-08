@@ -1,0 +1,13 @@
+{
+  "head": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+  "base": "1caa3765552bf70bde548bf7a34c2bdf71118e47",
+  "checked_all_candidate_commits_including_side_parents": [
+    "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+    "0237db999e6a746d179e612be022eaa2e0794d73",
+    "e47a2ba3db5b6e16f077e33586b02caf74c2630a",
+    "3041ce39fb8a867522c4b3cac85402ba32d3ff83",
+    "6a34551ed4ff069e4d22f76a7d9de163328df78c"
+  ],
+  "allowed_author_and_committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "all_trailers_absent": true
+}

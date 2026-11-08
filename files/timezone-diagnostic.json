@@ -1,0 +1,20 @@
+{
+  "source": "Completed Verify 42482616582 / browser-4 job 128737775128 timestamp evidence",
+  "start": "2026-11-08T12:59:36.245Z",
+  "failure": "2026-11-08T13:00:25.733Z",
+  "selectedZone": "America/New_York",
+  "localTimes": [
+    {
+      "zone": "Australia/Sydney",
+      "start": "2026-11-08, 23:59:36",
+      "failure": "2026-11-09, 00:00:25",
+      "distanceFromMidnightHours": 1
+    },
+    {
+      "zone": "America/New_York",
+      "start": "2026-11-08, 07:59:36",
+      "failure": "2026-11-08, 08:00:25",
+      "distanceFromMidnightHours": 7
+    }
+  ]
+}

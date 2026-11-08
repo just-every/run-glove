@@ -1,0 +1,49 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f127fix1",
+  "head": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+  "merged_main": "1caa3765552bf70bde548bf7a34c2bdf71118e47",
+  "before_ci_run": 42482616582,
+  "before_failed_job": 128737775128,
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit_code": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit_code": 0,
+      "note": "Lock regenerated last before merge commit; complete stdout retained as source-lock-check.json"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "predecessors_browser_run": {
+    "head": "0237db999e6a746d179e612be022eaa2e0794d73",
+    "passed": 4,
+    "log": "after-predecessors-browser.log"
+  },
+  "final_browser_run": {
+    "head": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+    "status": "passed",
+    "log": "after-local-browser.log",
+    "exit_code": 0,
+    "passed": 2,
+    "elapsed": "1.8m",
+    "widths": [
+      1440,
+      390
+    ],
+    "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run node tests/browser/run.mjs tests/browser/journey.spec.ts --grep 'MONEY-002 / BOOK-005'"
+  },
+  "publication_scan": "not run: explicitly forbidden by FIX brief",
+  "clause_changes": []
+}

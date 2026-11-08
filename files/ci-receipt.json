@@ -1,0 +1,23 @@
+{
+  "repository": "just-every/run-glove",
+  "head_sha": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+  "prior_github_calls": 2,
+  "calls": [
+    {
+      "at_utc": "2026-11-08T13:58:36Z",
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=26186ea655b961814f03ea7bd11b4f4b581b8da4&per_page=100",
+      "exit_code": 0
+    }
+  ],
+  "github_calls_total": 3,
+  "discovered_runs": [
+    {
+      "id": 42487476824,
+      "name": "Verify",
+      "status": "queued",
+      "conclusion": null,
+      "head_sha": "26186ea655b961814f03ea7bd11b4f4b581b8da4",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42487476824"
+    }
+  ]
+}

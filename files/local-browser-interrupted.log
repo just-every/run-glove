@@ -1,0 +1,71 @@
+Dev runtime output (last 6000 characters):
+ across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `212ba2bd-dfd3-4681-9955-1fcc05e24ece2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `212ba2bd-dfd3-4681-9955-1fcc05e24ece2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `482fb3c6-3e14-4e56-9fab-633b631035212`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `212ba2bd-dfd3-4681-9955-1fcc05e24ece2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `212ba2bd-dfd3-4681-9955-1fcc05e24ece2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:23 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:24 PM [vite] (client) [console.error] Encountered two children with the same key, `212ba2bd-dfd3-4681-9955-1fcc05e24ece2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:24 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:24 PM [vite] (client) [console.error] Encountered two children with the same key, `482fb3c6-3e14-4e56-9fab-633b631035212`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:24 PM [vite] (client) [console.error] Encountered two children with the same key, `212ba2bd-dfd3-4681-9955-1fcc05e24ece2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:24 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:24 PM [vite] (client) [console.error] Encountered two children with the same key, `212ba2bd-dfd3-4681-9955-1fcc05e24ece2`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:49:24 PM [vite] (client) [console.error] Encountered two children with the same key, `02ecde96-ced1-40d0-ac12-9611d9a32f891`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 4 tests using 1 worker
+
+(node:2630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:2630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (15.9s)
+(node:2630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/documents.spec.ts:49:1 › QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (16.7s)
+(node:2630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.0m)
+  ✘  4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (2.0m)
+
+
+  1) tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px 
+
+    Test was interrupted.
+
+    Error: locator.selectOption: Test ended.
+    Call log:
+      - waiting for locator('form, section').filter({ has: getByRole('heading', { name: /^(Set up your business|Business)$/ }) }).last().getByLabel('Billing currency', { exact: true })
+
+
+      232 |     const businessForm = panel(page, /^(Set up your business|Business)$/)
+      233 |     if (await businessForm.getByRole('heading', { name: 'Set up your business', exact: true }).isVisible()) {
+    > 234 |       await businessForm.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
+          |                                                                        ^
+      235 |       await businessForm.getByLabel('Billing currency', { exact: true }).selectOption('AUD')
+      236 |     }
+      237 |     await businessForm.getByLabel('Timezone for bookings', { exact: true }).selectOption(bookingZone)
+        at /home/agent/rer-consolidation/work/sx-glove-f127fix1/run-glove/tests/browser/journey.spec.ts:234:72
+
+  1 interrupted
+    tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px 
+  3 passed (3.6m)
+
