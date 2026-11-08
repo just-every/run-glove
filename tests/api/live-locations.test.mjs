@@ -134,6 +134,11 @@ test('DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle
     assert.deepEqual(await f.rows(), [])
   }
   h.fleet.status = 200; h.fleet.unreachable = false
+  h.fleet.data = [{ id: '67890', gps: { time: f.now(), latitude: 41.89172, longitude: -87.63172 } }]
+  h.fleet.beforeReply = async () => { h.fleet.beforeReply = null; await b.tomPerson.run('location.consent', { enabled: false }) }
+  await h.command('location.fleetRead', { technicianId: b.tom.id }, { error: 'LOCATION_STOPPED' })
+  assert.deepEqual(await f.rows(), [], 'withdrawal fences a provider response already in flight')
+  await b.tomPerson.run('location.consent', { enabled: true })
   const calls = h.fleet.calls.length
   await f.board(); await h.state(); await h.restart(); await f.board()
   assert.equal(h.fleet.calls.length, calls, 'board, state and restart never poll fleet')
@@ -229,7 +234,9 @@ test('DISP-005 point 7: latest-only storage survives restart, older fixes lose a
 test('DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export', async t => {
   const f = await fixture(t), { h, b } = f
   await f.start()
+  await f.start(b.tomPerson, f.visits[1])
   await connect(f)
+  await h.command('location.fleetRead', { technicianId: b.tom.id })
   const commandId = crypto.randomUUID()
   const outcome = await b.priyaPerson.run('location.phone', f.point(), { commandId })
   assert.deepEqual(outcome, { accepted: true, source: 'phone' })
@@ -240,15 +247,16 @@ test('DISP-005 point 8: attributable consent, fleet and capture history survives
   assert.ok(events.some(e => /consented to on-clock location sharing/.test(e.summary)))
   assert.ok(events.some(e => /stopped location sharing/.test(e.summary)))
   for (const e of events) {
-    assert.equal(e.actorId, e.kind === 'location.fleetConnected' ? (await h.state()).actor.id : b.priyaPerson.id)
+    const tom = e.subjectId === b.tom.id
+    assert.ok([b.priya.id, b.tom.id].includes(e.subjectId))
+    assert.equal(e.actorId, e.kind === 'location.fleetConnected' || (e.kind === 'location.received' && tom) ? (await h.state()).actor.id : tom ? b.tomPerson.id : b.priyaPerson.id)
     assert.equal(e.at, f.now())
-    assert.equal(e.subjectId, e.kind === 'location.fleetConnected' ? b.tom.id : b.priya.id)
     assert.ok(trail.exported.timeline.some(x => x.id === e.id))
   }
   const outputs = [trail, outcome, h.logs]
   for (const person of [h.owner(), b.priyaPerson.cookie, b.office.cookie]) outputs.push(await h.state(person))
   for (const table of ['glove_records', 'glove_events', 'glove_commands']) outputs.push((await h.db.prepare(`SELECT * FROM ${table}`).all()).results)
-  for (const value of [fleetKey, '41.89071', '-87.63071']) assert.ok(!JSON.stringify(outputs).includes(value), `private location material absent: ${value}`)
+  for (const value of [fleetKey, '41.89071', '-87.63071', '41.89172', '-87.63172']) assert.ok(!JSON.stringify(outputs).includes(value), `private location material absent: ${value}`)
   await b.priyaPerson.run('location.consent', { enabled: true })
   await b.priyaPerson.run('location.phone', f.point())
   const customer = (await h.state()).customers.find(c => c.id === b.customer.id)

@@ -5612,7 +5612,7 @@
       "executable": false
     },
     "tests/api/live-locations.test.mjs": {
-      "sha256": "356e5375738563114219ade82ca145fc93ae0c697ca4cf9b820fd84d9bbdbc03",
+      "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5864,7 +5864,7 @@
       "executable": false
     },
     "tests/browser/phone-location.spec.ts": {
-      "sha256": "583ec67e969a6f418880d5548ab7105fda70bdf23a528b6c2c8ee1829dcd2baf",
+      "sha256": "a1a17c9b0a4325a6a02f23819ae98e3d0c9dcf0529a0b11ab267060b13e0f451",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -6332,7 +6332,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "518b4ebaf1804912a44a3765676980da71d282ef01a1c742b93eb653f409e48d",
+      "sha256": "20a6106fc408f9707f4316465e8f46d9798580c4d4c6e5c8ddfb82f52ae71e83",
       "executable": false
     },
     "tests/runtime.mjs": {
