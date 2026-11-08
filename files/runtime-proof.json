@@ -1,0 +1,9 @@
+{
+  "candidate": "a8f9867a413fe790732df707a8f74172b095d966",
+  "final_local_node": "v22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "browser_no_sandbox": true,
+  "api_receipt": "focused-api.json",
+  "browser_receipt": "focused-browser.json",
+  "earlier_predecessor_comparison_node": "24.19.0"
+}

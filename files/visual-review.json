@@ -1,0 +1,10 @@
+{
+  "head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "inspected": [
+    "screenshots/1440-morning-email-bounced.png",
+    "screenshots/390-morning-email-not-confirmed.png",
+    "screenshots/1440-morning-email-delivered.png",
+    "screenshots/390-morning-email-queued.png"
+  ],
+  "result": "Status text and next steps are visible and readable. The phone view reflows within its panel. No UI implementation changes were made."
+}

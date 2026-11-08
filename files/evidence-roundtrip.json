@@ -1,0 +1,294 @@
+{
+  "destination": "/home/agent/rer-consolidation/work/sx-glove-c-f168/roundtrip/work/sx-glove-c-f168/reports/just-every/run-glove",
+  "files": [
+    {
+      "blob": "635c82afa1a9a75549dd40e017a05705f2c7bf37",
+      "bytes": 1642,
+      "path": "CI-TRIAGE.md",
+      "sha256": "bc0d709982fc098ae1713123a56ccea3cb2760c7ed36c60aa91cb0f55f054921"
+    },
+    {
+      "blob": "6e88596317a0d681bf29801bd8415a2f94dc4a4b",
+      "bytes": 2479,
+      "path": "PLAN.md",
+      "sha256": "f1a7bd6822746b427e155932a1b57f3d8c5f75d43459d27f1dde650ef65e42d0"
+    },
+    {
+      "blob": "379309027947bc1b82d69268a16d6c78f68620d6",
+      "bytes": 5407,
+      "path": "RECEIPT.json",
+      "sha256": "5dd5f01e35eeaf748266e06ddf786724d05bffd849cc6c15f36f68602ff7b49b"
+    },
+    {
+      "blob": "f9e4a1e4127458e73bbe5e4889ccb9b1e28cad0d",
+      "bytes": 16038,
+      "path": "REPORT.md",
+      "sha256": "33c00ce93e0aac8d72132120dff0af79a415f66c81e3a2e62ebad0785f75571e"
+    },
+    {
+      "blob": "3dc22c1f7da7b13c0e5b64b69efa6441fdbac94a",
+      "bytes": 223,
+      "path": "candidate-ci.jsonl",
+      "sha256": "4e7bbfba7d1e726318a0934b025a55d145aa8c4c4956fab1c6e6ea48d075225a"
+    },
+    {
+      "blob": "dfee6bef3ac6fa2d31851a2d3dd1d27eeb73dfc5",
+      "bytes": 811,
+      "path": "ci-triage.json",
+      "sha256": "9a7517d14399aeba9a05d2496fe504d6f7986f85238e65eae765a222c07185f0"
+    },
+    {
+      "blob": "c8201e831d713fc942bad747ba69a3d6b81cfd8e",
+      "bytes": 427,
+      "path": "first-party-check.json",
+      "sha256": "f184c6f330f1964631d7087ca69040faeaae1027021479816ab8f41c9a80b6dd"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "0f0b55d3f1898438b0a50a47cf25ba9016ff67c0",
+      "bytes": 488,
+      "path": "focused-api.json",
+      "sha256": "05bd95f279d383ece324abb587883bbc8b0ebbf2d28e07c77ca718b40575993d"
+    },
+    {
+      "blob": "d7c14579201fc1fa80e572c83e82248bc53fa402",
+      "bytes": 6490,
+      "path": "focused-api.log",
+      "sha256": "6ae8025977e78652cd47841ed6078cf764ddaafb76b6abc34235b881b99dcc9a"
+    },
+    {
+      "blob": "ded2583838f357805fe3b11f51e46cf9ac2fe458",
+      "bytes": 476,
+      "path": "focused-browser.json",
+      "sha256": "9c385cba69e0217249ced30f7d39a8e9c903f83758a02ff4d6a68fa8e950f293"
+    },
+    {
+      "blob": "736dae400c5395bbee8969b90783f2bba21192f3",
+      "bytes": 1076,
+      "path": "focused-browser.log",
+      "sha256": "81f9f35c318747f65b880e825ec595debb2fef5705ac2bb84f2e70570d911e7c"
+    },
+    {
+      "blob": "7fb6431654e71e822d9e498a0f990874e38c0861",
+      "bytes": 357,
+      "path": "identity-audit.txt",
+      "sha256": "c9f393a68cc9f19e3543d165787a4678ec93dbbbe1da95cc1a6e52641cd4aa06"
+    },
+    {
+      "blob": "2cf207ea6fc02076a44df557f049a4234d92b881",
+      "bytes": 402,
+      "path": "main-comparison.log",
+      "sha256": "bb6374f90fd31826e65798852649bb5de6c088f924b68a2f6a082d0855f109a0"
+    },
+    {
+      "blob": "46bc2ba2fb40a6b01286df40b32eb29a450f6ce6",
+      "bytes": 1206,
+      "path": "mechanical.json",
+      "sha256": "8202a2f98620e4a7b02ef1600b31033c42f16c72a4c19e5dfb6523ea1232b812"
+    },
+    {
+      "blob": "2f5769cf9aed54933587a59100603b34d8d2b1fd",
+      "bytes": 11024,
+      "path": "predecessor-shard.log",
+      "sha256": "082fc0df357f0d6cb4de069666aebafb710abf21c05b6ae0b4e50eb8089981c2"
+    },
+    {
+      "blob": "d8c84c4255172a9ac079cb5ae0e2f62f7f882668",
+      "bytes": 712,
+      "path": "product-push.log",
+      "sha256": "30774fec652eb9dc6a0896277cdf37a37453ac9fd4721f2bfcc8b68c0e83f0c5"
+    },
+    {
+      "blob": "aa28e06380ae7f3d75d0b7223589fb124cb96aef",
+      "bytes": 491,
+      "path": "review.json",
+      "sha256": "f7ad4dfe1bc2203a99fb6822300decd56f34c833cb1f13655b3eceae225ede64"
+    },
+    {
+      "blob": "e0cd503bd44b3ee55720e6c98a3ee2f4240101a7",
+      "bytes": 5252,
+      "path": "screenshots.json",
+      "sha256": "63a1754500ee0c598adc32972bd109fb77fcc24f314ec902602d8631eae72235"
+    },
+    {
+      "blob": "ce30df69696448130117be830b43db0abd4668a7",
+      "bytes": 158701,
+      "path": "screenshots/1440-brief-dispatch.png",
+      "sha256": "dcd84f8d5b1e91ba799f765ce24d2c67b94d88add31354bcc773892ecf4eda50"
+    },
+    {
+      "blob": "dfe61cc7fdddbe4520c653c5f220fcb3265e6192",
+      "bytes": 136282,
+      "path": "screenshots/1440-brief-invoices.png",
+      "sha256": "036a8d7fc40ab43563c88b93f373b72bfb57944376c34c5ffbf8b0533f988db5"
+    },
+    {
+      "blob": "807671949a5d05a32fb292ea11cedc8444cac551",
+      "bytes": 126269,
+      "path": "screenshots/1440-brief-jobs.png",
+      "sha256": "a86c069a5625593e91a1f057c42dd6ea752cc32dcd1ddd25b2416c681ada3d86"
+    },
+    {
+      "blob": "75644024f81f2e37f3071a9edb458bd5ec833cc4",
+      "bytes": 139889,
+      "path": "screenshots/1440-brief-quotes.png",
+      "sha256": "7184caddf47a8a31a41c344ce52c527237a4ed8517c60713c91561f1be053d1c"
+    },
+    {
+      "blob": "2d926a586fa44f54d25322fbad29d90d9ff95804",
+      "bytes": 224683,
+      "path": "screenshots/1440-brief-today.png",
+      "sha256": "eb556642b8d2736a880d1505ee6472a0e9f4db4f900f8740ce9befc833f43f32"
+    },
+    {
+      "blob": "fb9df96f553cc2c0ca7e93a4d515e2ab08e06b31",
+      "bytes": 138162,
+      "path": "screenshots/1440-morning-email-accepted.png",
+      "sha256": "4fe522fe9abbd0d198c374be416a9ff25da490020990528701dca92886a30272"
+    },
+    {
+      "blob": "542377fa3999ec4b20f75203e22ae09cc18807b7",
+      "bytes": 142158,
+      "path": "screenshots/1440-morning-email-bounced.png",
+      "sha256": "9053aa25cb7a50456f88a763d299f7080029854405d527d5d8a975a7e505e1b2"
+    },
+    {
+      "blob": "f1950743168ca4b4aba539f7a2edc6824682f285",
+      "bytes": 139748,
+      "path": "screenshots/1440-morning-email-delivered.png",
+      "sha256": "5b923bcfd266bfa685a3eec48b03c80c82e50e2eac61d81dec377703c1af4db2"
+    },
+    {
+      "blob": "e7d953368854b0f4fdaaba66588c93ec7ca4ff71",
+      "bytes": 135963,
+      "path": "screenshots/1440-morning-email-not-confirmed.png",
+      "sha256": "4ef44930cfef3ff78ea600006a68c526eabf72c4165be787f66a175d9a2e66a6"
+    },
+    {
+      "blob": "1fe1db30acdf2fcdce7bfc4ddfb507295cb61793",
+      "bytes": 140349,
+      "path": "screenshots/1440-morning-email-queued.png",
+      "sha256": "d1fdf8a3a7c1bf25bb64a9b15e5ebe5865968f2c66083d72170e19c1b111806e"
+    },
+    {
+      "blob": "f80c63e267fb018673f3a90cfb59f03f97f69a50",
+      "bytes": 134534,
+      "path": "screenshots/1440-morning-email-rate-limited.png",
+      "sha256": "ee5904f63e6e28be96ca6f1ddcacf6232f3adab3a69730cdc9853905d8215be5"
+    },
+    {
+      "blob": "3e88ecedef34a71e41206bd90fb512bbcacf6bc3",
+      "bytes": 136930,
+      "path": "screenshots/1440-morning-email-refused.png",
+      "sha256": "a29395664455f854be0635c1f81dbaeb276878ea6bedf371a93937ca9fdf2576"
+    },
+    {
+      "blob": "defc8da2c3025f1bce5dc26ba4f50798169efbeb",
+      "bytes": 138144,
+      "path": "screenshots/1440-morning-email-scheduled.png",
+      "sha256": "ee7ba1309f5a4cc7c47d4c4490057972f26718e89a645b7852620c5e869efc5d"
+    },
+    {
+      "blob": "c89b9bcdfecf8132eaf2f7a5c380f688b4671110",
+      "bytes": 74898,
+      "path": "screenshots/390-brief-dispatch.png",
+      "sha256": "b03521f3a226510146ba16f8762817eb996d2c3f1a8e583d33ee4f4e4cc5a1ab"
+    },
+    {
+      "blob": "6b37aa50ff8a354071f96068762e93215bf98483",
+      "bytes": 68202,
+      "path": "screenshots/390-brief-invoices.png",
+      "sha256": "1e75019553307715e1077292f21aab57d06dc698896681ab09d1811ec02f5dc5"
+    },
+    {
+      "blob": "8963279df9eec52d809555866807729b86958d54",
+      "bytes": 56288,
+      "path": "screenshots/390-brief-jobs.png",
+      "sha256": "569ec0d7ad2e30054ebc066a4593acf880d4dccc8ade55d0de84c3c5e041ff79"
+    },
+    {
+      "blob": "d312e3d333001e2f0c342b492f1775d5f56042d6",
+      "bytes": 73302,
+      "path": "screenshots/390-brief-quotes.png",
+      "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+    },
+    {
+      "blob": "7727022ab4dfe3471fd1c90d314b9b11dda53e24",
+      "bytes": 197691,
+      "path": "screenshots/390-brief-today.png",
+      "sha256": "48a7d1ded47b4e3798529e79cf3800cf6a77dcdfefb3fe5e1050597c67b379c2"
+    },
+    {
+      "blob": "456f7f8cb4923358f00ac3404fc1d06c4c08216b",
+      "bytes": 77340,
+      "path": "screenshots/390-morning-email-accepted.png",
+      "sha256": "ffba7c7c70b711056cbd9863a671ff929a665752774ece04ae9e023edf11d6a1"
+    },
+    {
+      "blob": "5b2fe414a30a1d972743b111380894e3c2677d6e",
+      "bytes": 82313,
+      "path": "screenshots/390-morning-email-bounced.png",
+      "sha256": "1fe70e0b0655602f14714c70f201b60606b3f39c1a092ad34737d6feb6c4e640"
+    },
+    {
+      "blob": "cedb0e78b0adf8968fe58b33b1675c16060495ac",
+      "bytes": 78812,
+      "path": "screenshots/390-morning-email-delivered.png",
+      "sha256": "7c31d8de1c01c365daa4c8135cb1369503b27c997bf3f75c3f86c6ded2d09d59"
+    },
+    {
+      "blob": "83bbc5976ed716a702aa2808b6cccfcbda0910e2",
+      "bytes": 71939,
+      "path": "screenshots/390-morning-email-not-confirmed.png",
+      "sha256": "4cce976db90e43ba2343f28b650820dd9a0db486dfcb81a92bdb89a127869f46"
+    },
+    {
+      "blob": "19759b92167bc29811a99061a8eb659ae891c5c0",
+      "bytes": 79976,
+      "path": "screenshots/390-morning-email-queued.png",
+      "sha256": "c2bb3ea1bdc1f21161a5266643c85e14927f1fdb6199f58ea8a011621a774a17"
+    },
+    {
+      "blob": "9abc666dcf5aecc84d2aeb4b45505ecd826ce4c0",
+      "bytes": 70988,
+      "path": "screenshots/390-morning-email-rate-limited.png",
+      "sha256": "bab3add69c098ebb12cb3ee5126dde35bbe76e73f183812c694278b702aa89e6"
+    },
+    {
+      "blob": "67e2b91de90678fc9087bf7598f6805c3cd72ae1",
+      "bytes": 72468,
+      "path": "screenshots/390-morning-email-refused.png",
+      "sha256": "090a25233d51ef64e4f32a1849890005a43054786da114d6745c51daafeaac2b"
+    },
+    {
+      "blob": "7ff89d547ad75ec23da9c7fbcc400ee2bfc3b9c3",
+      "bytes": 77194,
+      "path": "screenshots/390-morning-email-scheduled.png",
+      "sha256": "7d41204a363ddf2a9842a9a2ec97c26f5e53f555b34d4d2e441e78bf50383a31"
+    },
+    {
+      "blob": "91e40994ed6cc2f73dee97164a57187f12f5a9cf",
+      "bytes": 347,
+      "path": "typecheck.json",
+      "sha256": "f6c31178e2428df0ae28270dbed7a53d07dc2931202a3499187d330f203aa77a"
+    },
+    {
+      "blob": "bf164ad6545d92723e37dbe2a1bff2882f3be650",
+      "bytes": 90,
+      "path": "typecheck.log",
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    }
+  ],
+  "head": "b7f70424cd1f459dce44828967b110226a9cb3d8",
+  "manifest_sha256": "02519cd4d31e6de281f43e40b5287c03a25a88d76c0d583a46f207ac02fce99d",
+  "product_branch": "cloud/sx-glove-c-f168",
+  "product_head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "ref": "refs/heads/evidence/sx-glove-c-f168",
+  "repository": "just-every/run-glove",
+  "status": "restored"
+}

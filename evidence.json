@@ -13,16 +13,16 @@
       "sha256": "f1a7bd6822746b427e155932a1b57f3d8c5f75d43459d27f1dde650ef65e42d0"
     },
     {
-      "blob": "379309027947bc1b82d69268a16d6c78f68620d6",
+      "blob": "f8134092c764d4f364c5d75854badf24fe477916",
       "bytes": 5407,
       "path": "RECEIPT.json",
-      "sha256": "5dd5f01e35eeaf748266e06ddf786724d05bffd849cc6c15f36f68602ff7b49b"
+      "sha256": "e9d60436d13494481a3986b49f05cf764965ec51f89de3cabbb6069694c6b8fe"
     },
     {
-      "blob": "f9e4a1e4127458e73bbe5e4889ccb9b1e28cad0d",
-      "bytes": 16038,
+      "blob": "39e88ce9d16c76d87343f6b20c54b25e8ab8c024",
+      "bytes": 16044,
       "path": "REPORT.md",
-      "sha256": "33c00ce93e0aac8d72132120dff0af79a415f66c81e3a2e62ebad0785f75571e"
+      "sha256": "0dc78000912d6f47865600ad2dbf6ad5524a84177cd7a74df1f4af1345b60105"
     },
     {
       "blob": "3dc22c1f7da7b13c0e5b64b69efa6441fdbac94a",
@@ -35,6 +35,12 @@
       "bytes": 811,
       "path": "ci-triage.json",
       "sha256": "9a7517d14399aeba9a05d2496fe504d6f7986f85238e65eae765a222c07185f0"
+    },
+    {
+      "blob": "c952cfabd628979f4bed31902c8da41c85fc899e",
+      "bytes": 10960,
+      "path": "evidence-roundtrip.json",
+      "sha256": "0aaf9bad87b049886441630af63f2c124136e170c6e602a50f3a8b58edf61aee"
     },
     {
       "blob": "c8201e831d713fc942bad747ba69a3d6b81cfd8e",
@@ -103,10 +109,22 @@
       "sha256": "30774fec652eb9dc6a0896277cdf37a37453ac9fd4721f2bfcc8b68c0e83f0c5"
     },
     {
+      "blob": "e497bc0aea154b41730b73330893a97852b03eb2",
+      "bytes": 131,
+      "path": "remote-refs.txt",
+      "sha256": "e64e45b98bf77e5c098f60367398c6f9287ff5f4cf57157191637f9d1cafa8e5"
+    },
+    {
       "blob": "aa28e06380ae7f3d75d0b7223589fb124cb96aef",
       "bytes": 491,
       "path": "review.json",
       "sha256": "f7ad4dfe1bc2203a99fb6822300decd56f34c833cb1f13655b3eceae225ede64"
+    },
+    {
+      "blob": "3bba04ae80432e0b74d8a9cdfca5a7e7f23bca79",
+      "bytes": 295,
+      "path": "runtime-proof.json",
+      "sha256": "fb9aa11a38887577457a59820f60650374ae241f1b7174de6f496e9e5f1b95c0"
     },
     {
       "blob": "e0cd503bd44b3ee55720e6c98a3ee2f4240101a7",
@@ -281,6 +299,12 @@
       "bytes": 90,
       "path": "typecheck.log",
       "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "blob": "527b295cff0c9f1c0036ad6542e699ae4fbe1ba4",
+      "bytes": 432,
+      "path": "visual-review.json",
+      "sha256": "a562faf0e5be9a07dad4f06468e7850a78846a1f6685ae757a64ff337f0467da"
     }
   ],
   "product_branch": "cloud/sx-glove-c-f168",
