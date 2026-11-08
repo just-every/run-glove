@@ -1,0 +1,227 @@
+{
+  "tag": "sx-glove-c-f153",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f153",
+  "head": "324e8833e87313c75deaee4f71404e60a055d17a",
+  "integrated_main": "f2e01ddb2ba371ee5deed4f9391d7ec5cb51f954",
+  "commands": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/booking-offer-history.test.mjs",
+      "exit": 0,
+      "head": "324e8833e87313c75deaee4f71404e60a055d17a",
+      "receipt": "API.txt",
+      "tests": 3,
+      "passed": 3
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "324e8833e87313c75deaee4f71404e60a055d17a",
+      "receipt": "TYPECHECK.txt"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "324e8833e87313c75deaee4f71404e60a055d17a",
+      "receipt": "FIRST_PARTY.txt"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses PLAN-011",
+      "exit": 0,
+      "receipt": "VIEWS.txt"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses PLAN-011",
+      "exit": 0,
+      "head": "324e8833e87313c75deaee4f71404e60a055d17a",
+      "receipt": "VIEWS_CHECK.txt"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "324e8833e87313c75deaee4f71404e60a055d17a"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "receipt": "BUILD.txt",
+      "note": "Built final production source before committing the final test-only replay extension."
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/due-visits.spec.ts",
+      "exit": 0,
+      "head": "324e8833e87313c75deaee4f71404e60a055d17a",
+      "receipt": "BROWSER.txt",
+      "tests": 1,
+      "passed": 1,
+      "assertion_width": 1440,
+      "proof_widths": [
+        1440,
+        390
+      ]
+    }
+  ],
+  "production_repair": {
+    "file": "src/ui/booking-offers.tsx",
+    "behavior": "An emailed offer retains both its provider-reported state and separately labelled outside-send recorder and method, including after revocation."
+  },
+  "reproduction": {
+    "command": "node tests/browser/run.mjs tests/browser/due-visits.spec.ts",
+    "exit": 1,
+    "test": "Office batch books due visits, records declines and outside sends",
+    "failure": "Expected outside-send recorder and method on an emailed offer; desk row only showed the provider outcome.",
+    "receipt": "REPRODUCTION.txt"
+  },
+  "mechanical": {
+    "lock_exit": 0,
+    "views_write_exit": 0,
+    "views_check_exit": 0,
+    "ledger": "none; no migrations changed",
+    "generated_views_committed": false,
+    "contract_diff_against_main": false
+  },
+  "publication_scan": {
+    "commit": "324e8833e87313c75deaee4f71404e60a055d17a",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "NOT RUN in cloud; guarded lander owns full-history scan"
+  },
+  "landing": {
+    "main_equals_candidate": false,
+    "verify": {
+      "id": 42511632383,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "324e8833e87313c75deaee4f71404e60a055d17a",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42511632383",
+      "api_calls_in_task": 3,
+      "observed_at": "2026-11-08T18:51:07Z"
+    },
+    "run_site": "pending guarded landing"
+  },
+  "boundary": "Existing provider fakes at the mail network edge only; no live provider delivery or R-9 receipt is claimed. No new send authority or policy default.",
+  "screenshots": [
+    {
+      "file": "1440-due-email-accepted.png",
+      "sha256": "aade44889143893a045e836d7a50633614be1b8aeba67052df318566dd6ab027",
+      "bytes": 163362
+    },
+    {
+      "file": "1440-due-email-delivered.png",
+      "sha256": "345f9f5cbe551b7121e195e64b93531a99c784991f8bffeb2112f96e0d05353c",
+      "bytes": 157532
+    },
+    {
+      "file": "1440-due-email-bounced.png",
+      "sha256": "8c19997a0f183e9a19f7f452083eefa5b10e2bb4c03984fd5f8d2cc1fece813f",
+      "bytes": 157236
+    },
+    {
+      "file": "1440-due-email-revoked.png",
+      "sha256": "b7355b8d67d28b75c88eed6cc13e456d2401c96aab132461dd4ae8618276b6c2",
+      "bytes": 174163
+    },
+    {
+      "file": "1440-due-email-history-accepted.png",
+      "sha256": "171ab7738c85d464c8c63a53d852d6f8cba9e5cec657e71e658d906b58c9702e",
+      "bytes": 51454
+    },
+    {
+      "file": "1440-due-email-history-delivered.png",
+      "sha256": "fb45081f157035f2cabe8d6745038efa8d1d656ee04b095211c5be93c9627ecf",
+      "bytes": 54567
+    },
+    {
+      "file": "1440-due-email-history-bounced.png",
+      "sha256": "19e93b5cb93da93ffbcf22843b2a32ce68e3160b5ae9751bc4590a6467578314",
+      "bytes": 54617
+    },
+    {
+      "file": "1440-due-email-history-revoked.png",
+      "sha256": "07c4a03be91bb6e7c6f6cffdef9461e14c0d44a3db849fa622698f3bca4789d6",
+      "bytes": 74543
+    },
+    {
+      "file": "1440-due-other-property-history.png",
+      "sha256": "e65e36b137c5346c04ff108f29ef50a5ec66c67b9abb829db608430bc46b3742",
+      "bytes": 32406
+    },
+    {
+      "file": "1440-due-property-history.png",
+      "sha256": "ae112bfd797147df60da39e8d00be78a3032528c9f9e6786eb083ddcd39d4612",
+      "bytes": 118440
+    },
+    {
+      "file": "390-due-email-accepted.png",
+      "sha256": "350f899cc4a2f6edce2ae2c8aabb4e5fd44e88a2fbeb23ac39cb8a9649b1d198",
+      "bytes": 82852
+    },
+    {
+      "file": "390-due-email-delivered.png",
+      "sha256": "80ac3055c5a6faa5acd5f8f428cb6eb6acd3ace4364a3680a406be4b7cb6f5de",
+      "bytes": 86276
+    },
+    {
+      "file": "390-due-email-bounced.png",
+      "sha256": "234b0467d325302510461cbe14a46ca3461afd9c9d798deccb4b079de0dc9d92",
+      "bytes": 91826
+    },
+    {
+      "file": "390-due-email-revoked.png",
+      "sha256": "2c3e3f504cade38264ccc116011da1ab9d28cbb860cd32b522fffcdbef2725e4",
+      "bytes": 93987
+    },
+    {
+      "file": "390-due-email-history-accepted.png",
+      "sha256": "d162555029dc873841586b0de9e725413b3ae4460dfd51839fe3cecc547f5ee7",
+      "bytes": 52547
+    },
+    {
+      "file": "390-due-email-history-delivered.png",
+      "sha256": "271f99865845d1bea6e0aaffa9080bf5e93d240077e46544ee811f14fe974903",
+      "bytes": 55360
+    },
+    {
+      "file": "390-due-email-history-bounced.png",
+      "sha256": "65b6252b0ce469754f010d8d822f12b224f094b589e8e78b089cfd6721fb5b13",
+      "bytes": 55782
+    },
+    {
+      "file": "390-due-email-history-revoked.png",
+      "sha256": "4ab09eddab7b996791e67bfabb1a904d83f3302c64f7d239fdd17e9fee599f9e",
+      "bytes": 74444
+    },
+    {
+      "file": "390-due-other-property-history.png",
+      "sha256": "5ab0c6af967571631b6683bc35991323830aa70ac0b4a200a5307eebac838117",
+      "bytes": 33092
+    },
+    {
+      "file": "390-due-property-history.png",
+      "sha256": "a9854f09a80ddb8a621d8cb0f980048fbeb0b99f59e307601be828475bd0dfe5",
+      "bytes": 51181
+    }
+  ],
+  "registration_counts": {
+    "api": 168,
+    "browser": 64,
+    "note": "This run adds no registration of its own. The three focused API registrations are carried from the supplied continuation. Differences in total counts also include updated main. No test-budget.json is present; the existing repository already exceeds the generic 200-test cap.",
+    "observed_by_ref": {
+      "36cf2c441039625a5509aaf5be2f82709b754822": {
+        "tests/api": 162,
+        "tests/browser": 62
+      },
+      "HEAD": {
+        "tests/api": 168,
+        "tests/browser": 64
+      }
+    }
+  }
+}

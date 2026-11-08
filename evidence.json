@@ -1,0 +1,232 @@
+{
+  "files": [
+    {
+      "blob": "44c16ff7b14c9d619f10c3eee22f7c09de7f771d",
+      "bytes": 163362,
+      "path": "1440-due-email-accepted.png",
+      "sha256": "aade44889143893a045e836d7a50633614be1b8aeba67052df318566dd6ab027"
+    },
+    {
+      "blob": "184c8605bd2d3492ec058a1b0ce79bc9cbd5d46e",
+      "bytes": 157236,
+      "path": "1440-due-email-bounced.png",
+      "sha256": "8c19997a0f183e9a19f7f452083eefa5b10e2bb4c03984fd5f8d2cc1fece813f"
+    },
+    {
+      "blob": "9f8c20a9daa94ccf488c4f91168d7d33287d31ba",
+      "bytes": 157532,
+      "path": "1440-due-email-delivered.png",
+      "sha256": "345f9f5cbe551b7121e195e64b93531a99c784991f8bffeb2112f96e0d05353c"
+    },
+    {
+      "blob": "1ca490872ae0fd40cc56bbb2f3b4151fba3f9a57",
+      "bytes": 51454,
+      "path": "1440-due-email-history-accepted.png",
+      "sha256": "171ab7738c85d464c8c63a53d852d6f8cba9e5cec657e71e658d906b58c9702e"
+    },
+    {
+      "blob": "0c39342b10d7671c40557b97d9c81d3f8a46a825",
+      "bytes": 54617,
+      "path": "1440-due-email-history-bounced.png",
+      "sha256": "19e93b5cb93da93ffbcf22843b2a32ce68e3160b5ae9751bc4590a6467578314"
+    },
+    {
+      "blob": "4199b829b6edef1ebcd2975c0a50229cb4a9c373",
+      "bytes": 54567,
+      "path": "1440-due-email-history-delivered.png",
+      "sha256": "fb45081f157035f2cabe8d6745038efa8d1d656ee04b095211c5be93c9627ecf"
+    },
+    {
+      "blob": "12a4ad85cc8ace501c7e112e82e25bc4a67443e7",
+      "bytes": 74543,
+      "path": "1440-due-email-history-revoked.png",
+      "sha256": "07c4a03be91bb6e7c6f6cffdef9461e14c0d44a3db849fa622698f3bca4789d6"
+    },
+    {
+      "blob": "429a767a202042b2461db9087e746f69eda83b2d",
+      "bytes": 174163,
+      "path": "1440-due-email-revoked.png",
+      "sha256": "b7355b8d67d28b75c88eed6cc13e456d2401c96aab132461dd4ae8618276b6c2"
+    },
+    {
+      "blob": "e7809357ffceeab177229131767ffc8487035b50",
+      "bytes": 32406,
+      "path": "1440-due-other-property-history.png",
+      "sha256": "e65e36b137c5346c04ff108f29ef50a5ec66c67b9abb829db608430bc46b3742"
+    },
+    {
+      "blob": "c382c3a9da9a4b81c459b4303862da15f8f0a99b",
+      "bytes": 118440,
+      "path": "1440-due-property-history.png",
+      "sha256": "ae112bfd797147df60da39e8d00be78a3032528c9f9e6786eb083ddcd39d4612"
+    },
+    {
+      "blob": "36133836f2c049516857cb781945276141e3e8f8",
+      "bytes": 82852,
+      "path": "390-due-email-accepted.png",
+      "sha256": "350f899cc4a2f6edce2ae2c8aabb4e5fd44e88a2fbeb23ac39cb8a9649b1d198"
+    },
+    {
+      "blob": "eb514ed5432faa744bf0f55a42528075e2ab2462",
+      "bytes": 91826,
+      "path": "390-due-email-bounced.png",
+      "sha256": "234b0467d325302510461cbe14a46ca3461afd9c9d798deccb4b079de0dc9d92"
+    },
+    {
+      "blob": "95466f619069118fba55b7ca00cd80ae57b77dd6",
+      "bytes": 86276,
+      "path": "390-due-email-delivered.png",
+      "sha256": "80ac3055c5a6faa5acd5f8f428cb6eb6acd3ace4364a3680a406be4b7cb6f5de"
+    },
+    {
+      "blob": "3a8de32d79cdabaff05fe5a0ed3b4ccc4ae780eb",
+      "bytes": 52547,
+      "path": "390-due-email-history-accepted.png",
+      "sha256": "d162555029dc873841586b0de9e725413b3ae4460dfd51839fe3cecc547f5ee7"
+    },
+    {
+      "blob": "8095004243afbd665c747f16100ff8ca8901a8fd",
+      "bytes": 55782,
+      "path": "390-due-email-history-bounced.png",
+      "sha256": "65b6252b0ce469754f010d8d822f12b224f094b589e8e78b089cfd6721fb5b13"
+    },
+    {
+      "blob": "561642b665fa9f8f27df1b1f12ef8b78607fa8eb",
+      "bytes": 55360,
+      "path": "390-due-email-history-delivered.png",
+      "sha256": "271f99865845d1bea6e0aaffa9080bf5e93d240077e46544ee811f14fe974903"
+    },
+    {
+      "blob": "faffc0669fb414cf77fed1d501331c20c20a0311",
+      "bytes": 74444,
+      "path": "390-due-email-history-revoked.png",
+      "sha256": "4ab09eddab7b996791e67bfabb1a904d83f3302c64f7d239fdd17e9fee599f9e"
+    },
+    {
+      "blob": "bd8d580b4d6ab27c8d4f8cf19e6dae6509517dc4",
+      "bytes": 93987,
+      "path": "390-due-email-revoked.png",
+      "sha256": "2c3e3f504cade38264ccc116011da1ab9d28cbb860cd32b522fffcdbef2725e4"
+    },
+    {
+      "blob": "d2cc7b3a063ee3556fdf85400864fa1138bd283f",
+      "bytes": 33092,
+      "path": "390-due-other-property-history.png",
+      "sha256": "5ab0c6af967571631b6683bc35991323830aa70ac0b4a200a5307eebac838117"
+    },
+    {
+      "blob": "419efcf52994255d03cf02da5c9722af8eed7286",
+      "bytes": 51181,
+      "path": "390-due-property-history.png",
+      "sha256": "a9854f09a80ddb8a621d8cb0f980048fbeb0b99f59e307601be828475bd0dfe5"
+    },
+    {
+      "blob": "1ec6a2d2c8dd1c5f981366389f57c349fd4ee71f",
+      "bytes": 657,
+      "path": "API.txt",
+      "sha256": "36c241ac708c6613a62aa00ebf32c02f419a061119866b7ae46fd885e1a61a90"
+    },
+    {
+      "blob": "036d619f637e4fdd2b58e8bb2ac57f4c75cd9f73",
+      "bytes": 1963,
+      "path": "BROWSER.txt",
+      "sha256": "b668fdf044e07c37478381d309434d7f4fdf7c19292a87caa1f3b1822b43e057"
+    },
+    {
+      "blob": "8e43f087eb355d27bf8ea572123d615b4379c096",
+      "bytes": 5947,
+      "path": "BUILD.txt",
+      "sha256": "0f746115319f33d87fb0d930aa6b14cd102b2eae0d2f92262cf79cfd777b30f8"
+    },
+    {
+      "blob": "7105e497c747a948e89ae9ab4c9c1eb2dc91b8db",
+      "bytes": 319,
+      "path": "CI_RECEIPT.json",
+      "sha256": "ccaa401851d2c8463540a6a4cfa2dcb25ed37b0658de2292ac4e3297a3820b66"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "FIRST_PARTY.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "8e9caa6c32ffeaae6ba20e254e2592504d056bf2",
+      "bytes": 344,
+      "path": "HYGIENE.json",
+      "sha256": "a80bb685c2a0277babe2f072fd6f28acc2e782f516c32cb2060b4462aa148f49"
+    },
+    {
+      "blob": "6eeea5acbc321be4539cd513b6514bfd8e4c1614",
+      "bytes": 425,
+      "path": "IDENTITIES.txt",
+      "sha256": "bebd14c2976af3c82732395800b1877f2bce97efc547cdf8d38d82d3d735928d"
+    },
+    {
+      "blob": "c47fe145909163763c1e2d21413e0c4c4cf5d4bf",
+      "bytes": 259752,
+      "path": "LOCK_CHECK.json",
+      "sha256": "54a69a07d2caf95fcc77f383f1b12eb50385e227a8291b6616cc9486aff7d133"
+    },
+    {
+      "blob": "662e7ce7650a03380dd3cfa6d74ebf1bb648bcc4",
+      "bytes": 1695,
+      "path": "PLAN.md",
+      "sha256": "0fbecdda67c9aa35ce3e2bbadf93a6867d39a63f7ce1cf1004de3e43d8d571b5"
+    },
+    {
+      "blob": "51a41a55c13edfbdb9fc3be35680b29295f7bed4",
+      "bytes": 617,
+      "path": "PUSH.txt",
+      "sha256": "11495390ffbe66957eef259d60814bc636876a0fdb2162d311e4b20082b2cdb6"
+    },
+    {
+      "blob": "dc7fbf7dbbac653f217ea50fb4ff6da734492202",
+      "bytes": 7669,
+      "path": "RECEIPT.json",
+      "sha256": "f444d6f73347a1e57df095ae9769c96805b94df66e8499aac873da678b1b8e82"
+    },
+    {
+      "blob": "a8a05351ac099062c222446e02027944f07d0a3c",
+      "bytes": 131,
+      "path": "REMOTE.txt",
+      "sha256": "c17ebf72c2c9bad5bd799869344f8e5f45e7288a348220d781d50e99ac2cf806"
+    },
+    {
+      "blob": "d648deeaf82eaa6f29b7306dfede9f8804ccd185",
+      "bytes": 14955,
+      "path": "REPORT.md",
+      "sha256": "fd36b3e7b24fac953420bab2249662cf6666d4c2959534c71d97b0a9585059c2"
+    },
+    {
+      "blob": "b8530feb94146647e95a1c1a496882cc9df05b6c",
+      "bytes": 12101,
+      "path": "REPRODUCTION.txt",
+      "sha256": "a85084c125858044af1e5e743dc4ff1a013687e335ea0fa90e782c151eee6b72"
+    },
+    {
+      "blob": "3265e7cb3ed08d84bdd24aa834a77e7ce15c1dac",
+      "bytes": 236,
+      "path": "TYPECHECK.txt",
+      "sha256": "f6712bde5105e9bab3dbd2c4da41a2f51caf2f5ac4d1eac2b919c3c8691577e0"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "VIEWS.txt",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "VIEWS_CHECK.txt",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f153",
+  "product_head": "324e8833e87313c75deaee4f71404e60a055d17a",
+  "ref": "refs/heads/evidence/sx-glove-c-f153",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f153"
+}
