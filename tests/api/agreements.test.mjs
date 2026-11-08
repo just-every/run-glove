@@ -19,7 +19,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   const at = '2026-11-06T00:30:00.000Z'
   const h = await installation({ at })
   t.after(() => h.close())
-  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
+  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', currency: 'USD', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
   const tune = await h.command('service.save', { code: 'TUNE', name: 'AC tune-up', kind: 'service', unitPrice: '149.00', tax: 'TAXABLE' })
   const parts = await h.command('service.save', { code: 'PARTS', name: 'Condenser parts', kind: 'material', unitPrice: '400.00', tax: 'TAXABLE' })
   const labor = await h.command('service.save', { code: 'LABOR', name: 'Repair labor', kind: 'service', unitPrice: '300.00', tax: 'TAXABLE' })
@@ -34,10 +34,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.equal(response.status, 200, await response.clone().text())
     return response.json()
   }
-  const records = async () => {
-    const state = await h.state()
-    return Object.fromEntries(['plans', 'agreements', 'jobs', 'visits', 'captures', 'quotes', 'invoices', 'segments', 'customers'].map(key => [key, state[key]]))
-  }
+  const records = () => read('/api/glove/export')
   const owner = (await h.state()).actor
   const excluded = [person, await h.person('Club Viewer', 'viewer'), await h.person('Club Agent', 'agent'), await h.person('Club Subcontractor', 'subcontractor')]
   const trail = []
@@ -52,6 +49,9 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   const complete = async job => {
     hour += 1
     const visit = await dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: today, start: `${String(hour).padStart(2, '0')}:00`, end: `${String(hour).padStart(2, '0')}:30` })
+    const beforeArrival = await records()
+    for (const who of [dispatcher, office]) await who.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }, { error: 'FORBIDDEN' })
+    assert.deepEqual(await records(), beforeArrival, 'desk arrival refusals preserve the whole business and Activity')
     const arrival = await attributed(person, 'visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }, 'capture.arrival', `synthetic-glove-arrival-${hour}`)
     const captures = []
     for (const copy of job.forms) {
@@ -63,7 +63,11 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
       assert.deepEqual(await person.run('visit.capture', payload, { commandId: capture.id }), capture, 'capture replay keeps the same accepted evidence')
       captures.push(capture)
     }
-    const completed = await attributed(person, 'visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Done', signoff: { absentReason: 'Customer at work' } }, 'capture.completion', `synthetic-glove-completion-${hour}`)
+    const completionPayload = { visitId: visit.id, deviceTime: visit.endAt, summary: 'Done', signoff: { absentReason: 'Customer at work' } }
+    const beforeCompletion = await records()
+    for (const who of [dispatcher, office]) await who.run('visit.complete', completionPayload, { error: 'FORBIDDEN' })
+    assert.deepEqual(await records(), beforeCompletion, 'desk completion refusals preserve accepted evidence and all business records')
+    const completed = await attributed(person, 'visit.complete', completionPayload, 'capture.completion', `synthetic-glove-completion-${hour}`)
     // The completion command returns the visit; its capture is keyed by command id.
     trail.at(-1).subjectId = `synthetic-glove-completion-${hour}`
     return { visit, arrival, captures, completed }
@@ -83,6 +87,8 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     agreement = await attributed(office, 'agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: start }, 'agreement.sold', 'synthetic-glove-agreement-sale')
     assert.deepEqual([agreement.startDate, agreement.plan.name, agreement.via, agreement.soldBy.name], [start, 'Comfort Club', 'phone', 'Front Office'])
     assert.equal(agreement.endDate, '2027-04-04', 'the day before the same date twelve months on')
+    const [soldAgreement] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
+    assert.deepEqual(soldAgreement.entitlements, { included: 2, used: 0, booked: 0, declined: 0, left: 2, next: '2026-04-05', due: ['2026-04-05', '2026-10-05'] }, 'selling grants two unused visits with independently fixed due dates')
     await office.run('agreement.sell', { planId: plan.id, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: today }, { error: 'AGREEMENT' })
     // CUST-001: the sale is in the property's history, and a field role's history carries no agreement.
     const sold = (await read(`/api/glove/sites/${site.id}/history`)).entries.filter(e => e.kind === 'agreement')
@@ -94,6 +100,8 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     const job = await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Spring tune-up' })
     assert.deepEqual([job.agreementId, job.lines.map(l => [l.description, l.total]), job.totals.total, job.forms.map(f => f.name)], [agreement.id, [['AC tune-up (included in Comfort Club)', '0.00']], '0.00', ['Comfort Club inspection']])
     tuneJob = job
+    const [reservedAgreement] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
+    assert.deepEqual(reservedAgreement.entitlements, { included: 2, used: 0, booked: 1, declined: 0, left: 2, next: '2026-04-05', due: ['2026-04-05', '2026-10-05'] }, 'creating an included job reserves its entitlement without consuming it')
     assert.deepEqual(job.forms.map(({ id, ...copy }) => copy), [{ formId: form.id, formVersion: 1, name: 'Comfort Club inspection', questions: [{ id: 'filter', label: 'Filter replaced', type: 'yesno', required: false }], equipmentId: null }])
     // The promised copy survives changes to the owner's live template.
     await h.command('form.save', { id: form.id, version: form.version, name: 'Future inspection', questions: [{ id: 'future', label: 'Future inspection question', type: 'yesno', required: true }] })
@@ -162,7 +170,10 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
       assert.deepEqual([visit.status, visit.arrival, visit.completion], ['completed', { technicianId: tech.id, deviceTime: tuneEvidence.visit.startAt, receivedAt: at, captureId: tuneEvidence.arrival.id }, tuneEvidence.completed.completion])
       assert.deepEqual(visit.completion, { technicianId: tech.id, deviceTime: tuneEvidence.visit.endAt, receivedAt: at, summary: 'Done', signoff: { customerPresent: false, absentReason: 'Customer at work' }, jobComplete: true, findings: '', recommendations: [] })
       assert.deepEqual(visit.lateEvidence, [], 'assigned technician evidence was accepted directly')
-      const capture = state.captures.find(c => c.id === tuneEvidence.captures[0].id)
+      const captures = state.captures.filter(c => c.formId === tuneJob.forms[0].id)
+      assert.equal(captures.length, 1, 'the frozen inspection has exactly one accepted capture')
+      const capture = captures[0]
+      assert.equal(capture.id, tuneEvidence.captures[0].id)
       assert.deepEqual([capture.visitId, capture.jobId, capture.technicianId, capture.kind, capture.late, capture.formId, capture.formName, capture.answers, capture.flagged, capture.deviceTime, capture.receivedAt], [visit.id, keptJob.id, tech.id, 'form', false, tuneJob.forms[0].id, 'Comfort Club inspection', [{ questionId: 'filter', label: 'Filter replaced', type: 'yesno', value: true }], 0, tuneEvidence.visit.startAt, at])
       assert.deepEqual(state.captures.find(c => c.id === 'synthetic-glove-completion-6'), { ...tuneEvidence.completed.completion, id: 'synthetic-glove-completion-6', version: 1, createdAt: at, visitId: visit.id, jobId: keptJob.id, kind: 'completion', late: false })
       const keptQuote = state.quotes.find(q => q.id === repairQuote.id), keptRepair = state.jobs.find(j => j.id === repairJob.id)
@@ -178,6 +189,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
       assert.deepEqual((await read(`/api/glove/segments/${segment.id}`)).members.map(m => [m.id, m.name]), [[lee.id, 'Lee Park']])
       assert.deepEqual(await read('/api/glove/export'), before, 'state, agreement, dashboard, report and segment reads change no exported record')
       const unchanged = await records()
+      assert.equal((await h.request('/api/glove/agreements', { as: '' })).status, 401, 'agreement reads require a real session')
       for (const who of [person, excluded[3]]) for (const path of ['/api/glove/agreements', '/api/glove/dashboard', `/api/glove/reports/agreements.json?${period}`, `/api/glove/reports/agreements.csv?${period}`, `/api/glove/segments/${segment.id}`]) assert.equal((await h.request(path, { as: who.cookie })).status, 403, path)
       for (const who of excluded) await who.run('agreement.sell', { planId: agreement.planId, customerId: ellen.id, siteId: site.id, via: 'phone', startDate: start }, { error: 'FORBIDDEN' })
       assert.deepEqual(await records(), unchanged, 'refused reads and sales change no business records')
@@ -195,6 +207,10 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     await proof()
     await h.restart()
     await proof()
+    const beforeReplay = await records()
+    assert.deepEqual(await person.run('visit.capture', { visitId: tuneEvidence.visit.id, deviceTime: tuneEvidence.visit.startAt, kind: 'form', formId: tuneJob.forms[0].id, answers: { filter: true } }, { commandId: tuneEvidence.captures[0].id }), tuneEvidence.captures[0])
+    assert.deepEqual(await person.run('visit.complete', { visitId: tuneEvidence.visit.id, deviceTime: tuneEvidence.visit.endAt, summary: 'Done', signoff: { absentReason: 'Customer at work' } }, { commandId: 'synthetic-glove-completion-6' }), tuneEvidence.completed)
+    assert.deepEqual(await records(), beforeReplay, 'replaying accepted inspection and completion after restart changes no record, entitlement or audit event')
     const [row] = (await read(`/api/glove/agreements?customerId=${ellen.id}`)).agreements
     // Ending is a later event, with a distinct instant for history ordering.
     await h.setTime('2026-11-06T00:31:00.000Z')
