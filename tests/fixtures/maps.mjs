@@ -51,6 +51,7 @@ export function mapsEdge() {
       const body = await request.json()
       edge.calls.push({ api: 'routes', key: request.headers.get('x-goog-api-key'), fieldMask: request.headers.get('x-goog-fieldmask'), body })
       await edge.beforeRoutes?.()
+      if (edge.routeDelayMs) await new Promise(resolve => setTimeout(resolve, edge.routeDelayMs))
       if (edge.status.routes) return Response.json({ error: { code: edge.status.routes, status: 'PERMISSION_DENIED' } }, { status: edge.status.routes })
       if (edge.routeAnswer) return Response.json(await edge.routeAnswer(body))
       // Protocol-buffer JSON leaves out a zero index.
