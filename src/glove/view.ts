@@ -115,7 +115,7 @@ export const visibleJobIds = (view: { jobs: Row[] }) => new Set(view.jobs.map(j 
 export function visibleOutcome<T extends { result: unknown }>(outcome: T, type: string, actor: Actor): T {
   if (type === 'customer.hubPreview') allow(actor, type)
   if (actor.role !== 'owner' || actor.branch || actor.token || actor.custom) outcome = withoutPaymentEvidence(withoutXero(outcome))
-  if ((type.startsWith('voice.') || type.startsWith('xero.') || (outcome.result as Row | null)?.payoutId && ['reconciliation.prepare', 'reconciliation.decide'].includes(type)) && (actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Current Owner access without branch limits is required for this inspection outcome.', null, 403)
+  if ((type.startsWith('payout.') || type.startsWith('voice.') || type.startsWith('xero.') || (outcome.result as Row | null)?.payoutId && ['reconciliation.prepare', 'reconciliation.decide'].includes(type)) && (actor.role !== 'owner' || actor.branch || actor.token || actor.custom)) fail('FORBIDDEN', 'Current Owner access without branch limits is required for this inspection outcome.', null, 403)
   if (mayRead(actor, 'reports')) return outcome
   const hiddenRecord = ['po.save', 'po.send', 'po.receive'].includes(type) || (actor.role !== 'technician' && ['expense.record', 'expense.price'].includes(type))
   return hiddenRecord
@@ -131,7 +131,7 @@ const withoutPaymentEvidence = <T,>(value: T): T => {
   if (Array.isArray(value)) return value.map(withoutPaymentEvidence) as T
   if (!value || typeof value !== 'object') return value
   return Object.fromEntries(Object.entries(value)
-    .filter(([key]) => !['autopay', 'autopayHistory'].includes(key))
+    .filter(([key]) => !['autopay', 'autopayHistory', 'payoutFeeSchedule'].includes(key))
     .map(([key, entry]) => [key, key === 'savedCards' ? (entry as Row[]).map(savedCardDisplay) : key === 'savedCard' && entry ? savedCardDisplay(entry as Row) : withoutPaymentEvidence(entry)])) as T
 }
 const withoutXero = <T,>(value: T): T => (Array.isArray(value) ? value.map(withoutXero) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).filter(([key]) => !['xero', 'xeroLink', 'xeroSync', 'xeroInspection'].includes(key)).map(([key, entry]) => [key, key === 'xeroImported' ? { source: 'Xero' } : withoutXero(entry)])) : value) as T
