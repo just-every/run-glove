@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 20 | 201 | 16 | 237 |
+| Core | 21 | 200 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 20 | 214 | 29 | 263 |
+| Full target | 21 | 213 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -2346,7 +2346,7 @@ Core · target · **partial** · From PAY-006 · Cites BASE-AUDIT-001 · Registe
 
 #### PAY-007 — Payouts and reconciliation
 
-Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
+Core · target · **done** · From PAY-007 · Cites BASE-AUDIT-001
 
 **Requirement.** Payouts and reconciliation supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2360,8 +2360,8 @@ Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
 7. Stripe does not attribute source payments to manual payouts.
 8. Those require an explicit owner-reviewed books allocation (payout allocate action), never claimed as Stripe source attribution; unreviewed sources remain unmatched.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture replays a payout of six payments, one refund and fees (Stripe fake) and checks the payout reconciles to the cent, with a deliberately missing payment listed as unmatched; an instant payout (Stripe fake) with its fee reconciles the same way.; point 2 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the business export, including provider outcomes and references without secrets.; point 3 — The owner inspects a USD Stripe test payout (payout reconcile action).; point 4 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longer/incomplete list refuses reconciliation) and match confirmed payment/refund references, gross cents and fees; missing, unconfirmed, wrong-amount, wrong-fee/currency and unsupported sources are named.; point 5 — Bank amount plus any payout fee must equal source net exactly, and only provider-paid payouts reconcile.; point 6 — An unavailable payout fee refuses reconciliation; zero is never inferred.; point 7 — Stripe does not attribute source payments to manual payouts.; point 8 — Those require an explicit owner-reviewed books allocation (payout allocate action), never claimed as Stripe source attribution; unreviewed sources remain unmatched. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 4: ten pages reconcile exactly 1000 rows); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 7: a manual payout has no Stripe source attribution before owner review); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched)
+**Gap.** None.
 
 #### PAY-025 — Cash and check deposit batches
 
