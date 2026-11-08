@@ -377,8 +377,6 @@ try {
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const oldCapture = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.phone', payload: locationCapture }, priya.cookie)
   assert.equal(oldCapture.status, 401, 'DISP-005 source sign-in cannot write in the restored installation')
-  assert.deepEqual(await running.owner.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome')
-  assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
   const after = await running.owner.get('/api/glove/export')
   for (const e of locationHistory) assert.deepEqual(after.timeline.find(x => x.id === e.id), e, 'DISP-005 attributable history survives the real restore without private location material')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
@@ -459,6 +457,9 @@ try {
   const reactivated = await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)
   assert.equal(reactivated.status, 200, 'a current Owner explicitly reactivates the restored staff member')
   const restoredMember = await running.persona('member')
+  assert.deepEqual(await restoredMember.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome after explicit staff reactivation')
+  assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
+  console.log('DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position')
   const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
   assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
   for (const batch of sourceBatches) {

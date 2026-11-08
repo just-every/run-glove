@@ -53,6 +53,10 @@ test('DISP-005 point 1: owner board displays phone and Samsara fixes with next-s
     await api(page, h)
     await page.goto(`${origin}/app#dispatch`)
     await page.getByLabel('Day', { exact: true }).fill('2026-11-09')
+    const previous = page.getByRole('button', { name: 'Previous day', exact: true })
+    await previous.focus()
+    expect(await previous.evaluate(el => getComputedStyle(el, '::after').visibility)).toBe('visible')
+    await previous.blur()
     const map = page.getByRole('region', { name: 'Route map' })
     await expect(map.getByRole('img', { name: 'Priya N. live phone position', exact: true })).toBeVisible()
     await expect(map.getByRole('img', { name: 'Tom B. live Samsara position', exact: true })).toBeVisible()
@@ -70,7 +74,7 @@ test('DISP-005 point 1: owner board displays phone and Samsara fixes with next-s
     await page.reload()
     await page.getByLabel('Day', { exact: true }).fill('2026-11-09')
     await expect(map.getByRole('img', { name: /live .* position/ })).toHaveCount(0)
-    await expect(map.getByText('Location stopped or unavailable', { exact: true })).toHaveCount(2)
+    await expect(map.getByText(/^Location stopped or unavailable · ETA unavailable/)).toHaveCount(2)
     expect(await f.rows()).toEqual([])
     expect(h.fleet.calls.length).toBe(calls)
   } finally { await context.close(); await h.close() }
@@ -88,9 +92,22 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     await context.setGeolocation({ latitude: 41.89081, longitude: -87.63081 })
     await page.addInitScript(() => {
       const geo = navigator.geolocation, watch = geo.watchPosition.bind(geo), clear = geo.clearWatch.bind(geo)
+      const write = Storage.prototype.setItem
+      ;(window as any).locationOutboxWrites = []
+      Storage.prototype.setItem = function (key, value) {
+        if (key === 'glove.outbox') (window as any).locationOutboxWrites.push(JSON.parse(value))
+        return write.call(this, key, value)
+      }
+      const active = new Set<number>()
       ;(window as any).locationWatches = { starts: 0, active: 0 }
-      geo.watchPosition = (...args) => { (window as any).locationWatches.starts++; (window as any).locationWatches.active++; return watch(...args) }
-      geo.clearWatch = id => { (window as any).locationWatches.active--; clear(id) }
+      geo.watchPosition = (...args) => {
+        const id = watch(...args)
+        active.add(id)
+        ;(window as any).locationWatches.starts++
+        ;(window as any).locationWatches.active = active.size
+        return id
+      }
+      geo.clearWatch = id => { active.delete(id); (window as any).locationWatches.active = active.size; clear(id) }
     })
     await api(page, h, b.priyaPerson.cookie, captures)
     const load = async () => {
@@ -124,10 +141,20 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     await context.setGeolocation({ latitude: 41.89082, longitude: -87.63082 })
     await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
     await expect.poll(async () => (await f.rows())[0]?.lat).toBe(41.89082)
+    expect(await page.evaluate(() => (window as any).locationOutboxWrites.flat().filter((item: any) => item.type.startsWith('location.')))).toEqual([])
     await sharing.scrollIntoViewIfNeeded()
     await shot(page, 390, 'sharing-active')
     await page.setViewportSize({ width: 1440, height: 1000 }); await shot(page, 1440, 'sharing-active')
     await page.setViewportSize({ width: 390, height: 1000 })
+    const stopConsent = page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON()?.type === 'location.consent')
+    await sharing.getByRole('button', { name: 'Stop sharing location', exact: true }).click()
+    expect((await (await stopConsent).json()).ok).toBe(true)
+    await expect.poll(() => page.evaluate(() => (window as any).locationWatches.active)).toBe(0)
+    expect(await f.rows()).toEqual([])
+    const resumeConsent = page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON()?.type === 'location.consent')
+    await sharing.getByRole('button', { name: 'Allow on-clock location', exact: true }).click()
+    expect((await (await resumeConsent).json()).ok).toBe(true)
+    await expect.poll(() => page.evaluate(() => (window as any).locationWatches.active)).toBe(1)
     await visible(page, false)
     await expect.poll(() => page.evaluate(() => (window as any).locationWatches.active)).toBe(0)
     const hiddenCount = captures.length, beforeHidden = await f.rows()
@@ -149,6 +176,7 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     expect(await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]'))).toEqual([])
     expect(captures.length).toBe(offlineCount)
     expect(JSON.stringify(captures)).not.toContain('41.89084')
+    expect(await page.evaluate(() => (window as any).locationOutboxWrites.flat().filter((item: any) => item.type.startsWith('location.')))).toEqual([])
     await b.priyaPerson.run('timer.stop', { visitId: f.visits[0].id, deviceTime: now() })
     await page.reload()
     await expect(sharing.getByText('Location stopped: clock in and start a visit timer', { exact: true })).toBeVisible()

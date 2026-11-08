@@ -5603,6 +5603,10 @@
       "sha256": "89b68288f34e4e6870b1173ec7d2721109669e6d280aef950d618130c3c52069",
       "executable": false
     },
+    "tests/api/live-locations.test.mjs": {
+      "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
+      "executable": false
+    },
     "tests/api/margins.test.mjs": {
       "sha256": "74fc1127a38d087d90cdba389872c34f1fb31729e7f02938ed85f7359315deb5",
       "executable": false
@@ -5845,6 +5849,10 @@
     },
     "tests/browser/phone-desk.ts": {
       "sha256": "b76d403b5674cc8f080e2a35084a03f6f9713f1b17a2a3a0e5178fb596193830",
+      "executable": false
+    },
+    "tests/browser/phone-location.spec.ts": {
+      "sha256": "a1a17c9b0a4325a6a02f23819ae98e3d0c9dcf0529a0b11ab267060b13e0f451",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -6312,7 +6320,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "7af172e1b21b415285952442ca9f4ff64da75888352433a42e6914e73aa88652",
+      "sha256": "1206b62468c718e28777f2931b0601ab84f38eb5e8a58849b643d565d0d45098",
       "executable": false
     },
     "tests/runtime.mjs": {
