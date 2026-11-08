@@ -1,6 +1,6 @@
 # sx-glove-c-f143 — QUOTE-009
 
-Candidate: 4c950e53ec72b0f9a2db8e00dc69eb257d083e3a on cloud/sx-glove-c-f143. Repository: just-every/run-glove. PR: none required; push starts Verify directly. Exact-SHA push Verify: 42498863597, pending at initial discovery.
+Candidate: 4c950e53ec72b0f9a2db8e00dc69eb257d083e3a on cloud/sx-glove-c-f143. Repository: just-every/run-glove. PR: none required; push starts Verify directly. Exact-SHA push Verify: 42498863597, completed success on the candidate.
 
 The continuation rebased all seven commits from 9a96f802c30c4dda7efd974876d5ff57af048aff onto main e756d5d9c075b61c9222ca1c52a6fd4bd03303f4. Every outcome already had a focused public-door journey in that candidate. No additional production or test edit was necessary after rebase. The final diff contains the two new custody journey files, the portability assertions and the generated source lock only. Both existing customer-quote test files, runtime pins, workflows, homepage and CONTRACT.md are unchanged. No generated contract view is committed. No assertion was deleted, weakened, skipped or conditionally hidden by this continuation.
 
@@ -38,10 +38,10 @@ DONE-RIDERS check:
 
 | Row | Result on candidate | Evidence |
 |---|---|---|
-| 1 | All native outcomes reached; exact-SHA Verify pending | Point rows above, six Worker journeys, browser journey and real archive. |
+| 1 | PASS — all native outcomes reached; exact-SHA push Verify success | Point rows above, six Worker journeys, browser journey and real archive. |
 | 2 | PASS | Seeded real records and dangerous paths both ways: authorized header succeeds, query, cookie and body credentials refuse unchanged; superseded and expired decisions refuse; restored source credentials fail; unrelated customer remains readable. |
-| 3 | Pending exact-SHA Verify 42498863597 | Existing push workflow loads all three relevant shards. No proof depends on an opt-in environment flag. Screenshots are enabled locally; behavioural assertions always execute. |
-| 4 | PASS local | All local test runs are on the exact candidate; final source and lock checks made no byte changes. CI conclusion will bind the same full SHA. |
+| 3 | PASS — push Verify 42498863597 success | Existing push workflow loads all three relevant shards. No proof depends on an opt-in environment flag. Screenshots are enabled locally; behavioural assertions always execute. |
+| 4 | PASS local | All local test runs are on the exact candidate; final source and lock checks made no byte changes. Completed push Verify binds the same full SHA. |
 | 5 | PASS | Eight explicit Base citations already in receiving meta line; no inheritance rewrite. |
 | 6 | Mechanical PASS; status judgment remains lander's | Generator write and check exit 0, zero generated changes, main view files restored. Source Status and Gap remain untouched by policy. |
 | 7 | PASS | Zero CONTRACT.md changes, no acceptance rewrite, no clause or parent row dropped. |
@@ -50,12 +50,18 @@ DONE-RIDERS check:
 | 10 | N/A | No policy default adopted or changed. Existing quoted rules are used unchanged. |
 | 11 | Pending guarded lander | Main equality, exact-tree full-history publication scan, final Verify and Run site are fleet landing duties. No cloud landing or release performed. |
 
-PRE-READY check: all eight user-visible native outcomes have passing dangerous-path journeys; no existing assertion removed or narrowed; revocation, erasure, restart and captured replay cannot revive access. Customer screens remain unchanged, readable at both widths with existing labeled controls, no icon-only controls or new settings. The source lock is fresh. Added test text has zero email-shaped literal strings; slash-token review found only existing module imports and IANA zone identifiers. Main Verify 42497934998 and Run site 42497935078 were completed success on e756d5d9c075b61c9222ca1c52a6fd4bd03303f4. Candidate CI, scan, landing and resulting Run site are not substituted with those earlier-main runs.
+PRE-READY check: all eight user-visible native outcomes have passing dangerous-path journeys; no existing assertion removed or narrowed; revocation, erasure, restart and captured replay cannot revive access. Customer screens remain unchanged, readable at both widths with existing labeled controls, no icon-only controls or new settings. The source lock is fresh. Added test text has zero email-shaped literal strings; slash-token review found only existing module imports and IANA zone identifiers. Main Verify 42497934998 and Run site 42497935078 were completed success on e756d5d9c075b61c9222ca1c52a6fd4bd03303f4. Candidate Verify 42498863597 is separately completed success on the candidate; scan, landing and resulting Run site are not substituted with those earlier-main runs.
 
 Publication scan receipt: commit=4c950e53ec72b0f9a2db8e00dc69eb257d083e3a; complete=NOT_RUN_IN_CLOUD; historyScanned=UNESTABLISHED; findings=UNESTABLISHED. The cloud adaptation assigns this exact-tree full-history scan to the fleet lander; there is no claim of COMPLETE or 0 findings from this environment. Full history is retained for transfer and the product branch was pushed normally without force. Main equality is not claimed: observed main is e756d5d9c075b61c9222ca1c52a6fd4bd03303f4.
 
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; views=node scripts/contract-docs.mjs write --clauses QUOTE-009 then check exit=0; ledger=none exit=0.
 
-No production blocker has been observed. Full portable-script completion and exact-SHA Verify status are recorded in the final receipt and addendum below. Independent gates still enforce their own checks. The non-secret packet is published separately; evidence publication grants no product acceptance or landing.
+No blocker remains. Full portable-script completion and exact-SHA Verify success are recorded in the final receipt and addendum below. Independent gates still enforce their own checks. The non-secret packet is published separately; evidence publication grants no product acceptance or landing.
 
 Final local result: all touched checks passed. Six API journeys passed, one browser journey passed with all twelve screenshots at 1440 and 390, the complete real portability script exited 0, typecheck exited 0 and first-party check exited 0. Actual receipt: receipt.json. The relevant quote source and journeys have not changed since those runs.
+
+Final CI result: push Verify 42498863597 completed success on 4c950e53ec72b0f9a2db8e00dc69eb257d083e3a. The recorded jobs prove full coverage: both API shards, all four browser shards, portable, foundation, build, full-push-proof and verify completed success. The light job was skipped. ci-jobs.json retains their actual job IDs. Every passing acceptance, inherited-duty and rider row in this report binds that exact push event and success conclusion, in addition to its cited local test lines. No failure, repair, rerun or workflow dispatch occurred. Five GitHub API calls were used; status observations were at least 300 seconds apart.
+
+DONE-RIDERS final results: 1 PASS, 2 PASS, 3 PASS (push Verify 42498863597), 4 PASS, 5 PASS, 6 mechanical PASS with source status cells retained for the lander, 7 PASS, 8 PASS, 9 PASS within the native boundary, 10 N/A (no default), 11 PENDING GUARDED LANDING. PRE-READY local checks and exact-SHA Verify pass; publication scan and post-landing Run site remain unestablished fleet duties. The claim is DONE for native points 1–8, subject to those unchanged landing gates. No broader provider, legal, identity, payment or messaging claim is made.
+
+The actual report packet was published to the separate evidence ref and fetched back with all selected file bytes and manifest hashes verified. It is republished with the final green CI receipt before handoff. Product branch custody and evidence publication remain separate.

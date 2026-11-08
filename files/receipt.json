@@ -76,5 +76,9 @@
   "contract_status_edits": false,
   "production_repairs": false,
   "ci_run": 42498863597,
-  "ci_conclusion": null
+  "ci_conclusion": "success",
+  "ci_event": "push",
+  "ci_status": "completed",
+  "github_api_calls": 5,
+  "ci_jobs_file": "ci-jobs.json"
 }
