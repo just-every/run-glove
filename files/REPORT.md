@@ -1,8 +1,8 @@
 # sx-glove-c-f153 — PLAN-011 continuation
 
-Candidate: `324e8833e87313c75deaee4f71404e60a055d17a` on `cloud/sx-glove-c-f153` in `just-every/run-glove`. Product push succeeded. No PR is required: this repository runs Verify on branch pushes. The last main integrated was `f2e01dd` (full value is in RECEIPT.json). Main was merged after the first published save; no published history was rewritten.
+Candidate: `324e8833e87313c75deaee4f71404e60a055d17a` on `cloud/sx-glove-c-f153` in `just-every/run-glove`. Product push succeeded. No PR is required: this repository runs Verify on branch pushes. The last main integrated was `f2e01ddb2ba371ee5deed4f9391d7ec5cb51f954`. Main was merged after the first published save; no published history was rewritten.
 
-PLAN-011 is claimed DONE for points 1, 2 and 3, subject to exact-SHA Verify and guarded landing. No Status, Gap or Evidence cell was edited. The current integrated source counts remain **20 DONE, 214 PARTIAL, 29 MISSING, 263 total**, before and after this candidate. The PLAN-011 row remains PARTIAL in the source pending the lander's judgment; accepting this claim alone would make the counts 21 DONE, 213 PARTIAL, 29 MISSING. The run began with older main counts of 19, 215 and 29; the unrelated increment to 20 came from updated main and is preserved.
+PLAN-011 is claimed DONE for points 1, 2 and 3. Exact-SHA push Verify 42511632383 completed successfully; guarded landing remains pending. No Status, Gap or Evidence cell was edited. The current integrated source counts remain **20 DONE, 214 PARTIAL, 29 MISSING, 263 total**, before and after this candidate. The PLAN-011 row remains PARTIAL in the source pending the lander's judgment; accepting this claim alone would make the counts 21 DONE, 213 PARTIAL, 29 MISSING. The run began with older main counts of 19, 215 and 29; the unrelated increment to 20 came from updated main and is preserved.
 
 ## Work completed
 
@@ -35,15 +35,15 @@ Only `src/ui/booking-offers.tsx`, `tests/api/booking-offer-history.test.mjs`, `t
 | R7, CUST-001 and COMM-007 inherited property-history duty | Own-property booking and message history remains isolated and carries honest provider facts. | A3 and B, as above, including two sites of one customer. | PASS locally for the named booking-link rows. |
 | R8, COMM provider boundary | The email door uses the configured COMM mail facade with authenticated reported outcomes, without claiming live delivery. | A2 and B use existing unmodified Postmark transport fakes and real callback authentication. | PASS for the permitted network-edge proof. R-9 live provider receipts remain unclaimed. |
 
-Verify event and conclusion for all rows are recorded in CI_RECEIPT.json. The maintained push verification already selects API files through its glob and this browser file through the browser runner. No workflow or verification inventory was changed.
+Every R1–R8 row passed in push Verify **42511632383**, conclusion **success**, head **324e8833e87313c75deaee4f71404e60a055d17a**, as recorded in CI_RECEIPT.json. The maintained push verification already selects API files through its glob and this browser file through the browser runner. No workflow or verification inventory was changed.
 
 ## DONE-RIDERS
 
 | Row | Result | Evidence |
 | --- | --- | --- |
-| 1 | PASS locally; exact-SHA CI recorded separately | R1–R5, all three API journeys and the real Office journey, on the candidate. |
+| 1 | PASS, push Verify 42511632383 success | R1–R5, all three API journeys and the real Office journey, on the candidate. |
 | 2 | PASS | Seeded, nonempty histories with independently expected rows; no-email and integration-token refusals preserve the full export and provider count; an unauthenticated delivery callback is refused. |
-| 3 | CI status in CI_RECEIPT.json | Existing push Verify loads the API file and browser journey without a new flag. Both browser widths have actual images; assertions run at 1440, layout checks and proof at both widths. |
+| 3 | PASS, push Verify 42511632383 success | Existing push Verify loads the API file and browser journey without a new flag. Both browser widths have actual images; assertions run at 1440, layout checks and proof at both widths. |
 | 4 | PASS | API, browser, typecheck, first-party and source checks rerun on full candidate 324e8833e87313c75deaee4f71404e60a055d17a. The build used the same final production source before the test-only replay commit. |
 | 5 | PASS | PLAN-011 already cites BASE-AUDIT-001 and names CUST-001 and COMM-007 duties in its acceptance. No new inheritance was invented. |
 | 6 | PASS mechanical; judgment cells reserved | Generator write and check both exit 0; restored main's generated views; no contract diff against integrated main. The old PARTIAL row remains for the lander to judge. |
@@ -81,4 +81,10 @@ Actual command receipts, original local failure, selected bearer-free images and
 
 CLAIM PLAN-011 DONE points=1,2,3 tests=tests/api/booking-offer-history.test.mjs#PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure; tests/api/booking-offer-history.test.mjs#PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states; tests/api/booking-offer-history.test.mjs#PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site; tests/browser/due-visits.spec.ts#BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390
 
-Exact-SHA CI observation: push Verify 42511632383, in progress at 2026-11-08T18:51:07Z; this observation is not a green claim. The prior round's successful run 42509113058 is not used as candidate proof.
+Final exact-SHA CI observation: push Verify **42511632383**, completed **success**, head **324e8833e87313c75deaee4f71404e60a055d17a**, observed at **2026-11-08T19:01:08Z**. Five GitHub API calls were used in the task, with one watcher and at least 300 seconds between its calls. The prior round's successful run 42509113058 is not used as candidate proof.
+
+Report transport check: fetched evidence head 92556fbdff6538a78fb160ed1a0417265c7c74fd through the supplied entrypoint; report-only tree, manifest and all 37 selected file hashes verified, with product head 324e8833e87313c75deaee4f71404e60a055d17a. This proves evidence transport only. The final evidence head is reported separately after the final CI observation is incorporated.
+
+Final disposition: ACCEPT ON LANDING. Riders 1–9 pass; 10 is not applicable; 11 awaits the guarded lander. No local or exact-SHA CI blocker remains. PLAN-011 is the only plan row proposed for PARTIAL to DONE; all source judgments remain unchanged. No PR was opened or required.
+
+READY repo=just-every/run-glove branch=cloud/sx-glove-c-f153 head=324e8833e87313c75deaee4f71404e60a055d17a

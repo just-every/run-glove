@@ -1,0 +1,6 @@
+CI next REST call in 226 seconds; remaining task API budget=8
+{"id": 42511632383, "name": "Verify", "event": "push", "status": "in_progress", "conclusion": null, "head_sha": "324e8833e87313c75deaee4f71404e60a055d17a", "html_url": "https://github.com/just-every/run-glove/actions/runs/42511632383", "api_calls_in_task": 3, "observed_at": "2026-11-08T18:51:07Z"}
+CI next REST call in 299 seconds; remaining task API budget=7
+{"id": 42511632383, "name": "Verify", "event": "push", "status": "in_progress", "conclusion": null, "head_sha": "324e8833e87313c75deaee4f71404e60a055d17a", "html_url": "https://github.com/just-every/run-glove/actions/runs/42511632383", "api_calls_in_task": 4, "observed_at": "2026-11-08T18:56:07Z"}
+CI next REST call in 299 seconds; remaining task API budget=6
+{"id": 42511632383, "name": "Verify", "event": "push", "status": "completed", "conclusion": "success", "head_sha": "324e8833e87313c75deaee4f71404e60a055d17a", "html_url": "https://github.com/just-every/run-glove/actions/runs/42511632383", "api_calls_in_task": 5, "observed_at": "2026-11-08T19:01:08Z"}
