@@ -114,7 +114,7 @@ import { priceBookCsv } from './pricebook'
 import { duplicatesOf, mergeReview } from './duplicates'
 import { grants as agentGrants, agentActions, useGrant, recordUse } from './commands/grants'
 import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
-import { stage, journal, settle, refuseUndoing } from './movein/kit'
+import { stage, journal, settle, refuseUndoing, moveInFile } from './movein/kit'
 import { customersCsv } from './movein/csv'
 import { tokens, tokenList } from './tokens'
 
@@ -147,7 +147,7 @@ import { tokens, tokenList } from './tokens'
 
 const headers = { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' }
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers })
-const families = [agreementAgent, voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, subcontract, payroll, expenses, agentGrants, merge, conversations, agreements]
+const families = [agreementAgent, voiceCommands, xero, collectionAgent, customerHub, quickbooks, reviewRequests, technicianPortraits, smsInbox, savedCardCommands, visitStatusNotices, locations, calendarSync, smsCommands, followupCommands, visitResponseCommands, fieldQuotes, reminderCommands, financing, instantPayouts, payouts, deposits, balanceCommands, payments, intake, recurringBilling, routing, documents, privacy, quoteLinks, mail, bookingOffers, serviceReports, tokens, subcontract, setup, taxCertificates, taxLookup, branches, companycam, pricebook, calendar, maps, leads, quotes, dispatch, series, assessments, rules, segments, marketing, field, time, forms, stock, purchasing, invoices, equipment, nameplates, callbacks, suggest, push, payroll, expenses, agentGrants, merge, conversations, agreements]
 
 function readRole(actor: Actor, door: Door) {
   if (!mayRead(actor, door)) fail('FORBIDDEN', `Your role (${actor.custom?.name ?? actor.role}) cannot read this.`, null, 403)
@@ -251,6 +251,12 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (!jobs.has(timeline[1])) fail('NOT_FOUND', 'No such job for you.', null, 404)
     const events = (await db.prepare(`SELECT ${eventColumns} FROM glove_events WHERE job_id=? ORDER BY sequence`).bind(timeline[1]).all<any>()).results.filter(readable(actor, jobs, s)).filter(e => branchEvent(full, actor, e))
     return json({ events: visibleChanges(events, visible(s, actor), actor.role === 'owner' && !actor.branch) })
+  }
+  const importFile = /^\/api\/glove\/imports\/([0-9a-f-]{36})\/files\/([0-9a-f]{64})$/.exec(url.pathname)
+  if (importFile) {
+    allow(actor, 'import.commit')
+    const batch = s.imports.find(i => i.id === importFile[1]) ?? fail('NOT_FOUND', 'No such move-in.', null, 404)
+    return moveInFile(db, batch, authority(actor), importFile[2])
   }
   const file = /^\/api\/glove\/files\/([0-9a-f-]{36})$/.exec(url.pathname)
   if (file) {

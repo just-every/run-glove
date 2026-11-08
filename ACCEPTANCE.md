@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 14 | 207 | 16 | 237 |
+| Core | 17 | 204 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 14 | 220 | 29 | 263 |
+| Full target | 17 | 217 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1194,7 +1194,7 @@ Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROL
 
 #### DISP-014 — Subcontractor agreed amounts and filing totals
 
-Core · target · **partial** · From DISP-007
+Core · target · **done** · From DISP-007
 
 **Requirement.** Subcontractor agreed amounts and filing totals supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations.
 
@@ -1205,8 +1205,8 @@ Core · target · **partial** · From DISP-007
 4. They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing.
 5. Timesheets and payroll exports stay `COST-002, COST-006, COST-007`'s.
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner marks a technician record as a subcontractor with a 1099 payee name and the last 4 digits of the TIN; a full TIN is refused and never stored.; point 2 — The owner sets an agreed amount on each of their visits.; point 3 — The 1099-NEC totals for a calendar year, which the owner and office read as JSON or CSV, sum each subcontractor's agreed amounts on their visits completed that year (dated by the completion Glove received, in the business time zone), with the visit count and whether the total is $600 or more.; point 4 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing.; point 5 — Timesheets and payroll exports stay COST-002, COST-006, COST-007's. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/subcontract.test.mjs` (DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year)
+**Gap.** None.
 
 #### DISP-008 — Google Calendar and Outlook sync
 
@@ -1357,7 +1357,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-
 
 #### COMM-015 — Postmark callback custody
 
-Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Postmark callback custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1371,8 +1371,8 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAI
 7. Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.
 8. Sends include Glove's delivery ID in Postmark metadata.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Postmark: HTTPS Basic user glove, with a per-installation password generated from 32 random bytes and shown only in the first owner response.; point 2 — Store only its SHA-256 hash and compare in constant time.; point 3 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry), revoking the previous credential ends that overlap immediately, and disconnect revokes both.; point 4 — Rotation, revocation and allowlist changes are Activity facts without secrets.; point 5 — The optional source-IP allowlist is off by default, pinned in source with a dated provider reference, fails closed when on and never replaces Basic authentication; reconnecting credentials preserves this owner option unless explicitly changed.; point 6 — Plain-HTTP Postmark callbacks are refused without writes.; point 7 — Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.; point 8 — Sends include Glove's delivery ID in Postmark metadata. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/postmark-custody.test.mjs` (COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once)
+**Gap.** None.
 
 #### COMM-016 — Postmark delivery-outcome mapping
 
@@ -3558,15 +3558,15 @@ Core · target · **partial** · Cites BASE-BACKUP-001, BASE-DATA-001, BASE-INST
 
 #### DATA-004 — Free, open source and run on the owner's own computer
 
-Core · target · **partial** · Cites BASE-DATA-005, BASE-INSTALL-001
+Core · target · **done** · Cites BASE-DATA-005, BASE-INSTALL-001
 
 **Requirement.** Glove is MIT-licensed, and its self-hosted installation completes the trade-service journey on the owner’s computer. The [operating rules](docs/service-work-rules.md#data-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. In a fresh local installation, the owner, dispatcher, technician and office complete the service-work journey.
 
-**Evidence.** `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — In a fresh local installation, the owner, dispatcher, technician and office complete the service-work journey. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `LICENSE`, `tests/browser/run.mjs`, `tests/browser/journey.spec.ts`; `tests/browser/fresh-install.spec.ts` (DATA-004 fresh local installation completes service work as four separately signed-in people)
+**Gap.** None.
 
 ### Agents that run the job
 

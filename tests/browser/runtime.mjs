@@ -19,6 +19,7 @@ export async function freshCopy(workspace, root) {
   // The native setup may repair pnpm links. Install in this owned tree instead
   // of sharing node_modules with the source checkout.
   await command('corepack', ['pnpm', 'install', '--frozen-lockfile'], root)
+  await command(join(root, 'node_modules/.bin/rer'), ['install'], root)
 }
 
 export function child(command, args, cwd, env = {}) {

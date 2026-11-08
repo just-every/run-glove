@@ -22,7 +22,7 @@ import { join } from 'node:path'
 import { randomUUID, randomBytes, generateKeyPairSync, sign, createHmac } from 'node:crypto'
 import assert from 'node:assert/strict'
 
-export async function installation({ isolates = 1, at = null, captureLogs = false } = {}) {
+export async function installation({ isolates = 1, at = null, captureLogs = false, workerPlugins = [] } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   // The loopback service represents callback errors as HTTP 500. Translate
   // the marketing transport-failure marker and calendar timeout marker at
@@ -36,7 +36,8 @@ globalThis.fetch = async (input, options) => {
   if (['www.googleapis.com', 'graph.microsoft.com'].includes(url.hostname) && response.headers.get('x-synthetic-glove-calendar-timeout') === '1') throw new DOMException('Synthetic calendar timeout', 'TimeoutError');
   return response;
 };` }
-  const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner })
+  const bundle = () => build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner, plugins: workerPlugins })
+  const bundled = await bundle()
   // worker.ts gives each request the Host its URL names, so the origin holds no
   // port: workerd binds its own, never one released here for another bind to take.
   const origin = 'https://127.0.0.1', setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
@@ -219,8 +220,15 @@ globalThis.fetch = async (input, options) => {
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
     // Shut down the actual Worker, retaining its installation and D1 on disk.
-    const restart = async () => {
+    const restart = async ({ rebuild = false } = {}) => {
       await mf.dispose()
+      if (rebuild) {
+        const upgraded = await bundle()
+        for (const worker of options.workers) {
+          const manifest = worker.config.manifest
+          manifest.modules[manifest.mainModule].contents = upgraded.outputFiles[0].text
+        }
+      }
       mf = new Miniflare(options)
       await mf.ready
       db = await mf.getD1Database('DB')
