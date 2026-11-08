@@ -14,3 +14,5 @@ Completed: points 1–8 now each have one focused integration registration, plus
 The certificate-validity clock is derived from the generated X.509 validity, then pinned through the runtime clock. No test depends on a local date boundary. Signature version 2 and both accepted timestamp edges deliver their own messages. Cryptographic rejection needs a signing certificate; the invalid-signature probe uses the already verified cached certificate and performs no additional fetch.
 
 No UI changed, so no browser screenshots were required. Live SES account acceptance and automatic resend are not claimed. All provider behavior here uses the existing network edge.
+
+Final strengthening: the non-disclosure journey also sends an invalidly signed confirmation containing the synthetic subscription token and generated certificate. Refusal must leave storage unchanged, make no fetch and keep both materials out of captured Worker logs and all public projections.

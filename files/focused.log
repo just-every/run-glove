@@ -3,49 +3,49 @@ TAP version 13
 # Subtest: COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
 ok 1 - COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
   ---
-  duration_ms: 6673.70246
+  duration_ms: 6083.596437
   type: 'test'
   ...
 # Subtest: COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
 ok 2 - COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
   ---
-  duration_ms: 9638.620587
+  duration_ms: 9265.339628
   type: 'test'
   ...
 # Subtest: COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
 ok 3 - COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
   ---
-  duration_ms: 4314.30471
+  duration_ms: 3604.78379
   type: 'test'
   ...
 # Subtest: COMM-017 point 4: signed configuration and delivery tags bind every SES send
 ok 4 - COMM-017 point 4: signed configuration and delivery tags bind every SES send
   ---
-  duration_ms: 5778.015291
+  duration_ms: 5692.302061
   type: 'test'
   ...
 # Subtest: COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
 ok 5 - COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
   ---
-  duration_ms: 3748.424595
+  duration_ms: 5297.778214
   type: 'test'
   ...
 # Subtest: COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
 ok 6 - COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
   ---
-  duration_ms: 10113.388059
+  duration_ms: 17421.772783
   type: 'test'
   ...
 # Subtest: COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
 ok 7 - COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
   ---
-  duration_ms: 2839.501457
+  duration_ms: 4348.513776
   type: 'test'
   ...
 # Subtest: COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
 ok 8 - COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
   ---
-  duration_ms: 3453.876767
+  duration_ms: 7561.192237
   type: 'test'
   ...
 1..8
@@ -56,4 +56,4 @@ ok 8 - COMM-017 point 8: every SES outcome retains exact state and secret-free f
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 48331.213519
+# duration_ms 60557.427315

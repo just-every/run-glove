@@ -3,17 +3,17 @@
   "tag": "sx-glove-c-f165",
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f165",
-  "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+  "head": "53f62846c8af0f99266cfe95cb95c48700be42b3",
   "base": "cb4787ac9734f9fb534fe2896cc054e3637953af",
-  "recorded_at": "2026-11-08T22:21:32.404520+00:00",
+  "recorded_at": "2026-11-08T22:26:59.911143+00:00",
   "checks": [
     {
       "name": "focused",
       "command": "node --test --test-concurrency=1 tests/api/ses-sns-custody.test.mjs",
       "exit": 0,
-      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "head": "53f62846c8af0f99266cfe95cb95c48700be42b3",
       "log": "focused.log",
-      "sha256": "b5d4dc9c8a5908994abdfd10a7e998f80f1e809e42c9b15bc1713f0b9c4bf0fe",
+      "sha256": "5935b9876dc15b15ff224f52ffa0ee4886292f2ba213638155254482f534c95c",
       "passed": 8
     },
     {
@@ -29,7 +29,7 @@
       "name": "typecheck",
       "command": "pnpm typecheck",
       "exit": 0,
-      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "head": "53f62846c8af0f99266cfe95cb95c48700be42b3",
       "log": "typecheck.log",
       "sha256": "432c55d36d9b078b731bdbea76efc6ad05b1bf799d3f1fda812eb5c125f5a6e5",
       "passed": null
@@ -38,7 +38,7 @@
       "name": "first-party",
       "command": "npx -y @runeditrun/rer check --profile first-party",
       "exit": 0,
-      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "head": "53f62846c8af0f99266cfe95cb95c48700be42b3",
       "log": "first-party.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "passed": null
@@ -47,7 +47,7 @@
       "name": "views-write",
       "command": "node scripts/contract-docs.mjs write",
       "exit": 0,
-      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "head": "53f62846c8af0f99266cfe95cb95c48700be42b3",
       "log": "views-write.log",
       "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2",
       "passed": null
@@ -56,7 +56,7 @@
       "name": "views-check",
       "command": "node scripts/contract-docs.mjs check",
       "exit": 0,
-      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "head": "53f62846c8af0f99266cfe95cb95c48700be42b3",
       "log": "views-check.log",
       "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
       "passed": null
@@ -70,7 +70,7 @@
     "generated_views_restored": true,
     "ledger": "none; no migration changed"
   },
-  "source_lock_sha256": "073008cd66301fac1220cc544c956a6599c403b419fdc5e0b74c4c84c866b0b5",
+  "source_lock_sha256": "cf9aefa6bd24c0ebdf60f4d0644600f5f06eba0d39d78c211d00b3ab7d46991d",
   "unchanged_paths": [
     "CONTRACT.md",
     "ACCEPTANCE.md",
@@ -111,7 +111,7 @@
     "candidate_total": 209
   },
   "publication_scan": {
-    "commit": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+    "commit": "53f62846c8af0f99266cfe95cb95c48700be42b3",
     "complete": false,
     "historyScanned": null,
     "findings": null,
@@ -121,5 +121,11 @@
     "main_equals_candidate": false,
     "run_site_candidate": null,
     "guarded_lander_pending": true
-  }
+  },
+  "product_commits": [
+    "3b21bfb3d60d88d062e88f1bd8c9524ee5af23a6 Qualify all eight SES and SNS custody points [skip ci]",
+    "63f26628327b7d1c7ead827f201f2f1ee2dfb972 Prove independent SNS signature and timestamp outcomes",
+    "53f62846c8af0f99266cfe95cb95c48700be42b3 Assert rejected SNS envelopes cannot leak token or certificate material"
+  ],
+  "secret_refusal_probe": "invalidly signed confirmation carries generated certificate and synthetic subscription token; zero fetch, unchanged storage and no leak in captured logs"
 }
