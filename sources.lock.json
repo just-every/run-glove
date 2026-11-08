@@ -2196,7 +2196,7 @@
       "executable": false
     },
     "src/glove/mail-events.ts": {
-      "sha256": "463e3f6a536c9bc7d4e0d8daced836cba7a57667909ada71d90b1995b487df98",
+      "sha256": "1a1205b5f7655529187d0443c3f11cb241604a093bdc9e986fdc1b8ab2f328f1",
       "executable": false
     },
     "src/glove/mail-rejections.ts": {
@@ -5564,7 +5564,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "0109809dcd3faadb16ed16d1d5163118ba6ecf66ae029e333c46829b7c52962f",
+      "sha256": "060c900e05f31a6109201f1e4dff57c03d54b7e2f2e5a9d80cad3e78c9712c6c",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
