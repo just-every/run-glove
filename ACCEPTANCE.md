@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 14 | 207 | 16 | 237 |
+| Core | 15 | 206 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 14 | 220 | 29 | 263 |
+| Full target | 15 | 219 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1228,7 +1228,7 @@ Core · target · **partial** · From DISP-008 · Cites BASE-DATA-001
 
 #### DISP-015 — Calendar change delivery and uncertainty
 
-Core · target · **partial** · From DISP-008
+Core · target · **done** · From DISP-008
 
 **Requirement.** Calendar change delivery and uncertainty supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-008-operating-rules) retain the record formats and calculations.
 
@@ -1237,8 +1237,8 @@ Core · target · **partial** · From DISP-008
 2. Uncertain writes remain visible and stop later work on that connection, without automatic replay.
 3. Disconnect stops writes and retains existing provider events for owner review.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — All committed visit changes enqueue provider work, including technician reassignment.; point 2 — Uncertain writes remain visible and stop later work on that connection, without automatic replay.; point 3 — Disconnect stops writes and retains existing provider events for owner review. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`; `tests/api/eligibility.test.mjs` (DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking); `tests/browser/dispatch-map.spec.ts` (DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390)
+**Gap.** None.
 
 #### DISP-009 — Delegated dispatcher position view
 

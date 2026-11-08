@@ -17,10 +17,12 @@ async function send(page: Page, button: Locator) {
   await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
   return body.result
 }
-async function shot(page: Page, system: string, width: number, name: string) {
+async function shot(page: Page, system: string, width: number, name: string, region?: Locator) {
   if (process.env.GLOVE_SCREENSHOTS) {
     await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-    await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`), fullPage: ['preview', 'recurring'].includes(name) })
+    const path = join(process.env.GLOVE_SCREENSHOTS, `${width}-movein-${system}-${name}.png`)
+    if (region) await region.screenshot({ path })
+    else await page.screenshot({ path, fullPage: ['preview', 'recurring'].includes(name) })
   }
   const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth, overflow: [...document.querySelectorAll('*')].filter(e => e.getBoundingClientRect().right > innerWidth + 1).slice(0, 8).map(e => ({ tag: e.tagName, class: e.className, right: e.getBoundingClientRect().right })) }))
   expect(size.document <= size.viewport, JSON.stringify(size)).toBe(true)
@@ -223,6 +225,38 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       if (system === 'fieldpulse') {
         await page.goto(`${origin}/app#move-in`)
         await page.getByLabel('Move-in source', { exact: true }).selectOption('servicem8')
+        const smallFiles = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, mimeType: ['application', 'json'].join('/'), buffer: await readFile(`tests/fixtures/servicem8-small-hvac/${kind}.json`) })))
+        smallFiles.push({ name: 'attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg', mimeType: ['image', 'jpeg'].join('/'), buffer: await readFile('tests/fixtures/servicem8-small-hvac/attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg') })
+        await page.getByLabel('Export files', { exact: true }).setInputFiles(smallFiles)
+        const smallLabel = `ServiceM8 source review ${width}`
+        await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(smallLabel)
+        await page.getByLabel('Balances as of', { exact: true }).fill('2026-10-22')
+        await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+        const smallBatch = page.getByRole('region', { name: smallLabel, exact: true })
+        const review = smallBatch.getByRole('list', { name: 'Source record review', exact: true })
+        if (width === 1440) {
+          await expect(review.getByRole('listitem')).toHaveCount(22)
+          const contact = review.getByRole('listitem').filter({ hasText: 'companycontact a1b2c3d4-0001-4e5f-8a9b-c0d1e2f3a401' })
+          await expect(contact).toContainText('companycontact.json · item 1')
+          await expect(contact).toContainText('Merge target: customers sm8-6b1f3a52-1c2e-4d8a-9a5e-0d3c2b7f0a11')
+          const material = review.getByRole('listitem').filter({ hasText: 'jobmaterial 7c8d9e0f-0004-4a1b-8c2d-3e4f5a6b7c04' })
+          await expect(material).toContainText('Merge target: quotes sm8-3e4f5a6b-cccc-4c7d-8e9f-0a1b2c3d4e03')
+          const job = review.getByRole('listitem').filter({ hasText: 'job 3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01' })
+          await expect(job).toContainText('Destination: sites sm8-site-40348167947ffe64470806c2')
+          await expect(job).toContainText('Destination: jobs sm8-3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01')
+          const rejected = review.getByRole('listitem').filter({ hasText: 'job 3e4f5a6b-dddd-4c7d-8e9f-0a1b2c3d4e04' })
+          await expect(rejected).toContainText('job.json · item 4')
+          await expect(rejected).toContainText("Rejection: Job's client 0b0b0b0b-dead-4bee-8f00-000000000000 is not in company.json.")
+          await expect(review.getByRole('listitem').filter({ hasText: 'jobactivity 5a6b7c8d-0003-4e9f-8a0b-1c2d3e4f5a03' })).toContainText('Unused reason: activity on a quote; quotes have no visits in Glove')
+          await expect(review.getByRole('listitem').filter({ hasText: 'attachment 8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03' })).toContainText('Unused reason: attached to company')
+          await expect(review.getByRole('listitem').filter({ hasText: 'attachment 8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02' })).toContainText('Missing attachment: Customer signoff.pdf')
+        }
+        await smallBatch.scrollIntoViewIfNeeded(); await shot(page, 'servicem8', width, 'record-review', smallBatch)
+        await send(page, smallBatch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+        await smallBatch.getByText('Original files and checksums', { exact: true }).click()
+        if (width === 1440) await expect(smallBatch.getByRole('link', { name: 'company.json', exact: true })).toBeVisible()
+        await smallBatch.getByLabel('Why undo this move-in', { exact: true }).fill('Reviewed synthetic source records')
+        await send(page, smallBatch.getByRole('button', { name: 'Undo move-in', exact: true }))
         const sm8Files = await serviceM8Balances(), sm8Label = `Synthetic ServiceM8 ${width}`
         await page.getByLabel('Export files', { exact: true }).setInputFiles(sm8Files.map((f: any) => ({ name: f.text === undefined ? `attachment-${f.name.slice(12)}.txt` : f.name, mimeType: f.text === undefined ? ['text', 'plain'].join('/') : ['application', 'json'].join('/'), buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
         await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(sm8Label)

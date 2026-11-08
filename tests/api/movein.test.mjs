@@ -2,19 +2,151 @@
 // record that later Glove work depends on, and never overwrites a later edit.
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-import { installation, business } from './harness.mjs'
+import { dirname } from 'node:path'
+import { installation, business, assertTrail } from './harness.mjs'
 import { serviceM8Balances } from '../fixtures/servicem8-balances.mjs'
 
 const fixture = 'tests/fixtures/servicem8-small-hvac/'
-const files = async () => Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, text: await readFile(`${fixture}${kind}.json`, 'utf8') })))
+const files = async () => [
+  ...await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, text: await readFile(`${fixture}${kind}.json`, 'utf8') }))),
+  { name: 'attachments/8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', base64: (await readFile(`${fixture}attachment-8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01.jpg`)).toString('base64') },
+]
 
-async function moveIn(h) {
-  const staged = await h.command('import.stage', { files: await files() })
-  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
-}
+// Independent expected destinations: the source UUIDs and shared sites are
+// enumerated from this authored export, never from Glove's mapping function.
+const company1 = '6b1f3a52-1c2e-4d8a-9a5e-0d3c2b7f0a11', company2 = '9d0e4c71-5b2a-4f39-8e61-7a4b3c2d1e22'
+const completed = '3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01', openJob = '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02', sourceQuote = '3e4f5a6b-cccc-4c7d-8e9f-0a1b2c3d4e03'
+const target = (kind, id) => ({ kind, id: `sm8-${id}` })
+const destination = (kind, row, sourceId, destinations, mergeTargets = [], unusedReason = null, rejection = null, missingAttachments = []) => ({ sourceKind: kind, sourceId, location: { artifact: `${kind}.json`, row }, status: rejection ? 'rejected' : destinations.length ? 'mapped' : mergeTargets.length ? 'merged' : 'unused', alreadyMovedIn: false, destinations, mergeTargets, unusedReason, rejection, missingAttachments })
+const expectedRecords = [
+  destination('company', 1, company1, [target('customers', company1)]),
+  destination('company', 2, company2, [target('customers', company2)]),
+  destination('company', 3, '2c7a9e13-8f4d-4b6e-a1c0-5e9f8d7c6b33', [target('customers', '2c7a9e13-8f4d-4b6e-a1c0-5e9f8d7c6b33')]),
+  destination('companycontact', 1, 'a1b2c3d4-0001-4e5f-8a9b-c0d1e2f3a401', [], [target('customers', company1)]),
+  destination('companycontact', 2, 'a1b2c3d4-0002-4e5f-8a9b-c0d1e2f3a402', [], [target('customers', company1)]),
+  destination('companycontact', 3, 'a1b2c3d4-0003-4e5f-8a9b-c0d1e2f3a403', [], [target('customers', company2)]),
+  destination('staff', 1, 'f0e1d2c3-1111-4a5b-9c8d-7e6f5a4b3c01', [target('technicians', 'f0e1d2c3-1111-4a5b-9c8d-7e6f5a4b3c01')]),
+  destination('staff', 2, 'f0e1d2c3-2222-4a5b-9c8d-7e6f5a4b3c02', [target('technicians', 'f0e1d2c3-2222-4a5b-9c8d-7e6f5a4b3c02')]),
+  destination('job', 1, completed, [{kind: 'sites', id: 'sm8-site-40348167947ffe64470806c2'}, target('jobs', completed)]),
+  destination('job', 2, openJob, [target('jobs', openJob)]),
+  destination('job', 3, sourceQuote, [{kind: 'sites', id: 'sm8-site-509de9a75b649d441a872db0'}, target('quotes', sourceQuote)]),
+  destination('job', 4, '3e4f5a6b-dddd-4c7d-8e9f-0a1b2c3d4e04', [], [], null, "Job's client 0b0b0b0b-dead-4bee-8f00-000000000000 is not in company.json."),
+  destination('jobactivity', 1, '5a6b7c8d-0001-4e9f-8a0b-1c2d3e4f5a01', [target('visits', '5a6b7c8d-0001-4e9f-8a0b-1c2d3e4f5a01')]),
+  destination('jobactivity', 2, '5a6b7c8d-0002-4e9f-8a0b-1c2d3e4f5a02', [target('visits', '5a6b7c8d-0002-4e9f-8a0b-1c2d3e4f5a02')]),
+  destination('jobactivity', 3, '5a6b7c8d-0003-4e9f-8a0b-1c2d3e4f5a03', [], [], 'activity on a quote; quotes have no visits in Glove'),
+  destination('jobmaterial', 1, '7c8d9e0f-0001-4a1b-8c2d-3e4f5a6b7c01', [], [target('jobs', completed)]),
+  destination('jobmaterial', 2, '7c8d9e0f-0002-4a1b-8c2d-3e4f5a6b7c02', [], [target('jobs', completed)]),
+  destination('jobmaterial', 3, '7c8d9e0f-0003-4a1b-8c2d-3e4f5a6b7c03', [], [target('jobs', openJob)]),
+  destination('jobmaterial', 4, '7c8d9e0f-0004-4a1b-8c2d-3e4f5a6b7c04', [], [target('quotes', sourceQuote)]),
+  destination('attachment', 1, '8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', [target('captures', '8b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01')]),
+  destination('attachment', 2, '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', [target('captures', '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02')], [], null, null, [{ name: 'Customer signoff.pdf', reason: 'The file was not included with this move-in.' }]),
+  destination('attachment', 3, '8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03', [], [], `attached to company ${company1}, not an imported job`, null, [{ name: 'Client terms.pdf', reason: 'The file was not included with this move-in.' }]),
+]
+const recordProjection = records => records.map(({ reasons, ...r }) => r)
+const businessRecords = ({ version, actor, events, imports, ...state }) => state
 
-test('undo refuses while Glove work refers to moved-in records, and keeps it intact', async (t) => {
+test('ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone', async t => {
+  const h = await installation(); t.after(() => h.close()); const b = await business(h)
+  const input = await files(), before = await h.state()
+  await b.office.run('import.stage', { files: input }, { error: 'FORBIDDEN' })
+  const stage = () => h.command('import.stage', { files: input, balanceAsOf: '2026-10-22' })
+  const staged = await stage()
+  assert.deepEqual(recordProjection(staged.preview.records), expectedRecords)
+  assert.deepEqual(staged.preview.byKind.jobactivity, { input: 3, mapped: 2, merged: 0, rejected: 0, unused: 1 })
+  assert.deepEqual(staged.preview.byKind.attachment, { input: 3, mapped: 2, merged: 0, rejected: 0, unused: 1 })
+  assert.deepEqual(businessRecords(await h.state()), businessRecords(before), 'preview changes no business record')
+  const commit = (batch, fingerprint = batch.preview.fingerprint, opts = {}) => h.command('import.commit', { batchId: batch.id, version: batch.version, fingerprint }, opts)
+  const stagedState = await h.state()
+  await commit(staged, 'synthetic-glove-unreviewed', { error: 'IMPORT_REVIEW' })
+  assert.deepEqual(await h.state(), stagedState, 'wrong fingerprint changes no record')
+  const commitId = randomUUID(), batch = await commit(staged, staged.preview.fingerprint, { commandId: commitId })
+  assert.deepEqual(batch.preview, staged.preview, 'the committed batch retains the exact reviewed projection')
+  const committed = await h.state()
+  assert.deepEqual(await commit(staged, staged.preview.fingerprint, { commandId: commitId }), batch)
+  assert.deepEqual(await h.state(), committed, 'lost-answer replay is inert')
+  // Every planned destination exists, and no other business record appeared.
+  for (const kind of ['customers', 'sites', 'technicians', 'jobs', 'quotes', 'visits', 'captures']) {
+    const destinations = expectedRecords.flatMap(r => r.destinations).filter(d => d.kind === kind)
+    assert.deepEqual(committed[kind].filter(r => !before[kind].some(old => old.id === r.id)).map(r => r.id).sort(), destinations.map(d => d.id).sort(), kind)
+    for (const d of destinations) {
+      const source = expectedRecords.find(r => r.destinations.some(x => x.id === d.id))
+      assert.equal(committed[kind].find(r => r.id === d.id).source.id, source.sourceId)
+    }
+  }
+  for (const record of expectedRecords.filter(r => r.mergeTargets.length)) for (const d of record.mergeTargets) {
+    const merged = committed[d.kind].find(r => r.id === d.id)
+    assert.ok((d.kind === 'customers' ? merged.contacts : merged.lines ?? merged.revisions[0].lines).some(item => item.sourceId === record.sourceId), 'merged records retain their source identity')
+  }
+  // Check the business values independently as well as the retained identities.
+  const importedJob = committed.jobs.find(j => j.id === `sm8-${completed}`)
+  assert.deepEqual([importedJob.number, importedJob.customerId, importedJob.siteId, importedJob.title, importedJob.status, importedJob.workDone, importedJob.purchaseOrder],
+    ['SM8-1012', `sm8-${company1}`, 'sm8-site-40348167947ffe64470806c2', 'Coolroom compressor not starting', 'invoiced', 'Replaced start capacitor, tested 30 min', 'BB-2219'])
+  const priceLines = rows => rows.map(r => [r.sourceId, r.description, r.quantity, r.unitPrice, r.total, r.tax])
+  assert.deepEqual(priceLines(importedJob.lines), [
+    ['7c8d9e0f-0001-4a1b-8c2d-3e4f5a6b7c01', 'Call-out and diagnosis', '1', '145.00', '145.00', 'GST'],
+    ['7c8d9e0f-0002-4a1b-8c2d-3e4f5a6b7c02', 'Start capacitor 45uF', '1', '38.50', '38.50', 'GST'],
+  ])
+  assert.deepEqual(importedJob.totals, { subtotal: '183.50', gst: '18.35', total: '201.85' })
+  const quote = committed.quotes.find(q => q.id === `sm8-${sourceQuote}`)
+  assert.deepEqual([quote.status, quote.revisions[0].approval, quote.customerId, quote.siteId], ['draft', null, `sm8-${company2}`, 'sm8-site-509de9a75b649d441a872db0'])
+  assert.deepEqual(priceLines(quote.revisions[0].lines), [['7c8d9e0f-0004-4a1b-8c2d-3e4f5a6b7c04', 'Zone controller supply and install', '1', '1240.00', '1240.00', 'GST']])
+  assert.deepEqual(committed.visits.filter(v => v.source?.system === 'ServiceM8').map(v => [v.id, v.jobId, v.technicianId, v.startAt, v.endAt, v.status, v.arrival]), [
+    ['sm8-5a6b7c8d-0001-4e9f-8a0b-1c2d3e4f5a01', `sm8-${completed}`, 'sm8-f0e1d2c3-1111-4a5b-9c8d-7e6f5a4b3c01', '2026-08-14T03:00:00.000Z', '2026-08-14T05:15:00.000Z', 'completed', null],
+    ['sm8-5a6b7c8d-0002-4e9f-8a0b-1c2d3e4f5a02', `sm8-${openJob}`, 'sm8-f0e1d2c3-2222-4a5b-9c8d-7e6f5a4b3c02', '2026-10-19T22:00:00.000Z', '2026-10-20T00:00:00.000Z', 'booked', null],
+  ])
+  const download = summary => `/api/glove/imports/${batch.id}/files/${summary.sha256}`
+  for (const file of input) {
+    const summary = batch.fileSummary.find(s => s.name === file.name)
+    const response = await h.request(download(summary))
+    assert.equal(response.status, 200)
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), Buffer.from(file.text ?? file.base64, file.text === undefined ? 'base64' : 'utf8'), file.name)
+    assert.equal((await h.request(download(summary), { as: b.office.cookie })).status, 403)
+    assert.equal((await h.request(download(summary), { as: b.priyaPerson.cookie })).status, 403)
+    assert.equal((await h.request(download(summary), { as: '' })).status, 401)
+  }
+  await h.restart()
+  assert.deepEqual(businessRecords(await h.state()), businessRecords(committed), 'actual Worker restart retains all mapped values')
+  const repeat = await stage()
+  assert.deepEqual(recordProjection(repeat.preview.records), expectedRecords.map(r => ({ ...r, status: 'already-moved-in', alreadyMovedIn: true })))
+  assert.equal(repeat.preview.alreadyMovedIn, 22)
+  const beforeRepeat = businessRecords(await h.state())
+  await commit(repeat)
+  assert.deepEqual(businessRecords(await h.state()), beforeRepeat, 'a repeated commit changes no business record')
+  {
+    // Import through the real door using the pre-sourceId mapper, then upgrade
+    // the Worker while retaining its D1 and sessions. Do not rewrite journals.
+    const mainEraMapper = await readFile('tests/fixtures/servicem8-main-era-mapping.txt', 'utf8')
+    let mainEra = true
+    const upgraded = await installation({ workerPlugins: [{ name: 'main-era-servicem8', setup(build) {
+      build.onLoad({ filter: /\/movein\/servicem8\.ts$/ }, args => mainEra ? { contents: mainEraMapper, loader: 'ts', resolveDir: dirname(args.path) } : undefined)
+    } }] })
+    t.after(() => upgraded.close())
+    await business(upgraded)
+    await moveIn(upgraded)
+    mainEra = false
+    await upgraded.restart({ rebuild: true })
+    const repeat = await upgraded.command('import.stage', { files: input })
+    const before = businessRecords(await upgraded.state())
+    const originalJournal = async () => ({ sources: (await upgraded.db.prepare('SELECT * FROM ik_sources ORDER BY identity').all()).results, provenance: (await upgraded.db.prepare('SELECT * FROM ik_provenance ORDER BY id').all()).results })
+    const journalBefore = await originalJournal()
+    const response = await upgraded.request('/api/glove/commands', { method: 'POST', body: { commandId: randomUUID(), type: 'import.commit', payload: { batchId: repeat.id, version: repeat.version, fingerprint: repeat.preview.fingerprint } } })
+    const result = await response.json()
+    assert.deepEqual({ alreadyMovedIn: repeat.preview.alreadyMovedIn, status: response.status, resultStatus: result.result?.status ?? null, error: result.error ?? null, business: businessRecords(await upgraded.state()), journal: await originalJournal() },
+      { alreadyMovedIn: expectedRecords.length, status: 200, resultStatus: 'committed', error: null, business: before, journal: journalBefore }, 'an unchanged 22-record main-era import repeats after upgrade without changing business records or original source claims')
+  }
+  const undone = await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Synthetic source review complete' })
+  assert.equal(undone.status, 'undone')
+  assert.deepEqual(businessRecords(await h.state()), businessRecords(before), 'undo restores the exact pre-move-in business snapshot')
+  const { activity, exported } = await assertTrail(h, ['import.previewed', 'import.committed', 'import.undone'])
+  for (const kind of ['import.previewed', 'import.committed', 'import.undone']) {
+    const fact = activity.find(e => e.kind === kind && e.subjectId === batch.id)
+    assert.deepEqual([fact.actorName, fact.actorRole], ['Olivia Owner', 'owner'])
+    assert.equal(exported.imports.find(i => i.id === batch.id).preview.fingerprint, staged.preview.fingerprint)
+    assert.ok(exported.timeline.some(e => e.id === fact.id))
+  }
+  {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -22,12 +154,41 @@ test('undo refuses while Glove work refers to moved-in records, and keeps it int
   const before = await h.state()
   const workOrder = before.jobs.find(j => j.number === 'SM8-1031')
   const visit = await b.dispatcher.run('visit.book', { jobId: workOrder.id, technicianId: b.priya.id, date: '2026-10-21', start: '08:00', end: '09:00' })
+  const beforeRefusal = await h.state()
   const refused = await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Try to back out' }, { error: 'IMPORT_DEPENDENTS' })
   assert.deepEqual(refused.details.dependents, [{ kind: 'visits', id: visit.id, refersTo: workOrder.id }])
   const after = await h.state()
-  assert.equal(after.jobs.length, before.jobs.length)
+  assert.deepEqual(after, beforeRefusal, 'dependent-work refusal changes every record and event by zero')
+  await assertTrail(h, ['import.previewed', 'import.committed', 'visit.booked'])
+  const reader = await h.person('Synthetic file reviewer', 'owner')
+  const originalUrl = `/api/glove/imports/${batch.id}/files/${batch.fileSummary[0].sha256}`
+  assert.equal((await h.request(originalUrl, { as: reader.cookie })).status, 200)
+  await h.command('role.set', { operatorId: reader.id, role: 'viewer' })
+  assert.equal((await h.request(originalUrl, { as: reader.cookie })).status, 403, 'withdrawn Owner authority cannot read originals with an existing session')
+
   assert.equal((await h.db.prepare("SELECT state FROM ik_jobs").first()).state, 'completed', 'the journal was not touched')
+  }
+  {
+    const edited = await installation(); t.after(() => edited.close()); await business(edited)
+    const batch = await moveIn(edited)
+    const customer = (await edited.state()).customers.find(c => c.id === `sm8-${company1}`)
+    await edited.command('customer.save', { id: customer.id, version: customer.version, name: 'Balmain Bakehouse amended by owner' })
+    const beforeRefusal = await edited.state()
+    const refusal = await edited.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Refuse losing native work' }, { error: 'NATIVE_EDIT_CONFLICT' })
+    assert.deepEqual(refusal.details, { kind: 'customers', id: customer.id })
+    assert.deepEqual(await edited.state(), beforeRefusal, 'edited fixture customer blocks undo without changing any record or event')
+    const { activity, exported } = await assertTrail(edited, ['import.committed', 'customer.saved'])
+    const change = activity.find(e => e.kind === 'customer.saved' && e.subjectId === customer.id)
+    assert.deepEqual([change.actorName, change.actorRole], ['Olivia Owner', 'owner'])
+    assert.equal(exported.customers.find(c => c.id === customer.id).name, 'Balmain Bakehouse amended by owner')
+  }
 })
+
+async function moveIn(h) {
+  const staged = await h.command('import.stage', { files: await files() })
+  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+}
+
 
 test('ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo', async t => {
   const h = await installation(); t.after(() => h.close()); await business(h)
@@ -47,8 +208,12 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   assert.equal((await h.state()).invoices.length, 1)
   const customer = state.customers.find(c => c.name === 'Rozelle Physio')
   await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Rozelle Physio & Pilates', email: 'grace@rozellephysio.example' })
+  const beforeRefusal = await h.state()
   const conflict = await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Back out' }, { error: 'NATIVE_EDIT_CONFLICT' })
   assert.match(conflict.message, /changed in Glove/)
+  const afterRefusal = await h.state()
+  assert.deepEqual(afterRefusal, beforeRefusal, 'edited-record refusal changes every record and event by zero')
+  await assertTrail(h, ['import.previewed', 'import.committed', 'customer.saved'])
   assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Rozelle Physio & Pilates')
   assert.equal((await h.state()).imports.find(i => i.id === batch.id).status, 'committed')
 
@@ -67,7 +232,7 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   jobs[0].total_invoice_amount = '999.00'; jobFile.text = JSON.stringify(jobs)
   const preview = await rejected.command('import.stage', { files: invalid, balanceAsOf: '2026-10-22' })
   assert.ok(preview.preview.rejections.some(r => r.kind === 'job' && /total does not match/.test(r.reason)))
-  await rejected.command('import.commit', { batchId: preview.id, version: preview.version, fingerprint: preview.preview.fingerprint })
+  const rejectedBatch = await rejected.command('import.commit', { batchId: preview.id, version: preview.version, fingerprint: preview.preview.fingerprint })
   const after = await rejected.state(), owner = after.customers.find(c => c.source?.id === jobs[0].company_uuid)
   assert.ok(!after.jobs.some(j => j.source?.id === jobs[0].uuid))
   assert.equal(after.invoices.length, 0)
@@ -83,6 +248,7 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   assert.deepEqual(JSON.parse(Buffer.from(peerPayments.bytes, 'base64').toString()).map(p => p.uuid), ['synthetic-glove-payment-peer'])
   const erasure = await rejected.command('privacy.preview', { customerId: owner.id, version: owner.version })
   await rejected.command('privacy.erase', { customerId: owner.id, version: owner.version, confirm: 'ERASE', fingerprint: erasure.fingerprint })
+  for (const original of rejectedBatch.fileSummary) assert.equal((await rejected.request(`/api/glove/imports/${rejectedBatch.id}/files/${original.sha256}`)).status, 404, 'erasure withdraws shared byte-exact originals from the download door')
   const journalRows = []
   for (const table of ['ik_jobs', 'ik_d1_plan_chunks', 'ik_sources', 'ik_provenance', 'ik_d1_history']) journalRows.push(...(await rejected.db.prepare(`SELECT * FROM ${table}`).all()).results)
   const originalRows = (await rejected.db.prepare('SELECT * FROM ik_originals').all()).results
