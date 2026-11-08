@@ -113,10 +113,19 @@ async function authorityAndDefaults() {
     assert.deepEqual(trail.exported.timeline.filter(x => x.kind === 'mail.morning').map(x => { const { enabled, time } = JSON.parse(x.data); return { enabled, time } }), [{ enabled: true, time: '07:00' }, { enabled: true, time: '08:15' }, { enabled: false, time: '08:15' }])
     assert.ok(changes.every(x => x.actorRole === 'owner' && x.actorName === 'Olivia Owner'))
     const former = await h.person('Former Morning Owner', 'owner')
+    const captured = randomUUID(), capturedPayload = { enabled: true, time: '09:00' }
+    await former.run('mail.morning', capturedPayload, { commandId: captured })
     await h.command('role.set', { operatorId: former.id, role: 'office' })
     before = await snapshot(h)
+    await former.run('mail.morning', capturedPayload, { commandId: captured, error: 'FORBIDDEN' })
+    assert.deepEqual(await snapshot(h), before, 'point 2: replaying a formerly authorized command cannot restore withdrawn owner authority')
     await former.run('mail.morning', { enabled: true }, { error: 'FORBIDDEN' })
     assert.deepEqual(await snapshot(h), before, 'point 2: current authority, rather than the signed-in session role, controls the next request')
+    await h.command('token.revoke', { tokenId: integration.id })
+    before = await snapshot(h)
+    const revoked = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${integration.token}` }, body: { commandId: randomUUID(), type: 'mail.morning', payload: { enabled: false } } })
+    assert.equal(revoked.status, 401)
+    assert.deepEqual(await snapshot(h), before, 'point 2: a revoked integration credential changes no morning setting or delivery fact')
   } finally { await h.close() }
 }
 

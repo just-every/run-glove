@@ -5636,7 +5636,7 @@
       "executable": false
     },
     "tests/api/morning-email.test.mjs": {
-      "sha256": "3e085035a9041dbdbcd4043d873544fe49731bd26fe8234295ff6695d5946ac0",
+      "sha256": "1e4a648a8ffad3be532d81e6dd7be8d1702925a0bb905f8682b4c73be4add090",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
