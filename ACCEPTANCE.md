@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 18 | 203 | 16 | 237 |
+| Core | 19 | 202 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 18 | 216 | 29 | 263 |
+| Full target | 19 | 215 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -745,7 +745,7 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 
 #### QUOTE-009 — Quote-link custody and expiry
 
-Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Quote-link custody and expiry supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations.
 
@@ -759,8 +759,8 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 7. Defaults change later revisions only.
 8. Legacy revisions without validity must be revised and price-approved before a link can be issued.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The token is shown once, hashed separately at rest, sent in the URL fragment and Authorization header only, and absent from queries, logs, saved command outcomes, Activity, business exports and installation archives.; point 2 — An older revision's link shows only “a newer revision was sent” and refuses decisions.; point 3 — An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity.; point 4 — Restore retains records and document hashes but requires new links; erasure follows DATA-001, DATA-005, DATA-006, DATA-007, DATA-008.; point 5 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisions.; point 6 — Drafts and revisions take an optional real valid-until date date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days.; point 7 — Defaults change later revisions only.; point 8 — Legacy revisions without validity must be revised and price-approved before a link can be issued. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/quote-link-custody.test.mjs` (QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 superseded links disclose no document and refuse every customer action across restart); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 owner validity boundaries and default changes affect only later revisions); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link); `tests/browser/quote-link-custody.spec.ts` (QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390); `tests/portable.mjs` (Glove portability passed)
+**Gap.** None.
 
 #### QUOTE-010 — Signing consent and frozen customer copy
 
