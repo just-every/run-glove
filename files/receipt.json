@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f151",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f151",
+  "head": "659a4d29a251899f46dfcf09a9af63265d9381a7",
+  "integrated_main": "508403025ce0d57d57c24dae142f16f8fb190285",
+  "counts_before": {
+    "done": 19,
+    "partial": 215,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 19,
+    "partial": 215,
+    "missing": 29
+  },
+  "ci": {
+    "id": 42510897436,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "659a4d29a251899f46dfcf09a9af63265d9381a7"
+  },
+  "browser": {
+    "exit": 0,
+    "widths": [
+      1440,
+      390
+    ],
+    "test": "tests/browser/receivables.spec.ts:234",
+    "screenshots": [
+      "1440-payout-deposit-batch.png",
+      "1440-payout-fee-confirmation.png",
+      "1440-payout-instant-debit.png",
+      "1440-payout-reconciled.png",
+      "1440-payout-unmatched.png",
+      "390-payout-deposit-batch.png",
+      "390-payout-fee-confirmation.png",
+      "390-payout-instant-debit.png",
+      "390-payout-reconciled.png",
+      "390-payout-unmatched.png"
+    ],
+    "relevant_source_unchanged_since_save": true
+  },
+  "tests": {
+    "focused_final_exit": 0,
+    "focused_tests": 8,
+    "exact_sha": "659a4d29a251899f46dfcf09a9af63265d9381a7",
+    "typecheck_exit": 0,
+    "first_party_exit": 0,
+    "views_exit": 0,
+    "lock_exit": 0,
+    "exact_sha_exit": 0,
+    "exact_sha_tests": 15,
+    "exact_sha_node": "22.20.0",
+    "exact_sha_command": "node --test --test-concurrency=1 tests/api/payout-reconciliation.test.mjs tests/api/payments.test.mjs"
+  },
+  "publication_scan": {
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "owner": "fleet lander"
+  },
+  "pr": null,
+  "policy_defaults": [],
+  "product_blockers": [],
+  "provenance": {
+    "source_lock_check_exit": 0,
+    "generated_view_check_exit": 0,
+    "contract_diff_empty": true,
+    "preserved_payment_tests_unchanged": true,
+    "preserved_deposit_helper_unchanged": true,
+    "workflow_unchanged": true,
+    "browser_relevant_diff_from_save_empty": true,
+    "browser_save_head": "e772d8dea11fddb2b62efd61337e6f33bfdee31f"
+  },
+  "baseline_ci": {
+    "head": "508403025ce0d57d57c24dae142f16f8fb190285",
+    "verify": 42510192151,
+    "verify_conclusion": "success",
+    "run_site": 42510192005,
+    "run_site_conclusion": "success"
+  },
+  "proposed_judgment": {
+    "clause": "PAY-007",
+    "from": "partial",
+    "to": "done",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "counts_after_gate": {
+      "done": 20,
+      "partial": 214,
+      "missing": 29
+    }
+  }
+}

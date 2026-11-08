@@ -1,0 +1,32 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes (3653.196879ms)
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout (3021.231021ms)
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects (2173.653202ms)
+✔ PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact (3250.58432ms)
+✔ PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly (2082.336894ms)
+✔ PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate (14132.550532ms)
+ℹ PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed
+ℹ PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority
+ℹ PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact
+✔ FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation (2236.739334ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay (3862.102663ms)
+✔ PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts (3101.449386ms)
+✔ PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts (3751.185931ms)
+✔ PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomplete pages, duplicates, inconsistent rows and wrong sources refuse safely (4221.806114ms)
+✔ PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile (2896.848491ms)
+✔ PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout (2768.117904ms)
+✔ PAY-007 point 7: a manual payout has no Stripe source attribution before owner review (2418.631307ms)
+✔ PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched (3195.637183ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 58478.016341

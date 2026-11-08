@@ -1,0 +1,5 @@
+{"conclusion":"success","event":"push","head_sha":"508403025ce0d57d57c24dae142f16f8fb190285","html_url":"https://github.com/just-every/run-glove/actions/runs/42510192151","id":42510192151,"name":"Verify","status":"completed"}
+{"conclusion":"success","event":"push","head_sha":"508403025ce0d57d57c24dae142f16f8fb190285","html_url":"https://github.com/just-every/run-glove/actions/runs/42510192005","id":42510192005,"name":"Run site","status":"completed"}
+{"conclusion":"skipped","event":"push","head_sha":"508403025ce0d57d57c24dae142f16f8fb190285","html_url":"https://github.com/just-every/run-glove/actions/runs/42510192079","id":42510192079,"name":"Run demo","status":"completed"}
+{"conclusion":"success","event":"dynamic","head_sha":"508403025ce0d57d57c24dae142f16f8fb190285","html_url":"https://github.com/just-every/run-glove/actions/runs/42510191923","id":42510191923,"name":"Push on main","status":"completed"}
+{"conclusion":"success","event":"push","head_sha":"508403025ce0d57d57c24dae142f16f8fb190285","html_url":"https://github.com/just-every/run-glove/actions/runs/42509127421","id":42509127421,"name":"Verify","status":"completed"}
