@@ -5812,7 +5812,7 @@
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
-      "sha256": "fd785c899d21fb31aa061dd4030746bc48986a17a6e10f2706182c0c78eaea41",
+      "sha256": "8a25bace0ea61a19be43c9aaedb8518fe92a4316eb8e4a2823153f8371bc3546",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
