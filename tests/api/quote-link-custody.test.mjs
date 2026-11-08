@@ -3,10 +3,10 @@ import assert from 'node:assert/strict'
 import { createHash, randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
-import { installation, business, assertTrail } from './harness.mjs'
+import { installation, business, assertTrail, mailEvents } from './harness.mjs'
 import { textOf } from '../fixtures/mail-providers.mjs'
 
-const at = '2026-02-28T18:00:00.000Z'
+const at = '2030-02-28T18:00:00.000Z'
 const lines = [{ description: 'Condenser inspection', quantity: '1', unitPrice: '189.00', tax: 'FREE' }]
 const draft = (h, b, extra = {}) => h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Condenser inspection', lines, ...extra })
 const approve = (h, q) => h.command('quote.approve', { quoteId: q.id, version: q.version, revision: q.revisions.at(-1).n })
@@ -20,7 +20,7 @@ const withoutBearer = (value, token, surface) => assert.equal(JSON.stringify(val
 test('QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart', async t => {
   const h = await installation({ at, captureLogs: true }); t.after(() => h.close())
   const b = await business(h)
-  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-140', fromEmail: ['office', 'example.test'].join('@') })
+  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-140', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['office', 'example.test'].join('@') })
   const q = await approve(h, await draft(h, b)), commandId = randomUUID()
   const payload = { quoteId: q.id, version: q.version, email: true }
   const link = await h.command('quote.link', payload, { commandId })
@@ -77,7 +77,7 @@ test('QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment 
 test('QUOTE-009 superseded links disclose no document and refuse every customer action across restart', async t => {
   const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
   let q = await approve(h, await draft(h, b)), old = await issue(h, q)
-  q = await h.command('quote.revise', { quoteId: q.id, version: q.version, lines, validUntil: '2026-03-31' })
+  q = await h.command('quote.revise', { quoteId: q.id, version: q.version, lines, validUntil: '2030-03-31' })
   q = await approve(h, q); const current = await issue(h, q), before = await exportBusiness(h)
   await h.restart()
   const response = await read(h, old.token), view = await response.json()
@@ -97,9 +97,9 @@ test('QUOTE-009 superseded links disclose no document and refuse every customer 
 test('QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant', async t => {
   const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
   const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Inspect condenser', source: 'phone' })
-  let q = await approve(h, await draft(h, b, { enquiryId: enquiry.id, validUntil: '2026-02-28' }))
+  let q = await approve(h, await draft(h, b, { enquiryId: enquiry.id, validUntil: '2030-02-28' }))
   const first = await issue(h, q)
-  await h.setTime('2026-03-01T00:00:00.000Z')
+  await h.setTime('2030-03-01T00:00:00.000Z')
   let view = await (await read(h, first.token)).json()
   assert.equal(view.state, 'expired'); assert.equal(view.documentHash, first.documentHash); assert.equal(view.updateRequested, false)
   for (const action of ['choose', 'changes', 'decline', 'approve', 'financing']) {
@@ -114,18 +114,18 @@ test('QUOTE-009 expired revisions remain readable with exactly one update until 
   assert.equal(record.customerRequests.filter(x => x.revision === 1 && x.action === 'update').length, 1)
   assert.equal(state.notices.filter(n => n.quoteId === q.id).length, 1)
   assert.equal(state.enquiries.find(e => e.id === enquiry.id).status, 'contacted')
-  q = await h.command('quote.revise', { quoteId: q.id, version: record.version, lines, validUntil: '2026-02-28' })
+  q = await h.command('quote.revise', { quoteId: q.id, version: record.version, lines, validUntil: '2030-02-28' })
   q = await approve(h, q); const next = await issue(h, q)
-  await h.setTime('2026-05-29T13:59:59.999Z')
+  await h.setTime('2030-05-29T13:59:59.999Z')
   view = await (await read(h, next.token)).json()
   assert.equal(view.state, 'expired'); assert.equal(view.updateRequested, false)
   assert.equal((await respond(h, next.token, 'update')).status, 200, 'a later revision gets its own single request at the last live instant')
-  await h.setTime('2026-05-29T14:00:00.000Z')
+  await h.setTime('2030-05-29T14:00:00.000Z')
   assert.equal((await read(h, next.token)).status, 404)
   assert.equal((await respond(h, next.token, 'update')).status, 404)
   await h.restart()
   assert.equal((await read(h, next.token)).status, 404)
-  await h.setTime('2026-03-01T00:00:00.000Z')
+  await h.setTime('2030-03-01T00:00:00.000Z')
   state = await h.state(); record = state.quotes.find(x => x.id === q.id)
   assert.deepEqual(record.customerRequests.map(x => [x.revision, x.action]), [[1, 'update'], [2, 'update']])
   assert.equal(state.notices.filter(n => n.quoteId === q.id).length, 2)
@@ -137,7 +137,7 @@ test('QUOTE-009 expired revisions remain readable with exactly one update until 
 test('QUOTE-009 owner validity boundaries and default changes affect only later revisions', async t => {
   const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
   let q = await approve(h, await draft(h, b)), original = structuredClone(q.revisions[0]), link = await issue(h, q)
-  assert.equal(original.validUntil, '2026-03-31', 'Sydney March 1 plus the untouched 30-day default')
+  assert.equal(original.validUntil, '2030-03-31', 'Sydney March 1 plus the untouched 30-day default')
   const before = await exportBusiness(h)
   for (const person of [b.office, b.dispatcher]) await person.run('quote.validity', { days: 5 }, { error: 'FORBIDDEN' })
   for (const days of [0, 3651, 1.5, '30', null]) await h.command('quote.validity', { days }, { error: 'INPUT' })
@@ -145,7 +145,7 @@ test('QUOTE-009 owner validity boundaries and default changes affect only later 
   const integration = await h.command('token.issue', { name: 'Synthetic quote integration', role: 'dispatcher' })
   const denied = await h.request('/api/glove/commands', { as: '', method: 'POST', headers: { authorization: `Bearer ${integration.token}` }, body: { commandId: randomUUID(), type: 'quote.validity', payload: { days: 5 } } })
   assert.equal(denied.status, 403); assert.equal((await denied.json()).error.code, 'FORBIDDEN')
-  for (const [days, validUntil] of [[1, '2026-03-02'], [3650, '2036-02-27']]) {
+  for (const [days, validUntil] of [[1, '2030-03-02'], [3650, '2040-02-27']]) {
     await h.command('quote.validity', { days })
     const next = await draft(h, b)
     assert.equal(next.revisions[0].validUntil, validUntil)
@@ -155,7 +155,7 @@ test('QUOTE-009 owner validity boundaries and default changes affect only later 
   await h.command('quote.validity', { days: 1 })
   const commandId = randomUUID(), payload = { quoteId: q.id, version: q.version, lines }
   q = await h.command('quote.revise', payload, { commandId })
-  assert.deepEqual(q.revisions[0], original); assert.equal(q.revisions[1].validUntil, '2026-03-02')
+  assert.deepEqual(q.revisions[0], original); assert.equal(q.revisions[1].validUntil, '2030-03-02')
   await h.restart()
   assert.deepEqual(await h.command('quote.revise', payload, { commandId }), q)
   assert.equal((await h.state()).business[0].quoteValidityDays, 1)
@@ -170,36 +170,36 @@ test('QUOTE-009 real dates and frozen Chicago midnight govern approval and the n
   const chicago = { customer, site }, before = await exportBusiness(h)
   await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Impossible date', lines, validUntil: '2026-02-30' }, { error: 'INPUT' })
   assert.deepEqual(await exportBusiness(h), before)
-  let first = await draft(h, chicago, { validUntil: '2026-02-28' })
+  let first = await draft(h, chicago, { validUntil: '2030-02-28' })
   await h.command('quote.revise', { quoteId: first.id, version: first.version, lines, validUntil: '2026-02-30' }, { error: 'INPUT' })
   first = await approve(h, first)
-  const second = await approve(h, await draft(h, chicago, { validUntil: '2026-02-28' }))
+  const second = await approve(h, await draft(h, chicago, { validUntil: '2030-02-28' }))
   assert.equal((await h.state()).business[0].timezone, 'Australia/Sydney')
-  for (const q of [first, second]) assert.deepEqual([q.revisions[0].validUntil, q.revisions[0].validityZone, q.revisions[0].validTo, q.revisions[0].linkExpiresAt], ['2026-02-28', 'America/Chicago', '2026-03-01T06:00:00.000Z', '2026-05-30T05:00:00.000Z'])
+  for (const q of [first, second]) assert.deepEqual([q.revisions[0].validUntil, q.revisions[0].validityZone, q.revisions[0].validTo, q.revisions[0].linkExpiresAt], ['2030-02-28', 'America/Chicago', '2030-03-01T06:00:00.000Z', '2030-05-30T05:00:00.000Z'])
   const live = await issue(h, first), expiring = await issue(h, second)
   await h.command('branch.save', { ...(await h.state()).branches.find(x => x.id === branch.id), timezone: 'America/Phoenix' })
   await h.command('quote.consent', { version: (await h.state()).business[0].version, accept: true, text: 'Synthetic owner disclosure for boundary testing; identity remains claimed.' })
   const choice = { optionId: 'option-1', addOnIds: [] }
   const selection = await (await respond(h, live.token, 'choose', { choice })).json()
   const answer = { choice, documentHash: live.documentHash, selectionHash: selection.selection.hash, consent: { version: selection.disclosure.version, hash: selection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } }
-  await h.setTime('2026-03-01T05:59:59.999Z'); await h.restart()
+  await h.setTime('2030-03-01T05:59:59.999Z'); await h.restart()
   assert.equal((await (await read(h, live.token)).json()).state, 'open')
   assert.equal((await respond(h, live.token, 'approve', answer)).status, 200, 'approval succeeds at the last Chicago instant of the validity date')
-  assert.equal((await quote(h, first.id)).acceptance.signing.at, '2026-03-01T05:59:59.999Z')
-  await h.setTime('2026-03-01T06:00:00.000Z')
+  assert.equal((await quote(h, first.id)).acceptance.signing.at, '2030-03-01T05:59:59.999Z')
+  await h.setTime('2030-03-01T06:00:00.000Z')
   const expired = await read(h, expiring.token)
   assert.equal((await expired.json()).state, 'expired')
   const refused = await respond(h, expiring.token, 'approve', { ...answer, documentHash: expiring.documentHash })
   assert.equal(refused.status, 409); assert.equal((await refused.json()).error.code, 'EXPIRED')
   const snapshot = await exportBusiness(h)
-  await h.setTime('2026-05-30T04:59:59.999Z')
+  await h.setTime('2030-05-30T04:59:59.999Z')
   assert.equal((await read(h, expiring.token)).status, 200, 'DST-adjusted midnight, rather than ninety UTC days, ends the reading window')
-  await h.setTime('2026-05-30T05:00:00.000Z'); await h.restart()
+  await h.setTime('2030-05-30T05:00:00.000Z'); await h.restart()
   for (const token of [live.token, expiring.token]) {
     assert.equal((await read(h, token)).status, 404)
     assert.equal((await respond(h, token, 'update')).status, 404)
   }
-  await h.setTime('2026-03-01T06:00:00.000Z')
+  await h.setTime('2030-03-01T06:00:00.000Z')
   assert.deepEqual(await exportBusiness(h), snapshot, 'expiry refuses without data changes')
   await assertTrail(h, ['quote.customer.approve', 'quote.consentAccepted'])
 })
@@ -225,7 +225,7 @@ test('QUOTE-009 pre-validity Worker upgrade requires revision and fresh price ap
   assert.equal((await h.state()).quoteLinks.length, 0)
   const commandId = randomUUID(), payload = { quoteId: old.id, version: old.version, lines }
   const revised = await h.command('quote.revise', payload, { commandId })
-  assert.deepEqual(revised.revisions[0], old.revisions[0]); assert.equal(revised.revisions[1].validUntil, '2026-03-31')
+  assert.deepEqual(revised.revisions[0], old.revisions[0]); assert.equal(revised.revisions[1].validUntil, '2030-03-31')
   await issue(h, revised, {}, { error: 'NOT_APPROVED' })
   const approved = await approve(h, revised), link = await issue(h, approved)
   const persisted = await exportBusiness(h)
