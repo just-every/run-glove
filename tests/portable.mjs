@@ -353,7 +353,7 @@ try {
   for (const { result } of sourceQuoteIssues) {
     const secretHash = createHash('sha256').update(`glove-quote-link:${result.token}`).digest('hex')
     const plainHash = createHash('sha256').update(result.token).digest('hex')
-    for (const secret of [result.token, secretHash, plainHash]) assert.ok(!archiveBytes.includes(Buffer.from(secret)), 'QUOTE-009 plain archive bytes contain no issued quote bearer or credential hash')
+    for (const [kind, secret] of [['bearer', result.token], ['link hash', secretHash], ['plain hash', plainHash]]) assert.ok(!archiveBytes.includes(Buffer.from(secret)), `QUOTE-009 plain archive bytes contain no issued quote ${kind}`)
   }
   assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
   for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
