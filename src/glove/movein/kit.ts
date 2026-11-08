@@ -81,6 +81,25 @@ function kitContext(db: D1Database, batch: Row, guard: Guard): D1ImportContext {
 
 async function plan(db: D1Database, batch: Row, guard: Guard, s?: State) {
   const read = systemOf(batch).read(batch, s)
+  if (batch.system === 'ServiceM8') {
+    // Main-era journals predate price-line sourceId metadata. Reuse their exact
+    // effects only when that old mapping hashes to the existing claim. The kit
+    // still checks source content, mapping version, provenance and native edits.
+    // Fresh imports retain the enriched values and all their source IDs.
+    const identities = read.bundle.records.filter(r => r.kind === 'job').map(r => sha256(canonicalJson([DESTINATION, NAMESPACE, r.kind, r.sourceId])))
+    const hashes = new Map<string, string>()
+    for (let i = 0; i < identities.length; i += 90) {
+      const ids = identities.slice(i, i + 90)
+      for (const row of (await db.prepare(`SELECT identity,effects_hash FROM ik_sources WHERE identity IN (${ids.map(() => '?').join(',')})`).bind(...ids).all<{ identity: string; effects_hash: string }>()).results) hashes.set(row.identity, row.effects_hash)
+    }
+    const current = read.mapping, legacy = mapping(read.bundle, { timezone: batch.timezone, balanceAsOf: batch.balanceAsOf, priceLineSourceIds: false })
+    read.mapping = { version: current.version, map(record) {
+      const result = current.map(record), prior = hashes.get(sha256(canonicalJson([DESTINATION, NAMESPACE, record.kind, record.sourceId])))
+      if (!prior || sha256(canonicalJson(result.effects)) === prior) return result
+      const old = legacy.map(record)
+      return sha256(canonicalJson(old.effects)) === prior ? { ...result, effects: old.effects } : result
+    } }
+  }
   return planD1Import(read.bundle, read.mapping, kitContext(db, batch, guard))
 }
 
@@ -91,11 +110,13 @@ async function claimed(db: D1Database, p: ImportPlan) {
   return found
 }
 
-function preview(p: ImportPlan, already: Set<string>) {
+function preview(p: ImportPlan, already: Set<string>, displayMapping?: ImportMapping) {
   // Merged identities are retained explicitly in contact and price-line data.
   // Index the planned values, rather than guessing a destination from prose.
   const mergedInto = new Map<string, { kind: string; id: string }[]>()
-  for (const entry of p.entries) for (const effect of entry.effects) {
+  // Display the source relationships even when an unchanged legacy record must
+  // keep its original effect values (without the newer price-line metadata).
+  for (const entry of p.entries) for (const effect of displayMapping?.map(entry.source).effects ?? entry.effects) {
     const ids = new Set<string>()
     const visit = (value: any) => {
       if (!value || typeof value !== 'object') return
@@ -155,7 +176,7 @@ function preview(p: ImportPlan, already: Set<string>) {
 /** The dry run of a staged batch: what it would write, already moved in, rejected or unmapped. */
 export async function previewMoveIn(db: D1Database, batch: Row, guard: Guard) {
   const planned = await plan(db, batch, guard)
-  return preview(planned, await claimed(db, planned))
+  return preview(planned, await claimed(db, planned), batch.system === 'ServiceM8' ? systemOf(batch).read(batch).mapping : undefined)
 }
 
 /** Journal and apply the reviewed plan, resuming the kit job an earlier run of this batch started. */

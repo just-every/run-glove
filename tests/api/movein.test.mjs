@@ -4,6 +4,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import { installation, business, assertTrail } from './harness.mjs'
 import { serviceM8Balances } from '../fixtures/servicem8-balances.mjs'
 
@@ -113,6 +114,28 @@ test('ServiceM8 every source record is reviewed, fingerprinted, retained through
   const beforeRepeat = businessRecords(await h.state())
   await commit(repeat)
   assert.deepEqual(businessRecords(await h.state()), beforeRepeat, 'a repeated commit changes no business record')
+  {
+    // Import through the real door using the pre-sourceId mapper, then upgrade
+    // the Worker while retaining its D1 and sessions. Do not rewrite journals.
+    const mainEraMapper = await readFile('tests/fixtures/servicem8-main-era-mapping.txt', 'utf8')
+    let mainEra = true
+    const upgraded = await installation({ workerPlugins: [{ name: 'main-era-servicem8', setup(build) {
+      build.onLoad({ filter: /\/movein\/servicem8\.ts$/ }, args => mainEra ? { contents: mainEraMapper, loader: 'ts', resolveDir: dirname(args.path) } : undefined)
+    } }] })
+    t.after(() => upgraded.close())
+    await business(upgraded)
+    await moveIn(upgraded)
+    mainEra = false
+    await upgraded.restart({ rebuild: true })
+    const repeat = await upgraded.command('import.stage', { files: input })
+    const before = businessRecords(await upgraded.state())
+    const originalJournal = async () => ({ sources: (await upgraded.db.prepare('SELECT * FROM ik_sources ORDER BY identity').all()).results, provenance: (await upgraded.db.prepare('SELECT * FROM ik_provenance ORDER BY id').all()).results })
+    const journalBefore = await originalJournal()
+    const response = await upgraded.request('/api/glove/commands', { method: 'POST', body: { commandId: randomUUID(), type: 'import.commit', payload: { batchId: repeat.id, version: repeat.version, fingerprint: repeat.preview.fingerprint } } })
+    const result = await response.json()
+    assert.deepEqual({ alreadyMovedIn: repeat.preview.alreadyMovedIn, status: response.status, resultStatus: result.result?.status ?? null, error: result.error ?? null, business: businessRecords(await upgraded.state()), journal: await originalJournal() },
+      { alreadyMovedIn: expectedRecords.length, status: 200, resultStatus: 'committed', error: null, business: before, journal: journalBefore }, 'an unchanged 22-record main-era import repeats after upgrade without changing business records or original source claims')
+  }
   const undone = await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Synthetic source review complete' })
   assert.equal(undone.status, 'undone')
   assert.deepEqual(businessRecords(await h.state()), businessRecords(before), 'undo restores the exact pre-move-in business snapshot')

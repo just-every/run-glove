@@ -80,7 +80,7 @@ const id = (uuid: string) => 'sm8-' + uuid
  * commit plan identically and an unchanged re-import maps to the same records
  * (the kit then writes nothing again; changed source content is refused).
  */
-export function mapping(bundle: SourceBundle, batch: { timezone: string; balanceAsOf: string }): ImportMapping {
+export function mapping(bundle: SourceBundle, batch: { timezone: string; balanceAsOf: string; priceLineSourceIds?: boolean }): ImportMapping {
   const by = (kind: Kind) => bundle.records.filter(r => r.kind === kind)
   const companies = new Map(by('company').map(r => [r.sourceId, r.payload as any]))
   const staff = new Map(by('staff').map(r => [r.sourceId, r.payload as any]))
@@ -122,7 +122,7 @@ export function mapping(bundle: SourceBundle, batch: { timezone: string; balance
         let priced, importedInvoice
         try {
           const rows = materials.filter(m => m.job_uuid === o.uuid && String(m.active) !== '0').sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0))
-          priced = rows.length ? lines(rows.map(m => ({ description: str(m.name) || 'Material', quantity: String(Number(m.quantity)), unitPrice: (Math.round(Number(m.price) * 100) / 100).toFixed(2), tax: 'GST' }))).map((line, index) => ({ ...line, sourceId: rows[index].uuid })) : []
+          priced = rows.length ? lines(rows.map(m => ({ description: str(m.name) || 'Material', quantity: String(Number(m.quantity)), unitPrice: (Math.round(Number(m.price) * 100) / 100).toFixed(2), tax: 'GST' }))).map((line, index) => batch.priceLineSourceIds === false ? line : ({ ...line, sourceId: rows[index].uuid })) : []
           if (o.status === 'Completed' && String(o.invoice_sent) === '1' && o.total_invoice_amount !== undefined) {
             if (!bundle.artifacts.some(a => a.name === 'jobpayment.json')) fail('IMPORT_BALANCE', 'Include the complete jobpayment.json list, even when empty, to review the invoice balance.')
             const total = cents(str(o.total_invoice_amount), 'source invoice total'), calculated = totals(priced)

@@ -35,7 +35,7 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 27 | Onto your office computer or your own server | `DATA-004` partial; `DATA-003` partial | partial |
 | 28 | 9 customers share a phone number · review merge | `CUST-005` done | done |
 | 29 | git clone, then `rer install`, `rer setup`, `rer dev` | `DATA-004` partial | partial |
-| 30 | What it doesn't do: payroll, GPS hardware or marketing campaigns | `COST-002` partial; `COST-006` partial; `COST-007` partial; `DISP-005` partial; `DISP-012` partial; `CUST-004` partial; `CUST-006` partial | partial |
+| 30 | What it doesn't do: payroll, GPS hardware or marketing campaigns | `COST-002` partial; `COST-006` partial; `COST-007` partial; `DISP-005` partial; `DISP-012` partial; `CUST-004` partial; `CUST-006` done | partial |
 | 31 | Every job, done and paid. / Open source field service software for plumbing, HVAC, electrical and home service pros / Free and open source, MIT licensed | `GLOVE-08` partial; `GLOVE-09` done; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial; `DATA-004` partial | partial |
 | 32 | Closing cards: 31 jobs done, Paid today · $14,820 | `REPORT-001` partial; `PAY-002` partial; `PAY-017` partial; `PAY-018` partial; `PAY-019` partial; `PAY-020` partial | partial |
 
