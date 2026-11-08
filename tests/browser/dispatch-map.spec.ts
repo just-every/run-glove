@@ -293,9 +293,11 @@ async function calendarDeliveryReview(browser: any) {
       await page.setViewportSize({ width: 1440, height: 1000 })
     }
     await page.goto(`${origin}/app#activity`)
-    await expect(page.getByText(/Calendar create: unknown; check the provider before reconnecting/)).toHaveCount(2)
+    const unknownOutcomes = page.getByText(/Calendar create: unknown; check the provider before reconnecting/)
+    await expect(unknownOutcomes).toHaveCount(2)
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1000 })
+      await unknownOutcomes.first().scrollIntoViewIfNeeded()
       await shot(page, width, 'calendar-activity')
     }
     await page.setViewportSize({ width: 1440, height: 1000 })

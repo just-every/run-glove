@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "e03cb138528b79694d60838eda32af90fb4be7654b426707460659b630fe4c38",
+      "sha256": "f0bf9964963b20121d2b6c22617efd0de89621e2140294fe7872ec49be3af80b",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "244d779c7e89e0aa3f683a370559913310a3cf84c930661ef80956d5afedf737",
+      "sha256": "bc3da093e7e888e287553778ea11d474659f0c96e13b9639ae7ee97f3cc26b72",
       "executable": false
     },
     "DEMO.md": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "648b892cf253511769472b47c65dbf5d59d3c7561e2a0534cc73fda7fb2147e7",
+      "sha256": "f80c0be54eba69392dc6b95accad48297e0683eebd67d0edd4dc18dc38ab52be",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -2500,7 +2500,7 @@
       "executable": false
     },
     "src/glove/subcontract.ts": {
-      "sha256": "0344bc613efe2819d821192513acc2aa18188abb2f197e94bc3db38c06f7b645",
+      "sha256": "1999540646363008d3b80da80cf6c1b44a8b2aa61000d281ec5d66045585a650",
       "executable": false
     },
     "src/glove/technician-portraits.ts": {
@@ -5716,7 +5716,7 @@
       "executable": false
     },
     "tests/api/subcontract.test.mjs": {
-      "sha256": "1a89c9a0984079ae7c692b9fe02bc8ff37b427f5cbe056bb3ee0cc1f379024ae",
+      "sha256": "be68204797c186daebfe6b87353baaaecd6479e8e34d7f69a967276cf82d5328",
       "executable": false
     },
     "tests/api/suggest.test.mjs": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "9ae9a9f9bcaefd343dd50eb48d61667a05513b91f891176ee75bcdd1a611f1f8",
+      "sha256": "d569c4981a9c58a8c861dbafe8103776c2840e68ff3d6da1ea7dcca426edadaf",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
