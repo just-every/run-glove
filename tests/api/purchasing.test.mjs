@@ -13,7 +13,7 @@ test('DATA-002, DATA-009, DATA-010 / STOCK-002 a purchase order for a job, recei
   t.after(() => h.close())
   const b = await business(h)
   const providerAttempts = h.outbound.attempts
-  const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+  const clock = at => h.setTime(at)
   const cap = await h.command('service.save', { code: 'CAP-455', name: 'Run capacitor 45/5', kind: 'material', unit: 'each', unitCost: '12.00', unitPrice: '38.00', tax: 'GST' })
   const filter = await h.command('service.save', { code: 'FLT-1620', name: 'Filter 16x20', kind: 'material', unit: 'each', unitCost: '6.00', unitPrice: '18.00', tax: 'GST' })
   const warehouse = await b.office.run('stock.location', { kind: 'warehouse', name: 'Balmain warehouse' })

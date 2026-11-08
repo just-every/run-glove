@@ -23,9 +23,19 @@ const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 // Keep transport counts outside every installation and its temporary setup
 // Worker; an import or startup attempt must not disappear on the next start.
-const stripePosts = new Map()
+const stripePosts = new Map(), marketingCalls = new Map()
 const recorder = createServer((request, response) => {
   const name = new URL(request.url, 'http://localhost').pathname.slice(1)
+  if (name.startsWith('marketing-')) {
+    let data = ''
+    request.on('data', chunk => { data += chunk })
+    request.on('end', () => {
+      if (request.method === 'POST') marketingCalls.set(name, [...(marketingCalls.get(name) ?? []), JSON.parse(data)])
+      response.setHeader('content-type', 'application/json')
+      response.end(JSON.stringify({ calls: marketingCalls.get(name) ?? [] }))
+    })
+    return
+  }
   if (request.method === 'POST') stripePosts.set(name, (stripePosts.get(name) ?? 0) + 1)
   response.setHeader('content-type', 'application/json')
   response.end(JSON.stringify({ posts: stripePosts.get(name) ?? 0 }))
@@ -43,6 +53,28 @@ async function copy(name) {
     const entry = join(root, 'src/server.ts')
     const code = await readFile(entry, 'utf8')
     await writeFile(entry, "import { portableStripe } from './portable-stripe.mjs'\n" + code.replace('export default withDemo({', 'export default portableStripe(withDemo({').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })', `} satisfies ExportedHandler<Bindings>, { seed: seedDemo }), ${JSON.stringify(recorderOrigin + '/' + name)})`))
+  }
+  if (!name.startsWith('payment-')) {
+    for (const file of ['portable-maps.mjs', 'maps.mjs']) await cp(join(root, 'tests/fixtures', file), join(root, 'src', file))
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(entry, "import { portableMaps } from './portable-maps.mjs'\n" + code.replace('export default withDemo({', 'export default portableMaps(withDemo({').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))'))
+  }
+  if (!name.startsWith('payment-')) {
+    // Only Mango and Mailchimp transport changes in these owned scratch Workers.
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(join(root, 'src/portable-marketing.mjs'), `
+export function portableMarketing(worker) {
+  const upstream = globalThis.fetch
+  globalThis.fetch = async (input, options) => {
+    const request = new Request(input, options)
+    if (new URL(request.url).origin !== 'https://mango.example.test' && new URL(request.url).origin !== 'https://us21.api.mailchimp.com') return upstream(input, options)
+    await upstream(${JSON.stringify(recorderOrigin + '/marketing-' + name)}, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url: request.url, method: request.method, body: await request.json() }) })
+    return Response.json({ ok: true })
+  }
+  return worker
+}
+`)
+    await writeFile(entry, "import { portableMarketing } from './portable-marketing.mjs'\n" + code.replace('export default portableMaps(', 'export default portableMarketing(portableMaps(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))'))
   }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
@@ -222,6 +254,44 @@ try {
   await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Private restored draft', lines: [{ description: 'Private restored draft work', quantity: '1', unitPrice: '15.00' }] })
   await owner.cmd('conversation.log', { customerId: customer.id, kind: 'note', text: 'Private restored conversation' })
   await owner.cmd('equipment.save', { siteId: site.id, type: 'Restored heat pump', model: 'Permitted restored model', serial: 'Private restored serial' })
+  // CUST-006 archive custody uses actual provider work and saved command outcomes.
+  const audienceCustomer = await owner.cmd('customer.save', { name: 'Portable audience contact', email: ['synthetic-glove-portable', 'example.test'].join('@') })
+  await owner.cmd('customer.tags', { customerId: audienceCustomer.id, version: audienceCustomer.version, tags: ['Portable audience'] })
+  const audience = await owner.cmd('segment.save', { name: 'Portable service audience', filter: { tagsAll: ['Portable audience'] } })
+  const audienceKeys = ['synthetic-glove-101', 'synthetic-glove-102-us21']
+  const audienceConnections = [
+    { provider: 'mango', url: 'https://mango.example.test', key: audienceKeys[0] },
+    { provider: 'mailchimp', listId: 'synthetic-glove-103', key: audienceKeys[1] },
+  ]
+  const audienceReplays = []
+  for (const [index, connection] of audienceConnections.entries()) {
+    const connectId = `synthetic-glove-portable-connect-${index}`
+    await owner.cmd('marketing.connect', connection, connectId)
+    const payload = { segmentId: audience.id, provider: connection.provider }, commandId = `synthetic-glove-portable-push-${index}`
+    const result = await owner.cmd('segment.push', payload, commandId)
+    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
+    audienceReplays.push({ connection, connectId, payload, commandId, result })
+  }
+  assert.equal(marketingCalls.get('marketing-source').length, 3, 'real source commands reached both provider edges')
+  for (const surface of [await owner.get('/api/glove/state'), await owner.get('/api/glove/activity'), await owner.get('/api/glove/export')]) for (const key of audienceKeys) assert.ok(!JSON.stringify(surface).includes(key))
+  // DISP-011: ordinary owner commands create a real route, and the actual
+  // scheduled entry prepares it. Only Google Maps transport is replaced.
+  const routeDay = '2026-11-10', mapsKey = 'synthetic-glove-82'
+  await owner.cmd('maps.connect', { key: mapsKey })
+  const routeVisits = []
+  for (let i = 0; i < 2; i++) {
+    const address = `${900 + i} Portable Route Ave, Chicago, IL 60601`
+    await running.request('/__portable/maps', 'POST', { places: [[address, { lat: 41.8 + i * 0.001, lng: -87.63 }]] })
+    const routeSite = await owner.cmd('site.save', { customerId: customer.id, address })
+    const routeJob = await owner.cmd('job.create', { customerId: customer.id, siteId: routeSite.id, title: `Portable route visit ${i + 1}` })
+    routeVisits.push(await owner.cmd('visit.book', { jobId: routeJob.id, technicianId: tech.id, date: routeDay, start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` }))
+  }
+  let route = await owner.cmd('route.optimize', { date: routeDay })
+  await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
+  route = (await owner.get('/api/glove/state')).routes.find(r => r.id === route.id)
+  assert.equal(route.status, 'ready')
+  assert.deepEqual(route.moves.map(m => m.visitId).sort(), routeVisits.map(v => v.id).sort())
+  const queuedRoute = await owner.cmd('route.optimize', { date: routeDay })
   const inspectionCommandId = randomUUID()
   const inspection = await owner.cmd('customer.hubPreview', { customerId: customer.id }, inspectionCommandId)
   assert.ok(inspection.quotes.some(q => q.lines.some(l => l.customerDescription === 'Customer-facing restored inspection')))
@@ -249,6 +319,10 @@ try {
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
+  assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
+  const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
+  for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
@@ -263,7 +337,50 @@ try {
   const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const after = await running.owner.get('/api/glove/export')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
+  assert.deepEqual(after.segments, before.segments)
+  for (const replay of audienceReplays) {
+    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'segment.push', payload: replay.payload }, running.owner.cookie)
+    assert.equal(response.status, 409)
+    assert.equal((await response.json()).error.code, 'MARKETING', 'restored metadata requires explicit reconnection')
+    assert.deepEqual(await running.owner.cmd('segment.push', replay.payload, replay.commandId), replay.result, 'CUST-006 saved push outcome restores exactly without another call')
+    await running.owner.cmd('marketing.connect', replay.connection, replay.connectId)
+    const stillDisconnected = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'segment.push', payload: replay.payload }, running.owner.cookie)
+    assert.equal((await stillDisconnected.json()).error.code, 'MARKETING', 'replaying a saved connect outcome never restores a secret')
+  }
+  assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'import, startup and command replay make no audience request')
+  const restoredRouteVisits = after.visits.filter(v => routeVisits.some(original => original.id === v.id))
+  assert.deepEqual(restoredRouteVisits, routeVisits, 'DISP-011 import and startup move no appointment')
+  assert.deepEqual(after.routes, before.routes, 'DISP-011 all proposal metadata survives real export and import')
+  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false)
+  const callsBeforeReconnect = (await (await running.request('/__portable/maps')).json()).calls
+  const acceptRestored = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'route.accept', payload: { routeId: route.id, version: route.version, reason: 'Restored proposal' } }, running.owner.cookie)
+  assert.equal((await acceptRestored.json()).error.code, 'MAPS', 'DISP-011 restored metadata grants no provider authority')
+  assert.deepEqual((await (await running.request('/__portable/maps')).json()).calls, callsBeforeReconnect)
+  assert.deepEqual((await running.owner.get('/api/glove/state')).routes, after.routes)
+  assert.deepEqual((await running.owner.get('/api/glove/state')).visits, after.visits)
+  await running.owner.cmd('maps.connect', { key: 'synthetic-glove-83' })
+  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, true)
+  const staleRestored = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'route.accept', payload: { routeId: route.id, version: route.version, reason: 'Reconnection does not refresh a proposal' } }, running.owner.cookie)
+  assert.equal((await staleRestored.json()).error.code, 'ROUTE_STALE')
+  assert.deepEqual((await running.owner.get('/api/glove/state')).visits, after.visits)
+  await running.owner.cmd('route.discard', { routeId: queuedRoute.id, version: queuedRoute.version })
+  const freshRoute = await running.owner.cmd('route.optimize', { date: routeDay })
+  await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
+  assert.equal((await running.owner.get('/api/glove/state')).routes.find(r => r.id === freshRoute.id).status, 'ready', 'explicit reconnection permits fresh provider work')
+  for (const [index, replay] of audienceReplays.entries()) await running.owner.cmd('marketing.connect', { ...replay.connection, key: index ? 'synthetic-glove-105-us21' : 'synthetic-glove-104' })
+  assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'explicit reconnection alone never pushes an audience')
+  for (const replay of audienceReplays) {
+    const callsBeforeReplay = marketingCalls.get('marketing-destination')?.length ?? 0
+    await running.owner.cmd('segment.push', replay.payload, replay.commandId)
+    assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, callsBeforeReplay, 'reconnection does not repeat a restored command')
+    const result = await running.owner.cmd('segment.push', replay.payload)
+    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
+  }
+  assert.deepEqual(marketingCalls.get('marketing-destination'), marketingCalls.get('marketing-source'), 'fresh explicit pushes after reconnection send exactly the retained contact and tags')
+  for (const key of [...audienceKeys, 'synthetic-glove-104', 'synthetic-glove-105-us21']) assert.ok(!JSON.stringify(await running.owner.get('/api/glove/export')).includes(key))
+  console.log('CUST-006 real archive passed: both keys absent, push history retained, restored replay sends nothing, explicit reconnection required')
   const oldInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, owner.cookie)
   assert.equal(oldInspection.status, 403)
   assert.equal((await oldInspection.json()).error.message, 'An Owner without branch limits must sign in to inspect this customer preview')
@@ -321,6 +438,12 @@ try {
   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
   const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
   assert.equal(receipt.outcome, 'complete')
+  const erasedRoutes = (await running.owner.get('/api/glove/state')).routes
+  for (const id of [route.id, freshRoute.id]) {
+    const closed = erasedRoutes.find(r => r.id === id)
+    assert.equal(closed.status, 'discarded', 'DISP-011 erasure closes affected restored proposals')
+    assert.ok(closed.moves.every(m => m.visitId === '[erased]'))
+  }
   const erasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
   assert.equal(erasedPreview.status, 404)
   assert.equal((await erasedPreview.json()).error.message, 'Customer preview unavailable')
@@ -343,6 +466,10 @@ try {
   running = await install(olderTarget)
   const anonymous = await running.owner.get('/api/glove/export')
   assert.equal(anonymous.customers.find(c => c.id === customer.id).name, 'Erased customer')
+  assert.deepEqual(anonymous.routes, erasedRoutes, 'DISP-011 restored erasure metadata never resurrects erased visit references')
+  for (const original of routeVisits) assert.ok(!JSON.stringify(anonymous.routes).includes(original.id))
+  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false, 'DISP-011 another restore still requires explicit Maps reconnection')
+  console.log('DISP-011 real archive passed: exact proposal metadata and appointments retained, Maps reconnection required, stale acceptance refused, erasure and later journal fence visit references')
   const laterErasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
   assert.equal(laterErasedPreview.status, 404, 'COMM-006 later erasure fence prevents reconstruction after restore')
   const peerPreview = await running.owner.cmd('customer.hubPreview', { customerId: peerCustomer.id })

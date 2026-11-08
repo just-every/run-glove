@@ -24,6 +24,8 @@
   .glove-app .job-price button { width: 100%; }
 }
 
+.glove-app .conversation .badge { font-size: 13px; }
+
 /* Team: one technician per row, its name and tags on one line and its controls at full width below. */
 .glove-app .rows li.technician-row { display: grid; justify-content: stretch; align-items: start; gap: 4px; padding: 14px 0; }
 .glove-app .technician-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
@@ -52,3 +54,5 @@
 .glove-app .answers .flagged, .tech-app .answers .flagged { color: var(--red-ink); font-weight: 600; }
 .tech-app .form-fill .question { margin-bottom: 12px; }
 .glove-app .business-logo { max-height: 64px; max-width: 200px; margin: 8px 0 16px; display: block; }
+
+.glove-app .rules-page .badge { font-size: 13px; }

@@ -24,6 +24,12 @@ export function CalendarSync({ t, run }: { t: Rec; run: Run }) {
       <label><input type="checkbox" required checked={form.confirm} onChange={e => setForm({ ...form, confirm: e.target.checked })} /> Approve creating, updating and deleting Glove visit events in this calendar</label>
       <button type="submit">Connect visit calendar</button>
     </>}
+    {!!(t.calendarRetainedEvents?.length || t.calendarUncertainWrites?.length) && <section aria-label="Retained calendar events" style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+      <h3>Review previous calendar connections</h3>
+      <p>Existing provider events were retained. Review them in the provider before connecting the same calendar again. Uncertain writes are not repeated.</p>
+      <ul>{(t.calendarRetainedEvents ?? []).map((e: Rec) => <li key={`${e.connectionId}:${e.visitId}`}>Visit {e.visitId} · Provider event {e.eventId} · Connection {e.connectionId}</li>)}</ul>
+      <ul>{(t.calendarUncertainWrites ?? []).map((w: Rec) => <li key={`${w.connectionId}:${w.visitId}`}>Visit {w.visitId} · {w.action ?? 'write'}: {w.state} · Connection {w.connectionId}. Check the provider; an event may exist without a confirmed reference.</li>)}</ul>
+    </section>}
     <Problem error={error} />
   </form>
 }
