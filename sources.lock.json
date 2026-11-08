@@ -4824,7 +4824,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5588,7 +5588,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "4d4ea2310f07f134b33d56a3b116bed6158c8c11161ddd08f1da8a5a1645430a",
+      "sha256": "e048707b0d7adf7c63f4b0d992c95c76c991a842cf69edda19b358e5073ddbae",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/segments.test.mjs": {
-      "sha256": "92d2fdb32132cbf39948cca7e86949d07cc40cbdbddb641df72b8afab5970455",
+      "sha256": "71cc52ac5ee9720e55ed2184d5c429c15093e83c894a0fce3d6777e54ae856e0",
       "executable": false
     },
     "tests/api/series.test.mjs": {
@@ -6268,7 +6268,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "13e0d42905e3979da3a5bd5342bc88ca69f6b84de0bb1cf6912f360bc4c2d053",
+      "sha256": "cf2070ee4ce5c1860da3b36e59024562bd8d9773d21f9afa18b9de9b9c934343",
       "executable": false
     },
     "tests/runtime.mjs": {
