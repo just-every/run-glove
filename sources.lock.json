@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "c2e7861047c46975c2185d893d96d4d2bd444c912f5659eb73100865f0e069fb",
+      "sha256": "a3544be8bc26692e310b9b239274694b270905f010b737f00d4b4d13769e9938",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "23dda598c852891a469ac0614ca707bc91e16ae7dbe326a63f2f16513a7fc3e6",
+      "sha256": "ba7180368242c218b5552212f502fc2ccd0a390123bb0d9fb545e221b191ef63",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "4bddb269aa9fa07c8e1013804ec35da66a60845554bba5a1daa925f795cac467",
+      "sha256": "55102021b7ce97f97c19b2dbd56e51dd9ba85a271b085baedffa5dc778be5e2a",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -5513,6 +5513,10 @@
     },
     "tests/api/assessments.test.mjs": {
       "sha256": "085688bc1b13397131367d9b9306d4c1895377d37ea27d72c0da630060bd0dd5",
+      "executable": false
+    },
+    "tests/api/booking-offer-history.test.mjs": {
+      "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2",
       "executable": false
     },
     "tests/api/branches.test.mjs": {
