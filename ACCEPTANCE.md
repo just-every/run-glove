@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 11 | 210 | 16 | 237 |
+| Core | 12 | 209 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 11 | 223 | 29 | 263 |
+| Full target | 12 | 222 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -379,7 +379,7 @@ Its audience export follows the customer CSV permission boundary.
 
 #### CUST-006 — Segment audience handoff
 
-Core · target · **partial** · From CUST-004 · Cites BASE-DATA-001, BASE-SECRET-001
+Core · target · **done** · From CUST-004 · Cites BASE-DATA-001, BASE-SECRET-001
 
 **Requirement.** Segment audience handoff supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cust-004-operating-rules) retain the record formats and calculations.
 
@@ -387,8 +387,8 @@ Core · target · **partial** · From CUST-004 · Cites BASE-DATA-001, BASE-SECR
 1. The owner connects Mango (its integration address and a contacts:write credential) or Mailchimp (an API key and audience ID); the key is kept as a secret, never in records, exports, logs or the archive.
 2. The owner and office push a segment: Glove holds no marketing consent, so a push never subscribes anyone: Mango receives each member with an email (email, name, tags, the segment as its list, without subscribe), Mailchimp adds new members as transactional and tags them with the segment and their tags; members without an email or tagged "do not contact" are skipped and counted (customers who opted out are excluded with `COMM-002`'s consent record, which carries it in its text and acceptance), and each push is recorded with its counts and the provider's refusals.
 
-**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`
-**Gap.** The audit records 1 separately asserted outcome(s). Complete proof is not located for point 1 — The owner connects Mango (its integration address and a contacts:write credential) or Mailchimp (an API key and audience ID); the key is kept as a secret, never in records, exports, logs or the archive.; point 2 — The owner and office push a segment: Glove holds no marketing consent, so a push never subscribes anyone: Mango receives each member with an email (email, name, tags, the segment as its list, without subscribe), Mailchimp adds new members as transactional and tags them with the segment and their tags; members without an email or tagged "do not contact" are skipped and counted (customers who opted out are excluded with COMM-002's consent record, which carries it in its text and acceptance), and each push is recorded with its counts and the provider's refusals. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/segments.ts`, `src/glove/commands/segments.ts`, `src/glove/commands/marketing.ts`, `src/glove/rules.ts`, `src/ui/custom-fields.tsx`, `tests/api/segments.test.mjs`; `tests/api/segments.test.mjs` (DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags and a segment: members match the filter and the export carries exactly them); `tests/portable.mjs` (CUST-006 real archive)
+**Gap.** None.
 
 #### CUST-005 — Duplicate detection and merge review
 
