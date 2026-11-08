@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/segments.test.mjs": {
-      "sha256": "19fd4ebe2a41f7a47bba1916bd6de7cbf0ddc0d76fc53bc2e0e559a61a4382b6",
+      "sha256": "9c502100c2491aa5b0d0ed5ae15275c6e4876e86c77155265517f6b17368f4f7",
       "executable": false
     },
     "tests/api/series.test.mjs": {

@@ -518,6 +518,7 @@ async function marketingHandoff() {
   try {
     const b = await business(h, { currency: 'USD', timezone: 'UTC' })
     const mangoKey = 'synthetic-glove-93', chimpKey = 'synthetic-glove-94-us21'
+    const secretForms = [mangoKey, chimpKey, Buffer.from(`glove:${chimpKey}`).toString('base64')]
     const connections = [
       { provider: 'mango', key: mangoKey, url: 'https://mango.example.test' },
       { provider: 'mailchimp', key: chimpKey, listId: 'synthetic-glove-95' },
@@ -637,7 +638,7 @@ async function marketingHandoff() {
     const saved = (await h.db.prepare('SELECT result FROM glove_commands').all()).results
     const surfaces = [await h.state(), saved, activity, exported, h.logs]
     assert.ok(h.logs.length, 'actual Worker runtime output was captured across restarts')
-    for (const surface of surfaces) for (const key of [mangoKey, chimpKey]) assert.ok(!JSON.stringify(surface).includes(key), 'provider keys never enter a retained or logged surface')
+    for (const surface of surfaces) for (const secret of secretForms) assert.ok(!JSON.stringify(surface).includes(secret), 'provider keys and encoded authorization never enter a retained or logged surface')
     const calls = h.marketing.length
     for (const connection of connections) {
       await h.command('marketing.connect', { provider: connection.provider, key: null })
