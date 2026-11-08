@@ -25,14 +25,15 @@ import assert from 'node:assert/strict'
 export async function installation({ isolates = 1, at = null, captureLogs = false, workerPlugins = [] } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   // The loopback service represents callback errors as HTTP 500. Translate
-  // only the marketing edge's explicit transport-failure marker at fetch,
-  // so an unreachable provider rejects inside the actual Worker instead.
+  // the marketing transport-failure marker and calendar timeout marker at
+  // fetch, so network failures reject inside the actual Worker instead.
   const banner = { js: `
 const networkFetch = globalThis.fetch;
 globalThis.fetch = async (input, options) => {
   const response = await networkFetch(input, options);
   const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url);
   if ((url.origin === 'https://mango.example.test' || url.origin === 'https://us21.api.mailchimp.com') && response.headers.get('x-synthetic-glove-network-error') === '1') throw new TypeError('Synthetic provider unreachable');
+  if (['www.googleapis.com', 'graph.microsoft.com'].includes(url.hostname) && response.headers.get('x-synthetic-glove-calendar-timeout') === '1') throw new DOMException('Synthetic calendar timeout', 'TimeoutError');
   return response;
 };` }
   const bundle = () => build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner, plugins: workerPlugins })
@@ -293,7 +294,7 @@ export async function business(h, overrides = {}) {
   return { service, refrigerant, customer, site, dispatcher, office, agent, priyaPerson, tomPerson, priya, tom }
 }
 
-export async function routingDay(h, day = '2026-11-03') {
+export async function routingDay(h, day = '2026-11-03', beforeVisits = null) {
   const b = await business(h)
   await h.command('maps.connect', { key: 'synthetic-glove-7' })
   await h.command('business.save', { ...(await h.state()).business[0], eligibility: { skills: 'refuse', availability: 'refuse', area: 'refuse' } })
@@ -302,6 +303,7 @@ export async function routingDay(h, day = '2026-11-03') {
   for (const [i, tech] of [b.priya, b.tom, third].entries()) technicians.push(await h.command('technician.save', { id: tech.id, version: tech.version, name: tech.name, ...(tech.operatorId ? { operatorId: tech.operatorId } : {}), skills: i === 0 ? ['hvac', 'gas'] : ['hvac'], zips: ['60601'], hours: [{ day: 'tue', start: '07:00', end: '18:00' }] }))
   const regular = await h.command('service.save', { code: 'ROUTE-HVAC', name: 'HVAC visit', unitPrice: '20.00', tax: 'GST', requiredSkills: ['hvac'] })
   const gas = await h.command('service.save', { code: 'ROUTE-GAS', name: 'Gas visit', unitPrice: '20.00', tax: 'GST', requiredSkills: ['gas'] })
+  if (beforeVisits) await beforeVisits(b)
   const visits = []
   for (let t = 0; t < 3; t++) for (let n = 0; n < 4; n++) {
     const group = (t + n) % 3, address = `${100 + t * 10 + n} Routing Ave, Chicago, IL 60601`

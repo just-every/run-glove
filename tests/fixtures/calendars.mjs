@@ -1,6 +1,6 @@
 // Only the Google and Microsoft network boundary is faked.
 export function calendarEdge() {
-  const edge = { calls: [], busy: [], events: new Map(), status: 200, async answer(request) {
+  const edge = { calls: [], busy: [], events: new Map(), status: 200, writeReply: null, async answer(request) {
     const u = new URL(request.url)
     if (u.hostname === 'login.microsoftonline.com') return Response.json({ access_token: 'synthetic-glove-301' })
     if (!['www.googleapis.com', 'graph.microsoft.com'].includes(u.hostname) || !/\/calendars\//.test(u.pathname)) return null
@@ -12,6 +12,7 @@ export function calendarEdge() {
     const id = request.method === 'POST' ? body.id ?? `synthetic-glove-${edge.calls.length}` : decodeURIComponent(u.pathname.split('/').at(-1))
     if (request.method === 'DELETE') { edge.events.delete(id); return new Response(null, { status: 204 }) }
     edge.events.set(id, body)
+    if (edge.writeReply) return edge.writeReply({ provider, method: request.method, url: request.url, body, id })
     return Response.json({ ...body, id })
   } }
   return edge

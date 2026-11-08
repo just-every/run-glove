@@ -40,7 +40,7 @@ async function signedIn(browser: any, width: number) {
   return { context, page }
 }
 
-test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, the owner draws a zone, and the technician\'s phone hands directions to their navigation app, at 1440 and 390', async ({ browser }) => {
+test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive times, the owner draws a zone, and the technician\'s phone hands directions to their navigation app, at 1440 and 390', async ({ browser }) => {
   test.setTimeout(180_000)
   const h = await installation()
   try {
@@ -72,6 +72,7 @@ test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, th
         await shot(page, width, 'calendar-connected')
         await send(page, calendar.getByRole('button', { name: 'Disconnect visit calendar', exact: true }))
       }
+      await calendarDeliveryReview(browser)
       await page.setViewportSize({ width: 1440, height: 1000 })
       // The owner connects Google Maps with their own key under Team.
       await page.goto(`${origin}/app#team`)
@@ -244,3 +245,85 @@ test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, th
     }
   } finally { await h.close() }
 })
+
+async function calendarDeliveryReview(browser: any) {
+  const h = await installation({ at: '2026-11-03T00:00:00.000Z' })
+  const { context, page } = await signedIn(browser, 1440)
+  try {
+    const b = await business(h)
+    await productionApi(page, h)
+    await page.goto(`${origin}/app#team`)
+    const calendars = [
+      { tech: b.tom, provider: 'google', name: 'Tom B.' },
+      { tech: b.priya, provider: 'microsoft', name: 'Priya N.' },
+    ]
+    const connect = async (calendar: Locator, provider: string, calendarId: string) => {
+      await calendar.getByLabel('Calendar provider', { exact: true }).selectOption(provider)
+      await calendar.getByLabel('Calendar ID', { exact: true }).fill(calendarId)
+      await calendar.getByLabel('OAuth client ID', { exact: true }).fill('synthetic-glove-402')
+      await calendar.getByLabel('OAuth client secret', { exact: true }).fill('synthetic-glove-403')
+      await calendar.getByLabel('OAuth refresh token', { exact: true }).fill('synthetic-glove-404')
+      await calendar.getByLabel('Approve creating, updating and deleting Glove visit events in this calendar').check()
+      await send(page, calendar.getByRole('button', { name: 'Connect visit calendar', exact: true }))
+    }
+    const review = [] as any[]
+    for (const { tech, provider, name } of calendars) {
+      const calendar = page.getByRole('form', { name: `Visit calendar for ${name}`, exact: true })
+      await connect(calendar, provider, `synthetic-glove-${provider}-old`)
+      const job = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: `Calendar review ${provider}` })
+      let visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-05', start: '09:00', end: '10:00' })
+      const mapping = await h.db.prepare('SELECT * FROM glove_calendar_events WHERE visit_id=?').bind(visit.id).first()
+      h.calendarSync.writeReply = () => Response.json({})
+      const uncertain = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-06', start: '09:00', end: '10:00' })
+      h.calendarSync.writeReply = null
+      visit = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, start: '11:00', end: '12:00', reason: 'Waiting for uncertain provider outcome' })
+      review.push({ calendar, provider, tech, visit, uncertain, mapping })
+    }
+    await h.restart()
+    await h.scheduled('2026-11-03T00:00:00.000Z')
+    await page.reload()
+    for (const { calendar, provider } of review) {
+      await expect(calendar.getByRole('status')).toContainText('unknown')
+      await expect(calendar.getByRole('status')).toContainText('uncertain writes are not repeated')
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1000 })
+        await calendar.scrollIntoViewIfNeeded()
+        await shot(page, width, 'uncertain-' + provider)
+      }
+      await page.setViewportSize({ width: 1440, height: 1000 })
+    }
+    await page.goto(`${origin}/app#activity`)
+    await expect(page.getByText(/Calendar create: unknown; check the provider before reconnecting/)).toHaveCount(2)
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 1000 })
+      await shot(page, width, 'calendar-activity')
+    }
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.goto(`${origin}/app#team`)
+    const writeCount = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
+    for (const { calendar, mapping, visit, uncertain, provider } of review) {
+      await send(page, calendar.getByRole('button', { name: 'Disconnect visit calendar', exact: true }))
+      const retained = calendar.getByRole('region', { name: 'Retained calendar events' })
+      await expect(retained.getByText(`Visit ${visit.id} · Provider event ${mapping.event_id} · Connection ${mapping.connection_id}`, { exact: true })).toBeVisible()
+      await expect(retained.getByText(new RegExp(`Visit ${uncertain.id}.*create: unknown`))).toBeVisible()
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1000 })
+        await retained.scrollIntoViewIfNeeded()
+        await shot(page, width, 'retained-' + provider)
+      }
+      await page.setViewportSize({ width: 1440, height: 1000 })
+    }
+    await h.scheduled('2026-11-03T00:00:00.000Z')
+    expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(writeCount)
+    for (const { calendar, provider, mapping, tech, visit } of review) {
+      const beforeReconnect = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
+      await connect(calendar, provider, `synthetic-glove-${provider}-fresh`)
+      await expect(calendar.getByRole('status')).toContainText('No visit changes sent yet')
+      expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(beforeReconnect)
+      await b.dispatcher.run('visit.book', { jobId: visit.jobId, technicianId: tech.id, date: '2026-11-07', start: '09:00', end: '10:00' })
+      await page.reload()
+      await expect(calendar.getByRole('status')).toContainText('confirmed')
+      await expect(calendar.getByRole('region', { name: 'Retained calendar events' })).toContainText(mapping.event_id)
+    }
+  } finally { await context.close(); await h.close() }
+}

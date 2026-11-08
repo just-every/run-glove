@@ -64,6 +64,7 @@ export const calendarSync: Handler = async (c, type, p, db) => {
   const tech = find(c.s, 'technicians', p.technicianId)
   if (type === 'calendar.connect') {
     if (p.disconnect === true) {
+      c.sql.push({ sql: "UPDATE glove_calendar_work SET state='disconnected' WHERE technician_id=? AND connection_id=? AND state='pending'", params: [tech.id, tech.calendarSync?.connectionId ?? ''] })
       c.sql.push({ sql: 'DELETE FROM glove_calendar_credentials WHERE provider=?', params: [`${kind}:${tech.id}`] })
       const row = bump(c.s, 'technicians', tech, { calendarSync: null })
       event(c, { jobId: null, subjectKind: 'technician', subjectId: tech.id, kind: 'calendar.disconnected', summary: `${c.actor.name} stopped calendar synchronization for ${tech.name}; existing provider events retained`, data: null })
@@ -92,21 +93,25 @@ export async function refreshBookingCalendars(c: Context, db: D1Database, type: 
   for (const tech of c.s.technicians.filter(t => t.calendarSync)) {
     const secret = await credential(db, tech)
     const visit = p.visitId ? c.s.visits.find(v => v.id === p.visitId) : null
-    const date = p.date ?? visit?.local.date ?? c.now.slice(0, 10)
+    const route = type === 'route.accept' ? c.s.routes.find(r => r.id === p.routeId) : null
+    const date = p.date ?? visit?.local.date ?? route?.date ?? c.now.slice(0, 10)
     const from = new Date(Date.parse(date + 'T00:00:00Z') - 86400000).toISOString(), to = new Date(Date.parse(from) + 92 * 86400000).toISOString()
     const busy = await busyRead(secret, from, to, db)
+    // A fresh read with unchanged busy time must not invalidate the reviewed route
+    // by changing only the technician version and read timestamp. Changed busy
+    // time still changes the dependency and requires a new route review.
+    if (type === 'route.accept' && JSON.stringify(busy) === JSON.stringify(tech.calendarSync.busy)) continue
     bump(c.s, 'technicians', tech, { calendarSync: { ...tech.calendarSync, busy, readAt: c.now } })
   }
 }
 
-/** Commit the durable work with the visit. Store only references; resolve details immediately before sending. */
+/** Commit work only for changed visits. Connecting alone grants no replay of existing visits. */
 export function queueCalendarSync(c: Context, before: State) {
   for (const tech of c.s.technicians.filter(t => t.calendarSync)) {
-    const previous = before.technicians.find(t => t.id === tech.id)
     for (const visit of c.s.visits) {
       const old = before.visits.find(v => v.id === visit.id)
       if (visit.technicianId !== tech.id && old?.technicianId !== tech.id) continue
-      if (previous?.calendarSync?.connectionId === tech.calendarSync.connectionId && old && ['technicianId', 'startAt', 'endAt', 'status'].every(k => old[k] === visit[k])) continue
+      if (old && ['technicianId', 'startAt', 'endAt', 'status'].every(k => old[k] === visit[k])) continue
       c.sql.push({ sql: 'INSERT OR IGNORE INTO glove_calendar_work(id,command_id,technician_id,connection_id,visit_id,state) VALUES(?,?,?,?,?,\'pending\')', params: [`${c.commandId}:${tech.id}:${visit.id}`, c.commandId, tech.id, tech.calendarSync.connectionId, visit.id] })
     }
   }
