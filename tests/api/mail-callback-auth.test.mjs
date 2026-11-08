@@ -140,8 +140,8 @@ test('COMM-013 point 5: two Worker isolates share transient IP rejection limits 
       const address = (input, value = ip) => ({ ...input, headers: { ...input.headers, 'cf-connecting-ip': value } })
       const invalid = address(edge.badSignature(edge.callback(message)))
       // First warm the SES cache so the only possible network effect is excluded.
-      assert.equal((await postEvents(h, edge.callback(message))).status, 200)
-      assert.equal((await postEvents(target, edge.callback(message))).status, 200)
+      assert.equal((await postEvents(h, address(edge.callback(message)))).status, 200)
+      assert.equal((await postEvents(target, address(edge.callback(message)))).status, 200)
       for (let n = 0; n < 20; n++) await unchanged(h, invalid, { target: n % 2 ? target : h })
       await unchanged(h, invalid, { status: 429, target })
       await unchanged(h, invalid, { status: 429 })
