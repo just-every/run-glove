@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ampm, timeRange, byId, dateLabel, shiftDate, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction, type Tone } from './controls'
 import { can } from './roles'
+import { IconButton } from './icon-button'
 import { Glyph } from './glyphs'
 import { hhmm, minutes } from './dispatch-board'
 import type { Attempt } from './dispatch-cards'
@@ -66,7 +67,7 @@ export function VisitPanel({ s, visit, run, attempt, close, tone, now }: { s: Gl
       <span className="part-icon" aria-hidden="true"><Glyph name={tone[0] === 'Part on order' ? 'box' : tone[1] === 'red' ? 'alert' : 'calendar'} /></span>
       <span className="num">{job?.number}</span>
       <span className={`tag tag-${tone[1]}`}>{tone[0]}</span>
-      <button className="icon-button" onClick={close} aria-label="Close visit"><Glyph name="close" /></button>
+      <IconButton tooltip="Close visit" className="icon-button" onClick={close} aria-label="Close visit"><Glyph name="close" /></IconButton>
     </div>
     <h2 id="visit-title">{job?.title}</h2>
     <p className="visit-place"><strong>{customer?.name}</strong><br />{site?.address}</p>

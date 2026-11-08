@@ -49,8 +49,14 @@ async function busyRead(secret: any, from: string, to: string, db: D1Database) {
       if (r.status === 'cancelled' || r.isCancelled || r.transparency === 'transparent' || r.showAs === 'free' || r.extendedProperties?.private?.gloveVisit || r.transactionId?.startsWith('glove-')) continue
       const start = r.start?.dateTime ?? (r.start?.date ? instant(r.start.date, '00:00', secret.timezone, 'calendar date') : null), end = r.end?.dateTime ?? (r.end?.date ? instant(r.end.date, '00:00', secret.timezone, 'calendar date') : null)
       if (!start || !end) fail('CALENDAR_SYNC', 'Calendar returned an unreadable busy interval.', null, 502)
-      const utc = (v: string) => new Date(/[zZ]|[+-]\d\d:\d\d$/.test(v) ? v : v + 'Z').toISOString()
-      spans.push({ start: utc(start), end: utc(end) })
+      const utc = (v: string) => {
+        const value = Date.parse(/[zZ]|[+-]\d\d:\d\d$/.test(v) ? v : v + 'Z')
+        if (!Number.isFinite(value)) fail('CALENDAR_SYNC', 'Calendar returned an unreadable busy interval.', null, 502)
+        return new Date(value).toISOString()
+      }
+      const span = { start: utc(start), end: utc(end) }
+      if (span.end <= span.start) fail('CALENDAR_SYNC', 'Calendar returned an unreadable busy interval.', null, 502)
+      spans.push(span)
     }
     next = secret.provider === 'google' ? data.nextPageToken ? `${endpoint('google', secret.calendarId)}?singleEvents=true&timeMin=${enc(from)}&timeMax=${enc(to)}&maxResults=2500&pageToken=${enc(data.nextPageToken)}` : null : data['@odata.nextLink'] ?? null
   }
