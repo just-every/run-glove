@@ -96,7 +96,7 @@ function Batch({ s, batch, run }: { s: Glove; batch: Rec; run: Run }) {
     <div className="table-wrap"><table className="table"><thead><tr><th>{batch.system} list</th><th>Records</th><th>Become Glove records</th><th>Merged</th><th>Unused</th><th>Rejected</th></tr></thead><tbody>
       {Object.entries(p.byKind as Record<string, Rec>).map(([kind, n]) => <tr key={kind}><td>{kind}</td><td data-label="Records">{n.input}</td><td data-label="Become Glove records">{n.mapped}</td><td data-label="Merged">{n.merged}</td><td data-label="Unused">{n.unused ?? 0}</td><td data-label="Rejected">{n.rejected}</td></tr>)}
     </tbody></table></div>
-    {p.records?.length > 0 && <details className="details" open><summary>Every source record ({p.records.length})</summary>
+    {p.records?.length > 0 && <details className="details" open={batch.status === 'previewed'}><summary>Every source record ({p.records.length})</summary>
       <p>Review where each record goes. Unused records stay in the original files.</p>
       <ol aria-label="Source record review" style={{ paddingLeft: '1.5rem', overflowWrap: 'anywhere' }}>{p.records.map((r: Rec, i: number) => <li key={i} style={{ marginBottom: '1rem' }}>
         <strong>{r.sourceKind} {r.sourceId}</strong>
