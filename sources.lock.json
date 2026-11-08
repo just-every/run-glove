@@ -5712,7 +5712,7 @@
       "executable": false
     },
     "tests/api/subcontract.test.mjs": {
-      "sha256": "be68204797c186daebfe6b87353baaaecd6479e8e34d7f69a967276cf82d5328",
+      "sha256": "ca6515f0a48d841431d207a5f46248836bb46f12abfb724604022b3a9855d024",
       "executable": false
     },
     "tests/api/suggest.test.mjs": {

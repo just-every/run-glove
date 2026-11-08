@@ -129,7 +129,7 @@ async function assertSubcontract1099(t) {
   const points = []
   const point = (name, check) => points.push({ name, check })
   let h, b, sid, lee, a, c, tom, editable, replaySave, replayAgree, replayComplete
-  const trail = []
+  const trail = [], completionTrail = []
   const visit = async id => (await h.state()).visits.find(v => v.id === id)
   const run = async (type, payload, kind) => {
     const commandId = randomUUID(), result = await h.command(type, payload, { commandId })
@@ -151,6 +151,7 @@ async function assertSubcontract1099(t) {
     const commandId = randomUUID(), result = await person.run('visit.complete', payload, { commandId })
     const saved = await visit(v.id)
     assert.equal(saved.completion.receivedAt, receivedAt)
+    completionTrail.push({ commandId, person, visitId: v.id, receivedAt })
     return { person, payload, commandId, result }
   }
   const read = async (path, as = h.owner()) => {
@@ -211,10 +212,15 @@ async function assertSubcontract1099(t) {
     assert.deepEqual(await h.state(), beforeOmitted)
     const invalid = ['987654321', '987-65-4321', '12345', 'abc7', ' 4321', '4321 ', '', null]
     for (const tinLast4 of invalid) {
-      const before = await h.state(), commandId = randomUUID()
-      await h.command('technician.save', { ...a, subcontractor: { payeeName: 'Refused payee', tinLast4 } }, { error: 'INPUT', commandId })
-      assert.deepEqual(await h.state(), before)
-      assert.equal(await h.db.prepare('SELECT result FROM glove_commands WHERE id=?').bind(commandId).first(), null)
+      for (const target of [{ name: 'Refused new payee' }, a]) {
+        const before = await h.state(), commandId = randomUUID()
+        const exported = await read('/api/glove/export'), activity = await read('/api/glove/activity')
+        await h.command('technician.save', { ...target, subcontractor: { payeeName: 'Refused payee', tinLast4 } }, { error: 'INPUT', commandId })
+        assert.deepEqual(await h.state(), before)
+        assert.deepEqual(await read('/api/glove/export'), exported)
+        assert.deepEqual(await read('/api/glove/activity'), activity)
+        assert.equal(await h.db.prepare('SELECT result FROM glove_commands WHERE id=?').bind(commandId).first(), null)
+      }
     }
     a = await h.command('technician.save', { ...a, subcontractor: { payeeName: 'Edited payee', tinLast4: '1234' } })
     assert.deepEqual(a.subcontractor, { payeeName: 'Edited payee', tinLast4: '1234' })
@@ -252,6 +258,10 @@ async function assertSubcontract1099(t) {
     assert.deepEqual(await h.state(), before)
     const changed = await agree(editable, '84.01')
     assert.equal(changed.result.agreed.amount, '84.01')
+    // A stale clear must not discard the newly agreed money either.
+    before = await h.state()
+    await h.command('visit.agree', { visitId: editable.id, version: first.result.version, amount: null }, { error: 'STALE' })
+    assert.deepEqual(await h.state(), before)
     for (const person of excluded()) {
       for (const amount of ['900.00', null]) {
         before = await h.state()
@@ -308,8 +318,11 @@ async function assertSubcontract1099(t) {
 
   point('point 4: every parsed CSV column and JSON label is honest; report reads have no filing effect and retain attributable source events', async () => {
     const outbound = h.outbound.attempts
+    const before = await h.state(), commands = (await h.db.prepare('SELECT id, result FROM glove_commands ORDER BY id').all()).results
     await assertReports()
     assert.equal(h.outbound.attempts, outbound, 'reading filing totals makes no provider request')
+    assert.deepEqual(await h.state(), before, 'filing totals are read-only')
+    assert.deepEqual((await h.db.prepare('SELECT id, result FROM glove_commands ORDER BY id').all()).results, commands)
     const { activity, exported } = await assertTrail(h, ['technician.saved', 'visit.agreed', 'capture.completion'])
     for (const wanted of trail) {
       const events = activity.filter(e => e.commandId === wanted.commandId && e.kind === wanted.kind)
@@ -318,6 +331,17 @@ async function assertSubcontract1099(t) {
       assert.deepEqual([e.actorName, e.actorRole, e.subjectId], ['Olivia Owner', 'owner', wanted.subjectId])
       assert.ok(e.actorId && e.at && e.summary)
       assert.equal(exported.timeline.filter(x => x.command_id === wanted.commandId && x.kind === wanted.kind).length, 1)
+    }
+    for (const { commandId, person, visitId, receivedAt } of completionTrail) {
+      const events = activity.filter(e => e.commandId === commandId && e.kind === 'capture.completion')
+      assert.equal(events.length, 1, 'one completion event, including after command replay')
+      assert.deepEqual([events[0].actorId, events[0].actorName, events[0].actorRole, events[0].at],
+        [person.id, person.name, person === b.tomPerson ? 'technician' : 'subcontractor', receivedAt])
+      const entries = exported.timeline.filter(e => e.command_id === commandId && e.kind === 'capture.completion')
+      assert.equal(entries.length, 1)
+      assert.equal(entries[0].actor_id, person.id)
+      assert.equal(entries[0].at, receivedAt)
+      assert.ok(exported.visits.some(v => v.id === visitId && v.completion.receivedAt === receivedAt))
     }
     for (const [tech, want] of [[a, { payeeName: 'Sid, "Cooling" LLC', tinLast4: '0042' }], [c, { payeeName: 'Lee Electric', tinLast4: '6000' }], [tom, { payeeName: 'Tom Heat', tinLast4: '7890' }]]) assert.deepEqual(exported.technicians.find(x => x.id === tech.id).subcontractor, want)
   })
