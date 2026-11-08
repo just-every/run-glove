@@ -1,0 +1,99 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f166",
+  "head": "a0aaf562ef566b3fbe791fdce4d723d369b428b0",
+  "main": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
+  "mainEqualsCandidate": false,
+  "fullHistory": true,
+  "sourceLock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0,
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "checkExit": 0
+  },
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses FIELD-001",
+    "exit": 0,
+    "check": "node scripts/contract-docs.mjs check",
+    "checkExit": 0,
+    "generatedViewsCommitted": false
+  },
+  "migrationLedger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migrations changed"
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "runtime": "Node 22.20.0",
+    "exit": 0
+  },
+  "firstParty": {
+    "command": "npx -y @runeditrun/rer check --profile first-party",
+    "exit": 0
+  },
+  "browser": {
+    "command": "node scripts/verify-ci.mjs browser-3",
+    "exit": 0,
+    "passed": 18,
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "screens": [
+      390,
+      1440
+    ],
+    "receipt": "offline-day-receipt.json"
+  },
+  "baseline": {
+    "head": "e5e7e131733b4b8c6af4e5aac551319cb6430bf9",
+    "command": "node scripts/verify-ci.mjs browser-3",
+    "exit": 0,
+    "passed": 18
+  },
+  "ci": {
+    "run": 42535211642,
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "a0aaf562ef566b3fbe791fdce4d723d369b428b0",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42535211642",
+    "id": 42535211642,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "counts": {
+    "before": {
+      "partial": 212,
+      "done": 22,
+      "missing": 29
+    },
+    "after": {
+      "partial": 212,
+      "done": 22,
+      "missing": 29
+    }
+  },
+  "contractJudgmentsChanged": false,
+  "combinedJourneyChanged": false,
+  "data009SourceChanged": false,
+  "publicationScan": {
+    "commit": "a0aaf562ef566b3fbe791fdce4d723d369b428b0",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Required full-history scan belongs to the fleet Mac lander"
+  },
+  "productCommits": [
+    "a0aaf562ef566b3fbe791fdce4d723d369b428b0 Isolate offline qualification from existing native journey settings",
+    "6bc548ad708dfc2fedf2bcffb0596f908bcc7cf5 Merge remote-tracking branch 'origin/main' into cloud/sx-glove-c-f166",
+    "5b11e941c8cbf5843ad2e3453c89c0133c05a558 Qualify the complete offline day through native browser journeys",
+    "3797cdbf55ece820cc491b15dc36932351c6491d Merge remote-tracking branch 'origin/main' into cloud/sx-glove-c-f166",
+    "0fa48feeea31bacda332b1a4ba92b0ee6fcaf419 Keep waiting field captures with their recording person [skip ci]",
+    "17fc4dddd26cbe2ea4ddb309b5bde6446648c79a Protect offline caches on uncontrolled sign-in pages [skip ci]"
+  ],
+  "repairs": 1
+}

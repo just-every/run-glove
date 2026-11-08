@@ -1,0 +1,133 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /home/agent/rer-consolidation/work/sx-glove-c-f166/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/offline-day.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/routing.spec.ts' 'tests/browser/rules.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=4324
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=8890
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=3207
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=58554
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 18 tests using 1 worker
+[verify progress]   ✓   1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (1.0m)
+[verify progress]   ✓   2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (15.9s)
+[verify progress]   ✓   3 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (1.1m)
+[verify progress]   ✓   4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.4m)
+[verify progress]   ✓   5 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (1.3m)
+[verify progress]   ✓   6 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (29.1s)
+[verify progress]   ✓   7 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (7.9s)
+[verify progress]   ✓   8 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (15.9s)
+[verify progress]   ✓   9 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (28.6s)
+[verify progress]   ✓  10 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (26.8s)
+[verify progress]   ✘  11 tests/browser/offline-day.spec.ts:124:1 › FIELD-001 point 2: the kept view is exact, refreshed and cleared across native sign-ins including an uncontrolled page (0ms)
+[verify progress]   ✓  16 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (18.9s)
+[verify progress]   ✓  17 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (15.0s)
+[verify progress]   ✘  18 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (25.7s)
+[verify progress]   2 failed
+[verify progress]   12 passed (8.2m)
+[verify phase] browser assertions: exit=1 signal=none elapsed_ms=490223
+Dev runtime output (last 6000 characters):
+r identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:02 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-e7b3537b58d5332a77e45e331`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:03 PM [vite] (client) [console.error] Encountered two children with the same key, `ba9def3f-8374-4f1b-ab0f-d5ba7787cf421`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:03 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-e7b3537b58d5332a77e45e331`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `73bb5b04-f073-4aee-9ff4-8b2534ae60761`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-62742fc66d3baf167e561e3f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `73bb5b04-f073-4aee-9ff4-8b2534ae60761`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-62742fc66d3baf167e561e3f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `73bb5b04-f073-4aee-9ff4-8b2534ae60761`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-62742fc66d3baf167e561e3f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `73bb5b04-f073-4aee-9ff4-8b2534ae60761`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:09 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-62742fc66d3baf167e561e3f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:10 PM [vite] (client) [console.error] Encountered two children with the same key, `73bb5b04-f073-4aee-9ff4-8b2534ae60761`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:10 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-62742fc66d3baf167e561e3f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:10 PM [vite] (client) [console.error] Encountered two children with the same key, `73bb5b04-f073-4aee-9ff4-8b2534ae60761`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:10 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-62742fc66d3baf167e561e3f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:10 PM [vite] (client) [console.error] Encountered two children with the same key, `73bb5b04-f073-4aee-9ff4-8b2534ae60761`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:57:10 PM [vite] (client) [console.error] Encountered two children with the same key, `csv-site-62742fc66d3baf167e561e3f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[verify phase] native dev: exit=143 signal=none elapsed_ms=516463
+ed and private to the recording person, including legacy entries
+  -  14 tests/browser/offline-day.spec.ts:243:1 › FIELD-001 point 1: offline reload completes every capture once with independently enumerated records and Activity
+  -  15 tests/browser/offline-day.spec.ts:308:1 › FIELD-001 point 5: reassigned offline evidence is retained, flagged and reviewed without overwriting either technician
+(node:11265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:11265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (18.9s)
+(node:11265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (15.0s)
+(node:11265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (25.7s)
+
+
+  1) tests/browser/offline-day.spec.ts:124:1 › FIELD-001 point 2: the kept view is exact, refreshed and cleared across native sign-ins including an uncontrolled page 
+
+    Error: {"code":"FILE","message":"logo must be base64 image bytes.","details":null}
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      11 |   const response = await page.request.post(`${origin}/api/glove/commands`, { headers: { origin }, data: { commandId, type, payload } })
+      12 |   const body = await response.json()
+    > 13 |   expect(body.ok, JSON.stringify(body.error)).toBe(true)
+         |                                               ^
+      14 |   return body.result
+      15 | }
+      16 | const kept = (page: Page) => page.evaluate(() => JSON.parse(localStorage.getItem('glove.day') || 'null'))
+        at command ([REDACTED]/tests/browser/offline-day.spec.ts:13:47)
+        at [REDACTED]/tests/browser/offline-day.spec.ts:67:3
+
+    Error Context: ../../../../../../tmp/f166-ci-reproduction/results/journeys/offline-day-FIELD-001-poin-41539-luding-an-uncontrolled-page/error-context.md
+
+    Error Context: ../../../../../../tmp/f166-ci-reproduction/results/journeys/offline-day-FIELD-001-poin-41539-luding-an-uncontrolled-page/error-context.md
+
+  2) tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 
+
+    TypeError: fetch failed
+
+       at desk-fixture.ts:12
+
+      10 |   await page.route(`${origin}/api/glove/**`, async route => {
+      11 |     const req = route.request(), url = new URL(req.url())
+    > 12 |     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(cookie ? { as: cookie } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+         |                      ^
+      13 |     await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+      14 |   })
+      15 |   try {
+        at Object.processResponse ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at [REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at [REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at fetch4 ([REDACTED]/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+        at _Miniflare.dispatchFetch ([REDACTED]/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+        at [REDACTED]/tests/browser/desk-fixture.ts:12:22
+    [cause]: SocketError: other side closed
+        at TLSSocket.onHttpSocketEnd ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+
+    Error Context: ../../../../../../tmp/f166-ci-reproduction/results/journeys/rules-The-Owner-runs-the-w-59f33-le-refusals-at-390-and-1440/error-context.md
+
+  2 failed
+    tests/browser/offline-day.spec.ts:124:1 › FIELD-001 point 2: the kept view is exact, refreshed and cleared across native sign-ins including an uncontrolled page 
+    tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 
+  4 did not run
+  12 passed (8.2m)
+
+ ELIFECYCLE  Command failed with exit code 1.

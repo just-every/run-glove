@@ -1,0 +1,66 @@
+
+Running 2 tests using 1 worker
+
+(node:1894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/offline-day.spec.ts:89:1 › FIELD-001 custody clears an uncontrolled phone before a desk sign-in (6.2s)
+(node:2282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/browser/offline-day.spec.ts:101:1 › FIELD-001 custody never adopts a legacy capture without its recording person (1ms)
+
+
+  1) tests/browser/offline-day.spec.ts:89:1 › FIELD-001 custody clears an uncontrolled phone before a desk sign-in 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 4
+
+    - Array []
+    + Array [
+    +   "glove-shell-v1",
+    +   "glove-day-files",
+    + ]
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+       96 |   await expect(phone.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+       97 |   await expect.poll(() => kept(phone)).toBe(null)
+    >  98 |   await expect.poll(async () => Object.keys(await cachePaths(phone)).filter(n => n.startsWith('glove-'))).toEqual([])
+          |                                                                                                           ^
+       99 | })
+      100 |
+      101 | test('FIELD-001 custody never adopts a legacy capture without its recording person', async () => {
+        at /home/agent/rer-consolidation/work/sx-glove-c-f166/run-glove/tests/browser/offline-day.spec.ts:98:107
+
+    Error Context: ../../../../../../tmp/f166-results/offline-day-FIELD-001-cust-037c2-phone-before-a-desk-sign-in/error-context.md
+
+    Error Context: ../../../../../../tmp/f166-results/offline-day-FIELD-001-cust-037c2-phone-before-a-desk-sign-in/error-context.md
+
+  2) tests/browser/offline-day.spec.ts:101:1 › FIELD-001 custody never adopts a legacy capture without its recording person 
+
+    Error: {"code":"DUPLICATE","message":"That person is already linked to another technician.","details":null}
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      10 |   const response = await page.request.post(`${origin}/api/glove/commands`, { headers: { origin }, data: { commandId, type, payload } })
+      11 |   const body = await response.json()
+    > 12 |   expect(body.ok, JSON.stringify(body.error)).toBe(true)
+         |                                               ^
+      13 |   return body.result
+      14 | }
+      15 | const kept = (page: Page) => page.evaluate(() => JSON.parse(localStorage.getItem('glove.day') || 'null'))
+        at command (/home/agent/rer-consolidation/work/sx-glove-c-f166/run-glove/tests/browser/offline-day.spec.ts:12:47)
+        at /home/agent/rer-consolidation/work/sx-glove-c-f166/run-glove/tests/browser/offline-day.spec.ts:65:10
+
+    Error Context: ../../../../../../tmp/f166-results/offline-day-FIELD-001-cust-d84c1-ithout-its-recording-person/error-context.md
+
+    Error Context: ../../../../../../tmp/f166-results/offline-day-FIELD-001-cust-d84c1-ithout-its-recording-person/error-context.md
+
+  2 failed
+    tests/browser/offline-day.spec.ts:89:1 › FIELD-001 custody clears an uncontrolled phone before a desk sign-in 
+    tests/browser/offline-day.spec.ts:101:1 › FIELD-001 custody never adopts a legacy capture without its recording person 

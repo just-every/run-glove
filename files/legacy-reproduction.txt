@@ -1,0 +1,39 @@
+
+Running 1 test using 1 worker
+
+(node:3729) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/offline-day.spec.ts:196:1 › FIELD-001 point 4: waiting captures remain ordered and private to the recording person, including legacy entries (10.9s)
+
+
+  1) tests/browser/offline-day.spec.ts:196:1 › FIELD-001 point 4: waiting captures remain ordered and private to the recording person, including legacy entries 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText(/Private waiting note|Legacy private note/)
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByText(/Private waiting note|Legacy private note/) with timeout 5000ms
+      - waiting for getByText(/Private waiting note|Legacy private note/)
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      209 |   phone.on('request', record)
+      210 |   await enter(phone, 'member'); await openVisit(hidden)
+    > 211 |   await expect(phone.getByText(/Private waiting note|Legacy private note/)).toHaveCount(0)
+          |                                                                             ^
+      212 |   await note(phone, 'Other person own note')
+      213 |   await expect.poll(async () => (await state(desk)).captures.filter((c: any) => c.visitId === hiddenVisit.id).map((c: any) => c.text)).toEqual(['Other person own note'])
+      214 |   expect(sent.some(x => [...queued.map((q: any) => q.commandId), legacy.commandId].includes(x.commandId))).toBe(false)
+        at /home/agent/rer-consolidation/work/sx-glove-c-f166/run-glove/tests/browser/offline-day.spec.ts:211:77
+
+    Error Context: ../../../../../../tmp/f166-results/offline-day-FIELD-001-poin-a0fa6-on-including-legacy-entries/error-context.md
+
+    Error Context: ../../../../../../tmp/f166-results/offline-day-FIELD-001-poin-a0fa6-on-including-legacy-entries/error-context.md
+
+  1 failed
+    tests/browser/offline-day.spec.ts:196:1 › FIELD-001 point 4: waiting captures remain ordered and private to the recording person, including legacy entries 

@@ -1,0 +1,27 @@
+{
+  "head": "a0aaf562ef566b3fbe791fdce4d723d369b428b0",
+  "nativeSessions": true,
+  "browserOffline": true,
+  "receipts": [
+    {
+      "point": 2,
+      "outcome": "Exact own projection, history, absent prices, successful replacement, native identity changes, uncontrolled desk entry and sign-out clearance"
+    },
+    {
+      "point": 3,
+      "outcome": "Network originals while online; shell and photo fallback only with no signal; record and auth cache exclusion; no desk retention"
+    },
+    {
+      "point": 4,
+      "outcome": "Capture order and identities retained; another native sign-in neither sees nor sends waiting or actorless captures; original actor reconnect sends once"
+    },
+    {
+      "point": 1,
+      "outcome": "Offline open and reload, kept age, seven capture kinds with waiting arrival enabling completion, ordered reconnect, exact records and Activity, unchanged replay"
+    },
+    {
+      "point": 5,
+      "outcome": "Offline original evidence retained and flagged after desk reassignment; new arrival and note preserved; native Dispatcher reviews with attributable Activity"
+    }
+  ]
+}

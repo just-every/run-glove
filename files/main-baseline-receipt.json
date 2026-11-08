@@ -1,0 +1,8 @@
+{
+  "head": "e5e7e131733b4b8c6af4e5aac551319cb6430bf9",
+  "command": "node scripts/verify-ci.mjs browser-3",
+  "runtime": "Node 22.20.0; same cloud runner, CI flags and Chromium adaptation",
+  "exit": 0,
+  "passed": 18,
+  "note": "Main has no offline-day.spec.ts. Its same shard command selects the maintained baseline test set."
+}

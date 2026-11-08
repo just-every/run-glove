@@ -1,0 +1,135 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /home/agent/rer-consolidation/work/sx-glove-c-f166/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/offline-day.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/routing.spec.ts' 'tests/browser/rules.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=12126
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=6725
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=3223
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=48639
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 18 tests using 1 worker
+[verify progress]   ✓   1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (1.1m)
+[verify progress]   ✓   2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (14.7s)
+[verify progress]   ✓   3 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (58.5s)
+[verify progress]   ✓   4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.3m)
+[verify progress]   ✓   5 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (1.1m)
+[verify progress]   ✓   6 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (24.8s)
+[verify progress]   ✓   7 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (7.8s)
+[verify progress]   ✓   8 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (14.5s)
+[verify progress]   ✓   9 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (25.5s)
+[verify progress]   ✓  10 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (24.5s)
+[verify progress]   ✓  11 tests/browser/offline-day.spec.ts:134:1 › FIELD-001 point 2: the kept view is exact, refreshed and cleared across native sign-ins including an uncontrolled page (13.6s)
+[verify progress]   ✓  12 tests/browser/offline-day.spec.ts:186:1 › FIELD-001 point 3: network-first shell and originals never cache record or authentication answers (2.8s)
+[verify progress]   ✓  13 tests/browser/offline-day.spec.ts:222:1 › FIELD-001 point 4: waiting captures remain ordered and private to the recording person, including legacy entries (8.5s)
+[verify progress]   ✓  14 tests/browser/offline-day.spec.ts:253:1 › FIELD-001 point 1: offline reload completes every capture once with independently enumerated records and Activity (10.1s)
+[verify progress]   ✓  15 tests/browser/offline-day.spec.ts:318:1 › FIELD-001 point 5: reassigned offline evidence is retained, flagged and reviewed without overwriting either technician (8.3s)
+[verify progress]   ✓  16 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (18.2s)
+[verify progress]   ✓  17 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (14.2s)
+[verify progress]   ✓  18 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (1.2m)
+[verify progress]   18 passed (9.0m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=540889
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 18 tests using 1 worker
+
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (1.1m)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+QUOTE-007 screen: revise-form
+QUOTE-007 screen: quote-allocation
+QUOTE-007 screen: invoice-allocation
+QUOTE-007 screen: role-limits
+QUOTE-007 screen: price-book-discount
+  ✓   2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (14.7s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (58.5s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.3m)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (1.1m)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (24.8s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (7.8s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (14.5s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (25.5s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (24.5s)
+  ✓  11 tests/browser/offline-day.spec.ts:134:1 › FIELD-001 point 2: the kept view is exact, refreshed and cleared across native sign-ins including an uncontrolled page (13.6s)
+  ✓  12 tests/browser/offline-day.spec.ts:186:1 › FIELD-001 point 3: network-first shell and originals never cache record or authentication answers (2.8s)
+  ✓  13 tests/browser/offline-day.spec.ts:222:1 › FIELD-001 point 4: waiting captures remain ordered and private to the recording person, including legacy entries (8.5s)
+  ✓  14 tests/browser/offline-day.spec.ts:253:1 › FIELD-001 point 1: offline reload completes every capture once with independently enumerated records and Activity (10.1s)
+  ✓  15 tests/browser/offline-day.spec.ts:318:1 › FIELD-001 point 5: reassigned offline evidence is retained, flagged and reviewed without overwriting either technician (8.3s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (18.2s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (14.2s)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  18 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (1.2m)
+
+  18 passed (9.0m)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /tmp/f166-repaired-shard/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=565829

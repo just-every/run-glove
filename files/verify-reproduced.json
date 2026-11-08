@@ -1,0 +1,11 @@
+{
+  "head": "5b11e941c8cbf5843ad2e3453c89c0133c05a558",
+  "run": 42530714086,
+  "job": 128884266553,
+  "command": "node scripts/verify-ci.mjs browser-3",
+  "test": "tests/browser/offline-day.spec.ts#FIELD-001 point 2: the kept view is exact, refreshed and cleared across native sign-ins including an uncontrolled page",
+  "exit": 1,
+  "failure": "FILE: logo must be base64 image bytes.",
+  "runtime": "Node 22.20.0; CI shard browser-3 with the recorded CI flags; cloud Chromium at /usr/bin/chromium",
+  "additionalLocalFailure": "rules.spec.ts: TypeError: fetch failed; SocketError: other side closed (this journey passed in the CI failure run)"
+}

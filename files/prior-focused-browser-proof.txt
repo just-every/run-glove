@@ -1,0 +1,14 @@
+
+Running 5 tests using 1 worker
+
+(node:8240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/offline-day.spec.ts:124:1 › FIELD-001 point 2: the kept view is exact, refreshed and cleared across native sign-ins including an uncontrolled page (11.1s)
+  ✓  2 tests/browser/offline-day.spec.ts:176:1 › FIELD-001 point 3: network-first shell and originals never cache record or authentication answers (2.3s)
+  ✓  3 tests/browser/offline-day.spec.ts:212:1 › FIELD-001 point 4: waiting captures remain ordered and private to the recording person, including legacy entries (7.8s)
+  ✓  4 tests/browser/offline-day.spec.ts:243:1 › FIELD-001 point 1: offline reload completes every capture once with independently enumerated records and Activity (9.9s)
+  ✓  5 tests/browser/offline-day.spec.ts:308:1 › FIELD-001 point 5: reassigned offline evidence is retained, flagged and reviewed without overwriting either technician (6.8s)
+
+  5 passed (54.4s)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f166/packet/screenshots
