@@ -1,0 +1,12 @@
+{
+  "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+  "node": "v22.20.0",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/arrival-windows.test.mjs"
+  ],
+  "exit": 0,
+  "seconds": 20.4
+}

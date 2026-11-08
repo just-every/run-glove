@@ -1,0 +1,19 @@
+{
+  "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+  "node": "v22.20.0",
+  "command": [
+    "timeout",
+    "1200",
+    "node",
+    "tests/browser/run.mjs",
+    "tests/browser/arrival-windows.spec.ts"
+  ],
+  "exit": 0,
+  "seconds": 93.14,
+  "widths": [
+    1440,
+    390
+  ],
+  "assertionWidth": 1440,
+  "chromium": "/usr/bin/chromium"
+}

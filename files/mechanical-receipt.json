@@ -1,0 +1,84 @@
+[
+  {
+    "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "name": "typecheck",
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exit": 0,
+    "seconds": 0.44
+  },
+  {
+    "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "name": "first-party",
+    "command": [
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "check",
+      "--profile",
+      "first-party"
+    ],
+    "exit": 0,
+    "seconds": 1.49
+  },
+  {
+    "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "name": "views-write",
+    "command": [
+      "node",
+      "scripts/contract-docs.mjs",
+      "write"
+    ],
+    "exit": 0,
+    "seconds": 0.18
+  },
+  {
+    "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "name": "views-check",
+    "command": [
+      "node",
+      "scripts/contract-docs.mjs",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.19
+  },
+  {
+    "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "name": "restore-generated",
+    "command": [
+      "git",
+      "checkout",
+      "origin/main",
+      "--",
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ],
+    "exit": 0,
+    "seconds": 0.01
+  },
+  {
+    "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "name": "lock",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "exit": 0,
+    "seconds": 0.25
+  },
+  {
+    "head": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "name": "lock-check",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.28
+  }
+]

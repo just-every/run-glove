@@ -1,0 +1,29 @@
+{
+  "candidate": "647eb9a5629d507532fadc789c93119cea9e71c7",
+  "branch": "cloud/sx-glove-c-f157",
+  "remoteHead": "647eb9a5629d507532fadc789c93119cea9e71c7",
+  "pushed": true,
+  "guard": "cloud-push.py",
+  "main": "4eea04c27f02aa2cb0c12edc421a9b4e574de0bf",
+  "priorProofHead": "ef3bc74cee8b80eceacab9bc0a933c77ca2f68f3",
+  "changedSincePriorProof": [
+    "sources.lock.json",
+    "tests/api/arrival-windows.test.mjs"
+  ],
+  "unchangedRegressionPaths": [
+    "tests/api/assessments.test.mjs",
+    "tests/api/delays.test.mjs",
+    "tests/api/travel-assignment.test.mjs",
+    "tests/api/harness.mjs",
+    "src/glove",
+    "src/ui"
+  ],
+  "contractDiffEmpty": true,
+  "publicationScan": {
+    "commit": "647eb9a5629d507532fadc789c93119cea9e71c7",
+    "complete": "NOT_RUN",
+    "historyScanned": "NOT_RUN",
+    "findings": "NOT_ESTABLISHED"
+  },
+  "landing": "fleet pending"
+}

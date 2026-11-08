@@ -1,0 +1,41 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes
+ok 1 - Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes
+  ---
+  duration_ms: 3733.801766
+  type: 'test'
+  ...
+# Subtest: Approved dispatch and move proposals retain exact windows and changed promises require a person
+ok 2 - Approved dispatch and move proposals retain exact windows and changed promises require a person
+  ---
+  duration_ms: 3438.778274
+  type: 'test'
+  ...
+# Subtest: Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart
+ok 3 - Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart
+  ---
+  duration_ms: 5221.524344
+  type: 'test'
+  ...
+# Subtest: Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name
+ok 4 - Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name
+  ---
+  duration_ms: 3540.142539
+  type: 'test'
+  ...
+# Subtest: Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises
+ok 5 - Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises
+  ---
+  duration_ms: 3217.217183
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20363.328632

@@ -1,0 +1,14 @@
+{
+  "head": "ef3bc74cee8b80eceacab9bc0a933c77ca2f68f3",
+  "node": "v22.20.0",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/assessments.test.mjs",
+    "tests/api/delays.test.mjs",
+    "tests/api/travel-assignment.test.mjs"
+  ],
+  "exit": 0,
+  "seconds": 43.64
+}

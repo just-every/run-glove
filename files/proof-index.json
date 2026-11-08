@@ -1,0 +1,32 @@
+[
+  {
+    "path": "tests/api/arrival-windows.test.mjs",
+    "line": 17,
+    "test": "Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes"
+  },
+  {
+    "path": "tests/api/arrival-windows.test.mjs",
+    "line": 37,
+    "test": "Approved dispatch and move proposals retain exact windows and changed promises require a person"
+  },
+  {
+    "path": "tests/api/arrival-windows.test.mjs",
+    "line": 69,
+    "test": "Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart"
+  },
+  {
+    "path": "tests/api/arrival-windows.test.mjs",
+    "line": 177,
+    "test": "Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name"
+  },
+  {
+    "path": "tests/api/arrival-windows.test.mjs",
+    "line": 220,
+    "test": "Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises"
+  },
+  {
+    "path": "tests/browser/arrival-windows.spec.ts",
+    "line": 9,
+    "test": "Arrival promises survive desk booking and reload and appear on the assigned technician phone"
+  }
+]

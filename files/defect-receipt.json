@@ -1,0 +1,28 @@
+{
+  "base": "4eea04c27f02aa2cb0c12edc421a9b4e574de0bf",
+  "automatic": {
+    "command": "visit.book with technicianId auto, planned start 07:59 and window 08:00 to 10:00",
+    "expected": "WINDOW",
+    "observed": "NO_TECHNICIAN",
+    "exit": 1
+  },
+  "dispatchProposal": {
+    "command": "proposal.prepare kind dispatch then proposal.approve",
+    "expected": {
+      "start": "08:00",
+      "end": "10:00"
+    },
+    "observed": null,
+    "exit": 1
+  },
+  "moveProposal": {
+    "command": "proposal.prepare kind move then proposal.approve against original dispatch source",
+    "expected": {
+      "start": "12:00",
+      "end": "14:00"
+    },
+    "observed": null,
+    "exit": 1
+  },
+  "method": "Production Worker and native public commands; original source selected by an esbuild loader for the isolated move reproduction; no SQL-seeded business state"
+}
