@@ -1,0 +1,24 @@
+{
+  "api_tests": [
+    {
+      "path": "tests/api/tax-lookup.test.mjs",
+      "line": 34,
+      "name": "MONEY-005 Stripe proposals disclose only fixed samples and fail closed without applying tax settings"
+    },
+    {
+      "path": "tests/api/tax-lookup.test.mjs",
+      "line": 94,
+      "name": "MONEY-005 AvaTax exact SalesOrder proposals retain millionth precision, refuse unsafe treatments and replay after restart"
+    },
+    {
+      "path": "tests/api/tax-lookup.test.mjs",
+      "line": 151,
+      "name": "MONEY-005 AvaTax connection custody requires the current signed-in unscoped Owner and never exposes its sealed value"
+    }
+  ],
+  "browser": {
+    "path": "tests/browser/money.spec.ts",
+    "name": "MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390"
+  },
+  "archive": "tests/portable.mjs"
+}

@@ -1,0 +1,205 @@
+{
+  "baseline_main": "d1d1a15cc01a553a6035a85d9764f102b8c6ff9f",
+  "boundaries": {
+    "live_provider_accounts": false,
+    "new_policy_default": false,
+    "production_activation": false,
+    "provider_edge_fakes_permitted": true
+  },
+  "branch": "cloud/sx-glove-c-f150",
+  "checks": [
+    {
+      "command": "cloud_run node --test --test-concurrency=1 tests/api/tax-lookup.test.mjs tests/api/money.test.mjs",
+      "exit": 0,
+      "log": "api.log",
+      "tests": 5
+    },
+    {
+      "assertion_width": 1440,
+      "command": "cloud_run env PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium timeout 1200 node tests/browser/run.mjs tests/browser/money.spec.ts",
+      "exit": 0,
+      "log": "browser.log",
+      "proof_widths": [
+        1440,
+        390
+      ],
+      "tests": 1
+    },
+    {
+      "command": "cloud_run timeout 1800 node tests/portable.mjs",
+      "exit": 0,
+      "log": "portable.log"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    }
+  ],
+  "ci": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42508990142",
+    "run_id": 42508990142,
+    "status": "in_progress"
+  },
+  "claim": {
+    "clause": "MONEY-005",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "status": "DONE"
+  },
+  "counts_after": {
+    "done": 18,
+    "missing": 29,
+    "partial": 216
+  },
+  "counts_before": {
+    "done": 18,
+    "missing": 29,
+    "partial": 216
+  },
+  "head": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+  "landing": {
+    "performed": false,
+    "required_fleet_checks": [
+      "exact head Verify success",
+      "complete publication scan",
+      "main equality",
+      "Run site success where present"
+    ],
+    "run_site_candidate": null
+  },
+  "main_equals_candidate": false,
+  "mechanical": [
+    {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "seconds": 4.792,
+      "started_at": "2026-11-08T18:14:21.209046+00:00"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "--clauses",
+        "MONEY-005"
+      ],
+      "exit": 0,
+      "seconds": 0.197,
+      "started_at": "2026-11-08T18:14:26.001548+00:00"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 0.17,
+      "started_at": "2026-11-08T18:14:26.198692+00:00"
+    },
+    {
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0,
+      "seconds": 0.004,
+      "started_at": "2026-11-08T18:14:26.368282+00:00"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0,
+      "seconds": 0.223,
+      "started_at": "2026-11-08T18:14:26.372488+00:00"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 0.242,
+      "started_at": "2026-11-08T18:14:26.595145+00:00"
+    },
+    {
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "seconds": 1.565,
+      "started_at": "2026-11-08T18:14:26.837242+00:00"
+    }
+  ],
+  "observed_at": "2026-11-08T18:16:29.189448+00:00",
+  "packet_logs": {
+    "api.log": "47280830d31a06d8520ee5063bde1ed23d25786e5a2e2b2fd448440c85afdf67",
+    "archive-fixture-before.log": "7f3dde79ea8fcd264100f02f25c0eb51982193a2768db776e80f67eb3b50bc85",
+    "avatax-defect-before.log": "ec92a6ee5438c9cd22759d63740f9d317f449013718bd1f711060ba69c7cf3d0",
+    "browser.log": "02989d245b2f741e2716c5698aa3a2b411b99b2f24190ecbab621bdcd79a90bc",
+    "display-defect-before.log": "a249c46ea19ed61c3854cd74c3c0cdf166160a5ec4a3cb9df42d19e216f188bf",
+    "portable.log": "2233d44916e9dccbdafa490c087fff51e4642f7fa39d029ba20e29610959f288",
+    "stripe-defect-before.log": "5aeb535558b62fdc0ed848c0cee252c44050f13d7afe03f352d4a32233995a98"
+  },
+  "product_push": {
+    "exit": 0,
+    "remote_ref": "refs/heads/cloud/sx-glove-c-f150",
+    "verified_remote_head": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e"
+  },
+  "proposed_counts_after_judgment": {
+    "done": 19,
+    "missing": 29,
+    "partial": 215
+  },
+  "publication_scan": {
+    "commit": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+    "complete": false,
+    "findings": null,
+    "historyScanned": false,
+    "reason": "Guarded fleet landing performs the scan; cloud product branch route does not require a cloud scan."
+  },
+  "repository": "just-every/run-glove",
+  "save_head": "b736733a1762fba7675b5b641110f2f7b0f1c693",
+  "schema": 1,
+  "source_binding": "Checks ran after the last relevant source and test edit; committed bytes match those checked. UI-only diagnostics do not change the API or archive paths already checked.",
+  "source_sha256": {
+    "CONTRACT.md": "23dda598c852891a469ac0614ca707bc91e16ae7dbe326a63f2f16513a7fc3e6",
+    "sources.lock.json": "13e3454dc1eb616bfbec560cc90219d1431019547fc291ef7ca4c3cd346e9b33",
+    "src/glove/avatax.ts": "0252e4fe50c7b14d1e80ee2a40507fc66f07790681ba2957113a4dcc24848c45",
+    "src/glove/commands/tax-lookup.ts": "1c503e090036b03e34b8ef3374c1377072feb1a31b1096cb671fa361072e3de8",
+    "src/ui/tax-lookup.tsx": "ca09761d13af0dfddc0d8680c3097ca34a9ce07dbc6d5c1a323312b9aaeee09d",
+    "tests/api/harness.mjs": "449e8ea59761df107b4a8c045f81f102448d5f6c80cd79ea3d6a961fdc919c22",
+    "tests/api/money.test.mjs": "85887986d5a35cc9af46f1101047260419755ba0730df4f922d8598d7039c372",
+    "tests/api/tax-lookup.test.mjs": "14a830ad7f70040ece2862e0f38e4ec95066a009e0ec1ee0f3eb12f4e1050b9f",
+    "tests/browser/money.spec.ts": "8482d189b4e67a4f97c29eba4fe9e1aedfbadc7ac76ed87cde779b82dca66361",
+    "tests/portable.mjs": "d08540434ab4bfe9688ede74b6d5f6bb379bd69a256fee0d235c4978f055f211"
+  },
+  "tag": "sx-glove-c-f150"
+}

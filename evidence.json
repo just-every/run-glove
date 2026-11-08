@@ -1,0 +1,142 @@
+{
+  "files": [
+    {
+      "blob": "1df0f7e48de1f234fe2042b1741a5fabdded86ca",
+      "bytes": 155295,
+      "path": "1440-money-avatax-proposal.png",
+      "sha256": "1eb9d636cc4415ebbb83ce58a4ad4925f8981f3f39e9b1cdb54151d2b437aa43"
+    },
+    {
+      "blob": "bdde7f5a536daf302f99e694f848d1f1ace102b3",
+      "bytes": 130166,
+      "path": "1440-money-avatax-unavailable.png",
+      "sha256": "ada9b4edd41bd8e61e5830cb3e96246c41cdce19c6e555634dc662c73bf6f21e"
+    },
+    {
+      "blob": "35d712869543fb13e02c02b78478215e070284e5",
+      "bytes": 235632,
+      "path": "1440-money-owner-applied-tax.png",
+      "sha256": "39435f841dcc9c4e9a972603674807aabc5e362a9659ea7b191f04e6d47bc32d"
+    },
+    {
+      "blob": "aca7ce0044fb0ee38d07f7b14f5f51c37b29dce5",
+      "bytes": 132643,
+      "path": "1440-money-stripe-proposal.png",
+      "sha256": "f8c3f2e2ee5c12495897dc4b01297f34faa65d12e086d2b0baf1cf96650540bd"
+    },
+    {
+      "blob": "1a404174b3cbe16f731226373d43b81ea034ac19",
+      "bytes": 139351,
+      "path": "1440-money-stripe-unavailable.png",
+      "sha256": "3212198e64cb65e16caeed17b36e892572e622c3fb0fc67c139f9755bd6b67cc"
+    },
+    {
+      "blob": "21c4760fcc590ce974164f3a641b462a7041950f",
+      "bytes": 80074,
+      "path": "390-money-avatax-proposal.png",
+      "sha256": "662d4bec12d0c277a72b9b0280319ef6bcb8c7859b222afe643c94a3e19f66c0"
+    },
+    {
+      "blob": "cc34ce37bc4f9c17d1a498c8baf04224abf2d116",
+      "bytes": 74095,
+      "path": "390-money-avatax-unavailable.png",
+      "sha256": "b37bddabaa0ce84bad311e84d1219b30637665de0cedb96789dc05805b9fb35b"
+    },
+    {
+      "blob": "4413bd8202864eee82736dda188f25f586860e08",
+      "bytes": 76990,
+      "path": "390-money-owner-applied-tax.png",
+      "sha256": "9c4871a2276757a1526786a305d0dfaa43df6198a552163a2d19f04c95816f63"
+    },
+    {
+      "blob": "54fb6164742ba1a00f294218f786abb33586ec3f",
+      "bytes": 73746,
+      "path": "390-money-stripe-proposal.png",
+      "sha256": "494297bbdaafd1d29a9d36895db588ca49dcfa929868702ebe3766eaef1680de"
+    },
+    {
+      "blob": "c022f0e638975800c4c6f67a664a496f0672141c",
+      "bytes": 66812,
+      "path": "390-money-stripe-unavailable.png",
+      "sha256": "39c7a2bb7e9f6d0b3afe4639f02edd60375a481edccea6d4cca99c868a7962c6"
+    },
+    {
+      "blob": "0cf8f7a846908d32edabf041bcd22e070796d527",
+      "bytes": 6127,
+      "path": "RECEIPT.json",
+      "sha256": "a44e250b5adbb89a299c57e9cfeb0b83c64a98fd6de8816a6f5191ccb7aa43ab"
+    },
+    {
+      "blob": "ae08daa56c7e35cada59f0c22e4871b70d20bd5f",
+      "bytes": 15965,
+      "path": "REPORT.md",
+      "sha256": "a5f8d334432f517ffceae1922ed9135661a0a397f9c459155a59c0eafabfdd63"
+    },
+    {
+      "blob": "2c55dc9b63ffd0ebfeaf0384ca24a09b507518ec",
+      "bytes": 2249,
+      "path": "api.log",
+      "sha256": "47280830d31a06d8520ee5063bde1ed23d25786e5a2e2b2fd448440c85afdf67"
+    },
+    {
+      "blob": "5234efae6c9350a31e3026e22393dcdb30252169",
+      "bytes": 515,
+      "path": "archive-fixture-before.log",
+      "sha256": "7f3dde79ea8fcd264100f02f25c0eb51982193a2768db776e80f67eb3b50bc85"
+    },
+    {
+      "blob": "837c5208fc34f8bdc5ac216bc8b908b483c09a8f",
+      "bytes": 2204,
+      "path": "avatax-defect-before.log",
+      "sha256": "ec92a6ee5438c9cd22759d63740f9d317f449013718bd1f711060ba69c7cf3d0"
+    },
+    {
+      "blob": "96b871ce396b48bdee274d15e1b241ddc1a3e09e",
+      "bytes": 2205,
+      "path": "browser.log",
+      "sha256": "02989d245b2f741e2716c5698aa3a2b411b99b2f24190ecbab621bdcd79a90bc"
+    },
+    {
+      "blob": "6cff6cea8ef6488e47d104e0adca1d446821ac9a",
+      "bytes": 394,
+      "path": "ci-observations.json",
+      "sha256": "529e3405a2a7deaae87522b5b9a44d1c39d553a5d172ecd57f3f319d9ba4562e"
+    },
+    {
+      "blob": "b3b6eb4ef9e2fa35887512de5be3b4db5f717d59",
+      "bytes": 928,
+      "path": "claim-map.json",
+      "sha256": "beb5bb12f96c2d28f9b01845ee3a5dd3d50916d33dca950f48640509f75395a5"
+    },
+    {
+      "blob": "805309783d316dd0ac0c723d95e05f563504814f",
+      "bytes": 5457,
+      "path": "display-defect-before.log",
+      "sha256": "a249c46ea19ed61c3854cd74c3c0cdf166160a5ec4a3cb9df42d19e216f188bf"
+    },
+    {
+      "blob": "09e65010539921b03d51fc6e670a7ad7f448f255",
+      "bytes": 1414,
+      "path": "mechanical.json",
+      "sha256": "bafe6088790a2b8ca5f6a87433b5f3f7074afeefb9d7feaf0fcd8d7b728e6b78"
+    },
+    {
+      "blob": "f6d04038df12c13c22ed7d5ff3d5861f3280fa2d",
+      "bytes": 1296,
+      "path": "portable.log",
+      "sha256": "2233d44916e9dccbdafa490c087fff51e4642f7fa39d029ba20e29610959f288"
+    },
+    {
+      "blob": "972e7a51a53f553c38883d88e6570b2b0d7e3e9d",
+      "bytes": 5521,
+      "path": "stripe-defect-before.log",
+      "sha256": "5aeb535558b62fdc0ed848c0cee252c44050f13d7afe03f352d4a32233995a98"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f150",
+  "product_head": "34f1d9c10ff33fe2e74ee14e52bf1ba011ede43e",
+  "ref": "refs/heads/evidence/sx-glove-c-f150",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f150"
+}

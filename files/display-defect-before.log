@@ -1,0 +1,95 @@
+Dev runtime output (last 6000 characters):
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+  ➜  Local:   [URL]
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+Open your app, already signed in on this computer: [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 10612736 bytes; clone (Git objects): not measured; dependencies: 503312384 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:15007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:15007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: new-us-installation
+MONEY-001 screen: business-tax
+MONEY-001 screen: branch-tax
+MONEY-001 screen: pricebook-tax
+MONEY-001 screen: stripe-proposal
+  ✘  1 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (22.9s)
+
+
+  1) tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Optional Stripe Tax lookup', exact: true }).getByRole('status')
+    Expected substring: not "0%"
+    Received string: "Rate unavailable for automatic application; inspect the provider reasons and your Stripe Tax registrationsParts: not_collecting 0%. Service: not_collecting 0%."
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "not toContainText" getByRole('region', { name: 'Optional Stripe Tax lookup', exact: true }).getByRole('status') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Optional Stripe Tax lookup', exact: true }).getByRole('status')
+        14 × locator resolved to <div role="status">…</div>
+           - unexpected value "Rate unavailable for automatic application; inspect the provider reasons and your Stripe Tax registrationsParts: not_collecting 0%. Service: not_collecting 0%."
+
+
+      119 |       await send(page, lookup.getByRole('button', { name: 'Look up address rates', exact: true }))
+      120 |       await expect(lookup.getByRole('status')).toContainText('Rate unavailable for automatic application')
+    > 121 |       await expect(lookup.getByRole('status')).not.toContainText('0%')
+          |                                                    ^
+      122 |       expect((await h.state()).business[0].taxSettings).toEqual(appliedStripe)
+      123 |       await screens(page, 'stripe-unavailable', lookup.getByRole('status'))
+      124 |       await business.getByLabel('Combined sales-tax rate (%)', { exact: true }).fill('7.75')
+        at /workspace/glove-f150/tests/browser/money.spec.ts:121:52
+
+    Error Context: ../../tmp/glove-f150-zero-browser/results/journeys/money-MONEY-001-MONEY-004--3e448-invoice-tax-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 
+

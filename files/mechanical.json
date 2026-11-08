@@ -1,0 +1,79 @@
+[
+  {
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exit": 0,
+    "started_at": "2026-11-08T18:14:21.209046+00:00",
+    "seconds": 4.792
+  },
+  {
+    "command": [
+      "node",
+      "scripts/contract-docs.mjs",
+      "write",
+      "--clauses",
+      "MONEY-005"
+    ],
+    "exit": 0,
+    "started_at": "2026-11-08T18:14:26.001548+00:00",
+    "seconds": 0.197
+  },
+  {
+    "command": [
+      "node",
+      "scripts/contract-docs.mjs",
+      "check"
+    ],
+    "exit": 0,
+    "started_at": "2026-11-08T18:14:26.198692+00:00",
+    "seconds": 0.17
+  },
+  {
+    "command": [
+      "git",
+      "checkout",
+      "origin/main",
+      "--",
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ],
+    "exit": 0,
+    "started_at": "2026-11-08T18:14:26.368282+00:00",
+    "seconds": 0.004
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "exit": 0,
+    "started_at": "2026-11-08T18:14:26.372488+00:00",
+    "seconds": 0.223
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "check"
+    ],
+    "exit": 0,
+    "started_at": "2026-11-08T18:14:26.595145+00:00",
+    "seconds": 0.242
+  },
+  {
+    "command": [
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "check",
+      "--profile",
+      "first-party"
+    ],
+    "exit": 0,
+    "started_at": "2026-11-08T18:14:26.837242+00:00",
+    "seconds": 1.565
+  }
+]

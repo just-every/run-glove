@@ -1,0 +1,21 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: DISP-011 restored metadata grants no provider authority
++ actual - expected
+
++ 'ROUTE_STALE'
+- 'MAPS'
+
+    at file:///workspace/glove-f150/tests/portable.mjs:403:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'ROUTE_STALE',
+  expected: 'MAPS',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
