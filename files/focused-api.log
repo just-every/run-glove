@@ -1,0 +1,16 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing (7174.12731ms)
+✔ DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent (3984.508493ms)
+✔ DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees (2814.782815ms)
+✔ DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed (6507.929599ms)
+✔ DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately (6866.165546ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28273.703753
