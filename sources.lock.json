@@ -5635,6 +5635,10 @@
       "sha256": "71ce8d8d764b6c5f0364a1b37d63114a454b94f88d9d6e205a5d8624e8a258e2",
       "executable": false
     },
+    "tests/api/postmark-custody.test.mjs": {
+      "sha256": "a5dda789b1060e8ab0e4d60ab455b866d2c2abefabb9ef8904478f435d22bef3",
+      "executable": false
+    },
     "tests/api/pricebook.test.mjs": {
       "sha256": "4c5537710e40c7b6a368206e659e3314fee7c9ba874bd3afa757b8b48a9dfb44",
       "executable": false
@@ -6028,7 +6032,7 @@
       "executable": false
     },
     "tests/fixtures/mail-providers.mjs": {
-      "sha256": "bc961aec61b5e3d5f88ea466c5afb66359f8f71d3dc9c3400b5b43664a571de2",
+      "sha256": "701bccc738479fb28be47416a247b1af8d2b1325f2804c41a3bd847e61b777c3",
       "executable": false
     },
     "tests/fixtures/maps.mjs": {
