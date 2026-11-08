@@ -133,7 +133,7 @@ export async function phoneDesk(browser: import('@playwright/test').Browser) {
       await expect(collected.locator('.tile-figure')).toHaveText('$189.00')
       await phoneScreen(page, width, 'owner-dashboard', collected)
       await officePhone(browser, h, b, width, fixed, second, job)
-    } finally { await owner.context.close(); await h.close() }
+    } finally { await owner.page.unrouteAll({ behavior: 'wait' }); await owner.context.close(); await h.close() }
   }
 }
 
@@ -202,5 +202,5 @@ async function officePhone(browser: import('@playwright/test').Browser, h: any, 
     const collected = page.getByRole('region', { name: 'Paid today (Stripe test mode)', exact: true })
     await expect(collected.locator('.tile-figure')).toHaveText('$199.00')
     await phoneScreen(page, width, 'office-dashboard', collected)
-  } finally { await context.close() }
+  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
 }
