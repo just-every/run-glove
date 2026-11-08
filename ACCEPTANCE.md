@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 20 | 201 | 16 | 237 |
+| Core | 18 | 203 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 20 | 214 | 29 | 263 |
+| Full target | 18 | 216 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -745,7 +745,7 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 
 #### QUOTE-009 — Quote-link custody and expiry
 
-Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Quote-link custody and expiry supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations.
 
@@ -759,8 +759,8 @@ Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCE
 7. Defaults change later revisions only.
 8. Legacy revisions without validity must be revised and price-approved before a link can be issued.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/quote-link-custody.test.mjs` (QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 superseded links disclose no document and refuse every customer action across restart); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 owner validity boundaries and default changes affect only later revisions); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window); `tests/api/quote-link-custody.test.mjs` (QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link); `tests/browser/quote-link-custody.spec.ts` (QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390); `tests/portable.mjs` (Glove portability passed)
-**Gap.** None.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The token is shown once, hashed separately at rest, sent in the URL fragment and Authorization header only, and absent from queries, logs, saved command outcomes, Activity, business exports and installation archives.; point 2 — An older revision's link shows only “a newer revision was sent” and refuses decisions.; point 3 — An expired quote remains readable and offers an update request once per revision until the link expires 90 days after validity.; point 4 — Restore retains records and document hashes but requires new links; erasure follows DATA-001, DATA-005, DATA-006, DATA-007, DATA-008.; point 5 — The quote-validity setting is owner-only, 1–3650 calendar days, default 30 for new revisions.; point 6 — Drafts and revisions take an optional real valid-until date date; validity includes that date in the frozen branch/business zone, and the link expires at local midnight starting the day after validity plus 90 calendar days.; point 7 — Defaults change later revisions only.; point 8 — Legacy revisions without validity must be revised and price-approved before a link can be issued. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### QUOTE-010 — Signing consent and frozen customer copy
 
@@ -2950,7 +2950,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 
 #### STOCK-002 — Purchase orders to suppliers
 
-Core · target · **done** · Cites BASE-AUDIT-001
+Core · target · **partial** · Cites BASE-AUDIT-001
 
 **Requirement.** The office raises purchase orders to suppliers (by email or supplier portal), receives them fully or partly into a van or warehouse, and links job-specific orders to the job's cost. The [operating rules](docs/service-work-rules.md#stock-002-operating-rules) retain the record formats and calculations.
 
@@ -2964,8 +2964,8 @@ Core · target · **done** · Cites BASE-AUDIT-001
 7. A job order shows on the property history (`CUST-001`).
 8. Unit costs are margin figures (`MONEY-003, MONEY-006`): purchase orders are read only by roles that read reports, never by technicians.
 
-**Evidence.** `tests/api/purchasing.test.mjs` — DATA-002, DATA-009, DATA-010 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost (points 1–7: exact intermediate and final receipt effects, actual Worker restarts and replay, refused excess and stale writes, fractional costs without duplication, both delivery locations, draft and line limits, all recorded send methods, connected supplier email and authenticated outcomes, distinct property histories, attributable Activity and business download); STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting margin reads, including old outcomes after role edits (point 8: current native and custom audiences across state, Activity, timeline, property history, cost and business download; excluded writes and withdrawn authority).
-**Gap.** None.
+**Evidence.** `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts`
+**Gap.** The audit records 8 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost.; point 2 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (STOCK-001), for stock or for one job; it changes only while a draft.; point 3 — A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchase order; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.; point 4 — Glove has no supplier-portal connection.; point 5 — Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives.; point 6 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice.; point 8 — Unit costs are margin figures (MONEY-003, MONEY-006): purchase orders are read only by roles that read reports, never by technicians. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 ### Team and permissions
 
