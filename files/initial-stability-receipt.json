@@ -1,0 +1,87 @@
+{
+  "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+  "requiredConsecutiveRuns": 10,
+  "results": [
+    {
+      "name": "normal-01",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 86.415
+    },
+    {
+      "name": "normal-02",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 90.323
+    },
+    {
+      "name": "normal-03",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 120.423
+    },
+    {
+      "name": "normal-04",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 104.49
+    },
+    {
+      "name": "normal-05",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 84.289
+    },
+    {
+      "name": "normal-06",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 89.949
+    },
+    {
+      "name": "normal-07",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 88.199
+    },
+    {
+      "name": "normal-08",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 0,
+      "seconds": 89.398
+    },
+    {
+      "name": "normal-09",
+      "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+      "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "executablePath": "/usr/bin/chromium",
+      "cpuThrottlingRate": 1,
+      "exit": 1,
+      "seconds": 80.541
+    }
+  ]
+}

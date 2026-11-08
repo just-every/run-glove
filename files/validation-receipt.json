@@ -1,0 +1,54 @@
+{
+  "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+  "productBranch": "cloud/sx-glove-browserflake-2",
+  "repository": "just-every/run-glove",
+  "checks": [
+    {
+      "command": "cloud_run pnpm install --frozen-lockfile",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm run typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "sourceFiles": [
+    "tests/browser/fresh-install.spec.ts",
+    "sources.lock.json"
+  ],
+  "counts": {
+    "installPauseSameInstantBefore": 1,
+    "installPauseSameInstantAfter": 0,
+    "touchedTestRegistrationsBefore": 1,
+    "touchedTestRegistrationsAfter": 1,
+    "addedTests": 0,
+    "removedTests": 0,
+    "clauseStatusChanges": 0
+  },
+  "publicationScan": "Fleet-owned Mac gate; no cloud publication scan required by the brief",
+  "push": {
+    "guard": "cloud-push.py",
+    "attempt": 1,
+    "exit": 0
+  }
+}

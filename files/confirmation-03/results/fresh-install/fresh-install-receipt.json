@@ -1,0 +1,85 @@
+{
+  "clause": "DATA-004",
+  "point": 1,
+  "people": {
+    "owner": {
+      "id": "1245cbce-ec64-4788-b677-061361333e7d",
+      "name": "Owner",
+      "role": "owner"
+    },
+    "dispatcher": {
+      "id": "c4a42b1d-749c-47a3-b0c0-f267034ca699",
+      "name": "Synthetic dispatcher",
+      "role": "dispatcher"
+    },
+    "technician": {
+      "id": "2db4b5b8-0558-46fb-851b-69f6c52fbb2e",
+      "name": "Synthetic technician",
+      "role": "technician"
+    },
+    "office": {
+      "id": "aa69efa3-858f-4222-9f99-57a224741051",
+      "name": "Synthetic office",
+      "role": "office"
+    }
+  },
+  "jobId": "0e385aeb-aa92-4f42-9ce2-034fa080e8e6",
+  "visitId": "4de6541b-9bec-49a0-b567-176a4f9c0741",
+  "invoiceId": "97a1525c-f3a6-4ba6-aadb-502f6dcfe98a",
+  "payment": {
+    "method": "check",
+    "amount": "200.00",
+    "balance": "0.00"
+  },
+  "series": {
+    "jobId": "9e2c454a-5e5d-489c-b526-f1546d847eaf",
+    "dates": [
+      "2026-11-23",
+      "2026-11-30",
+      "2026-12-07"
+    ]
+  },
+  "captureKinds": [
+    "arrival",
+    "checklist",
+    "checklist",
+    "note",
+    "completion"
+  ],
+  "offlineServerState": "booked with no arrival or captures",
+  "roleRefusals": [
+    "owner:visit.arrive",
+    "dispatcher:invoice.approve",
+    "technician:payment.record",
+    "office:service.save"
+  ],
+  "duplicateExport": "NOTHING_TO_EXPORT",
+  "activityKinds": [
+    "business.saved",
+    "service.saved",
+    "role.set",
+    "technician.saved",
+    "customer.saved",
+    "site.saved",
+    "enquiry.created",
+    "quote.drafted",
+    "quote.approved",
+    "quote.sent",
+    "quote.accepted",
+    "job.created",
+    "visit.booked",
+    "series.created",
+    "series.generated",
+    "capture.arrival",
+    "capture.checklist",
+    "capture.note",
+    "capture.completion",
+    "job.completed",
+    "invoice.prepared",
+    "invoice.approved",
+    "payment.recorded",
+    "invoice.exported"
+  ],
+  "exportCount": 1,
+  "passed": true
+}

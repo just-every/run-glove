@@ -1,0 +1,38 @@
+[
+  {
+    "time": 1794154099.2959414,
+    "args": [
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=5ed7613dXXX&per_page=100",
+      "--jq",
+      ".workflow_runs | map({id,name,status,conclusion,head_sha,html_url})"
+    ]
+  },
+  {
+    "time": 1794154110.3378303,
+    "args": [
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=5ed76137a9974c25914b4e9aa8841a05f9578be2&per_page=100",
+      "--jq",
+      ".workflow_runs | map({id,name,status,conclusion,head_sha,html_url})"
+    ]
+  },
+  {
+    "time": 1794154426.9014916,
+    "args": [
+      "api",
+      "repos/just-every/run-glove/actions/runs/42498288551",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "time": 1794154744.511515,
+    "args": [
+      "api",
+      "repos/just-every/run-glove/actions/runs/42498288551",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ]
+  }
+]

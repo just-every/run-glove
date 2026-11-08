@@ -1,0 +1,48 @@
+{
+  "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+  "command": "node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+  "preload": "/tmp/sx-glove-cpu.cjs",
+  "exit": 0,
+  "seconds": 205.504,
+  "method": "Emulation.setCPUThrottlingRate",
+  "rate": 6,
+  "throttledPages": [
+    {
+      "method": "Emulation.setCPUThrottlingRate",
+      "rate": 6,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "appliedBeforeReturningPage": true
+    },
+    {
+      "method": "Emulation.setCPUThrottlingRate",
+      "rate": 6,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "appliedBeforeReturningPage": true
+    },
+    {
+      "method": "Emulation.setCPUThrottlingRate",
+      "rate": 6,
+      "viewport": {
+        "width": 390,
+        "height": 1000
+      },
+      "appliedBeforeReturningPage": true
+    },
+    {
+      "method": "Emulation.setCPUThrottlingRate",
+      "rate": 6,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "appliedBeforeReturningPage": true
+    }
+  ],
+  "machineStress": false
+}

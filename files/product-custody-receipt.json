@@ -1,0 +1,16 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-browserflake-2",
+  "head": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+  "remoteHead": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+  "clean": true,
+  "shallow": "false",
+  "candidateIdentitiesAndTrailers": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>\n\n",
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "5ed76137a9974c25914b4e9aa8841a05f9578be2",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42498288551",
+    "status": "completed"
+  },
+  "pr": null
+}

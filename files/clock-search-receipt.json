@@ -1,0 +1,18 @@
+{
+  "beforePauseAt": [
+    "origin/main:tests/browser/fresh-install.spec.ts:196:    await phone.clock.pauseAt(phoneTime)"
+  ],
+  "afterPauseAt": [],
+  "currentClockCalls": [
+    "tests/browser/due-visits.spec.ts:54:    await page.clock.setFixedTime(new Date('2030-01-02T02:00:00Z'))",
+    "tests/browser/fresh-install.spec.ts:196:    await phone.clock.setFixedTime(phoneTime)",
+    "tests/browser/journey.spec.ts:868:      await page.clock.setFixedTime(new Date('2026-11-05T12:00:00.000Z'))",
+    "tests/browser/journey.spec.ts:940:      const phoneAt = async (at: string) => page.clock.setFixedTime(new Date(at))",
+    "tests/browser/phone-desk.ts:32:      const page = owner.page; await page.clock.setFixedTime(new Date(fixed))",
+    "tests/browser/phone-desk.ts:143:    await page.clock.setFixedTime(new Date(fixed))",
+    "tests/browser/recurring-billing.spec.ts:37:      await page.clock.install({ time: new Date('2025-10-01T15:00:00Z') })",
+    "tests/browser/recurring-billing.spec.ts:59:      await page.clock.setFixedTime(new Date('2025-11-01T04:59:00Z'))",
+    "tests/browser/recurring-billing.spec.ts:68:      await page.clock.setFixedTime(new Date('2025-11-03T18:00:00Z'))",
+    "tests/browser/routing.spec.ts:27:    await page.clock.install({ time: new Date(at) })"
+  ]
+}
