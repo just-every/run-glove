@@ -38,17 +38,30 @@ test('Approved dispatch and move proposals retain exact windows and changed prom
   const h = await installation({ at }); t.after(() => h.close())
   const b = await business(h), j = await job(h, b)
   const proposal = await b.agent.run('proposal.prepare', { kind: 'dispatch', plan: { jobId: j.id, technicianId: b.priya.id, date: '2026-11-03', start: '09:00', end: '10:30', window }, rationale: 'Requested morning visit' })
-  const approved = await b.dispatcher.run('proposal.approve', { proposalId: proposal.id, version: proposal.version })
+  const dispatchDecision = { proposalId: proposal.id, version: proposal.version }
+  const approved = await b.dispatcher.run('proposal.approve', dispatchDecision, { commandId: 'synthetic-glove-window-proposal' })
   const visit = (await h.state()).visits.find(v => v.id === approved.visitId)
   assert.deepEqual(visit.arrivalWindow, window)
   const afternoon = { start: '12:00', end: '14:00' }
   const move = await b.agent.run('proposal.prepare', { kind: 'move', visitId: visit.id, plan: { technicianId: b.priya.id, date: '2026-11-03', start: '13:00', end: '14:30', window: afternoon }, rationale: 'Review the new afternoon promise' })
   assert.equal(move.customer, 'customer not yet asked')
-  await b.dispatcher.run('proposal.approve', { proposalId: move.id, version: move.version })
-  const moved = (await h.state()).visits.find(v => v.id === visit.id)
+  const moveDecision = { proposalId: move.id, version: move.version }
+  await b.dispatcher.run('proposal.approve', moveDecision, { commandId: 'synthetic-glove-window-move' })
+  let moved = (await h.state()).visits.find(v => v.id === visit.id)
   assert.deepEqual(moved.arrivalWindow, afternoon)
   assert.deepEqual([moved.local.start, moved.local.end], ['13:00', '14:30'])
   assert.match(moved.assignments.at(-1).reason, /customer not yet asked/)
+  const retained = await h.state()
+  await h.restart()
+  assert.deepEqual(await h.state(), retained)
+  assert.deepEqual(await b.dispatcher.run('proposal.approve', dispatchDecision, { commandId: 'synthetic-glove-window-proposal' }), approved)
+  await b.dispatcher.run('proposal.approve', moveDecision, { commandId: 'synthetic-glove-window-move' })
+  assert.deepEqual(await h.state(), retained)
+  const sameTime = await b.agent.run('proposal.prepare', { kind: 'move', visitId: moved.id, plan: { technicianId: b.priya.id, date: '2026-11-03', start: '13:00', end: '14:30', window: { start: '12:30', end: '14:30' } }, rationale: 'Same planned time with a changed customer promise' })
+  assert.equal(sameTime.customer, 'customer not yet asked')
+  await b.dispatcher.run('proposal.approve', { proposalId: sameTime.id, version: sameTime.version })
+  moved = (await h.state()).visits.find(v => v.id === visit.id)
+  assert.deepEqual(moved.arrivalWindow, { start: '12:30', end: '14:30' })
   await h.command('grant.create', { agentId: b.agent.id, action: 'visit.change', dailyLimit: 10 })
   await refuse(h, b.agent.run, 'visit.change', { visitId: moved.id, version: moved.version, window, start: '09:00', end: '10:30', reason: 'Try to execute the changed promise' }, 'GRANT_SCOPE')
 })
@@ -75,7 +88,7 @@ test('Desk requests, crew moves and assessments keep attributable promises throu
 
   const crew = await h.command('crew.save', { name: 'Window crew', memberIds: [b.priya.id, b.tom.id] })
   const crewJob = await job(h, b, 'Crew service call')
-  const grouped = await b.dispatcher.run('visit.book', { jobId: crewJob.id, crewId: crew.id, date: '2026-11-04', start: '09:00', end: '10:30', window })
+  await b.dispatcher.run('visit.book', { jobId: crewJob.id, crewId: crew.id, date: '2026-11-04', start: '09:00', end: '10:30', window })
   const crewVisits = () => h.state().then(s => s.visits.filter(v => v.jobId === crewJob.id))
   assert.equal((await crewVisits()).length, 2)
   for (const v of await crewVisits()) assert.deepEqual([v.arrivalWindow, v.local.start, v.local.end], [window, '09:00', '10:30'])
@@ -91,7 +104,7 @@ test('Desk requests, crew moves and assessments keep attributable promises throu
   const day = '2026-11-06'
   const loadJob = await job(h, b, 'Priya existing load')
   await b.dispatcher.run('visit.book', { jobId: loadJob.id, technicianId: b.priya.id, date: day, start: '07:00', end: '09:00' })
-  const autos = [], requests = [], payloads = []
+  const autos = [], payloads = []
   for (const [i, start, end, promised] of [[1,'10:00','11:00',window], [2,'10:00','11:00',{ start:'10:00',end:'12:00' }], [3,'12:00','13:00',{ start:'12:00',end:'14:00' }]]) {
     const enquiry = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: `Desk request ${i}` })
     const j = await b.office.run('job.create', { enquiryId: enquiry.id, title: `Desk request ${i}` })
@@ -99,7 +112,7 @@ test('Desk requests, crew moves and assessments keep attributable promises throu
     const v = await b.dispatcher.run('visit.book', payload, { commandId: `synthetic-glove-window-auto-${i}` })
     assert.deepEqual([v.arrivalWindow,v.local.start,v.local.end], [promised,start,end])
     assert.equal((await h.state()).enquiries.find(e => e.id === enquiry.id).wonJobId, j.id)
-    autos.push(v); requests.push(enquiry); payloads.push(payload)
+    autos.push(v); payloads.push(payload)
   }
   assert.deepEqual(autos.map(v => v.technicianId), [b.tom.id, b.priya.id, b.tom.id])
   assert.equal(autos[0].assignments[0].reason, 'Assigned automatically: Tom B. had the fewest booked minutes that day (Tom B. 0, Priya N. 120)')
@@ -114,6 +127,7 @@ test('Desk requests, crew moves and assessments keep attributable promises throu
     await refuse(h,run,'assessment.book',assessmentPayload,'FORBIDDEN')
     await refuse(h,run,'visit.change',{ visitId:moved.id,version:moved.version,reason:'Unauthorized change' },'FORBIDDEN')
   }
+  for (const technicianId of [b.tom.id, 'auto']) await refuse(h, b.dispatcher.run, 'assessment.book', { ...assessmentPayload, technicianId, start: '13:59' }, 'WINDOW')
   const assessment = await b.dispatcher.run('assessment.book',assessmentPayload,{ commandId:'synthetic-glove-window-assessment' })
   assert.deepEqual([assessment.visit.technicianId,assessment.visit.arrivalWindow,assessment.visit.local.start,assessment.visit.local.end],[b.tom.id,assessmentPayload.window,'15:00','16:00'])
   assert.deepEqual((await b.tomPerson.state()).visits.find(v=>v.id===assessment.visit.id).arrivalWindow,assessmentPayload.window)
@@ -146,6 +160,18 @@ test('Desk requests, crew moves and assessments keep attributable promises throu
     assert.deepEqual(saved.arrivalWindow,v.arrivalWindow)
     assert.deepEqual(saved.assignments,v.assignments)
   }
+  const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+  await h.restart()
+  await refuse(h,b.dispatcher.run,'visit.book',quotedPayload,'ERASED',{ commandId:replayId })
+  await refuse(h,b.dispatcher.run,'assessment.book',assessmentPayload,'ERASED',{ commandId:'synthetic-glove-window-assessment' })
+  const signedOut = await h.request('/auth/signout', { method:'POST',as:b.dispatcher.cookie,body:{} })
+  assert.equal(signedOut.status,204)
+  const afterSignout = await h.state()
+  const revoked = await h.request('/api/glove/commands', { method:'POST',as:b.dispatcher.cookie,body:{ commandId:'synthetic-glove-window-revoked',type:'visit.book',payload:quotedPayload } })
+  assert.equal(revoked.status,401)
+  assert.deepEqual(await h.state(),afterSignout)
 })
 
 test('Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name', async t => {
