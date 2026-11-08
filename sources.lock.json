@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "f80c0be54eba69392dc6b95accad48297e0683eebd67d0edd4dc18dc38ab52be",
+      "sha256": "ef4096c63ceeab3cb1963fe484f48438f244434abb3fac44120cfa970df1e33c",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1960,7 +1960,7 @@
       "executable": false
     },
     "src/glove/commands/field.ts": {
-      "sha256": "4b7b50c6dc33778872043e1d1b90d6ddcccc924ef2b3f99837cb55892609c510",
+      "sha256": "3716494c38309937ed32088ae5537d24f5e79b7995dbb56678193a8ad2a99e77",
       "executable": false
     },
     "src/glove/commands/forms.ts": {
@@ -2524,7 +2524,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "9a5750379640fe951c7fcc887ae5825c12c0bb6f8f29ce29f4b9950669ff9216",
+      "sha256": "b878c2cd1e2b558636d1b4e2273dc3ad8d23e000693c2b9d547d6203eb6724c3",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -5592,7 +5592,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "7b0381ada62ccc99c3d7a48995e3da604f47abe394076acce768925eab97af23",
+      "sha256": "54fb35d9d67c8c47658307dcdd1a799992245c7303b7ac708298611b6fd5e497",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5721,6 +5721,10 @@
     },
     "tests/api/subcontract.test.mjs": {
       "sha256": "ca6515f0a48d841431d207a5f46248836bb46f12abfb724604022b3a9855d024",
+      "executable": false
+    },
+    "tests/api/subcontractor-field.test.mjs": {
+      "sha256": "f443cef04dabdac277038d598a415d8705c35b6cdca7454482bcf7dc2fd5df19",
       "executable": false
     },
     "tests/api/suggest.test.mjs": {
@@ -5869,6 +5873,10 @@
     },
     "tests/browser/service-reports.spec.ts": {
       "sha256": "70fdabf7e1bc59a1c1d54c603a5f7378643c131b0b2f031d3160cd783106eed8",
+      "executable": false
+    },
+    "tests/browser/subcontractor.spec.ts": {
+      "sha256": "77856ff5092f714407e1d5f39d7d72038dff5ca2e2d9d3fc70b623ea3af364ae",
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {
