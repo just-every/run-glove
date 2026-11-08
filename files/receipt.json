@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f146",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f146",
+  "head": "f84f1d003c67a1adf8d23199660fa71761caba4e",
+  "mergedMain": "d1d1a15cc01a553a6035a85d9764f102b8c6ff9f",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/booking-offer-history.test.mjs tests/api/agreements.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "receipt": "api.log",
+      "testedCommit": "3f9bd16d2e8e5aa43b422f52eb8d7df9031143f4",
+      "relevantDiffToCandidate": "empty"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium perl -e 'alarm 1800; exec @ARGV' -- node tests/browser/run.mjs tests/browser/due-visits.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "passed": 1,
+      "receipt": "browser.log",
+      "proofWidths": [
+        1440,
+        390
+      ],
+      "assertionWidth": 1440,
+      "testedCommit": "3f9bd16d2e8e5aa43b422f52eb8d7df9031143f4",
+      "relevantDiffToCandidate": "empty"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "receipt": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "receipt": "views-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "views-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "note": "Generated after main merge and generated-view restore; full hash output omitted from evidence."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node --test tests/api/booking-offer-history.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "head": "f84f1d003c67a1adf8d23199660fa71761caba4e",
+      "receipt": "api-exact-head.log"
+    }
+  ],
+  "files": [
+    {
+      "path": "tests/api/booking-offer-history.test.mjs",
+      "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2"
+    },
+    {
+      "path": "tests/api/agreements.test.mjs",
+      "sha256": "32cd1b07fc1b37b762ea8d6958184158a9392709fe41e6895f9a23c15f47df0d"
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "8af8518956876244433615579f5b6732e0762523d9b9d7410a4145b8415d9a09"
+    },
+    {
+      "path": "tests/fixtures/mail-providers.mjs",
+      "sha256": "701bccc738479fb28be47416a247b1af8d2b1325f2804c41a3bd847e61b777c3"
+    },
+    {
+      "path": "tests/browser/due-visits.spec.ts",
+      "sha256": "1d6aa52516f61eb4c54c204c5b89191168c67c159bdc390e251ed00283eb2d10"
+    },
+    {
+      "path": "src/glove/booking-offers.ts",
+      "sha256": "84a5e5e9b68611eb2304c73021838918ce96c0888c64b4f8c8ad0002e9e8c2b1"
+    },
+    {
+      "path": "src/glove/public-booking.ts",
+      "sha256": "9050c42092a3e03b7c23952e980a36d4cc9cd20a57279b67d16cc050c55fed5c"
+    },
+    {
+      "path": "src/glove/history.ts",
+      "sha256": "abfbb3f4ff04c0be82dcaa00626756114b89aee3c1027432b0476ced58ad2914"
+    },
+    {
+      "path": "src/ui/booking-offers.tsx",
+      "sha256": "879cc6b0258b44d82395774ac84b8a4a2792d584735f093f0592d93f014d353e"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/1440-due-email-accepted.png",
+      "sha256": "e11fefb4c7fb71e8de775278759ebed7350c1bd8c14b0963f7a1592a9cfc6cfb"
+    },
+    {
+      "path": "screenshots/1440-due-email-delivered.png",
+      "sha256": "178084d678776f66e3453e3cb627467c8cee4d64e99ec6cb04427a6621ea4490"
+    },
+    {
+      "path": "screenshots/1440-due-email-bounced.png",
+      "sha256": "9b385fbfa2c5e5504853bafd4e0621aab738fd57da2d42a0208e4dc15e7cf9b4"
+    },
+    {
+      "path": "screenshots/1440-due-email-revoked.png",
+      "sha256": "7fce2e9849ec6bd1992c86fdf49d367f3b74d144f81a1dcc4f07bf859e28544f"
+    },
+    {
+      "path": "screenshots/1440-due-email-history-accepted.png",
+      "sha256": "0c7bb890bca50167de8c46f615e9f39a0ce271c72c19f6210bb74dbd2e76b3ea"
+    },
+    {
+      "path": "screenshots/1440-due-email-history-delivered.png",
+      "sha256": "950cac06afb3814f6d08358255b05842acb3e8ae1c5ecb6119663a9801602ac2"
+    },
+    {
+      "path": "screenshots/1440-due-email-history-bounced.png",
+      "sha256": "421b6a10307b85ed420673e34e685876953ce1e2130dc8875e170bd8578014d7"
+    },
+    {
+      "path": "screenshots/1440-due-email-history-revoked.png",
+      "sha256": "8f9573cdbe5a299b98da325fe5ae94630c04af657ffa2d8f0db48ed4fc0c083a"
+    },
+    {
+      "path": "screenshots/1440-due-other-property-history.png",
+      "sha256": "b33abd444451dc4ce2fcd49c512eec506cdb96d87a7ac920f394297ff99c9343"
+    },
+    {
+      "path": "screenshots/390-due-email-accepted.png",
+      "sha256": "676a3d5e815ad41aea87dd0d5bb0d9d980f4bc8fd0d9cede15089cb1e7eec54f"
+    },
+    {
+      "path": "screenshots/390-due-email-delivered.png",
+      "sha256": "e6b81dc81f304ca345294ba758d8b8b15ef22f4add1eadd0d82bbc0480eddf22"
+    },
+    {
+      "path": "screenshots/390-due-email-bounced.png",
+      "sha256": "a13827a8810b8d417eb19211098e37c7bd7e9d80ce84541c8bc5ab297f1a68e7"
+    },
+    {
+      "path": "screenshots/390-due-email-revoked.png",
+      "sha256": "ea705b123617d51acd1c1143296a6d2949e353384ff24e6872612dc115318982"
+    },
+    {
+      "path": "screenshots/390-due-email-history-accepted.png",
+      "sha256": "207a18efad5c8966111f85b50b667abda2e18c61b479101035587005adad8815"
+    },
+    {
+      "path": "screenshots/390-due-email-history-delivered.png",
+      "sha256": "6021a690054649eb2e3830f5f97aec1911fcbbe454d7d4e53211c6edc08e93f9"
+    },
+    {
+      "path": "screenshots/390-due-email-history-bounced.png",
+      "sha256": "d114996b18d89d2afc15c4a1a9fa83e12b3ebc9ab1f26e2c56d23c5358374c51"
+    },
+    {
+      "path": "screenshots/390-due-email-history-revoked.png",
+      "sha256": "4414b399e9b96e97bc4f5e4334d5ec6f5428620f31138afa61614b8b060a2197"
+    },
+    {
+      "path": "screenshots/390-due-other-property-history.png",
+      "sha256": "c12c0a1c5782dc7022bcf574e2abe32268a1deedeaccfdcb811a65b285b92055"
+    }
+  ],
+  "contractStatusCounts": {
+    "before": {
+      "done": 18,
+      "partial": 216,
+      "missing": 29
+    },
+    "after": {
+      "done": 18,
+      "partial": 216,
+      "missing": 29
+    }
+  },
+  "contractStatusDiff": "empty",
+  "providerBoundary": "Existing Postmark network edge; no live delivery proof claimed",
+  "scan": {
+    "commit": "f84f1d003c67a1adf8d23199660fa71761caba4e",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "not run in cloud; guarded lander owns this gate"
+  },
+  "verify": {
+    "id": 42507488266,
+    "head_sha": "f84f1d003c67a1adf8d23199660fa71761caba4e",
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42507488266"
+  },
+  "githubApiCalls": 3,
+  "pr": null
+}

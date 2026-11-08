@@ -1,0 +1,73 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+    # Subtest: PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+    ok 1 - PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+      ---
+      duration_ms: 332.031548
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+    ok 2 - PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+      ---
+      duration_ms: 7498.729249
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+    ok 3 - PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+      ---
+      duration_ms: 488.376406
+      type: 'test'
+      ...
+    # Subtest: PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+    ok 4 - PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+      ---
+      duration_ms: 1616.991226
+      type: 'test'
+      ...
+    1..4
+ok 1 - PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+  ---
+  duration_ms: 14062.740494
+  type: 'test'
+  ...
+# Subtest: Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+ok 2 - Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+  ---
+  duration_ms: 16061.465825
+  type: 'test'
+  ...
+# Subtest: PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+ok 3 - PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+  ---
+  duration_ms: 8935.193752
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure
+ok 4 - PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure
+  ---
+  duration_ms: 4689.162861
+  type: 'test'
+  ...
+# Subtest: PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states
+ok 5 - PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states
+  ---
+  duration_ms: 4126.366052
+  type: 'test'
+  ...
+# Subtest: PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site
+ok 6 - PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site
+  ---
+  duration_ms: 4445.598263
+  type: 'test'
+  ...
+1..6
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 55994.04751
