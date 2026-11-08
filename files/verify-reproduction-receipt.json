@@ -1,0 +1,22 @@
+{
+  "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "job": 128882211270,
+  "run": 42530051626,
+  "command": [
+    "node",
+    "scripts/verify-ci.mjs",
+    "api-1"
+  ],
+  "exit": 0,
+  "started": "2026-11-08T22:41:21.082870+00:00",
+  "seconds": 532.387,
+  "environment": {
+    "CI": "true",
+    "GLOVE_VERIFY_SHARD": "api-1",
+    "SHARD": "api-1",
+    "WRANGLER_SEND_METRICS": "false",
+    "PLAYWRIGHT_SKIP_BROWSER_GC": "1",
+    "GLOVE_CI_PREBUILT": "1"
+  },
+  "log": "verify-api-1-reproduction.log"
+}

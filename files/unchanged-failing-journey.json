@@ -1,0 +1,8 @@
+{
+  "path": "tests/api/customer-quotes.test.mjs",
+  "candidate": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "main": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "bytes": 72930,
+  "sha256": "537a9fbdf9f5e63d5b33f06aac4f01fba66c61f26056c8197e3789e846df3110",
+  "identical": true
+}

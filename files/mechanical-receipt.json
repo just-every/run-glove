@@ -1,0 +1,20 @@
+{
+  "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "changed_files": [
+    "sources.lock.json",
+    "src/glove/routing.ts",
+    "tests/api/route-optimization.test.mjs",
+    "tests/browser/routing.spec.ts",
+    "tests/fixtures/maps.mjs"
+  ],
+  "protected_files_changed": false,
+  "contract_judgments_changed": false,
+  "generated_views_committed": false,
+  "source_lock_fresh": true,
+  "worktree_clean": true,
+  "product_commit_count": 2,
+  "product_identity_and_trailers": "pass",
+  "existing_api_routing_unchanged": true,
+  "existing_travel_assignment_unchanged": true,
+  "publication_scan": "fleet gate; not run in cloud"
+}

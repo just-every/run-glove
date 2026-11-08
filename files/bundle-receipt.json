@@ -1,0 +1,12 @@
+{
+  "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "path": "/home/agent/rer-consolidation/work/sx-glove-c-f164/product.bundle",
+  "bytes": 10986166,
+  "sha256": "db2f5f07451346dae033eef2ccdc9bcb6b4046bfbe2ea64ff78ec15f7e8b6c8a",
+  "verified": true,
+  "complete_history": true,
+  "refs": [
+    "refs/heads/cloud/sx-glove-c-f164",
+    "refs/remotes/origin/main"
+  ]
+}

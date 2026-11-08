@@ -1,0 +1,22 @@
+{
+  "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "run_id": "sx-glove-c-f164-local-browser",
+  "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/routing.spec.ts",
+  "exit": 0,
+  "passed": 1,
+  "widths": [
+    1440,
+    390
+  ],
+  "chromium": "/usr/bin/chromium",
+  "screenshots": [
+    "1440-routing-accepted.png",
+    "1440-routing-proposal.png",
+    "1440-routing-provider-refusal.png",
+    "390-routing-accepted.png",
+    "390-routing-proposal.png",
+    "390-routing-provider-refusal.png"
+  ],
+  "log": "browser-candidate.log",
+  "completed": "2026-11-08T22:23:58.722958+00:00"
+}

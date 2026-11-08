@@ -1,0 +1,61 @@
+{
+  "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "github_budget": 10,
+  "calls": [
+    {
+      "number": 1,
+      "purpose": "initial exact-main Verify and Run site",
+      "command": "gh api 'repos/just-every/run-glove/actions/runs?head_sha=cb4787ac9734f9fb534fe2896cc054e3637953af&per_page=100'",
+      "receipt": "main-ci.jsonl"
+    },
+    {
+      "number": 2,
+      "purpose": "exact-candidate run discovery",
+      "observed": "2026-11-08T22:24:17Z",
+      "command": "gh api 'repos/just-every/run-glove/actions/runs?head_sha=85f8648ffc8b09754bc939fc080580194f233c4e&per_page=100'",
+      "receipt": "candidate-ci-discovery.jsonl"
+    },
+    {
+      "number": 3,
+      "purpose": "exact-candidate run poll",
+      "observed": "2026-11-08T22:29:19Z",
+      "command": "gh api repos/just-every/run-glove/actions/runs/42530051626 --jq '{status,conclusion,head_sha,html_url}'",
+      "receipt": "candidate-ci-poll-1.json"
+    },
+    {
+      "number": 4,
+      "purpose": "exact-candidate run poll",
+      "observed": "2026-11-08T22:34:22Z",
+      "command": "gh api repos/just-every/run-glove/actions/runs/42530051626 --jq '{status,conclusion,head_sha,html_url}'",
+      "receipt": "candidate-ci-poll-2.json"
+    },
+    {
+      "number": 5,
+      "purpose": "exact-candidate run poll",
+      "observed": "2026-11-08T22:39:25Z",
+      "receipt": "candidate-ci-poll-3.json"
+    },
+    {
+      "number": 6,
+      "purpose": "completed run job metadata",
+      "receipt": "candidate-ci-jobs.jsonl"
+    },
+    {
+      "number": 7,
+      "purpose": "one failed-job archive read",
+      "command": "gh run view 42530051626 --repo just-every/run-glove --job 128882211270 --log-failed",
+      "receipt": "failed-api-1.log"
+    }
+  ],
+  "verify": {
+    "run": 42530051626,
+    "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "failed_job": 128882211270,
+    "error": "Body is unusable: Body has already been read",
+    "test_file": "tests/api/customer-quotes.test.mjs",
+    "test_line": 138
+  }
+}

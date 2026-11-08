@@ -1,0 +1,58 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f164",
+  "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "product_push": "success",
+  "pushed_ref": "refs/heads/cloud/sx-glove-c-f164",
+  "remote_head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "main_observed": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "main_equals_candidate": false,
+  "pr": null,
+  "source_counts_before": {
+    "done": 21,
+    "partial": 213,
+    "missing": 29,
+    "total": 263
+  },
+  "source_counts_after": {
+    "done": 21,
+    "partial": 213,
+    "missing": 29,
+    "total": 263
+  },
+  "clause_changes": [],
+  "proposed_clause": {
+    "id": "DISP-003",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "publication_scan": {
+    "commit": "85f8648ffc8b09754bc939fc080580194f233c4e",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "NOT RUN in cloud; fleet lander required"
+  },
+  "run_site": {
+    "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+    "status": "NOT RUN; main-only fleet gate"
+  },
+  "recorded": "2026-11-08T22:26:43.479997+00:00",
+  "terminal": "BLOCKED",
+  "blocker": "unreproduced Verify failure requires CI triage",
+  "verify_run": 42530051626,
+  "verify_conclusion": "failure",
+  "failed_job": 128882211270,
+  "local_failed_shard_exit": 0,
+  "local_failed_shard_tests": 123,
+  "main_failing_journey_exit": 0
+}

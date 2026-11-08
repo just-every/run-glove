@@ -1,0 +1,891 @@
+shards (api-1)	Run this shard	﻿2026-11-08T22:25:05.7966422Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7966858Z [36;1mnode scripts/verify-ci.mjs "$SHARD"[0m
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7986745Z shell: /usr/bin/bash -e {0}
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7987016Z env:
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7987205Z   CI: true
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7987407Z   GLOVE_VERIFY_SHARD: api-1
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7987691Z   WRANGLER_SEND_METRICS: false
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7987966Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7988219Z   GLOVE_CI_PREBUILT: 1
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7988541Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7988918Z   SHARD: api-1
+shards (api-1)	Run this shard	2026-11-08T22:25:05.7989119Z ##[endgroup]
+shards (api-1)	Run this shard	2026-11-08T22:25:05.8318786Z > pnpm run verify:app
+shards (api-1)	Run this shard	2026-11-08T22:25:06.1165930Z 
+shards (api-1)	Run this shard	2026-11-08T22:25:06.1166931Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (api-1)	Run this shard	2026-11-08T22:25:06.1167701Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (api-1)	Run this shard	2026-11-08T22:25:06.1168014Z 
+shards (api-1)	Run this shard	2026-11-08T22:25:06.2262727Z verify:app
+shards (api-1)	Run this shard	2026-11-08T22:25:06.2617042Z > node --test --test-concurrency=1 'tests/api/agreements.test.mjs' 'tests/api/assessments.test.mjs' 'tests/api/branches.test.mjs' 'tests/api/calendar-sync.test.mjs' 'tests/api/companycam.test.mjs' 'tests/api/costing.test.mjs' 'tests/api/customer-quotes.test.mjs' 'tests/api/delays.test.mjs' 'tests/api/documents.test.mjs' 'tests/api/email.test.mjs' 'tests/api/expenses.test.mjs' 'tests/api/flows.test.mjs' 'tests/api/grants.test.mjs' 'tests/api/merge.test.mjs' 'tests/api/morning-brief.test.mjs' 'tests/api/nameplates.test.mjs' 'tests/api/payments.test.mjs' 'tests/api/payroll.test.mjs' 'tests/api/postmark-custody.test.mjs' 'tests/api/privacy.test.mjs' 'tests/api/push.test.mjs' 'tests/api/quote-link-custody.test.mjs' 'tests/api/recurring-billing.test.mjs' 'tests/api/reports.test.mjs' 'tests/api/routing.test.mjs' 'tests/api/security.test.mjs' 'tests/api/series.test.mjs' 'tests/api/servicecall.test.mjs' 'tests/api/subcontract.test.mjs' 'tests/api/suggest.test.mjs' 'tests/api/tokens.test.mjs' 'tests/api/xero.test.mjs'
+shards (api-1)	Run this shard	2026-11-08T22:25:06.3073565Z TAP version 13
+shards (api-1)	Run this shard	2026-11-08T22:25:10.4737140Z # Subtest: PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+shards (api-1)	Run this shard	2026-11-08T22:25:10.4739149Z     # Subtest: PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+shards (api-1)	Run this shard	2026-11-08T22:25:10.4745519Z     ok 1 - PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+shards (api-1)	Run this shard	2026-11-08T22:25:10.4746546Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:25:10.4747125Z       duration_ms: 272.160489
+shards (api-1)	Run this shard	2026-11-08T22:25:10.4747701Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:10.4748196Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:25:16.2496559Z     # Subtest: PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+shards (api-1)	Run this shard	2026-11-08T22:25:16.2506046Z     ok 2 - PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+shards (api-1)	Run this shard	2026-11-08T22:25:16.2507192Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:25:16.2507934Z       duration_ms: 5774.071821
+shards (api-1)	Run this shard	2026-11-08T22:25:16.2508381Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:16.2508692Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:25:16.6251993Z     # Subtest: PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+shards (api-1)	Run this shard	2026-11-08T22:25:16.6264546Z     ok 3 - PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+shards (api-1)	Run this shard	2026-11-08T22:25:16.6266117Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:25:16.6266754Z       duration_ms: 378.661432
+shards (api-1)	Run this shard	2026-11-08T22:25:16.6267234Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:16.6267469Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9140213Z     # Subtest: PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9142461Z     ok 4 - PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9144206Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9144566Z       duration_ms: 1288.12806
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9145038Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9145455Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9242422Z     1..4
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9244364Z ok 1 - PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9245466Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9245819Z   duration_ms: 10387.865964
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9246244Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:17.9246589Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:25:30.6234321Z # Subtest: Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+shards (api-1)	Run this shard	2026-11-08T22:25:30.6236491Z ok 2 - Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+shards (api-1)	Run this shard	2026-11-08T22:25:30.6237570Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:25:30.6237918Z   duration_ms: 12698.905485
+shards (api-1)	Run this shard	2026-11-08T22:25:30.6238362Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:30.6238707Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:25:37.8383877Z # Subtest: PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+shards (api-1)	Run this shard	2026-11-08T22:25:37.8388088Z ok 3 - PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+shards (api-1)	Run this shard	2026-11-08T22:25:37.8431378Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:25:37.8431784Z   duration_ms: 7216.413547
+shards (api-1)	Run this shard	2026-11-08T22:25:37.8432197Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:37.8432547Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:25:57.8495553Z # Subtest: BOOK-006 assessment booking freezes selected forms and technician completion stays assessed after restart
+shards (api-1)	Run this shard	2026-11-08T22:25:57.8498083Z ok 4 - BOOK-006 assessment booking freezes selected forms and technician completion stays assessed after restart
+shards (api-1)	Run this shard	2026-11-08T22:25:57.8499067Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:25:57.8499447Z   duration_ms: 18840.162362
+shards (api-1)	Run this shard	2026-11-08T22:25:57.8499877Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:25:57.8500216Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:00.6075887Z # Subtest: DISP-006 visits, service calls and assessments carry an arrival window separate from the planned time
+shards (api-1)	Run this shard	2026-11-08T22:26:00.6083245Z ok 5 - DISP-006 visits, service calls and assessments carry an arrival window separate from the planned time
+shards (api-1)	Run this shard	2026-11-08T22:26:00.6087909Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:00.6088373Z   duration_ms: 2758.295696
+shards (api-1)	Run this shard	2026-11-08T22:26:00.6088848Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:00.6089262Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:11.3117095Z # Subtest: TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings
+shards (api-1)	Run this shard	2026-11-08T22:26:11.3120972Z ok 6 - TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings
+shards (api-1)	Run this shard	2026-11-08T22:26:11.3121828Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:11.3122060Z   duration_ms: 9514.660493
+shards (api-1)	Run this shard	2026-11-08T22:26:11.3122317Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:11.3122525Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:19.3300082Z # Subtest: DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing
+shards (api-1)	Run this shard	2026-11-08T22:26:19.3302019Z ok 7 - DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing
+shards (api-1)	Run this shard	2026-11-08T22:26:19.3302739Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:19.3302969Z   duration_ms: 6852.02697
+shards (api-1)	Run this shard	2026-11-08T22:26:19.3303211Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:19.3303414Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:23.3042766Z # Subtest: DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent
+shards (api-1)	Run this shard	2026-11-08T22:26:23.3045203Z ok 8 - DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent
+shards (api-1)	Run this shard	2026-11-08T22:26:23.3046163Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:23.3046459Z   duration_ms: 3974.611066
+shards (api-1)	Run this shard	2026-11-08T22:26:23.3047312Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:23.3047660Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:26.4691898Z # Subtest: DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees
+shards (api-1)	Run this shard	2026-11-08T22:26:26.4695253Z ok 9 - DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees
+shards (api-1)	Run this shard	2026-11-08T22:26:26.4695842Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:26.4696075Z   duration_ms: 3164.765217
+shards (api-1)	Run this shard	2026-11-08T22:26:26.4696322Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:26.4696529Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:33.3351755Z # Subtest: DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed
+shards (api-1)	Run this shard	2026-11-08T22:26:33.3354346Z ok 10 - DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed
+shards (api-1)	Run this shard	2026-11-08T22:26:33.3354901Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:33.3355399Z   duration_ms: 6866.08439
+shards (api-1)	Run this shard	2026-11-08T22:26:33.3355672Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:33.3355949Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:40.5157587Z # Subtest: DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately
+shards (api-1)	Run this shard	2026-11-08T22:26:40.5158916Z ok 11 - DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately
+shards (api-1)	Run this shard	2026-11-08T22:26:40.5159450Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:40.5159670Z   duration_ms: 7180.332588
+shards (api-1)	Run this shard	2026-11-08T22:26:40.5159934Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:40.5160137Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:47.7729095Z # Subtest: DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+shards (api-1)	Run this shard	2026-11-08T22:26:47.7732572Z ok 12 - DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+shards (api-1)	Run this shard	2026-11-08T22:26:47.7733872Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:47.7734126Z   duration_ms: 6092.986365
+shards (api-1)	Run this shard	2026-11-08T22:26:47.7734389Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:47.7734596Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:53.2151182Z # Subtest: COST-004 a $1,850 job retains frozen estimates and approved revenue through actual costs and restart
+shards (api-1)	Run this shard	2026-11-08T22:26:53.2152594Z ok 13 - COST-004 a $1,850 job retains frozen estimates and approved revenue through actual costs and restart
+shards (api-1)	Run this shard	2026-11-08T22:26:53.2153328Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:53.2153803Z   duration_ms: 4298.690585
+shards (api-1)	Run this shard	2026-11-08T22:26:53.2154337Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:53.2154718Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:26:57.8941868Z # Subtest: QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate
+shards (api-1)	Run this shard	2026-11-08T22:26:57.8945542Z ok 14 - QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate
+shards (api-1)	Run this shard	2026-11-08T22:26:57.8946542Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:26:57.8946762Z   duration_ms: 3463.640312
+shards (api-1)	Run this shard	2026-11-08T22:26:57.8947041Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:26:57.8947248Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:26.8996562Z # Subtest: QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9028002Z not ok 15 - QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9030176Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9031252Z   duration_ms: 29004.479388
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9032312Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9033134Z   location: '[REDACTED]/tests/api/customer-quotes.test.mjs:138:1'
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9035240Z   failureType: 'testCodeFailure'
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9036384Z   error: 'Body is unusable: Body has already been read'
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9037465Z   code: 'ERR_TEST_FAILURE'
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9038413Z   name: 'TypeError'
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9039001Z   stack: |-
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9043568Z     consumeBody ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/body.js:430:27)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9046187Z     _Response.arrayBuffer ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/body.js:329:14)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9048051Z     verifyCopies (file://[REDACTED]/tests/api/customer-quotes.test.mjs:418:50)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9049575Z     process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9051227Z     async signedQuoteOriginals (file://[REDACTED]/tests/api/customer-quotes.test.mjs:432:3)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9052707Z     async TestContext.<anonymous> (file://[REDACTED]/tests/api/customer-quotes.test.mjs:262:3)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9053918Z     async Test.run (node:internal/test_runner/test:1054:7)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9055034Z     async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9055959Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9057006Z # drawn: 688876 bytes in 2 chunks; 4 embedded originals and the submitted signature match exactly
+shards (api-1)	Run this shard	2026-11-08T22:27:26.9058539Z # typed: 688469 bytes in 2 chunks; 4 embedded originals and the submitted signature match exactly
+shards (api-1)	Run this shard	2026-11-08T22:27:29.4756791Z # Subtest: QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice
+shards (api-1)	Run this shard	2026-11-08T22:27:29.4759157Z ok 16 - QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice
+shards (api-1)	Run this shard	2026-11-08T22:27:29.4760377Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:29.4760602Z   duration_ms: 2576.858635
+shards (api-1)	Run this shard	2026-11-08T22:27:29.4761110Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:29.4761319Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:32.2358660Z # Subtest: QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card
+shards (api-1)	Run this shard	2026-11-08T22:27:32.2361824Z ok 17 - QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card
+shards (api-1)	Run this shard	2026-11-08T22:27:32.2363036Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:32.2363399Z   duration_ms: 2760.152281
+shards (api-1)	Run this shard	2026-11-08T22:27:32.2363820Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:32.2364151Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:35.2571475Z # Subtest: PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate
+shards (api-1)	Run this shard	2026-11-08T22:27:35.2574756Z ok 18 - PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate
+shards (api-1)	Run this shard	2026-11-08T22:27:35.2576500Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:35.2586152Z   duration_ms: 3021.20373
+shards (api-1)	Run this shard	2026-11-08T22:27:35.2586891Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:35.2587752Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:37.8350011Z # Subtest: QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once
+shards (api-1)	Run this shard	2026-11-08T22:27:37.8352565Z ok 19 - QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once
+shards (api-1)	Run this shard	2026-11-08T22:27:37.8353227Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:37.8353451Z   duration_ms: 2577.094834
+shards (api-1)	Run this shard	2026-11-08T22:27:37.8353697Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:37.8353903Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:41.5343960Z # Subtest: COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations
+shards (api-1)	Run this shard	2026-11-08T22:27:41.5346975Z ok 20 - COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations
+shards (api-1)	Run this shard	2026-11-08T22:27:41.5348479Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:41.5349023Z   duration_ms: 3700.496062
+shards (api-1)	Run this shard	2026-11-08T22:27:41.5349483Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:41.5349830Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:45.7330339Z # Subtest: AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves
+shards (api-1)	Run this shard	2026-11-08T22:27:45.7334621Z ok 21 - AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves
+shards (api-1)	Run this shard	2026-11-08T22:27:45.7335505Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:45.7336031Z   duration_ms: 3030.133067
+shards (api-1)	Run this shard	2026-11-08T22:27:45.7336637Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:45.7336996Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:49.7655492Z # Subtest: QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images
+shards (api-1)	Run this shard	2026-11-08T22:27:49.7658846Z ok 22 - QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images
+shards (api-1)	Run this shard	2026-11-08T22:27:49.7660409Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:49.7661308Z   duration_ms: 2851.27215
+shards (api-1)	Run this shard	2026-11-08T22:27:49.7662032Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:49.7662628Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:52.1973856Z # Subtest: QUOTE-005, QUOTE-015 desk invoice and agreement projections use identity and descriptions without granting public or technician access
+shards (api-1)	Run this shard	2026-11-08T22:27:52.1976469Z ok 23 - QUOTE-005, QUOTE-015 desk invoice and agreement projections use identity and descriptions without granting public or technician access
+shards (api-1)	Run this shard	2026-11-08T22:27:52.1977571Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:27:52.1977924Z   duration_ms: 2432.83478
+shards (api-1)	Run this shard	2026-11-08T22:27:52.1978326Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:27:52.1978659Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:27:56.2962106Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:27:56.3048352Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:27:56.3163213Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:03.5219240Z # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+shards (api-1)	Run this shard	2026-11-08T22:28:03.5222571Z ok 24 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+shards (api-1)	Run this shard	2026-11-08T22:28:03.5223887Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:28:03.5224531Z   duration_ms: 10167.478558
+shards (api-1)	Run this shard	2026-11-08T22:28:03.5224890Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:03.5225221Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:28:05.9815413Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:12.0399536Z # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+shards (api-1)	Run this shard	2026-11-08T22:28:12.0402851Z ok 25 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+shards (api-1)	Run this shard	2026-11-08T22:28:12.0404712Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:28:12.0405079Z   duration_ms: 8517.682867
+shards (api-1)	Run this shard	2026-11-08T22:28:12.0405491Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:12.0405820Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:28:14.6521161Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:15.6001651Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:16.2071575Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:16.6495143Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:17.0963157Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:17.5659935Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:18.0019824Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:18.4375467Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:18.8813822Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:19.3280246Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:19.7582142Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:20.1898503Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:20.6776520Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:21.0974571Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:21.5214612Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:21.9465743Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:22.3365466Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:22.7640353Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:23.1930157Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:23.6075004Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:24.0263125Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:24.4430318Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:24.8424760Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:25.2414237Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:25.6864191Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:26.1205766Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:26.5941290Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:26.9742982Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:27.8521512Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:28.1032620Z # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+shards (api-1)	Run this shard	2026-11-08T22:28:28.1037710Z ok 26 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+shards (api-1)	Run this shard	2026-11-08T22:28:28.1039878Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:28:28.1040350Z   duration_ms: 16063.272196
+shards (api-1)	Run this shard	2026-11-08T22:28:28.1041315Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:28.1042154Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:28:30.6718144Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:31.1220430Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:31.5917881Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:32.0282014Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:32.4876841Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:33.8314183Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:34.2821808Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:34.7124327Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:35.1228501Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:35.6024746Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:35.9514850Z # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+shards (api-1)	Run this shard	2026-11-08T22:28:35.9517512Z ok 27 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+shards (api-1)	Run this shard	2026-11-08T22:28:35.9518936Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:28:35.9519169Z   duration_ms: 7848.12791
+shards (api-1)	Run this shard	2026-11-08T22:28:35.9519895Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:35.9520109Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:28:38.5394778Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:39.8758275Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:39.9472014Z # Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+shards (api-1)	Run this shard	2026-11-08T22:28:39.9473725Z ok 28 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+shards (api-1)	Run this shard	2026-11-08T22:28:39.9474621Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:28:39.9474967Z   duration_ms: 3995.152235
+shards (api-1)	Run this shard	2026-11-08T22:28:39.9475372Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:39.9475785Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:28:42.5138110Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:42.9772955Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:43.4265018Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:43.8845592Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:44.3185427Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:44.7479888Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:45.1723591Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:45.6314092Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:46.0685178Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:46.5023679Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:46.9482338Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:47.3452108Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:47.7640525Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:48.2233005Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:48.6529704Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:49.0499181Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:49.4610330Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:50.3367774Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:51.2731910Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:51.6803818Z # Customer email callback rejected
+shards (api-1)	Run this shard	2026-11-08T22:28:52.0066470Z # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+shards (api-1)	Run this shard	2026-11-08T22:28:52.0073201Z ok 29 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+shards (api-1)	Run this shard	2026-11-08T22:28:52.0075145Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:28:52.0075392Z   duration_ms: 12060.334783
+shards (api-1)	Run this shard	2026-11-08T22:28:52.0075670Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:52.0075880Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:28:55.9858145Z # Subtest: COST-003 a billable supply-house receipt with 20% markup and a non-billable permit fee reach the invoice draft and job cost
+shards (api-1)	Run this shard	2026-11-08T22:28:55.9860371Z ok 30 - COST-003 a billable supply-house receipt with 20% markup and a non-billable permit fee reach the invoice draft and job cost
+shards (api-1)	Run this shard	2026-11-08T22:28:55.9861573Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:28:55.9861827Z   duration_ms: 2765.237603
+shards (api-1)	Run this shard	2026-11-08T22:28:55.9862080Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:55.9862285Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:28:59.5956039Z # Subtest: API-001 Glove first release: quote to booked visit to field evidence to invoice export
+shards (api-1)	Run this shard	2026-11-08T22:28:59.5956781Z     # Subtest: 01 owner sets up the business, price book, team and roles
+shards (api-1)	Run this shard	2026-11-08T22:28:59.5957328Z     ok 1 - 01 owner sets up the business, price book, team and roles
+shards (api-1)	Run this shard	2026-11-08T22:28:59.5957710Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:28:59.5957929Z       duration_ms: 480.32883
+shards (api-1)	Run this shard	2026-11-08T22:28:59.5958189Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:28:59.5958406Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:00.3322391Z     # Subtest: 02 desk records a customer and the sites where work happens
+shards (api-1)	Run this shard	2026-11-08T22:29:00.3323721Z     ok 2 - 02 desk records a customer and the sites where work happens
+shards (api-1)	Run this shard	2026-11-08T22:29:00.3324583Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:00.3325117Z       duration_ms: 736.23246
+shards (api-1)	Run this shard	2026-11-08T22:29:00.3325735Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:00.3328768Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:01.3430115Z     # Subtest: 03 an enquiry becomes a quote whose exact revision a person prices and approves
+shards (api-1)	Run this shard	2026-11-08T22:29:01.3432363Z     ok 3 - 03 an enquiry becomes a quote whose exact revision a person prices and approves
+shards (api-1)	Run this shard	2026-11-08T22:29:01.3432827Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:01.3433071Z       duration_ms: 1011.469808
+shards (api-1)	Run this shard	2026-11-08T22:29:01.3433333Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:01.3433545Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:04.3472267Z     # Subtest: 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+shards (api-1)	Run this shard	2026-11-08T22:29:04.3474689Z     ok 4 - 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+shards (api-1)	Run this shard	2026-11-08T22:29:04.3475756Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:04.3476029Z       duration_ms: 3004.166427
+shards (api-1)	Run this shard	2026-11-08T22:29:04.3476447Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:04.3476678Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:07.3819833Z     # Subtest: 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone
+shards (api-1)	Run this shard	2026-11-08T22:29:07.3822376Z     ok 5 - 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone
+shards (api-1)	Run this shard	2026-11-08T22:29:07.3823268Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:07.3823698Z       duration_ms: 3034.840399
+shards (api-1)	Run this shard	2026-11-08T22:29:07.3824182Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:07.3824420Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:07.6030488Z     # Subtest: 06 the technician captures checklist, notes, photos and materials through a connectivity interruption
+shards (api-1)	Run this shard	2026-11-08T22:29:07.6032783Z     ok 6 - 06 the technician captures checklist, notes, photos and materials through a connectivity interruption
+shards (api-1)	Run this shard	2026-11-08T22:29:07.6034006Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:07.6034652Z       duration_ms: 220.365395
+shards (api-1)	Run this shard	2026-11-08T22:29:07.6035016Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:07.6035242Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:08.7836756Z     # Subtest: 07 a dispatch change needs conflict review and keeps late evidence for review
+shards (api-1)	Run this shard	2026-11-08T22:29:08.7837909Z     ok 7 - 07 a dispatch change needs conflict review and keeps late evidence for review
+shards (api-1)	Run this shard	2026-11-08T22:29:08.7838415Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:08.7838663Z       duration_ms: 1180.973513
+shards (api-1)	Run this shard	2026-11-08T22:29:08.7838937Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:08.7839150Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:08.9734720Z     # Subtest: 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing
+shards (api-1)	Run this shard	2026-11-08T22:29:08.9736713Z     ok 8 - 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing
+shards (api-1)	Run this shard	2026-11-08T22:29:08.9737329Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:08.9737565Z       duration_ms: 189.520571
+shards (api-1)	Run this shard	2026-11-08T22:29:08.9737852Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:08.9738091Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:09.8073875Z     # Subtest: 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+shards (api-1)	Run this shard	2026-11-08T22:29:09.8076151Z     ok 9 - 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+shards (api-1)	Run this shard	2026-11-08T22:29:09.8077203Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:09.8077571Z       duration_ms: 834.11462
+shards (api-1)	Run this shard	2026-11-08T22:29:09.8077973Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:09.8078338Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:10.0361160Z     # Subtest: 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+shards (api-1)	Run this shard	2026-11-08T22:29:10.0362819Z     ok 10 - 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+shards (api-1)	Run this shard	2026-11-08T22:29:10.0363372Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:10.0363595Z       duration_ms: 229.688358
+shards (api-1)	Run this shard	2026-11-08T22:29:10.0363859Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:10.0364070Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:10.5508401Z     # Subtest: 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+shards (api-1)	Run this shard	2026-11-08T22:29:10.5511022Z     ok 11 - 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+shards (api-1)	Run this shard	2026-11-08T22:29:10.5521761Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:10.5522240Z       duration_ms: 513.875615
+shards (api-1)	Run this shard	2026-11-08T22:29:10.5522527Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:10.5522832Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6512675Z     # Subtest: 12 the job timeline names every step and person, and the business export carries it
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6514377Z     ok 12 - 12 the job timeline names every step and person, and the business export carries it
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6515388Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6515955Z       duration_ms: 99.39359
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6516423Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6516817Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6634137Z     1..12
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6637466Z ok 31 - API-001 Glove first release: quote to booked visit to field evidence to invoice export
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6638235Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6638486Z   duration_ms: 11550.736689
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6638745Z   type: 'suite'
+shards (api-1)	Run this shard	2026-11-08T22:29:10.6639540Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:13.9450043Z # Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+shards (api-1)	Run this shard	2026-11-08T22:29:13.9453113Z ok 32 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+shards (api-1)	Run this shard	2026-11-08T22:29:13.9454503Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:13.9454873Z   duration_ms: 3280.433107
+shards (api-1)	Run this shard	2026-11-08T22:29:13.9455279Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:13.9455626Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:16.7899356Z # Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+shards (api-1)	Run this shard	2026-11-08T22:29:16.7902203Z ok 33 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+shards (api-1)	Run this shard	2026-11-08T22:29:16.7903592Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:16.7903945Z   duration_ms: 2845.333125
+shards (api-1)	Run this shard	2026-11-08T22:29:16.7904364Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:16.7904675Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:19.6490030Z # Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+shards (api-1)	Run this shard	2026-11-08T22:29:19.6492711Z ok 34 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+shards (api-1)	Run this shard	2026-11-08T22:29:19.6494069Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:19.6494424Z   duration_ms: 2859.02643
+shards (api-1)	Run this shard	2026-11-08T22:29:19.6494783Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:19.6494998Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:22.7997899Z # Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+shards (api-1)	Run this shard	2026-11-08T22:29:22.7999761Z ok 35 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+shards (api-1)	Run this shard	2026-11-08T22:29:22.8000858Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:22.8001231Z   duration_ms: 3149.850254
+shards (api-1)	Run this shard	2026-11-08T22:29:22.8001502Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:22.8001710Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:27.0523642Z # Subtest: AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+shards (api-1)	Run this shard	2026-11-08T22:29:27.0525370Z ok 36 - AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+shards (api-1)	Run this shard	2026-11-08T22:29:27.0541738Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:27.0542155Z   duration_ms: 4252.715317
+shards (api-1)	Run this shard	2026-11-08T22:29:27.0542554Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:27.0542891Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:31.2169480Z # Subtest: AGENT-009: an agent books tune-ups under $200 only under an active grant
+shards (api-1)	Run this shard	2026-11-08T22:29:31.2171383Z ok 37 - AGENT-009: an agent books tune-ups under $200 only under an active grant
+shards (api-1)	Run this shard	2026-11-08T22:29:31.2172582Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:31.2173004Z   duration_ms: 3009.810453
+shards (api-1)	Run this shard	2026-11-08T22:29:31.2173487Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:31.2173886Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:35.2592616Z # Subtest: CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+shards (api-1)	Run this shard	2026-11-08T22:29:35.2622498Z ok 38 - CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+shards (api-1)	Run this shard	2026-11-08T22:29:35.2651338Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:35.2661390Z   duration_ms: 2893.836964
+shards (api-1)	Run this shard	2026-11-08T22:29:35.2681447Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:35.2711309Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:37.5485625Z # Subtest: CUST-005: the move-in preview flags incoming customers that duplicate Glove customers
+shards (api-1)	Run this shard	2026-11-08T22:29:37.5487791Z ok 39 - CUST-005: the move-in preview flags incoming customers that duplicate Glove customers
+shards (api-1)	Run this shard	2026-11-08T22:29:37.5489409Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:37.5490048Z   duration_ms: 2291.87104
+shards (api-1)	Run this shard	2026-11-08T22:29:37.5491314Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:37.5492191Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:53.6732867Z # Subtest: AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+shards (api-1)	Run this shard	2026-11-08T22:29:53.6734437Z ok 40 - AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+shards (api-1)	Run this shard	2026-11-08T22:29:53.6735202Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:53.6735523Z   duration_ms: 14985.451025
+shards (api-1)	Run this shard	2026-11-08T22:29:53.6735909Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:53.6736221Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:29:57.5492124Z # Subtest: FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+shards (api-1)	Run this shard	2026-11-08T22:29:57.5495981Z     # Subtest: FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread
+shards (api-1)	Run this shard	2026-11-08T22:29:57.5497072Z     ok 1 - FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread
+shards (api-1)	Run this shard	2026-11-08T22:29:57.5497657Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:57.5497894Z       duration_ms: 1.602612
+shards (api-1)	Run this shard	2026-11-08T22:29:57.5498177Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:57.5498429Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:57.6108790Z     # Subtest: FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms
+shards (api-1)	Run this shard	2026-11-08T22:29:57.6112165Z     ok 2 - FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms
+shards (api-1)	Run this shard	2026-11-08T22:29:57.6114272Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:57.6114708Z       duration_ms: 60.801131
+shards (api-1)	Run this shard	2026-11-08T22:29:57.6115173Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:57.6115561Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3282624Z     # Subtest: FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3289360Z     ok 3 - FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3291262Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3301983Z       duration_ms: 1718.69502
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3302728Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3303344Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3378992Z     1..3
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3384269Z ok 41 - FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3385102Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3385500Z   duration_ms: 4450.028651
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3385909Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:29:59.3386251Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:04.0683651Z # Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+shards (api-1)	Run this shard	2026-11-08T22:30:04.0686243Z ok 42 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+shards (api-1)	Run this shard	2026-11-08T22:30:04.0687513Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:04.0687879Z   duration_ms: 3558.090323
+shards (api-1)	Run this shard	2026-11-08T22:30:04.0688294Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:04.0688651Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:07.3312178Z # Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout
+shards (api-1)	Run this shard	2026-11-08T22:30:07.3315470Z ok 43 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout
+shards (api-1)	Run this shard	2026-11-08T22:30:07.3316941Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:07.3317390Z   duration_ms: 3262.707771
+shards (api-1)	Run this shard	2026-11-08T22:30:07.3317897Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:07.3318304Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:10.1581138Z # Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects
+shards (api-1)	Run this shard	2026-11-08T22:30:10.1584202Z ok 44 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects
+shards (api-1)	Run this shard	2026-11-08T22:30:10.1585009Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:10.1585237Z   duration_ms: 2826.630765
+shards (api-1)	Run this shard	2026-11-08T22:30:10.1585511Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:10.1585786Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:14.3455410Z # Subtest: PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+shards (api-1)	Run this shard	2026-11-08T22:30:14.3462086Z ok 45 - PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+shards (api-1)	Run this shard	2026-11-08T22:30:14.3463415Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:14.3463758Z   duration_ms: 4187.531179
+shards (api-1)	Run this shard	2026-11-08T22:30:14.3464169Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:14.3464502Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:16.9750102Z # Subtest: PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly
+shards (api-1)	Run this shard	2026-11-08T22:30:16.9754131Z ok 46 - PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly
+shards (api-1)	Run this shard	2026-11-08T22:30:16.9755127Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:16.9755360Z   duration_ms: 2628.344871
+shards (api-1)	Run this shard	2026-11-08T22:30:16.9755610Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:16.9755814Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5427761Z # Subtest: PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5463032Z ok 47 - PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5551591Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5552315Z   duration_ms: 18568.560209
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5581355Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5611331Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5632229Z # PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5642212Z # PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority
+shards (api-1)	Run this shard	2026-11-08T22:30:35.5672125Z # PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact
+shards (api-1)	Run this shard	2026-11-08T22:30:38.4379112Z # Subtest: FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+shards (api-1)	Run this shard	2026-11-08T22:30:38.4383306Z ok 48 - FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+shards (api-1)	Run this shard	2026-11-08T22:30:38.4384066Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:38.4384301Z   duration_ms: 2895.471925
+shards (api-1)	Run this shard	2026-11-08T22:30:38.4384546Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:38.4384777Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:42.3386943Z # Subtest: COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor
+shards (api-1)	Run this shard	2026-11-08T22:30:42.3389378Z     # Subtest: COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week
+shards (api-1)	Run this shard	2026-11-08T22:30:42.3390425Z     ok 1 - COST-002, COST-006, COST-007 the weekly timesheet rolls up clock and job time and flags overtime past 40 hours a week
+shards (api-1)	Run this shard	2026-11-08T22:30:42.3391531Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:30:42.3391883Z       duration_ms: 53.535333
+shards (api-1)	Run this shard	2026-11-08T22:30:42.3392293Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:42.3392519Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:30:42.6036296Z     # Subtest: COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files
+shards (api-1)	Run this shard	2026-11-08T22:30:42.6042766Z     ok 2 - COST-002, COST-006, COST-007 only the owner approves, and only approved weeks of W-2 people reach the payroll files
+shards (api-1)	Run this shard	2026-11-08T22:30:42.6043935Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:30:42.6044361Z       duration_ms: 265.547013
+shards (api-1)	Run this shard	2026-11-08T22:30:42.6044965Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:42.6045357Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7330602Z     # Subtest: COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7333475Z     ok 3 - COST-002, COST-006, COST-007 the owner's daily overtime rule re-splits the week, which needs approving again before it exports
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7334898Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7335520Z       duration_ms: 129.131266
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7336219Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7336823Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7510108Z     1..3
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7516788Z ok 49 - COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7518279Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7518693Z   duration_ms: 468.642399
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7519108Z   type: 'suite'
+shards (api-1)	Run this shard	2026-11-08T22:30:42.7519436Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:30:44.9509021Z # Subtest: TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files
+shards (api-1)	Run this shard	2026-11-08T22:30:44.9511221Z     # Subtest: TEAM-003, TEAM-006 only the owner sets dated commission rules
+shards (api-1)	Run this shard	2026-11-08T22:30:44.9512468Z     ok 1 - TEAM-003, TEAM-006 only the owner sets dated commission rules
+shards (api-1)	Run this shard	2026-11-08T22:30:44.9521644Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:30:44.9522027Z       duration_ms: 45.734074
+shards (api-1)	Run this shard	2026-11-08T22:30:44.9522466Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:44.9522724Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:30:45.2388429Z     # Subtest: TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date
+shards (api-1)	Run this shard	2026-11-08T22:30:45.2390065Z     ok 2 - TEAM-003, TEAM-006 sales credited to their technician earn the rule in force on their date
+shards (api-1)	Run this shard	2026-11-08T22:30:45.2391353Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:30:45.2392960Z       duration_ms: 287.376575
+shards (api-1)	Run this shard	2026-11-08T22:30:45.2393229Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:45.2393453Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3822353Z     # Subtest: TEAM-003, TEAM-006 the approved person's commissions and spiffs are in every payroll file, by week and date
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3823994Z     ok 3 - TEAM-003, TEAM-006 the approved person's commissions and spiffs are in every payroll file, by week and date
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3824917Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3825248Z       duration_ms: 144.318581
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3825680Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3826054Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3967472Z     1..3
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3975796Z ok 50 - TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3976995Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3977372Z   duration_ms: 2645.919025
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3977809Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:30:45.3978214Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:31:08.9354983Z # Subtest: COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once
+shards (api-1)	Run this shard	2026-11-08T22:31:08.9357381Z ok 51 - COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once
+shards (api-1)	Run this shard	2026-11-08T22:31:08.9358816Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:31:08.9359184Z   duration_ms: 22363.285434
+shards (api-1)	Run this shard	2026-11-08T22:31:08.9359638Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:08.9360034Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:31:13.6285454Z # Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+shards (api-1)	Run this shard	2026-11-08T22:31:13.6287609Z ok 52 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+shards (api-1)	Run this shard	2026-11-08T22:31:13.6288532Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:31:13.6288900Z   duration_ms: 3521.480895
+shards (api-1)	Run this shard	2026-11-08T22:31:13.6289699Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:13.6290027Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:31:46.3576413Z # Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes
+shards (api-1)	Run this shard	2026-11-08T22:31:46.3581772Z ok 53 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes
+shards (api-1)	Run this shard	2026-11-08T22:31:46.3582810Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:31:46.3583046Z   duration_ms: 32728.766408
+shards (api-1)	Run this shard	2026-11-08T22:31:46.3583383Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:46.3583683Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:31:49.0417781Z # Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer
+shards (api-1)	Run this shard	2026-11-08T22:31:49.0421013Z ok 54 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer
+shards (api-1)	Run this shard	2026-11-08T22:31:49.0422612Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:31:49.0422988Z   duration_ms: 2683.161996
+shards (api-1)	Run this shard	2026-11-08T22:31:49.0423403Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:49.0423736Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:31:52.7105413Z # Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact
+shards (api-1)	Run this shard	2026-11-08T22:31:52.7109425Z ok 55 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact
+shards (api-1)	Run this shard	2026-11-08T22:31:52.7110499Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:31:52.7111106Z   duration_ms: 3669.482909
+shards (api-1)	Run this shard	2026-11-08T22:31:52.7111378Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:52.7111587Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:31:55.3127715Z # Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo
+shards (api-1)	Run this shard	2026-11-08T22:31:55.3130500Z ok 56 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo
+shards (api-1)	Run this shard	2026-11-08T22:31:55.3132366Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:31:55.3133029Z   duration_ms: 2602.594733
+shards (api-1)	Run this shard	2026-11-08T22:31:55.3133390Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:55.3133624Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:31:59.0431695Z # Subtest: API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id
+shards (api-1)	Run this shard	2026-11-08T22:31:59.0437681Z     # Subtest: FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server
+shards (api-1)	Run this shard	2026-11-08T22:31:59.0439258Z     ok 1 - FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server
+shards (api-1)	Run this shard	2026-11-08T22:31:59.0440402Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:31:59.0441204Z       duration_ms: 116.083796
+shards (api-1)	Run this shard	2026-11-08T22:31:59.0441838Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:59.0442322Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:31:59.1602446Z     # Subtest: FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones
+shards (api-1)	Run this shard	2026-11-08T22:31:59.1605707Z     ok 2 - FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones
+shards (api-1)	Run this shard	2026-11-08T22:31:59.1606953Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:31:59.1607324Z       duration_ms: 116.202018
+shards (api-1)	Run this shard	2026-11-08T22:31:59.1607753Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:59.1608106Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:31:59.3556103Z     # Subtest: FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician's phone, signed with the VAPID key and encrypted for that phone
+shards (api-1)	Run this shard	2026-11-08T22:31:59.3560279Z     ok 3 - FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician's phone, signed with the VAPID key and encrypted for that phone
+shards (api-1)	Run this shard	2026-11-08T22:31:59.3561788Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:31:59.3562036Z       duration_ms: 195.79295
+shards (api-1)	Run this shard	2026-11-08T22:31:59.3562297Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:59.3562516Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4159310Z     # Subtest: FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4161769Z     ok 4 - FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4162934Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4163311Z       duration_ms: 61.079586
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4163768Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4164163Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4867330Z     # Subtest: FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone's subscription, and nothing more is sent to it
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4870374Z     ok 5 - FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone's subscription, and nothing more is sent to it
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4871417Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4871656Z       duration_ms: 70.221346
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4871929Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:59.4872150Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6612666Z     # Subtest: FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone's subscription and the key
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6614431Z     ok 6 - FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone's subscription and the key
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6615374Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6615766Z       duration_ms: 171.513082
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6616195Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6616587Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6753185Z     1..6
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6762415Z ok 57 - API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6763666Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6763921Z   duration_ms: 750.695611
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6764217Z   type: 'suite'
+shards (api-1)	Run this shard	2026-11-08T22:31:59.6764431Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:04.3547905Z # Subtest: QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart
+shards (api-1)	Run this shard	2026-11-08T22:32:04.3556902Z ok 58 - QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart
+shards (api-1)	Run this shard	2026-11-08T22:32:04.3558285Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:04.3558922Z   duration_ms: 3537.147817
+shards (api-1)	Run this shard	2026-11-08T22:32:04.3559403Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:04.3559630Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:07.0207428Z # Subtest: QUOTE-009 superseded links disclose no document and refuse every customer action across restart
+shards (api-1)	Run this shard	2026-11-08T22:32:07.0213362Z ok 59 - QUOTE-009 superseded links disclose no document and refuse every customer action across restart
+shards (api-1)	Run this shard	2026-11-08T22:32:07.0214131Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:07.0214362Z   duration_ms: 2665.843559
+shards (api-1)	Run this shard	2026-11-08T22:32:07.0214618Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:07.0214832Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:10.2161912Z # Subtest: QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant
+shards (api-1)	Run this shard	2026-11-08T22:32:10.2168073Z ok 60 - QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant
+shards (api-1)	Run this shard	2026-11-08T22:32:10.2168676Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:10.2169477Z   duration_ms: 3195.026349
+shards (api-1)	Run this shard	2026-11-08T22:32:10.2169893Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:10.2170238Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:13.1310060Z # Subtest: QUOTE-009 owner validity boundaries and default changes affect only later revisions
+shards (api-1)	Run this shard	2026-11-08T22:32:13.1314443Z ok 61 - QUOTE-009 owner validity boundaries and default changes affect only later revisions
+shards (api-1)	Run this shard	2026-11-08T22:32:13.1315487Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:13.1315988Z   duration_ms: 2914.95901
+shards (api-1)	Run this shard	2026-11-08T22:32:13.1316467Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:13.1316912Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:16.3899731Z # Subtest: QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window
+shards (api-1)	Run this shard	2026-11-08T22:32:16.3909574Z ok 62 - QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window
+shards (api-1)	Run this shard	2026-11-08T22:32:16.3910448Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:16.3911168Z   duration_ms: 3258.94452
+shards (api-1)	Run this shard	2026-11-08T22:32:16.3911617Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:16.3911962Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:19.6358697Z # Subtest: QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link
+shards (api-1)	Run this shard	2026-11-08T22:32:19.6361243Z ok 63 - QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link
+shards (api-1)	Run this shard	2026-11-08T22:32:19.6362825Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:19.6363349Z   duration_ms: 3245.329426
+shards (api-1)	Run this shard	2026-11-08T22:32:19.6363903Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:19.6364406Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:23.7410049Z # Subtest: PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay
+shards (api-1)	Run this shard	2026-11-08T22:32:23.7413851Z ok 64 - PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay
+shards (api-1)	Run this shard	2026-11-08T22:32:23.7414961Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:23.7415195Z   duration_ms: 2933.934925
+shards (api-1)	Run this shard	2026-11-08T22:32:23.7415528Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:23.7415834Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:27.3900436Z # Subtest: PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+shards (api-1)	Run this shard	2026-11-08T22:32:27.3903822Z ok 65 - PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+shards (api-1)	Run this shard	2026-11-08T22:32:27.3904994Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:27.3905379Z   duration_ms: 3649.993948
+shards (api-1)	Run this shard	2026-11-08T22:32:27.3905847Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:27.3906184Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:30.3630511Z # Subtest: PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence
+shards (api-1)	Run this shard	2026-11-08T22:32:30.3633573Z ok 66 - PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence
+shards (api-1)	Run this shard	2026-11-08T22:32:30.3634652Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:30.3635311Z   duration_ms: 2970.273651
+shards (api-1)	Run this shard	2026-11-08T22:32:30.3635740Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:30.3636079Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:36.5188166Z # Subtest: PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change
+shards (api-1)	Run this shard	2026-11-08T22:32:36.5193797Z ok 67 - PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change
+shards (api-1)	Run this shard	2026-11-08T22:32:36.5194624Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:36.5194953Z   duration_ms: 6158.538523
+shards (api-1)	Run this shard	2026-11-08T22:32:36.5195367Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:36.5195681Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:44.8125691Z # Subtest: REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+shards (api-1)	Run this shard	2026-11-08T22:32:44.8128435Z ok 68 - REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+shards (api-1)	Run this shard	2026-11-08T22:32:44.8129697Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:44.8130051Z   duration_ms: 7116.948128
+shards (api-1)	Run this shard	2026-11-08T22:32:44.8130453Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:44.8131039Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:50.2907165Z # Subtest: REPORT-003 native USD aging: two customers, every boundary, complete JSON and CSV, restart and read refusals
+shards (api-1)	Run this shard	2026-11-08T22:32:50.2933978Z ok 69 - REPORT-003 native USD aging: two customers, every boundary, complete JSON and CSV, restart and read refusals
+shards (api-1)	Run this shard	2026-11-08T22:32:50.2971539Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:50.2971944Z   duration_ms: 5478.870715
+shards (api-1)	Run this shard	2026-11-08T22:32:50.2972366Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:50.2972699Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:32:57.7037248Z # Subtest: DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure
+shards (api-1)	Run this shard	2026-11-08T22:32:57.7040342Z ok 70 - DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure
+shards (api-1)	Run this shard	2026-11-08T22:32:57.7041709Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:32:57.7042272Z   duration_ms: 6246.159277
+shards (api-1)	Run this shard	2026-11-08T22:32:57.7042704Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:32:57.7043037Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:02.6160384Z # Subtest: DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments
+shards (api-1)	Run this shard	2026-11-08T22:33:02.6167104Z ok 71 - DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments
+shards (api-1)	Run this shard	2026-11-08T22:33:02.6168044Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:02.6168556Z   duration_ms: 4912.893911
+shards (api-1)	Run this shard	2026-11-08T22:33:02.6168993Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:02.6169336Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:11.7990298Z # Subtest: API-001 every command and read door checks the current session and role
+shards (api-1)	Run this shard	2026-11-08T22:33:11.7993563Z     # Subtest: each role, built-in or custom, is refused exactly the commands it does not hold
+shards (api-1)	Run this shard	2026-11-08T22:33:11.7994848Z     ok 1 - each role, built-in or custom, is refused exactly the commands it does not hold
+shards (api-1)	Run this shard	2026-11-08T22:33:11.7995641Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:11.7996057Z       duration_ms: 5588.749789
+shards (api-1)	Run this shard	2026-11-08T22:33:11.7996506Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:11.7996960Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:11.8392338Z     # Subtest: inherited command names receive the same safe refusal as an unknown name
+shards (api-1)	Run this shard	2026-11-08T22:33:11.8395576Z     ok 2 - inherited command names receive the same safe refusal as an unknown name
+shards (api-1)	Run this shard	2026-11-08T22:33:11.8396243Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:11.8396476Z       duration_ms: 39.400136
+shards (api-1)	Run this shard	2026-11-08T22:33:11.8396757Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:11.8396976Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7359049Z     # Subtest: PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7362007Z     ok 3 - PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7363517Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7364013Z       duration_ms: 897.122115
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7364596Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7365111Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7868120Z     # Subtest: signed-out, revoked and cross-origin requests change nothing
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7871320Z     ok 4 - signed-out, revoked and cross-origin requests change nothing
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7872025Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7872390Z       duration_ms: 51.054592
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7872821Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:12.7873166Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:12.8827827Z     # Subtest: a command identity replays its outcome only for the same person and content
+shards (api-1)	Run this shard	2026-11-08T22:33:12.8842128Z     ok 5 - a command identity replays its outcome only for the same person and content
+shards (api-1)	Run this shard	2026-11-08T22:33:12.8842994Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:12.8843340Z       duration_ms: 96.037798
+shards (api-1)	Run this shard	2026-11-08T22:33:12.8843809Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:12.8844185Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:12.9101662Z     1..5
+shards (api-1)	Run this shard	2026-11-08T22:33:12.9105792Z ok 72 - API-001 every command and read door checks the current session and role
+shards (api-1)	Run this shard	2026-11-08T22:33:12.9106556Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:12.9106906Z   duration_ms: 6701.673798
+shards (api-1)	Run this shard	2026-11-08T22:33:12.9107311Z   type: 'suite'
+shards (api-1)	Run this shard	2026-11-08T22:33:12.9107661Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:15.2552867Z # Subtest: a technician never reads a price, in records or in the timeline
+shards (api-1)	Run this shard	2026-11-08T22:33:15.2558312Z ok 73 - a technician never reads a price, in records or in the timeline
+shards (api-1)	Run this shard	2026-11-08T22:33:15.2559055Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:15.2559440Z   duration_ms: 2344.978876
+shards (api-1)	Run this shard	2026-11-08T22:33:15.2559891Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:15.2560262Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:19.6049113Z # Subtest: PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit
+shards (api-1)	Run this shard	2026-11-08T22:33:19.6052378Z ok 74 - PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit
+shards (api-1)	Run this shard	2026-11-08T22:33:19.6053848Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:19.6054545Z   duration_ms: 3174.387665
+shards (api-1)	Run this shard	2026-11-08T22:33:19.6054892Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:19.6055151Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:26.9495971Z # Subtest: BOOK-005 desk creation retains request linkage, exact lines and frozen service checklists and forms under current authority
+shards (api-1)	Run this shard	2026-11-08T22:33:26.9497994Z ok 75 - BOOK-005 desk creation retains request linkage, exact lines and frozen service checklists and forms under current authority
+shards (api-1)	Run this shard	2026-11-08T22:33:26.9499051Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:26.9499388Z   duration_ms: 6198.350396
+shards (api-1)	Run this shard	2026-11-08T22:33:26.9499816Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:26.9500159Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:29.6998952Z # Subtest: BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a flat-rate valve and 1.5 hours added on site, invoiced exactly
+shards (api-1)	Run this shard	2026-11-08T22:33:29.7009917Z ok 76 - BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a flat-rate valve and 1.5 hours added on site, invoiced exactly
+shards (api-1)	Run this shard	2026-11-08T22:33:29.7012369Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:29.7012745Z   duration_ms: 2751.01063
+shards (api-1)	Run this shard	2026-11-08T22:33:29.7013185Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:29.7013534Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6049376Z # Subtest: API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6051932Z     # Subtest: DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6053523Z     ok 1 - DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6054558Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6054917Z       duration_ms: 30.879287
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6055395Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6055751Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6912937Z     # Subtest: DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6914822Z     ok 2 - DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6915838Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6916162Z       duration_ms: 83.863863
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6916437Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:33.6916662Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:33.9253511Z     # Subtest: DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in
+shards (api-1)	Run this shard	2026-11-08T22:33:33.9255638Z     ok 3 - DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in
+shards (api-1)	Run this shard	2026-11-08T22:33:33.9256792Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:33.9257222Z       duration_ms: 233.742177
+shards (api-1)	Run this shard	2026-11-08T22:33:33.9257682Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:33.9258050Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:34.0291628Z     # Subtest: DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking
+shards (api-1)	Run this shard	2026-11-08T22:33:34.0296031Z     ok 4 - DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking
+shards (api-1)	Run this shard	2026-11-08T22:33:34.0297061Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:34.0297441Z       duration_ms: 106.063601
+shards (api-1)	Run this shard	2026-11-08T22:33:34.0297912Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:34.0298285Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:34.2277036Z     # Subtest: DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review
+shards (api-1)	Run this shard	2026-11-08T22:33:34.2279224Z     ok 5 - DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review
+shards (api-1)	Run this shard	2026-11-08T22:33:34.2280532Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:34.2281791Z       duration_ms: 198.571505
+shards (api-1)	Run this shard	2026-11-08T22:33:34.2282339Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:34.2282818Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5223062Z     # Subtest: DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5228565Z     ok 6 - DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5229682Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5230112Z       duration_ms: 9295.083355
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5230549Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5231152Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5375430Z     1..6
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5380150Z ok 77 - API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5381857Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5382209Z   duration_ms: 12650.018806
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5382659Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5383026Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5383838Z # point 1: only Owner marks, edits and clears payees; rejected TINs never enter retained data
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5385392Z # point 2: Owner sets, changes and clears amounts; stale, ordinary-employee and excluded-role attempts change nothing
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5386523Z # point 3: each local calendar year has exact payees, visits, cents and threshold flags after restart and once-only replay
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5388301Z # point 4: every parsed CSV column and JSON label is honest; report reads have no filing effect and retain attributable source events
+shards (api-1)	Run this shard	2026-11-08T22:33:43.5389248Z # point 5: subcontractor time is never approvable or in any payroll file, with an explicit exclusion reason
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7740098Z # Subtest: API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7743275Z     # Subtest: AGENT-005, AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7744233Z     ok 1 - AGENT-005, AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7744800Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7745030Z       duration_ms: 1492.493128
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7745290Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7745495Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7963915Z     # Subtest: AGENT-005, AGENT-014 three options from the price book at its prices, each with the model's reason
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7968414Z     ok 2 - AGENT-005, AGENT-014 three options from the price book at its prices, each with the model's reason
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7969079Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7969317Z       duration_ms: 0.54624
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7969615Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7969849Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7970598Z     # Subtest: AGENT-005, AGENT-014 the model saw the request, the furnace's age and history and the price book, never costs or who and where the customer is
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7972117Z     ok 3 - AGENT-005, AGENT-014 the model saw the request, the furnace's age and history and the price book, never costs or who and where the customer is
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7973077Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7973298Z       duration_ms: 0.357848
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7973563Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:48.7973778Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:48.8499639Z     # Subtest: AGENT-005, AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices
+shards (api-1)	Run this shard	2026-11-08T22:33:48.8506128Z     ok 4 - AGENT-005, AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices
+shards (api-1)	Run this shard	2026-11-08T22:33:48.8507028Z       ---
+shards (api-1)	Run this shard	2026-11-08T22:33:48.8507505Z       duration_ms: 54.320451
+shards (api-1)	Run this shard	2026-11-08T22:33:48.8507873Z       type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:48.8508114Z       ...
+shards (api-1)	Run this shard	2026-11-08T22:33:48.9001047Z     1..4
+shards (api-1)	Run this shard	2026-11-08T22:33:48.9015364Z ok 78 - API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves
+shards (api-1)	Run this shard	2026-11-08T22:33:48.9016547Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:48.9016814Z   duration_ms: 4204.232559
+shards (api-1)	Run this shard	2026-11-08T22:33:48.9017114Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:48.9017331Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:52.9385787Z # Subtest: API-002, API-006, API-007: a dispatcher-scoped token is refused an owner command and stops once revoked
+shards (api-1)	Run this shard	2026-11-08T22:33:52.9390612Z ok 79 - API-002, API-006, API-007: a dispatcher-scoped token is refused an owner command and stops once revoked
+shards (api-1)	Run this shard	2026-11-08T22:33:52.9391459Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:52.9391686Z   duration_ms: 2882.941103
+shards (api-1)	Run this shard	2026-11-08T22:33:52.9391934Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:52.9392142Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:33:58.1874677Z # Subtest: Xero Owner discovers every page, reviews verified existing links and preserves authority and customer privacy without accounting writes
+shards (api-1)	Run this shard	2026-11-08T22:33:58.1877041Z ok 80 - Xero Owner discovers every page, reviews verified existing links and preserves authority and customer privacy without accounting writes
+shards (api-1)	Run this shard	2026-11-08T22:33:58.1878178Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:33:58.1878548Z   duration_ms: 4078.666894
+shards (api-1)	Run this shard	2026-11-08T22:33:58.1878996Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:33:58.1879374Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0451110Z # Subtest: Xero company policy defaults to no effects and isolates allow, review, approve and block decisions
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0454265Z ok 81 - Xero company policy defaults to no effects and isolates allow, review, approve and block decisions
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0455180Z   ---
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0455570Z   duration_ms: 2857.783977
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0456031Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0456409Z   ...
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0923039Z 1..81
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0924794Z # tests 123
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0925132Z # suites 4
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0925458Z # pass 122
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0925749Z # fail 1
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0925989Z # cancelled 0
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0926357Z # skipped 0
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0926575Z # todo 0
+shards (api-1)	Run this shard	2026-11-08T22:34:01.0926926Z # duration_ms 534804.541669
+shards (api-1)	Run this shard	2026-11-08T22:34:01.1803112Z  ELIFECYCLE  Command failed with exit code 1.
+shards (api-1)	Run this shard	2026-11-08T22:34:01.2041508Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,70 @@
+{
+  "head": "85f8648ffc8b09754bc939fc080580194f233c4e",
+  "clause": "DISP-003",
+  "rows": [
+    {
+      "point": 1,
+      "door": "route.optimize, scheduled Worker, state and route.accept",
+      "test": "tests/api/route-optimization.test.mjs",
+      "line": 51,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-1"
+    },
+    {
+      "point": 2,
+      "door": "commands and scheduled Worker",
+      "test": "tests/api/route-optimization.test.mjs",
+      "line": 86,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-1"
+    },
+    {
+      "point": 3,
+      "door": "route.optimize and scheduled Worker",
+      "test": "tests/api/route-optimization.test.mjs",
+      "line": 180,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-1"
+    },
+    {
+      "point": 4,
+      "door": "route.optimize, scheduled Worker and Maps network edge",
+      "test": "tests/api/route-optimization.test.mjs",
+      "line": 198,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-1"
+    },
+    {
+      "point": 5,
+      "door": "crew, arrival, capture, handover, eligibility and route commands",
+      "test": "tests/api/route-optimization.test.mjs",
+      "line": 243,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-1"
+    },
+    {
+      "point": 6,
+      "door": "route.optimize, state, replay, cron and Worker restart",
+      "test": "tests/api/route-optimization.test.mjs",
+      "line": 51,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-1"
+    },
+    {
+      "point": 7,
+      "door": "dispatcher board in Chromium",
+      "test": "tests/browser/routing.spec.ts",
+      "line": 21,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-browser"
+    },
+    {
+      "point": 8,
+      "door": "saved proposal, state and dispatcher board",
+      "test": "tests/api/route-optimization.test.mjs",
+      "line": 51,
+      "result": "PASS locally",
+      "run_id": "sx-glove-c-f164-local-1"
+    }
+  ]
+}
