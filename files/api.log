@@ -1,0 +1,34 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+  ✔ DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own (23.865789ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work (50.521725ms)
+  ✔ DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in (196.74745ms)
+  ✔ DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking (82.416482ms)
+  ✔ DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review (156.725543ms)
+  ✔ DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year (6700.671736ms)
+✔ API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept (9352.160173ms)
+ℹ point 1: only Owner marks, edits and clears payees; rejected TINs never enter retained data
+ℹ point 2: Owner sets, changes and clears amounts; stale, ordinary-employee and excluded-role attempts change nothing
+ℹ point 3: each local calendar year has exact payees, visits, cents and threshold flags after restart and once-only replay
+ℹ point 4: every parsed CSV column and JSON label is honest; report reads have no filing effect and retain attributable source events
+ℹ point 5: subcontractor time is never approvable or in any payroll file, with an explicit exclusion reason
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ DISP-013 invited subcontractor works only on current visits through every public door
+  ✔ point 1: mailed staff invitation confirms a built-in Subcontractor linked to their technician (40.340277ms)
+  ✔ point 2: exact current assignments, bounded records and frozen ordered work survive Worker restart (1098.066427ms)
+  ✔ point 4: arrival, every checklist item, note, captioned photo, described material, frozen form and completion land once with attribution (1709.79345ms)
+  ✔ point 3: files and every other read door expose no desk money, timeline or other worker data (531.742912ms)
+  ✔ point 5: all Technician-only writes refuse without retained effects; erasure and withdrawn sessions cannot replay captures (1501.496457ms)
+✔ DISP-013 invited subcontractor works only on current visits through every public door (7023.769093ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17992.029451

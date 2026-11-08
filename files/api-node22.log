@@ -1,0 +1,97 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+    # Subtest: DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own
+    ok 1 - DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own
+      ---
+      duration_ms: 29.469988
+      type: 'test'
+      ...
+    # Subtest: DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work
+    ok 2 - DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work
+      ---
+      duration_ms: 64.501734
+      type: 'test'
+      ...
+    # Subtest: DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in
+    ok 3 - DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in
+      ---
+      duration_ms: 207.123887
+      type: 'test'
+      ...
+    # Subtest: DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking
+    ok 4 - DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking
+      ---
+      duration_ms: 79.639399
+      type: 'test'
+      ...
+    # Subtest: DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review
+    ok 5 - DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review
+      ---
+      duration_ms: 180.996399
+      type: 'test'
+      ...
+    # Subtest: DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year
+    ok 6 - DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year
+      ---
+      duration_ms: 7970.813667
+      type: 'test'
+      ...
+    1..6
+ok 1 - API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept
+  ---
+  duration_ms: 11096.99639
+  type: 'test'
+  ...
+# point 1: only Owner marks, edits and clears payees; rejected TINs never enter retained data
+# point 2: Owner sets, changes and clears amounts; stale, ordinary-employee and excluded-role attempts change nothing
+# point 3: each local calendar year has exact payees, visits, cents and threshold flags after restart and once-only replay
+# point 4: every parsed CSV column and JSON label is honest; report reads have no filing effect and retain attributable source events
+# point 5: subcontractor time is never approvable or in any payroll file, with an explicit exclusion reason
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-013 invited subcontractor works only on current visits through every public door
+    # Subtest: point 1: mailed staff invitation confirms a built-in Subcontractor linked to their technician
+    ok 1 - point 1: mailed staff invitation confirms a built-in Subcontractor linked to their technician
+      ---
+      duration_ms: 46.355378
+      type: 'test'
+      ...
+    # Subtest: point 2: exact current assignments, bounded records and frozen ordered work survive Worker restart
+    ok 2 - point 2: exact current assignments, bounded records and frozen ordered work survive Worker restart
+      ---
+      duration_ms: 1381.062672
+      type: 'test'
+      ...
+    # Subtest: point 4: arrival, every checklist item, note, captioned photo, described material, frozen form and completion land once with attribution
+    ok 3 - point 4: arrival, every checklist item, note, captioned photo, described material, frozen form and completion land once with attribution
+      ---
+      duration_ms: 2140.573258
+      type: 'test'
+      ...
+    # Subtest: point 3: files and every other read door expose no desk money, timeline or other worker data
+    ok 4 - point 3: files and every other read door expose no desk money, timeline or other worker data
+      ---
+      duration_ms: 564.381715
+      type: 'test'
+      ...
+    # Subtest: point 5: all Technician-only writes refuse without retained effects; erasure and withdrawn sessions cannot replay captures
+    ok 5 - point 5: all Technician-only writes refuse without retained effects; erasure and withdrawn sessions cannot replay captures
+      ---
+      duration_ms: 1790.53172
+      type: 'test'
+      ...
+    1..5
+ok 2 - DISP-013 invited subcontractor works only on current visits through every public door
+  ---
+  duration_ms: 8755.942897
+  type: 'test'
+  ...
+1..2
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21799.335864

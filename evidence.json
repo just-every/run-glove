@@ -1,0 +1,124 @@
+{
+  "files": [
+    {
+      "blob": "5ae5ea749aeda124339df6c03b010df51e10f71f",
+      "bytes": 5516,
+      "path": "RECEIPT.json",
+      "sha256": "b1821eb982222decb7b4ef16bb232ebf3f120b393a2c7461fbbe8553a92fddff"
+    },
+    {
+      "blob": "41640b25bb9779b3be895e60ae3c5a6715f03960",
+      "bytes": 12183,
+      "path": "REPORT.md",
+      "sha256": "88c7c99caa632ec2e1398ab03714266f85a7e0d0c0753aa857446b70c05f51fb"
+    },
+    {
+      "blob": "95e62753504f54863c886b6e79fd198e2468d806",
+      "bytes": 5256,
+      "path": "api-node22.log",
+      "sha256": "a5360aa81d847090f64cb948b3d0a492700fbc349a64dd9d8caa3644d861a8a3"
+    },
+    {
+      "blob": "b1ac032d909cc4d38bfa864a7586b8af9b751966",
+      "bytes": 3036,
+      "path": "api.log",
+      "sha256": "370b510d07060f195f18fe3d53813528c04e543bc818b998df78f8b9f857bc9a"
+    },
+    {
+      "blob": "e5adce71d57ad893b7f9fc6d04963c520fc35109",
+      "bytes": 1038,
+      "path": "browser.log",
+      "sha256": "ceb0cc43445d650ef0befb33c15bff65a6b87b1c0d2277616539aab88b4dc88e"
+    },
+    {
+      "blob": "282634a058d1b79f1079cb7c698f2964e898a11c",
+      "bytes": 5947,
+      "path": "build.log",
+      "sha256": "3c34980b982706525f2e7708354cb04df5278735bf11bb14f3ca0a5d0f95cfaf"
+    },
+    {
+      "blob": "32c748bff3abe8ff12bc1c0d234ed0b3a3bab218",
+      "bytes": 232,
+      "path": "candidate-ci.json",
+      "sha256": "83e21d3ce0de836d97ff159be0fd9636152e05da9e5b42899a544a32fb03ec91"
+    },
+    {
+      "blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "bytes": 1,
+      "path": "check.log",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "blob": "902d4ad3c720ba4d91fb8788f51d170a437bdbd0",
+      "bytes": 256,
+      "path": "identity-check.log",
+      "sha256": "5176e1483d87a457f10d53a58e448a90a7b46b36a18bfaf87594d6a00203f32c"
+    },
+    {
+      "blob": "79ba3c1adc0a2adcefc7949d6371558473b5fdc4",
+      "bytes": 291,
+      "path": "lock-check.json",
+      "sha256": "1f6d8550f011abf19071425c431bffe58ba490761c49cfd7e43769dd08ce7b96"
+    },
+    {
+      "blob": "9a9b6601cadb28cea97309e84abc7fca0725f217",
+      "bytes": 1145,
+      "path": "main-ci.json",
+      "sha256": "21d582e72fc451ab4f94a7bb497c2f5639ade8a3bfa0baae16432f49c553add9"
+    },
+    {
+      "blob": "a19eee8ddd826ec3181c1a2d6a9d54b4e5bdac3e",
+      "bytes": 803,
+      "path": "push.log",
+      "sha256": "2fe56d31b0881ee8b3a06e74451e7fcfc4b523e55baa6ad1f6bb4c6929ab2640"
+    },
+    {
+      "blob": "902996e9bf1d781c0e3335d4891e6127ace76b23",
+      "bytes": 123988,
+      "path": "screenshots/1440-subcontractor-visit.png",
+      "sha256": "f8844633eefc35cad0079f347fa6582e49ab6c0242a8ae46ba158d62bee39e3e"
+    },
+    {
+      "blob": "321c3426a5276268b4f7c9e2268493982b082f20",
+      "bytes": 60868,
+      "path": "screenshots/1440-subcontractor-visits.png",
+      "sha256": "1f06b42ccffdaf39ff4d707520e3e4c07d9fe5e0b41e09e73ba9188be7f227b9"
+    },
+    {
+      "blob": "dd8365008f719e0b72dd1f1937da23b10fe0782d",
+      "bytes": 5841,
+      "path": "screenshots/390-subcontractor-no-kept-day.png",
+      "sha256": "bfab2547fcb13bd35135c24b7885e192f7107aee90d88e70dcd1b399ad8fd3f5"
+    },
+    {
+      "blob": "61b8a5432cfdc9f3d5f6bf716a3d11a6d9b6823b",
+      "bytes": 107884,
+      "path": "screenshots/390-subcontractor-visit.png",
+      "sha256": "7c53cc1a26ec7b7f218459ba7ea5b2a09a81bbd27a4ab62f50b3416b084ecbb3"
+    },
+    {
+      "blob": "d700b4980b5c28c252d512e8812727de5b124505",
+      "bytes": 50857,
+      "path": "screenshots/390-subcontractor-visits.png",
+      "sha256": "9a064c107dfe4befe5655eb23c5125380438da1b317c3c4aac1891821a3df749"
+    },
+    {
+      "blob": "fa90f4134fef5592baca85df60efc117d3f1acab",
+      "bytes": 236,
+      "path": "typecheck.log",
+      "sha256": "7d8e762f2030c2ee490e6cb8d4915c4dce220584153dba134ef8283112fb5a1f"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "views-final.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f142",
+  "product_head": "690294666cd31600dab55ac1c917b8a0e59b8f47",
+  "ref": "refs/heads/evidence/sx-glove-c-f142",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f142"
+}
