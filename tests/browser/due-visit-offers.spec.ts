@@ -55,7 +55,9 @@ test('PLAN-010 customer sees only the included visit, chooses remaining open tim
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
     const open = async () => {
-      await page.goto(`${origin}/book#token=${link.token}`)
+      const href = `${origin}/book#token=${link.token}`
+      if (page.url() === href) await page.reload()
+      else await page.goto(href)
       await expect(page.getByRole('heading', { name: 'Seasonal inspection', exact: true })).toBeVisible()
     }
     await open()
