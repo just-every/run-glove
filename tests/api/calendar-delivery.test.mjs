@@ -1,4 +1,3 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, routingDay, assertTrail } from './harness.mjs'
 
@@ -13,8 +12,8 @@ const mapping = async h => (await h.db.prepare('SELECT * FROM glove_calendar_eve
 const technician = async (h, id) => (await h.state()).technicians.find(t => t.id === id)
 
 // One lifecycle journey, with two technicians connected to different providers.
-test('DISP-015 all visit doors deliver one ordered calendar write per affected technician and visit', async t => {
-  const h = await installation({ at }); t.after(() => h.close())
+async function visitDoors() {
+  const h = await installation({ at }); try {
   const b = await business(h)
   await connect(h, b.priya, 'google')
   await connect(h, b.tom, 'microsoft', '2')
@@ -44,9 +43,12 @@ test('DISP-015 all visit doors deliver one ordered calendar write per affected t
   const created = writes(h).findLast(c => c.method === 'POST')
   assert.equal(created.provider, 'microsoft')
   assert.deepEqual([created.body.start.dateTime, created.body.end.dateTime], [v.startAt, v.endAt])
-  v = await expectWrites('visit.change', { visitId: v.id, version: v.version, start: '13:00', end: '14:00', reason: 'Later arrival' }, v => [[b.tom.id, v.id]], 'synthetic-glove-change')
+  v = await expectWrites('visit.change', { visitId: v.id, version: v.version, technicianId: b.priya.id, reason: 'Return to original technician' }, v => [[b.priya.id, v.id], [b.tom.id, v.id]], 'synthetic-glove-reassign-back')
+  assert.equal(h.calendarSync.events.has(next.event_id), false, 'Microsoft event is deleted on reverse reassignment')
+  assert.equal(writes(h).findLast(c => c.method === 'POST').provider, 'google')
+  v = await expectWrites('visit.change', { visitId: v.id, version: v.version, start: '13:00', end: '14:00', reason: 'Later arrival' }, v => [[b.priya.id, v.id]], 'synthetic-glove-change')
   assert.equal(writes(h).at(-1).body.start.dateTime, v.startAt)
-  await expectWrites('visit.cancel', { visitId: v.id, version: v.version, reason: 'Customer cancelled' }, v => [[b.tom.id, v.id]], 'synthetic-glove-cancel')
+  await expectWrites('visit.cancel', { visitId: v.id, version: v.version, reason: 'Customer cancelled' }, v => [[b.priya.id, v.id]], 'synthetic-glove-cancel')
   assert.equal(h.calendarSync.events.size, 0)
 
   const crew = await h.command('crew.save', { name: 'Calendar crew', memberIds: [b.priya.id, b.tom.id] })
@@ -58,7 +60,24 @@ test('DISP-015 all visit doors deliver one ordered calendar write per affected t
   const occurrences = (await h.state()).visits.filter(v => v.jobId === seriesJob.id)
   assert.deepEqual(occurrences.map(v => v.local.date).sort(), ['2027-01-15', '2027-04-15', '2027-07-15', '2027-10-15'])
   const request = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Survey for calendar delivery' })
-  await expectWrites('assessment.book', { enquiryId: request.id, technicianId: b.tom.id, date: '2026-11-09', start: '09:00', end: '10:00' }, r => [[b.tom.id, r.visit.id]], 'synthetic-glove-assessment')
+  const assessment = await expectWrites('assessment.book', { enquiryId: request.id, technicianId: b.tom.id, date: '2026-11-09', start: '09:00', end: '10:00' }, r => [[b.tom.id, r.visit.id]], 'synthetic-glove-assessment')
+  const captured = { visitId: assessment.visit.id, deviceTime: '2026-11-08T22:00:00.000Z' }
+  let start = (await work(h)).length, sent = writes(h).length
+  await b.tomPerson.run('visit.arrive', captured)
+  assert.deepEqual((await work(h)).slice(start).map(w => [w.technician_id, w.visit_id, w.action, w.state]), [[b.tom.id, assessment.visit.id, 'update', 'confirmed']])
+  assert.equal(writes(h).length, sent + 1)
+  start = (await work(h)).length; sent = writes(h).length
+  await b.tomPerson.run('visit.capture', { ...captured, kind: 'note', text: 'Survey measurements retained' })
+  assert.equal((await work(h)).length, start, 'capture without a calendar change enqueues nothing')
+  assert.equal(writes(h).length, sent)
+  await b.tomPerson.run('visit.complete', { ...captured, summary: 'Survey complete', signoff: { absentReason: 'Customer away' } })
+  assert.deepEqual((await work(h)).slice(start).map(w => [w.technician_id, w.visit_id, w.action, w.state]), [[b.tom.id, assessment.visit.id, 'update', 'confirmed']])
+  assert.equal(writes(h).length, sent + 1)
+  const crewVisit = (await h.state()).visits.find(v => v.id === crewDay.visits[0].id)
+  start = (await work(h)).length; sent = writes(h).length
+  await b.dispatcher.run('visit.change', { visitId: crewVisit.id, version: crewVisit.version, reason: 'Keep the reviewed time' })
+  assert.equal((await work(h)).length, start, 'an unchanged placement enqueues nothing')
+  assert.equal(writes(h).length, sent)
   const before = await work(h), count = writes(h).length
   await b.office.run('customer.save', { name: 'Unrelated customer' })
   await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.tom.id, date: '2026-11-06', start: '11:00', end: '12:00' }, { error: 'CONFLICT_REVIEW' })
@@ -67,9 +86,10 @@ test('DISP-015 all visit doors deliver one ordered calendar write per affected t
   await h.restart(); await h.scheduled(at)
   assert.equal(writes(h).length, count, 'confirmed operations do not repeat after restart')
   await assertTrail(h, ['calendar.connected', 'calendar.outcome', 'visit.changed'])
-})
+  } finally { await h.close() }
+}
 
-test('DISP-015 uncertain writes survive replay and Worker restart, block later delivery, and disconnect retains review without replay on reconnection', async t => {
+async function uncertainty() {
   for (const [provider, answer] of [['google', 'unconfirmed'], ['microsoft', 'timeout']]) {
     const h = await installation({ at })
     try {
@@ -130,14 +150,16 @@ test('DISP-015 uncertain writes survive replay and Worker restart, block later d
       await h.restart(); await h.scheduled(at)
       await b.dispatcher.run('visit.book', payload, { commandId: `synthetic-glove-uncertain-${provider}` })
       assert.equal(writes(h).length, freshCalls, 'reconnection grants no replay of old uncertain work')
+      await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+      await b.dispatcher.run('visit.book', payload, { commandId: `synthetic-glove-uncertain-${provider}`, error: 'FORBIDDEN' })
+      assert.equal(writes(h).length, freshCalls, 'withdrawn authority cannot replay calendar work')
       await assertTrail(h, ['calendar.disconnected', 'calendar.connected', 'calendar.outcome'])
     } finally { await h.close() }
   }
-})
+}
 
-
-test('DISP-015 accepted route proposals enqueue only affected visits on each connected calendar', async t => {
-  const h = await installation({ at }); t.after(() => h.close())
+async function routeDelivery() {
+  const h = await installation({ at }); try {
   const { b, visits, day } = await routingDay(h)
   await connect(h, b.priya, 'google')
   await connect(h, b.tom, 'microsoft', '2')
@@ -145,6 +167,13 @@ test('DISP-015 accepted route proposals enqueue only affected visits on each con
   await h.scheduled(at)
   const ready = (await h.state()).routes.find(r => r.id === queued.id)
   assert.equal(ready.status, 'ready')
+  const refusedState = (await h.state()).visits, refusedWork = await work(h), refusedWrites = writes(h).length
+  h.calendarSync.busy = [{ start: '2026-11-03T21:00:00.000Z', end: '2026-11-03T22:00:00.000Z' }]
+  await b.dispatcher.run('route.accept', { routeId: ready.id, version: ready.version, reason: 'Calendar availability changed' }, { error: 'ROUTE_STALE' })
+  assert.deepEqual((await h.state()).visits, refusedState)
+  assert.deepEqual(await work(h), refusedWork)
+  assert.equal(writes(h).length, refusedWrites)
+  h.calendarSync.busy = []
   const before = await work(h), count = writes(h).length
   const payload = { routeId: ready.id, version: ready.version, reason: 'Accept less driving within the reviewed windows' }
   await b.dispatcher.run('route.accept', payload, { commandId: 'synthetic-glove-route' })
@@ -162,4 +191,13 @@ test('DISP-015 accepted route proposals enqueue only affected visits on each con
   await h.scheduled(at)
   assert.equal(writes(h).length, count + rows.length)
   assert.deepEqual(await work(h), [...before, ...rows])
-})
+  } finally { await h.close() }
+}
+
+// Extend the existing calendar public-door journey without increasing its
+// registration count. Verify also discovers this focused proof file.
+export async function calendarDelivery() {
+  await visitDoors()
+  await uncertainty()
+  await routeDelivery()
+}

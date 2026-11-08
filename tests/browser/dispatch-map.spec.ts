@@ -40,7 +40,7 @@ async function signedIn(browser: any, width: number) {
   return { context, page }
 }
 
-test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, the owner draws a zone, and the technician\'s phone hands directions to their navigation app, at 1440 and 390', async ({ browser }) => {
+test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive times, the owner draws a zone, and the technician\'s phone hands directions to their navigation app, at 1440 and 390', async ({ browser }) => {
   test.setTimeout(180_000)
   const h = await installation()
   try {
@@ -72,6 +72,7 @@ test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, th
         await shot(page, width, 'calendar-connected')
         await send(page, calendar.getByRole('button', { name: 'Disconnect visit calendar', exact: true }))
       }
+      await calendarDeliveryReview(browser)
       await page.setViewportSize({ width: 1440, height: 1000 })
       // The owner connects Google Maps with their own key under Team.
       await page.goto(`${origin}/app#team`)
@@ -245,8 +246,7 @@ test('DISP-002, DISP-010 the map board shows the day\'s pins and drive times, th
   } finally { await h.close() }
 })
 
-test('DISP-015 owner reviews uncertain calendar delivery and retained provider events after disconnect', async ({ browser }) => {
-  test.setTimeout(180_000)
+async function calendarDeliveryReview(browser: any) {
   const h = await installation({ at: '2026-11-03T00:00:00.000Z' })
   const { context, page } = await signedIn(browser, 1440)
   try {
@@ -282,13 +282,13 @@ test('DISP-015 owner reviews uncertain calendar delivery and retained provider e
     await h.restart()
     await h.scheduled('2026-11-03T00:00:00.000Z')
     await page.reload()
-    for (const { calendar } of review) {
+    for (const { calendar, provider } of review) {
       await expect(calendar.getByRole('status')).toContainText('unknown')
       await expect(calendar.getByRole('status')).toContainText('uncertain writes are not repeated')
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         await calendar.scrollIntoViewIfNeeded()
-        await shot(page, width, 'uncertain-' + await calendar.getAttribute('aria-label'))
+        await shot(page, width, 'uncertain-' + provider)
       }
       await page.setViewportSize({ width: 1440, height: 1000 })
     }
@@ -301,7 +301,7 @@ test('DISP-015 owner reviews uncertain calendar delivery and retained provider e
     await page.setViewportSize({ width: 1440, height: 1000 })
     await page.goto(`${origin}/app#team`)
     const writeCount = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
-    for (const { calendar, mapping, visit, uncertain } of review) {
+    for (const { calendar, mapping, visit, uncertain, provider } of review) {
       await send(page, calendar.getByRole('button', { name: 'Disconnect visit calendar', exact: true }))
       const retained = calendar.getByRole('region', { name: 'Retained calendar events' })
       await expect(retained.getByText(`Visit ${visit.id} · Provider event ${mapping.event_id} · Connection ${mapping.connection_id}`, { exact: true })).toBeVisible()
@@ -309,7 +309,7 @@ test('DISP-015 owner reviews uncertain calendar delivery and retained provider e
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         await retained.scrollIntoViewIfNeeded()
-        await shot(page, width, 'retained-' + visit.technicianId)
+        await shot(page, width, 'retained-' + provider)
       }
       await page.setViewportSize({ width: 1440, height: 1000 })
     }
@@ -321,4 +321,4 @@ test('DISP-015 owner reviews uncertain calendar delivery and retained provider e
       await expect(calendar.getByRole('region', { name: 'Retained calendar events' })).toContainText(mapping.event_id)
     }
   } finally { await context.close(); await h.close() }
-})
+}
