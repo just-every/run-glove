@@ -5596,7 +5596,11 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "7b0381ada62ccc99c3d7a48995e3da604f47abe394076acce768925eab97af23",
+      "sha256": "afef70e6ea40937df491314d9460745819090a9290a607dc233b293e49ca720c",
+      "executable": false
+    },
+    "tests/api/mail-callback-auth.test.mjs": {
+      "sha256": "69927686d78d107f586b44f14b6e42cb7069b930b8c5dc68b28b5e6df7d54340",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5800,7 +5804,7 @@
       "executable": false
     },
     "tests/browser/email.spec.ts": {
-      "sha256": "029b3cda68bcf68aa4ba07100a848016abcff2ec57646135eb2dcc4d944062dd",
+      "sha256": "07db034c39600473b8529eaceb66cb4293b7589a98c1608478cb25785b786d56",
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
@@ -6044,7 +6048,7 @@
       "executable": false
     },
     "tests/fixtures/mail-providers.mjs": {
-      "sha256": "701bccc738479fb28be47416a247b1af8d2b1325f2804c41a3bd847e61b777c3",
+      "sha256": "0730f273b69a7626dfe34bbf89f4bcdea54c5c8daadc43a514779dc869d3dccc",
       "executable": false
     },
     "tests/fixtures/maps.mjs": {
