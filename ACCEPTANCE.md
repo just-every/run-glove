@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 21 | 200 | 16 | 237 |
+| Core | 22 | 199 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 21 | 213 | 29 | 263 |
+| Full target | 22 | 212 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -2844,7 +2844,7 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-AUDIT-001, BASE-ROL
 
 #### PLAN-010 — Customer due-visit booking offers
 
-Core · target · **partial** · From PLAN-004 · Cites BASE-DATA-001, BASE-ROLE-001
+Core · target · **done** · From PLAN-004 · Cites BASE-DATA-001, BASE-ROLE-001
 
 **Requirement.** Customer due-visit booking offers supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations.
 
@@ -2858,8 +2858,8 @@ Core · target · **partial** · From PLAN-004 · Cites BASE-DATA-001, BASE-ROLE
 7. A slot taken meanwhile is refused, showing only remaining open offers without other customers' conflict details.
 8. No open offers means contact the office; the visit stays due.
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The desk offers 1 to 10 future, currently conflict-free slots for one outstanding included visit (agreement offer action), retaining or creating its included job.; point 2 — The revocable bearer link is shown once, stores only its hash separately from portable domain records, expires exactly 14 days after creation, and is revoked atomically when used or by staff (agreement offer revoke action).; point 3 — Like FIELD-003, restoring an archive retains offer metadata but requires a new link; old bearers are not restored.; point 4 — The customer page offers only that included visit's service, site and slots, with each slot's booking time zone; it grants no account access.; point 5 — The customer chooses one offered slot, under the offering person's current active role and branch authority.; point 6 — Every choice repeats GLOVE-05 eligibility and overlap checks; the public choice never acknowledges new conflicts.; point 7 — A slot taken meanwhile is refused, showing only remaining open offers without other customers' conflict details.; point 8 — No open offers means contact the office; the visit stays due. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`; `tests/api/due-visit-offers.test.mjs` (PLAN-010 desk issuance enforces slot bounds, current permissions and outstanding entitlement state while preserving included ordinals); `tests/api/due-visit-offers.test.mjs` (PLAN-010 bearer custody survives restart, expires at the runtime boundary and ends atomically on use or staff revocation); `tests/portable.mjs` (PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job); `tests/api/due-visit-offers.test.mjs` (PLAN-010 public reads and choices repeat conflicts, disclose only remaining offers and keep exhausted visits due); `tests/api/due-visit-offers.test.mjs` (PLAN-010 customer choices use live offering authority and refuse deactivation, role withdrawal, branch exclusion and erased replay); `tests/browser/due-visit-offers.spec.ts` (PLAN-010 customer sees only the included visit, chooses remaining open times and contacts the office when none remain)
+**Gap.** None.
 
 #### PLAN-011 — Booking-offer communication history
 

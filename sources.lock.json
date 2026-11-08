@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "70ecaca01acad163458d5d5759884c30b21e2567aaa38e3fbdbf5bb150bd5e62",
+      "sha256": "a6c45fa868af404be7112db893721075ac6bc2e3d078868c08e511cf2ae2589b",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9dfba68547be85b05f73b9f78529a772212acbb0c27cd827fd50691e08884726",
+      "sha256": "eaf196681729806c7454a6c6928dae9ef68e6542fe94e8bf8cd39968ac32e973",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "55102021b7ce97f97c19b2dbd56e51dd9ba85a271b085baedffa5dc778be5e2a",
+      "sha256": "909636d04877838d5ba04b3551c2f4051c8d2a531b7280272c0d1318c75d9764",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -5579,6 +5579,10 @@
       "sha256": "a1a78a5145adf5a0848cb38c8d4d9e46f81f73359cb86e474bf55862ceb0705a",
       "executable": false
     },
+    "tests/api/due-visit-offers.test.mjs": {
+      "sha256": "416dd4e7fbcb4feb81f35477e7d2844de232a399be77539dc1e06e69149c7c25",
+      "executable": false
+    },
     "tests/api/eligibility.test.mjs": {
       "sha256": "850246f89dce5cc2f944a184f5a36b2d44f88f5bce3283fae1c70ef6cc48b5c1",
       "executable": false
@@ -5829,6 +5833,10 @@
     },
     "tests/browser/documents.spec.ts": {
       "sha256": "571a48e5fe1a36a7c80c649b994d3b55228ddf13389c2767d0e24c972d8831ac",
+      "executable": false
+    },
+    "tests/browser/due-visit-offers.spec.ts": {
+      "sha256": "f5ca0e79d612e819ba9df8ed84970ec6d8e4e92b5585923d166a2248938f95c4",
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
@@ -6336,7 +6344,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "f535f7a345e776f23042e957c12f03c17cbf6b87b26e71e23c292a7eb067222e",
+      "sha256": "3b506f1fd78267155bc31a19c22dd319d20707be5870d809b4163b9b53107c8e",
       "executable": false
     },
     "tests/runtime.mjs": {
