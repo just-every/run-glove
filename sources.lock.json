@@ -1900,7 +1900,7 @@
       "executable": false
     },
     "src/glove/calendar-sync.ts": {
-      "sha256": "2ad5304d22cb0dcc7108304e09871ab8f4f066eb8337aa8dcf6d09220b8afd32",
+      "sha256": "bcdae7e77f861e816e49ee41432a62612a9019a3d380c8f29f3b897567389cbe",
       "executable": false
     },
     "src/glove/calendar.ts": {
@@ -5524,7 +5524,7 @@
       "executable": false
     },
     "tests/api/calendar-sync.test.mjs": {
-      "sha256": "faf187b809b8cfc1f9097da7a7e1412690089c0489bf1002f93ea9be2abae08e",
+      "sha256": "7667c2698f51b7b885729a83572d63c760b244dedb01eac9f560ef857245ae58",
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
@@ -5572,7 +5572,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "850246f89dce5cc2f944a184f5a36b2d44f88f5bce3283fae1c70ef6cc48b5c1",
+      "sha256": "222958e26f61ca94406f0478d7e6e1124a2ab1d4f65a2704ebc50b6977012c32",
       "executable": false
     },
     "tests/api/email.test.mjs": {
@@ -5804,7 +5804,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "4dbe75cd3a4d03f7f2b9bc09840957068ec7b307d84cd0176699c9043b443472",
+      "sha256": "b30e3f9a24279cfd46620e80ce5d32f97ba1aa4577b4bb1da2f72a8cf73e360a",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -6312,7 +6312,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "25ec0fc3db3097642c9200af6cd6b2bc56662a047c79dfbbabdc3963541e7d9e",
+      "sha256": "fea1692b69f0c57578b4e8e6e96ad200eb6c37763585fac0fcd2b53ce7a3e342",
       "executable": false
     },
     "tests/runtime.mjs": {

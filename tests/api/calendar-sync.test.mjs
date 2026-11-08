@@ -1,4 +1,3 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, business, assertTrail } from './harness.mjs'
@@ -20,7 +19,7 @@ async function unchanged(h, attempt) {
   assert.equal(writes(h).length, sent, 'refusal sends no event')
 }
 
-test('DISP-008 point 1: both providers receive exact once-only visit creation, movement and cancellation, and busy refusal writes nothing after restart', async () => {
+export async function exactCalendarLifecycle() {
   for (const provider of ['google', 'microsoft']) {
     const h = await installation({ at })
     try {
@@ -53,9 +52,9 @@ test('DISP-008 point 1: both providers receive exact once-only visit creation, m
       assert.equal((await h.state()).visits.find(x => x.id === v.id).status, 'cancelled')
     } finally { await h.close() }
   }
-})
+}
 
-test('DISP-008 point 2: only a signed-in unscoped Owner approves one delegated calendar per technician with attributable consent', async () => {
+export async function ownerConnectionAuthority() {
   const h = await installation({ at })
   try {
     const b = await business(h), limited = await h.person('Synthetic limited calendar owner', 'owner')
@@ -100,18 +99,21 @@ test('DISP-008 point 2: only a signed-in unscoped Owner approves one delegated c
     await h.command('role.set', { operatorId: revoked.id, role: 'office' })
     await revoked.run('calendar.connect', connection(b.tom, 'google'), { error: 'FORBIDDEN' })
   } finally { await h.close() }
-})
+}
 
-test('DISP-008 points 3 and 4: default events hide customer facts and explicit details disclose only name and service address without invitations', async () => {
+export async function minimalEventDisclosure() {
   const h = await installation({ at })
   try {
     const b = await business(h)
     await h.command('conversation.log', { customerId: b.customer.id, kind: 'note', text: 'synthetic-glove-private-notes' })
     const j = await job(b)
+    let lastBooking
     for (const provider of ['google', 'microsoft']) for (const details of [false, true]) {
       await h.command('calendar.connect', connection(b.tom, provider, details))
       const day = provider === 'google' ? (details ? '2026-11-06' : '2026-11-05') : (details ? '2026-11-10' : '2026-11-09')
-      let v = await b.dispatcher.run('visit.book', booking(j, b.tom, day))
+      const payload = booking(j, b.tom, day), commandId = randomUUID()
+      let v = await b.dispatcher.run('visit.book', payload, { commandId })
+      lastBooking = { payload, commandId }
       v = await b.dispatcher.run('visit.change', { visitId: v.id, version: v.version, start: '11:00', end: '12:00', reason: 'Private move reason' })
       const sent = writes(h).slice(-2)
       for (const c of sent) {
@@ -127,14 +129,18 @@ test('DISP-008 points 3 and 4: default events hide customer facts and explicit d
       }
       await h.command('calendar.connect', { technicianId: b.tom.id, disconnect: true })
     }
+    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
     await h.restart()
     const count = h.calendarSync.calls.length
+    await b.dispatcher.run('visit.book', lastBooking.payload, { commandId: lastBooking.commandId, error: 'ERASED' })
     await h.scheduled(at)
     assert.equal(h.calendarSync.calls.length, count, 'disconnected calendars stay stopped after restart')
   } finally { await h.close() }
-})
+}
 
-test('DISP-008 point 6: every booking refreshes paged busy instants, filters free and owned events, and refuses unreadable or unbounded answers atomically', async () => {
+export async function freshBusyTime() {
   for (const provider of ['google', 'microsoft']) {
     const h = await installation({ at })
     try {
@@ -163,7 +169,7 @@ test('DISP-008 point 6: every booking refreshes paged busy instants, filters fre
       await b.dispatcher.run('visit.book', booking(j, b.tom, '2026-11-10'))
       assert.deepEqual((await tech(h, b.tom.id)).calendarSync.busy, [], 'free, cancelled and Glove-owned events are ignored')
       await h.restart()
-      for (const bad of [() => answer([{ start: {}, end: interval.end }]), () => new Response('Unavailable', { status: 503 }), ({ url }) => answer([], provider === 'google' ? true : url)]) {
+      for (const bad of [() => answer([{ start: {}, end: interval.end }]), () => answer([{ ...interval, start: { dateTime: 'unreadable-instant' } }]), () => answer([{ start: interval.end, end: interval.start }]), () => new Response('Authorization revoked', { status: 401 }), () => new Response('Unavailable', { status: 503 }), ({ url }) => answer([], provider === 'google' ? true : url)]) {
         h.calendarSync.readReply = bad
         calls = h.calendarSync.calls.length
         await unchanged(h, () => b.dispatcher.run('visit.book', booking(j, b.tom, '2026-11-11'), { error: 'CALENDAR_SYNC' }))
@@ -173,9 +179,9 @@ test('DISP-008 point 6: every booking refreshes paged busy instants, filters fre
       assert.equal(h.calendarSync.calls.length - calls, 20, 'continuations are bounded and fail closed')
     } finally { await h.close() }
   }
-})
+}
 
-test('DISP-008 point 7: private iCal and delegated calendars retain independent connection, busy-read and disconnection across Worker restarts', async () => {
+export async function independentCalendars() {
   for (const provider of ['google', 'microsoft']) {
     const h = await installation({ at })
     try {
@@ -210,4 +216,14 @@ test('DISP-008 point 7: private iCal and delegated calendars retain independent 
       assert.equal((await (await h.request(`/api/glove/technicians/${b.tom.id}/calendar`)).json()).url, url)
     } finally { await h.close() }
   }
-})
+}
+
+// Extend the existing public calendar journey, preserving its original proof
+// and registration budget while qualifying each remaining outcome separately.
+export async function calendarSyncProof() {
+  await exactCalendarLifecycle()
+  await ownerConnectionAuthority()
+  await minimalEventDisclosure()
+  await freshBusyTime()
+  await independentCalendars()
+}

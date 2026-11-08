@@ -475,8 +475,9 @@ try {
   }
   assert.deepEqual((await running.owner.get('/api/glove/state')).visits, restoredCalendarVisits)
   assert.equal(calendarCalls.get('calendar-destination')?.length ?? 0, 0, 'DISP-008 import, setup, startup, refusal and saved command replay make no provider call')
+  const calendarRestartPort = Number(new URL((await running.request('/api/glove/state')).url).port)
   await running.close(); running = null
-  running = await start(destination)
+  running = await start(destination, calendarRestartPort)
   assert.equal(calendarCalls.get('calendar-destination')?.length ?? 0, 0, 'DISP-008 actual restored Worker restart makes no provider call')
   for (const replay of portableCalendars) {
     await running.owner.cmd('calendar.connect', { technicianId: replay.technician.id, disconnect: true })
