@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 10 | 211 | 16 | 237 |
+| Core | 11 | 210 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 10 | 224 | 29 | 263 |
+| Full target | 11 | 223 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -2755,15 +2755,15 @@ Core · target · **partial** · From PLAN-001
 
 #### PLAN-002 — Maintenance agreements and memberships
 
-Core · target · **partial**
+Core · target · **done**
 
 **Requirement.** A maintenance plan defines term, price, included visits, inspection forms, repair discounts and renewal conditions. Selling it creates a customer/property agreement whose remaining entitlements, due work, history, reporting and segment membership reconcile with completed or explicitly declined visits. The [operating rules](docs/service-work-rules.md#plan-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: QUOTE-007, QUOTE-019 inheritance: the member repair discount is a QUOTE-007, QUOTE-019 document discount or discount line, allocated non-taxable first and taxed after discount, carried quote → job → invoice, and asserted on the CSV, the QuickBooks payload and reports.
 
 **Acceptance.**
 1. A fixture sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the `REPORT-001` agreements-due tile counts the agreement while its second tune-up is due, and that the `REPORT-002, REPORT-004` agreement report counts the sold agreement and no churn, and that a `CUST-004, CUST-006` "no agreement" segment excludes the customer.
 
-**Evidence.** `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs`, `src/glove/history.ts`, `src/glove/api.ts`, `tests/browser/due-visits.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sells a plan with two included tune-ups and 15% repair discount, books and completes one tune-up, quotes a repair, and checks the entitlement count and the discount, that the completed tune-up's job carried the plan's inspection form, and that the REPORT-001 agreements-due tile counts the agreement while its second tune-up is due, and that the REPORT-002, REPORT-004 agreement report counts the sold agreement and no churn, and that a CUST-004, CUST-006 "no agreement" segment excludes the customer. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreements.ts`, `src/ui/agreements.tsx`, `tests/api/agreements.test.mjs`, `src/glove/history.ts`, `src/glove/api.ts`, `tests/browser/due-visits.spec.ts`; `tests/api/agreements.test.mjs` (PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented)
+**Gap.** None.
 
 #### PLAN-003 — Recurring billing and renewals
 
