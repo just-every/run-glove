@@ -5579,6 +5579,10 @@
       "sha256": "a1a78a5145adf5a0848cb38c8d4d9e46f81f73359cb86e474bf55862ceb0705a",
       "executable": false
     },
+    "tests/api/due-visit-offers.test.mjs": {
+      "sha256": "941f2cb80a0f6b6c513e5749a9a944fe4041ad4889d889da66d7d92341e894ff",
+      "executable": false
+    },
     "tests/api/eligibility.test.mjs": {
       "sha256": "850246f89dce5cc2f944a184f5a36b2d44f88f5bce3283fae1c70ef6cc48b5c1",
       "executable": false
@@ -5829,6 +5833,10 @@
     },
     "tests/browser/documents.spec.ts": {
       "sha256": "571a48e5fe1a36a7c80c649b994d3b55228ddf13389c2767d0e24c972d8831ac",
+      "executable": false
+    },
+    "tests/browser/due-visit-offers.spec.ts": {
+      "sha256": "633c1661ed0d13ee05c407aa77b8824dbe153e354e67dc332b2fafdf3ffdd037",
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
@@ -6332,7 +6340,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "f535f7a345e776f23042e957c12f03c17cbf6b87b26e71e23c292a7eb067222e",
+      "sha256": "3b506f1fd78267155bc31a19c22dd319d20707be5870d809b4163b9b53107c8e",
       "executable": false
     },
     "tests/runtime.mjs": {
