@@ -1,0 +1,116 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /workspace/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/custom-roles.spec.ts' 'tests/browser/documents.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/quickbooks.spec.ts' 'tests/browser/revenue.spec.ts' 'tests/browser/routing.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=8250
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2339
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=36622
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 14 tests using 1 worker
+[verify progress]   ✓   1 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (14.5s)
+[verify progress]   ✓   2 tests/browser/documents.spec.ts:49:1 › QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (17.3s)
+[verify progress]   ✓   3 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.1m)
+[verify progress]   ✓   4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (44.7s)
+[verify progress]   ✓   5 tests/browser/journey.spec.ts:854:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (19.1s)
+[verify progress]   ✓   6 tests/browser/journey.spec.ts:1055:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (5.8s)
+[verify progress]   ✓   7 tests/browser/journey.spec.ts:1093:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (10.7s)
+[verify progress]   ✓   8 tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (17.1s)
+[verify progress]   ✓   9 tests/browser/journey.spec.ts:1206:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (20.5s)
+[verify progress]   ✓  10 tests/browser/quickbooks.spec.ts:27:1 › QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390 (17.1s)
+[verify progress]   ✓  11 tests/browser/quickbooks.spec.ts:184:1 › QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390 (54.6s)
+[verify progress]   ✓  12 tests/browser/quickbooks.spec.ts:286:1 › Xero remittance shows each property invoice allocation and refuses unsupported refund controls (5.4s)
+[verify progress]   ✓  13 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (14.7s)
+[verify progress]   ✓  14 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (11.5s)
+[verify progress]   14 passed (5.4m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=323318
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 14 tests using 1 worker
+
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (14.5s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/browser/documents.spec.ts:49:1 › QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (17.3s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.1m)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (44.7s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 tests/browser/journey.spec.ts:854:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (19.1s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 tests/browser/journey.spec.ts:1055:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (5.8s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/browser/journey.spec.ts:1093:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (10.7s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (17.1s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/browser/journey.spec.ts:1206:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (20.5s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/browser/quickbooks.spec.ts:27:1 › QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390 (17.1s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/browser/quickbooks.spec.ts:184:1 › QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390 (54.6s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/browser/quickbooks.spec.ts:286:1 › Xero remittance shows each property invoice allocation and refuses unsupported refund controls (5.4s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (14.7s)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (11.5s)
+
+  14 passed (5.4m)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /tmp/glove-browser-evidence/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=339914

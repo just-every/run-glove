@@ -1,0 +1,122 @@
+shards (browser-4)	Run this shard	﻿2026-11-08T11:14:12.9683292Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9683720Z [36;1mnode scripts/verify-ci.mjs "$SHARD"[0m
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9703120Z shell: /usr/bin/bash -e {0}
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9703377Z env:
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9703749Z   CI: true
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9703956Z   GLOVE_VERIFY_SHARD: browser-4
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9704217Z   WRANGLER_SEND_METRICS: false
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9704476Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9704720Z   GLOVE_CI_PREBUILT: 1
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9705032Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9705397Z   SHARD: browser-4
+shards (browser-4)	Run this shard	2026-11-08T11:14:12.9705607Z ##[endgroup]
+shards (browser-4)	Run this shard	2026-11-08T11:14:13.0045257Z > pnpm run verify:app
+shards (browser-4)	Run this shard	2026-11-08T11:14:13.2842138Z 
+shards (browser-4)	Run this shard	2026-11-08T11:14:13.2843133Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser-4)	Run this shard	2026-11-08T11:14:13.2844204Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser-4)	Run this shard	2026-11-08T11:14:13.2844644Z 
+shards (browser-4)	Run this shard	2026-11-08T11:14:13.3848942Z verify:app
+shards (browser-4)	Run this shard	2026-11-08T11:14:13.4186120Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/custom-roles.spec.ts' 'tests/browser/documents.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/quickbooks.spec.ts' 'tests/browser/revenue.spec.ts' 'tests/browser/routing.spec.ts'
+shards (browser-4)	Run this shard	2026-11-08T11:14:14.5116537Z [verify phase] frozen install: start
+shards (browser-4)	Run this shard	2026-11-08T11:14:22.2735029Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=7762
+shards (browser-4)	Run this shard	2026-11-08T11:14:22.2739725Z [verify phase] site build: start
+shards (browser-4)	Run this shard	2026-11-08T11:14:24.9527770Z [verify phase] site build: exit=0 signal=none elapsed_ms=2681
+shards (browser-4)	Run this shard	2026-11-08T11:14:24.9901841Z [verify phase] native setup: start
+shards (browser-4)	Run this shard	2026-11-08T11:15:05.2891838Z [verify phase] native setup: exit=0 signal=none elapsed_ms=40299
+shards (browser-4)	Run this shard	2026-11-08T11:15:05.2900147Z [verify phase] native dev: start
+shards (browser-4)	Run this shard	2026-11-08T11:15:22.5231989Z [verify phase] browser assertions: start
+shards (browser-4)	Run this shard	2026-11-08T11:15:25.3572356Z [verify progress] Running 14 tests using 1 worker
+shards (browser-4)	Run this shard	2026-11-08T11:15:42.4536767Z [verify progress]   ✓   1 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (15.3s)
+shards (browser-4)	Run this shard	2026-11-08T11:16:00.1829754Z [verify progress]   ✓   2 tests/browser/documents.spec.ts:49:1 › QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (17.7s)
+shards (browser-4)	Run this shard	2026-11-08T11:17:04.4274809Z [verify progress]   ✓   3 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.1m)
+shards (browser-4)	Run this shard	2026-11-08T11:17:51.4381239Z [verify progress]   ✓   4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (47.0s)
+shards (browser-4)	Run this shard	2026-11-08T11:18:09.4939670Z [verify progress]   ✓   5 tests/browser/journey.spec.ts:854:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (18.0s)
+shards (browser-4)	Run this shard	2026-11-08T11:18:15.1329287Z [verify progress]   ✓   6 tests/browser/journey.spec.ts:1055:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (5.6s)
+shards (browser-4)	Run this shard	2026-11-08T11:18:25.7780212Z [verify progress]   ✓   7 tests/browser/journey.spec.ts:1093:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (10.6s)
+shards (browser-4)	Run this shard	2026-11-08T11:18:35.4360948Z [verify progress]   ✘   8 tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (9.4s)
+shards (browser-4)	Run this shard	2026-11-08T11:18:55.8293889Z [verify progress]   ✓   9 tests/browser/journey.spec.ts:1206:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (19.5s)
+shards (browser-4)	Run this shard	2026-11-08T11:19:11.4591703Z [verify progress]   ✓  10 tests/browser/quickbooks.spec.ts:27:1 › QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390 (15.6s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:05.0190086Z [verify progress]   ✓  11 tests/browser/quickbooks.spec.ts:184:1 › QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390 (53.5s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:09.8850514Z [verify progress]   ✓  12 tests/browser/quickbooks.spec.ts:286:1 › Xero remittance shows each property invoice allocation and refuses unsupported refund controls (4.8s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:23.2141286Z [verify progress]   ✓  13 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (13.3s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.1924644Z [verify progress]   ✓  14 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (11.0s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3072760Z [verify progress]   1 failed
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3075321Z [verify progress]   13 passed (5.2m)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3430543Z [verify phase] browser assertions: exit=1 signal=none elapsed_ms=311820
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3445032Z Dev runtime output (last 6000 characters):
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3447989Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3449206Z rer dev: checking the server limit
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3449545Z Checking pinned pnpm
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3449790Z 10.12.4
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3450031Z Applying database migrations
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3450327Z Applying database migrations
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3450491Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3450786Z  ⛅️ wrangler 4.129.1 (update available 4.158.0)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3451251Z ───────────────────────────────────────────────
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3451584Z Resource location: local 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3451754Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3451978Z Use --remote if you want to access the remote instance.
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3452264Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3452419Z ✅ No migrations to apply!
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3452752Z Starting your application on this computer
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3453146Z Starting your application on this computer
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3453493Z Using secrets defined in .dev.vars
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3453803Z   ➜  Local:   [URL]
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3454065Z Opening your application
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3454380Z Your application is running locally
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3454678Z Building the run site
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3454986Z {"pages":22,"assets":6,"styles":1}
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3456351Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3464690Z Open your app, already signed in on this computer: [URL]
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3465437Z App address (without sign-in): [URL]
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3466053Z Keep the sign-in link private.
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3467077Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3469242Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3471176Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512151552 bytes.
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3472386Z Details for tools and troubleshooting:
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3472891Z RER_READY [URL]
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3473358Z RER_SIGNED_IN owner@example.test
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3473856Z [private runtime entry]
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3474443Z Running the scheduled trigger locally: */15 * * * *
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.3474845Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.5491126Z [verify phase] native dev: exit=143 signal=none elapsed_ms=329259
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8922561Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8924081Z Running 14 tests using 1 worker
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8925075Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8926695Z   ✓   1 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (15.3s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8929454Z   ✓   2 tests/browser/documents.spec.ts:49:1 › QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immutable report and agreement at 1440 and 390 (17.7s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8931340Z   ✓   3 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (1.1m)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8933324Z   ✓   4 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (47.0s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8935315Z   ✓   5 tests/browser/journey.spec.ts:854:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (18.0s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8936583Z   ✓   6 tests/browser/journey.spec.ts:1055:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (5.6s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8938645Z   ✓   7 tests/browser/journey.spec.ts:1093:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (10.6s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8941049Z   ✘   8 tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (9.4s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8942728Z   ✓   9 tests/browser/journey.spec.ts:1206:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (19.5s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8944221Z   ✓  10 tests/browser/quickbooks.spec.ts:27:1 › QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390 (15.6s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8945730Z   ✓  11 tests/browser/quickbooks.spec.ts:184:1 › QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390 (53.5s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8947115Z   ✓  12 tests/browser/quickbooks.spec.ts:286:1 › Xero remittance shows each property invoice allocation and refuses unsupported refund controls (4.8s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8950641Z   ✓  13 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (13.3s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8952100Z   ✓  14 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (11.0s)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8952840Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8952866Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8953832Z   1) tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8954661Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8954855Z     Error: route.fulfill: Route is already handled!
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8955105Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8955341Z       1167 |         const req = route.request(), url = new URL(req.url())
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8956340Z       1168 |         const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8957900Z     > 1169 |         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8958673Z            |                     ^
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8958933Z       1170 |       })
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8959301Z       1171 |       await page.goto(`${origin}/app?job=${job.id}`)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8960112Z       1172 |       await expect(page.getByRole('heading', { name: `${job.number} · ${job.title}`, exact: true })).toBeVisible()
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8961168Z         at [REDACTED]/tests/browser/journey.spec.ts:1169:21
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8961647Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8962204Z     Error Context: ../../../../../tmp/glove-browser-evidence/journey-DATA-001-DATA-005--addfa-ased-visits-at-1440-and-390/error-context.md
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8962747Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8962832Z   1 failed
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8963881Z     tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8964722Z   13 passed (5.2m)
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.8964855Z 
+shards (browser-4)	Run this shard	2026-11-08T11:20:34.9838967Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-4)	Run this shard	2026-11-08T11:20:35.0084201Z ##[error]Process completed with exit code 1.

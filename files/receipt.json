@@ -56,6 +56,34 @@
       "exit": 0,
       "head": "c2fb27a6b95ebdc88283a471097a538bd2ab4f34",
       "file": "mechanical.json"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "head": "c2fb27a6b95ebdc88283a471097a538bd2ab4f34",
+      "file": "candidate-build.log"
+    },
+    {
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser-4 GLOVE_CI_PARTITION=1 GLOVE_CI_PREBUILT=1 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium SHARD=browser-4 node scripts/verify-ci.mjs browser-4",
+      "exit": 0,
+      "tests": 14,
+      "pass": 14,
+      "head": "c2fb27a6b95ebdc88283a471097a538bd2ab4f34",
+      "file": "browser-4-reproduction.log"
+    },
+    {
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser-4 GLOVE_CI_PARTITION=1 GLOVE_CI_PREBUILT=1 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium SHARD=browser-4 node --import ./scripts/verify-progress.mjs tests/browser/run.mjs tests/browser/journey.spec.ts --grep 'a technician reconnects and erases cached originals'",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "head": "3db9c3ec9cdad3f66b4b809b05126264fce2d38d",
+      "file": "main-browser-comparison.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "c2fb27a6b95ebdc88283a471097a538bd2ab4f34",
+      "stdoutSha256": "a9a7b6728cbd4973e65fd8a0d0a68f8785f7845e4fa354c1ef3e500800af37a2"
     }
   ],
   "proofFileHashes": {
@@ -80,10 +108,10 @@
   "ci": {
     "id": 42474671848,
     "event": "push",
-    "conclusion": null,
+    "conclusion": "failure",
     "head_sha": "c2fb27a6b95ebdc88283a471097a538bd2ab4f34",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42474671848",
-    "status": "in_progress"
+    "status": "completed"
   },
   "mainCI": {
     "head": "3db9c3ec9cdad3f66b4b809b05126264fce2d38d",
@@ -100,10 +128,47 @@
       "event": "push"
     }
   },
-  "githubCoreCallsUsed": 3,
+  "githubCoreCallsUsed": 7,
   "pushedHead": "c2fb27a6b95ebdc88283a471097a538bd2ab4f34",
   "candidateCommits": [
     "c2fb27a6b95ebdc88283a471097a538bd2ab4f34 fix: retain provider reference and occurrence in mail activity",
     "df0d5e4c73f6db4f77bd2a20d3d8720153bdbc41 test: qualify durable Postmark delivery outcomes"
-  ]
+  ],
+  "ciFailure": {
+    "job": 128713634442,
+    "shard": "browser-4",
+    "test": "tests/browser/journey.spec.ts:1147: a technician reconnects and erases cached originals and queued captures only for explicitly erased visits",
+    "failure": "Error: route.fulfill: Route is already handled!",
+    "line": 1169,
+    "logCommand": "gh run view 42474671848 --repo just-every/run-glove --job 128713634442 --log-failed",
+    "logCommandExit": 0,
+    "reproduction": "not reproduced: full browser-4 exit 0, 14 passed; same test on main exit 0, 1 passed",
+    "unchangedFromMain": [
+      "tests/browser/journey.spec.ts",
+      "tests/browser/runtime.mjs",
+      "tests/owned-processes.mjs",
+      "src/ui/outbox.ts"
+    ],
+    "receipt": "verification-reproduction.json"
+  },
+  "terminalStatus": "BLOCKED",
+  "blocker": "Exact-SHA Verify browser-4 failed; failure did not reproduce. Brief requires stopping instead of guessing a repair.",
+  "claim": {
+    "clause": "COMM-016",
+    "status": "PARTIAL",
+    "points": [
+      1
+    ],
+    "nativePointComplete": true
+  },
+  "countsBefore": {
+    "done": 11,
+    "partial": 223,
+    "missing": 29
+  },
+  "countsAfter": {
+    "done": 11,
+    "partial": 223,
+    "missing": 29
+  }
 }

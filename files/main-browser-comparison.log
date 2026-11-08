@@ -1,0 +1,30 @@
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=9734
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2452
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=40964
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 1 test using 1 worker
+[verify progress]   ✓  1 tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (24.9s)
+[verify progress]   1 passed (26.7s)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=27645
+
+Running 1 test using 1 worker
+
+(node:6975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:6975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6975) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/journey.spec.ts:1147:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (24.9s)
+
+  1 passed (26.7s)
+
+Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: /tmp/glove-main-browser-evidence/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=47259
