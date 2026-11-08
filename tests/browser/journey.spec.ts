@@ -1150,6 +1150,8 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
   for (const width of [1440, 390]) {
     const h = await installation(), b = await business(h)
     const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
+    const inFlight = new Set<Promise<void>>()
+    const settled = async () => { while (inFlight.size) await Promise.all(inFlight) }
     try {
       const job = await h.command('job.create', { quoteId: (await acceptedQuote(h, b)).id })
       const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-04', start: '09:00', end: '10:00' })
@@ -1164,14 +1166,21 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await context.route(`${origin}/api/glove/**`, async route => {
-        const req = route.request(), url = new URL(req.url())
-        const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
-        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+        const reply = (async () => {
+          const req = route.request(), url = new URL(req.url())
+          const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+          await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+        })()
+        inFlight.add(reply)
+        try { await reply } finally { inFlight.delete(reply) }
       })
       await page.goto(`${origin}/app?job=${job.id}`)
       await expect(page.getByRole('heading', { name: `${job.number} · ${job.title}`, exact: true })).toBeVisible()
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).toContain('Harbourview Dental')
       await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), original.file.fileId)).toBe(true)
+      // Both keep-files requests must finish before cutting this phone's signal.
+      await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), peerOriginal.file.fileId)).toBe(true)
+      await settled()
       await context.setOffline(true)
       await page.getByLabel('Note', { exact: true }).fill('Synthetic private queued customer note')
       await page.getByRole('button', { name: 'Add note', exact: true }).click()
@@ -1183,6 +1192,13 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       const customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
       await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: (await h.command('privacy.preview', { customerId: customer.id, version: customer.version })).fingerprint })
       await context.setOffline(false)
+      // Reconnection starts the real refresh/erasure/outbox work. Reloading
+      // immediately can cancel it between server acceptance and local cleanup.
+      // Observe completion, then keep all the durable reload assertions below.
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') ?? '[]')).toBe('[]')
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).not.toContain('Harbourview Dental')
+      await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), original.file.fileId)).toBe(false)
+      await settled()
       await page.reload()
       await expect(page.getByRole('button', { name: new RegExp(`${peerJob.number} · Kept visit`) })).toBeVisible()
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') ?? '[]')).toBe('[]')
@@ -1197,7 +1213,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await page.reload()
       await expect(page.getByRole('button', { name: new RegExp(`${peerJob.number} · Kept visit`) })).toBeVisible()
       expect(await page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), peerOriginal.file.fileId)).toBe(true)
-    } finally { await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await context.setOffline(false); await settled(); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
   }
 })
 
