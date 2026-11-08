@@ -1,0 +1,6 @@
+{
+  "command": "node --test --test-concurrency=1 tests/api/agreements.test.mjs tests/api/arrival-windows.test.mjs tests/api/callbacks.test.mjs tests/api/conversation.test.mjs tests/api/customer-quotes.test.mjs tests/api/documents.test.mjs tests/api/eligibility.test.mjs tests/api/email.test.mjs tests/api/merge.test.mjs tests/api/money.test.mjs tests/api/movein.test.mjs tests/api/nameplates.test.mjs tests/api/payments.test.mjs tests/api/payout-reconciliation.test.mjs tests/api/payroll.test.mjs tests/api/pipeline.test.mjs tests/api/pricebook.test.mjs tests/api/privacy.test.mjs tests/api/purchasing.test.mjs tests/api/push.test.mjs tests/api/quickbooks.test.mjs tests/api/quote-link-custody.test.mjs tests/api/recurring-billing.test.mjs tests/api/reminders.test.mjs tests/api/routing.test.mjs tests/api/servicecall.test.mjs tests/api/subcontract.test.mjs tests/api/subcontractor-field.test.mjs tests/api/suggest.test.mjs tests/api/xero.test.mjs",
+  "exit": 0,
+  "head": "fc2c10e01b67d2ab8e8db3edf30b5a549ce8e9c0",
+  "finished": "2026-11-08T22:52:20.221898+00:00"
+}

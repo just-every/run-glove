@@ -1,0 +1,51 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-suite-cap-1",
+  "head": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
+  "merged_main": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
+  "recorded": "2026-11-08T22:54:12.796223+00:00",
+  "checks": [
+    {
+      "command": "node tests/inventory.mjs --limit 190",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "merged_arrival": {
+    "command": "node --test --test-concurrency=1 tests/api/arrival-windows.test.mjs",
+    "exit": 0,
+    "tests": 2,
+    "pass_count": 2,
+    "fail": 0,
+    "head": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7"
+  },
+  "typecheck": {
+    "command": "pnpm run typecheck",
+    "exit": 0,
+    "head": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7"
+  },
+  "assertions": {
+    "before": 4101,
+    "after": 4101,
+    "files": 30,
+    "merged_callbacks": 120,
+    "identical": true,
+    "baseline": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a"
+  },
+  "inventory": {
+    "before": 282,
+    "after": 189,
+    "cap": 200,
+    "reserve": 11
+  },
+  "clause_changes": [],
+  "pr": null,
+  "publication_scan": "Deferred to fleet Mac by cloud task instructions; not runnable in this cloud"
+}

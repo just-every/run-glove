@@ -1,0 +1,24 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-suite-cap-1",
+  "head": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
+  "pushed": true,
+  "commits": [
+    {
+      "sha": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com"
+    },
+    {
+      "sha": "fc2c10e01b67d2ab8e8db3edf30b5a549ce8e9c0",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com"
+    }
+  ],
+  "source_lock_sha256": "521ea4676fe7cbc7c33e1f8aeff5007e964020e0b904c0e640aebcee12c94e6c",
+  "worktree_clean": true
+}

@@ -1,0 +1,27 @@
+{
+  "baseline": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
+  "head": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
+  "checks": [
+    {
+      "name": "baseline",
+      "command": "node tests/inventory.mjs --json",
+      "exit": 1,
+      "expected": 1,
+      "passed": true
+    },
+    {
+      "name": "candidate",
+      "command": "node tests/inventory.mjs --json --limit 190",
+      "exit": 0,
+      "expected": 0,
+      "passed": true
+    },
+    {
+      "name": "cap-increase-refused",
+      "command": "node tests/inventory.mjs --limit 201",
+      "exit": 1,
+      "expected": 1,
+      "passed": true
+    }
+  ]
+}
