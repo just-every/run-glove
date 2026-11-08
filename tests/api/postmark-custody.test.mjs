@@ -186,6 +186,19 @@ test('COMM-015 points 1–8: Owner-only Postmark custody survives restart, refus
   assert.ok(h.logs.some(line => String(line).includes('Customer email callback rejected')), 'Worker console warnings were actually captured')
   await secretFree(h, [first, second, third, fourth, connection.apiKey])
 
+  // An authenticated replay cannot restore erased customer or message data.
+  const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  assert.equal((await h.state()).messages.length, 0)
+  assert.equal((await h.state()).customers.find(c => c.id === customer.id).email, undefined)
+  await h.restart()
+  before = await snapshot(h)
+  for (const [target, id] of [[message, 'synthetic-glove-1'], [noIdMessage, undefined], [revocation, 'synthetic-glove-after-erasure']]) {
+    assert.equal((await postEvents(h, postmarkCallback(target, fourth, { at: revocationAt, id }))).status, 200)
+  }
+  assert.equal(await snapshot(h), before, 'authenticated callbacks after erasure resurrect no personal data or facts')
+
   // Point 3: disconnect while both hashes are active revokes both immediately.
   await h.command('mail.connect', { provider: null })
   for (const credential of [third, fourth]) await refused(h, postmarkCallback(revocation, credential, { at: revocationAt, headers: listed }), { status: 404 })
