@@ -1,0 +1,63 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f147",
+  "head": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+  "claim": {
+    "clause": "DISP-008",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "verify": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "cloud/sx-glove-c-f147",
+    "head_sha": "5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42508956904",
+    "id": 42508956904,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "local_checks": "local-checks.json",
+  "mechanical": "mechanical-receipt.json",
+  "riders": {
+    "1": "pass",
+    "2": "pass",
+    "3": "pass",
+    "4": "pass",
+    "5": "pass",
+    "6": "pass",
+    "7": "pass",
+    "8": "pass",
+    "9": "pass",
+    "10": "inapplicable",
+    "11": "pending guarded landing"
+  },
+  "counts_before": {
+    "done": 18,
+    "partial": 216,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 18,
+    "partial": 216,
+    "missing": 29
+  },
+  "product_pushed": true,
+  "landed": false,
+  "publication_scan": {
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "fleet lander"
+  },
+  "run_site": null,
+  "pr": null
+}

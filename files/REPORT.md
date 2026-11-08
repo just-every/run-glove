@@ -4,7 +4,7 @@ Repository: just-every/run-glove. Product branch: cloud/sx-glove-c-f147.
 Candidate: 5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9.
 Integrated main: d1d1a15cc01a553a6035a85d9764f102b8c6ff9f.
 
-This report is a builder qualification claim. It does not count a landing, a live provider acceptance, a release or a publication. Contract judgments and generated views remain main's text. Source counts before and after are 18 DONE, 216 PARTIAL, 29 MISSING, with all 263 Status rows retained. The proposed gate effect for DISP-008 is one PARTIAL to DONE; the fleet owns that decision and count update. No other plan row is changed.
+This report is a builder qualification claim. It does not count a landing, a live provider acceptance, a release or a publication. Contract judgments and generated views remain main's text. Source counts before and after are 18 DONE, 216 PARTIAL, 29 MISSING, with all 263 Status rows retained. DISP-008 is claimed DONE with points 1–7 qualified. The proposed gate effect is one PARTIAL to DONE; the fleet owns that decision and count update. No other plan row is changed.
 
 ## Plan and findings
 
@@ -36,9 +36,9 @@ Every row uses the actual Worker command door. The browser also uses the built a
 
 | Rider | Builder result | Evidence and boundary |
 | --- | --- | --- |
-| 1 | Local outcomes pass; exact-SHA Verify required | P1–P7 public-door journeys above; workflow API evidence appended below |
+| 1 | PASS | P1–P7 public-door journeys above; workflow API evidence appended below |
 | 2 | PASS | Seeded customer and visit facts have independent expected results; allowed writes complete and unsafe authority, busy, provider and restore paths refuse without effect |
-| 3 | Verify required | Existing verification.json API glob, portable command and browser command load all named proof on push; exact run recorded below |
+| 3 | PASS | Existing verification.json API glob, portable command and browser command load all named proof on push; exact run recorded below |
 | 4 | PASS locally | Check receipts bind full candidate SHA and hashes of the touched code and tests; browser proof at 1440 and 390; any later main-only integration is reported explicitly |
 | 5 | PASS | DISP-008 explicitly cites BASE-DATA-001 and its own points name all other claimed boundaries |
 | 6 | PASS mechanically; judgments retained | Generator write and check pass locally; generated views restored from origin/main and not committed; no Status, Gap or Evidence edit; counts unchanged |
@@ -72,13 +72,38 @@ PUBLICATION_SCAN commit=5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9 complete=not_ru
 
 ## Actual execution and custody receipts
 
-All local checks passed on exact candidate 5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9: touched API including the original calendar-delivery proof, the built browser journey at 1440 and 390, the full real archive script, typecheck, production build and first-party profile. The individual JSON receipts carry command, full SHA, timestamps, file hashes and real exit status. CI discovery, product push and evidence publication will be added before final transfer.
+All local checks passed on exact candidate 5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9: touched API including the original calendar-delivery proof, the built browser journey at 1440 and 390, the full real archive script, typecheck, production build and first-party profile. The individual JSON receipts carry command, full SHA, timestamps, file hashes and real exit status. The guarded product push and exact-SHA successful CI receipt are included. This complete packet is transported separately on refs/heads/evidence/sx-glove-c-f147.
 
 Earlier failures are retained as actual logs or labelled terminal excerpts: the pre-repair busy-reference crash; the malformed-instant refusal; the first archive review-field expectation; the missing restart port; fixture interference with the existing route proof; and browser fixture interference with the existing 09:00 location selection. They were diagnosed locally, with existing assertions preserved. These are not failed Verify repairs.
 
 
 ### CI observation
 
-Verify run 42508956904, event push, exact head 5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9, is in progress as observed at 2026-11-08T18:19:21Z. Two REST calls have been used; the next status read is no earlier than 18:24:21Z. No dispatch, rerun or PR was needed. This observation is not a green workflow claim.
+Verify run 42508956904, event push, completed successfully on exact head 5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9. The final REST observation is recorded in ci-status-3.json and ci-receipt.json. Three GitHub calls were used, with at least 300 seconds between reads for this run. No dispatch, rerun or PR was needed. Riders 1 and 3 pass on this exact SHA. Run site and main equality remain pending guarded landing.
 
 Product custody is confirmed by the guarded push: cloud/sx-glove-c-f147 moved from a01f7d6b87b8fe00e9c662ba3c21fc41c83d1549 to 5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9. The saved intermediate commit is 4ee671b (full identity in candidate.json). Every candidate author and committer is the fleet identity; no co-author trailer remains. Current main was fetched and already integrated immediately before this push. The product checkout is clean.
+
+
+### Local command receipt index
+
+All six commands exited 0 on 5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9. Their actual logs and JSON receipts are selected explicitly for report transport:
+
+- calendar-api: node --test --test-concurrency=1 tests/api/eligibility.test.mjs tests/api/calendar-sync.test.mjs. The original eligibility registration invokes calendarDelivery and then calendarSyncProof; the focused file exports the named outcomes rather than adding registrations.
+- browser: timeout 1200 node tests/browser/run.mjs tests/browser/dispatch-map.spec.ts. Built owner, map, retained-event and phone journey passed; screenshots include calendar consent, connection, disconnection and Activity at 1440 and 390.
+- portable: timeout 1200 node tests/portable.mjs. Every original restore case and the isolated calendarRestore case passed.
+- typecheck: pnpm typecheck.
+- first-party: npx -y @runeditrun/rer check --profile first-party.
+- build: npx -y @runeditrun/rer build.
+
+The final proof commands used the repository's exact Node 22.20.0 runtime. Long commands ran under the cloud subreaper. No owned dev server or browser is left running. The ordinary route-tree formatting output from build was restored to main and the source lock checked again; no product bytes changed after the candidate commit.
+
+
+## Terminal qualification
+
+CLAIM DISP-008 DONE points=1,2,3,4,5,6,7 tests=tests/api/calendar-sync.test.mjs#exactCalendarLifecycle; tests/api/calendar-sync.test.mjs#ownerConnectionAuthority; tests/api/calendar-sync.test.mjs#minimalEventDisclosure; tests/portable.mjs#calendarRestore; tests/api/calendar-sync.test.mjs#freshBusyTime; tests/api/calendar-sync.test.mjs#independentCalendars
+
+No product blocker remains. Riders 1–9 pass; rider 10 is inapplicable because no policy default is adopted; rider 11 awaits the guarded lander. All six exact-candidate local command receipts are green, and Verify 42508956904 is completed and successful on the same full SHA. Source counts remain 18 DONE, 216 PARTIAL, 29 MISSING. The target plan row is proposed for DONE after the fleet gate; no lane files were edited here. All Lanyard, Base egress, provider account, activation and release boundaries remain unchanged. No live provider acceptance is claimed.
+
+Main equality: not claimed; this is a branch-only candidate based on d1d1a15cc01a553a6035a85d9764f102b8c6ff9f. Run site run id: not applicable before the fleet lands it. Publication scan: not run in cloud, findings unestablished; the guarded lander must produce its COMPLETE full-history zero-findings receipt. PR: none required by this repository.
+
+READY branch=cloud/sx-glove-c-f147 head=5c819a17c0bc27f6096c7aa3b8dd56ddda2baff9
