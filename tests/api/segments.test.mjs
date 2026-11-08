@@ -3,6 +3,7 @@
 // match the filter exactly, and the export and the Mango push carrying exactly them.
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 
 // Compare durable business downloads, including the audit, after refused writes
@@ -419,6 +420,7 @@ test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags 
   await ownerDefinitions()
   await deskValuesAndFieldVisibility()
   await liveSegmentPredicates()
+  await marketingHandoff()
   const h = await installation({ at: '2026-11-05T12:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
@@ -456,13 +458,13 @@ test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags 
 
   // Pushed as an audience to Mango (provider fake): exactly the members, never subscribed; the key never reaches records.
   await b.office.run('segment.push', { segmentId: segment.id, provider: 'mango' }, { error: 'MARKETING' })
-  await b.office.run('marketing.connect', { provider: 'mango', url: 'https://mango.example.test', key: 'mango-test-credential' }, { error: 'FORBIDDEN' })
-  await h.command('marketing.connect', { provider: 'mango', url: 'https://mango.example.test', key: 'mango-test-credential' })
+  await b.office.run('marketing.connect', { provider: 'mango', url: 'https://mango.example.test', key: 'synthetic-glove-91' }, { error: 'FORBIDDEN' })
+  await h.command('marketing.connect', { provider: 'mango', url: 'https://mango.example.test', key: 'synthetic-glove-91' })
   const push = await b.office.run('segment.push', { segmentId: segment.id, provider: 'mango' })
   assert.deepEqual([push.members, push.pushed, push.skippedNoEmail, push.skippedDoNotContact, push.failed], [1, 1, 0, 0, []])
-  assert.deepEqual(h.marketing.map(x => [x.method, x.url, x.authorization, x.body]), [['PUT', 'https://mango.example.test/api/integrations/v1/contacts', 'Bearer mango-test-credential', { email: 'ana.ruiz@example.test', displayName: 'Ana Ruiz', segmentName: 'Gold VIP replacements', tags: ['VIP'] }]])
+  assert.deepEqual(h.marketing.map(x => [x.method, x.url, x.authorization, x.body]), [['PUT', 'https://mango.example.test/api/integrations/v1/contacts', 'Bearer synthetic-glove-91', { email: 'ana.ruiz@example.test', displayName: 'Ana Ruiz', segmentName: 'Gold VIP replacements', tags: ['VIP'] }]])
   // Mailchimp: the member added as transactional (not subscribed) and tagged with the segment.
-  await h.command('marketing.connect', { provider: 'mailchimp', key: 'abc123-us21', listId: 'L1' })
+  await h.command('marketing.connect', { provider: 'mailchimp', key: 'synthetic-glove-92-us21', listId: 'L1' })
   await b.office.run('segment.push', { segmentId: segment.id, provider: 'mailchimp' })
   const chimp = h.marketing.slice(1)
   assert.deepEqual(chimp.map(x => [x.method, x.url.replace(/[0-9a-f]{32}/, '<md5>')]), [['PUT', 'https://us21.api.mailchimp.com/3.0/lists/L1/members/<md5>'], ['POST', 'https://us21.api.mailchimp.com/3.0/lists/L1/members/<md5>/tags']])
@@ -503,8 +505,154 @@ test('DATA-002, DATA-009, DATA-010 / CUST-004, CUST-006 two custom fields, tags 
   const held = await b.office.run('segment.push', { segmentId: segment.id, provider: 'mango' })
   assert.deepEqual([held.members, held.pushed, held.skippedDoNotContact, h.marketing.length], [1, 0, 1, calls])
   const exported = JSON.stringify(await (await h.request('/api/glove/export', { as: h.owner() })).json()) + JSON.stringify(await h.state())
-  assert.ok(!exported.includes('mango-test-credential') && !exported.includes('abc123-us21'))
+  assert.ok(!exported.includes('synthetic-glove-91') && !exported.includes('synthetic-glove-92-us21'))
   await h.command('marketing.connect', { provider: 'mango', key: null })
   await h.command('marketing.connect', { provider: 'mailchimp', key: null })
   await assertTrail(h, ['field.saved', 'record.custom', 'customer.tags', 'segment.saved', 'marketing.connected', 'marketing.disconnected', 'segment.pushed', 'marketing.outcome', 'rule.saved', 'rule.ran'])
 })
+
+// CUST-006: one audience journey through native commands and provider edges.
+async function marketingHandoff() {
+  const at = '2026-11-05T12:00:00.000Z'
+  const h = await installation({ at, captureLogs: true })
+  try {
+    const b = await business(h, { currency: 'USD', timezone: 'UTC' })
+    const mangoKey = 'synthetic-glove-93', chimpKey = 'synthetic-glove-94-us21'
+    const connections = [
+      { provider: 'mango', key: mangoKey, url: 'https://mango.example.test' },
+      { provider: 'mailchimp', key: chimpKey, listId: 'synthetic-glove-95' },
+    ]
+    const token = await h.command('token.issue', { name: 'Audience integration', role: 'office' })
+    for (const connection of connections) {
+      for (const person of [b.office, b.dispatcher, b.agent, b.priyaPerson]) await unchanged(h, () => person.run('marketing.connect', connection, { error: 'FORBIDDEN' }))
+      await unchanged(h, async () => {
+        const response = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${token.token}` }, body: { commandId: 'synthetic-glove-connect-token-' + connection.provider, type: 'marketing.connect', payload: connection } })
+        assert.equal(response.status, 403)
+        assert.equal((await response.json()).error.code, 'FORBIDDEN')
+      })
+      for (const key of ['', ' ', {}, 'x'.repeat(201)]) await unchanged(h, () => h.command('marketing.connect', { ...connection, key }, { error: 'INPUT' }))
+    }
+    for (const url of ['http://mango.example.test', 'not an address', 'https://person:password@mango.example.test', 'ftp://mango.example.test']) await unchanged(h, () => h.command('marketing.connect', { ...connections[0], url }, { error: 'INPUT' }))
+    for (const key of ['synthetic-glove-96', 'synthetic-glove-96-US21', 'synthetic-glove-96-us']) await unchanged(h, () => h.command('marketing.connect', { ...connections[1], key }, { error: 'INPUT' }))
+    await unchanged(h, () => h.command('marketing.connect', { ...connections[1], listId: '' }, { error: 'INPUT' }))
+    const connectCommands = []
+    for (const [index, connection] of connections.entries()) {
+      const commandId = `synthetic-glove-connect-${index}`
+      const result = await h.command('marketing.connect', connection, { commandId })
+      assert.deepEqual(result.marketing[connection.provider], { ...(connection.provider === 'mango' ? { url: 'https://mango.example.test' } : { listId: 'synthetic-glove-95' }), connectedAt: at, by: 'Olivia Owner' })
+      connectCommands.push({ commandId, connection, result })
+    }
+    assert.equal(h.marketing.length, 0, 'connecting never sends an audience or claims provider verification')
+
+    const customers = []
+    const specs = [
+      ['Eligible', 'one', ['Audience', 'Repair']],
+      ['Member refusal', 'two', ['Audience']],
+      ['Tag refusal', 'three', ['Audience', 'VIP']],
+      ['Unreachable', 'four', ['Audience']],
+      ['Missing email', null, ['Audience']],
+      ['Do not contact', 'five', ['Audience', 'Do Not Contact']],
+      ['SMS stopped', 'six', ['Audience']],
+    ]
+    for (const [name, mailbox, tags] of specs) {
+      let customer = await b.office.run('customer.save', { name, ...(mailbox ? { email: ['synthetic-glove-' + mailbox, 'example.test'].join('@') } : {}), ...(name === 'SMS stopped' ? { phone: '+13125550123' } : {}) })
+      customer = await b.office.run('customer.tags', { customerId: customer.id, version: customer.version, tags })
+      customers.push(customer)
+    }
+    // Record a real authenticated inbound STOP; no outgoing SMS is enabled.
+    await h.command('sms.connect', { version: (await h.state()).business[0].version, provider: 'twilio', accountSid: h.twilio.accountSid, authToken: h.twilio.authToken, fromNumber: h.twilio.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
+    const stop = h.twilio.inbound(h.origin, '+13125550123', 'STOP')
+    assert.equal((await h.mf.dispatchFetch(stop.url, { method: stop.method, headers: Object.fromEntries(stop.headers), body: await stop.text() })).status, 200)
+    assert.equal((await h.state()).customers.find(c => c.id === customers[6].id).smsOptOut.blocked, true)
+    const segment = await b.office.run('segment.save', { name: 'Service audience', filter: { tagsAll: ['Audience'] } })
+    const members = await (await h.request(`/api/glove/segments/${segment.id}`)).json()
+    assert.deepEqual(members.members.map(c => c.id).sort(), customers.map(c => c.id).sort())
+    const expectedMango = customers.slice(0, 4).map((customer, index) => ({
+      method: 'PUT', url: 'https://mango.example.test/api/integrations/v1/contacts', authorization: `Bearer ${mangoKey}`,
+      body: { email: ['synthetic-glove-' + ['one', 'two', 'three', 'four'][index], 'example.test'].join('@'), displayName: specs[index][0], segmentName: 'Service audience', tags: specs[index][2] },
+    }))
+    const chimpCalls = (failures) => customers.slice(0, 4).flatMap((customer, index) => {
+      const email = ['synthetic-glove-' + ['one', 'two', 'three', 'four'][index], 'example.test'].join('@')
+      const url = `https://us21.api.mailchimp.com/3.0/lists/synthetic-glove-95/members/${createHash('md5').update(email.toLowerCase()).digest('hex')}`
+      const authorization = `Basic ${Buffer.from(`glove:${chimpKey}`).toString('base64')}`
+      return [{ method: 'PUT', url, authorization, body: { email_address: email, status_if_new: 'transactional', merge_fields: { FNAME: specs[index][0] } } },
+        ...((failures && [1, 3].includes(index)) ? [] : [{ method: 'POST', url: url + '/tags', authorization, body: { tags: ['Service audience', ...specs[index][2]].map(name => ({ name, status: 'active' })) } }])]
+    })
+    const outcomes = [], replays = []
+    let failures = false
+    h.marketing.answer = async call => {
+      const mango = call.url.startsWith('https://mango.example.test/')
+      // Only these opaque synthetic credentials have contacts-write authority at the edge.
+      assert.equal(call.authorization, mango ? `Bearer ${mangoKey}` : `Basic ${Buffer.from(`glove:${chimpKey}`).toString('base64')}`)
+      if (!failures) return Response.json({ ok: true })
+      const email = mango ? call.body.email : call.body.email_address
+      if (email?.startsWith('synthetic-glove-four')) return new Response(null, { status: 503, headers: { 'x-synthetic-glove-network-error': '1' } })
+      const status = email?.startsWith('synthetic-glove-two') ? (mango ? 403 : 401) : (mango && email?.startsWith('synthetic-glove-three') || !mango && call.method === 'POST' && call.url.includes(createHash('md5').update(['synthetic-glove-three', 'example.test'].join('@')).digest('hex'))) ? 429 : 200
+      return Response.json({ detail: mango ? mangoKey : chimpKey }, { status })
+    }
+    const shape = row => ({ by: row.by, segmentId: row.segmentId, segment: row.segment, provider: row.provider, members: row.members, pushed: row.pushed, skippedNoEmail: row.skippedNoEmail, skippedDoNotContact: row.skippedDoNotContact, failed: [...row.failed].sort((a, z) => a.customerId.localeCompare(z.customerId)) })
+    const assertRound = async (round) => {
+      for (const refused of [false, true]) {
+        failures = refused
+        for (const provider of ['mango', 'mailchimp']) for (const [role, person] of [['owner', { id: (await h.state()).operators.find(o => o.nativeRole === 'owner').id, name: 'Olivia Owner', run: h.command }], ['office', b.office]]) {
+          const callCount = h.marketing.length, commandId = `synthetic-glove-push-${round}-${refused}-${provider}-${role}`
+          const payload = { segmentId: segment.id, provider }
+          const row = await person.run('segment.push', payload, { commandId })
+          const statuses = refused ? (provider === 'mango' ? [200, 403, 429, 0] : [200, 401, 429, 0]) : [200, 200, 200, 200]
+          const expected = { by: { id: person.id, name: person.name }, segmentId: segment.id, segment: 'Service audience', provider, members: 7, pushed: refused ? 1 : 4, skippedNoEmail: 1, skippedDoNotContact: 2, failed: refused ? customers.slice(1, 4).map((c, index) => ({ customerId: c.id, status: statuses[index + 1] })).sort((a, z) => a.customerId.localeCompare(z.customerId)) : [] }
+          assert.deepEqual(shape(row), expected)
+          assert.equal(row.createdAt, at)
+          const orderedCalls = calls => [...calls].sort((a, z) => JSON.stringify(a).localeCompare(JSON.stringify(z)))
+          assert.deepEqual(orderedCalls(h.marketing.slice(callCount)), orderedCalls(provider === 'mango' ? expectedMango : chimpCalls(refused)), 'exact provider payloads contain no subscribe or existing-member status change')
+          outcomes.push({ commandId, provider, statuses })
+          replays.push({ commandId, payload, person, row })
+          await unchanged(h, async () => assert.deepEqual(await person.run('segment.push', payload, { commandId }), row))
+          assert.equal(h.marketing.length - callCount, provider === 'mango' ? 4 : chimpCalls(refused).length, 'replay never repeats a provider call')
+          if (round) assert.deepEqual(shape(row), shape(replays.find(r => r.commandId === commandId.replace('push-1-', 'push-0-')).row), 'restart retains the same audience and outcome semantics')
+        }
+      }
+    }
+    await assertRound(0)
+    const beforeRestart = await download(h), callsBeforeRestart = h.marketing.length
+    await h.restart()
+    assert.equal(h.marketing.length, callsBeforeRestart, 'restart sends nothing')
+    assert.deepEqual(await download(h), beforeRestart)
+    for (const replay of [...replays]) await unchanged(h, async () => assert.deepEqual(await replay.person.run('segment.push', replay.payload, { commandId: replay.commandId }), replay.row))
+    assert.equal(h.marketing.length, callsBeforeRestart, 'persisted command replay sends nothing')
+    await assertRound(1)
+    for (const { commandId, connection, result } of connectCommands) await unchanged(h, async () => assert.deepEqual(await h.command('marketing.connect', connection, { commandId }), result))
+
+    const { activity, exported } = await assertTrail(h, ['marketing.connected', 'segment.pushed', 'marketing.outcome'])
+    for (const { commandId, provider, statuses } of outcomes) {
+      const facts = exported.timeline.filter(e => e.command_id === commandId && e.kind === 'marketing.outcome').map(e => ({ ...e, data: JSON.parse(e.data) })).sort((a, z) => a.data.customerId.localeCompare(z.data.customerId))
+      const expected = customers.slice(0, 4).map((c, index) => ({ provider: provider === 'mango' ? 'Mango' : 'Mailchimp', role: 'provider', at, subjectId: segment.id, data: { segmentId: segment.id, customerId: c.id, status: statuses[index] }, summary: `${provider === 'mango' ? 'Mango' : 'Mailchimp'} audience sync: ${statuses[index] ? `HTTP ${statuses[index]}` : 'outcome not confirmed'}` })).sort((a, z) => a.data.customerId.localeCompare(z.data.customerId))
+      assert.deepEqual(facts.map(e => ({ provider: e.actor_name, role: e.actor_role, at: e.at, subjectId: e.subject_id, data: e.data, summary: e.summary })), expected)
+      for (const fact of facts) {
+        assert.equal(fact.id, `${commandId}:marketing:${fact.data.customerId}`)
+        const shown = activity.find(e => e.id === fact.id)
+        assert.ok(shown, 'each member outcome is visible in Activity')
+        assert.deepEqual([shown.actorName, shown.actorRole, shown.at, shown.commandId, shown.subjectId, shown.summary], [fact.actor_name, 'provider', at, commandId, segment.id, fact.summary])
+      }
+    }
+    const saved = (await h.db.prepare('SELECT result FROM glove_commands').all()).results
+    const surfaces = [await h.state(), saved, activity, exported, h.logs]
+    assert.ok(h.logs.length, 'actual Worker runtime output was captured across restarts')
+    for (const surface of surfaces) for (const key of [mangoKey, chimpKey]) assert.ok(!JSON.stringify(surface).includes(key), 'provider keys never enter a retained or logged surface')
+    const calls = h.marketing.length
+    for (const connection of connections) {
+      await h.command('marketing.connect', { provider: connection.provider, key: null })
+      await unchanged(h, () => b.office.run('segment.push', { segmentId: segment.id, provider: connection.provider }, { error: 'MARKETING' }))
+    }
+    assert.equal(h.marketing.length, calls, 'disconnected credentials cannot send')
+    await h.command('role.set', { operatorId: b.office.id, role: 'viewer' })
+    await unchanged(h, () => b.office.run('segment.push', replays[0].payload, { commandId: replays.find(r => r.person === b.office).commandId, error: 'FORBIDDEN' }))
+    const erased = (await h.state()).customers.find(c => c.id === customers[1].id)
+    const preview = await h.command('privacy.preview', { customerId: erased.id, version: erased.version })
+    await h.command('privacy.erase', { customerId: erased.id, version: erased.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+    for (const replay of replays.filter(r => r.person.name === 'Olivia Owner')) await unchanged(h, async () => {
+      if (replay.row.failed.some(f => f.customerId === erased.id)) await replay.person.run('segment.push', replay.payload, { commandId: replay.commandId, error: 'ERASED' })
+      else assert.deepEqual(await replay.person.run('segment.push', replay.payload, { commandId: replay.commandId }), replay.row)
+    })
+    assert.equal(h.marketing.length, calls, 'erasure and replay never resurrect a contact or send it again')
+  } finally { await h.close() }
+}
