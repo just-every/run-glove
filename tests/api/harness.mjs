@@ -632,3 +632,68 @@ export async function liveLocationFixture(h) {
   }
   return { b, job, site, visits, now, tick, start, point, rows, board }
 }
+
+/** REPORT-004: native monthly drafts and approvals across three local months. */
+export async function fixedMonthlyReports(h) {
+  await h.command('business.save', { name: 'Monthly service business', currency: 'USD', timezone: 'America/Chicago', paymentTermsDays: 14, taxSettings: { jurisdictions: [{ id: 'synthetic-glove-monthly-tax', name: 'Local sales tax', rate: '10', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-monthly-tax' } })
+  // Invite with genuine current sessions, before the historical billing clock.
+  const office = await h.person('Riley Reports', 'office'), field = await h.person('Robin Reports', 'technician')
+  const customer = await h.command('customer.save', { name: 'Monthly, service customer', billingAddress: '120 Main Street' })
+  const site = await h.command('site.save', { customerId: customer.id, address: '120 Main Street, Austin TX 78701' })
+  const branch = await h.command('branch.save', { name: 'Pacific branch', prefix: 'PAC', timezone: 'America/Los_Angeles', zips: [] })
+  const branchCustomer = await h.command('customer.save', { name: 'Pacific customer', branchId: branch.id })
+  const branchSite = await h.command('site.save', { customerId: branchCustomer.id, address: '20 Pacific Street', branchId: branch.id })
+  const tech = await h.command('technician.save', { name: field.name, operatorId: field.id })
+  const branchTech = await h.command('technician.save', { name: 'Pacific technician', branchId: branch.id })
+  const line = price => ({ description: 'Monthly, preventive service', quantity: '1', unitPrice: price, tax: 'TAXABLE' })
+  await h.setTime('2025-01-01T16:00:00.000Z')
+  const make = (title, price, atSite = site) => h.command('job.create', { customerId: atSite.customerId, siteId: atSite.id, title, lines: [line(price)] })
+  const repeat = (job, mode, price, start, end, technicianId = tech.id) => h.command('series.create', { jobId: job.id, version: job.version, date: '2025-01-15', rule: { unit: 'month', interval: 3 }, technicianId, start, end, horizonDays: 365, until: '2025-03-31', billing: { mode, ...(mode === 'fixed-monthly' ? { lines: [line(price)] } : {}) } })
+  const onTime = await repeat(await make('On-time monthly', '240.00'), 'fixed-monthly', '240.00', '09:00', '10:00')
+  const late = await repeat(await make('Late monthly', '120.00'), 'fixed-monthly', '120.00', '11:00', '12:00')
+  const unapproved = await repeat(await make('Unapproved monthly', '999.00'), 'fixed-monthly', '999.00', '13:00', '14:00')
+  const pacific = await repeat(await make('Pacific monthly', '80.00', branchSite), 'fixed-monthly', '80.00', '09:00', '10:00', branchTech.id)
+  const perVisit = await repeat(await make('Per-visit service', '50.00'), 'per-visit', '50.00', '15:00', '16:00')
+  const ordinary = await make('Ordinary service', '30.00')
+  const ordinaryVisit = await h.command('visit.book', { jobId: ordinary.id, technicianId: tech.id, date: '2025-01-15', start: '17:00', end: '18:00' })
+  await h.setTime('2025-01-15T23:00:00.000Z')
+  for (const visit of [(await h.state()).visits.find(v => v.jobId === perVisit.id), ordinaryVisit]) {
+    await field.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    await field.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Service complete', signoff: { absentReason: 'Customer away' } })
+  }
+  const ordinaryDraft = await office.run('invoice.prepare', { jobId: ordinary.id })
+  const periods = [
+    { end: '2025-01-31', before: '2025-01-31T05:59:59.999Z', exact: '2025-01-31T06:00:00.000Z', cron: '2025-01-31T08:00:00.000Z', lateAt: '2025-02-03T06:30:00.000Z', due: '2025-02-14', lateOn: '2025-02-03', lateDue: '2025-02-17', pacificOn: '2025-02-02', pacificDue: '2025-02-16' },
+    { end: '2025-02-28', before: '2025-02-28T05:59:59.999Z', exact: '2025-02-28T06:00:00.000Z', cron: '2025-02-28T08:00:00.000Z', lateAt: '2025-03-03T06:30:00.000Z', due: '2025-03-14', lateOn: '2025-03-03', lateDue: '2025-03-17', pacificOn: '2025-03-02', pacificDue: '2025-03-16' },
+    { end: '2025-03-31', before: '2025-03-31T04:59:59.999Z', exact: '2025-03-31T05:00:00.000Z', cron: '2025-03-31T07:00:00.000Z', lateAt: '2025-04-03T05:30:00.000Z', due: '2025-04-14', lateOn: '2025-04-03', lateDue: '2025-04-17', pacificOn: '2025-04-02', pacificDue: '2025-04-16' },
+  ]
+  const approved = [], proposed = [], earlyRefusals = []
+  const approve = (inv, opts = {}) => office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 }, opts)
+  const unchanged = async action => {
+    const before = await h.state()
+    await action()
+    assert.deepEqual(await h.state(), before, 'early approval changes no records')
+  }
+  for (const p of periods) {
+    await h.setTime(p.cron); await h.scheduled(p.cron)
+    const invoices = (await h.state()).invoices
+    const draft = job => invoices.find(i => i.jobId === job.id && i.recurring?.periodEnd === p.end)
+    const current = [onTime, late, pacific, unapproved].map(draft)
+    assert.ok(current.every(Boolean), 'actual Worker cron generated each local month')
+    proposed.push(...current)
+    await h.setTime(p.before)
+    await unchanged(() => approve(draft(onTime), { error: 'BILLING_EARLY' }))
+    earlyRefusals.push(p.before)
+    await h.setTime(p.exact)
+    approved.push({ invoice: await approve(draft(onTime)), period: p, kind: 'onTime', issuedOn: p.end, approvedOn: p.end, approvedAt: p.exact, dueOn: p.due, price: '240.00', gross: '264.00' })
+    await h.setTime(p.lateAt)
+    approved.push({ invoice: await approve(draft(late)), period: p, kind: 'late', issuedOn: p.end, approvedOn: p.lateOn, approvedAt: p.lateAt, dueOn: p.lateDue, price: '120.00', gross: '132.00' })
+    approved.push({ invoice: await approve(draft(pacific)), period: p, kind: 'pacific', issuedOn: p.end, approvedOn: p.pacificOn, approvedAt: p.lateAt, dueOn: p.pacificDue, price: '80.00', gross: '88.00' })
+    if (p === periods[0]) {
+      for (const [inv, kind, price, gross] of [[ordinaryDraft, 'ordinary', '30.00', '33.00'], [invoices.find(i => i.jobId === perVisit.id), 'perVisit', '50.00', '55.00']]) {
+        approved.push({ invoice: await approve(inv), kind, issuedOn: '2025-02-03', approvedOn: '2025-02-03', approvedAt: p.lateAt, dueOn: '2025-02-17', price, gross })
+      }
+    }
+  }
+  return { office, field, customer, site, branch, branchCustomer, branchSite, onTime, late, pacific, unapproved, ordinary, perVisit, line, periods, approved, proposed, earlyRefusals }
+}

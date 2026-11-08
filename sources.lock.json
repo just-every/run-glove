@@ -5352,7 +5352,7 @@
       "executable": false
     },
     "src/ui/reports.tsx": {
-      "sha256": "c4478f8a0af3d73f73c06cdd320cdb97c5ea221abcab4074990b1a4001933722",
+      "sha256": "497bfc7833df8be02e09d1c9d6e2a09ecc55993e68d326aacb1cdc6f3ce9aecd",
       "executable": false
     },
     "src/ui/request-form.tsx": {
@@ -5595,6 +5595,10 @@
       "sha256": "a3700dfbf2be1b8320cdc6a8e0d799bb5b4a5b280abf11888ef740cd4ddd2b95",
       "executable": false
     },
+    "tests/api/fixed-monthly-reports.test.mjs": {
+      "sha256": "10c18eaff559e10a3ad99fee8a351c067a8db8379991b8cf7adaef3b0d313718",
+      "executable": false
+    },
     "tests/api/flows.test.mjs": {
       "sha256": "982e9b5191c778e2021683042060bbf72b2bb3bc97d0de6eb81db268c8b7c388",
       "executable": false
@@ -5608,7 +5612,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "89b68288f34e4e6870b1173ec7d2721109669e6d280aef950d618130c3c52069",
+      "sha256": "01a55648da59d36280f1bbc57baaf031800c5ed2a66973ebf0e9ef431d84fb1b",
       "executable": false
     },
     "tests/api/live-locations.test.mjs": {
@@ -5896,7 +5900,7 @@
       "executable": false
     },
     "tests/browser/revenue.spec.ts": {
-      "sha256": "8d0acfd0dfa036a4064b0be6045d19841fa7512348cdf2186a165e773dc7e3cc",
+      "sha256": "d1a0cd9686e66b87e9b557fc7bc445b2c26ee7b9b7ecf34af64c68005dac7bac",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
