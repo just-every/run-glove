@@ -5731,6 +5731,10 @@
       "sha256": "d60555e4e6252119287162f3003e57c413c3b48a9974dcdbe3cd8551bf2b2ec0",
       "executable": false
     },
+    "tests/api/travel-assignment.test.mjs": {
+      "sha256": "6a24f1e262213a1ef14d29a7850853c75b14fa7c915079de1aac6703350f455d",
+      "executable": false
+    },
     "tests/api/visit-status-fixture.mjs": {
       "sha256": "9c2ae54dcf99317bbdc8678e4d3d3a1c2bd57dc8a3dc07b9773070ad308c32f5",
       "executable": false
