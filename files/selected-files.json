@@ -24,5 +24,12 @@
   "1440-desk-rules-retained-log.png",
   "390-desk-rules-retained-log.png",
   "ci-poll-1.json",
-  "selected-files.json"
+  "selected-files.json",
+  "evidence-transfer-check-initial.json",
+  "ci-poll-2.json",
+  "ci-jobs.json",
+  "ci-infrastructure-failure.txt",
+  "ci-rerun-response.json",
+  "ci-rerun-jobs.json",
+  "bundle-verify.txt"
 ]

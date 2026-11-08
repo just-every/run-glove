@@ -72,11 +72,33 @@
   "ci": {
     "run_id": 42488300873,
     "event": "push",
-    "status": "in_progress",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "failure",
     "head_sha": "5c02ddbee37f430756e9a3d57339c4575ceb0157",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42488300873",
-    "observed_at": "2026-11-08T14:13:33Z"
+    "observed_at": "2026-11-08T14:25:56Z",
+    "attempt_1_failure": {
+      "job_id": 128755170080,
+      "step": "npm install --global pnpm@10.12.4",
+      "error": "ENETUNREACH fetching registry.npmjs.org/pnpm",
+      "application_assertions_started": false,
+      "log": "ci-infrastructure-failure.txt"
+    },
+    "rerun": {
+      "action": "rerun-failed-jobs",
+      "requested_at": "2026-11-08T14:20:43Z",
+      "request_exit": 0,
+      "status": "completed",
+      "allowed_reruns_used": 1,
+      "conclusion": "failure",
+      "job_id": 128758087878,
+      "failed_step": "Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+      "step_number": 14,
+      "application_assertions_started": false,
+      "root_cause": "Unconfirmed; failing download step observed, no remaining call budget for another log archive."
+    },
+    "attempt": 2,
+    "observation_source": "latest run jobs REST response; aggregate verify completed with failure"
   },
   "source_lock": {
     "command": "node scripts/edition-authoring/cli.mjs check",
@@ -115,5 +137,23 @@
     "no_relevant_bytes_changed_since_run": true
   },
   "local_checks_complete": true,
-  "github_calls_used": 5
+  "github_calls_used": 10,
+  "terminal_state": "BLOCKED",
+  "blocker": "Exact-head Verify remains red after the sole infrastructure rerun; browser-2 fails at artifact download before assertions. Workflow changes belong to the CI-shape lane and diagnostics budget is exhausted.",
+  "round_claim": {
+    "clause": "CUST-006",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      2
+    ],
+    "reason": "Both native points are proven; full exact-head Verify requirement is unmet. Existing main DONE judgment is preserved without a source demotion."
+  },
+  "recovery_bundle": {
+    "path": "/home/agent/rer-consolidation/work/sx-glove-c-f123-pc1/product.bundle",
+    "sha256": "3892c883087ae3e82d2f7b1be4c47a3841ea9888c0d14b119f2463520bc3318b",
+    "verified": true,
+    "complete_history": true,
+    "head": "5c02ddbee37f430756e9a3d57339c4575ceb0157"
+  }
 }

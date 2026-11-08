@@ -1,0 +1,8 @@
+Head: 5c02ddbee37f430756e9a3d57339c4575ceb0157
+Run: 42488300873; failed job: 128755170080
+Command: npm install --global pnpm@10.12.4
+2026-11-08T14:10:41.2351057Z npm error code ENETUNREACH
+2026-11-08T14:10:41.2351953Z npm error errno ENETUNREACH
+2026-11-08T14:10:41.2352700Z npm error request to https://registry.npmjs.org/pnpm failed, reason: 
+2026-11-08T14:10:41.2365331Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-11-08T14_09_27_864Z-debug-0.log
+2026-11-08T14:10:41.2758951Z ##[error]Process completed with exit code 1.

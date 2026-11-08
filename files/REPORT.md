@@ -8,7 +8,7 @@ Integrated main: e65fd420554c15d42ef2dbb77300adf99e600704
 
 The saved commits were preserved through two new merge commits, 9c013732274f017555f93d4628bcf0710305cc09 and 5c02ddbee37f430756e9a3d57339c4575ceb0157. Both pushes succeeded on the first guarded attempt. No published history was rewritten. No default branch or PR was changed. The final tree equals the integrated main tree exactly, while preserving the saved branch ancestry. Main already includes the CUST-006 DONE judgment and the same audience proof, including encoded credential exclusion. This continuation adds no contract judgment, product behavior, workflow change, policy default or duplicate test registration.
 
-Counts at the saved head were 11 DONE, 223 PARTIAL and 29 MISSING. Integrated main and the candidate have 14 DONE, 220 PARTIAL and 29 MISSING, with all 263 Status rows retained. Main supplied the CUST-006, QUOTE-011 and PLAN-002 judgments; this builder changed no Status, Gap or Evidence cell. CUST-006 is retained as DONE. No other campaign target was started. The plan's CUST-006 row may record the continuation SHA, preserved DONE judgment and current Verify result; no plan file was edited in this cloud.
+Counts at the saved head were 11 DONE, 223 PARTIAL and 29 MISSING. Integrated main and the candidate have 14 DONE, 220 PARTIAL and 29 MISSING, with all 263 Status rows retained. Main supplied the CUST-006, QUOTE-011 and PLAN-002 judgments; this builder changed no Status, Gap or Evidence cell. CUST-006 is retained as DONE in the source. This continuation claims PARTIAL for gate qualification because the final full Verify remains red; both native acceptance points pass and no contract demotion is made. No other campaign target was started. The plan's CUST-006 row may record the continuation SHA, preserved DONE judgment and current Verify result; no plan file was edited in this cloud.
 
 ## Failed Verify and comparison
 
@@ -18,7 +18,7 @@ The exact shard command, `node scripts/verify-ci.mjs "$SHARD"` with browser-2 se
 
 The same command was run in a detached worktree on main 1caa3765552bf70bde548bf7a34c2bdf71118e47 on the same cloud runner; all six tests passed. Main already contained 912413adec61f3ba998dbfa55f91b8ee3fbe3e5a, which attaches the fixture before hydration, waits for readiness before navigation and settles the Rules route before reload. Merging main carries that existing fix. The final candidate's browser journey, fixture, harness, relevant screens and portability journey match that main proof byte for byte; `receipt.json` records the hashes. The final segment journey was rerun after retaining both of main's credential assertions and passed.
 
-Current exact-head Verify is push run 42488300873. Its state at 14:13:33 UTC is in_progress, with no conclusion; receipt.json and ci-poll-1.json retain that exact-head observation. No prior head's green run is claimed for this candidate. The initial discovery was at 14:08:26 UTC; subsequent reads are at least 300 seconds apart, with one watcher and a ten-call budget. No dispatch or rerun has been requested.
+Current exact-head Verify is push run 42488300873. Attempt 1 completed with failure on the exact head at the 14:18:41 UTC observation. Browser-2 failed before application assertions at npm installation; all other shards passed. A single permitted failed-job rerun was accepted at 14:20:43 UTC. Attempt 2 was also observed completed with failure at 14:25:56 UTC: browser-2 failed at its artifact download step before application assertions; the aggregate verify job failed. All other substantive shards passed. The last allowed GitHub call obtained these latest job results. No prior head's green run is claimed for this candidate. The initial discovery was at 14:08:26 UTC; subsequent reads are at least 300 seconds apart, with one watcher and a ten-call budget. No dispatch has been requested. The sole failed-job rerun was requested only after its log established the infrastructure failure.
 
 ## Acceptance and inherited proof map
 
@@ -43,9 +43,9 @@ PROBE CUST-006 2: Owner and Office segment.push for seven enumerated members aga
 
 | Row | Result | Evidence |
 | --- | --- | --- |
-| 1 | Local PASS; exact-head Verify receipt governs CI | Both acceptance points are reached through commands and a real archive; proof map above. |
+| 1 | Native outcomes PASS; full exact-head CI condition UNMET | Both acceptance points are reached through commands and a real archive; proof map above. |
 | 2 | PASS | Populated independently enumerated customers; successful and forbidden role paths; exact payloads, counts and refusal facts, segment lines 529–547 and 549–636. |
-| 3 | Pending exact-head Verify at report creation | Existing push API and portable shards load the journeys; verification.json and the unchanged Verify workflow retain them. Current run is 42488300873, event push, exact candidate SHA. |
+| 3 | FAIL: full Verify remains red after the sole rerun | Existing push API and portable shards load the journeys; verification.json and the unchanged Verify workflow retain them. Current run is 42488300873, event push, exact candidate SHA; attempt 2 browser-2 failed before assertions at artifact download, while the clause API and portable shards succeeded. |
 | 4 | PASS by byte equality | Receipt hashes show the browser, harness, product screens and archive journey unchanged from the main comparison. Final segment assertions passed before the final merge commit; no relevant bytes changed afterwards. |
 | 5 | PASS | CUST-006 explicitly cites BASE-DATA-001 and BASE-SECRET-001 at CONTRACT.md line 399. |
 | 6 | PASS for builder mechanics | Contract write and check exit 0. Contract source and generated views equal main exactly. Main owns existing provenance and judgments; none were rewritten. |
@@ -65,6 +65,24 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and node scripts/edi
 
 Publication scan text for 5c02ddbee37f430756e9a3d57339c4575ceb0157: complete=unestablished; historyScanned=unestablished; findings=unestablished. The cloud does not claim a COMPLETE scan or zero findings. Run site and candidate landing equality are also unestablished and remain lander duties. These fields are kept explicit in receipt.json. Neither a product push nor report publication claims acceptance, landing or release.
 
-No account or provider activation is requested. The held marketing-consent, subscription, live-provider acceptance, automatic sync and agent push boundaries remain unchanged. There is no new product blocker identified by local tests; CI state is reported exactly as observed.
+No account or provider activation is requested. The held marketing-consent, subscription, live-provider acceptance, automatic sync and agent push boundaries remain unchanged. No product failure is identified by local tests, but this continuation is BLOCKED on the required full exact-head Verify. The CI-shape lane must diagnose the artifact-download failure. The ten-call budget is exhausted; no second infrastructure rerun, third repair or workflow edit is authorized here.
 
 The full executed plan is PLAN.md. Actual logs and structured receipts are selected explicitly for the separate evidence branch. No credential files, private environment dumps, signed transport URLs, symlinks or held-out gate material are selected. Product commits contain no packet files. The evidence manifest binds the reports to the product branch and head without changing its checkout or refs.
+
+## Exact-head CI infrastructure incident
+
+Attempt 1 of Verify 42488300873 passed build, foundation, both API shards, portable, and browser shards 1, 3 and 4. Browser job 128755170080 failed at `npm install --global pnpm@10.12.4` with `ENETUNREACH` fetching the npm registry, before it installed dependencies or ran an application assertion. The aggregate verify job then correctly failed. `ci-jobs.json` and `ci-infrastructure-failure.txt` are the actual non-secret receipts. This is an external network failure, not a reproduced product test failure; no product repair was guessed. The single allowed failed-job rerun was accepted at 14:20:43 UTC. Nine of the ten permitted GitHub calls have been used; one is reserved for the rerun's status.
+
+The unchanged workflow names build artifacts using both run id and attempt at `.github/workflows/verify.yml:90` and 179. A failed-job rerun reuses the successful build job while advancing the attempt for the rerun shard; that existing CI shape may make the later attempt's build artifact unavailable. This is an INSPECTED concern, not a claimed observed rerun failure. The workflow is reserved for the CI-shape lane and has not been edited. The final run receipt must determine the reported result.
+
+## Terminal CI disposition
+
+The sole rerun completed with failure on the exact candidate. `ci-rerun-jobs.json` reports browser job 128758087878, attempt 2, completed/failure at step 14, actions/download-artifact. Aggregate job 128758195604 also completed/failure. All other substantive shard jobs, including the target API and portable journeys, completed/success on the same head. The response is actual REST evidence bound to the full SHA. The failure is before application assertions. Its precise transport or artifact-resolution error is NOT READ because the ten-call budget is exhausted; the attempt-name concern above remains INSPECTED and must not be promoted to a confirmed diagnosis.
+
+The candidate stays pushed and branch-only. This run emits no READY or green-workflow claim. The real blocker is the required red Verify after the allowed rerun, with workflow repair reserved by the brief to the CI-shape lane. Both native CUST-006 points are proven, and main's existing DONE judgment remains untouched; this round's claim is PARTIAL because the full exact-head CI bar is unmet. Source counts remain 14 DONE, 220 PARTIAL and 29 MISSING.
+
+GAP CUST-006: Native points 1 and 2 pass; the continuation cannot meet its full exact-head Verify requirement after npm ENETUNREACH and the sole rerun's artifact-download failure. CI-shape diagnosis is required, with no further GitHub calls available in this run.
+
+No VERIFY_REPRODUCED receipt is fabricated: the original browser assertion did not reproduce, and the candidate's observed failures are setup infrastructure before assertions. There was no product repair round.
+
+Recovery bundle: /home/agent/rer-consolidation/work/sx-glove-c-f123-pc1/product.bundle; SHA-256 3892c883087ae3e82d2f7b1be4c47a3841ea9888c0d14b119f2463520bc3318b; git bundle verify exit 0, complete history, HEAD 5c02ddbee37f430756e9a3d57339c4575ceb0157. The bundle remains outside the clone and is not selected into the report-only evidence tree.

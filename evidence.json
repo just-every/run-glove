@@ -19,10 +19,16 @@
       "sha256": "4423b4a7d1b65c6ee9943d55d264b684b33574d5b2f2427f5c4d95b5f98aaf02"
     },
     {
-      "blob": "96b44ed64c20b09df05e2ba283d921e97d12b835",
-      "bytes": 12907,
+      "blob": "29b6d2267dd8f315a865b86d7b0f52864de42d3e",
+      "bytes": 17122,
       "path": "REPORT.md",
-      "sha256": "57df085a39aeb598417f0703c6a9e435e71e3460c41e908102ac79f352974994"
+      "sha256": "e328a0208a348160867fdfc871a467e2024137608bb385f793f69dda0989a147"
+    },
+    {
+      "blob": "1e087f230bf32ce3b588a98cd8bd957c04b79783",
+      "bytes": 235,
+      "path": "bundle-verify.txt",
+      "sha256": "bbc67f9b633ec10fdc7f368c43e0228067b1256b10535ad095b8d8e663bd4ee5"
     },
     {
       "blob": "35cfa7e7cf16995cfb7d3e67e3524a157665c5b0",
@@ -31,10 +37,40 @@
       "sha256": "4b6bd19f492008bc0cb60162fbdb4aafbf782600eb112eb6440907079bbf862a"
     },
     {
+      "blob": "0e9bab507006abb046bb98d13393452408baae1a",
+      "bytes": 563,
+      "path": "ci-infrastructure-failure.txt",
+      "sha256": "fb741f535492f1d173da1fcdc146bfdc89969017f6cee9ab57d0efc882b619f9"
+    },
+    {
+      "blob": "8d84579f6f53bf62ae8b77a51ad79a0c1f56d71a",
+      "bytes": 1206,
+      "path": "ci-jobs.json",
+      "sha256": "75052952d9d89ca4aa35c23e3abd46036b35d53c7614e8dfe757e441785a1a49"
+    },
+    {
       "blob": "14a8c5eef44aa98761ad1252cd2defaeba889de8",
       "bytes": 175,
       "path": "ci-poll-1.json",
       "sha256": "8d5d1331b982baecd2aede507ccadcd808bfd376227b39420ea95ae044b0d9d0"
+    },
+    {
+      "blob": "2e849488a2dbaebffd4f9b4c2135f1aa33367bfa",
+      "bytes": 178,
+      "path": "ci-poll-2.json",
+      "sha256": "5ae119ca3d52497b3ed35ac14e94b4a0519bf62471c68cbcdc86cc21daeab3e0"
+    },
+    {
+      "blob": "57c3d1bc94655ba13252989678cf81743794b45f",
+      "bytes": 2514,
+      "path": "ci-rerun-jobs.json",
+      "sha256": "cfedaa1d209057e7467ec6a763b239ae86a84fa60fe24906820c43e746cbc00a"
+    },
+    {
+      "blob": "9e26dfeeb6e641a33dae4961196235bdb965b21b",
+      "bytes": 2,
+      "path": "ci-rerun-response.json",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
     },
     {
       "blob": "8b397759c3490f5d34b737e6b013a75c1929a9a8",
@@ -47,6 +83,12 @@
       "bytes": 85,
       "path": "commit-identities.txt",
       "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "5ef50470ad264a67d5f836994cddcb004d08edb0",
+      "bytes": 5080,
+      "path": "evidence-transfer-check-initial.json",
+      "sha256": "92ee1fac0b74e0fd6f9485dd8d76a666f36f8896432d84e719a54daae92816a4"
     },
     {
       "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -103,10 +145,10 @@
       "sha256": "952e5673455440ab24e2b60459cd3dfe7b6f93bd978aa809ad56802f30e73748"
     },
     {
-      "blob": "e12db01a93581ad1dba73277f33b15bcc5f5f374",
-      "bytes": 4171,
+      "blob": "68a6ab73697c1f27769f119e2b35fffa86e932d0",
+      "bytes": 5928,
       "path": "receipt.json",
-      "sha256": "5430e7abc779176f792712462980127a622ec0ba74fc4b47bd4eda080a771392"
+      "sha256": "4fed9f08520d3dc9208b76073cc12aa81b03ec2ee02d4c56b02ac8c7e8540000"
     },
     {
       "blob": "c7331a2d63a6138f2128a72689c430d25c2a805b",
@@ -133,10 +175,10 @@
       "sha256": "fdc4cf91b7ed55bd8ffd99745651b4b003da907ff9c12696af749469ba85fc6d"
     },
     {
-      "blob": "00655313b020cc42c81c0e2ec197366d6397998e",
-      "bytes": 607,
+      "blob": "67e78aaad045d5ff04cd278e38948c1c833dd3e1",
+      "bytes": 797,
       "path": "selected-files.json",
-      "sha256": "1ab094175af8d193b917d54f24acfab95b74ae0635f84cf06bc027cd95d1c49f"
+      "sha256": "8826173c6dfda9507282cc1d6c9752961f94fc1ff4372cc79533faf119ac2ba5"
     },
     {
       "blob": "d1911739ba1c44029fcedcb8b2c6839987767372",

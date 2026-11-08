@@ -1,0 +1,5 @@
+/home/agent/rer-consolidation/work/sx-glove-c-f123-pc1/product.bundle is okay
+The bundle contains this ref:
+5c02ddbee37f430756e9a3d57339c4575ceb0157 HEAD
+The bundle records a complete history.
+The bundle uses this hash algorithm: sha1
