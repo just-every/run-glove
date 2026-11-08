@@ -1,0 +1,12 @@
+# Public-door point observations
+
+Head: 4c950e53ec72b0f9a2db8e00dc69eb257d083e3a
+
+PROBE QUOTE-009 1: quote.link, identical replay, public quote GET and POST with query, cookie and body credentials, actual provider-edge mail, Activity and export -> one 32-byte bearer response, only a separate SHA-256 at rest, non-header refusals, fragment-only email, no bearer in retained results or captured Worker logs. The real page sends GET and POST only with Authorization and retains no browser credential storage. Actual installation archive exclusion is checked by the portable journey.
+PROBE QUOTE-009 2: current revision link followed by quote.revise and quote.approve, then old bearer GET and each of six actions -> superseded message only, no document, REVISION refusals, unchanged export after restart.
+PROBE QUOTE-009 3: expired revision, concurrent and replayed update requests, reissued bearer, later revision and exact expiry -> one request and notice per revision; read remains available until expiry; GET and POST both 404 at expiry.
+PROBE QUOTE-009 4: real rer export and import -> all quote records, revisions and link records restored identically; all source bearers return 404; issuance replay changes nothing; fresh links serve the same independently hashed document; erased customer links return 404 while the unrelated customer link remains readable. The complete tests/portable.mjs command exited 0, including the trusted later-erasure journal.
+PROBE QUOTE-009 5: quote.validity from Owner, Office, Dispatcher and integration token -> only Owner changes it, 0, 3651 and non-integers refused unchanged, 1 and 3650 accepted, initial revision uses 30 days.
+PROBE QUOTE-009 6: draft and revise with impossible date, actual Chicago branch beside Sydney business, clock-controlled approve and public reads -> impossible date INPUT unchanged; frozen Chicago zone survives branch edit; approval succeeds at 05:59:59.999Z and refuses at 06:00:00.000Z; link reads until DST-adjusted 05:00:00.000Z on May 30 then both doors return 404.
+PROBE QUOTE-009 7: change default, draft later quotes and revise original, then restart and replay -> original revision and issued-link metadata unchanged; only new revisions take the changed default.
+PROBE QUOTE-009 8: build pre-validity command implementation, create and approve quote, restart with rebuilt current Worker -> VALIDITY refusal and no link; revise -> NOT_APPROVED; fresh approval -> link serves revision 2 and same document hash; replay and export survive another restart.

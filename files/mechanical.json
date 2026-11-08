@@ -1,0 +1,45 @@
+{
+  "head": "4c950e53ec72b0f9a2db8e00dc69eb257d083e3a",
+  "observed_at": "2026-11-08T16:16:22.709029+00:00",
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses QUOTE-009",
+    "write_exit": 0,
+    "write_output": "Wrote 0 contract documents.",
+    "check": "node scripts/contract-docs.mjs check",
+    "check_exit": 0,
+    "check_output": "Contract documents are current.",
+    "restored_from": "origin/main",
+    "committed_views": false
+  },
+  "lock": {
+    "write": "node scripts/edition-authoring/cli.mjs lock",
+    "write_exit": 0,
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "check_exit": 0,
+    "sha256": "58867111e9f83c14ef1c4b78659bd733b5e6c231ff7372be5b314a6c0e7b9f31"
+  },
+  "ledger": {
+    "command": "none",
+    "reason": "No migration changes.",
+    "exit": 0
+  },
+  "contract_diff": {
+    "command": "git diff --exit-code origin/main...HEAD -- CONTRACT.md",
+    "exit": 0
+  },
+  "protected_tests_diff": {
+    "command": "git diff --exit-code origin/main...HEAD -- tests/api/customer-quotes.test.mjs tests/browser/customer-quotes.spec.ts",
+    "exit": 0
+  },
+  "diff_check": {
+    "command": "git diff --check origin/main...HEAD",
+    "exit": 0
+  },
+  "identity_audit": {
+    "candidate_commits": 7,
+    "side_parents_included": true,
+    "author_and_committer_violations": 0,
+    "trailers": 0,
+    "new_email_shaped_literals": 0
+  }
+}

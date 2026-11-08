@@ -1,0 +1,609 @@
+diff --git a/tests/api/quote-link-custody.test.mjs b/tests/api/quote-link-custody.test.mjs
+new file mode 100644
+index 0000000..922312e
+--- /dev/null
++++ b/tests/api/quote-link-custody.test.mjs
+@@ -0,0 +1,247 @@
++import test from 'node:test'
++import assert from 'node:assert/strict'
++import { createHash, randomUUID } from 'node:crypto'
++import { readFile } from 'node:fs/promises'
++import { dirname } from 'node:path'
++import { installation, business, assertTrail, mailEvents } from './harness.mjs'
++import { textOf } from '../fixtures/mail-providers.mjs'
++
++const at = '2030-02-28T18:00:00.000Z'
++const lines = [{ description: 'Condenser inspection', quantity: '1', unitPrice: '189.00', tax: 'FREE' }]
++const draft = (h, b, extra = {}) => h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Condenser inspection', lines, ...extra })
++const approve = (h, q) => h.command('quote.approve', { quoteId: q.id, version: q.version, revision: q.revisions.at(-1).n })
++const issue = (h, q, extra = {}, opts) => h.command('quote.link', { quoteId: q.id, version: q.version, ...extra }, opts)
++const read = (h, token) => h.request('/api/glove/public/quote', { as: '', headers: { authorization: `Bearer ${token}` } })
++const respond = (h, token, action, extra = {}) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${token}` }, body: { action, name: 'Mei Lin', capacity: 'Property manager', ...extra } })
++const exportBusiness = h => h.request('/api/glove/export').then(r => r.json())
++const quote = async (h, id) => (await h.state()).quotes.find(q => q.id === id)
++const withoutBearer = (value, token, surface) => assert.equal(JSON.stringify(value).includes(token), false, `${surface} excludes the bearer`)
++
++test('QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart', async t => {
++  const h = await installation({ at, captureLogs: true }); t.after(() => h.close())
++  const b = await business(h)
++  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-140', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['office', 'example.test'].join('@') })
++  const q = await approve(h, await draft(h, b)), commandId = randomUUID()
++  const payload = { quoteId: q.id, version: q.version, email: true }
++  const link = await h.command('quote.link', payload, { commandId })
++  assert.match(link.token, /^glq_[A-Za-z0-9_-]{43}$/)
++  assert.equal(Buffer.from(link.token.slice(4), 'base64url').length, 32)
++  const secrets = (await h.db.prepare('SELECT * FROM glove_quote_secrets').all()).results
++  assert.deepEqual(secrets, [{ link_id: link.id, hash: createHash('sha256').update(`glove-quote-link:${link.token}`).digest('hex') }])
++  const sent = h.email.sent.at(-1)
++  assert.ok(sent, 'the provider edge actually receives the quote email')
++  const mail = textOf(sent), url = new URL(mail.match(/https:\/\/[^\s]+\/quote[^\s]*/)[0])
++  assert.equal(url.pathname, '/quote'); assert.equal(url.search, '')
++  assert.equal(url.hash, `#token=${link.token}`)
++  assert.equal(mail.replace(url.href, '').includes(link.token), false, 'the email carries the bearer only in its fragment')
++  assert.equal((await read(h, link.token)).status, 200)
++  const before = await exportBusiness(h)
++  for (const input of [
++    { path: `/api/glove/public/quote?token=${link.token}` },
++    { path: '/api/glove/public/quote', headers: { cookie: `token=${link.token}` } },
++    { path: '/api/glove/public/quote', method: 'POST', body: { action: 'changes', token: link.token, message: 'Do not record this' } },
++    { path: `/api/glove/public/quote?token=${link.token}`, headers: { authorization: `Bearer ${link.token}` } },
++  ]) {
++    const { path, ...options } = input
++    assert.equal((await h.request(path, { as: '', ...options })).status, 404, 'non-header credential does not open the public door')
++  }
++  const bodyToken = await h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body: { action: 'changes', token: link.token, message: 'Do not record this' } })
++  assert.equal(bodyToken.status, 400, 'even an authorized request refuses a body credential')
++  assert.deepEqual(await exportBusiness(h), before, 'refused credentials change no business data')
++  assert.equal((await respond(h, link.token, 'changes', { message: 'Please confirm access with reception.' })).status, 200)
++  const persisted = await exportBusiness(h), sentCount = h.email.sent.length
++  await h.restart()
++  const replay = await h.command('quote.link', payload, { commandId })
++  assert.equal(replay.token, undefined)
++  assert.equal(replay.id, link.id)
++  assert.equal(h.email.sent.length, sentCount, 'issuance replay sends no second email')
++  assert.deepEqual(await exportBusiness(h), persisted)
++  assert.equal((await read(h, link.token)).status, 200, 'only restart, rather than restore, retains the issued credential')
++  const { activity, exported } = await assertTrail(h, ['quote.linkIssued', 'quote.customer.changes'])
++  const event = activity.find(e => e.kind === 'quote.linkIssued')
++  assert.deepEqual([event.actorName, event.actorRole, event.commandId, event.at], ['Olivia Owner', 'owner', commandId, at])
++  for (const [surface, value] of Object.entries({ replay, activity, exported, state: await h.state(), commands: (await h.db.prepare('SELECT * FROM glove_commands').all()).results, records: (await h.db.prepare('SELECT * FROM glove_records').all()).results, events: (await h.db.prepare('SELECT * FROM glove_events').all()).results })) withoutBearer(value, link.token, surface)
++  assert.ok(h.logs.length, 'Worker log capture is active')
++  withoutBearer(h.logs, link.token, 'captured Worker logs')
++  const replacement = await issue(h, await quote(h, q.id))
++  assert.equal((await read(h, link.token)).status, 404)
++  assert.equal((await read(h, replacement.token)).status, 200)
++  const replacementRecord = (await h.state()).quoteLinks.find(l => l.id === replacement.id)
++  await h.command('quote.linkRevoke', { linkId: replacement.id, version: replacementRecord.version })
++  await h.restart()
++  assert.equal((await read(h, replacement.token)).status, 404)
++  const revokedSnapshot = await exportBusiness(h), emailsBeforeReplay = h.email.sent.length
++  const revokedReplay = await h.command('quote.link', { quoteId: q.id, version: q.version, email: true }, { commandId })
++  assert.equal(revokedReplay.token, undefined)
++  assert.equal(h.email.sent.length, emailsBeforeReplay)
++  assert.deepEqual(await exportBusiness(h), revokedSnapshot, 'a captured issuance cannot recreate a revoked link')
++  assert.equal((await respond(h, replacement.token, 'decline')).status, 404, 'replay cannot revive revoked authority')
++})
++
++test('QUOTE-009 superseded links disclose no document and refuse every customer action across restart', async t => {
++  const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
++  let q = await approve(h, await draft(h, b)), old = await issue(h, q)
++  q = await h.command('quote.revise', { quoteId: q.id, version: q.version, lines, validUntil: '2030-03-31' })
++  q = await approve(h, q); const current = await issue(h, q), before = await exportBusiness(h)
++  await h.restart()
++  const response = await read(h, old.token), view = await response.json()
++  assert.equal(response.status, 200)
++  assert.deepEqual(view, { state: 'superseded', message: 'A newer revision was sent. Ask the business for its current link.' })
++  for (const action of ['choose', 'changes', 'decline', 'update', 'approve', 'financing']) {
++    const refused = await respond(h, old.token, action, { message: 'Use the earlier price', choice: { optionId: 'option-1', addOnIds: [] } })
++    assert.equal(refused.status, 409, action)
++    assert.deepEqual((await refused.json()).error, { code: 'REVISION', message: view.message })
++  }
++  assert.deepEqual(await exportBusiness(h), before, 'superseded requests record no decision or data change')
++  const live = await (await read(h, current.token)).json()
++  assert.equal(live.state, 'open'); assert.equal(live.document.revision, 2)
++  await assertTrail(h, ['quote.revised', 'quote.linkIssued'])
++})
++
++test('QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant', async t => {
++  const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
++  const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Inspect condenser', source: 'phone' })
++  let q = await approve(h, await draft(h, b, { enquiryId: enquiry.id, validUntil: '2030-02-28' }))
++  const first = await issue(h, q)
++  await h.setTime('2030-03-01T00:00:00.000Z')
++  let view = await (await read(h, first.token)).json()
++  assert.equal(view.state, 'expired'); assert.equal(view.documentHash, first.documentHash); assert.equal(view.updateRequested, false)
++  for (const action of ['choose', 'changes', 'decline', 'approve', 'financing']) {
++    const response = await respond(h, first.token, action, { message: 'No expired decision' })
++    assert.equal(response.status, 409); assert.equal((await response.json()).error.code, 'EXPIRED')
++  }
++  const responses = await Promise.all([respond(h, first.token, 'update'), respond(h, first.token, 'update')])
++  for (const response of responses) { assert.equal(response.status, 200); assert.equal((await response.json()).updateRequested, true) }
++  await h.restart()
++  assert.equal((await respond(h, first.token, 'update')).status, 200)
++  let state = await h.state(), record = state.quotes.find(x => x.id === q.id)
++  assert.equal(record.customerRequests.filter(x => x.revision === 1 && x.action === 'update').length, 1)
++  assert.equal(state.notices.filter(n => n.quoteId === q.id).length, 1)
++  assert.equal(state.enquiries.find(e => e.id === enquiry.id).status, 'contacted')
++  const reissued = await issue(h, record)
++  assert.equal((await read(h, first.token)).status, 404)
++  assert.equal((await (await read(h, reissued.token)).json()).updateRequested, true, 'reissuing a link cannot reset the revision update request')
++  assert.equal((await respond(h, reissued.token, 'update')).status, 200)
++  assert.equal((await quote(h, q.id)).customerRequests.length, 1)
++  q = await h.command('quote.revise', { quoteId: q.id, version: record.version, lines, validUntil: '2030-02-28' })
++  q = await approve(h, q); const next = await issue(h, q)
++  await h.setTime('2030-05-29T13:59:59.999Z')
++  view = await (await read(h, next.token)).json()
++  assert.equal(view.state, 'expired'); assert.equal(view.updateRequested, false)
++  assert.equal((await respond(h, next.token, 'update')).status, 200, 'a later revision gets its own single request at the last live instant')
++  await h.setTime('2030-05-29T14:00:00.000Z')
++  assert.equal((await read(h, next.token)).status, 404)
++  assert.equal((await respond(h, next.token, 'update')).status, 404)
++  await h.restart()
++  assert.equal((await read(h, next.token)).status, 404)
++  await h.setTime('2030-03-01T00:00:00.000Z')
++  state = await h.state(); record = state.quotes.find(x => x.id === q.id)
++  assert.deepEqual(record.customerRequests.map(x => [x.revision, x.action]), [[1, 'update'], [2, 'update']])
++  assert.equal(state.notices.filter(n => n.quoteId === q.id).length, 2)
++  const { activity, exported } = await assertTrail(h, ['quote.customer.update'])
++  assert.equal(activity.filter(e => e.kind === 'quote.customer.update').length, 2)
++  assert.equal(exported.timeline.filter(e => e.kind === 'quote.customer.update').length, 2)
++})
++
++test('QUOTE-009 owner validity boundaries and default changes affect only later revisions', async t => {
++  const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
++  let q = await approve(h, await draft(h, b)), original = structuredClone(q.revisions[0]), link = await issue(h, q)
++  assert.equal(original.validUntil, '2030-03-31', 'Sydney March 1 plus the untouched 30-day default')
++  const before = await exportBusiness(h)
++  for (const person of [b.office, b.dispatcher]) await person.run('quote.validity', { days: 5 }, { error: 'FORBIDDEN' })
++  for (const days of [0, 3651, 1.5, '30', null]) await h.command('quote.validity', { days }, { error: 'INPUT' })
++  assert.deepEqual(await exportBusiness(h), before)
++  const integration = await h.command('token.issue', { name: 'Synthetic quote integration', role: 'dispatcher' })
++  const denied = await h.request('/api/glove/commands', { as: '', method: 'POST', headers: { authorization: `Bearer ${integration.token}` }, body: { commandId: randomUUID(), type: 'quote.validity', payload: { days: 5 } } })
++  assert.equal(denied.status, 403); assert.equal((await denied.json()).error.code, 'FORBIDDEN')
++  for (const [days, validUntil] of [[1, '2030-03-02'], [3650, '2040-02-27']]) {
++    await h.command('quote.validity', { days })
++    const next = await draft(h, b)
++    assert.equal(next.revisions[0].validUntil, validUntil)
++    assert.deepEqual((await quote(h, q.id)).revisions[0], original)
++    assert.deepEqual((await h.state()).quoteLinks.find(l => l.id === link.id), Object.fromEntries(Object.entries(link).filter(([k]) => k !== 'token')))
++  }
++  await h.command('quote.validity', { days: 1 })
++  const commandId = randomUUID(), payload = { quoteId: q.id, version: q.version, lines }
++  q = await h.command('quote.revise', payload, { commandId })
++  assert.deepEqual(q.revisions[0], original); assert.equal(q.revisions[1].validUntil, '2030-03-02')
++  await h.restart()
++  assert.deepEqual(await h.command('quote.revise', payload, { commandId }), q)
++  assert.equal((await h.state()).business[0].quoteValidityDays, 1)
++  await assertTrail(h, ['quote.validity', 'quote.revised'])
++})
++
++test('QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window', async t => {
++  const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
++  const branch = await h.command('branch.save', { name: 'Chicago', prefix: 'CHI', timezone: 'America/Chicago', zips: [] })
++  const customer = await h.command('customer.save', { name: 'Chicago Dental' })
++  const site = await h.command('site.save', { customerId: customer.id, branchId: branch.id, address: '18 Lake Street, Chicago IL 60601' })
++  const chicago = { customer, site }, before = await exportBusiness(h)
++  await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Impossible date', lines, validUntil: '2026-02-30' }, { error: 'INPUT' })
++  assert.deepEqual(await exportBusiness(h), before)
++  let first = await draft(h, chicago, { validUntil: '2030-02-28' })
++  await h.command('quote.revise', { quoteId: first.id, version: first.version, lines, validUntil: '2026-02-30' }, { error: 'INPUT' })
++  first = await approve(h, first)
++  const second = await approve(h, await draft(h, chicago, { validUntil: '2030-02-28' }))
++  assert.equal((await h.state()).business[0].timezone, 'Australia/Sydney')
++  for (const q of [first, second]) assert.deepEqual([q.revisions[0].validUntil, q.revisions[0].validityZone, q.revisions[0].validTo, q.revisions[0].linkExpiresAt], ['2030-02-28', 'America/Chicago', '2030-03-01T06:00:00.000Z', '2030-05-30T05:00:00.000Z'])
++  const live = await issue(h, first), expiring = await issue(h, second)
++  await h.command('branch.save', { ...(await h.state()).branches.find(x => x.id === branch.id), timezone: 'America/Phoenix' })
++  await h.command('quote.consent', { version: (await h.state()).business[0].version, accept: true, text: 'Synthetic owner disclosure for boundary testing; identity remains claimed.' })
++  const choice = { optionId: 'option-1', addOnIds: [] }
++  const selection = await (await respond(h, live.token, 'choose', { choice })).json()
++  const answer = { choice, documentHash: live.documentHash, selectionHash: selection.selection.hash, consent: { version: selection.disclosure.version, hash: selection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } }
++  await h.setTime('2030-03-01T05:59:59.999Z'); await h.restart()
++  assert.equal((await (await read(h, live.token)).json()).state, 'open')
++  assert.equal((await respond(h, live.token, 'approve', answer)).status, 200, 'approval succeeds at the last Chicago instant of the validity date')
++  assert.equal((await quote(h, first.id)).acceptance.signing.at, '2030-03-01T05:59:59.999Z')
++  await h.setTime('2030-03-01T06:00:00.000Z')
++  const expired = await read(h, expiring.token)
++  assert.equal((await expired.json()).state, 'expired')
++  const refused = await respond(h, expiring.token, 'approve', { ...answer, documentHash: expiring.documentHash })
++  assert.equal(refused.status, 409); assert.equal((await refused.json()).error.code, 'EXPIRED')
++  const snapshot = await exportBusiness(h)
++  await h.setTime('2030-05-30T04:59:59.999Z')
++  assert.equal((await read(h, expiring.token)).status, 200, 'DST-adjusted midnight, rather than ninety UTC days, ends the reading window')
++  await h.setTime('2030-05-30T05:00:00.000Z'); await h.restart()
++  for (const token of [live.token, expiring.token]) {
++    assert.equal((await read(h, token)).status, 404)
++    assert.equal((await respond(h, token, 'update')).status, 404)
++  }
++  await h.setTime('2030-03-01T06:00:00.000Z')
++  assert.deepEqual(await exportBusiness(h), snapshot, 'expiry refuses without data changes')
++  await assertTrail(h, ['quote.customer.approve', 'quote.consentAccepted'])
++})
++
++test('QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link', async t => {
++  let legacy = true
++  const h = await installation({ at, workerPlugins: [{ name: 'pre-validity-quotes', setup(build) {
++    // Build the earlier command implementation without its later validity
++    // fields; all pricing, approval, persistence and HTTP doors stay real.
++    build.onLoad({ filter: /\/commands\/quotes\.ts$/ }, async args => {
++      if (!legacy) return undefined
++      const source = await readFile(args.path, 'utf8'), addition = '...quoteValidity(c, record, p.validUntil), '
++      assert.ok(source.includes(addition), 'the era build removes the actual validity addition')
++      return { contents: source.replace("import { quoteValidity } from '../quote-validity'\n", '').replace(addition, ''), loader: 'ts', resolveDir: dirname(args.path) }
++    })
++  } }] }); t.after(() => h.close()); const b = await business(h)
++  const old = await approve(h, await draft(h, b))
++  assert.equal(old.revisions[0].validUntil, undefined)
++  const before = await exportBusiness(h)
++  legacy = false; await h.restart({ rebuild: true })
++  assert.deepEqual(await exportBusiness(h), before, 'upgrade preserves the actual earlier-build revision')
++  await issue(h, old, {}, { error: 'VALIDITY' })
++  assert.equal((await h.state()).quoteLinks.length, 0)
++  const commandId = randomUUID(), payload = { quoteId: old.id, version: old.version, lines }
++  const revised = await h.command('quote.revise', payload, { commandId })
++  assert.deepEqual(revised.revisions[0], old.revisions[0]); assert.equal(revised.revisions[1].validUntil, '2030-03-31')
++  await issue(h, revised, {}, { error: 'NOT_APPROVED' })
++  const approved = await approve(h, revised), link = await issue(h, approved)
++  const persisted = await exportBusiness(h)
++  await h.restart()
++  assert.deepEqual(await h.command('quote.revise', payload, { commandId }), revised)
++  assert.deepEqual(await exportBusiness(h), persisted)
++  const view = await (await read(h, link.token)).json()
++  assert.equal(view.document.revision, 2); assert.equal(view.documentHash, link.documentHash)
++  await assertTrail(h, ['quote.revised', 'quote.approved', 'quote.linkIssued'])
++})
+diff --git a/tests/browser/quote-link-custody.spec.ts b/tests/browser/quote-link-custody.spec.ts
+new file mode 100644
+index 0000000..7018450
+--- /dev/null
++++ b/tests/browser/quote-link-custody.spec.ts
+@@ -0,0 +1,189 @@
++import { test, expect, type Page, type Request } from '@playwright/test'
++import { mkdir } from 'node:fs/promises'
++import { isAbsolute, join, relative, resolve, sep } from 'node:path'
++// @ts-expect-error Production HTTP Worker, native sessions and D1.
++import { installation } from '../api/harness.mjs'
++
++const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
++const publicQuote = `${origin}/api/glove/public/quote`
++test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
++
++async function capture(request: Request) {
++  return { url: request.url(), method: request.method(), headers: await request.allHeaders(), body: request.postData() ?? '', navigation: request.isNavigationRequest() }
++}
++
++async function screen(page: Page, width: number, name: string) {
++  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
++  if (!process.env.GLOVE_SCREENSHOTS) return
++  const directory = resolve(process.env.GLOVE_SCREENSHOTS), fromCheckout = relative(process.cwd(), directory)
++  if (!(fromCheckout === '..' || fromCheckout.startsWith(`..${sep}`) || isAbsolute(fromCheckout))) throw new Error('Quote screenshots must be outside the checkout.')
++  await mkdir(directory, { recursive: true })
++  await page.screenshot({ path: join(directory, `${width}-quote-custody-${name}.png`), fullPage: true })
++}
++
++function responseFrom(page: Page, method: string) {
++  return page.waitForResponse(response => response.url() === publicQuote && response.request().method() === method)
++}
++
++function absent(value: unknown, tokens: string[], where: string) {
++  const serialized = JSON.stringify(value) ?? ''
++  // Boolean assertions keep a generated bearer out of failure output.
++  for (const token of tokens) expect(serialized.includes(token), `Quote bearer absent from ${where}`).toBe(false)
++}
++
++test('QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390', async ({ browser }) => {
++  for (const width of [1440, 390]) {
++    const h = await installation({ at: '2030-03-12T02:00:00Z' })
++    const context = await browser.newContext({ viewport: { width, height: 1050 } })
++    const requests: ReturnType<typeof capture>[] = []
++    context.on('request', request => { requests.push(capture(request)) })
++    const page = await context.newPage()
++    try {
++      await h.command('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', abn: '51 824 753 556', timezone: 'Australia/Brisbane', email: ['synthetic-glove-71', 'example.test'].join('@'), paymentTermsDays: 14 })
++      const customer = await h.command('customer.save', { name: 'Harbourview Dental', contact: 'Mei Lin', email: ['synthetic-glove-72', 'example.test'].join('@'), phone: '02 9555 0101' })
++      const site = await h.command('site.save', { customerId: customer.id, address: '14 Harbour Street, Balmain NSW 2041', accessNotes: 'Ask reception for the plant room key' })
++      const enquiry = await h.command('enquiry.create', { customerId: customer.id, siteId: site.id, description: 'Waiting room condenser is noisy', source: 'phone' })
++      const lines = [{ description: 'Clean condenser coil and check operating pressure', quantity: '1', unitPrice: '189.00', tax: 'GST' }]
++      let quote = await h.command('quote.draft', { enquiryId: enquiry.id, title: 'Restore quiet cooling', validUntil: '2030-03-12', terms: 'Arrange access with reception. Payment due within 14 days.', lines })
++      quote = await h.command('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
++      const issued = await h.command('quote.link', { quoteId: quote.id, version: quote.version })
++      const tokens = [issued.token]
++      const workerCalls: { method: string, status: number }[] = []
++      // Assets and the customer page come from the real installation. JSON is
++      // forwarded to the production Worker with native D1, never fabricated.
++      await page.route(`${origin}/api/glove/**`, async route => {
++        const request = route.request(), url = new URL(request.url())
++        expect(url.pathname).toBe('/api/glove/public/quote')
++        const response = await h.request(url.pathname + url.search, { as: '', method: request.method(), headers: { authorization: request.headers().authorization ?? '' }, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
++        workerCalls.push({ method: request.method(), status: response.status })
++        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
++      })
++
++      const fragment = `${origin}/quote#token=${issued.token}`
++      let received = responseFrom(page, 'GET')
++      await page.goto(fragment)
++      let response = await received
++      expect(response.status()).toBe(200)
++      expect((await response.json()).state).toBe('open')
++      expect(new URL(page.url()).hash === `#token=${issued.token}`, 'The customer opens the fragment link').toBe(true)
++      await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
++      await expect(page.getByRole('region', { name: 'Your quote', exact: true })).toContainText(lines[0].description)
++      await expect(page.getByRole('button', { name: /Approve|Sign quote/ })).toHaveCount(0)
++      await screen(page, width, 'open')
++
++      const message = 'Please include a washable filter and arrange access after 2 pm.'
++      await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
++      await page.getByLabel('Your capacity (optional)').fill('Practice manager')
++      await page.getByLabel('Changes requested').fill(message)
++      received = responseFrom(page, 'POST')
++      await page.getByRole('button', { name: 'Request changes', exact: true }).click()
++      response = await received
++      expect(response.status()).toBe(200)
++      expect((await response.json()).requests).toEqual([expect.objectContaining({ action: 'changes', message, at: '2030-03-12T02:00:00.000Z' })])
++      await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
++      await screen(page, width, 'response')
++
++      let state = await h.state()
++      let kept = state.quotes.find((row: any) => row.id === quote.id)
++      const claimed = { action: 'changes', revision: 1, name: 'Mei Lin', capacity: 'Practice manager', identity: 'CLAIMED', linkId: issued.id, authenticationBasis: 'link handed out by staff, recipient unverified', message, at: '2030-03-12T02:00:00.000Z' }
++      expect(kept.customerRequests).toEqual([expect.objectContaining(claimed)])
++      expect(state.notices.some((notice: any) => notice.quoteId === quote.id && notice.message.includes(message))).toBe(true)
++      const activityResponse = await h.request('/api/glove/activity'), exportResponse = await h.request('/api/glove/export')
++      expect(activityResponse.status).toBe(200)
++      expect(exportResponse.status).toBe(200)
++      const activity = await activityResponse.json(), exported = await exportResponse.json()
++      const event = activity.events.find((row: any) => row.kind === 'quote.customer.changes' && row.subjectId === quote.id)
++      expect(event).toMatchObject({ actorId: issued.issuedBy.id, actorName: issued.issuedBy.name, actorRole: issued.issuedBy.role, at: claimed.at })
++      expect(event.commandId).toBeTruthy()
++      const exportedEvent = exported.timeline.find((row: any) => row.id === event.id)
++      expect(exportedEvent).toMatchObject({ actor_id: event.actorId, actor_name: event.actorName, actor_role: event.actorRole, command_id: event.commandId })
++      expect(JSON.parse(exportedEvent.data)).toMatchObject(claimed)
++      absent({ state, activity, exported }, tokens, 'state, Activity and business export after the response')
++
++      received = responseFrom(page, 'GET')
++      await page.reload()
++      response = await received
++      expect(response.status()).toBe(200)
++      expect((await response.json()).requests).toEqual([expect.objectContaining({ action: 'changes', message })])
++      await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
++      expect((await h.state()).quotes.find((row: any) => row.id === quote.id).customerRequests).toEqual(kept.customerRequests)
++
++      quote = await h.command('quote.revise', { quoteId: quote.id, version: kept.version, lines, validUntil: '2030-03-12' })
++      quote = await h.command('quote.approve', { quoteId: quote.id, version: quote.version, revision: 2 })
++      const revised = await h.command('quote.link', { quoteId: quote.id, version: quote.version })
++      tokens.push(revised.token)
++      received = responseFrom(page, 'GET')
++      await page.reload()
++      response = await received
++      expect(response.status()).toBe(200)
++      const superseded = await response.json()
++      expect(superseded.state).toBe('superseded')
++      expect(superseded.document).toBeUndefined()
++      await expect(page.getByRole('status')).toContainText('A newer revision was sent')
++      await expect(page.getByRole('heading', { name: 'Restore quiet cooling', exact: true })).toHaveCount(0)
++      await expect(page.getByRole('button', { name: /Request changes|Decline quote/ })).toHaveCount(0)
++      await screen(page, width, 'superseded')
++
++      // Midnight after the printed validity date in the frozen business zone.
++      await h.setTime('2030-03-12T14:00:00Z')
++      received = responseFrom(page, 'GET')
++      await page.goto(`${origin}/quote#token=${revised.token}`)
++      response = await received
++      expect(response.status()).toBe(200)
++      expect((await response.json()).state).toBe('expired')
++      await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
++      await expect(page.getByRole('status')).toContainText('This quote has expired.')
++      await screen(page, width, 'expired')
++      await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
++      received = responseFrom(page, 'POST')
++      await page.getByRole('button', { name: 'Ask for an updated quote', exact: true }).click()
++      response = await received
++      expect(response.status()).toBe(200)
++      expect((await response.json()).updateRequested).toBe(true)
++      await expect(page.getByRole('button', { name: 'Updated quote requested', exact: true })).toBeDisabled()
++      received = responseFrom(page, 'GET')
++      await page.reload()
++      expect((await (await received).json()).updateRequested).toBe(true)
++      await expect(page.getByRole('button', { name: 'Updated quote requested', exact: true })).toBeDisabled()
++      await screen(page, width, 'update-requested')
++      state = await h.state()
++      kept = state.quotes.find((row: any) => row.id === quote.id)
++      expect(kept.customerRequests.filter((row: any) => row.action === 'update')).toEqual([expect.objectContaining({ revision: 2, name: 'Mei Lin', linkId: revised.id })])
++      expect(state.enquiries.find((row: any) => row.id === enquiry.id).status).toBe('contacted')
++
++      await h.setTime(revised.expiresAt)
++      received = responseFrom(page, 'GET')
++      await page.reload()
++      response = await received
++      expect(response.status()).toBe(404)
++      await expect(page.getByRole('alert')).toContainText('This quote link is unavailable.')
++      await expect(page.getByRole('heading', { name: 'Restore quiet cooling', exact: true })).toHaveCount(0)
++      await expect(page.getByRole('button', { name: /Request changes|updated quote|Decline quote/ })).toHaveCount(0)
++      await screen(page, width, 'unavailable')
++
++      await h.setTime('2030-03-12T14:00:00Z')
++      const outgoing = await Promise.all(requests)
++      expect(outgoing.some(request => request.navigation && new URL(request.url).pathname === '/quote')).toBe(true)
++      for (const request of outgoing) {
++        absent({ url: request.url, query: new URL(request.url).search, body: request.body, cookie: request.headers.cookie ?? '', referrer: request.headers.referer ?? '' }, tokens, 'outgoing URL, query, body, cookie and referrer')
++        const { authorization, ...otherHeaders } = request.headers
++        absent(otherHeaders, tokens, 'outgoing headers other than Authorization')
++        if (tokens.some(token => authorization?.includes(token))) {
++          expect(request.url).toBe(publicQuote)
++          expect(tokens.some(token => authorization === `Bearer ${token}`), 'The complete bearer appears only in Authorization').toBe(true)
++          expect(request.headers.cookie ?? '', 'Public customer requests omit cookies').toBe('')
++        }
++      }
++      for (const method of ['GET', 'POST']) {
++        expect(outgoing.some(request => request.url === publicQuote && request.method === method && request.headers.authorization === `Bearer ${issued.token}`), `The fragment bearer reaches the real ${method} door through Authorization`).toBe(true)
++        expect(workerCalls.some(call => call.method === method && call.status === 200), `The production Worker answered ${method}`).toBe(true)
++      }
++      absent({ state: await h.state(), activity: await (await h.request('/api/glove/activity')).json(), exported: await (await h.request('/api/glove/export')).json() }, tokens, 'final state, Activity and business export')
++      absent({ cookies: await context.cookies(), storage: await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } })) }, tokens, 'browser cookies and persistent storage')
++    } finally {
++      await page.unrouteAll({ behavior: 'wait' })
++      await context.close()
++      await h.close()
++    }
++  }
++})
+diff --git a/tests/portable.mjs b/tests/portable.mjs
+index 874fcb9..f75788d 100644
+--- a/tests/portable.mjs
++++ b/tests/portable.mjs
+@@ -96,6 +96,10 @@ async function command(root, args, executable) {
+   assert.equal(code, 0, clean(p.output()).slice(-5000))
+ }
+ const cookiesOf = res => res.headers.getSetCookie().map(x => x.split(';')[0]).join('; ')
++const orderedJson = value => value === null || typeof value !== 'object' ? JSON.stringify(value)
++  : Array.isArray(value) ? `[${value.map(orderedJson).join(',')}]`
++    : `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${orderedJson(value[key])}`).join(',')}}`
++const documentHash = document => createHash('sha256').update(orderedJson(document)).digest('hex')
+ 
+ async function start(root, port) {
+   const runtime = child(root, ['dev', '--foreground', '--port', String(port), '--no-queue'])
+@@ -196,16 +200,33 @@ try {
+   const bookingLink = await owner.cmd('agreement.offer', offerPayload)
+   assert.equal((await running.booking(bookingLink.token)).status, 200, 'PLAN-004 source booking link works')
+   // QUOTE-002: retain the exact revision document and hash, require a new bearer after restore.
+-  let customerQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Annual tune-up proposal', lines: [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
++  const sourceQuoteIssues = []
++  const issueSourceQuote = async payload => {
++    const commandId = randomUUID(), result = await owner.cmd('quote.link', payload, commandId)
++    assert.equal((await running.quote(result.token)).status, 200, 'every captured source bearer initially opens its quote')
++    sourceQuoteIssues.push({ payload, commandId, result })
++    return result
++  }
++  // These links exercise a real wall clock, including signed decisions later
++  // in the journey; keep their frozen validity ahead of the installation date.
++  const quoteValidUntil = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10)
++  const customerQuoteLines = [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', serviceId: service.id }]
++  let customerQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Annual tune-up proposal', lines: customerQuoteLines, validUntil: quoteValidUntil })
+   customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 1 })
+-  const quoteLink = await owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
++  const revokedQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
++  const earlierQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
++  assert.equal((await running.quote(revokedQuoteLink.token)).status, 404)
++  customerQuote = await owner.cmd('quote.revise', { quoteId: customerQuote.id, version: customerQuote.version, lines: customerQuoteLines, validUntil: quoteValidUntil })
++  customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 2 })
++  const quoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
++  assert.equal((await (await running.quote(earlierQuoteLink.token)).json()).state, 'superseded')
+   assert.equal((await running.quote(quoteLink.token)).status, 200, 'QUOTE-002 source customer link works')
+   // QUOTE-002: the signed artifact and its evidence must survive the actual
+   // archive boundary byte for byte, independently of the revocable bearer.
+   await owner.cmd('quote.consent', { version: (await owner.get('/api/glove/state')).business[0].version, text: 'synthetic-glove-50 disclosure entered and accepted by the portability test owner.', accept: true })
+-  let signedQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Signed maintenance proposal', lines: [{ description: 'Signed maintenance work', quantity: '1', unitPrice: '249.00' }], terms: 'synthetic-glove-51 terms retained in the signed artifact.' })
++  let signedQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Signed maintenance proposal', lines: [{ description: 'Signed maintenance work', quantity: '1', unitPrice: '249.00' }], terms: 'synthetic-glove-51 terms retained in the signed artifact.', validUntil: quoteValidUntil })
+   signedQuote = await owner.cmd('quote.approve', { quoteId: signedQuote.id, version: signedQuote.version, revision: 1 })
+-  const signedLink = await owner.cmd('quote.link', { quoteId: signedQuote.id, version: signedQuote.version })
++  const signedLink = await issueSourceQuote({ quoteId: signedQuote.id, version: signedQuote.version })
+   const choice = { optionId: 'option-1', addOnIds: [] }
+   const selected = await (await running.quoteRespond(signedLink.token, { action: 'choose', choice })).json()
+   const signedResponse = await running.quoteRespond(signedLink.token, { action: 'approve', name: 'Dr Mei Lin', capacity: 'Practice owner', choice, documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { version: selected.disclosure.version, hash: selected.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Dr Mei Lin' } })
+@@ -217,12 +238,15 @@ try {
+   assert.equal(createHash('sha256').update(signedBytes).digest('hex'), signedQuote.acceptance.signing.signedCopy.sha256)
+   const peerCustomer = await owner.cmd('customer.save', { name: 'Synthetic kept peer' })
+   const peerSite = await owner.cmd('site.save', { customerId: peerCustomer.id, address: '55 Synthetic Road' })
+-  let peerQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'Peer service', terms: `Access coordinated by ${customer.name}`, lines: [{ description: 'Peer service', quantity: '1', unitPrice: '25.00' }] })
++  let peerQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'Peer service', terms: `Access coordinated by ${customer.name}`, lines: [{ description: 'Peer service', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
+   peerQuote = await owner.cmd('quote.approve', { quoteId: peerQuote.id, version: peerQuote.version, revision: 1 })
+-  const peerLink = await owner.cmd('quote.link', { quoteId: peerQuote.id, version: peerQuote.version })
++  const peerLink = await issueSourceQuote({ quoteId: peerQuote.id, version: peerQuote.version })
+   const peerSelection = await (await running.quoteRespond(peerLink.token, { action: 'choose', choice })).json()
+   const peerAnswer = await running.quoteRespond(peerLink.token, { action: 'approve', name: 'Synthetic kept peer', capacity: 'Owner', choice, documentHash: peerSelection.documentHash, selectionHash: peerSelection.selection.hash, consent: { version: peerSelection.disclosure.version, hash: peerSelection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Synthetic kept peer' } })
+   assert.equal(peerAnswer.status, 200)
++  let unrelatedQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'synthetic-glove-191', lines: [{ description: 'synthetic-glove-192', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
++  unrelatedQuote = await owner.cmd('quote.approve', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version, revision: 1 })
++  const unrelatedLink = await issueSourceQuote({ quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
+   // COMM-001: a backup never carries even a callback credential hash.
+   const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-52', fromEmail: 'office@example.test' })
+   const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
+@@ -306,6 +330,9 @@ try {
+   assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
+   const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
+   const before = await owner.get('/api/glove/export')
++  assert.deepEqual(before.quoteLinks.map(link => link.id).sort(), sourceQuoteIssues.map(issue => issue.result.id).sort(), 'QUOTE-009 captures every issued source link, including replaced and earlier revisions')
++  for (const link of before.quoteLinks) assert.equal(documentHash(link.document), link.documentHash, 'QUOTE-009 source hash independently names the exact stored document')
++  for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(before).includes(issue.result.token), 'QUOTE-009 no issued bearer enters the business export')
+   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
+   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
+   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
+@@ -321,6 +348,11 @@ try {
+   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
+   assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
+   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
++  assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
++  for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
++  for (const { result } of sourceQuoteIssues) {
++    assert.ok(!archiveBytes.includes(Buffer.from(result.token)), 'QUOTE-009 plain archive bytes contain no issued quote bearer')
++  }
+   assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
+   for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
+   await command(destination, ['import', '--input', archive, '--yes'])
+@@ -338,6 +370,27 @@ try {
+   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
+   const after = await running.owner.get('/api/glove/export')
+   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
++  for (const original of before.quotes) {
++    const restoredQuote = after.quotes.find(quote => quote.id === original.id)
++    assert.deepEqual(restoredQuote, original, 'QUOTE-009 every native and imported quote record survives the real archive')
++    assert.deepEqual(restoredQuote.revisions, original.revisions, 'QUOTE-009 all revisions and their approval or decision evidence survive')
++  }
++  for (const original of before.quoteLinks) {
++    const restoredLink = after.quoteLinks.find(link => link.id === original.id)
++    assert.deepEqual(restoredLink, original, 'QUOTE-009 every current, replaced and earlier-revision link record survives')
++    assert.equal(documentHash(restoredLink.document), original.documentHash, 'QUOTE-009 every restored document independently hashes to its source hash')
++  }
++  for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 no issued source bearer opens the restored installation')
++  for (const { payload, commandId, result } of sourceQuoteIssues) {
++    const { token, ...savedResult } = result
++    const replay = await running.owner.cmd('quote.link', payload, commandId)
++    assert.deepEqual(replay, savedResult, 'QUOTE-009 restored issuance replays only its original saved metadata')
++    assert.equal(replay.token, undefined, 'QUOTE-009 replay never reveals a bearer')
++    for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(replay).includes(issue.result.token))
++  }
++  const { exportedAt: replayReadAt, ...replayedBusiness } = await running.owner.get('/api/glove/export')
++  const { exportedAt: restoredReadAt, ...restoredBusiness } = after
++  assert.deepEqual(replayedBusiness, restoredBusiness, 'QUOTE-009 replaying all imported issuances creates no links, records or Activity')
+   assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
+   assert.deepEqual(after.segments, before.segments)
+   for (const replay of audienceReplays) {
+@@ -406,8 +459,12 @@ try {
+   assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
+   assert.equal((await running.quote(quoteLink.token)).status, 404, 'QUOTE-002 source bearer is not restored')
+   const freshQuoteLink = await running.owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
+-  assert.equal((await running.quote(freshQuoteLink.token)).status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
++  const freshQuoteResponse = await running.quote(freshQuoteLink.token)
++  assert.equal(freshQuoteResponse.status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
+   assert.equal(freshQuoteLink.documentHash, quoteLink.documentHash, 'QUOTE-002 restored document hash is unchanged')
++  const freshQuoteView = await freshQuoteResponse.json()
++  assert.deepEqual(freshQuoteView.document, quoteLink.document)
++  assert.equal(documentHash(freshQuoteView.document), quoteLink.documentHash, 'QUOTE-009 a fresh bearer serves exactly the restored document')
+   assert.equal((await running.quote(signedLink.token)).status, 404, 'signed quote bearer is not restored')
+   const restoredSigned = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)
+   assert.equal(restoredSigned.status, 200)
+@@ -416,6 +473,10 @@ try {
+   assert.deepEqual(restoredSignedQuote.acceptance.signing, signedQuote.acceptance.signing, 'QUOTE-002 all signature evidence survives the archive')
+   const restoredSignedLink = await running.owner.cmd('quote.link', { quoteId: signedQuote.id, version: restoredSignedQuote.version })
+   assert.equal((await (await running.quote(restoredSignedLink.token)).json()).decision, 'accepted', 'fresh bearer opens the frozen signed decision after restore')
++  assert.equal(restoredSignedLink.documentHash, signedLink.documentHash)
++  const freshUnrelatedLink = await running.owner.cmd('quote.link', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
++  assert.equal((await running.quote(freshUnrelatedLink.token)).status, 200)
++  assert.equal(freshUnrelatedLink.documentHash, unrelatedLink.documentHash)
+   const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
+   assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
+   const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
+@@ -438,6 +499,14 @@ try {
+   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
+   const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
+   assert.equal(receipt.outcome, 'complete')
++  for (const link of [freshQuoteLink, restoredSignedLink]) assert.equal((await running.quote(link.token)).status, 404, 'QUOTE-009 erasure immediately closes every new bearer for this restored customer')
++  for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 source bearers remain refused after erasure')
++  const unrelatedAfterErasure = await running.quote(freshUnrelatedLink.token)
++  assert.equal(unrelatedAfterErasure.status, 200, 'QUOTE-009 another customer retains its independent restored link')
++  const unrelatedDocument = (await unrelatedAfterErasure.json()).document
++  assert.deepEqual(unrelatedDocument, unrelatedLink.document)
++  assert.equal(documentHash(unrelatedDocument), unrelatedLink.documentHash)
++  console.log('QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only')
+   const erasedRoutes = (await running.owner.get('/api/glove/state')).routes
+   for (const id of [route.id, freshRoute.id]) {
+     const closed = erasedRoutes.find(r => r.id === id)

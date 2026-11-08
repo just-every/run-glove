@@ -1,0 +1,47 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart
+ok 1 - QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart
+  ---
+  duration_ms: 4199.874539
+  type: 'test'
+  ...
+# Subtest: QUOTE-009 superseded links disclose no document and refuse every customer action across restart
+ok 2 - QUOTE-009 superseded links disclose no document and refuse every customer action across restart
+  ---
+  duration_ms: 2924.792725
+  type: 'test'
+  ...
+# Subtest: QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant
+ok 3 - QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant
+  ---
+  duration_ms: 3513.49426
+  type: 'test'
+  ...
+# Subtest: QUOTE-009 owner validity boundaries and default changes affect only later revisions
+ok 4 - QUOTE-009 owner validity boundaries and default changes affect only later revisions
+  ---
+  duration_ms: 2874.859693
+  type: 'test'
+  ...
+# Subtest: QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window
+ok 5 - QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window
+  ---
+  duration_ms: 3438.305138
+  type: 'test'
+  ...
+# Subtest: QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link
+ok 6 - QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link
+  ---
+  duration_ms: 3281.248439
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 21542.310852

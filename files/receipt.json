@@ -1,0 +1,80 @@
+{
+  "tag": "sx-glove-c-f143",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f143",
+  "head": "4c950e53ec72b0f9a2db8e00dc69eb257d083e3a",
+  "observed_at": "2026-11-08T16:19:40.384094+00:00",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/quote-link-custody.test.mjs",
+      "exit": 0,
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "log": "api.log",
+      "node": "22.20.0"
+    },
+    {
+      "command": "perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/quote-link-custody.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "log": "browser.log",
+      "node": "22.20.0",
+      "browser": "/usr/bin/chromium",
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "perl -e 'alarm 1200; exec @ARGV' -- node tests/portable.mjs",
+      "exit": 0,
+      "log": "portable.log",
+      "node": "22.20.0"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "node": "22.20.0"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    }
+  ],
+  "product_push": {
+    "command": "python3 /home/agent/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f143",
+    "exit": 0,
+    "attempts": 1,
+    "remote_head": "4c950e53ec72b0f9a2db8e00dc69eb257d083e3a",
+    "ref": "refs/heads/cloud/sx-glove-c-f143"
+  },
+  "screenshots": [
+    "screenshots/1440-quote-custody-expired.png",
+    "screenshots/1440-quote-custody-open.png",
+    "screenshots/1440-quote-custody-response.png",
+    "screenshots/1440-quote-custody-superseded.png",
+    "screenshots/1440-quote-custody-unavailable.png",
+    "screenshots/1440-quote-custody-update-requested.png",
+    "screenshots/390-quote-custody-expired.png",
+    "screenshots/390-quote-custody-open.png",
+    "screenshots/390-quote-custody-response.png",
+    "screenshots/390-quote-custody-superseded.png",
+    "screenshots/390-quote-custody-unavailable.png",
+    "screenshots/390-quote-custody-update-requested.png"
+  ],
+  "contract_counts": {
+    "done": 15,
+    "partial": 219,
+    "missing": 29,
+    "rows": 263
+  },
+  "contract_status_edits": false,
+  "production_repairs": false,
+  "ci_run": 42498863597,
+  "ci_conclusion": null
+}
