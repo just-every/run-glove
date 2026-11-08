@@ -58,7 +58,7 @@ test('PLAN-011 lifecycle events retain exact historical attribution after Worker
     offers.push(offer)
     const { token, ...retained } = offer
     assert.match(token, /^glb_[A-Za-z0-9_-]{43}$/)
-    replay.push({ commandId, payload: payload(i), retained })
+    replay.push({ type: 'agreement.offer', commandId, payload: payload(i), retained })
     expected.push({ kind: 'agreement.offer.created', commandId, at, offer, role: 'office', visitId: null })
   }
   // Later role changes must never rewrite the historical creating role.
@@ -71,11 +71,15 @@ test('PLAN-011 lifecycle events retain exact historical attribution after Worker
   expected.push({ kind: 'agreement.offer.used', at: '2030-01-01T12:05:00.000Z', offer: offers[0], role: 'dispatcher', visitId: visit.id })
   await h.setTime('2030-01-01T12:06:00.000Z')
   const revokeCommand = randomUUID()
-  await office.run('agreement.offerRevoke', { offerId: offers[1].id, version: offers[1].version }, { commandId: revokeCommand })
+  const revokePayload = { offerId: offers[1].id, version: offers[1].version }
+  const revoked = await office.run('agreement.offerRevoke', revokePayload, { commandId: revokeCommand })
+  replay.push({ type: 'agreement.offerRevoke', commandId: revokeCommand, payload: revokePayload, retained: revoked })
   expected.push({ kind: 'agreement.offer.revoked', commandId: revokeCommand, at: '2030-01-01T12:06:00.000Z', offer: offers[1], role: 'dispatcher', visitId: null })
   await h.setTime('2030-01-01T12:07:00.000Z')
   const outsideCommand = randomUUID()
-  await office.run('agreement.offerSent', { offerId: offers[3].id, version: offers[3].version, method: 'phone follow-up' }, { commandId: outsideCommand })
+  const outsidePayload = { offerId: offers[3].id, version: offers[3].version, method: 'phone follow-up' }
+  const outside = await office.run('agreement.offerSent', outsidePayload, { commandId: outsideCommand })
+  replay.push({ type: 'agreement.offerSent', commandId: outsideCommand, payload: outsidePayload, retained: outside })
   expected.push({ kind: 'agreement.offer.sentOutside', commandId: outsideCommand, at: '2030-01-01T12:07:00.000Z', offer: offers[3], role: 'dispatcher', visitId: null })
   await h.setTime('2030-01-01T12:08:00.000Z')
   assert.equal((await publicRequest(offers[2])).status, 404, 'the third offer expires at its actual fourteen-day boundary')
@@ -105,7 +109,7 @@ test('PLAN-011 lifecycle events retain exact historical attribution after Worker
   const before = await inspect()
   await h.restart()
   assert.deepEqual(await inspect(), before, 'actual Worker restart preserves every retained event and record')
-  for (const x of replay) assert.deepEqual(await office.run('agreement.offer', x.payload, { commandId: x.commandId }), x.retained)
+  for (const x of replay) assert.deepEqual(await office.run(x.type, x.payload, { commandId: x.commandId }), x.retained)
   assert.deepEqual(await inspect(), before, 'identical command replays reveal no bearer and change nothing')
 })
 

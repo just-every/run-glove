@@ -5516,7 +5516,7 @@
       "executable": false
     },
     "tests/api/booking-offer-history.test.mjs": {
-      "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2",
+      "sha256": "d5b98d14ad878d4610621c9c0b0befb713100d00ecfc509cd82317b5173386f6",
       "executable": false
     },
     "tests/api/branches.test.mjs": {
