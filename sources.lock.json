@@ -5563,12 +5563,8 @@
       "sha256": "0f33695e2ebc0d41cbc7bcc649866bf131864db87e3036ac3aaf1ae1d50fb206",
       "executable": false
     },
-    "tests/api/discount-limits.test.mjs": {
-      "sha256": "c024d05ea3efe5522553d3abeb61c2de03cf84cb379987f08415ae8c2c500bf4",
-      "executable": false
-    },
     "tests/api/discounts.test.mjs": {
-      "sha256": "374f743b356158e8d9ccdef89a9d59c9122854b2f9527f131be564f9984956c3",
+      "sha256": "e446c8d01c0fea3f9318761c85b7d21f0ff85b5189ea0d0900092d817a3ac7c5",
       "executable": false
     },
     "tests/api/documents.test.mjs": {
