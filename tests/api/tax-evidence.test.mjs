@@ -24,9 +24,9 @@ async function crew(h, branchId = null, name = 'Tax Technician') {
   const technician = await h.command('technician.save', { name, operatorId: person.id, branchId })
   return { person, technician }
 }
-async function place(h, branchId = null, name = 'Tax customer') {
+async function place(h, branchId = null, name = 'Tax customer', zip = '78704') {
   const customer = await h.command('customer.save', { name })
-  const site = await h.command('site.save', { customerId: customer.id, address: '10 Service St, Austin TX 78704', zip: '78704', branchId })
+  const site = await h.command('site.save', { customerId: customer.id, address: '10 Service St, Austin TX ' + zip, zip, branchId })
   return { customer, site }
 }
 async function complete(h, job, team) {
@@ -61,14 +61,21 @@ async function trail(h, kinds) {
 test('MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart', async t => {
   const h = await installation({ at: '2026-10-30T12:00:00.000Z' }); t.after(() => h.close())
   await h.command('business.save', { name: 'Tax evidence trades', timezone: 'UTC', taxSettings: settings('10', true) })
-  const east = await h.command('branch.save', { name: 'East', prefix: 'EAST', timezone: 'America/New_York', zips: ['78704'], taxSettings: settings('10', true) })
+  const eastTax = settings('10', true)
+  eastTax.jurisdictions.push({ id: 'district', name: 'School district', rate: '7.5', taxLabor: true, zips: ['78705'] })
+  const east = await h.command('branch.save', { name: 'East', prefix: 'EAST', timezone: 'America/New_York', zips: ['78704', '78705'], taxSettings: eastTax })
   const west = await h.command('branch.save', { name: 'West', prefix: 'WEST', timezone: 'America/Los_Angeles', zips: ['78704'], taxSettings: settings('5', true) })
   const office = await h.person('Tax Office', 'office')
   const e = await place(h, east.id, 'East taxable'), w = await place(h, west.id, 'West taxable')
   const et = await crew(h, east.id, 'East Tax Technician'), wt = await crew(h, west.id, 'West Tax Technician')
   let a = await invoice(h, e, et), b = await invoice(h, w, wt, '200.00')
+  const c = await invoice(h, e, et, '50.00')
+  const district = await place(h, east.id, 'District taxable', '78705')
+  let d = await invoice(h, district, et, '40.00')
+  await h.setTime('2026-10-31T05:30:00.000Z')
+  await approve(h, c)
   await h.setTime('2026-11-01T06:30:00.000Z')
-  a = await approve(h, a); b = await approve(h, b)
+  a = await approve(h, a); b = await approve(h, b); d = await approve(h, d)
   assert.deepEqual([a.dates.issuedOn, b.dates.issuedOn], ['2026-11-01', '2026-10-31'])
   const report = async (from, to, branch = '') => {
     const query = 'from=' + from + '&to=' + to + (branch ? '&branchId=' + branch : '')
@@ -78,16 +85,17 @@ test('MONEY-004 ordinary tax stays on first local approval through manual receip
     assert.equal(json.basis, approvedBasis)
     const table = csv(await h.request('/api/glove/reports/tax.csv?' + query, { as: office.cookie }).then(r => r.text()))
     assert.deepEqual(table, [['branch', 'jurisdiction', 'month', 'invoices', 'tax'], ...json.jurisdictions.flatMap(j => [...j.byMonth.map(m => [j.branch, j.jurisdiction, m.month, String(m.invoices), m.tax]), [j.branch, j.jurisdiction, 'total', String(j.invoices), j.tax]])])
-    json.jurisdictions.sort((a, b) => a.branch.localeCompare(b.branch))
+    json.jurisdictions.sort((a, b) => a.branch.localeCompare(b.branch) || a.jurisdictionId.localeCompare(b.jurisdictionId))
     return json
   }
   const before = await report('2026-10-31', '2026-11-01')
   assert.deepEqual(before.jurisdictions.map(j => [j.branch, j.taxable, j.tax, j.byMonth]), [
-    ['East', '100.00', '10.00', [{ month: '2026-11', invoices: 1, tax: '10.00' }]],
+    ['East', '150.00', '15.00', [{ month: '2026-10', invoices: 1, tax: '5.00' }, { month: '2026-11', invoices: 1, tax: '10.00' }]],
+    ['East', '40.00', '3.00', [{ month: '2026-11', invoices: 1, tax: '3.00' }]],
     ['West', '200.00', '10.00', [{ month: '2026-10', invoices: 1, tax: '10.00' }]],
   ])
-  assert.deepEqual((await report('2026-10-31', '2026-10-31')).jurisdictions.map(j => j.branch), ['West'])
-  assert.deepEqual((await report('2026-11-01', '2026-11-01')).jurisdictions.map(j => j.branch), ['East'])
+  assert.deepEqual((await report('2026-10-31', '2026-10-31')).jurisdictions.map(j => [j.branch, j.jurisdictionId, j.tax]), [['East', 'city', '5.00'], ['West', 'city', '10.00']])
+  assert.deepEqual((await report('2026-11-01', '2026-11-01')).jurisdictions.map(j => [j.branch, j.jurisdictionId, j.tax]), [['East', 'city', '10.00'], ['East', 'district', '3.00']])
   assert.deepEqual((await report('2026-10-30', '2026-10-30')).jurisdictions, [])
   await h.setTime('2026-11-03T12:00:00.000Z')
   await office.run('payment.record', { invoiceId: a.id, version: a.version, method: 'check', reference: 'synthetic-glove-163', amount: '55.00' })
@@ -97,6 +105,9 @@ test('MONEY-004 ordinary tax stays on first local approval through manual receip
   assert.deepEqual((await report('2026-11-03', '2026-11-03')).jurisdictions, [])
   await h.command('invoice.export', {})
   a = await latest(h, 'invoices', a.id)
+  const beforeCorrection = await h.state()
+  await et.person.run('invoice.correct', { invoiceId: a.id, version: a.version, reason: 'Field correction refused', lines: [line('150.00')] }, { error: 'FORBIDDEN' })
+  assert.deepEqual((await h.state()).invoices, beforeCorrection.invoices)
   a = await h.command('invoice.correct', { invoiceId: a.id, version: a.version, reason: 'One more valve', lines: [line('150.00')] })
   assert.deepEqual(await report('2026-10-31', '2026-11-01'), before, 'unapproved correction leaves the previous approved figures')
   const refusedState = await h.state()
@@ -105,8 +116,8 @@ test('MONEY-004 ordinary tax stays on first local approval through manual receip
   a = await approve(h, a)
   assert.equal(a.dates.issuedOn, '2026-11-01')
   const corrected = await report('2026-10-31', '2026-11-01')
-  assert.deepEqual(corrected.jurisdictions.map(j => [j.branch, j.invoices, j.taxable, j.tax]), [['East', 1, '150.00', '15.00'], ['West', 1, '200.00', '10.00']])
-  assert.deepEqual((await report('2026-10-31', '2026-11-01', east.id)).jurisdictions, [corrected.jurisdictions[0]])
+  assert.deepEqual(corrected.jurisdictions.map(j => [j.branch, j.jurisdictionId, j.invoices, j.taxable, j.tax]), [['East', 'city', 2, '200.00', '20.00'], ['East', 'district', 1, '40.00', '3.00'], ['West', 'city', 1, '200.00', '10.00']])
+  assert.deepEqual((await report('2026-10-31', '2026-11-01', east.id)).jurisdictions, corrected.jurisdictions.slice(0, 2))
   await h.restart()
   assert.deepEqual(await report('2026-10-31', '2026-11-01'), corrected)
   await trail(h, ['invoice.approved', 'invoice.corrected', 'payment.recorded', 'payment.credited'])
