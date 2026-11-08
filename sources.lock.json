@@ -5908,7 +5908,7 @@
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
-      "sha256": "7d141fe430228a2c5f8844634a114728a886771176c5c35d1df935cfec7c13c7",
+      "sha256": "9136f2d5491640f3bcf71b505ca076f85a8dd0be8c4da42ff742403e07be52ea",
       "executable": false
     },
     "tests/browser/rules.spec.ts": {
