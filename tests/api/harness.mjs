@@ -537,3 +537,65 @@ export async function subcontractorFieldFixture(h) {
 }
 export const subcontractorAt = '2026-11-08T12:00:00.000Z'
 export const subcontractorPhoto = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+
+/** Fixed business-local records for the morning brief's public read journeys. */
+export const morningBriefAt = '2026-11-09T13:15:00.000Z'
+export async function morningBriefFixture(h) {
+  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
+  const labor = await h.command('service.save', { code: 'synthetic-glove-brief', name: 'Repair labor', unitPrice: '200.00', unitCost: '100.00', tax: 'TAXABLE' })
+  const zero = await h.command('service.save', { code: 'synthetic-glove-zero', name: 'Unestimated work', unitPrice: '200.00', unitCost: '0.00', tax: 'TAXABLE' })
+  const crew = async name => { const person = await h.person(name, 'technician'); return { person, tech: await h.command('technician.save', { name, operatorId: person.id }) } }
+  const priya = await crew('Priya Nair'), tom = await crew('Tom Brooks')
+  const job = async (name, service = labor, branchId = null) => {
+    const customer = await h.command('customer.save', { name })
+    const site = await h.command('site.save', { customerId: customer.id, address: `1 ${name} St, Austin TX 78704`, branchId })
+    const q = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: `${name} repair`, lines: [{ description: service.name, serviceId: service.id, quantity: '1', unitPrice: service.unitPrice }] })
+    const approved = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+    await h.command('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: name })
+    return { customer, site, job: await h.command('job.create', { quoteId: q.id }) }
+  }
+  const book = async (x, who, start, end, date = '2026-11-09') => ({ ...x, who, visit: await h.command('visit.book', { jobId: x.job.id, technicianId: who.tech.id, date, start, end }) })
+  const finish = async x => {
+    await x.who.person.run('visit.arrive', { visitId: x.visit.id, deviceTime: x.visit.startAt })
+    await x.who.person.run('visit.complete', { visitId: x.visit.id, deviceTime: x.visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
+  }
+  const late = await book(await job('Late Arrival'), priya, '07:00', '08:00')
+  const arrived = await book(await job('Still Open'), tom, '06:00', '07:15')
+  await tom.person.run('visit.arrive', { visitId: arrived.visit.id, deviceTime: arrived.visit.startAt })
+  const later = await book(await job('Later Today'), priya, '16:00', '17:00')
+  const yesterday = await book(await job('Yesterday'), priya, '07:00', '08:00', '2026-11-08')
+  const tomorrow = await book(await job('Tomorrow'), priya, '07:00', '08:00', '2026-11-10')
+  const cancelled = await book(await job('Cancelled'), priya, '08:00', '09:00')
+  await h.command('visit.cancel', { visitId: cancelled.visit.id, version: cancelled.visit.version, reason: 'Customer cancelled' })
+  const noInvoice = await book(await job('No Invoice'), priya, '10:00', '11:00'); await finish(noInvoice)
+  const draftInvoice = await book(await job('Draft Invoice'), priya, '11:00', '12:00'); await finish(draftInvoice)
+  const draft = await h.command('invoice.prepare', { jobId: draftInvoice.job.id })
+  const billed = await book(await job('Billed'), priya, '12:00', '13:00'); await finish(billed)
+  const invoice = await h.command('invoice.prepare', { jobId: billed.job.id })
+  await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+  const equal = await job('Equal Cost'), below = await job('Below Cost'), noEstimate = await job('Zero Estimate', zero)
+  for (const [x, amount] of [[late, '150.00'], [equal, '100.00'], [below, '40.00'], [noEstimate, '150.00']]) await h.command('expense.record', { jobId: x.job.id, category: 'permit', vendor: 'City of Austin', amount, billable: false })
+  const lead = async name => {
+    const customer = await h.command('customer.save', { name })
+    const site = await h.command('site.save', { customerId: customer.id, address: `2 ${name} St` })
+    return h.command('enquiry.create', { customerId: customer.id, siteId: site.id, description: `${name} request`, source: 'google' })
+  }
+  await h.setTime('2026-11-07T13:15:00.000Z')
+  const restarted = await lead('Restarted Wait')
+  await h.setTime('2026-11-08T13:15:00.000Z')
+  const waiting = await lead('Waiting Lead'), contacted = await lead('Contacted Lead')
+  await h.command('enquiry.contact', { enquiryId: contacted.id, version: contacted.version, note: 'Left a voicemail' })
+  const quoted = await lead('Quoted Lead')
+  await h.command('quote.draft', { enquiryId: quoted.id, title: 'Quoted repair', lines: [{ description: labor.name, serviceId: labor.id, quantity: '1', unitPrice: labor.unitPrice }] })
+  const won = await lead('Won Lead')
+  await h.command('job.create', { enquiryId: won.id, title: 'Agreed repair' })
+  const lost = await lead('Lost Lead')
+  await h.command('enquiry.close', { enquiryId: lost.id, version: lost.version, reason: 'Customer declined' })
+  await h.setTime('2026-11-08T13:16:00.000Z')
+  const fresh = await lead('Fresh Lead'), freshContacted = await lead('Fresh Contacted Lead')
+  await h.command('enquiry.contact', { enquiryId: freshContacted.id, version: freshContacted.version, note: 'Spoke to customer' })
+  await h.setTime('2026-11-09T13:14:00.000Z')
+  await h.command('enquiry.contact', { enquiryId: restarted.id, version: restarted.version, note: 'Stage starts again now' })
+  await h.setTime(morningBriefAt)
+  return { labor, priya, tom, job, book, late, arrived, later, yesterday, tomorrow, cancelled, noInvoice, draftInvoice, draft, billed, equal, below, noEstimate, waiting, contacted, fresh, freshContacted, restarted, quoted, won, lost }
+}
