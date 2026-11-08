@@ -5792,7 +5792,7 @@
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
-      "sha256": "480b083ce8ec7c8597c77be52847a591a6dee0ab0b4b2f2ddbe3d16659887f93",
+      "sha256": "989873b402b2e92cc5dee897380d6a883245430573574d820fe1252a36ef422e",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {

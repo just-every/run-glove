@@ -155,7 +155,12 @@ test('DATA-004 fresh local installation completes service work as four separatel
     const booked = await state(owner), job = booked.jobs[0], visit = booked.visits[0], tech = booked.technicians[0]
     expect(booked.jobs).toHaveLength(1)
     expect(booked.visits).toHaveLength(1)
-    await proof(d, 'dispatch')
+    await d.getByLabel('Day', { exact: true }).fill(day)
+    await expect(d.getByRole('button', { name: new RegExp(`${job.number} Synthetic maintenance visit, Synthetic technician,`) })).toBeVisible()
+    await proof(d, 'dispatch', async () => {
+      await d.getByLabel('Day', { exact: true }).fill(day)
+      await d.getByRole('button', { name: new RegExp(`${job.number} Synthetic maintenance visit, Synthetic technician,`) }).waitFor()
+    })
 
     // Recurring maintenance is a separate open job so completing and billing
     // today's one-off work cannot accidentally close its future series.
