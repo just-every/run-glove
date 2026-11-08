@@ -263,7 +263,7 @@ test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the v
         await expect(panel).toContainText(`Net $${((pi.amount - 500) / 100).toFixed(2)} · Payout fee $0.00 · Difference $0.00`)
         await expect(panel).toContainText(payoutId)
       }
-      await panel.scrollIntoViewIfNeeded(); await capture(width, 'reconciled')
+      await panel.locator('ul.rows > li').filter({ hasText: payoutId }).scrollIntoViewIfNeeded(); await capture(width, 'reconciled')
       tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout')
       if (width === 1440) { await expect(panel).toContainText('Not reconciled'); await expect(panel).toContainText('Difference $0.00') }
       await expect(panel).toContainText('missing payment'); await panel.getByText('synthetic-glove-unknown-source: missing payment', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'unmatched')
