@@ -1,0 +1,40 @@
+{
+  "head": "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+  "recordedAt": "2026-11-08T16:36:30.304388+00:00",
+  "checks": [
+    {
+      "name": "views-write",
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "output": "Wrote 0 contract documents.\n"
+    },
+    {
+      "name": "views-check",
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "output": "Contract documents are current.\n"
+    },
+    {
+      "name": "source-lock-check",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "output_sha256": "adabe796c565ebb5f4bfee0b205efc6dadcfeffed4128a23532912ae805ed6b1"
+    }
+  ],
+  "contractCounts": {
+    "done": 16,
+    "partial": 218,
+    "missing": 29
+  },
+  "contractDiff": "empty",
+  "existingPushTestDiff": "empty",
+  "migrationLedger": "not applicable: no migration change",
+  "newEmailLiterals": 0,
+  "scan": {
+    "commit": "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "reason": "Cloud route delegates the full-history publication scan to the fleet lander."
+  }
+}

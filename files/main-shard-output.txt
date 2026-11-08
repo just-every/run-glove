@@ -1,0 +1,97 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /home/agent/rer-consolidation/work/sx-glove-c-f144/main-repro
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/conversation.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/fresh-install.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/rules.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=6022
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=4681
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2396
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=42572
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 1 test using 1 worker
+[verify progress]   ✓  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (27.8s)
+[verify progress]   1 passed (28.9s)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=29580
+
+Running 1 test using 1 worker
+
+(node:13215) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (27.8s)
+
+  1 passed (28.9s)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f144/repro-main/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=47212
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=5532
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=4403
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2389
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=40545
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 5 tests using 1 worker
+[verify progress]   ✓  1 tests/browser/conversation.spec.ts:22:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (21.6s)
+[verify progress]   ✓  2 tests/browser/dispatch-map.spec.ts:43:1 › DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390 (44.8s)
+[verify progress]   ✓  3 tests/browser/morning-brief.spec.ts:26:1 › AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390 (3.6s)
+[verify progress]   ✓  4 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (11.5s)
+[verify progress]   ✓  5 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (51.8s)
+[verify progress]   5 passed (2.3m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=139212
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 5 tests using 1 worker
+
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:22:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (21.6s)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/dispatch-map.spec.ts:43:1 › DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390 (44.8s)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+AGENT-008 screen: today
+AGENT-008 screen: invoices
+  ✓  3 tests/browser/morning-brief.spec.ts:26:1 › AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390 (3.6s)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (11.5s)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15402) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/browser/rules.spec.ts:144:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (51.8s)
+
+  5 passed (2.3m)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f144/repro-main/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=161628

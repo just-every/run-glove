@@ -1,0 +1,10 @@
+# FIELD-009 continuation plan
+
+The only target is FIELD-009 points 1–4. The prior pinned candidate is 30d23cde995571134f055ae459448b2dc36de91c; its exact-SHA push Verify 42497583970 completed successfully. Read the inline plan extract, ct rulings, builder rules and all eleven DONE-RIDERS rows; preserve current main judgments and other writers' work.
+
+1. Map each acceptance outcome to the prior candidate's focused API, browser and actual installation archive journeys. Read all supporting helpers and custody implementation. Keep FIELD-004, FIELD-010, native-device accounts and live provider acceptance outside this claim.
+2. Integrate current main before publication. Preserve the merge-only restoration repair and its full archive journey as well as the earlier standalone proof commit. Regenerate the contract views for validation, restore main's views, then generate and check the source lock. Change no contract judgment cells.
+3. Run the focused subscription and existing push API journeys, typecheck, first-party check, and the real browser journey with Chromium. Capture the changed owner and Technician panels at 1440 and 390. Run the actual export and import journey with restart and fresh consent. Keep every existing assertion.
+4. Commit and push only cloud/sx-glove-c-f144 using the fleet identity, commit hook, candidate-message review and push guard. Preserve substantive saves. Fetch current main and merge if it advances after a save; never force push.
+5. Discover exact-SHA Verify through REST with one watcher, ten total GitHub calls and at most one poll per run per 300 seconds. Record event and conclusion honestly. Publication scanning, main equality and Run site remain guarded fleet landing duties.
+6. Write per-sentence proof, all eleven rider results, public-door probes, mechanical checks and honest boundaries into REPORT.md and actual receipt files. Publish only explicitly selected public-safe evidence files to evidence/sx-glove-c-f144. Leave an exact product head and relay POST lines in the final response. Delete a fully pushed clone after preserving evidence.

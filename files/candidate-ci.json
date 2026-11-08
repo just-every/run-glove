@@ -1,0 +1,18 @@
+{
+  "observedAt": "2026-11-08T16:45:33.462731+00:00",
+  "apiCalls": 7,
+  "head": "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+  "runs": [
+    {
+      "id": 42500589585,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42500589585"
+    }
+  ],
+  "jobsReceipt": "ci-jobs.json",
+  "failureReceipt": "ci-failure-receipt.json"
+}

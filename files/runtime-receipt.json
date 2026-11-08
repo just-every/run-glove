@@ -1,0 +1,101 @@
+{
+  "head": "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+  "recordedAt": "2026-11-08T16:45:24.707416+00:00",
+  "checks": [
+    {
+      "name": "api",
+      "command": "node --test --test-concurrency=1 tests/api/push-subscriptions.test.mjs tests/api/push.test.mjs",
+      "exit": 0,
+      "summary": "8 tests pass, no failures or skips",
+      "output_sha256": "1fb20a367eceb22d89f17a2a3e8ad7232d3f2797ccfc2945a5b541c9fbee2586"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "summary": "TypeScript build passes",
+      "output_sha256": "7efc48845abe6eee84abb856f6f4b9f41b784e52017432107d8b4c10824c7004"
+    },
+    {
+      "name": "first-party",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "summary": "first-party profile passes",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "build",
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "summary": "production build completes",
+      "output_sha256": "de43a47c0f121faa1fa245ec6b9f70ffd362e57b6050d0a47de644a207ff6654"
+    },
+    {
+      "name": "browser",
+      "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/push-settings.spec.ts",
+      "exit": 0,
+      "summary": "1 browser journey passes; 10 screenshots at 1440 and 390",
+      "output_sha256": "0d58b8e414867b9027815cc901583746ea9184ad58be1a5a8e31e98f75487bba"
+    },
+    {
+      "name": "portable",
+      "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/portable.mjs",
+      "exit": 0,
+      "summary": "Complete real archive journey passes, including FIELD-009, restart and later-erasure fences.",
+      "output_sha256": "99dc0082b19deb0318e14de33bf211370c5dfebcd13627720ac2adc8828949b2"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/1440-push-owner-off.png",
+      "bytes": 105004,
+      "sha256": "5e03fe01e4f6d75b6af48aed63ae8790806ddb651fe9b6863621d3e44a5d75b3"
+    },
+    {
+      "path": "screenshots/1440-push-owner-on.png",
+      "bytes": 129442,
+      "sha256": "2459e45739dcdad1ec7767dec50c4dfd48784a61ad583c0f6ff2ce204e625048"
+    },
+    {
+      "path": "screenshots/1440-push-technician-off.png",
+      "bytes": 89306,
+      "sha256": "86e50bb234c584b7a975e05f49bb937665e1fc24d12e211ac2256f6be748d8a7"
+    },
+    {
+      "path": "screenshots/1440-push-technician-removed.png",
+      "bytes": 71669,
+      "sha256": "251cd26e9bf4490044c0aa0e9e45e47374fbdead86b6edf23bf9769300576acd"
+    },
+    {
+      "path": "screenshots/1440-push-technician-two-phones.png",
+      "bytes": 75437,
+      "sha256": "f05a6d991a0a9218c4808514d21a3315d46f7f588985344eea219e161243c834"
+    },
+    {
+      "path": "screenshots/390-push-owner-off.png",
+      "bytes": 70806,
+      "sha256": "09a456112232653af492ab5cad75bf5265dfae19f6440c81fd4ba90201f6b79a"
+    },
+    {
+      "path": "screenshots/390-push-owner-on.png",
+      "bytes": 73159,
+      "sha256": "38668ca876712222dfa6a5cbed404eeb4e74264edb4526bcf7307feeaf19a4ba"
+    },
+    {
+      "path": "screenshots/390-push-technician-off.png",
+      "bytes": 68783,
+      "sha256": "542d64ed2e99afeadba135dc3460971acfe6f098081ac00a3851975099dac8a8"
+    },
+    {
+      "path": "screenshots/390-push-technician-removed.png",
+      "bytes": 64774,
+      "sha256": "7f44f774d4fe96f1e81d6e1e3bf836a2c0f5c831132b64e2c7d9fb70f64e3684"
+    },
+    {
+      "path": "screenshots/390-push-technician-two-phones.png",
+      "bytes": 66775,
+      "sha256": "0865545ae412025f74d7a20f8ec5343f53e73ded633dc49b75cf84cceadee510"
+    }
+  ],
+  "archiveJourney": "completed, exit 0"
+}

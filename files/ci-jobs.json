@@ -1,0 +1,114 @@
+{
+  "run": 42500589585,
+  "apiCalls": 6,
+  "jobs": [
+    {
+      "id": 128792258298,
+      "name": "plan",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792290818,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792292428,
+      "name": "light",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    },
+    {
+      "id": 128792411315,
+      "name": "shards (browser-4)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792411321,
+      "name": "shards (foundation)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792411324,
+      "name": "shards (api-2)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792411328,
+      "name": "shards (browser-1)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792411329,
+      "name": "shards (api-1)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792411345,
+      "name": "shards (browser-2)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792411362,
+      "name": "shards (portable)",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": []
+    },
+    {
+      "id": 128792411382,
+      "name": "shards (browser-3)",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Run this shard",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 128795007807,
+      "name": "verify",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Require the selected coverage and its proof",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 128795008272,
+      "name": "full-push-proof",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    },
+    {
+      "id": 128795009043,
+      "name": "nightly-proof",
+      "status": "completed",
+      "conclusion": "skipped",
+      "steps": []
+    }
+  ]
+}

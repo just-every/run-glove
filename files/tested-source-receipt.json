@@ -1,0 +1,50 @@
+{
+  "head": "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+  "relevantWorkingBytesEqualCommitted": true,
+  "files": [
+    {
+      "path": "src/glove/commands/push.ts",
+      "sha256": "c2a6d9e5d8e8c239a7320149fe535425179819ef441afa8476c8632d3eb4c3ee"
+    },
+    {
+      "path": "src/glove/push.ts",
+      "sha256": "4099998ca1498304abfa67c59b172e9cc88c93ca444d8b65014a1ec2ec122532"
+    },
+    {
+      "path": "src/glove/commands/setup.ts",
+      "sha256": "2c498c47afaf9f4baa0d5f0c3b3d27a8b8bc9f3275e3dda42b5a7a5b7667c3a7"
+    },
+    {
+      "path": "src/ui/push.tsx",
+      "sha256": "c62c43892044fb31831b1f81cbcd9f87d720962151a8eee1c658a6ce7527155d"
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "3d36648f3293a48d922c29c85831088538d343638eb51544b501a010aa256df7"
+    },
+    {
+      "path": "tests/api/push.test.mjs",
+      "sha256": "c4528e005e49261e437d8f7dfa6798dd869ebf3ced191419170705fb94f75534"
+    },
+    {
+      "path": "tests/api/push-subscriptions.test.mjs",
+      "sha256": "9fae077d22873a01a5cb81c3ec943fb74e6600e523b4032adf2b5177d9c511a9"
+    },
+    {
+      "path": "tests/browser/push-settings.spec.ts",
+      "sha256": "374ee98c048a91cc0ffb638c93ee5b868eb23b620dec62c04fc932446b15d2d6"
+    },
+    {
+      "path": "tests/fixtures/push-service.mjs",
+      "sha256": "bcb639aeca3a805aad53220c0e8b8446789153956f779c153e8e6ce75c684b3f"
+    },
+    {
+      "path": "tests/portable.mjs",
+      "sha256": "73cda7be41f2b378e53eeddb32ba39ffb895858024c9f25fe40791d3dd8b2dfb"
+    },
+    {
+      "path": "verification.json",
+      "sha256": "691e615aa78b041fb005073dadf35bb2eb46349706e9e29712f552864447a36f"
+    }
+  ]
+}

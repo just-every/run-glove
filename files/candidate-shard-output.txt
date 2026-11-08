@@ -1,0 +1,97 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /home/agent/rer-consolidation/work/sx-glove-c-f144/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/conversation.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/fresh-install.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/receivables.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=2768
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=5152
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2439
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=34366
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 1 test using 1 worker
+[verify progress]   ✓  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (27.9s)
+[verify progress]   1 passed (29.1s)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=29742
+
+Running 1 test using 1 worker
+
+(node:11858) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (27.9s)
+
+  1 passed (29.1s)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f144/repro-candidate/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=47336
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=5727
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=4543
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2361
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=43961
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 7 tests using 1 worker
+[verify progress]   ✓  1 tests/browser/conversation.spec.ts:22:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (18.7s)
+[verify progress]   ✓  2 tests/browser/dispatch-map.spec.ts:43:1 › DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390 (44.2s)
+[verify progress]   ✓  3 tests/browser/morning-brief.spec.ts:26:1 › AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390 (4.9s)
+[verify progress]   ✓  4 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (6.3s)
+[verify progress]   ✓  5 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (16.4s)
+[verify progress]   ✓  6 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (10.5s)
+[verify progress]   ✓  7 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (17.2s)
+[verify progress]   7 passed (2.0m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=122182
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 7 tests using 1 worker
+
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:22:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (18.7s)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/dispatch-map.spec.ts:43:1 › DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390 (44.2s)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+AGENT-008 screen: today
+AGENT-008 screen: invoices
+  ✓  3 tests/browser/morning-brief.spec.ts:26:1 › AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390 (4.9s)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (6.3s)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (16.4s)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  6 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (10.5s)
+(node:14465) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  7 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (17.2s)
+
+  7 passed (2.0m)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f144/repro-candidate/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=139601

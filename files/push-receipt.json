@@ -1,0 +1,32 @@
+{
+  "head": "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+  "branch": "cloud/sx-glove-c-f144",
+  "recordedAt": "2026-11-08T16:44:04.202229+00:00",
+  "guard": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f144",
+  "pushExit": 0,
+  "pushAttempts": 1,
+  "remoteRefs": [
+    "7627f27774a9f253313dfbe00f38515dcf5ebcd3\trefs/heads/cloud/sx-glove-c-f144",
+    "46260ec687c3915be6ade22b895321d11f45b55a\trefs/heads/main"
+  ],
+  "candidateIdentities": [
+    "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+    "Run Edit Run fleet <fleet@runeditrun.com>",
+    "Run Edit Run fleet <fleet@runeditrun.com>",
+    "",
+    "cda0440f227e7cc9b98871032cb2181ba241a792",
+    "Run Edit Run fleet <fleet@runeditrun.com>",
+    "Run Edit Run fleet <fleet@runeditrun.com>",
+    ""
+  ],
+  "candidateMessages": [
+    "7627f27774a9f253313dfbe00f38515dcf5ebcd3",
+    "Preserve fresh phone consent after installation restoration",
+    "",
+    "cda0440f227e7cc9b98871032cb2181ba241a792",
+    "Qualify phone subscription custody and removal paths [skip ci]",
+    ""
+  ],
+  "contractDiff": "",
+  "worktreeClean": true
+}
