@@ -196,8 +196,17 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     readRole(actor, 'state')
     const view = visible(s, actor)
     if (actor.role === 'owner') {
-      const work = (await db.prepare("SELECT technician_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
-      view.technicians = view.technicians.map(t => ({ ...t, calendarOutcome: work.findLast(w => w.technician_id === t.id) ?? null }))
+      const work = (await db.prepare("SELECT technician_id,connection_id,visit_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
+      const mappings = (await db.prepare('SELECT connection_id,visit_id,event_id FROM glove_calendar_events').all<any>()).results
+      view.technicians = view.technicians.map(t => {
+        const own = work.filter(w => w.technician_id === t.id), connection = t.calendarSync?.connectionId
+        const active = own.filter(w => w.connection_id === connection)
+        return { ...t,
+          calendarOutcome: active.find(w => ['unknown', 'sending', 'failed'].includes(w.state)) ?? active.at(-1) ?? null,
+          calendarRetainedEvents: mappings.filter(m => m.connection_id !== connection && own.some(w => w.connection_id === m.connection_id && w.visit_id === m.visit_id)).map(m => ({ connectionId: m.connection_id, visitId: m.visit_id, eventId: m.event_id })),
+          calendarUncertainWrites: own.filter(w => w.connection_id !== connection && ['unknown', 'sending'].includes(w.state)).map(w => ({ connectionId: w.connection_id, visitId: w.visit_id, state: w.state, action: w.action })),
+        }
+      })
     }
     view.invoices = view.invoices.map(inv => ({ ...inv, reminderState: paymentReminderState(s, inv) }))
     view.quotes = view.quotes.map(q => ({ ...q, followupState: quoteFollowupState(s, q, new Date().toISOString()) }))
