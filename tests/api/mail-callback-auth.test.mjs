@@ -44,6 +44,15 @@ async function fixture(t, options = {}) {
   const h = await installation({ at: iso(0), captureLogs: true, ...options })
   t.after(() => h.close())
   const b = await business(h)
+  // Preserve actual withdrawal and suppression records, rather than only
+  // checking empty collections when a callback must leave them alone.
+  let customer = await h.command('reminder.consent', { customerId: b.customer.id, version: b.customer.version, purpose: 'quotes', enabled: true, reference: 'Customer asked for quote updates in person' })
+  customer = await h.command('reminder.consent', { customerId: customer.id, version: customer.version, purpose: 'quotes', enabled: false, reference: 'Customer withdrew quote updates by phone' })
+  assert.equal(customer.automaticEmail.quotes.enabled, false)
+  let suppressed = await h.command('customer.save', { name: 'Customer who stopped contact', email: ['synthetic-glove-suppressed', 'example.test'].join('@') })
+  suppressed = await h.command('customer.tags', { customerId: suppressed.id, version: suppressed.version, tags: ['Do Not Contact'] })
+  assert.deepEqual(suppressed.tags, ['Do Not Contact'])
+  await b.office.run('conversation.log', { customerId: b.customer.id, kind: 'call', direction: 'inbound', outcome: 'answered', minutes: 4, text: 'Customer asked to retain the existing cooling request' })
   const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Existing cooling request', source: 'phone' })
   const draft = await h.command('quote.draft', { enquiryId: enquiry.id, title: 'Cooling service', lines: [{ serviceId: b.service.id, description: 'Service', quantity: '1', unitPrice: '189.00' }] })
   const quote = await h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
@@ -56,16 +65,23 @@ test('COMM-013 points 1, 4 and 8: four providers reject unsafe callbacks opaquel
   for (const [index, provider] of providers.entries()) {
     await h.setTime(iso(index * 60_000))
     const edge = await callbackProvider(h, provider, { at: iso(0) })
-    const warned = await send()
+    let warned = await send()
     assert.equal((await postEvents(h, edge.callback(warned, { status: 'bounced' }))).status, 200)
     assert.equal((await h.state()).emailWarnings[b.customer.id].status, 'bounced', 'seed a real warning that unsafe traffic must preserve')
     const message = await send()
     // Warm the legitimate certificate cache; later bad signatures have no fetch.
     assert.equal((await postEvents(h, edge.callback(warned, { status: 'bounced' }))).status, 200)
+    if (provider === 'ses') {
+      assert.equal((await postEvents(h, edge.signed('subscription cancelled', { Type: 'UnsubscribeConfirmation' }))).status, 200)
+      assert.match((await h.state()).mailCallbacks.warning, /cancelled the email-event subscription/)
+    }
     for (const restarted of [false, true]) {
       if (restarted) {
         await h.restart()
-        if (provider === 'ses') assert.equal((await postEvents(h, edge.callback(warned, { status: 'bounced' }))).status, 200)
+        await h.setTime(iso(index * 60_000 + 10_000))
+        warned = await send()
+        assert.equal((await postEvents(h, edge.callback(warned, { status: 'complained' }))).status, 200)
+        assert.equal((await h.state()).emailWarnings[b.customer.id].status, 'complained', 'repeat refusals with a retained spam warning after restart')
       }
       const good = edge.callback(message, { status: 'bounced', id: 'synthetic-glove-refused' })
       await unchanged(h, edge.badSignature(good))
@@ -106,7 +122,10 @@ test('COMM-013 point 2: invalid SNS notifications and confirmations fetch only t
       await unchanged(h, input, { fetches: { from, urls: [certUrl] } })
       assert.ok(!h.email.fetches.includes(JSON.parse(input.raw).SubscribeURL), 'unverified SubscribeURL is never fetched')
     }
-    await unchanged(h, edge.badSignature(edge.malformed()))
+    const malformedCertUrl = edge.signer.certUrl.replace('.pem', '-malformed.pem')
+    h.email.certificates.set(malformedCertUrl, edge.signer.cert)
+    from = h.email.fetches.length
+    await unchanged(h, edge.badSignature(edge.signed(null, { Message: '{', SigningCertURL: malformedCertUrl })), { fetches: { from, urls: [malformedCertUrl] } })
     assert.equal(h.email.subscriptions.length, 0)
     // A forged remote certificate location is refused without any network call.
     await unchanged(h, edge.badSignature(edge.signed({}, { SigningCertURL: 'https://outside.example.test/cert.pem' })))
@@ -144,7 +163,10 @@ test('COMM-013 point 5: two Worker isolates share transient IP rejection limits 
       // First warm the SES cache so the only possible network effect is excluded.
       assert.equal((await postEvents(h, address(edge.callback(message)))).status, 200)
       assert.equal((await postEvents(target, address(edge.callback(message)))).status, 200)
-      for (let n = 0; n < 20; n++) await unchanged(h, invalid, { target: n % 2 ? target : h })
+      for (let n = 0; n < 20; n++) {
+        await unchanged(h, invalid, { target: n % 2 ? target : h })
+        if (n % 7 === 0) assert.equal((await postEvents(n % 2 ? h : target, address(edge.callback(message)))).status, 200, 'verified traffic interleaved with rejections consumes no allowance')
+      }
       await unchanged(h, invalid, { status: 429, target })
       await unchanged(h, invalid, { status: 429 })
       await unchanged(h, address(edge.badSignature(edge.callback(message)), other))

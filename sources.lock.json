@@ -5600,7 +5600,7 @@
       "executable": false
     },
     "tests/api/mail-callback-auth.test.mjs": {
-      "sha256": "7de6058f4594bb2d353c37c1c13f462881b1fa1b4dff7295286f34c2cdec8ed3",
+      "sha256": "40e5474876cbd971438339324192902c2db06ef51d014579ab65ef7ed5423ec7",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
