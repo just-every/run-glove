@@ -1,3 +1,4 @@
+import { depositBatchQualification } from './deposit-batches.mjs'
 import { connectMail, receipt as mailReceipt } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -350,6 +351,7 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, r
 })
 
 test('PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate', async t => {
+  await depositBatchQualification(t)
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })
   await connectPayments(h)

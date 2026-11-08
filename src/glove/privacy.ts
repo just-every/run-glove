@@ -42,6 +42,9 @@ export const privacy: Handler = async (c, type, p, db) => {
   // scope before erasure removes visits, and fence their saved outcomes too.
   const routeReferences = c.s.routes.filter(r => routeVisits(c.s, r as unknown as RoutingScope).some(v => owned.ids.has(v.id))).map(r => r.id)
   const scope = privacyScope(c.s, customer.id, [...xeroReferences, ...routeReferences])
+  // A shared bank reference can quote a receipt or check reference. Redact
+  // those payment details only in affected shared payouts, preserving peers.
+  const payoutScope = privacyScope(c.s, customer.id, owned.records.payments.flatMap(r => [r.reference, r.providerReference, r.intentId].filter((v): v is string => typeof v === 'string' && !!v)))
   const importedPeers = new Set((await db.prepare('SELECT id FROM glove_records WHERE revision IS NOT NULL').all<{id: string}>()).results.map(r => r.id))
   const preview = await erasurePreview(db, c.s, scope, type === 'privacy.preview' ? c.s.version + 1 : c.s.version)
   if (type === 'privacy.preview') {
@@ -99,7 +102,7 @@ export const privacy: Handler = async (c, type, p, db) => {
         const sharedSignedCopy = kind === 'quotes' && preview.sharedSignedCopies.find(q => q.quoteId === r.id)
         if (sharedSignedCopy) return [withdrawSignedQuote(r, scope, sharedSignedCopy, c.now)]
         if (kind === 'proposals' && r.payoutId && scope.matches(r)) return []
-        if (kind === 'payouts' && r.items?.some((i: Row) => scope.ids.has(i.paymentId))) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, items: r.items.map((i: Row) => scope.ids.has(i.paymentId) ? { ...scope.redact(i), providerReference: null } : i) }]
+        if (kind === 'payouts' && scope.matches(r)) return [{ ...payoutScope.redact(r), id: r.id, version: r.version + 1, ...(r.items ? { items: r.items.map((i: Row) => scope.ids.has(i.paymentId) ? { ...payoutScope.redact(i), providerReference: null } : i) } : {}) }]
         if (kind === 'routes' && scope.matches(r)) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, ...(['queued', 'running', 'ready'].includes(r.status) ? { status: 'discarded', reason: 'Customer personal data erased; prepare a new route.' } : {}) }]
         if (scope.selected.has(`${kind}:${r.id}`)) return keeps[kind] ? [keeps[kind](r)] : []
         return !importedPeers.has(r.id) && scope.matches(r) ? [{ ...scope.redact(r), id: r.id, version: r.version + 1 }] : [r]
