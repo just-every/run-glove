@@ -135,10 +135,12 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     expect(await page.evaluate(() => (window as any).locationWatches.starts)).toBe(0)
     expect(await f.rows()).toEqual([])
     await b.priyaPerson.run('timer.start', { visitId: f.visits[0].id, kind: 'travel', deviceTime: now() })
+    // A browser's first mocked fix retains the time set on the context. Give
+    // the new watch a fix captured after the shift and timer have started.
+    await context.setGeolocation({ latitude: 41.89082, longitude: -87.63082 })
     await page.reload()
     await expect.poll(() => page.evaluate(() => (window as any).locationWatches.starts)).toBe(1)
     expect(await page.evaluate(async () => (await navigator.permissions.query({ name: 'geolocation' })).state)).toBe('granted')
-    await context.setGeolocation({ latitude: 41.89082, longitude: -87.63082 })
     await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
     await expect.poll(async () => (await f.rows())[0]?.lat).toBe(41.89082)
     expect(await page.evaluate(() => (window as any).locationOutboxWrites.flat().filter((item: any) => item.type.startsWith('location.')))).toEqual([])
