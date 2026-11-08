@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "bccdae0ee3a8217dd1cf53f68fcbdbe10db7c1970eba1e5537a2d71a4f5fe2cb",
+      "sha256": "5da70c35bc325cd3bda7dd7f8432e8fdf0e384708e30872f24ada0ac6e7a9ac4",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1900,7 +1900,7 @@
       "executable": false
     },
     "src/glove/calendar-sync.ts": {
-      "sha256": "7494015e3619212d22fe9acef21e7177782f95b29919bc3b9012bde83e638b71",
+      "sha256": "0416165eb8cc0dabdf5687d0587949bcff7b028e4c5bcbb0daaab557e2446702",
       "executable": false
     },
     "src/glove/calendar.ts": {
@@ -5068,7 +5068,7 @@
       "executable": false
     },
     "src/ui/calendar-sync.tsx": {
-      "sha256": "d3e6505286693a07276ac7dda2a2dff67c5a64880a7d013157c23109b4a0414b",
+      "sha256": "a82b494ebd55f17cd616ab648fd2ec431c3b7c11a047d82ff5ccc29001514fe8",
       "executable": false
     },
     "src/ui/clock.tsx": {
@@ -5519,6 +5519,10 @@
       "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
       "executable": false
     },
+    "tests/api/calendar-delivery.test.mjs": {
+      "sha256": "f246997c4aa25c5b759dfe7f0ed85282294dc9d2dfbb0e2ff7e73480b47363c6",
+      "executable": false
+    },
     "tests/api/callbacks.test.mjs": {
       "sha256": "c6a6615f9fd32db94c1a5c769f49279e6c0d65111ab86014806cb226f0528def",
       "executable": false
@@ -5588,7 +5592,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "48085dfb70de632cb10025d321831605bbfec41a23f25b2a59854cda6f3ad621",
+      "sha256": "d3d831f77b947735fc5a077846ba6dbd65f41cc622b6289e0bcfcf30424ccfbb",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5776,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "3a81e71603068c79a521027616a78f1f2ba37c9b037627b0a0bea1f55b6da08f",
+      "sha256": "0e53b86191ea15f4457a0c66e4a6436c74715bb9220a8e96e8e064090ced93f0",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -5880,7 +5884,7 @@
       "executable": false
     },
     "tests/fixtures/calendars.mjs": {
-      "sha256": "901b7aa40d5e1fa2ef809f17bd5a3942662863c67acd3fe86450eb9baa027b2b",
+      "sha256": "3fe77ff1458008d76fabdca30b6c231e499aec8c5e022fd23f7b68a3285502b7",
       "executable": false
     },
     "tests/fixtures/collection.mjs": {
