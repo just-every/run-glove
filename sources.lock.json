@@ -172,7 +172,7 @@
       "executable": false
     },
     "API.md": {
-      "sha256": "ae0b26537838bfe9141d25e46887fc3f483e8b5a022c5f5436f7eb36cd824bea",
+      "sha256": "19a2695477c1b674e56aaee5d7ae0385e935c9fc946bb6137df6f22678aa68c5",
       "executable": false
     },
     "base-copies.json": {
@@ -312,7 +312,7 @@
       "executable": false
     },
     "IMPORT.md": {
-      "sha256": "2fb5f470647a14d1934238d73f398584350fac89e65de1d0e0662f2a45a9f4e5",
+      "sha256": "38ae9ca8d9099ea465ac8ba8fe7c0529caf1d7d91fe60591bfb02b5c28091365",
       "executable": false
     },
     "LICENSE": {
@@ -5608,7 +5608,7 @@
       "executable": false
     },
     "tests/api/movein.test.mjs": {
-      "sha256": "28f6e93dabe74e2a5787318959633bb6da96ddb706db6fe55cbf6464f311cffa",
+      "sha256": "7bb43572c8ae0d0a8dd4c7d7bfcc0e0224c6f24acec40de436564714cfa2ba23",
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
@@ -5808,7 +5808,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "e367dd64dfa6200fd42ed3ad10785424f80266cdf5631cebb3392c0175e5fac9",
+      "sha256": "37a93103c404a1ab495bf94732c2af4c2cb57c4c3231d13364ba155ac7c0b167",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {

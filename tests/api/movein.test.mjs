@@ -106,14 +106,7 @@ test('ServiceM8 every source record is reviewed, fingerprinted, retained through
     assert.equal(exported.imports.find(i => i.id === batch.id).preview.fingerprint, staged.preview.fingerprint)
     assert.ok(exported.timeline.some(e => e.id === fact.id))
   }
-})
-
-async function moveIn(h) {
-  const staged = await h.command('import.stage', { files: await files() })
-  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
-}
-
-test('undo refuses while Glove work refers to moved-in records, and keeps it intact', async (t) => {
+  {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -127,8 +120,21 @@ test('undo refuses while Glove work refers to moved-in records, and keeps it int
   const after = await h.state()
   assert.deepEqual(after, beforeRefusal, 'dependent-work refusal changes every record and event by zero')
   await assertTrail(h, ['import.previewed', 'import.committed', 'visit.booked'])
+  const reader = await h.person('Synthetic file reviewer', 'owner')
+  const originalUrl = `/api/glove/imports/${batch.id}/files/${batch.fileSummary[0].sha256}`
+  assert.equal((await h.request(originalUrl, { as: reader.cookie })).status, 200)
+  await h.command('role.set', { operatorId: reader.id, role: 'viewer' })
+  assert.equal((await h.request(originalUrl, { as: reader.cookie })).status, 403, 'withdrawn Owner authority cannot read originals with an existing session')
+
   assert.equal((await h.db.prepare("SELECT state FROM ik_jobs").first()).state, 'completed', 'the journal was not touched')
+  }
 })
+
+async function moveIn(h) {
+  const staged = await h.command('import.stage', { files: await files() })
+  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+}
+
 
 test('ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo', async t => {
   const h = await installation(); t.after(() => h.close()); await business(h)
@@ -172,7 +178,7 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   jobs[0].total_invoice_amount = '999.00'; jobFile.text = JSON.stringify(jobs)
   const preview = await rejected.command('import.stage', { files: invalid, balanceAsOf: '2026-10-22' })
   assert.ok(preview.preview.rejections.some(r => r.kind === 'job' && /total does not match/.test(r.reason)))
-  await rejected.command('import.commit', { batchId: preview.id, version: preview.version, fingerprint: preview.preview.fingerprint })
+  const rejectedBatch = await rejected.command('import.commit', { batchId: preview.id, version: preview.version, fingerprint: preview.preview.fingerprint })
   const after = await rejected.state(), owner = after.customers.find(c => c.source?.id === jobs[0].company_uuid)
   assert.ok(!after.jobs.some(j => j.source?.id === jobs[0].uuid))
   assert.equal(after.invoices.length, 0)
@@ -188,6 +194,7 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   assert.deepEqual(JSON.parse(Buffer.from(peerPayments.bytes, 'base64').toString()).map(p => p.uuid), ['synthetic-glove-payment-peer'])
   const erasure = await rejected.command('privacy.preview', { customerId: owner.id, version: owner.version })
   await rejected.command('privacy.erase', { customerId: owner.id, version: owner.version, confirm: 'ERASE', fingerprint: erasure.fingerprint })
+  for (const original of rejectedBatch.fileSummary) assert.equal((await rejected.request(`/api/glove/imports/${rejectedBatch.id}/files/${original.sha256}`)).status, 404, 'erasure withdraws shared byte-exact originals from the download door')
   const journalRows = []
   for (const table of ['ik_jobs', 'ik_d1_plan_chunks', 'ik_sources', 'ik_provenance', 'ik_d1_history']) journalRows.push(...(await rejected.db.prepare(`SELECT * FROM ${table}`).all()).results)
   const originalRows = (await rejected.db.prepare('SELECT * FROM ik_originals').all()).results
