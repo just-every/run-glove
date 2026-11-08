@@ -27,8 +27,7 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
   const h = await installation({ at: '2026-11-05T16:00:00.000Z' })
   try {
     await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: { jurisdictions: [{ id: 'austin', name: 'Austin combined', rate: '8.25', zips: ['78704'], taxLabor: false }] } })
-    const b = (await h.state()).business[0]
-    await h.command('business.save', { name: b.name, timezone: b.timezone, version: b.version, discountLimits: { office: '20' } })
+    const custom = await h.command('role.save', { name: 'Price preparer', permissions: ['quote.draft', 'quote.revise'] })
     const parts = await h.command('service.save', { code: 'PARTS', name: 'Condenser parts', kind: 'material', unitPrice: '400.00', tax: 'TAXABLE' })
     const labor = await h.command('service.save', { code: 'LABOR', name: 'Install labor', kind: 'service', unitPrice: '300.00', tax: 'TAXABLE' })
     const first = await h.command('service.save', { code: 'FIRST', name: 'First-time customer', kind: 'discount', unitPrice: '-50.00', tax: 'FREE' })
@@ -46,6 +45,45 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
+      // QUOTE-019: the Owner configures limits through the real Settings form.
+      await page.goto(origin + '/app#team')
+      const limitLabels = ['Dispatcher', 'Office', 'Agent', 'Price preparer']
+      const values = ['12.34', '20', '25', '33.33']
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1050 })
+        for (const [index, label] of limitLabels.entries()) {
+          await page.getByLabel(label + ' discount limit (%)', { exact: true }).fill(values[index])
+        }
+        await send(page, page.getByRole('button', { name: 'Save business', exact: true }))
+        expect((await h.state()).business[0].discountLimits).toEqual({ dispatcher: '12.34', office: '20', agent: '25', ['custom:' + custom.id]: '33.33' })
+        await page.reload()
+        for (const [index, label] of limitLabels.entries()) {
+          await expect(page.getByLabel(label + ' discount limit (%)', { exact: true })).toHaveValue(values[index])
+        }
+        const field = page.getByLabel('Agent discount limit (%)', { exact: true })
+        await field.scrollIntoViewIfNeeded()
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+        if (process.env.GLOVE_SCREENSHOTS) {
+          await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+          await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, width + '-discount-owner-controls.png') })
+        }
+      }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      const beforeInvalid = (await h.state()).business[0]
+      const invalid = page.waitForResponse(r => r.url() === origin + '/api/glove/commands' && r.request().method() === 'POST')
+      await page.getByLabel('Agent discount limit (%)', { exact: true }).fill('25.001')
+      await page.getByRole('button', { name: 'Save business', exact: true }).click()
+      const refusal = await (await invalid).json()
+      expect(refusal.error.code).toBe('INPUT')
+      await expect(page.getByRole('alert')).toContainText('two decimal places')
+      expect((await h.state()).business[0]).toEqual(beforeInvalid)
+      await page.reload()
+      // Blank removes the permission from the next command, then it can be set again.
+      await page.getByLabel('Agent discount limit (%)', { exact: true }).fill('')
+      await send(page, page.getByRole('button', { name: 'Save business', exact: true }))
+      expect((await h.state()).business[0].discountLimits.agent).toBeUndefined()
+      await page.getByLabel('Agent discount limit (%)', { exact: true }).fill('25')
+      await send(page, page.getByRole('button', { name: 'Save business', exact: true }))
       await page.goto(`${origin}/app#quotes`)
       await page.getByRole('button', { name: `${q.number} · Condenser swap`, exact: true }).click()
       await expect(page.locator('.page')).toContainText('-$50.00')
