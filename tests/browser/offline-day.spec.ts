@@ -25,6 +25,7 @@ async function picture(page: Page, width: number, name: string) {
 }
 let desk: Page, phone: Page, other: Page, dispatcher: Page
 let deskContext: BrowserContext, phoneContext: BrowserContext, otherContext: BrowserContext, dispatchContext: BrowserContext
+let originalBusiness: any
 let key: string | null, tech: any, second: any, actor: string, secondActor: string, customer: any, site: any, service: any, form: any
 let one: any, two: any, hidden: any, history: any, v1: any, v2: any, hiddenVisit: any, prior: any, photo: any, equipment: any
 const receipts: { point: number; outcome: string }[] = []
@@ -58,13 +59,16 @@ test.beforeAll(async ({ browser }) => {
   phoneContext = await browser.newContext({ viewport: { width: 390, height: 950 } }); phone = await phoneContext.newPage()
   otherContext = await browser.newContext({ viewport: { width: 390, height: 950 } }); other = await otherContext.newPage()
   dispatchContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } }); dispatcher = await dispatchContext.newPage()
-  await enter(phone, 'technician'); await enter(other, 'member'); await enter(dispatcher, 'dispatcher')
+  await enter(phone, 'technician'); await enter(other, 'office'); await enter(dispatcher, 'dispatcher')
   actor = (await state(phone)).actor.id; secondActor = (await state(other)).actor.id
   await command(desk, 'role.set', { operatorId: actor, role: 'technician' })
   await command(desk, 'role.set', { operatorId: secondActor, role: 'technician' })
   await command(desk, 'role.set', { operatorId: (await state(dispatcher)).actor.id, role: 'dispatcher' })
   const b = (await state(desk)).business[0]
-  await command(desk, 'business.save', { ...(b || {}), name: 'Offline field proof', currency: 'USD', timezone: 'UTC' })
+  originalBusiness = b
+  // Read responses carry logo metadata; only new image bytes belong in a write.
+  const { logo: _logo, ...settings } = b || {}
+  await command(desk, 'business.save', { ...settings, name: 'Offline field proof', currency: 'USD', timezone: 'UTC' })
   const existing = await state(desk)
   day = new Date(Date.UTC(2030, 5, 11 + existing.visits.length * 2)).toISOString().slice(0, 10)
   tech = await command(desk, 'technician.save', { ...existing.technicians.find((t: any) => t.operatorId === actor), name: 'Recording technician', operatorId: actor })
@@ -90,12 +94,18 @@ test.beforeAll(async ({ browser }) => {
   await loadPhone(); await shellReady()
 })
 test.afterAll(async () => {
-  for (const context of [phoneContext, otherContext, dispatchContext, deskContext]) await context?.close()
-  const output = process.env.GLOVE_BROWSER_OUTPUT || '/tmp/glove-browser-results'
-  await mkdir(output, { recursive: true })
-  await writeFile(join(output, 'offline-day-receipt.json'), JSON.stringify({ head: process.env.GLOVE_PRODUCT_HEAD || 'development', nativeSessions: true, browserOffline: true, receipts }, null, 2) + '\n')
+  try {
+    if (originalBusiness) {
+      const { logo: _logo, ...settings } = originalBusiness
+      await command(desk, 'business.save', { ...settings, version: (await state(desk)).business[0].version })
+    }
+  } finally {
+    for (const context of [phoneContext, otherContext, dispatchContext, deskContext]) await context?.close()
+    const output = process.env.GLOVE_BROWSER_OUTPUT || '/tmp/glove-browser-results'
+    await mkdir(output, { recursive: true })
+    await writeFile(join(output, 'offline-day-receipt.json'), JSON.stringify({ head: process.env.GLOVE_PRODUCT_HEAD || 'development', nativeSessions: true, browserOffline: true, receipts }, null, 2) + '\n')
+  }
 })
-
 
 async function openVisit(job: any, page = phone) {
   await loadPhone(page)
@@ -162,7 +172,7 @@ test('FIELD-001 point 2: the kept view is exact, refreshed and cleared across na
   await expect.poll(async () => Object.keys(await cachePaths(phone)).filter(n => n.startsWith('glove-'))).toEqual([])
   // Same browser, another native technician receives only their own fresh projection.
   await enter(phone, 'technician'); await loadPhone(); await shellReady()
-  await enter(phone, 'member'); await loadPhone()
+  await enter(phone, 'office'); await loadPhone()
   expect((await kept(phone)).actorId).toBe(secondActor)
   expect((await kept(phone)).state.jobs.some((j: any) => j.id === one.id)).toBe(false)
   await expect.poll(async () => (await cachePaths(phone))['glove-day-files']?.length || 0).toBe(0)
@@ -223,7 +233,7 @@ test('FIELD-001 point 4: waiting captures remain ordered and private to the reco
   const sent: any[] = []
   const record = (r: any) => { if (r.url().endsWith('/api/glove/commands') && r.method() === 'POST') sent.push(r.postDataJSON()) }
   phone.on('request', record)
-  await enter(phone, 'member'); await openVisit(hidden)
+  await enter(phone, 'office'); await openVisit(hidden)
   await expect(phone.getByText(/Private waiting note|Legacy private note/)).toHaveCount(0)
   await note(phone, 'Other person own note')
   await expect.poll(async () => (await state(desk)).captures.filter((c: any) => c.visitId === hiddenVisit.id).map((c: any) => c.text)).toEqual(['Other person own note'])
