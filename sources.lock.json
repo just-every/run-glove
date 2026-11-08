@@ -5663,6 +5663,10 @@
       "sha256": "c639df9ae5c38b822a336966d4f37b74148c0de78a8756c98cbd00fdd98bf966",
       "executable": false
     },
+    "tests/api/quote-link-custody.test.mjs": {
+      "sha256": "da5d9c6b174351c8931a0ab3e05b4fd84e6d7db5559ec97a63ad8cecbb538aad",
+      "executable": false
+    },
     "tests/api/records.test.mjs": {
       "sha256": "05e6ce40f7155a7b1adfdc1b3bb89ae4b98c9dc7326f66197509f7d820793b11",
       "executable": false
@@ -6284,7 +6288,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359",
+      "sha256": "233fbab6ab9800d8a9478e47398f4db21ebf81f4d35325b24a46d1add825466d",
       "executable": false
     },
     "tests/runtime.mjs": {
