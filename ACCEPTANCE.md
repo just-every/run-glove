@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 9 | 212 | 16 | 237 |
+| Core | 10 | 211 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 9 | 225 | 29 | 263 |
+| Full target | 10 | 224 | 29 | 263 |
 
 Judged from the code and tests at commit `149b3256df3c7347a8513a5d66e392c985a99377` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -140,7 +140,7 @@ Core · published · **partial**
 
 #### GLOVE-09 — Invoice preparation, export and correction trail
 
-Core · published · **partial**
+Core · published · **done**
 
 **Requirement.** For a completed job, the office prepares an invoice from accepted lines and recorded materials priced from the price book, explicitly prices unpriced materials, approves an exact revision and exports each approved revision once in Xero sales-invoice import columns. An exported invoice is immutable; a correction identifies the corrected revision and export, receives its own approval and exports as a separately numbered row. Sending, payment and live synchronization retain their PAY and LEDGER clauses. The [operating rules](docs/service-work-rules.md#glove-09-operating-rules) retain the record formats and calculations.
 
@@ -150,8 +150,8 @@ Core · published · **partial**
 3. A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.
 4. Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013.
 
-**Evidence.** `tests/api/flows.test.mjs`, `tests/api/records.test.mjs`
-**Gap.** The audit records 4 separately asserted outcome(s). Complete proof is not located for point 1 — The draft includes accepted lines, priced materials and explicitly priced unpriced materials.; point 2 — The office approves one exact revision and exports each approved revision once in the accounting import format.; point 3 — A correction retains the earlier export and revision, receives its own approval and exports as its own numbered row, including when revised before approval.; point 4 — Fixed-monthly invoices retain the issue, approval and due-date basis governed by PLAN-013. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/flows.test.mjs` — 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (automatic accepted lines and price-book materials, exact approval and CSV, restart); `tests/api/records.test.mjs` — a correction revised before approval still exports as its own numbered row (explicit unpriced materials, both exports and retained revisions, stale and excluded-role refusals, replay, restart, Activity and business export); `tests/api/recurring-billing.test.mjs` — PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks (point 4: late and on-time approval, frozen dates through correction and export, exact accounting output, refusal custody, restart and attributable history)
+**Gap.** None.
 
 #### GLOVE-10 — Agent preparation under company policy
 
