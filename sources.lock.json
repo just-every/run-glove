@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
+      "sha256": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -2416,7 +2416,7 @@
       "executable": false
     },
     "src/glove/reports.ts": {
-      "sha256": "72716c1927c9208edc2e46dd9e110f727aea5bc1c56246594261acecea5e121a",
+      "sha256": "2c2bb681b8974e45070666d87a34033fb5e503262a817e6053091492d1b2aaef",
       "executable": false
     },
     "src/glove/request-model-photos.ts": {
@@ -6332,7 +6332,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "f535f7a345e776f23042e957c12f03c17cbf6b87b26e71e23c292a7eb067222e",
+      "sha256": "e0936f0467da1e79485d3bc254e67de67112eee6f7a19bec7cfbfedad94faa73",
       "executable": false
     },
     "tests/runtime.mjs": {

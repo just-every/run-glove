@@ -268,7 +268,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const certificate = await db.prepare('SELECT id,customer_id AS customerId,media_type AS mediaType FROM glove_tax_certificates WHERE id=?').bind(file[1]).first<any>()
     if (certificate) {
       const view = visible(s, actor)
-      if (fieldRole(actor) || !view.customers.some(c => c.id === certificate.customerId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
+      if (actor.token || fieldRole(actor) || !view.customers.some(c => c.id === certificate.customerId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
       const chunks = (await db.prepare('SELECT bytes FROM glove_tax_certificate_chunks WHERE file_id=? ORDER BY ordinal').bind(file[1]).all<any>()).results
       return new Response(new Blob(chunks.map(x => new Uint8Array(x.bytes))), { headers: { ...headers, 'content-type': certificate.mediaType, 'content-disposition': 'attachment; filename="exemption-certificate"', 'content-security-policy': "default-src 'none'" } })
     }
