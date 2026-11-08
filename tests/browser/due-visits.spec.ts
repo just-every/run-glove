@@ -2,7 +2,9 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Real production Worker, D1, native sessions and public HTTP doors.
-import { installation } from '../api/harness.mjs'
+import { installation, postEvents } from '../api/harness.mjs'
+// @ts-expect-error Existing mail provider network boundary.
+import { connectMail, receipt } from '../fixtures/mail-providers.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 async function screens(page: Page, name: string, anchor: Locator) {
@@ -213,6 +215,10 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
       const history = page.getByRole('region', { name: `History at ${address}` })
       for (const entry of ['Comfort Club sold (phone)', 'visit 1 (due', 'declined by Lee Park (email reply), recorded by Booking Office Browser: Replacing the system this year', 'Comfort Club visit 2: 2 slots offered by Booking Office Browser', 'recorded by Booking Office Browser as sent by email', 'Comfort Club visit 2: the customer chose a slot']) await expect(history.getByText(entry).first()).toBeVisible()
       await screens(page, 'property-history', history)
+      // PLAN-011: qualify email outcomes and revocation through the desk.
+      as = office.cookie
+      await offerCommunicationHistory(page, h, office, service)
+      as = h.owner()
       // BOOK-002: the existing public page can also book a service call.
       await h.command('service.save', { id: service.id, version: service.version, code: 'TUNE', name: service.name, unitPrice: '149.00', tax: 'TAXABLE', requiredSkills: ['hvac'] })
       const skilled = (await h.state()).technicians[0]
@@ -439,4 +445,81 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await page.reload()
     expect((await h.request('/api/glove/due-visits?area=78799').then((r: any) => r.json())).visits).toEqual([])
   } finally { await page.unroute(`${origin}/api/glove/commands`, transport) }
+}
+
+
+// The browser drives the ordinary desk controls; only provider transport is fake.
+async function offerCommunicationHistory(page: Page, h: any, office: any, service: any) {
+  const edge = await connectMail(h, 'postmark')
+  const email = ['synthetic-glove-booking', 'example.test'].join('@')
+  const customer = await h.command('customer.save', { name: 'Synthetic Booking History', email, apEmail: ['synthetic-glove-ap', 'example.test'].join('@') })
+  const site = await h.command('site.save', { customerId: customer.id, address: '40 Synthetic History Street' })
+  const otherSite = await h.command('site.save', { customerId: customer.id, address: '42 Synthetic History Street' })
+  const plan = await h.command('plan.save', { name: 'History Care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: service.id })
+  const otherPlan = await h.command('plan.save', { name: 'Other Property Care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: service.id })
+  const agreement = await office.run('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, via: 'phone', startDate: '2030-01-01' })
+  const otherAgreement = await office.run('agreement.sell', { customerId: customer.id, siteId: otherSite.id, planId: otherPlan.id, via: 'phone', startDate: '2030-01-01' })
+  const tech = (await h.state()).technicians[0]
+  await office.run('agreement.offer', { agreementId: otherAgreement.id, index: 0, slots: [{ technicianId: tech.id, date: '2030-01-12', start: '14:00', end: '14:30' }] })
+  await page.goto(`${origin}/app#dispatch`)
+  // Same customer, two properties: choose the row by its actual address.
+  const work = page.getByRole('region', { name: 'Due agreement visits', exact: true }).locator('ul.rows > li').filter({ hasText: site.address })
+  const offers = work.getByRole('region', { name: 'Booking offers for Synthetic Booking History visit 1', exact: true })
+  await offers.getByText('Offer customer times', { exact: true }).click()
+  const form = offers.getByRole('form', { name: 'Offer times to Synthetic Booking History', exact: true })
+  await form.getByLabel('Offer technician', { exact: true }).selectOption(tech.id)
+  await form.getByLabel('Offer date', { exact: true }).fill('2030-01-11')
+  const sentBefore = h.email.sent.length
+  await form.getByRole('button', { name: `Email the link to ${email}`, exact: true }).click()
+  await expect(offers).toContainText(`Emailed to ${email} by Booking Office Browser`)
+  await expect(offers).toContainText('Accepted by Postmark; delivery not yet reported')
+  expect(h.email.sent.length).toBe(sentBefore + 1)
+  const link = (await h.state()).bookingOffers.find((o: any) => o.agreementId === agreement.id)
+  expect(h.email.sent.at(-1).to).toBe(email)
+  const message = receipt(h, { id: link.emailed.messageId, to: email })
+  await screens(page, 'email-accepted', offers)
+  const showHistory = async (state: string) => {
+    await page.goto(`${origin}/app#customers`)
+    await page.getByLabel('Search customers', { exact: true }).fill(customer.name)
+    await page.locator('tr').filter({ hasText: customer.name }).getByRole('button').click()
+    await page.getByRole('button', { name: `History at ${site.address}`, exact: true }).click()
+    const history = page.getByRole('region', { name: `History at ${site.address}`, exact: true })
+    await expect(history).toContainText('History Care visit 1: 1 slot offered by Booking Office Browser')
+    await expect(history).toContainText('booking link emailed (outbound, email, Booking Office Browser')
+    await expect(history).toContainText(state)
+    await expect(history).not.toContainText('Other Property Care')
+    return history
+  }
+  await screens(page, 'email-history-accepted', await showHistory('Accepted by Postmark; delivery not yet reported'))
+  for (const [outcome, at, state] of [
+    ['delivered', '2030-01-02T02:01:00.000Z', `Delivered to ${email}'s mail server (reported by Postmark)`],
+    ['bounced', '2030-01-02T02:02:00.000Z', `Bounced: ${email} did not accept it (reported by Postmark)`],
+  ]) {
+    expect((await postEvents(h, edge.callback(message, outcome, at))).status).toBe(200)
+    await page.goto(`${origin}/app#dispatch`)
+    await expect(offers).toContainText(state)
+    await screens(page, `email-${outcome}`, offers)
+    await screens(page, `email-history-${outcome}`, await showHistory(state))
+  }
+  await page.goto(`${origin}/app#dispatch`)
+  await offers.getByLabel('Sent outside Glove by', { exact: true }).fill('phone follow-up')
+  await offers.getByRole('button', { name: 'Record as sent outside Glove', exact: true }).click()
+  // The mail result continues to show the provider fact; the separate outside
+  // send is honestly labelled in property history.
+  await offers.getByRole('button', { name: 'Revoke booking link', exact: true }).click()
+  await expect(offers.getByText('Revoked ·', { exact: false })).toBeVisible()
+  await screens(page, 'email-revoked', offers)
+  const history = await showHistory(`Bounced: ${email} did not accept it (reported by Postmark)`)
+  await expect(history).toContainText('History Care visit 1: recorded by Booking Office Browser as sent by phone follow-up')
+  await expect(history).toContainText('delivery not verified')
+  await expect(history).toContainText('History Care visit 1: revoked')
+  await screens(page, 'email-history-revoked', history)
+  await page.getByRole('button', { name: `History at ${otherSite.address}`, exact: true }).click()
+  const otherHistory = page.getByRole('region', { name: `History at ${otherSite.address}`, exact: true })
+  await expect(otherHistory).toContainText('Other Property Care visit 1: 1 slot offered by Booking Office Browser')
+  await expect(otherHistory).not.toContainText('booking link emailed')
+  await expect(otherHistory).not.toContainText('phone follow-up')
+  await expect(otherHistory).not.toContainText('History Care visit 1: revoked')
+  await screens(page, 'other-property-history', otherHistory)
+  expect(h.email.sent.length).toBe(sentBefore + 1)
 }
