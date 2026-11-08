@@ -13,6 +13,7 @@ const screenshots = resolve(process.env.GLOVE_SCREENSHOTS || join(evidence, 'scr
 if ([evidence, screenshots].some(path => path === workspace || path.startsWith(workspace + '/'))) throw new Error('Browser evidence must be outside the product checkout.')
 await mkdir(evidence, { recursive: true })
 await mkdir(screenshots, { recursive: true })
+async function runInstallation(selection) {
 const parent = await mkdtemp(join(process.env.GLOVE_WORK_DIR || tmpdir(), 'glove-browser-'))
 const root = join(parent, 'installation')
 let runtime, failure, prepared = false, stopped = true
@@ -27,7 +28,7 @@ try {
     port => command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', 'owner@example.test', '--non-interactive', '--port', String(port)], root),
     port => startDev(root, port),
   )
-  const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...process.argv.slice(2)], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
+  const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...selection], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
   console.log(redact(output))
   console.log(`Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
 } catch (error) {
@@ -39,4 +40,15 @@ try {
   if (stopped) await rm(parent, { recursive: true, force: true })
   else console.error(`Owned installation retained for stop recovery: ${root}`)
 }
-if (failure) { console.error(redact(failure.message)); process.exitCode = 1 }
+if (failure) throw failure
+}
+
+// The owned-installation acceptance starts with no business or people. Keep
+// the existing journey's installation independent of this new owner's data.
+const selection = process.argv.slice(2)
+const files = selection.filter(arg => arg.endsWith('.spec.ts'))
+const fresh = arg => /(?:^|\/)fresh-install\.spec\.ts$/.test(arg)
+try {
+  if (!files.length || files.some(fresh)) await runInstallation([...selection.filter(arg => !arg.endsWith('.spec.ts')), 'tests/browser/fresh-install.spec.ts'])
+  if (!files.length || files.some(arg => !fresh(arg))) await runInstallation(files.length ? selection.filter(arg => !fresh(arg)) : [...selection, '--grep-invert', '^DATA-004 fresh local installation'])
+} catch (error) { console.error(redact(error.message)); process.exitCode = 1 }
