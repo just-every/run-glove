@@ -5716,7 +5716,7 @@
       "executable": false
     },
     "tests/api/route-optimization.test.mjs": {
-      "sha256": "389eb65a31f5069098aaa2df5d780b257bc3c91d447f06ccdc43f48f07313a7c",
+      "sha256": "11bf163d1e917ca1fbcfe4978b3c6d60d366f302b205de337d26387f508562b4",
       "executable": false
     },
     "tests/api/routing.test.mjs": {

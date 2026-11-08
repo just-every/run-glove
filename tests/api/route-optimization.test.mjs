@@ -50,7 +50,12 @@ function feasible(s, original, proposed, seconds = drivingSeconds) {
 
 test('DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive driving and survives replay and Worker restart without moving visits', async t => {
   const h = await installation({ at }); t.after(() => h.close())
-  const { b, visits, day } = await routingDay(h), before = await h.state()
+  const { b, visits, day } = await routingDay(h)
+  for (const [i, v] of visits.entries()) {
+    const minute = 20 + i
+    visits[i] = await b.dispatcher.run('visit.change', { visitId: v.id, version: v.version, end: `${v.local.start.slice(0, 3)}${String(minute).padStart(2, '0')}`, reason: 'Keep each service duration distinct' })
+  }
+  const before = await h.state()
   const commandId = 'synthetic-glove-route-retained', payload = { date: day }
   const queued = await b.dispatcher.run('route.optimize', payload, { commandId })
   assert.deepEqual((await h.state()).visits, before.visits)
@@ -69,6 +74,7 @@ test('DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive
   assert.equal(ready.afterSeconds, total(before, proposed))
   assert.ok(ready.afterSeconds < ready.beforeSeconds)
   assert.equal(ready.savedSeconds, total(before, visits) - total(before, proposed))
+  t.diagnostic(JSON.stringify({ beforeSeconds: ready.beforeSeconds, afterSeconds: ready.afterSeconds, savedSeconds: ready.savedSeconds, evaluations: ready.evaluations }))
   assert.match(ready.method, /global optimum not guaranteed/i)
   assert.match(ready.method, /no depot legs/i)
   for (let pass = 0; pass < 2; pass++) await h.scheduled(at)
@@ -218,8 +224,21 @@ test('DISP-003 point 4: coordinate-only Routes requests abort a delayed provider
   h.maps.routeSeconds = (from, to) => values.get(JSON.stringify([from, to]))
   const began = performance.now(), ready = await prepare(h, { date: '2026-11-03' })
   assert.ok(ready.evaluations > 0 && ready.evaluations <= 1200, `saved ${ready.evaluations} evaluations`)
-  assert.ok(performance.now() - began < 20_000, 'the bounded search finishes within its runtime budget')
-  t.diagnostic(`Saved exchange evaluations: ${ready.evaluations}`)
+  const searchElapsedMs = performance.now() - began
+  assert.ok(searchElapsedMs < 20_000, 'the bounded search finishes within its runtime budget')
+  t.diagnostic(JSON.stringify({ evaluations: ready.evaluations, searchElapsedMs }))
+  h.maps.routeDelayMs = 12_000
+  const queued = await h.command('route.optimize', { date: '2026-11-03' })
+  const start = performance.now()
+  await h.scheduled(at)
+  const elapsed = performance.now() - start
+  const failed = await route(h, queued.id)
+  assert.equal(failed.status, 'failed', JSON.stringify(failed))
+  assert.match(failed.problem, /could not be reached/)
+  assert.ok(elapsed >= 9_500 && elapsed < 12_000, `the ten-second abort stopped the delayed answer after ${elapsed.toFixed(0)} ms`)
+  t.diagnostic(JSON.stringify({ providerDelayMs: h.maps.routeDelayMs, providerAbortMs: elapsed }))
+  assert.deepEqual((await h.state()).visits, before.visits)
+  assert.ok(h.maps.calls.some(c => c.api === 'routes'))
   for (const call of h.maps.calls.filter(c => c.api === 'routes')) {
     assert.deepEqual(Object.keys(call.body).sort(), ['destinations', 'origins', 'routingPreference', 'travelMode'])
     assert.equal(call.body.travelMode, 'DRIVE')
@@ -229,15 +248,6 @@ test('DISP-003 point 4: coordinate-only Routes requests abort a delayed provider
       assert.ok(coordinates.some(p => JSON.stringify(waypoint) === JSON.stringify({ waypoint: { location: { latLng: p } } })), 'every waypoint contains only registered coordinates')
     }
   }
-  h.maps.routeDelayMs = 11_000
-  const queued = await h.command('route.optimize', { date: '2026-11-03' })
-  const start = performance.now()
-  await h.scheduled(at)
-  const failed = await route(h, queued.id)
-  assert.equal(failed.status, 'failed', JSON.stringify(failed))
-  assert.match(failed.problem, /could not be reached/)
-  assert.ok(performance.now() - start < 11_000, 'the client aborts before the delayed answer')
-  assert.deepEqual((await h.state()).visits, before.visits)
 })
 
 test('DISP-003 point 5: whole proposed schedules preserve eligibility, duration and fixed crew and field-evidence placements', async t => {
@@ -271,4 +281,28 @@ test('DISP-003 point 5: whole proposed schedules preserve eligibility, duration 
     assert.deepEqual((await h.state()).visits, before.visits)
     await h.command('technician.save', { ...original, version: original.version + 1 })
   }
+  // The only cheaper ordering has a drive that cannot fit the appointment
+  // gap. It must stay a comparison of the original feasible schedule.
+  const technician = await h.command('technician.save', { name: 'Synthetic short-gap technician' })
+  const shortDay = '2026-11-04'
+  const booked = await boundedDay(h, 3, [technician], shortDay, 30)
+  const varied = []
+  for (const [i, v] of booked.entries()) varied.push(await h.command('visit.change', { visitId: v.id, version: v.version, end: ['08:10', '08:45', '09:05'][i], reason: 'Retain different service durations' }))
+  const snapshot = await h.state(), [a, bVisit, c] = varied
+  const times = new Map([
+    [JSON.stringify([point(snapshot, a.id), point(snapshot, bVisit.id)]), 1100],
+    [JSON.stringify([point(snapshot, bVisit.id), point(snapshot, c.id)]), 800],
+    [JSON.stringify([point(snapshot, a.id), point(snapshot, c.id)]), 1300],
+    [JSON.stringify([point(snapshot, c.id), point(snapshot, bVisit.id)]), 1],
+  ])
+  h.maps.routeSeconds = (from, to) => times.get(JSON.stringify([from, to])) ?? null
+  const guarded = await prepare(h, { date: shortDay })
+  assert.equal(guarded.beforeSeconds, 1900)
+  assert.equal(guarded.afterSeconds, 1900, 'a lower total cannot excuse an impossible individual drive')
+  assert.equal(guarded.savedSeconds, 0)
+  assert.ok(guarded.evaluations > 0)
+  const slots = guarded.moves.map(m => ({ id: m.visitId, ...m.after }))
+  feasible(snapshot, varied, slots, h.maps.routeSeconds)
+  for (const v of varied) assert.deepEqual(guarded.moves.find(m => m.visitId === v.id).after, placement(v))
+  assert.deepEqual((await h.state()).visits, snapshot.visits)
 })
