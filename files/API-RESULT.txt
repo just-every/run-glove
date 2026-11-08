@@ -1,0 +1,28 @@
+source_head=10d84256718bb3e216c741ed6d221adaa2154efe
+v22.20.0
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+ok 1 - AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+  ---
+  duration_ms: 11907.327605
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Customer email callback rejected
+# Subtest: COMM-012 points 1–7: morning delivery, owner authority, local clock, interruption, provider facts and no retries
+ok 2 - COMM-012 points 1–7: morning delivery, owner authority, local clock, interruption, provider facts and no retries
+  ---
+  duration_ms: 15574.437893
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 29427.738594
+exit=0

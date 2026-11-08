@@ -1,0 +1,244 @@
+{
+  "files": [
+    {
+      "blob": "0f65d33e20286b300b30bdfb907ced28126b2f37",
+      "bytes": 1057,
+      "path": "API-RESULT.txt",
+      "sha256": "a7785ecab22f6bd8be01da991c25fa19f28bd2659ddb59ace4231626713fdd35"
+    },
+    {
+      "blob": "2b31c97555f3cbc83078c7945eab2aea825303ba",
+      "bytes": 1145,
+      "path": "BROWSER-RESULT.txt",
+      "sha256": "dbaf9f9a84da3472861b079bdd758fe32384f096518fea7eac3dab49b21a04ec"
+    },
+    {
+      "blob": "03e0fa1dd031acdd93580a56a51d8aaa37a34c9e",
+      "bytes": 289,
+      "path": "CANDIDATE-CI.json",
+      "sha256": "ef21afc878fb5ffbdd149508d1305a4f7052b2961a5644a51e55278a25933fe9"
+    },
+    {
+      "blob": "8b397759c3490f5d34b737e6b013a75c1929a9a8",
+      "bytes": 170,
+      "path": "COMMIT-IDENTITIES.txt",
+      "sha256": "c9f719ac04ee5a87f887bd38a32e08c08cd63abd5a2deb8c3e01856328b8b56d"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "FIRST-PARTY-RESULT.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "6aa00d02b638584611d1499af03ddecaf328b5d6",
+      "bytes": 1143,
+      "path": "MAIN-CI.jsonl",
+      "sha256": "470be5965864c356a57405e352f24a3979e66083ce7b7fcb1847b9e0c596c4d6"
+    },
+    {
+      "blob": "39024194caea08ce5d0e98487999f187f080959a",
+      "bytes": 562,
+      "path": "MECHANICAL-RESULT.txt",
+      "sha256": "ec7b83cd4ec350a9895f140f43d8e397e3cd9357e65beb4486bf0a8b1e655c5f"
+    },
+    {
+      "blob": "a7c66795d3849929112286940d5d5e8fba59e531",
+      "bytes": 1645,
+      "path": "PLAN.md",
+      "sha256": "6b9add8bb0a642dc5b904fe4c88159d3cda8f459e475cd359b6ab92f5e8bc282"
+    },
+    {
+      "blob": "33d84f0bc1b84301213174a8e022ea70a5734ef4",
+      "bytes": 505,
+      "path": "PRESERVED-EMAIL-RESULT.txt",
+      "sha256": "44378b6cb0c2f5b00814f05043d32d8a8edf838812b57ba43bacbd9dc58aac62"
+    },
+    {
+      "blob": "63d8c38d7c2bfd35a936788e58c3a872335c3847",
+      "bytes": 6942,
+      "path": "RECEIPT.json",
+      "sha256": "94239c2cf3bb971f77ba6134f308eece16dc8ccd3969410f21e5f8768c77c695"
+    },
+    {
+      "blob": "77bfc6051f563cefe17ba66dc71f40a3c9b58e55",
+      "bytes": 16008,
+      "path": "REPORT.md",
+      "sha256": "0da1379a339da60c2ec5916102a41e1ec5e265e8cea548da65dc677411733b14"
+    },
+    {
+      "blob": "d530190cab95697cdd136037522282c2e2fd0706",
+      "bytes": 1365,
+      "path": "SOURCE-RECEIPT.json",
+      "sha256": "c6291a93b29860e7150850049c476821a39d6d86b6229d45055e4fb5a086cd4c"
+    },
+    {
+      "blob": "bf164ad6545d92723e37dbe2a1bff2882f3be650",
+      "bytes": 90,
+      "path": "TYPECHECK-RESULT.txt",
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "blob": "3bcbea2f4f85d77e476183b92014ec23ae6f07f9",
+      "bytes": 158700,
+      "path": "screenshots/1440-brief-dispatch.png",
+      "sha256": "9cfe11e4dea7ba601e91ec0b963301ec2a356f02a65706b8949554f2810f55cc"
+    },
+    {
+      "blob": "488ecad793e6bb4a90753870fbe65b093db09a11",
+      "bytes": 136275,
+      "path": "screenshots/1440-brief-invoices.png",
+      "sha256": "e60fe6aa71619b63fcf9b9d82fc124ac4aa94d4f4310e2bdcf76785e04b39195"
+    },
+    {
+      "blob": "174632de6d56407139cbf3dc9408f81d684eaa2f",
+      "bytes": 126296,
+      "path": "screenshots/1440-brief-jobs.png",
+      "sha256": "36fdcc7c577fdf5d78b2784fc94f3d675cfcc3b519a136dfdab3877311eb4670"
+    },
+    {
+      "blob": "42d4f36aa218b17b5d7e4485e3b731e21b86e9d4",
+      "bytes": 139702,
+      "path": "screenshots/1440-brief-quotes.png",
+      "sha256": "d0a4ccc2ec65e35c09452dac2e9dca1b7ad97a2bbc1af9a5674ac5f88c85a175"
+    },
+    {
+      "blob": "6e09c41ca70d63ec47d93b0c76627ba82821199d",
+      "bytes": 224682,
+      "path": "screenshots/1440-brief-today.png",
+      "sha256": "30d838af638d8296cd96a5f4f84178009cb90206684860c2f093e9181951dc0e"
+    },
+    {
+      "blob": "5b1cebf0a3a06d4186c41524348b7edf2985dd4a",
+      "bytes": 138163,
+      "path": "screenshots/1440-morning-email-accepted.png",
+      "sha256": "d7a53979f16d9f2c96c8d36760aa5df417367140850216ca7838d8464a7955a7"
+    },
+    {
+      "blob": "c4b777e9ada6eb3b689891346c96aabc42b9aa60",
+      "bytes": 142156,
+      "path": "screenshots/1440-morning-email-bounced.png",
+      "sha256": "96971f2b1940324ee4996fdac2aad50b106e97d474ae8c12fca918562f27bddf"
+    },
+    {
+      "blob": "273876d5e05ee1d7fb3a65f3aaa40e386fdee1a9",
+      "bytes": 139735,
+      "path": "screenshots/1440-morning-email-delivered.png",
+      "sha256": "42b32c41c3d0b7c52d8a35e2c815102b55b513a4d0c0af887d19faf8e3912744"
+    },
+    {
+      "blob": "5c9f1b9c3a4c946b135a799051a81f47cf5f0c2f",
+      "bytes": 135955,
+      "path": "screenshots/1440-morning-email-not-confirmed.png",
+      "sha256": "17e06734176eb29166ae10d8af087eff6ad223b98352f131e7e3db0c45b501e0"
+    },
+    {
+      "blob": "212dc9f8464f92c971eeace5ecd3cb5b17e0a968",
+      "bytes": 140349,
+      "path": "screenshots/1440-morning-email-queued.png",
+      "sha256": "ad6e5e9b8e9133992b6eaaa1343c9f05cd614696e8c2b898faf42c648974a853"
+    },
+    {
+      "blob": "5f140f9ec0f324f52328268ef7e6981551604a2c",
+      "bytes": 134522,
+      "path": "screenshots/1440-morning-email-rate-limited.png",
+      "sha256": "93a52bf8cbcfba3ab3833561c9b90e6aab8e4148aee5f726f6b7d30b5b3f51d4"
+    },
+    {
+      "blob": "97aaf97c76e59b3def905e7a90cf76610e5a4382",
+      "bytes": 136926,
+      "path": "screenshots/1440-morning-email-refused.png",
+      "sha256": "e8f51e27c08a748e56e0fd538e3a25cdde47e8b0ccc48372c66809bf212f3d43"
+    },
+    {
+      "blob": "43b55419b8f9d63007cfb118ccabafdfba74c9f7",
+      "bytes": 138143,
+      "path": "screenshots/1440-morning-email-scheduled.png",
+      "sha256": "f84f34819a090f1dfdcef5dfa904d8c029cd72bf988d27d07b181bca89ef6354"
+    },
+    {
+      "blob": "c89b9bcdfecf8132eaf2f7a5c380f688b4671110",
+      "bytes": 74898,
+      "path": "screenshots/390-brief-dispatch.png",
+      "sha256": "b03521f3a226510146ba16f8762817eb996d2c3f1a8e583d33ee4f4e4cc5a1ab"
+    },
+    {
+      "blob": "f2ba2175b8b2dd8ddc47a54f84d06c72cd4070fe",
+      "bytes": 68203,
+      "path": "screenshots/390-brief-invoices.png",
+      "sha256": "a0248b1e757f76e798ebc80973df3832a72ba390810f20203506e87b2e7d18a2"
+    },
+    {
+      "blob": "ef62a6744d3c5559570ab8385fd709a17d7328a9",
+      "bytes": 55953,
+      "path": "screenshots/390-brief-jobs.png",
+      "sha256": "49ce8ae551b22e4ca024ad28861975902eac8324c04c070ac0f1c06f6574ef21"
+    },
+    {
+      "blob": "d312e3d333001e2f0c342b492f1775d5f56042d6",
+      "bytes": 73302,
+      "path": "screenshots/390-brief-quotes.png",
+      "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+    },
+    {
+      "blob": "2e4abe913f70f08edc40f5dde52a66c9c9904c2b",
+      "bytes": 197688,
+      "path": "screenshots/390-brief-today.png",
+      "sha256": "01836615dd49c6a884e17e2e3100133770fc015ae38cfec58029b0763b576f2a"
+    },
+    {
+      "blob": "1ae461194b6bf413d9bbec56f93db31e9a40102f",
+      "bytes": 77340,
+      "path": "screenshots/390-morning-email-accepted.png",
+      "sha256": "67fd4adc43236be05bd2b2235acfba67689fbad88aa2a19d377f348555b2536f"
+    },
+    {
+      "blob": "bafe88a53c989d41d3aaf23809f80948b486ca82",
+      "bytes": 82313,
+      "path": "screenshots/390-morning-email-bounced.png",
+      "sha256": "7c8f0d3e4023d5668e793a63321007272af9ab59f060601b6d57fef48a0032c2"
+    },
+    {
+      "blob": "2b63ecaed3b3b74d36f873df9254ca677fe5b1c7",
+      "bytes": 78812,
+      "path": "screenshots/390-morning-email-delivered.png",
+      "sha256": "f2de9dbd46005feef3b1a9749d9ee01d78060a7969801bb0e21510a29107b298"
+    },
+    {
+      "blob": "bc8d55e96516e6b7bd1bacab5574a89b90873247",
+      "bytes": 71868,
+      "path": "screenshots/390-morning-email-not-confirmed.png",
+      "sha256": "44718fbcd2af3afdef8fe3225c39f8db5b98dea250501276d7ea0bd320fcf63b"
+    },
+    {
+      "blob": "a02a950c1ec5d6b102d39001ce3a1f21a6d5b4a0",
+      "bytes": 79977,
+      "path": "screenshots/390-morning-email-queued.png",
+      "sha256": "c3595d0a6ef8eb3b2d8a44df6770003d107eacbdcb0b9538358facf25fa5e8c9"
+    },
+    {
+      "blob": "f70365fd0ed5eaec4c025f389b0918387f9e8b7e",
+      "bytes": 70882,
+      "path": "screenshots/390-morning-email-rate-limited.png",
+      "sha256": "a93c387596c5d0c5696b95e860e2b8747d35f8d42b3b933a8fec0f8c0c501867"
+    },
+    {
+      "blob": "d02195eb1b21961aa946fa26f25bdc8e46b170ca",
+      "bytes": 72415,
+      "path": "screenshots/390-morning-email-refused.png",
+      "sha256": "1b6e719b84c32ffaea2c82090662cb8e945e44660bdc423c8f1b275852d6b674"
+    },
+    {
+      "blob": "b19e34dce454116fd0f42cf13adc48f249c2292e",
+      "bytes": 77194,
+      "path": "screenshots/390-morning-email-scheduled.png",
+      "sha256": "fe9c18987e578eb77d67adf789cb1b9f24862d614702b4c013dd0ce95c3ef23a"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f162",
+  "product_head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+  "ref": "refs/heads/evidence/sx-glove-c-f162",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f162"
+}

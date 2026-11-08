@@ -1,0 +1,11 @@
+head=10d84256718bb3e216c741ed6d221adaa2154efe
+node scripts/contract-docs.mjs write --clauses COMM-012: exit=0
+node scripts/contract-docs.mjs check --clauses COMM-012: exit=0
+Contract documents are current.
+git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md: exit=0
+node scripts/edition-authoring/cli.mjs lock: exit=0
+node scripts/edition-authoring/cli.mjs check: exit=0
+Exact committed head source lock check: exit=0
+Migration ledger: not applicable; no migrations changed.
+CONTRACT.md diff against main: empty.
+Git worktree after committed checks: clean.

@@ -1,0 +1,41 @@
+{
+  "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+  "base": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "files": [
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "17f74b8d922bf00cbbffc5c49d86c62d7dff89b631d3cd9b931ee4800d585c5d"
+    },
+    {
+      "path": "tests/api/morning-email.test.mjs",
+      "sha256": "3e085035a9041dbdbcd4043d873544fe49731bd26fe8234295ff6695d5946ac0"
+    },
+    {
+      "path": "tests/browser/morning-brief.spec.ts",
+      "sha256": "2366b64ea8377a4d7f1ab5b8a1d8f6332e6f01b3a4cca8229613de9ec568f18a"
+    },
+    {
+      "path": "tests/api/email.test.mjs",
+      "sha256": "060c900e05f31a6109201f1e4dff57c03d54b7e2f2e5a9d80cad3e78c9712c6c"
+    },
+    {
+      "path": "tests/api/morning-brief.test.mjs",
+      "sha256": "97ab27f5afac5393f3b44d3ce96688bf122211de083f83cd498bde17d8564853"
+    },
+    {
+      "path": "tests/fixtures/mail-providers.mjs",
+      "sha256": "701bccc738479fb28be47416a247b1af8d2b1325f2804c41a3bd847e61b777c3"
+    },
+    {
+      "path": "tests/browser/email.spec.ts",
+      "sha256": "029b3cda68bcf68aa4ba07100a848016abcff2ec57646135eb2dcc4d944062dd"
+    },
+    {
+      "path": ".github/workflows/verify.yml",
+      "sha256": "b0f1540f50531019dfedb9c30645af25ba714a47a813eabe83ba8bc53fcb4a78"
+    }
+  ],
+  "contract_diff_bytes": 0,
+  "new_test_registrations": 1,
+  "new_browser_registrations": 0
+}

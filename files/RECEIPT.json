@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f162",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f162",
+  "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+  "observed_at": "2026-11-08T22:24:33.687776+00:00",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/morning-email.test.mjs tests/api/morning-brief.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+      "tests": 2,
+      "log": "API-RESULT.txt"
+    },
+    {
+      "command": "timeout 1200 node tests/browser/run.mjs tests/browser/morning-brief.spec.ts",
+      "node": "22.20.0",
+      "exit": 0,
+      "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+      "tests": 1,
+      "log": "BROWSER-RESULT.txt",
+      "assertion_width": 1440,
+      "capture_widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "node --test --test-name-pattern=\"the owner's morning brief email\" tests/api/email.test.mjs",
+      "exit": 0,
+      "log": "PRESERVED-EMAIL-RESULT.txt",
+      "unchanged_since_run": true
+    },
+    {
+      "command": "pnpm typecheck",
+      "node": "22.20.0",
+      "exit": 0,
+      "log": "TYPECHECK-RESULT.txt"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "FIRST-PARTY-RESULT.txt"
+    },
+    {
+      "command": "contract write and check, restore generated views, lock and check",
+      "exit": 0,
+      "log": "MECHANICAL-RESULT.txt"
+    }
+  ],
+  "ci": {
+    "run": 42529815126,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+    "head_sha": "10d84256718bb3e216c741ed6d221adaa2154efe",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42529815126"
+  },
+  "product_push": {
+    "status": "pushed",
+    "first_attempt": true,
+    "guard": "cloud-push.py"
+  },
+  "publication_scan": {
+    "head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "fleet_only_not_run_in_cloud"
+  },
+  "source_counts": {
+    "before": {
+      "done": 21,
+      "partial": 213,
+      "missing": 29
+    },
+    "after": {
+      "done": 21,
+      "partial": 213,
+      "missing": 29
+    }
+  },
+  "screenshots": [
+    {
+      "path": "screenshots/1440-brief-dispatch.png",
+      "bytes": 158700,
+      "sha256": "9cfe11e4dea7ba601e91ec0b963301ec2a356f02a65706b8949554f2810f55cc"
+    },
+    {
+      "path": "screenshots/1440-brief-invoices.png",
+      "bytes": 136275,
+      "sha256": "e60fe6aa71619b63fcf9b9d82fc124ac4aa94d4f4310e2bdcf76785e04b39195"
+    },
+    {
+      "path": "screenshots/1440-brief-jobs.png",
+      "bytes": 126296,
+      "sha256": "36fdcc7c577fdf5d78b2784fc94f3d675cfcc3b519a136dfdab3877311eb4670"
+    },
+    {
+      "path": "screenshots/1440-brief-quotes.png",
+      "bytes": 139702,
+      "sha256": "d0a4ccc2ec65e35c09452dac2e9dca1b7ad97a2bbc1af9a5674ac5f88c85a175"
+    },
+    {
+      "path": "screenshots/1440-brief-today.png",
+      "bytes": 224682,
+      "sha256": "30d838af638d8296cd96a5f4f84178009cb90206684860c2f093e9181951dc0e"
+    },
+    {
+      "path": "screenshots/1440-morning-email-accepted.png",
+      "bytes": 138163,
+      "sha256": "d7a53979f16d9f2c96c8d36760aa5df417367140850216ca7838d8464a7955a7"
+    },
+    {
+      "path": "screenshots/1440-morning-email-bounced.png",
+      "bytes": 142156,
+      "sha256": "96971f2b1940324ee4996fdac2aad50b106e97d474ae8c12fca918562f27bddf"
+    },
+    {
+      "path": "screenshots/1440-morning-email-delivered.png",
+      "bytes": 139735,
+      "sha256": "42b32c41c3d0b7c52d8a35e2c815102b55b513a4d0c0af887d19faf8e3912744"
+    },
+    {
+      "path": "screenshots/1440-morning-email-not-confirmed.png",
+      "bytes": 135955,
+      "sha256": "17e06734176eb29166ae10d8af087eff6ad223b98352f131e7e3db0c45b501e0"
+    },
+    {
+      "path": "screenshots/1440-morning-email-queued.png",
+      "bytes": 140349,
+      "sha256": "ad6e5e9b8e9133992b6eaaa1343c9f05cd614696e8c2b898faf42c648974a853"
+    },
+    {
+      "path": "screenshots/1440-morning-email-rate-limited.png",
+      "bytes": 134522,
+      "sha256": "93a52bf8cbcfba3ab3833561c9b90e6aab8e4148aee5f726f6b7d30b5b3f51d4"
+    },
+    {
+      "path": "screenshots/1440-morning-email-refused.png",
+      "bytes": 136926,
+      "sha256": "e8f51e27c08a748e56e0fd538e3a25cdde47e8b0ccc48372c66809bf212f3d43"
+    },
+    {
+      "path": "screenshots/1440-morning-email-scheduled.png",
+      "bytes": 138143,
+      "sha256": "f84f34819a090f1dfdcef5dfa904d8c029cd72bf988d27d07b181bca89ef6354"
+    },
+    {
+      "path": "screenshots/390-brief-dispatch.png",
+      "bytes": 74898,
+      "sha256": "b03521f3a226510146ba16f8762817eb996d2c3f1a8e583d33ee4f4e4cc5a1ab"
+    },
+    {
+      "path": "screenshots/390-brief-invoices.png",
+      "bytes": 68203,
+      "sha256": "a0248b1e757f76e798ebc80973df3832a72ba390810f20203506e87b2e7d18a2"
+    },
+    {
+      "path": "screenshots/390-brief-jobs.png",
+      "bytes": 55953,
+      "sha256": "49ce8ae551b22e4ca024ad28861975902eac8324c04c070ac0f1c06f6574ef21"
+    },
+    {
+      "path": "screenshots/390-brief-quotes.png",
+      "bytes": 73302,
+      "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+    },
+    {
+      "path": "screenshots/390-brief-today.png",
+      "bytes": 197688,
+      "sha256": "01836615dd49c6a884e17e2e3100133770fc015ae38cfec58029b0763b576f2a"
+    },
+    {
+      "path": "screenshots/390-morning-email-accepted.png",
+      "bytes": 77340,
+      "sha256": "67fd4adc43236be05bd2b2235acfba67689fbad88aa2a19d377f348555b2536f"
+    },
+    {
+      "path": "screenshots/390-morning-email-bounced.png",
+      "bytes": 82313,
+      "sha256": "7c8f0d3e4023d5668e793a63321007272af9ab59f060601b6d57fef48a0032c2"
+    },
+    {
+      "path": "screenshots/390-morning-email-delivered.png",
+      "bytes": 78812,
+      "sha256": "f2de9dbd46005feef3b1a9749d9ee01d78060a7969801bb0e21510a29107b298"
+    },
+    {
+      "path": "screenshots/390-morning-email-not-confirmed.png",
+      "bytes": 71868,
+      "sha256": "44718fbcd2af3afdef8fe3225c39f8db5b98dea250501276d7ea0bd320fcf63b"
+    },
+    {
+      "path": "screenshots/390-morning-email-queued.png",
+      "bytes": 79977,
+      "sha256": "c3595d0a6ef8eb3b2d8a44df6770003d107eacbdcb0b9538358facf25fa5e8c9"
+    },
+    {
+      "path": "screenshots/390-morning-email-rate-limited.png",
+      "bytes": 70882,
+      "sha256": "a93c387596c5d0c5696b95e860e2b8747d35f8d42b3b933a8fec0f8c0c501867"
+    },
+    {
+      "path": "screenshots/390-morning-email-refused.png",
+      "bytes": 72415,
+      "sha256": "1b6e719b84c32ffaea2c82090662cb8e945e44660bdc423c8f1b275852d6b674"
+    },
+    {
+      "path": "screenshots/390-morning-email-scheduled.png",
+      "bytes": 77194,
+      "sha256": "fe9c18987e578eb77d67adf789cb1b9f24862d614702b4c013dd0ce95c3ef23a"
+    }
+  ],
+  "github_calls": 4
+}
