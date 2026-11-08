@@ -60,6 +60,8 @@ export function slot(c: Context, p: any): Slot {
  */
 export async function autoAssign(c: Context, job: Row, p: any, db: D1Database, travelFeasible = false): Promise<{ p: any; reason: string }> {
   if (p.technicianId !== 'auto') return { p, reason: '' }
+  // A customer promise is input validation, independent of candidate availability.
+  arrivalWindow(p.window, p.start)
   const booked = (id: string) => c.s.visits.filter(v => v.technicianId === id && v.status !== 'cancelled' && v.local.date === p.date).reduce((n, v) => n + (Date.parse(v.endAt) - Date.parse(v.startAt)) / 60_000, 0)
   const free = c.s.technicians.filter(t => t.active).flatMap(t => {
     try { return conflicts(c, job, slot(c, { ...p, technicianId: t.id }), null).length ? [] : [t] } catch { return [] }
@@ -314,7 +316,7 @@ export const dispatch: Handler = async (c, type, p, db) => {
       if (p.kind !== 'dispatch') fail('INPUT', 'Agents prepare dispatch proposals here; quotes and invoices are prepared as drafts.', null, 400)
       const job = find(c.s, 'jobs', p.plan?.jobId), next = slot(c, p.plan ?? {})
       const evidence = Array.isArray(p.evidence) ? p.evidence.slice(0, 20).map((e: unknown, i: number) => text(e, `evidence[${i}]`, { max: 500 })) : []
-      const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'dispatch', status: 'pending', jobId: job.id, plan: { jobId: job.id, technicianId: next.technicianId, ...next.local }, rationale: text(p.rationale, 'rationale', { max: 2000 }), evidence, preparedBy: who(c), conflictsWhenPrepared: conflicts(c, job, next, null) })
+      const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'dispatch', status: 'pending', jobId: job.id, plan: { jobId: job.id, technicianId: next.technicianId, ...next.local, window: next.arrivalWindow ?? null }, rationale: text(p.rationale, 'rationale', { max: 2000 }), evidence, preparedBy: who(c), conflictsWhenPrepared: conflicts(c, job, next, null) })
       event(c, { jobId: job.id, subjectKind: 'proposal', subjectId: row.id, kind: 'proposal.prepared', summary: `${c.actor.name} (${c.actor.role}) proposed ${job.number} → ${find(c.s, 'technicians', next.technicianId).name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}; waiting for approval`, data: null })
       return row
     }
@@ -349,19 +351,20 @@ export const dispatch: Handler = async (c, type, p, db) => {
  * (DISP-006), keeps that window; any other move drops it and is labelled
  * "customer not yet asked" until the customer confirms (COMM-002/COMM-005).
  */
-function moveSlot(c: Context, visit: Row, plan: { technicianId: string; date: string; start: string; end: string }) {
+function moveSlot(c: Context, visit: Row, plan: { technicianId: string; date: string; start: string; end: string; window?: { start: string; end: string } | null }) {
   const keeps = (plan.start === visit.local.start && plan.date === visit.local.date) || (!!visit.arrivalWindow && plan.date === visit.local.date && plan.start >= visit.arrivalWindow.start && plan.start <= visit.arrivalWindow.end)
-  const next = slot(c, { technicianId: plan.technicianId, date: plan.date, start: plan.start, end: plan.end, window: keeps ? visit.arrivalWindow : null })
-  return { next, customer: keeps ? 'unchanged' : 'customer not yet asked' }
+  const next = slot(c, { technicianId: plan.technicianId, date: plan.date, start: plan.start, end: plan.end, window: plan.window !== undefined ? plan.window : keeps ? visit.arrivalWindow : null })
+  const sameWindow = next.arrivalWindow?.start === visit.arrivalWindow?.start && next.arrivalWindow?.end === visit.arrivalWindow?.end
+  return { next, customer: keeps && sameWindow ? 'unchanged' : 'customer not yet asked' }
 }
 
 function prepareMove(c: Context, p: any) {
   const visit = find(c.s, 'visits', p.visitId)
   if (visit.status !== 'booked' || visit.arrival) fail('VISIT_STATE', 'Only a booked visit not yet arrived is moved around a delay.')
-  const job = find(c.s, 'jobs', visit.jobId), plan = { technicianId: p.plan?.technicianId, date: p.plan?.date ?? visit.local.date, start: p.plan?.start, end: p.plan?.end }
+  const job = find(c.s, 'jobs', visit.jobId), plan = { technicianId: p.plan?.technicianId, date: p.plan?.date ?? visit.local.date, start: p.plan?.start, end: p.plan?.end, ...(p.plan?.window !== undefined ? { window: p.plan.window } : {}) }
   const { next, customer } = moveSlot(c, visit, plan)
   const evidence = Array.isArray(p.evidence) ? p.evidence.slice(0, 20).map((e: unknown, i: number) => text(e, `evidence[${i}]`, { max: 500 })) : []
-  const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'move', status: 'pending', jobId: job.id, visitId: visit.id, visitVersion: visit.version, plan: { jobId: job.id, technicianId: next.technicianId, ...next.local }, customer, rationale: text(p.rationale, 'rationale', { max: 2000 }), evidence, preparedBy: who(c), conflictsWhenPrepared: conflicts(c, job, next, visit) })
+  const row = put(c.s, 'proposals', { id: newId(), version: 1, createdAt: c.now, kind: 'move', status: 'pending', jobId: job.id, visitId: visit.id, visitVersion: visit.version, plan: { jobId: job.id, technicianId: next.technicianId, ...next.local, ...(plan.window !== undefined ? { window: next.arrivalWindow ?? null } : {}) }, customer, rationale: text(p.rationale, 'rationale', { max: 2000 }), evidence, preparedBy: who(c), conflictsWhenPrepared: conflicts(c, job, next, visit) })
   event(c, { jobId: job.id, subjectKind: 'proposal', subjectId: row.id, kind: 'proposal.prepared', summary: `${c.actor.name} (${c.actor.role}) proposed moving ${job.number} from ${find(c.s, 'technicians', visit.technicianId).name} ${wallTime(visit.local.start)} to ${find(c.s, 'technicians', next.technicianId).name} ${dayLabel(next.local.date)} ${wallRange(next.local.start, next.local.end)}; ${customer === 'unchanged' ? 'the customer\'s window is kept' : 'customer not yet asked'}; waiting for approval`, data: { visitId: visit.id, customer } })
   return row
 }

@@ -255,18 +255,53 @@ test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the v
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app#invoices`)
       const panel = page.getByRole('region', { name: 'Payouts and deposits', exact: true })
+      // Show the same reconciled and unmatched provider facts at both proof widths.
+      tx.splice(1); h.stripePayments.payouts.get(payoutId).amount = pi.amount - 500
       await page.getByLabel('Stripe payout reference', { exact: true }).fill(payoutId); await send('Inspect Stripe payout')
-      if (width === 1440) { await expect(panel).toContainText('Reconciled to the cent'); await panel.scrollIntoViewIfNeeded(); await capture(width, 'reconciled'); tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout') }
+      if (width === 1440) {
+        await expect(panel).toContainText('Reconciled to the cent')
+        await expect(panel).toContainText(`Net $${((pi.amount - 500) / 100).toFixed(2)} · Payout fee $0.00 · Difference $0.00`)
+        await expect(panel).toContainText(payoutId)
+      }
+      await panel.locator('ul.rows > li').filter({ hasText: payoutId }).scrollIntoViewIfNeeded(); await capture(width, 'reconciled')
+      tx.push({ id: 'synthetic-glove-missing-browser', type: 'charge', source: { id: 'synthetic-glove-unknown-source' }, currency: 'usd', amount: 1234, fee: 37, net: 1197 }); h.stripePayments.payouts.get(payoutId).amount += 1197; await send('Inspect Stripe payout')
+      if (width === 1440) { await expect(panel).toContainText('Not reconciled'); await expect(panel).toContainText('Difference $0.00') }
       await expect(panel).toContainText('missing payment'); await panel.getByText('synthetic-glove-unknown-source: missing payment', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'unmatched')
       await panel.locator('summary').click()
-      await page.getByLabel('Fee basis points', { exact: true }).fill('150'); await page.getByLabel('Minimum payout fee', { exact: true }).fill('0.50'); await page.getByLabel('Fee schedule source', { exact: true }).fill('Account-specific test schedule'); await send('Record fee schedule')
+      await page.getByLabel('Fee basis points', { exact: true }).fill('150'); await page.getByLabel('Minimum payout fee', { exact: true }).fill('0.50'); await page.getByLabel('Fee schedule source', { exact: true }).fill('Account-specific test schedule'); await send('Record fee schedule'); await panel.locator('summary').scrollIntoViewIfNeeded(); await capture(width, 'fee-schedule')
       const funding = await instantFunding(h, b, width === 1440 ? '2026-11-01' : '2026-11-02'); await page.reload(); await panel.getByLabel(`Source ${funding.invoice.number} · $1,030.00 · fee $15.00`, { exact: true }).check()
       await page.getByLabel('Instant payout amount', { exact: true }).fill('1000.00'); await page.getByLabel('Stripe debit card reference', { exact: true }).fill('synthetic-glove-debit-1'); await send('Review Instant Payout fee')
       const confirmation = page.getByRole('region', { name: 'Instant Payout confirmation', exact: true })
       await expect(confirmation).toContainText('Expected fee $15.00'); await expect(confirmation).toContainText('not verified by Glove'); await confirmation.scrollIntoViewIfNeeded(); await capture(width, 'fee-confirmation')
       const instant = await send('Confirm test Instant Payout')
+      await panel.locator('ul.rows > li').filter({ hasText: instant.providerId }).scrollIntoViewIfNeeded(); await capture(width, 'instant-confirmed')
       await page.getByLabel('Stripe payout reference', { exact: true }).fill(instant.providerId); await send('Inspect Stripe payout')
       await expect(panel).toContainText('Stripe does not attribute source payments'); await panel.getByText('Stripe does not attribute source payments', { exact: false }).last().scrollIntoViewIfNeeded(); await capture(width, 'instant-debit')
+      const uncertain = await instantFunding(h, b, width === 1440 ? '2026-11-05' : '2026-11-06')
+      await page.reload()
+      await panel.getByLabel(`Source ${uncertain.invoice.number} · $1,030.00 · fee $15.00`, { exact: true }).check()
+      await panel.getByLabel('Instant payout amount', { exact: true }).fill('1000.00')
+      await panel.getByLabel('Stripe debit card reference', { exact: true }).fill('synthetic-glove-debit-1')
+      await send('Review Instant Payout fee'); h.stripePayments.payoutResponseLost = true
+      const unknown = await send('Confirm test Instant Payout')
+      h.stripePayments.payoutResponseLost = false
+      await page.reload()
+      const reserved = panel.locator('ul.rows > li').filter({ hasText: 'Outcome unknown' }).last()
+      if (width === 1440) {
+        expect(unknown.status).toBe('reserved')
+        await expect(reserved).toContainText('Inspect Stripe before another request')
+        const activity = await (await h.request('/api/glove/activity')).json()
+        const exported = await (await h.request('/api/glove/export')).json()
+        for (const kind of ['payout.feeScheduleRecorded', 'payout.instantPreviewed', 'payout.instantRequested', 'payout.instantUnconfirmed']) {
+          const e = activity.events.find((e: any) => e.kind === kind)
+          expect(e.commandId && e.at && e.actorId && e.actorName).toBeTruthy()
+          expect(exported.timeline.some((row: any) => row.id === e.id && row.summary === e.summary)).toBe(true)
+        }
+        expect(exported.payouts.find((row: any) => row.id === instant.id).status).toBe('paid')
+        expect(exported.payouts.find((row: any) => row.id === unknown.id).status).toBe('reserved')
+        expect(JSON.stringify({ activity, exported })).not.toMatch(/checkout\.stripe\.com|stripe-signature|"synthetic-glove-[12]"/)
+      }
+      await reserved.scrollIntoViewIfNeeded(); await capture(width, 'instant-unknown')
       await b.office.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'check', reference: 'synthetic-glove-check-browser', amount: '5.00' })
       await page.reload(); await panel.getByLabel(/check · .* · \$5.00/).check(); await page.getByLabel('Bank deposit reference', { exact: true }).fill(`Bank deposit ${width}`); await send('Record deposit batch')
       await expect(panel).toContainText('Cash/check deposit · $5.00'); await panel.getByText('Cash/check deposit · $5.00', { exact: true }).first().scrollIntoViewIfNeeded(); await capture(width, 'deposit-batch')

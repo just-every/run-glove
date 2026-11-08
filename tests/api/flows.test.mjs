@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // One flow per first-release clause (ACCEPTANCE.md), through the public doors
 // of a real Glove Worker and D1: the command endpoint, state, files and exports.
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
@@ -24,7 +25,8 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   after(() => h.close())
   let b, quote, job, visit
 
-  test('01 owner sets up the business, price book, team and roles', async () => {
+  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
+    await scenario(t, '01 owner sets up the business, price book, team and roles', async () => {
     assert.equal((await h.state()).jobs.length, 0, 'a new installation starts empty')
     b = await business(h)
     const s = await h.state()
@@ -34,8 +36,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('role.set', { operatorId: b.office.id, role: 'owner' }, { error: 'FORBIDDEN' })
     await h.command('business.save', { name: 'x', timezone: 'Mars/Olympus', version: s.business[0].version }, { error: 'TIMEZONE' })
   })
-
-  test('02 desk records a customer and the sites where work happens', async () => {
+    await scenario(t, '02 desk records a customer and the sites where work happens', async () => {
     const extra = await b.office.run('site.save', { customerId: b.customer.id, address: 'Level 2, 14 Harbour St, Balmain NSW 2041', accessNotes: 'Lift to level 2' })
     const s = await b.dispatcher.state()
     assert.equal(s.sites.filter(x => x.customerId === b.customer.id).length, 2)
@@ -102,8 +103,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
       assert.deepEqual([kept[0].id, kept[0].kind, kept[0].subject_id, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].summary], [events[0].id, kind, subjectId, actorId, actorName, actorRole, events[0].at, events[0].summary])
     }
   })
-
-  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
+    await scenario(t, '03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
     const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     t.after(() => clock(null))
     const recorder = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
@@ -212,6 +212,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
       assert.deepEqual(Object.fromEntries(Object.keys(data[i]).map(key => [key, detail[key]])), data[i])
     }
     quote = approved
+  })
   })
 
   test('04 recorded sends and customer answers retain exact provenance and freeze accepted revisions', async t => {
@@ -344,7 +345,8 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.deepEqual(await readQuote(quote.id), quote, 'erasure leaves another customer’s accepted work unchanged')
   })
 
-  test('05 the accepted quote becomes a job and a visit booked for a technician in the business timezone', async () => {
+  test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async t => {
+    await scenario(t, '05 the accepted quote becomes a job and a visit booked for a technician in the business timezone', async () => {
     const commandId = randomUUID()
     job = await b.dispatcher.run('job.create', { quoteId: quote.id }, { commandId })
     assert.equal(job.quoteId, quote.id)
@@ -477,8 +479,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     }
     await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.tom.id, date: '2026-10-04', start: '02:30', end: '03:00' }, { error: 'TIME' })
   })
-
-  test('06 the technician captures checklist, notes, photos and materials through a connectivity interruption', async () => {
+    await scenario(t, '06 the technician captures checklist, notes, photos and materials through a connectivity interruption', async () => {
     const mine = await b.priyaPerson.state()
     assert.equal(mine.visits.length, 2, 'Priya sees only the visits assigned to her')
     assert.equal(mine.quotes.length, 0)
@@ -507,8 +508,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.tomPerson.cookie })).status, 404, 'another technician cannot read it')
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:31:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: png } }, { error: 'FILE' })
   })
-
-  test('07 a dispatch change needs conflict review and keeps late evidence for review', async t => {
+    await scenario(t, '07 a dispatch change needs conflict review and keeps late evidence for review', async t => {
     const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     t.after(() => clock(null))
     await clock('2026-10-16T00:00:00.000Z')
@@ -643,8 +643,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
       assert.deepEqual([data.before, data.after, data.reviewedConflicts], [from, to, conflicts])
     }
   })
-
-  test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
+    await scenario(t, '08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
     await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'NO_ARRIVAL' })
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:31:00Z' })
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:32:00Z' }, { error: 'ARRIVED' })
@@ -663,8 +662,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal(signature.headers.get('content-type'), 'image/png')
     assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
   })
-
-  test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async t => {
+    await scenario(t, '09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async t => {
     const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     t.after(() => clock(null))
     await clock('2026-10-21T00:00:00.000Z')
@@ -750,6 +748,106 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     }
   })
 
+    await scenario(t, 'PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h)
+  const jobs = []
+  for (const date of ['2026-10-21', '2026-10-22', '2026-10-23']) jobs.push(await completedJob(h, b, date))
+  const unpriced = await completedJob(h, b, '2026-10-24')
+  await b.priyaPerson.run('visit.capture', { visitId: unpriced.visit.id, kind: 'material', description: 'Uncatalogued valve', quantity: '1', deviceTime: '2026-10-24T23:01:00Z' })
+  const expense = await b.office.run('expense.record', { jobId: jobs[0].job.id, category: 'permit', vendor: 'City', description: 'Permit', amount: '10.00', billable: true, markupPercent: '20', tax: 'GST' })
+  const open = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Not completed')).id })
+  const missing = randomUUID()
+  const jobIds = [jobs[0].job.id, unpriced.job.id, jobs[1].job.id, open.id, missing, jobs[2].job.id]
+  for (const person of [b.dispatcher, b.priyaPerson]) await person.run('invoice.prepareBatch', { jobIds }, { error: 'FORBIDDEN' })
+  for (const ids of [[], [jobs[0].job.id, jobs[0].job.id], Array.from({ length: 51 }, () => randomUUID()), ['']]) await b.office.run('invoice.prepareBatch', { jobIds: ids }, { error: 'INPUT' })
+  const commandId = randomUUID()
+  const batch = await b.office.run('invoice.prepareBatch', { jobIds }, { commandId })
+  assert.deepEqual(batch.results.map(r => [r.jobId, r.ok, r.error?.code]), jobIds.map((id, n) => [id, [0, 2, 5].includes(n), ({ 1: 'UNPRICED_MATERIALS', 3: 'JOB_STATE', 4: 'NOT_FOUND' })[n]]))
+  const invoices = batch.results.filter(r => r.ok).map(r => r.invoice)
+  assert.equal(new Set(invoices.map(i => i.id)).size, 3)
+  assert.deepEqual(invoices.map(i => [i.status, i.revisions[0].totals.total, i.revisions[0].approval]), [['draft', '221.10', null], ['draft', '207.90', null], ['draft', '207.90', null]])
+  assert.equal((await h.state()).expenses.find(e => e.id === expense.id).invoiceId, invoices[0].id)
+  assert.deepEqual(await b.office.run('invoice.prepareBatch', { jobIds }, { commandId }), batch)
+  const again = await b.office.run('invoice.prepareBatch', { jobIds: jobs.map(j => j.job.id) })
+  assert.deepEqual(again.results.map(r => r.error.code), ['DUPLICATE', 'DUPLICATE', 'DUPLICATE'])
+  assert.equal((await h.state()).invoices.length, 3)
+  const { exported } = await assertTrail(h, ['invoice.prepared', 'invoice.batchPrepared'])
+  assert.deepEqual(exported.invoices.map(i => i.id).sort(), invoices.map(i => i.id).sort())
+  assert.ok(exported.timeline.some(e => e.kind === 'invoice.batchPrepared' && JSON.parse(e.data).prepared === 3))
+  // Existing single preparation and its exact approval boundary stay intact.
+  const single = await b.office.run('invoice.prepare', { jobId: unpriced.job.id, lines: [{ description: 'Reviewed repair', quantity: '1', unitPrice: '50.00', tax: 'GST' }] })
+  assert.equal(single.revisions[0].totals.total, '55.00')
+  const role = await h.command('role.save', { name: 'Invoice preparer', permissions: ['invoice.prepare'] })
+  await h.command('role.set', { operatorId: b.office.id, role: `custom:${role.id}` })
+  assert.ok((await b.office.state()).actor.commands.includes('invoice.prepareBatch'))
+  assert.equal((await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id] })).results[0].error.code, 'DUPLICATE')
+  const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTHER', timezone: 'America/Phoenix', zips: ['85001'] })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+  await b.office.run('invoice.prepareBatch', { jobIds }, { commandId, error: 'NOT_FOUND' })
+  const hidden = await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id, missing] })
+  assert.deepEqual(hidden.results.map(r => r.error.code), ['NOT_FOUND', 'NOT_FOUND'])
+  assert.ok(!JSON.stringify(hidden).includes(invoices[0].number))
+  assert.equal((await h.state()).invoices.length, 4)
+})
+
+  await scenario(t, 'PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail', async t => {
+  const h = await installation({ at: '2026-10-20T12:00:00Z' }); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD', timezone: 'UTC', taxSettings: { jurisdictions: [{ id: 'city', name: 'City tax', rate: '8.25', zips: [] }], defaultJurisdictionId: 'city' } })
+  const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Long installation')).id })
+  const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-20', start: '09:00', end: '10:00' })
+  const line = amount => [{ description: 'Installation stage', quantity: '1', unitPrice: amount, serviceId: b.service.id }]
+  const firstPayload = { jobId: job.id, progress: { name: 'Rough in', final: false }, lines: line('60.00') }, commandId = randomUUID()
+  await b.dispatcher.run('invoice.prepare', firstPayload, { error: 'FORBIDDEN' })
+  await b.office.run('invoice.prepare', { ...firstPayload, lines: line('200.00') }, { error: 'PROGRESS_AMOUNT' })
+  let first = await b.office.run('invoice.prepare', firstPayload, { commandId })
+  assert.equal(first.revisions[0].totals.total, '64.95')
+  assert.equal(first.revisions[0].approval, null)
+  assert.deepEqual(await b.office.run('invoice.prepare', firstPayload, { commandId }), first)
+  await b.office.run('invoice.prepare', { ...firstPayload, progress: { name: 'Second stage', final: false } }, { error: 'PROGRESS_APPROVAL' })
+  await h.command('customer.save', { ...b.customer, requirePo: true })
+  await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 1 }, { error: 'PO_REQUIRED' })
+  first = await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 1, poNumber: 'PO-LONG-1' })
+  const firstDates = structuredClone(first.dates)
+  await h.command('business.save', { ...(await h.state()).business[0], paymentTermsDays: 30 })
+  await b.office.run('invoice.prepare', { ...firstPayload, progress: { name: 'ROUGH IN', final: false } }, { error: 'DUPLICATE' })
+  await b.office.run('invoice.export', {})
+  assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'open')
+  await b.office.run('invoice.prepare', { jobId: job.id, progress: { name: 'Final', final: true }, lines: line('129.00') }, { error: 'JOB_STATE' })
+  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-20T09:00:00Z' })
+  for (const item of job.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-20T09:10:00Z', kind: 'checklist', itemId: item.id, result: 'done' })
+  await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-20T10:00:00Z', summary: 'Installation completed', signoff: { absentReason: 'Customer out' } })
+  await b.office.run('invoice.prepare', { jobId: job.id }, { error: 'DUPLICATE' })
+  const secondPayload = { jobId: job.id, progress: { name: 'Commissioning', final: false }, lines: line('40.00') }
+  let second = await b.office.run('invoice.prepare', secondPayload)
+  second = await b.office.run('invoice.approve', { invoiceId: second.id, version: second.version, revision: 1, poNumber: 'PO-LONG-1' })
+  await b.office.run('invoice.export', {})
+  assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed', 'a progress export does not finish invoicing the job')
+  await b.office.run('invoice.prepare', { jobId: job.id, progress: { name: 'Final', final: true }, lines: line('80.00') }, { error: 'PROGRESS_REMAINDER' })
+  let final = await b.office.run('invoice.prepare', { jobId: job.id, progress: { name: 'Final', final: true }, lines: line('89.00') })
+  assert.equal(final.revisions[0].totals.total, '96.34')
+  await b.office.run('invoice.revise', { invoiceId: final.id, version: final.version, reason: 'Over contract', lines: line('100.00') }, { error: 'PROGRESS_AMOUNT' })
+  final = await b.office.run('invoice.approve', { invoiceId: final.id, version: final.version, revision: 1, poNumber: 'PO-LONG-1' })
+  await b.office.run('invoice.export', {})
+  assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'invoiced')
+  await b.office.run('invoice.prepare', secondPayload, { error: 'JOB_STATE' })
+  first = (await h.state()).invoices.find(i => i.id === first.id)
+  await b.office.run('invoice.correct', { invoiceId: first.id, version: first.version, reason: 'Exceeds contract', lines: line('61.00') }, { error: 'PROGRESS_AMOUNT' })
+  first = await b.office.run('invoice.correct', { invoiceId: first.id, version: first.version, reason: 'Clarify stage description', lines: [{ ...line('60.00')[0], description: 'Rough-in completed and inspected' }] })
+  assert.equal(first.revisions[1].corrects.revision, 1)
+  first = await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 2 })
+  assert.deepEqual(first.dates, firstDates, 'later terms and a correction retain the first stage’s issued and due dates')
+  const statement = await h.request(`/api/glove/customers/${b.customer.id}/statement.json?asOf=2099-01-01`).then(r => r.json())
+  assert.ok(JSON.stringify(statement).includes('204.59'))
+  const { exported } = await assertTrail(h, ['invoice.prepared', 'invoice.approved', 'invoice.exported', 'invoice.corrected'])
+  assert.equal(exported.invoices.filter(i => i.jobId === job.id).length, 3)
+  assert.equal(exported.invoices.find(i => i.id === final.id).progress.final, true)
+  const other = await h.command('branch.save', { name: 'Outside', prefix: 'OUT', timezone: 'UTC', zips: ['10001'] })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: other.id })
+  await b.office.run('invoice.prepare', firstPayload, { commandId, error: 'NOT_FOUND' })
+})
+  })
+
   test('10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded', async () => {
     const draft = await b.agent.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Agent-prepared service', lines: [{ description: 'Split system service', quantity: '2', unitPrice: '189.00' }] })
     assert.equal(draft.revisions[0].preparedBy.role, 'agent')
@@ -821,106 +919,6 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     const tech = await b.priyaPerson.state()
     assert.ok(tech.events.every(e => e.jobId), 'a technician sees only their jobs\' timeline')
   })
-})
-
-
-test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await business(h)
-  const jobs = []
-  for (const date of ['2026-10-21', '2026-10-22', '2026-10-23']) jobs.push(await completedJob(h, b, date))
-  const unpriced = await completedJob(h, b, '2026-10-24')
-  await b.priyaPerson.run('visit.capture', { visitId: unpriced.visit.id, kind: 'material', description: 'Uncatalogued valve', quantity: '1', deviceTime: '2026-10-24T23:01:00Z' })
-  const expense = await b.office.run('expense.record', { jobId: jobs[0].job.id, category: 'permit', vendor: 'City', description: 'Permit', amount: '10.00', billable: true, markupPercent: '20', tax: 'GST' })
-  const open = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Not completed')).id })
-  const missing = randomUUID()
-  const jobIds = [jobs[0].job.id, unpriced.job.id, jobs[1].job.id, open.id, missing, jobs[2].job.id]
-  for (const person of [b.dispatcher, b.priyaPerson]) await person.run('invoice.prepareBatch', { jobIds }, { error: 'FORBIDDEN' })
-  for (const ids of [[], [jobs[0].job.id, jobs[0].job.id], Array.from({ length: 51 }, () => randomUUID()), ['']]) await b.office.run('invoice.prepareBatch', { jobIds: ids }, { error: 'INPUT' })
-  const commandId = randomUUID()
-  const batch = await b.office.run('invoice.prepareBatch', { jobIds }, { commandId })
-  assert.deepEqual(batch.results.map(r => [r.jobId, r.ok, r.error?.code]), jobIds.map((id, n) => [id, [0, 2, 5].includes(n), ({ 1: 'UNPRICED_MATERIALS', 3: 'JOB_STATE', 4: 'NOT_FOUND' })[n]]))
-  const invoices = batch.results.filter(r => r.ok).map(r => r.invoice)
-  assert.equal(new Set(invoices.map(i => i.id)).size, 3)
-  assert.deepEqual(invoices.map(i => [i.status, i.revisions[0].totals.total, i.revisions[0].approval]), [['draft', '221.10', null], ['draft', '207.90', null], ['draft', '207.90', null]])
-  assert.equal((await h.state()).expenses.find(e => e.id === expense.id).invoiceId, invoices[0].id)
-  assert.deepEqual(await b.office.run('invoice.prepareBatch', { jobIds }, { commandId }), batch)
-  const again = await b.office.run('invoice.prepareBatch', { jobIds: jobs.map(j => j.job.id) })
-  assert.deepEqual(again.results.map(r => r.error.code), ['DUPLICATE', 'DUPLICATE', 'DUPLICATE'])
-  assert.equal((await h.state()).invoices.length, 3)
-  const { exported } = await assertTrail(h, ['invoice.prepared', 'invoice.batchPrepared'])
-  assert.deepEqual(exported.invoices.map(i => i.id).sort(), invoices.map(i => i.id).sort())
-  assert.ok(exported.timeline.some(e => e.kind === 'invoice.batchPrepared' && JSON.parse(e.data).prepared === 3))
-  // Existing single preparation and its exact approval boundary stay intact.
-  const single = await b.office.run('invoice.prepare', { jobId: unpriced.job.id, lines: [{ description: 'Reviewed repair', quantity: '1', unitPrice: '50.00', tax: 'GST' }] })
-  assert.equal(single.revisions[0].totals.total, '55.00')
-  const role = await h.command('role.save', { name: 'Invoice preparer', permissions: ['invoice.prepare'] })
-  await h.command('role.set', { operatorId: b.office.id, role: `custom:${role.id}` })
-  assert.ok((await b.office.state()).actor.commands.includes('invoice.prepareBatch'))
-  assert.equal((await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id] })).results[0].error.code, 'DUPLICATE')
-  const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTHER', timezone: 'America/Phoenix', zips: ['85001'] })
-  await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
-  await b.office.run('invoice.prepareBatch', { jobIds }, { commandId, error: 'NOT_FOUND' })
-  const hidden = await b.office.run('invoice.prepareBatch', { jobIds: [jobs[0].job.id, missing] })
-  assert.deepEqual(hidden.results.map(r => r.error.code), ['NOT_FOUND', 'NOT_FOUND'])
-  assert.ok(!JSON.stringify(hidden).includes(invoices[0].number))
-  assert.equal((await h.state()).invoices.length, 4)
-})
-
-test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail', async t => {
-  const h = await installation({ at: '2026-10-20T12:00:00Z' }); t.after(() => h.close())
-  const b = await business(h, { currency: 'USD', timezone: 'UTC', taxSettings: { jurisdictions: [{ id: 'city', name: 'City tax', rate: '8.25', zips: [] }], defaultJurisdictionId: 'city' } })
-  const job = await b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b, 'Long installation')).id })
-  const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-20', start: '09:00', end: '10:00' })
-  const line = amount => [{ description: 'Installation stage', quantity: '1', unitPrice: amount, serviceId: b.service.id }]
-  const firstPayload = { jobId: job.id, progress: { name: 'Rough in', final: false }, lines: line('60.00') }, commandId = randomUUID()
-  await b.dispatcher.run('invoice.prepare', firstPayload, { error: 'FORBIDDEN' })
-  await b.office.run('invoice.prepare', { ...firstPayload, lines: line('200.00') }, { error: 'PROGRESS_AMOUNT' })
-  let first = await b.office.run('invoice.prepare', firstPayload, { commandId })
-  assert.equal(first.revisions[0].totals.total, '64.95')
-  assert.equal(first.revisions[0].approval, null)
-  assert.deepEqual(await b.office.run('invoice.prepare', firstPayload, { commandId }), first)
-  await b.office.run('invoice.prepare', { ...firstPayload, progress: { name: 'Second stage', final: false } }, { error: 'PROGRESS_APPROVAL' })
-  await h.command('customer.save', { ...b.customer, requirePo: true })
-  await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 1 }, { error: 'PO_REQUIRED' })
-  first = await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 1, poNumber: 'PO-LONG-1' })
-  const firstDates = structuredClone(first.dates)
-  await h.command('business.save', { ...(await h.state()).business[0], paymentTermsDays: 30 })
-  await b.office.run('invoice.prepare', { ...firstPayload, progress: { name: 'ROUGH IN', final: false } }, { error: 'DUPLICATE' })
-  await b.office.run('invoice.export', {})
-  assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'open')
-  await b.office.run('invoice.prepare', { jobId: job.id, progress: { name: 'Final', final: true }, lines: line('129.00') }, { error: 'JOB_STATE' })
-  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-20T09:00:00Z' })
-  for (const item of job.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-20T09:10:00Z', kind: 'checklist', itemId: item.id, result: 'done' })
-  await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-20T10:00:00Z', summary: 'Installation completed', signoff: { absentReason: 'Customer out' } })
-  await b.office.run('invoice.prepare', { jobId: job.id }, { error: 'DUPLICATE' })
-  const secondPayload = { jobId: job.id, progress: { name: 'Commissioning', final: false }, lines: line('40.00') }
-  let second = await b.office.run('invoice.prepare', secondPayload)
-  second = await b.office.run('invoice.approve', { invoiceId: second.id, version: second.version, revision: 1, poNumber: 'PO-LONG-1' })
-  await b.office.run('invoice.export', {})
-  assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed', 'a progress export does not finish invoicing the job')
-  await b.office.run('invoice.prepare', { jobId: job.id, progress: { name: 'Final', final: true }, lines: line('80.00') }, { error: 'PROGRESS_REMAINDER' })
-  let final = await b.office.run('invoice.prepare', { jobId: job.id, progress: { name: 'Final', final: true }, lines: line('89.00') })
-  assert.equal(final.revisions[0].totals.total, '96.34')
-  await b.office.run('invoice.revise', { invoiceId: final.id, version: final.version, reason: 'Over contract', lines: line('100.00') }, { error: 'PROGRESS_AMOUNT' })
-  final = await b.office.run('invoice.approve', { invoiceId: final.id, version: final.version, revision: 1, poNumber: 'PO-LONG-1' })
-  await b.office.run('invoice.export', {})
-  assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'invoiced')
-  await b.office.run('invoice.prepare', secondPayload, { error: 'JOB_STATE' })
-  first = (await h.state()).invoices.find(i => i.id === first.id)
-  await b.office.run('invoice.correct', { invoiceId: first.id, version: first.version, reason: 'Exceeds contract', lines: line('61.00') }, { error: 'PROGRESS_AMOUNT' })
-  first = await b.office.run('invoice.correct', { invoiceId: first.id, version: first.version, reason: 'Clarify stage description', lines: [{ ...line('60.00')[0], description: 'Rough-in completed and inspected' }] })
-  assert.equal(first.revisions[1].corrects.revision, 1)
-  first = await b.office.run('invoice.approve', { invoiceId: first.id, version: first.version, revision: 2 })
-  assert.deepEqual(first.dates, firstDates, 'later terms and a correction retain the first stage’s issued and due dates')
-  const statement = await h.request(`/api/glove/customers/${b.customer.id}/statement.json?asOf=2099-01-01`).then(r => r.json())
-  assert.ok(JSON.stringify(statement).includes('204.59'))
-  const { exported } = await assertTrail(h, ['invoice.prepared', 'invoice.approved', 'invoice.exported', 'invoice.corrected'])
-  assert.equal(exported.invoices.filter(i => i.jobId === job.id).length, 3)
-  assert.equal(exported.invoices.find(i => i.id === final.id).progress.final, true)
-  const other = await h.command('branch.save', { name: 'Outside', prefix: 'OUT', timezone: 'UTC', zips: ['10001'] })
-  await h.command('branch.limit', { operatorId: b.office.id, branchId: other.id })
-  await b.office.run('invoice.prepare', firstPayload, { commandId, error: 'NOT_FOUND' })
 })
 
 test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission', async t => {

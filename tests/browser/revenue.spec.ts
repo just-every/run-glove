@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Real production Worker, native sessions and D1 fixture.
-import { installation, revenueCorrection } from '../api/harness.mjs'
+import { installation, revenueCorrection, fixedMonthlyReports } from '../api/harness.mjs'
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 
 export async function correctionRevenue(browser: import('@playwright/test').Browser) {
@@ -147,4 +147,117 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
   await correctionRevenue(browser)
+  await fixedMonthlyRevenue(browser)
 })
+
+/** REPORT-004: report figures and late-approval dates from the native monthly fixture. */
+export async function fixedMonthlyRevenue(browser: import('@playwright/test').Browser) {
+  const h = await installation({ at: '2026-11-08T12:00:00.000Z' }), context = await browser.newContext(), page = await context.newPage()
+  try {
+    const b = await fixedMonthlyReports(h)
+    await h.restart()
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    await page.goto(process.env.GLOVE_OPEN)
+    await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+    if (new URL(page.url()).pathname === '/setup') {
+      await page.getByRole('checkbox').check()
+      await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+      await page.waitForURL(u => u.pathname === '/app')
+    }
+    await context.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), url = new URL(req.url())
+      const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    await page.setViewportSize({ width: 1440, height: 1050 })
+    await page.goto(`${origin}/app#reports`)
+    const panel = page.locator('section.panel').filter({ has: page.locator('#report-title') })
+    await page.getByLabel('From', { exact: true }).fill('2025-01-31')
+    await page.getByLabel('To', { exact: true }).fill('2025-03-31')
+    const expected = b.approved.filter((x: any) => x.period && x.kind !== 'onTime')
+    const expectedRows = expected.map((x: any) => [x.invoice.number, 'approved after period end', x.issuedOn, x.approvedOn, x.dueOn].join(''))
+    const lateRows = () => late.locator('tbody tr').allTextContents().then(rows => rows.sort())
+    const late = panel.getByRole('table', { name: 'Approvals after period end' })
+    const download = async () => {
+      const href = await panel.getByRole('link', { name: 'Download CSV', exact: true }).getAttribute('href')
+      return page.evaluate(async href => { const r = await fetch(href!, { credentials: 'same-origin' }); return { status: r.status, text: await r.text() } }, href)
+    }
+    for (const [kind, label, total] of [['revenue', 'Revenue', '$1,400.00'], ['tax', 'Sales tax', '$116.00']]) {
+      await page.getByLabel('Report', { exact: true }).selectOption(kind)
+      await expect(page.locator('#report-title')).toHaveText(label)
+      await expect.poll(lateRows).toEqual([...expectedRows].sort())
+      await expect(panel).toContainText(total)
+      const result = await download()
+      expect(result.status).toBe(200)
+      for (const x of expected) expect(result.text).toContain(`issued ${x.issuedOn}; approved ${x.approvedOn}; due ${x.dueOn}`)
+      // Assertions run once at desktop width; show these same records at both proof widths.
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1050 })
+        await late.scrollIntoViewIfNeeded()
+        await shot(page, width, `monthly-${kind}-late-approvals`)
+      }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+    }
+    await page.getByLabel('Report', { exact: true }).selectOption('revenue')
+    await page.getByLabel('Report branch', { exact: true }).selectOption(b.branch.id)
+    await expect.poll(lateRows).toEqual(expectedRows.filter((_: string, i: number) => expected[i].kind === 'pacific').sort())
+    await expect(panel.getByRole('row').filter({ hasText: 'All' }).first()).toContainText('$240.00')
+    await page.getByLabel('From', { exact: true }).fill('2025-04-01')
+    await page.getByLabel('To', { exact: true }).fill('2025-04-30')
+    await expect(late).toHaveCount(0)
+    await expect(panel.getByRole('row').last()).toContainText('$0.00')
+    // PLAN-013: follow each late invoice from the native state into its real
+    // invoice screen. Report labels alone do not prove invoice presentation.
+    for (const x of expected) {
+      await page.goto(`${origin}/app#invoices/${x.invoice.id}`)
+      const invoice = page.getByRole('region').filter({ has: page.locator('#invoice-title') })
+      await expect(invoice.getByRole('heading', { level: 2 })).toContainText(x.invoice.number)
+      await expect(invoice).toContainText(`Approved after period end on ${x.approvedOn}; payment terms start on that approval date.`)
+      await expect(invoice).toContainText(`Issued ${x.issuedOn} · Due ${x.dueOn} · 14 days`)
+      await expect(invoice).toContainText('approved by Riley Reports')
+      await invoice.getByLabel('QuickBooks customer ID', { exact: true }).fill('1')
+      await invoice.getByLabel('QuickBooks sales item ID', { exact: true }).fill('2')
+      await invoice.getByLabel('QuickBooks tax code ID', { exact: true }).fill('3')
+      const payloadLink = invoice.getByRole('link', { name: 'Download QuickBooks inspection payload', exact: true })
+      await expect(payloadLink).toHaveAttribute('download', '')
+      const href = await payloadLink.getAttribute('href')
+      const payload = await page.evaluate(async href => {
+        const response = await fetch(href!, { credentials: 'same-origin' })
+        return { status: response.status, document: await response.json() }
+      }, href)
+      expect(payload.status).toBe(200)
+      expect([payload.document.TxnDate, payload.document.DueDate]).toEqual([x.issuedOn, x.dueOn])
+      for (const control of await invoice.locator('button,a').all()) {
+        if (!(await control.isVisible())) continue
+        await expect(control).toHaveAccessibleName(/\S/)
+        if (!(await control.textContent())?.trim()) {
+          const description = await control.getAttribute('aria-describedby')
+          expect(description).toBeTruthy()
+          const tooltip = page.locator(`[id="${description}"]`)
+          await control.hover()
+          await expect(tooltip).toBeVisible()
+          await control.focus()
+          await expect(tooltip).toBeVisible()
+        }
+      }
+      for (const width of [1440, 390]) {
+        await page.setViewportSize({ width, height: 1050 })
+        await invoice.scrollIntoViewIfNeeded()
+        await shot(page, width, `monthly-invoice-${x.kind}-${x.issuedOn}`)
+      }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+    }
+    const onTime = b.approved.find((x: any) => x.kind === 'onTime')!
+    await page.goto(`${origin}/app#invoices/${onTime.invoice.id}`)
+    const onTimePanel = page.locator('section.panel').filter({ has: page.locator('#invoice-title') })
+    await expect(onTimePanel).toContainText(`Issued ${onTime.issuedOn} · Due ${onTime.dueOn}`)
+    await expect(onTimePanel).not.toContainText('Approved after period end on')
+    const draft = b.proposed.find((x: any) => x.jobId === b.unapproved.id)!
+    await page.goto(`${origin}/app#invoices/${draft.id}`)
+    const draftPanel = page.locator('section.panel').filter({ has: page.locator('#invoice-title') })
+    await expect(draftPanel.getByRole('status')).toContainText('Proposed — not approved, not sent')
+    await expect(draftPanel).not.toContainText('Approved after period end on')
+    expect(h.stripePayments.calls).toHaveLength(0)
+    expect(h.email.sent).toHaveLength(0)
+  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+}

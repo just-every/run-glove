@@ -16,6 +16,9 @@ import { devInstallation } from './dev-installation.mjs'
 import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash, createHmac } from 'node:crypto'
 import { createServer } from 'node:http'
+import { createReadStream } from 'node:fs'
+import { Readable } from 'node:stream'
+import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
@@ -24,9 +27,19 @@ const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 // Keep transport counts outside every installation and its temporary setup
 // Worker; an import or startup attempt must not disappear on the next start.
-const stripePosts = new Map(), marketingCalls = new Map()
+const stripePosts = new Map(), marketingCalls = new Map(), calendarCalls = new Map()
 const recorder = createServer((request, response) => {
   const name = new URL(request.url, 'http://localhost').pathname.slice(1)
+  if (name.startsWith('calendar-')) {
+    let data = ''
+    request.on('data', chunk => { data += chunk })
+    request.on('end', () => {
+      if (request.method === 'POST') calendarCalls.set(name, [...(calendarCalls.get(name) ?? []), JSON.parse(data)])
+      response.setHeader('content-type', 'application/json')
+      response.end(JSON.stringify({ calls: calendarCalls.get(name) ?? [] }))
+    })
+    return
+  }
   if (name.startsWith('marketing-')) {
     let data = ''
     request.on('data', chunk => { data += chunk })
@@ -77,6 +90,36 @@ export function portableMarketing(worker) {
 `)
     await writeFile(entry, "import { portableMarketing } from './portable-marketing.mjs'\n" + code.replace('export default portableMaps(', 'export default portableMarketing(portableMaps(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))'))
   }
+  if (!name.startsWith('payment-')) {
+    // The real archive journey replaces only calendar network transport in its owned Worker.
+    await cp(join(root, 'tests/fixtures/calendars.mjs'), join(root, 'src/calendars.mjs'))
+    await writeFile(join(root, 'src/portable-calendars.mjs'), `
+import { calendarEdge } from './calendars.mjs'
+export function portableCalendars(worker) {
+  const upstream = globalThis.fetch, edge = calendarEdge()
+  let uncertain = false
+  edge.writeReply = ({ body, id }) => uncertain ? Response.json({}) : Response.json({ ...body, id })
+  globalThis.fetch = async (input, options) => {
+    const request = new Request(input, options), host = new URL(request.url).hostname
+    if (!['www.googleapis.com', 'graph.microsoft.com', 'oauth2.googleapis.com', 'login.microsoftonline.com'].includes(host)) return upstream(input, options)
+    await upstream(${JSON.stringify(recorderOrigin + '/calendar-' + name)}, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ host, method: request.method }) })
+    if (host === 'oauth2.googleapis.com') return Response.json({ access_token: 'synthetic-glove-711' })
+    return await edge.answer(request) ?? upstream(input, options)
+  }
+  return { ...worker, async fetch(request, env, context) {
+    if (new URL(request.url).pathname === '/__portable/calendars') {
+      if (request.method === 'POST') uncertain = (await request.json()).uncertain === true
+      const counts = {}
+      for (const table of ['glove_calendar_credentials', 'glove_calendar_work', 'glove_calendar_events']) counts[table] = (await env.DB.prepare('SELECT COUNT(*) AS n FROM ' + table).first()).n
+      return Response.json({ counts, calls: edge.calls.map(({ provider, method }) => ({ provider, method })) })
+    }
+    return worker.fetch(request, env, context)
+  } }
+}
+`)
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(entry, "import { portableCalendars } from './portable-calendars.mjs'\n" + code.replace('export default portableMarketing(', 'export default portableCalendars(portableMarketing(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))'))
+  }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
   return root
@@ -97,6 +140,10 @@ async function command(root, args, executable) {
   assert.equal(code, 0, clean(p.output()).slice(-5000))
 }
 const cookiesOf = res => res.headers.getSetCookie().map(x => x.split(';')[0]).join('; ')
+const orderedJson = value => value === null || typeof value !== 'object' ? JSON.stringify(value)
+  : Array.isArray(value) ? `[${value.map(orderedJson).join(',')}]`
+    : `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${orderedJson(value[key])}`).join(',')}}`
+const documentHash = document => createHash('sha256').update(orderedJson(document)).digest('hex')
 
 async function start(root, port) {
   const runtime = child(root, ['dev', '--foreground', '--port', String(port), '--no-queue'])
@@ -154,7 +201,89 @@ const install = root => devInstallation(
 )
 
 let running
+async function calendarRestore() {
+  const source = await copy('calendar-source'), destination = await copy('calendar-destination')
+  running = await install(source)
+  const owner = running.owner
+  await owner.cmd('business.save', { name: 'Portable calendar business', currency: 'AUD', timezone: 'Australia/Sydney' })
+  const customer = await owner.cmd('customer.save', { name: 'Portable calendar customer' })
+  const site = await owner.cmd('site.save', { customerId: customer.id, address: '15 Portable Calendar Street' })
+  const tech = await owner.cmd('technician.save', { name: 'Portable Google technician' })
+  // DISP-008: populate both provider mappings, uncertain outcomes and queued work through public commands.
+  const portableCalendars = []
+  const calendarJob = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Portable calendar custody' })
+  const calendarTech = await owner.cmd('technician.save', { name: 'Portable Microsoft technician' })
+  for (const [provider, technician] of [['google', tech], ['microsoft', calendarTech]]) {
+    const payload = { technicianId: technician.id, provider, calendarId: 'synthetic-glove-712', clientId: 'synthetic-glove-713', clientSecret: 'synthetic-glove-714', refreshToken: 'synthetic-glove-715', confirm: true }
+    const connectId = randomUUID(), bookId = randomUUID()
+    await running.request('/__portable/calendars', 'POST', { uncertain: false })
+    await owner.cmd('calendar.connect', payload, connectId)
+    const bookPayload = { jobId: calendarJob.id, technicianId: technician.id, date: '2027-02-15', start: '09:00', end: '10:00' }
+    let calendarVisit = await owner.cmd('visit.book', bookPayload, bookId)
+    await running.request('/__portable/calendars', 'POST', { uncertain: true })
+    await owner.cmd('visit.book', { ...bookPayload, date: '2027-02-16' })
+    calendarVisit = await owner.cmd('visit.change', { visitId: calendarVisit.id, version: calendarVisit.version, start: '11:00', end: '12:00', reason: 'Queued after uncertain create' })
+    portableCalendars.push({ technician, payload, connectId, bookPayload, bookId })
+  }
+  const calendarCustody = await (await running.request('/__portable/calendars')).json()
+  assert.deepEqual(calendarCustody.counts, { glove_calendar_credentials: 2, glove_calendar_work: 6, glove_calendar_events: 2 })
+  const calendarState = await owner.get('/api/glove/state')
+  for (const { technician } of portableCalendars) {
+    const current = calendarState.technicians.find(t => t.id === technician.id)
+    assert.equal(current.calendarOutcome.state, 'unknown')
+    assert.equal(current.calendarOutcome.action, 'create')
+  }
+  assert.equal(calendarCustody.calls.filter(c => c.method === 'POST').length, 4, 'two creates per provider; later changes stay pending')
+  const before = await owner.get('/api/glove/export')
+  await running.close(); running = null
+  const archive = join(parent, 'calendar-installation.rer')
+  await command(source, ['export', '--output', archive])
+  const archiveBytes = await readFile(archive), audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  for (const table of ['glove_calendar_credentials', 'glove_calendar_work', 'glove_calendar_events']) assert.ok(!audienceManifest.tables.some(t => t.name === table), 'DISP-008 actual archive omits calendar execution tables')
+  for (const value of ['synthetic-glove-714', 'synthetic-glove-715']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-008 actual archive omits credentials')
+  await command(destination, ['import', '--input', archive, '--yes'])
+  running = await install(destination)
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'source sessions never open the restored installation')
+  const after = await running.owner.get('/api/glove/export')
+  for (const kind of ['customers', 'sites', 'technicians', 'jobs', 'visits', 'timeline']) assert.deepEqual(after[kind], before[kind], 'calendar business history survives the actual archive')
+  const calendarImported = await (await running.request('/__portable/calendars')).json()
+  assert.deepEqual(calendarImported.counts, { glove_calendar_credentials: 0, glove_calendar_work: 0, glove_calendar_events: 0 })
+  const restoredCalendarVisits = after.visits
+  for (const replay of portableCalendars) {
+    const restoredTech = (await running.owner.get('/api/glove/state')).technicians.find(t => t.id === replay.technician.id)
+    assert.deepEqual(restoredTech.calendarRetainedEvents ?? [], [])
+    assert.deepEqual(restoredTech.calendarUncertainWrites ?? [], [])
+    for (const type of ['calendar.read', 'visit.book']) {
+      const payload = type === 'calendar.read' ? { technicianId: replay.technician.id } : { ...replay.bookPayload, date: '2027-02-17' }
+      const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type, payload }, running.owner.cookie)
+      assert.equal((await response.json()).error.code, 'CALENDAR_SYNC', 'restored metadata grants no busy-read or write authority')
+    }
+    await running.owner.cmd('calendar.connect', replay.payload, replay.connectId)
+    await running.owner.cmd('visit.book', replay.bookPayload, replay.bookId)
+  }
+  assert.deepEqual((await running.owner.get('/api/glove/state')).visits, restoredCalendarVisits)
+  assert.equal(calendarCalls.get('calendar-calendar-destination')?.length ?? 0, 0, 'DISP-008 import, setup, startup, refusal and saved command replay make no provider call')
+  const calendarRestartPort = Number(new URL((await running.request('/api/glove/state')).url).port)
+  await running.close(); running = null
+  running = await start(destination, calendarRestartPort)
+  assert.equal(calendarCalls.get('calendar-calendar-destination')?.length ?? 0, 0, 'DISP-008 actual restored Worker restart makes no provider call')
+  for (const replay of portableCalendars) {
+    await running.owner.cmd('calendar.connect', { technicianId: replay.technician.id, disconnect: true })
+    await running.owner.cmd('calendar.connect', replay.payload)
+  }
+  assert.equal(calendarCalls.get('calendar-calendar-destination').length, 2, 'explicit reconnection performs only OAuth exchanges')
+  assert.deepEqual((await (await running.request('/__portable/calendars')).json()).calls, [], 'reconnection never replays archived delivery work')
+  await running.owner.cmd('calendar.read', { technicianId: tech.id })
+  await running.owner.cmd('visit.book', { ...portableCalendars[0].bookPayload, date: '2027-02-17' })
+  const freshCalendar = await (await running.request('/__portable/calendars')).json()
+  assert.deepEqual(freshCalendar.calls.filter(c => c.method !== 'GET'), [{ provider: 'google', method: 'POST' }], 'only a fresh explicit visit writes after reconnection')
+  for (const replay of portableCalendars) await running.owner.cmd('calendar.connect', { technicianId: replay.technician.id, disconnect: true })
+  console.log('DISP-008 real archive passed: both provider credentials, pending work and mappings absent; import, startup, replay and restart silent; explicit reconnection required')
+  await running.close(); running = null
+}
+
 try {
+  await calendarRestore()
   const source = await copy('source'), destination = await copy('destination')
   running = await install(source)
   const owner = running.owner
@@ -176,6 +305,8 @@ try {
   const visit = await owner.cmd('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-10-15', start: '09:00', end: '10:30' })
   await priya.cmd('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:03:00Z' })
   const photo = await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: jpeg } })
+  const retainedMaterial = await owner.cmd('service.save', { code: 'SYNTHETIC-ARCHIVE-MATERIAL', name: 'Synthetic archive material', kind: 'material', unit: 'each', unitCost: '7.00', unitPrice: '14.00', tax: 'GST' })
+  await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:11:00Z', kind: 'material', serviceId: retainedMaterial.id, quantity: '2', description: 'Synthetic portable private material' })
   const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
   let batch = await owner.cmd('import.stage', { files })
   batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
@@ -184,6 +315,16 @@ try {
   certCustomer = await owner.cmd('customer.save', { ...certCustomer, taxExemption: { certificateNumber: 'PORTABLE-SCHOOL', expires: '2099-12-31' } })
   const certificateBytes = Buffer.from('%PDF-1.7\nPrivate exemption certificate\n%%EOF')
   certCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: certificateBytes.toString('base64') } })
+  // MONEY-004: an additive multi-chunk replacement keeps both customer originals.
+  const chunkedCertificateBytes = Buffer.alloc(512 * 1024 + 71, 66)
+  chunkedCertificateBytes.write('%PDF-1.7\nChunked school evidence\n')
+  chunkedCertificateBytes.write('\n%%EOF', chunkedCertificateBytes.length - 6)
+  const chunkedCertificateCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: chunkedCertificateBytes.toString('base64') } })
+  const chunkedCertificate = chunkedCertificateCustomer.taxExemption.certificate
+  assert.equal(chunkedCertificate.sha256, createHash('sha256').update(chunkedCertificateBytes).digest('hex'))
+  const sourceChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, owner.cookie)
+  assert.equal(sourceChunkedCertificate.status, 200)
+  assert.deepEqual(Buffer.from(await sourceChunkedCertificate.arrayBuffer()), chunkedCertificateBytes)
   await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' })
   await priya.cmd('visit.complete', { visitId: visit.id, deviceTime: '2026-10-14T23:30:00Z', summary: 'Cleaned filters', findings: 'Coil clean', recommendations: [{ title: 'Annual tune-up' }], signoff: { absentReason: 'Customer away' } })
   const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
@@ -194,19 +335,37 @@ try {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
   const agreement = await owner.cmd('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: today })
   const offerPayload = { agreementId: agreement.id, index: 0, slots: [{ technicianId: tech.id, date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), start: '11:00', end: '11:30' }] }
-  const bookingLink = await owner.cmd('agreement.offer', offerPayload)
+  const bookingCommandId = randomUUID()
+  const bookingLink = await owner.cmd('agreement.offer', offerPayload, bookingCommandId)
   assert.equal((await running.booking(bookingLink.token)).status, 200, 'PLAN-004 source booking link works')
   // QUOTE-002: retain the exact revision document and hash, require a new bearer after restore.
-  let customerQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Annual tune-up proposal', lines: [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
+  const sourceQuoteIssues = []
+  const issueSourceQuote = async payload => {
+    const commandId = randomUUID(), result = await owner.cmd('quote.link', payload, commandId)
+    assert.equal((await running.quote(result.token)).status, 200, 'every captured source bearer initially opens its quote')
+    sourceQuoteIssues.push({ payload, commandId, result })
+    return result
+  }
+  // These links exercise a real wall clock, including signed decisions later
+  // in the journey; keep their frozen validity ahead of the installation date.
+  const quoteValidUntil = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10)
+  const customerQuoteLines = [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', serviceId: service.id }]
+  let customerQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Annual tune-up proposal', lines: customerQuoteLines, validUntil: quoteValidUntil })
   customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 1 })
-  const quoteLink = await owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
+  const revokedQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
+  const earlierQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
+  assert.equal((await running.quote(revokedQuoteLink.token)).status, 404)
+  customerQuote = await owner.cmd('quote.revise', { quoteId: customerQuote.id, version: customerQuote.version, lines: customerQuoteLines, validUntil: quoteValidUntil })
+  customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 2 })
+  const quoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
+  assert.equal((await (await running.quote(earlierQuoteLink.token)).json()).state, 'superseded')
   assert.equal((await running.quote(quoteLink.token)).status, 200, 'QUOTE-002 source customer link works')
   // QUOTE-002: the signed artifact and its evidence must survive the actual
   // archive boundary byte for byte, independently of the revocable bearer.
   await owner.cmd('quote.consent', { version: (await owner.get('/api/glove/state')).business[0].version, text: 'synthetic-glove-50 disclosure entered and accepted by the portability test owner.', accept: true })
-  let signedQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Signed maintenance proposal', lines: [{ description: 'Signed maintenance work', quantity: '1', unitPrice: '249.00' }], terms: 'synthetic-glove-51 terms retained in the signed artifact.' })
+  let signedQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Signed maintenance proposal', lines: [{ description: 'Signed maintenance work', quantity: '1', unitPrice: '249.00' }], terms: 'synthetic-glove-51 terms retained in the signed artifact.', validUntil: quoteValidUntil })
   signedQuote = await owner.cmd('quote.approve', { quoteId: signedQuote.id, version: signedQuote.version, revision: 1 })
-  const signedLink = await owner.cmd('quote.link', { quoteId: signedQuote.id, version: signedQuote.version })
+  const signedLink = await issueSourceQuote({ quoteId: signedQuote.id, version: signedQuote.version })
   const choice = { optionId: 'option-1', addOnIds: [] }
   const selected = await (await running.quoteRespond(signedLink.token, { action: 'choose', choice })).json()
   const signedResponse = await running.quoteRespond(signedLink.token, { action: 'approve', name: 'Dr Mei Lin', capacity: 'Practice owner', choice, documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { version: selected.disclosure.version, hash: selected.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Dr Mei Lin' } })
@@ -218,12 +377,15 @@ try {
   assert.equal(createHash('sha256').update(signedBytes).digest('hex'), signedQuote.acceptance.signing.signedCopy.sha256)
   const peerCustomer = await owner.cmd('customer.save', { name: 'Synthetic kept peer' })
   const peerSite = await owner.cmd('site.save', { customerId: peerCustomer.id, address: '55 Synthetic Road' })
-  let peerQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'Peer service', terms: `Access coordinated by ${customer.name}`, lines: [{ description: 'Peer service', quantity: '1', unitPrice: '25.00' }] })
+  let peerQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'Peer service', terms: `Access coordinated by ${customer.name}`, lines: [{ description: 'Peer service', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
   peerQuote = await owner.cmd('quote.approve', { quoteId: peerQuote.id, version: peerQuote.version, revision: 1 })
-  const peerLink = await owner.cmd('quote.link', { quoteId: peerQuote.id, version: peerQuote.version })
+  const peerLink = await issueSourceQuote({ quoteId: peerQuote.id, version: peerQuote.version })
   const peerSelection = await (await running.quoteRespond(peerLink.token, { action: 'choose', choice })).json()
   const peerAnswer = await running.quoteRespond(peerLink.token, { action: 'approve', name: 'Synthetic kept peer', capacity: 'Owner', choice, documentHash: peerSelection.documentHash, selectionHash: peerSelection.selection.hash, consent: { version: peerSelection.disclosure.version, hash: peerSelection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Synthetic kept peer' } })
   assert.equal(peerAnswer.status, 200)
+  let unrelatedQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'synthetic-glove-191', lines: [{ description: 'synthetic-glove-192', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
+  unrelatedQuote = await owner.cmd('quote.approve', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version, revision: 1 })
+  const unrelatedLink = await issueSourceQuote({ quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
   // COMM-001: a backup never carries even a callback credential hash.
   const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-52', fromEmail: 'office@example.test' })
   const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
@@ -245,7 +407,9 @@ try {
   await owner.cmd('location.fleetConnect', { technicianId: tech.id, vehicleId: '12345', key: fleetKey })
   await priya.cmd('clock.in', { deviceTime: locationNow() })
   await priya.cmd('timer.start', { visitId: locationVisit.id, kind: 'job', deviceTime: locationNow() })
-  await priya.cmd('location.phone', { lat: 41.89067, lng: -87.63067, observedAt: locationNow() })
+  const locationCaptureId = randomUUID()
+  const locationCapture = { lat: 41.89067, lng: -87.63067, observedAt: locationNow() }
+  await priya.cmd('location.phone', locationCapture, locationCaptureId)
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   // COMM-006: populated inspection crosses the real archive boundary as business records only.
@@ -326,6 +490,9 @@ try {
     for (const value of privatePushValues) assert.ok(!JSON.stringify(surface).includes(value), 'FIELD-009 private push material is absent from public records')
   }
   const before = await owner.get('/api/glove/export')
+  assert.deepEqual(before.quoteLinks.map(link => link.id).sort(), sourceQuoteIssues.map(issue => issue.result.id).sort(), 'QUOTE-009 captures every issued source link, including replaced and earlier revisions')
+  for (const link of before.quoteLinks) assert.equal(documentHash(link.document), link.documentHash, 'QUOTE-009 source hash independently names the exact stored document')
+  for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(before).includes(issue.result.token), 'QUOTE-009 no issued bearer enters the business export')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
   assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
@@ -336,11 +503,22 @@ try {
   const archive = join(parent, 'installation.rer')
   await command(source, ['export', '--output', archive])
   const archiveBytes = await readFile(archive)
+  assert.ok(!archiveBytes.includes(Buffer.from('synthetic-glove-52')), 'COMM-001 point 3: the actual archive excludes the Postmark API key')
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
   assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  // DISP-005 populated source custody stays transient across an actual installation archive.
+  for (const name of ['glove_live_locations', 'glove_fleet_credentials']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
+  const locationHistory = before.timeline.filter(e => ['location.consent', 'location.received', 'location.fleetConnected'].includes(e.kind))
+  assert.deepEqual(locationHistory.map(e => e.kind).sort(), ['location.consent', 'location.fleetConnected', 'location.received'])
+  for (const e of locationHistory) assert.ok(e.actor_id && e.at && e.command_id)
+  assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
+  for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
+  for (const { result } of sourceQuoteIssues) {
+    assert.ok(!archiveBytes.includes(Buffer.from(result.token)), 'QUOTE-009 plain archive bytes contain no issued quote bearer')
+  }
   assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
   for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
   for (const value of privatePushValues) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'FIELD-009 actual archive excludes populated private push material')
@@ -358,8 +536,32 @@ try {
   assert.equal(restoredPosition.position, null, 'DISP-005 restored installation has no captured position')
   const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
+  const oldCapture = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.phone', payload: locationCapture }, priya.cookie)
+  assert.equal(oldCapture.status, 401, 'DISP-005 source sign-in cannot write in the restored installation')
   const after = await running.owner.get('/api/glove/export')
+  for (const e of locationHistory) assert.deepEqual(after.timeline.find(x => x.id === e.id), e, 'DISP-005 attributable history survives the real restore without private location material')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  for (const original of before.quotes) {
+    const restoredQuote = after.quotes.find(quote => quote.id === original.id)
+    assert.deepEqual(restoredQuote, original, 'QUOTE-009 every native and imported quote record survives the real archive')
+    assert.deepEqual(restoredQuote.revisions, original.revisions, 'QUOTE-009 all revisions and their approval or decision evidence survive')
+  }
+  for (const original of before.quoteLinks) {
+    const restoredLink = after.quoteLinks.find(link => link.id === original.id)
+    assert.deepEqual(restoredLink, original, 'QUOTE-009 every current, replaced and earlier-revision link record survives')
+    assert.equal(documentHash(restoredLink.document), original.documentHash, 'QUOTE-009 every restored document independently hashes to its source hash')
+  }
+  for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 no issued source bearer opens the restored installation')
+  for (const { payload, commandId, result } of sourceQuoteIssues) {
+    const { token, ...savedResult } = result
+    const replay = await running.owner.cmd('quote.link', payload, commandId)
+    assert.deepEqual(replay, savedResult, 'QUOTE-009 restored issuance replays only its original saved metadata')
+    assert.equal(replay.token, undefined, 'QUOTE-009 replay never reveals a bearer')
+    for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(replay).includes(issue.result.token))
+  }
+  const { exportedAt: replayReadAt, ...replayedBusiness } = await running.owner.get('/api/glove/export')
+  const { exportedAt: restoredReadAt, ...restoredBusiness } = after
+  assert.deepEqual(replayedBusiness, restoredBusiness, 'QUOTE-009 replaying all imported issuances creates no links, records or Activity')
   assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
   // Restored development people require explicit owner reactivation, independently of push consent.
   assert.equal((await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)).status, 200)
@@ -449,6 +651,9 @@ try {
   const reactivated = await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)
   assert.equal(reactivated.status, 200, 'a current Owner explicitly reactivates the restored staff member')
   const restoredMember = await running.persona('member')
+  assert.deepEqual(await restoredMember.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome after explicit staff reactivation')
+  assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
+  console.log('DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position')
   const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
   assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
   for (const batch of sourceBatches) {
@@ -461,8 +666,12 @@ try {
   assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
   assert.equal((await running.quote(quoteLink.token)).status, 404, 'QUOTE-002 source bearer is not restored')
   const freshQuoteLink = await running.owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
-  assert.equal((await running.quote(freshQuoteLink.token)).status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
+  const freshQuoteResponse = await running.quote(freshQuoteLink.token)
+  assert.equal(freshQuoteResponse.status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
   assert.equal(freshQuoteLink.documentHash, quoteLink.documentHash, 'QUOTE-002 restored document hash is unchanged')
+  const freshQuoteView = await freshQuoteResponse.json()
+  assert.deepEqual(freshQuoteView.document, quoteLink.document)
+  assert.equal(documentHash(freshQuoteView.document), quoteLink.documentHash, 'QUOTE-009 a fresh bearer serves exactly the restored document')
   assert.equal((await running.quote(signedLink.token)).status, 404, 'signed quote bearer is not restored')
   const restoredSigned = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)
   assert.equal(restoredSigned.status, 200)
@@ -471,8 +680,25 @@ try {
   assert.deepEqual(restoredSignedQuote.acceptance.signing, signedQuote.acceptance.signing, 'QUOTE-002 all signature evidence survives the archive')
   const restoredSignedLink = await running.owner.cmd('quote.link', { quoteId: signedQuote.id, version: restoredSignedQuote.version })
   assert.equal((await (await running.quote(restoredSignedLink.token)).json()).decision, 'accepted', 'fresh bearer opens the frozen signed decision after restore')
+  assert.equal(restoredSignedLink.documentHash, signedLink.documentHash)
+  const freshUnrelatedLink = await running.owner.cmd('quote.link', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
+  assert.equal((await running.quote(freshUnrelatedLink.token)).status, 200)
+  assert.equal(freshUnrelatedLink.documentHash, unrelatedLink.documentHash)
   const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
   assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
+  // PLAN-010: a real archive carries offer evidence, never its execution credential.
+  const { token: sourceBookingToken, ...sourceBookingMetadata } = bookingLink
+  assert.deepEqual(after.bookingOffers.find(o => o.id === bookingLink.id), sourceBookingMetadata, 'PLAN-010 original offer metadata restores exactly')
+  assert.deepEqual(await running.owner.cmd('agreement.offer', offerPayload, bookingCommandId), sourceBookingMetadata, 'PLAN-010 restored command replay reveals only saved metadata')
+  assert.equal((await running.booking(sourceBookingToken)).status, 404, 'PLAN-010 replay cannot resurrect the source bearer')
+  assert.notEqual(freshBookingLink.token, sourceBookingToken)
+  assert.equal(freshBookingLink.jobId, bookingLink.jobId, 'PLAN-010 fresh issuance reuses the restored included job')
+  const freshBookingView = await (await running.booking(freshBookingLink.token)).json()
+  assert.deepEqual(freshBookingView.offer, { business: 'Harbour Air & Electrical', service: 'Split system service', address: site.address, expiresAt: freshBookingLink.expiresAt, slots: freshBookingLink.slots.map(s => ({ id: s.id, ...s.local })) }, 'PLAN-010 fresh bearer exposes only the restored included visit')
+  const restoredOfferExport = await running.owner.get('/api/glove/export')
+  for (const secret of [sourceBookingToken, freshBookingLink.token]) assert.equal(JSON.stringify(restoredOfferExport).includes(secret), false)
+  console.log('PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job')
+
   const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
   assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
   assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
@@ -481,6 +707,11 @@ try {
   const restoredCertificate = await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)
   assert.equal(restoredCertificate.status, 200, 'MONEY-001 private certificate remains readable after restore')
   assert.deepEqual(Buffer.from(await restoredCertificate.arrayBuffer()), certificateBytes, 'MONEY-001 original certificate bytes restored')
+  const restoredChunkedCustomer = after.customers.find(c => c.id === customer.id)
+  assert.deepEqual(restoredChunkedCustomer.taxExemption.certificate, chunkedCertificate, 'MONEY-004 replacement remains attached to the restored customer')
+  const restoredChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, running.owner.cookie)
+  assert.equal(restoredChunkedCertificate.status, 200)
+  assert.deepEqual(Buffer.from(await restoredChunkedCertificate.arrayBuffer()), chunkedCertificateBytes, 'MONEY-004 all original chunks survive real export and import')
   // The restored installation keeps working, including undo of the restored move-in journal.
   await running.owner.cmd('customer.save', { name: 'After restore' })
   const restored = (await running.owner.get('/api/glove/state')).imports.find(i => i.id === batch.id)
@@ -493,6 +724,14 @@ try {
   const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
   const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
   assert.equal(receipt.outcome, 'complete')
+  for (const link of [freshQuoteLink, restoredSignedLink]) assert.equal((await running.quote(link.token)).status, 404, 'QUOTE-009 erasure immediately closes every new bearer for this restored customer')
+  for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 source bearers remain refused after erasure')
+  const unrelatedAfterErasure = await running.quote(freshUnrelatedLink.token)
+  assert.equal(unrelatedAfterErasure.status, 200, 'QUOTE-009 another customer retains its independent restored link')
+  const unrelatedDocument = (await unrelatedAfterErasure.json()).document
+  assert.deepEqual(unrelatedDocument, unrelatedLink.document)
+  assert.equal(documentHash(unrelatedDocument), unrelatedLink.documentHash)
+  console.log('QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only')
   const erasedRoutes = (await running.owner.get('/api/glove/state')).routes
   for (const id of [route.id, freshRoute.id]) {
     const closed = erasedRoutes.find(r => r.id === id)
@@ -514,6 +753,54 @@ try {
   await running.close(); running = null
   const latest = join(parent, 'post-erasure.rer')
   await command(destination, ['export', '--output', latest])
+  const olderBytes = await readFile(archive), latestBytes = await readFile(latest)
+  const olderCheckpoint = JSON.parse(olderBytes.toString('utf8').split('\n')[0])
+  const laterCheckpoint = JSON.parse(latestBytes.toString('utf8').split('\n')[0])
+  assert.equal(laterCheckpoint.sourceIdentity, olderCheckpoint.sourceIdentity)
+  assert.ok(laterCheckpoint.epoch > olderCheckpoint.epoch, 'DATA-001 point 7: the real edition archive carries the committed redaction checkpoint')
+  const erasedValues = ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']
+  for (const value of erasedValues) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
+  {
+    const { readArchive } = await import('@runeditrun/rer/modules/portability')
+    const cells = []
+    for await (const record of readArchive(Readable.toWeb(createReadStream(latest)))) if (record.kind === 'part') for (const item of record.items) if (item.kind === 'row') {
+      for (const value of Object.values(item.row)) cells.push(value && typeof value === 'object' && typeof value.blob === 'string' ? Buffer.from(value.blob, 'base64').toString('utf8') : typeof value === 'string' ? value : JSON.stringify(value))
+    }
+    const decoded = cells.join('\n')
+    for (const value of erasedValues) assert.ok(!decoded.includes(value), 'DATA-001 point 7: decoded original chunks and archived records contain no erased personal values')
+  }
+  // Keep a destination with the newer checkpoint. Its own fence must refuse
+  // the old archive even when no external journal was supplied.
+  {
+    const { getPlatformProxy } = await import('wrangler')
+    const { selectLocalState } = await import('@runeditrun/rer/local/state')
+    const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
+    // Wrangler's API takes the versioned directory; its CLI takes the parent.
+    const state = await selectLocalState(destination)
+    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(state, 'v3') }, remoteBindings: false })
+    try {
+      const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
+      assert.deepEqual(await db.prepare('SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first(), { source_identity: laterCheckpoint.sourceIdentity, epoch: laterCheckpoint.epoch }, 'DATA-001 point 7: the fence probe opens the installation holding the actual newer checkpoint')
+      assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
+      const service = await createPortability({ db, policy })
+      const records = []
+      for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
+      const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
+      const attempt = await service.imports.create(records[0], 'owner')
+      try {
+        for (const [i, part] of records.filter(r => r.kind === 'part').entries()) await service.imports.uploadPart(attempt, i, part)
+        await assert.rejects(service.imports.finalize(attempt, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash }), /erasure_epoch/, 'DATA-001 point 7: the destination checkpoint independently refuses the old archive without a supplied journal')
+      } finally { await service.imports.abort(attempt) }
+      assert.deepEqual((await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results, stored, 'the refused archive changes no anonymous or peer records')
+    } finally { await proxy.dispose() }
+  }
+  const offlineTarget = await copy('offline-older-backup')
+  await command(offlineTarget, ['import', '--input', archive, '--yes'])
+  running = await install(offlineTarget)
+  const offline = await running.owner.get('/api/glove/export')
+  assert.equal(offline.customers.find(c => c.id === customer.id).name, 'Harbourview Dental', 'DATA-001 point 8: a fresh offline destination with only the older archive cannot discover the later erasure')
+  assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 200, 'DATA-001 point 8: the old archive still contains the original, demonstrating the documented limit')
+  await running.close(); running = null
   const olderTarget = await copy('older-backup')
   await cp(latest, join(olderTarget, 'post-erasure.rer'))
   await assert.rejects(command(olderTarget, ['import', '--input', archive, '--journal', 'post-erasure.rer', '--yes']), /erasure_epoch/, 'DATA-001 older backup cannot resurrect erased personal data with the trusted later journal')
@@ -532,6 +819,7 @@ try {
   assert.doesNotMatch(JSON.stringify(peerPreview), /Harbourview Dental|Customer-facing restored inspection|Permitted restored model/)
 
   assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
+  assert.equal((await running.owner.get(`/api/glove/jobs/${job.id}/cost`)).costing.actual.materials, '14.00', 'DATA-001 point 7: real anonymous archive restore retains material costs without personal capture evidence')
   assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'erased signed-copy bytes stay erased across backup/restore')
@@ -540,7 +828,7 @@ try {
   assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'peer signed-original withdrawal survives rer restore')
   assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
   assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
-  console.log('DATA-001 real rer import passed: older backup refused; anonymous invoice/tax totals restore and originals stay erased')
+  console.log('DATA-001 points 7 and 8 real rer import passed: later journal and destination checkpoint refuse the old archive; a fresh offline destination without that journal restores it; the new archive retains anonymous totals and no erased originals')
   await running.close(); running = null
   // PAY-008: the real archive retains permission versions, never execution authority.
   const paySource = await copy('payment-source'), payDestination = await copy('payment-destination')

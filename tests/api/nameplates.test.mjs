@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // FIELD-006 equipment nameplate capture through the command, state, file and
 // export doors, with the owner's model provider faked at the network edge.
 import test from 'node:test'
@@ -14,7 +15,7 @@ const plates = {
 }
 
 test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms', async (t) => {
-  const h = await installation()
+  const h = await installation({ captureLogs: true })
   t.after(() => h.close())
   const b = await business(h)
   h.models.answer = body => {
@@ -31,6 +32,24 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
   await b.priyaPerson.run('nameplate.read', { visitId: visit.id, equipmentId: condenser.id, photo: { mediaType: 'image/jpeg', base64: plates.trane.photo } }, { error: 'MODEL' })
   await b.office.run('model.connect', { url: 'https://models.example.test/v1', model: 'vision-test', key: 'synthetic-glove-111' }, { error: 'FORBIDDEN' })
   await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'vision-test', key: 'synthetic-glove-111' })
+  await scenario(t, 'FIELD-006 point 2: provider redirects are refused without forwarding the photo or saving a reading', async () => {
+    for (const status of [307, 308, 301, 302, 303]) {
+      for (const location of ['https://outside.example.test/capture', 'http://outside.example.test/capture', 'https://models.example.test/elsewhere']) {
+        h.models.reply = () => new Response(null, { status, headers: { location } })
+        const before = await h.state(), attempts = h.outbound.attempts, calls = h.models.calls.length
+        const refused = await b.priyaPerson.run('nameplate.read', { visitId: visit.id, equipmentId: condenser.id, photo: { mediaType: 'image/jpeg', base64: plates.trane.photo } }, { error: 'MODEL' })
+        assert.equal(h.outbound.attempts - attempts, 1, `HTTP ${status} must not forward to ${location}`)
+        assert.equal(h.models.calls.length - calls, 1, 'no provider retry')
+        assert.deepEqual(refused.details, { status })
+        const after = await h.state()
+        assert.deepEqual(after.equipment, before.equipment)
+        assert.deepEqual(after.nameplates, before.nameplates)
+        assert.deepEqual((await h.db.prepare('SELECT id FROM glove_files').all()).results, [], 'failed model request saves no photo')
+      }
+    }
+    h.models.reply = null
+    h.models.calls.length = 0
+  })
   const manual = await b.office.run('manual.save', { make: 'Trane', model: 'XR14', title: 'Trane XR14 installer guide', url: 'https://manuals.example.test/trane-xr14.pdf' })
   await b.office.run('manual.save', { make: ' trane ', model: 'xr14', title: 'Again', url: 'https://manuals.example.test/x.pdf' }, { error: 'DUPLICATE' })
 
@@ -40,7 +59,7 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
   const rheem = await read(plates.rheem)
   await b.tomPerson.run('nameplate.read', { visitId: visit.id, photo: { mediaType: 'image/jpeg', base64: plates.trane.photo } }, { error: 'FORBIDDEN' })
 
-  await t.test('FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread', () => {
+  await scenario(t, 'FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread', () => {
     assert.deepEqual(trane.proposed, { make: 'Trane', model: 'XR14', serial: '19243KX1F', manufactured: '2019-06' })
     assert.deepEqual([carrier.proposed, carrier.unread], [{ make: 'Carrier', model: '59TP6', serial: '', manufactured: '2014' }, ['serial']])
     assert.deepEqual([rheem.proposed.manufactured, rheem.unread], ['', ['manufactured']], '"June 2018" is not a date as printed to a precision, so it is left unread')
@@ -55,7 +74,7 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
     }
   })
 
-  await t.test('FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms', async () => {
+  await scenario(t, 'FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms', async () => {
     const before = await h.state()
     assert.deepEqual(before.equipment.map(e => [e.type, e.make ?? '', e.model ?? '', e.serial ?? '']), [['AC condenser', '', '', '']])
     assert.equal(before.nameplates.length, 3)
@@ -67,7 +86,7 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
     await b.dispatcher.run('nameplate.confirm', { readingId: trane.id, version: trane.version, ...trane.proposed }, { error: 'FORBIDDEN' })
   })
 
-  await t.test('FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact', async () => {
+  await scenario(t, 'FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact', async () => {
     const unit = await b.priyaPerson.run('nameplate.confirm', { readingId: trane.id, version: trane.version, ...trane.proposed, serial: '19243KX1G' })
     assert.deepEqual([unit.id, unit.make, unit.model, unit.serial, unit.manufacturedOn, unit.location], [condenser.id, 'Trane', 'XR14', '19243KX1G', '2019-06', 'Roof'])
     assert.deepEqual(unit.manual, { manualId: manual.id, title: 'Trane XR14 installer guide', url: 'https://manuals.example.test/trane-xr14.pdf' })

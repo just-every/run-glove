@@ -42,15 +42,26 @@ export const privacy: Handler = async (c, type, p, db) => {
   // scope before erasure removes visits, and fence their saved outcomes too.
   const routeReferences = c.s.routes.filter(r => routeVisits(c.s, r as unknown as RoutingScope).some(v => owned.ids.has(v.id))).map(r => r.id)
   const scope = privacyScope(c.s, customer.id, [...xeroReferences, ...routeReferences])
+  // A shared bank reference can quote a receipt or check reference. Redact
+  // those payment details only in affected shared payout notes, preserving
+  // numeric bank amounts even when a receipt reference has the same text.
+  const payoutScope = privacyScope(c.s, customer.id, owned.records.payments.flatMap(r => [r.reference, r.providerReference, r.intentId].filter((v): v is string => typeof v === 'string' && !!v)))
+  const payoutIds = new Set(c.s.payouts.filter(r => scope.matches(r) || payoutScope.matches(r.reference)).map(r => r.id))
+  // Follow shared payout copies into their saved outcomes and audit data;
+  // never expand the peer payment records' own erasure scope.
+  const payoutCustody = (value: unknown) => { const body = typeof value === 'string' ? value : JSON.stringify(value); return !!body && [...payoutIds].some(id => body.includes(id)) }
+  const allEvents = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all<Row>()).results
+  const events = allEvents.filter(scope.matches), erasedEvents = allEvents.filter(e => scope.matches(e) || payoutCustody(e))
+  const erasedCommands = (await db.prepare('SELECT id,result FROM glove_commands').all<Row>()).results.filter(r => scope.matches(r.result) || payoutCustody(r.result))
   const importedPeers = new Set((await db.prepare('SELECT id FROM glove_records WHERE revision IS NOT NULL').all<{id: string}>()).results.map(r => r.id))
   const preview = await erasurePreview(db, c.s, scope, type === 'privacy.preview' ? c.s.version + 1 : c.s.version)
+  if (payoutIds.size) { preview.counts.payouts = payoutIds.size; preview.counts.glove_events = erasedEvents.length; preview.counts.glove_commands = erasedCommands.length }
   if (type === 'privacy.preview') {
     event(c, { jobId: null, subjectKind: 'customer', subjectId: customer.id, kind: 'privacy.preview', summary: 'Customer erasure preview prepared', data: { customerIds: [...scope.customers] } })
     const { fields: _fields, sourceIds: _sourceIds, sourceOriginalHashes: _sourceOriginalHashes, ...visible } = preview
     return visible
   }
   const customerIds = [...scope.customers].sort(), receiptId = newId()
-  const events = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all<Row>()).results.filter(scope.matches)
   const files = (await db.prepare('SELECT * FROM glove_files').all<any>()).results.filter(f => scope.ids.has(f.capture_id))
   const certificates = (await db.prepare('SELECT * FROM glove_tax_certificates').all<any>()).results.filter(f => scope.customers.has(f.customer_id))
   const receipt = { id: receiptId, version: 1, createdAt: c.now, customerIds, action: type === 'privacy.export' ? 'export' : 'erase', outcome: 'complete', by: { id: c.actor.id, name: c.actor.name }, retained: type === 'privacy.erase' ? 'Anonymous invoices, job costs and tax totals; no customer details or original files.' : null }
@@ -79,10 +90,16 @@ export const privacy: Handler = async (c, type, p, db) => {
   } else {
     if (p.confirm !== 'ERASE') fail('CONSENT', 'Confirm ERASE to permanently erase this merged customer group.', null, 400)
     if (p.fingerprint !== preview.fingerprint) fail('STALE_PREVIEW', 'Prepare and review a current erasure preview before confirming.', null, 409)
+    const retainedMaterials = new Map<string, Record<string, unknown>[]>()
+    for (const r of scope.records.captures) if (r.kind === 'material') {
+      const entries = retainedMaterials.get(r.jobId) ?? []
+      entries.push({ quantity: r.quantity, unit: scope.redact(r.unit), serviceId: r.serviceId ?? null })
+      retainedMaterials.set(r.jobId, entries)
+    }
     const keeps: Record<string, (r: Row) => Row> = {
       customers: r => ({ id: r.id, version: r.version + 1, name: 'Erased customer', erasedAt: c.now, branchId: r.branchId ?? null }),
       sites: r => ({ id: r.id, ...pick(r, ['id', 'customerId', 'branchId']), version: r.version + 1, address: 'Erased address', erasedAt: c.now }),
-      jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [] }),
+      jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [], ...(retainedMaterials.has(r.id) ? { retainedMaterials: retainedMaterials.get(r.id) } : {}) }),
       invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt', 'dates', 'approvalAt', 'recurring', 'openingBalance']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
       payments: r => ({ id: r.id, ...pick(r, ['invoiceId', 'invoiceNumber', 'jobId', 'customerId', 'branchId', 'createdAt', 'currency', 'amount', 'tip', 'technicianIds', 'fee', 'status', 'confirmedAt', 'taxBreakdown', 'taxTotalAmount', 'kind', 'method', 'mode']), effects: (r.effects ?? []).map((e: Row) => pick(e, ['at', 'amountCents', 'tipCents', 'invoiceId'])), version: r.version + 1, erasedAt: c.now }),
       times: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'technicianId', 'kind', 'startAt', 'endAt']), version: r.version + 1 }),
@@ -98,8 +115,8 @@ export const privacy: Handler = async (c, type, p, db) => {
         }
         const sharedSignedCopy = kind === 'quotes' && preview.sharedSignedCopies.find(q => q.quoteId === r.id)
         if (sharedSignedCopy) return [withdrawSignedQuote(r, scope, sharedSignedCopy, c.now)]
-        if (kind === 'proposals' && r.payoutId && scope.matches(r)) return []
-        if (kind === 'payouts' && r.items?.some((i: Row) => scope.ids.has(i.paymentId))) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, items: r.items.map((i: Row) => scope.ids.has(i.paymentId) ? { ...scope.redact(i), providerReference: null } : i) }]
+        if (kind === 'proposals' && r.payoutId && (scope.matches(r) || payoutIds.has(r.payoutId))) return []
+        if (kind === 'payouts' && payoutIds.has(r.id)) return [{ ...scope.redact(r), sourceDetailsErasedAt: c.now, ...(r.reference !== undefined ? { reference: payoutScope.redact(r.reference) } : {}), id: r.id, version: r.version + 1, ...(r.items ? { items: r.items.map((i: Row) => scope.ids.has(i.paymentId) ? { ...scope.redact(i), providerReference: null } : i) } : {}) }]
         if (kind === 'routes' && scope.matches(r)) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, ...(['queued', 'running', 'ready'].includes(r.status) ? { status: 'discarded', reason: 'Customer personal data erased; prepare a new route.' } : {}) }]
         if (scope.selected.has(`${kind}:${r.id}`)) return keeps[kind] ? [keeps[kind](r)] : []
         return !importedPeers.has(r.id) && scope.matches(r) ? [{ ...scope.redact(r), id: r.id, version: r.version + 1 }] : [r]
@@ -123,8 +140,8 @@ export const privacy: Handler = async (c, type, p, db) => {
     }
     c.sql.push(sql('INSERT INTO glove_privacy_guard(id) VALUES(1)'))
     const anonymousId = (value: string) => [...scope.personal].some(p => value.includes(p)) ? `privacy-${newId()}` : value
-    for (const e of events) c.sql.push(sql("UPDATE glove_events SET id=?,command_id=?,summary='Customer personal data erased',data='{}',actor_name=CASE WHEN actor_role IN ('customer','quote-link') THEN 'Customer' ELSE actor_name END WHERE id=?", anonymousId(e.id), anonymousId(e.command_id), e.id))
-    for (const row of (await db.prepare('SELECT id,result FROM glove_commands').all<any>()).results) if (scope.matches(row.result)) c.sql.push(sql('UPDATE glove_commands SET result=? WHERE id=?', JSON.stringify({ ok: false, error: { code: 'ERASED', message: 'This earlier outcome was erased for customer privacy.' } }), row.id))
+    for (const e of erasedEvents) c.sql.push(sql("UPDATE glove_events SET id=?,command_id=?,summary='Customer personal data erased',data='{}',actor_name=CASE WHEN actor_role IN ('customer','quote-link') THEN 'Customer' ELSE actor_name END WHERE id=?", anonymousId(e.id), anonymousId(e.command_id), e.id))
+    for (const row of erasedCommands) c.sql.push(sql('UPDATE glove_commands SET result=? WHERE id=?', JSON.stringify({ ok: false, error: { code: 'ERASED', message: 'This earlier outcome was erased for customer privacy.' } }), row.id))
     c.sql.push(sql('DELETE FROM glove_quote_signed_chunks WHERE quote_id IN (SELECT value FROM json_each(?))', JSON.stringify([...scope.records.quotes.map(q => q.id), ...preview.sharedSignedCopies.map(q => q.quoteId)])))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
