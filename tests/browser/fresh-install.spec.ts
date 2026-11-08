@@ -192,8 +192,8 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await phone.goto(`${origin}/app`)
     await phone.getByRole('button', { name: new RegExp(`${job.number} · Synthetic maintenance visit`) }).click()
     const phoneTime = new Date('2026-11-01T09:00:00.000Z')
-    await phone.clock.install({ time: phoneTime })
-    await phone.clock.pauseAt(phoneTime)
+    // Keep device timestamps exact while timers continue to drive the offline queue.
+    await phone.clock.setFixedTime(phoneTime)
     await technician.context.setOffline(true)
     await phone.getByRole('button', { name: 'Record arrival', exact: true }).click()
     await phone.getByLabel('Isolate power', { exact: true }).check()
@@ -211,7 +211,6 @@ test('DATA-004 fresh local installation completes service work as four separatel
     expect(disconnected.captures).toEqual([])
     if (process.env.GLOVE_SCREENSHOTS) await phone.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, '390-fresh-phone-offline.png'), fullPage: true })
     await technician.context.setOffline(false)
-    await phone.clock.resume()
     await expect(phone.getByText(/waiting to send|Sending/)).toHaveCount(0, { timeout: 30_000 })
     await expect.poll(async () => (await state(owner)).visits.find((v: any) => v.id === visit.id)?.status).toBe('completed')
 
