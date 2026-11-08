@@ -1,0 +1,174 @@
+{
+  "tag": "sx-glove-c-f117",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f117",
+  "head": "f0be713bf60cde70c4329d66914c8642d6230e96",
+  "main_observed": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+  "reported_at": "2026-11-08T10:37:17.086729+00:00",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/customer-quotes.test.mjs",
+      "exit": 0,
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "duration_ms": 38897.471808,
+      "log": "api-test.log",
+      "execution": "before commit; identical tested source bytes retained on candidate"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses QUOTE-011",
+      "exit": 0,
+      "result": "Wrote 0 contract documents"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses QUOTE-011",
+      "exit": 0,
+      "result": "Contract documents are current"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "result": "Only the two touched test file hashes changed; lock repeated after rebase with no tree change"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --cached -- CONTRACT.md",
+      "exit": 0,
+      "result": "empty before commit"
+    },
+    {
+      "command": "git diff origin/main...HEAD -- CONTRACT.md",
+      "exit": 0,
+      "result": "empty before push"
+    },
+    {
+      "command": "node --test --test-concurrency=1 --test-name-pattern='QUOTE-011 drawn and typed' tests/api/customer-quotes.test.mjs",
+      "head": "f0be713bf60cde70c4329d66914c8642d6230e96",
+      "exit": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "log": "exact-probe.log",
+      "completed_at": "2026-11-08T10:39:13.681858+00:00"
+    }
+  ],
+  "migration_ledger": {
+    "status": "not applicable",
+    "reason": "no migration changes"
+  },
+  "source_sha256": {
+    "tests/api/customer-quotes.test.mjs": "19cb10c47aff6239b8db1c6ed44f41721f2c512e654e95ef39e3a7346b451a43",
+    "tests/api/harness.mjs": "87bcfd3eba47fed0786881d5464fd999e678d956a70457b4164c03bb398aad00",
+    "sources.lock.json": "b9cd9703c57efae959cdf87e613d1a0f13a870abfd48652d5211ea36dd2e4056"
+  },
+  "product_diff": {
+    "files": [
+      "tests/api/customer-quotes.test.mjs",
+      "tests/api/harness.mjs",
+      "sources.lock.json"
+    ],
+    "contract_judgments_changed": false,
+    "generated_views_committed": false,
+    "product_implementation_changed": false
+  },
+  "probe": {
+    "clause": "QUOTE-011",
+    "point": 1,
+    "result": "PASS",
+    "doors": [
+      "document.photo",
+      "quote.approve",
+      "quote.link",
+      "POST /api/glove/public/quote action approve",
+      "GET /api/glove/files/<id>",
+      "GET /api/glove/public/quote/signed",
+      "GET /api/glove/quotes/<id>/signed"
+    ],
+    "observations": [
+      "Both drawn and typed copies span multiple stored chunks",
+      "All four embedded images match authorized originals byte-for-byte for each copy",
+      "Drawn polylines match every submitted stroke and point; typed text matches after HTML decoding",
+      "Both served copies match retained size and SHA-256 before restart, after restart, after later business, template and price-book edits, and after another restart",
+      "Technician receives 403 and signed-out desk reader receives 401; public reads without bearer receive 404",
+      "Approval replay leaves original quote and every stored chunk unchanged",
+      "One byte of one retained chunk changed while Worker stopped; both affected doors return 500 SIGNED_COPY; other copy unchanged"
+    ],
+    "head": "f0be713bf60cde70c4329d66914c8642d6230e96"
+  },
+  "ci": {
+    "run_id": 42472118922,
+    "event": "push",
+    "head": "f0be713bf60cde70c4329d66914c8642d6230e96",
+    "status": "in_progress",
+    "conclusion": null,
+    "url": "https://github.com/just-every/run-glove/actions/runs/42472118922",
+    "github_calls_used": 2
+  },
+  "landing": {
+    "status": "not landed",
+    "publication_scan": "not run in cloud; fleet gate",
+    "main_equality": false,
+    "run_site": "not run for candidate; main-only fleet gate"
+  },
+  "counts": {
+    "before": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29,
+      "total": 263
+    },
+    "product_after": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29,
+      "total": 263
+    },
+    "proposed_after_land": {
+      "done": 12,
+      "partial": 222,
+      "missing": 29,
+      "total": 263
+    }
+  },
+  "claim": {
+    "id": "QUOTE-011",
+    "status": "DONE on landing",
+    "points": [
+      1
+    ]
+  },
+  "environment": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "python": "3.12.14",
+    "note": "User toolchain retained newer VM Node for direct tests; pinned rer setup selected checkout runtime itself; CI pins 22.20.0"
+  },
+  "custody": {
+    "full_history": true,
+    "clean_worktree": true,
+    "product_push": "succeeded",
+    "product_sha": "f0be713bf60cde70c4329d66914c8642d6230e96",
+    "identity_review": "one candidate commit; fleet author and committer; no trailers; side parents included"
+  }
+}

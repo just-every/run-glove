@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "blob": "8cac1ea9da4c0d6445ff1a0c4bced057f3e4c1ed",
+      "bytes": 340,
+      "path": "MECHANICAL.txt",
+      "sha256": "eb3b57cc4f97b08aae3622ba5542f0668c5c842936beaab4aac772e709d5019a"
+    },
+    {
+      "blob": "8b3832f85afce37ff965b57b1e9406554f17660d",
+      "bytes": 1711,
+      "path": "PLAN.md",
+      "sha256": "bec6b811a2540df6db72c87a332b664163b24cbfeac22315050d0e823ac4647e"
+    },
+    {
+      "blob": "0369151d4280c947ca95c7b2d79573aea6291606",
+      "bytes": 5524,
+      "path": "RECEIPT.json",
+      "sha256": "d9f587350e9106d1f34f5dcde2f33ba51261a106dfd40b6e49e86039fc4328db"
+    },
+    {
+      "blob": "074a800116ae76a4a04a78305261e93bed5696a6",
+      "bytes": 11464,
+      "path": "REPORT.md",
+      "sha256": "d7d57e9b6b4b68a7702c4c13e468fcca64c71f596240a53637c1c305e2370a22"
+    },
+    {
+      "blob": "30fd56f94ea6c105095d46ebf1fb292b30fd851c",
+      "bytes": 1914,
+      "path": "api-test.log",
+      "sha256": "84ce6a4506dda1f4740f86cd53ba6490fffc45f9ade5ae42306e4ef0b5f974ae"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "contract-views.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    },
+    {
+      "blob": "4306c1a897761c9ad5b4f1b0c45a7e5728345a8f",
+      "bytes": 376,
+      "path": "exact-probe.log",
+      "sha256": "10e290fc91a548c97ef2eecb160b26472bc9bea31a91aecd5b6740663f4255d5"
+    },
+    {
+      "blob": "049bcae619dba01f03013c0278e1a30f9b02464d",
+      "bytes": 898,
+      "path": "product-push.log",
+      "sha256": "2ff577a7b3fd383e57fd98c9456fc5e2cbde97409964e33212e2d7a458f9ce7d"
+    },
+    {
+      "blob": "6f9e405dbcbcbc0ee03b283ee41664036604766a",
+      "bytes": 197,
+      "path": "typecheck.log",
+      "sha256": "e7279e949ac9775b94b317639cdde3820f67ab76187dfb0c8796f01c779b8648"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f117",
+  "product_head": "f0be713bf60cde70c4329d66914c8642d6230e96",
+  "ref": "refs/heads/evidence/sx-glove-c-f117",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f117"
+}
