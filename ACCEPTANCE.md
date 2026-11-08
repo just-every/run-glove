@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 22 | 199 | 16 | 237 |
+| Core | 23 | 198 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 212 | 29 | 263 |
+| Full target | 23 | 211 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1388,7 +1388,7 @@ Core · target · **done** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003
 
 #### COMM-017 — Amazon SES and SNS callback custody
 
-Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Amazon SES and SNS callback custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1402,8 +1402,8 @@ Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-
 7. An UnsubscribeConfirmation warns the owner and never fetches its URL.
 8. Delivery maps to delivered; Permanent bounce to bounced; Transient bounce to failed; DeliveryDelay to deferred; Complaint to complained; Reject and RenderingFailure (including AWS's Rendering Failure spelling) to rejected.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Amazon SES via SNS: pin region, TopicArn and configuration set to the owner's connection.; point 2 — Require the message-type header to equal the envelope Type, accept SNS signature versions 1 and 2 (setup asks for version 2), and require the signing certificate at the documented product door with no query, credentials, fragment, alternate port or redirects; cache the certificate within its validity for at most one hour.; point 3 — SNS timestamps are at most 1 hour old and at most 5 minutes ahead.; point 4 — Require a signed SNS envelope (raw delivery off), the pinned SES configuration set and Glove delivery tag on each SES event; sends carry the configuration set and a base64url-encoded delivery ID tag.; point 5 — Deduplicate SNS MessageId and the SES event.; point 6 — A SubscriptionConfirmation URL is fetched only after all source, URL, timestamp and signature checks; require HTTPS on the same pinned regional SNS host with the exact ConfirmSubscription action, TopicArn and Token, and follow no redirects.; point 7 — An UnsubscribeConfirmation warns the owner and never fetches its URL.; point 8 — Delivery maps to delivered; Permanent bounce to bounced; Transient bounce to failed; DeliveryDelay to deferred; Complaint to complained; Reject and RenderingFailure (including AWS's Rendering Failure spelling) to rejected. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 4: signed configuration and delivery tags bind every SES send); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart)
+**Gap.** None.
 
 #### COMM-018 — Email provider proof boundary
 
