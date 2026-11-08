@@ -11,12 +11,20 @@ export async function rulesBrowser(browser: Browser) {
   const contexts = []
   try {
     const b = await business(h)
-    const owner = await deskPage(browser, h, 1440), office = await deskPage(browser, h, 1440, b.office.cookie)
-    contexts.push(owner.context, office.context)
+    const owner = await deskPage(browser, h, 1440)
+    contexts.push(owner)
+    const office = await deskPage(browser, h, 1440, b.office.cookie)
+    contexts.push(office)
     const outbound = () => [h.mails.length, h.email.sent.length, h.twilio.calls.length, h.stripePayments.calls.length, h.quickbooks.calls.length, h.models.calls.length, h.marketing.length, h.pushes.sent.length]
     const outboundBefore = outbound()
     const ownerId = (await h.state()).actor.id
-    const open = async (page: Page) => { await page.goto(`${origin}/app#rules`); await page.reload(); await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible() }
+    const open = async (page: Page) => {
+      await page.goto(`${origin}/app#rules`)
+      // Settle the hash route before testing its persistence across a reload.
+      await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible()
+      await page.reload()
+      await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible()
+    }
     const row = (page: Page, name: string) => page.getByRole('region', { name: 'Your rules' }).getByRole('listitem', { name, exact: true })
     const make = async (page: Page, name: string, to: string, message: string) => {
       await open(page)
@@ -128,7 +136,7 @@ export async function rulesBrowser(browser: Browser) {
     expect(retained.notices).toEqual(beforeRestart.notices)
     expect(outbound()).toEqual(outboundBefore)
   } finally {
-    for (const context of contexts) { await context.unrouteAll({ behavior: 'wait' }); await context.close() }
+    for (const { page, context } of contexts) { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
     await h.close()
   }
 }

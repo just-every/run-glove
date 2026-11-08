@@ -22,7 +22,7 @@ import { join } from 'node:path'
 import { randomUUID, randomBytes, generateKeyPairSync, sign, createHmac } from 'node:crypto'
 import assert from 'node:assert/strict'
 
-export async function installation({ isolates = 1, at = null, captureLogs = false } = {}) {
+export async function installation({ isolates = 1, at = null, captureLogs = false, workerPlugins = [] } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   // The loopback service represents callback errors as HTTP 500. Translate
   // only the marketing edge's explicit transport-failure marker at fetch,
@@ -35,7 +35,8 @@ globalThis.fetch = async (input, options) => {
   if ((url.origin === 'https://mango.example.test' || url.origin === 'https://us21.api.mailchimp.com') && response.headers.get('x-synthetic-glove-network-error') === '1') throw new TypeError('Synthetic provider unreachable');
   return response;
 };` }
-  const bundled = await build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner })
+  const bundle = () => build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner, plugins: workerPlugins })
+  const bundled = await bundle()
   // worker.ts gives each request the Host its URL names, so the origin holds no
   // port: workerd binds its own, never one released here for another bind to take.
   const origin = 'https://127.0.0.1', setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
@@ -218,14 +219,58 @@ globalThis.fetch = async (input, options) => {
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
     // Shut down the actual Worker, retaining its installation and D1 on disk.
-    const restart = async () => {
+    const restart = async ({ rebuild = false } = {}) => {
       await mf.dispose()
+      if (rebuild) {
+        const upgraded = await bundle()
+        for (const worker of options.workers) {
+          const manifest = worker.config.manifest
+          manifest.modules[manifest.mainModule].contents = upgraded.outputFiles[0].text
+        }
+      }
       mf = new Miniflare(options)
       await mf.ready
       db = await mf.getD1Database('DB')
       if (currentTime) await setTime(currentTime)
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, logs, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    // Simulate one disk-level corruption while the actual Worker is stopped.
+    // SQLite's incremental blob writes change only the selected byte, without
+    // removing the production SQL immutability trigger or seeding domain data.
+    const corruptSignedQuoteChunk = async (quoteId, revision, ordinal) => {
+      await mf.dispose()
+      try {
+        execFileSync('python3', ['-c', `
+import sqlite3
+import sys
+from pathlib import Path
+
+root, quote_id, revision, ordinal = sys.argv[1:]
+matches = []
+for path in Path(root).rglob('*.sqlite'):
+    with sqlite3.connect(path.as_uri() + '?mode=ro', uri=True) as db:
+        if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='glove_quote_signed_chunks'").fetchone():
+            row = db.execute('SELECT rowid FROM glove_quote_signed_chunks WHERE quote_id=? AND revision=? AND ordinal=?', (quote_id, int(revision), int(ordinal))).fetchone()
+            if row:
+                matches.append((path, row[0]))
+if len(matches) != 1:
+    raise RuntimeError('Expected one retained signed-copy chunk')
+path, rowid = matches[0]
+with sqlite3.connect(path) as db:
+    with db.blobopen('glove_quote_signed_chunks', 'bytes', rowid) as blob:
+        offset = len(blob) - 1
+        blob.seek(offset)
+        byte = blob.read(1)[0]
+        blob.seek(offset)
+        blob.write(bytes([byte ^ 1]))
+`, root, quoteId, String(revision), String(ordinal)])
+      } finally {
+        mf = new Miniflare(options)
+        await mf.ready
+        db = await mf.getD1Database('DB')
+        if (currentTime) await setTime(currentTime)
+      }
+    }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, corruptSignedQuoteChunk, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, logs, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})
