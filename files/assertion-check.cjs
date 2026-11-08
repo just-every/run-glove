@@ -19,7 +19,7 @@ const results=[];
 for(const file of changed){
  const before=assertions(cp.execFileSync('git',['show',baseline+':'+file]).toString(),file),after=assertions(fs.readFileSync(file,'utf8'),file);
  if(key(before)!==key(after))throw Error('Assertion text differs '+file);
- results.push({file,before:before.length,after:after.length,identical:true});
+ results.push({file,before:before.length,after:after.length,identical:true,assertions:before});
 }
 const mappings=JSON.parse(fs.readFileSync(packet+'/merge-map.json'));
 for(const map of mappings){

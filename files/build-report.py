@@ -69,3 +69,11 @@ if ci_path.exists():
  row=ci['latest']
  validation+=['Exact-SHA Verify: '+str(ci.get('run_id'))+'; status='+str(row.get('status'))+'; conclusion='+str(row.get('conclusion'))+'; head='+ci['requested_head']+'; URL='+str(row.get('html_url'))+'.','']
 with (packet/'REPORT.md').open('a') as stream:stream.write('\n'.join(validation))
+
+full=['','## Full touched-file assertion ledger, including shared fixtures','',
+'Each list includes every assertion/refusal expression in its touched file, including helpers shared by several steps and unchanged sibling tests. Every expression and its multiplicity matches merged main exactly. The per-step table above identifies the surviving registration for each original callback; shared helper expressions are listed here once at their source location rather than duplicated for each caller.','']
+for row in proof['files']:
+ full += ['### '+row['file'],'',f"Assertions before: {row['before']}; assertions after: {row['after']}.",'']
+ for expression in row['assertions']:
+  full += [fence+'js',expression,fence,'']
+with (packet/'REPORT.md').open('a') as stream:stream.write('\n'.join(full))

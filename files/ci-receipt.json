@@ -2,7 +2,7 @@
   "repository": "just-every/run-glove",
   "requested_head": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
   "run_id": 42532456363,
-  "calls": 2,
+  "calls": 4,
   "observations": [
     {
       "status": "not_discovered",
@@ -18,15 +18,33 @@
       "html_url": "https://github.com/just-every/run-glove/actions/runs/42532456363",
       "observed": "2026-11-08T22:58:22.435816+00:00",
       "call": 2
+    },
+    {
+      "id": 42532456363,
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42532456363",
+      "observed": "2026-11-08T23:03:22.995905+00:00",
+      "call": 3
+    },
+    {
+      "id": 42532456363,
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42532456363",
+      "observed": "2026-11-08T23:08:23.540115+00:00",
+      "call": 4
     }
   ],
   "latest": {
     "id": 42532456363,
-    "status": "in_progress",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "success",
     "head_sha": "a3cbd723ef3d90d9356259ea7deb2f0814e10cc7",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42532456363",
-    "observed": "2026-11-08T22:58:22.435816+00:00",
-    "call": 2
+    "observed": "2026-11-08T23:08:23.540115+00:00",
+    "call": 4
   }
 }
