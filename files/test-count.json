@@ -1,0 +1,384 @@
+{
+  "rows": [
+    {
+      "path": "tests/api/agreements.test.mjs",
+      "main": 7,
+      "candidate": 7
+    },
+    {
+      "path": "tests/api/assessments.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/branches.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/callbacks.test.mjs",
+      "main": 4,
+      "candidate": 4
+    },
+    {
+      "path": "tests/api/companycam.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/conversation.test.mjs",
+      "main": 4,
+      "candidate": 4
+    },
+    {
+      "path": "tests/api/costing.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/csv.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/customer-quotes.test.mjs",
+      "main": 7,
+      "candidate": 7
+    },
+    {
+      "path": "tests/api/customers.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/delays.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/discounts.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/documents.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/eligibility.test.mjs",
+      "main": 3,
+      "candidate": 3
+    },
+    {
+      "path": "tests/api/email.test.mjs",
+      "main": 6,
+      "candidate": 6
+    },
+    {
+      "path": "tests/api/equipment.test.mjs",
+      "main": 3,
+      "candidate": 3
+    },
+    {
+      "path": "tests/api/expenses.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/flows.test.mjs",
+      "main": 17,
+      "candidate": 17
+    },
+    {
+      "path": "tests/api/forms.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/grants.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/margins.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/merge.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/money.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/morning-brief.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/movein.test.mjs",
+      "main": 14,
+      "candidate": 14
+    },
+    {
+      "path": "tests/api/nameplates.test.mjs",
+      "main": 4,
+      "candidate": 4
+    },
+    {
+      "path": "tests/api/options.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/payments.test.mjs",
+      "main": 7,
+      "candidate": 7
+    },
+    {
+      "path": "tests/api/payroll.test.mjs",
+      "main": 7,
+      "candidate": 7
+    },
+    {
+      "path": "tests/api/pipeline.test.mjs",
+      "main": 5,
+      "candidate": 5
+    },
+    {
+      "path": "tests/api/pricebook.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/privacy.test.mjs",
+      "main": 5,
+      "candidate": 5
+    },
+    {
+      "path": "tests/api/purchasing.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/push.test.mjs",
+      "main": 6,
+      "candidate": 6
+    },
+    {
+      "path": "tests/api/quickbooks.test.mjs",
+      "main": 14,
+      "candidate": 14
+    },
+    {
+      "path": "tests/api/records.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/recurring-billing.test.mjs",
+      "main": 4,
+      "candidate": 4
+    },
+    {
+      "path": "tests/api/reminders.test.mjs",
+      "main": 8,
+      "candidate": 8
+    },
+    {
+      "path": "tests/api/reports.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/routing.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/rules.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/security.test.mjs",
+      "main": 6,
+      "candidate": 6
+    },
+    {
+      "path": "tests/api/segments.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/series.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/service-reports.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/servicecall.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/api/stock.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/subcontract.test.mjs",
+      "main": 7,
+      "candidate": 7
+    },
+    {
+      "path": "tests/api/suggest.test.mjs",
+      "main": 5,
+      "candidate": 5
+    },
+    {
+      "path": "tests/api/time.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/tokens.test.mjs",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/api/xero.test.mjs",
+      "main": 2,
+      "candidate": 2
+    },
+    {
+      "path": "tests/browser/branches.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/companycam.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/conversation.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/custom-roles.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/customer-quotes.spec.ts",
+      "main": 6,
+      "candidate": 6
+    },
+    {
+      "path": "tests/browser/discounts.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/dispatch-map.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/documents.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/due-visits.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/email.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/invoice-batch.spec.ts",
+      "main": 3,
+      "candidate": 3
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "main": 7,
+      "candidate": 7
+    },
+    {
+      "path": "tests/browser/money.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/morning-brief.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/movein.spec.ts",
+      "main": 3,
+      "candidate": 3
+    },
+    {
+      "path": "tests/browser/quickbooks.spec.ts",
+      "main": 3,
+      "candidate": 3
+    },
+    {
+      "path": "tests/browser/receivables.spec.ts",
+      "main": 4,
+      "candidate": 4
+    },
+    {
+      "path": "tests/browser/recurring-billing.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/reminders.spec.ts",
+      "main": 3,
+      "candidate": 3
+    },
+    {
+      "path": "tests/browser/revenue.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/routing.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/rules.spec.ts",
+      "main": 1,
+      "candidate": 1
+    },
+    {
+      "path": "tests/browser/service-reports.spec.ts",
+      "main": 1,
+      "candidate": 1
+    }
+  ],
+  "totals": {
+    "main": 231,
+    "candidate": 231
+  },
+  "standalone": 4
+}

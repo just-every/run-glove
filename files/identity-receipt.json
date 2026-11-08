@@ -1,0 +1,31 @@
+{
+  "command": "git log origin/main..HEAD --format=\"%an <%ae>%n%cn <%ce>%n%(trailers:only,unfold)\"",
+  "passed": true,
+  "all_candidate_parents_included": true,
+  "commits": [
+    {
+      "head": "04f91418c06f984a84124840c3ded212aa8a0184",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    },
+    {
+      "head": "a3de87b931c3e99f0c095ec7a138a24a2edf155d",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    },
+    {
+      "head": "f4e1a6b1474f151f49f77d5f9597e8d6ba5c60f0",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    }
+  ]
+}

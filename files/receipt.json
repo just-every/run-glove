@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f122",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f122",
+  "head": "04f91418c06f984a84124840c3ded212aa8a0184",
+  "base_main": "2bc83fc9cf947daa7e9befb37169b34e0a650c96",
+  "predecessor": "f0be713bf60cde70c4329d66914c8642d6230e96",
+  "node": "22.20.0",
+  "python": "3.12.14",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/customer-quotes.test.mjs",
+      "exit": 0,
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "node": "24.19.0",
+      "log": "customer-quotes-initial.log"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/customer-quotes.test.mjs",
+      "exit": 0,
+      "tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "log": "customer-quotes-final.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/customer-quotes.test.mjs",
+      "exit": 0,
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "node": "22.20.0",
+      "log": "customer-quotes-consolidated.log",
+      "unchanged_relevant_files_after_merge": true
+    },
+    {
+      "command": "node --test --test-name-pattern='the owner accepts concrete disclosure' tests/api/customer-quotes.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "head": "04f91418c06f984a84124840c3ded212aa8a0184",
+      "log": "exact-head-probe.log"
+    }
+  ],
+  "product_push": {
+    "exit": 0,
+    "attempts": 1,
+    "ref": "refs/heads/cloud/sx-glove-c-f122",
+    "head": "04f91418c06f984a84124840c3ded212aa8a0184",
+    "remote_advertised_head": "04f91418c06f984a84124840c3ded212aa8a0184",
+    "log": "product-push-final.log"
+  },
+  "source_files": {
+    "tests/api/customer-quotes.test.mjs": "537a9fbdf9f5e63d5b33f06aac4f01fba66c61f26056c8197e3789e846df3110",
+    "tests/api/harness.mjs": "3ec1bd37aade95540771daeac645f1adf571c3216afd8800c1eaab1d957512c5",
+    "sources.lock.json": "6be471f41b9008f96105c43514106f078f7ec45ef944957967420b8f9b7adda8"
+  },
+  "contract_diff": "",
+  "working_tree": "",
+  "publication_scan": {
+    "commit": "04f91418c06f984a84124840c3ded212aa8a0184",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Fleet lander owns the publication scan; it is unavailable in this cloud task."
+  },
+  "landing": {
+    "main_equals_candidate": false,
+    "run_site_candidate": null,
+    "guarded_lander_pending": true
+  },
+  "test_registration_count": {
+    "registered_main": 231,
+    "registered_candidate": 231,
+    "standalone": 4,
+    "inherited_over_nominal_cap": true,
+    "added_by_round": 0,
+    "inventory": "test-count.json"
+  },
+  "mechanical_output": {
+    "contract_check": "Contract documents are current.",
+    "source_lock_check": {
+      "ok": true,
+      "edition": "just-every/run-glove",
+      "manifest": "50125c8f2015fca29b140c32568a049f5480b6b98b2f1c5c2a8b0a10228e4811",
+      "toolchain": {
+        "id": "runeditrun/edition-authoring",
+        "version": "1.1.0",
+        "sha256": "a44bae4aae36d7a2e3d5e2da4e080d3c92eb11f226f6e7322b23680f43e6f982"
+      }
+    }
+  },
+  "predecessor_verification": {
+    "run": 42472118922,
+    "job": 128705340331,
+    "conclusion": "failure",
+    "archive_read_once": true,
+    "reproduction_exit": 0,
+    "reproduced": false,
+    "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 GLOVE_CI_PREBUILT=1 node scripts/verify-ci.mjs browser-2",
+    "tests": 6,
+    "passed": 6,
+    "log": "predecessor-reproduction.log",
+    "system_chromium": "/usr/bin/chromium",
+    "ci_original_failure": "Rules heading not visible after 5000 ms during Office rule creation",
+    "repair_attempts": 0
+  },
+  "candidate_ci": {
+    "run": 42475994158,
+    "event": "push",
+    "head_sha": "04f91418c06f984a84124840c3ded212aa8a0184",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42475994158"
+  },
+  "main_browser_comparison": {
+    "head": "3db9c3ec9cdad3f66b4b809b05126264fce2d38d",
+    "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 GLOVE_CI_PREBUILT=1 node scripts/verify-ci.mjs browser-2",
+    "exit": 0,
+    "tests": 6,
+    "passed": 6,
+    "log": "main-browser-proof.log",
+    "same_runner": true
+  },
+  "main_merge": {
+    "commit": "04f91418c06f984a84124840c3ded212aa8a0184",
+    "parent_main": "2bc83fc9cf947daa7e9befb37169b34e0a650c96",
+    "relevant_signing_sources_unchanged": true,
+    "contract_diff_against_main": "",
+    "source_lock_regenerated_after_merge": true
+  },
+  "identity_receipt": "identity-receipt.json",
+  "github_api_calls_before_final_poll": 6,
+  "watcher_count": 1,
+  "workflow_dispatches": 0,
+  "workflow_reruns": 0,
+  "product_worktrees_removed": true,
+  "github_api_calls": 7,
+  "claim": "DONE qualification proposed; contract judgment and landing pending fleet gates",
+  "builder_blockers": []
+}
