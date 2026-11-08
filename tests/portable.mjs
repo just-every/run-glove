@@ -76,6 +76,26 @@ export function portableMarketing(worker) {
 `)
     await writeFile(entry, "import { portableMarketing } from './portable-marketing.mjs'\n" + code.replace('export default portableMaps(', 'export default portableMarketing(portableMaps(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))'))
   }
+  if (['source', 'destination'].includes(name)) {
+    // Only the AvaTax network edge changes in the owned archive journey.
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(join(root, 'src/portable-tax.mjs'), `
+export function portableTax(worker) {
+  const upstream = globalThis.fetch
+  globalThis.fetch = async (input, options) => {
+    const request = new Request(input, options)
+    if (request.url !== 'https://sandbox-rest.avatax.com/api/v2/transactions/create') return upstream(input, options)
+    await upstream(${JSON.stringify(recorderOrigin + '/tax-' + name)}, { method: 'POST' })
+    return Response.json({ code: 'synthetic-glove-520', lines: [
+      { lineNumber: 'parts', details: [{ jurisName: 'Texas', rate: 0.0825, taxableAmount: 100, nonTaxableAmount: 0, exemptAmount: 0 }] },
+      { lineNumber: 'service', details: [{ jurisName: 'Texas', rate: 0, taxableAmount: 0, nonTaxableAmount: 100, exemptAmount: 0 }] },
+    ] })
+  }
+  return worker
+}
+`)
+    await writeFile(entry, "import { portableTax } from './portable-tax.mjs'\n" + code.replace('export default portableMarketing(', 'export default portableTax(portableMarketing(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))'))
+  }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
   return root
@@ -304,6 +324,16 @@ try {
   assert.deepEqual(chosenInspection.options.map(o => o.totals.total), ['100.00', '200.00'])
   assert.deepEqual(chosenInspection.addOns.map(a => a.totals.total), ['25.00'])
   assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
+  // MONEY-005: actual sealed credentials and a saved lookup cross the real archive boundary.
+  const taxKey = { accountId: '1100098765', licenseKey: 'synthetic-glove-521', companyCode: 'synthetic-glove-522', environment: 'sandbox' }
+  const taxConnectId = randomUUID(), taxLookupId = randomUUID()
+  const taxPayload = { provider: 'avatax', siteId: site.id, address: { line1: '10 Service St', city: 'Austin', state: 'TX', postal_code: '78704' }, serviceTaxCode: 'SV060100' }
+  await owner.cmd('tax.connect', { provider: 'avatax', key: taxKey }, taxConnectId)
+  const taxBefore = (await owner.get('/api/glove/state')).business[0].taxSettings
+  const taxResult = await owner.cmd('tax.lookup', taxPayload, taxLookupId)
+  assert.equal(taxResult.proposal.rate, '8.25')
+  assert.deepEqual((await owner.get('/api/glove/state')).business[0].taxSettings, taxBefore, 'MONEY-005 lookup never applies itself')
+  assert.equal(stripePosts.get('tax-source'), 1)
   const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
   const before = await owner.get('/api/glove/export')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
@@ -320,12 +350,21 @@ try {
   assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
   assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
+  for (const value of [taxKey.accountId, taxKey.licenseKey, taxKey.companyCode, JSON.stringify(taxKey)]) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'MONEY-005 actual archive excludes the sealed AvaTax value')
   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
   assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
   for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
+  assert.equal(stripePosts.get('tax-destination') ?? 0, 0, 'MONEY-005 import and startup send no tax lookup')
+  const refusedTax = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'tax.lookup', payload: taxPayload }, running.owner.cookie)
+  assert.equal((await refusedTax.json()).error.code, 'TAX_PROVIDER', 'MONEY-005 restored Owner must reconnect')
+  assert.deepEqual(await running.owner.cmd('tax.lookup', taxPayload, taxLookupId), taxResult, 'MONEY-005 retained lookup replays without provider authority')
+  await running.owner.cmd('tax.connect', { provider: 'avatax', key: taxKey }, taxConnectId)
+  const stillDisconnected = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'tax.lookup', payload: taxPayload }, running.owner.cookie)
+  assert.equal((await stillDisconnected.json()).error.code, 'TAX_PROVIDER', 'MONEY-005 replaying connection metadata cannot restore credentials')
+  assert.equal(stripePosts.get('tax-destination') ?? 0, 0)
   // COMM-001: the restored installation has no callback credentials and the
   // old password cannot authenticate, even though ordinary records survived.
   const oldCallback = await running.callback(postmark.callbackPassword)
@@ -338,6 +377,11 @@ try {
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+  await running.owner.cmd('tax.connect', { provider: 'avatax', key: taxKey })
+  assert.equal(stripePosts.get('tax-destination') ?? 0, 0, 'MONEY-005 reconnection alone sends nothing')
+  const reconnectedTax = await running.owner.cmd('tax.lookup', taxPayload)
+  assert.equal(reconnectedTax.proposal.rate, '8.25')
+  assert.equal(stripePosts.get('tax-destination'), 1)
   assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
   assert.deepEqual(after.segments, before.segments)
   for (const replay of audienceReplays) {

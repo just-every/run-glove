@@ -61,7 +61,9 @@ export const taxLookup: Handler = async (c, type, p, db) => {
   }
   if (!key) fail('TAX_PROVIDER', 'Connect your Stripe Tax key and active registrations first.')
   const [parts, labor] = await Promise.all([calculate(c, db, key!, site.id, address, 'txcd_99999999', 'parts'), calculate(c, db, key!, site.id, address, p.serviceTaxCode, 'service')])
-  const normal = parts.breakdown.length === 1 && parts.breakdown[0].reason === 'standard_rated'
+  const rate = parts.breakdown[0]?.rate
+  const supportedRate = typeof rate === 'string' && /^\d{1,3}(\.\d{1,4})?$/.test(rate) && Number(rate) > 0 && Number(rate) <= 100
+  const normal = parts.breakdown.length === 1 && parts.breakdown[0].reason === 'standard_rated' && supportedRate
   const laborStandard = labor.breakdown.length === 1 && labor.breakdown[0].reason === 'standard_rated' && labor.breakdown[0].rate === parts.breakdown[0]?.rate
   const laborExempt = labor.breakdown.length === 1 && ['product_exempt', 'not_subject_to_tax'].includes(labor.breakdown[0].reason)
   let proposal = null

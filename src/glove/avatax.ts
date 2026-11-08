@@ -27,7 +27,7 @@ function line(answer: any, number: string, status: number): AvataxLine {
   const details: any[] = Array.isArray(answer?.lines) ? answer.lines.find((l: any) => l?.lineNumber === number)?.details ?? [] : []
   const breakdown = details.map(d => {
     const m = millionths(d?.rate)
-    const reason = d?.taxableAmount === 100 && !d?.nonTaxableAmount && !d?.exemptAmount ? 'taxable' : d?.nonTaxableAmount === 100 && !d?.taxableAmount && !d?.exemptAmount ? 'non-taxable' : 'partial or exempt'
+    const reason = d?.taxableAmount === 100 && !d?.nonTaxableAmount && !d?.exemptAmount && (!d?.rateType || d.rateType === 'General') ? 'taxable' : d?.nonTaxableAmount === 100 && !d?.taxableAmount && !d?.exemptAmount ? 'non-taxable' : 'partial or exempt'
     return { reason: `${typeof d?.jurisName === 'string' ? d.jurisName.slice(0, 80) : 'jurisdiction'} ${reason}`, rate: m === null ? null : percent(m), m, kind: reason }
   })
   let treatment: AvataxLine['treatment'] = 'unavailable', combined: string | null = null

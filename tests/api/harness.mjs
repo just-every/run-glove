@@ -34,6 +34,7 @@ globalThis.fetch = async (input, options) => {
   const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url);
   if ((url.origin === 'https://mango.example.test' || url.origin === 'https://us21.api.mailchimp.com') && response.headers.get('x-synthetic-glove-network-error') === '1') throw new TypeError('Synthetic provider unreachable');
   if (['www.googleapis.com', 'graph.microsoft.com'].includes(url.hostname) && response.headers.get('x-synthetic-glove-calendar-timeout') === '1') throw new DOMException('Synthetic calendar timeout', 'TimeoutError');
+  if (['api.stripe.com', 'sandbox-rest.avatax.com', 'rest.avatax.com'].includes(url.hostname) && response.headers.get('x-synthetic-glove-tax-unreachable') === '1') throw new TypeError('Synthetic tax provider unreachable');
   return response;
 };` }
   const bundle = () => build({ entryPoints: ['tests/api/worker.ts'], bundle: true, write: false, format: 'esm', platform: 'neutral', target: 'es2022', external: ['node:*', 'cloudflare:*'], loader: { '.css': 'text', '.svg': 'text' }, banner, plugins: workerPlugins })
@@ -129,11 +130,13 @@ globalThis.fetch = async (input, options) => {
         if (request.url === 'https://api.stripe.com/v1/tax/calculations') {
           const body = Object.fromEntries(new URLSearchParams(await request.text()))
           stripeTax.calls.push({ body, authorization: request.headers.get('authorization'), idempotencyKey: request.headers.get('idempotency-key') })
+          if (stripeTax.reply) return stripeTax.reply(body)
           return Response.json(stripeTax.answer ? stripeTax.answer(body) : { id: `taxcalc_${stripeTax.calls.length}`, tax_breakdown: [{ taxability_reason: 'not_collecting', tax_rate_details: { percentage_decimal: '0' } }] })
         }
         if (/^https:\/\/(sandbox-)?rest\.avatax\.com\/api\/v2\/transactions\/create$/.test(request.url)) {
           const body = await request.json()
           avatax.calls.push({ url: request.url, body, authorization: request.headers.get('authorization') })
+          if (avatax.reply) return avatax.reply(body)
           return Response.json(avatax.answer ? avatax.answer(body) : { code: `avatax-${avatax.calls.length}`, lines: body.lines.map(l => ({ lineNumber: l.number, details: [] })) })
         }
         if (request.url.startsWith('https://sns.')) {
