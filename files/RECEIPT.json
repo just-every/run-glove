@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f165",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f165",
+  "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+  "base": "cb4787ac9734f9fb534fe2896cc054e3637953af",
+  "recorded_at": "2026-11-08T22:21:32.404520+00:00",
+  "checks": [
+    {
+      "name": "focused",
+      "command": "node --test --test-concurrency=1 tests/api/ses-sns-custody.test.mjs",
+      "exit": 0,
+      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "log": "focused.log",
+      "sha256": "b5d4dc9c8a5908994abdfd10a7e998f80f1e809e42c9b15bc1713f0b9c4bf0fe",
+      "passed": 8
+    },
+    {
+      "name": "email-regression",
+      "command": "node --test --test-concurrency=1 tests/api/email.test.mjs",
+      "exit": 0,
+      "head": "matching relevant source bytes; preceding save worktree",
+      "log": "email-regression.log",
+      "sha256": "52d7ad4a31b70591303209ff5200ba2370ed36de2bf7ee1a00fc0591dc0d1618",
+      "passed": 6
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "log": "typecheck.log",
+      "sha256": "432c55d36d9b078b731bdbea76efc6ad05b1bf799d3f1fda812eb5c125f5a6e5",
+      "passed": null
+    },
+    {
+      "name": "first-party",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "log": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "passed": null
+    },
+    {
+      "name": "views-write",
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "log": "views-write.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2",
+      "passed": null
+    },
+    {
+      "name": "views-check",
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "head": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+      "log": "views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
+      "passed": null
+    }
+  ],
+  "mechanical": {
+    "lock_write": "node scripts/edition-authoring/cli.mjs lock",
+    "lock_check": "node scripts/edition-authoring/cli.mjs check",
+    "lock_exit": 0,
+    "lock_ok": true,
+    "generated_views_restored": true,
+    "ledger": "none; no migration changed"
+  },
+  "source_lock_sha256": "073008cd66301fac1220cc544c956a6599c403b419fdc5e0b74c4c84c866b0b5",
+  "unchanged_paths": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    "tests/api/email.test.mjs",
+    "tests/fixtures/mail-providers.mjs",
+    "tests/browser/email.spec.ts"
+  ],
+  "points_proven": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "production_changes": false,
+  "provider_boundary": "existing network edge; no live provider acceptance",
+  "contract_counts_before": {
+    "done": 21,
+    "partial": 213,
+    "missing": 29,
+    "total": 263
+  },
+  "contract_counts_after": {
+    "done": 21,
+    "partial": 213,
+    "missing": 29,
+    "total": 263
+  },
+  "direct_registration_inventory": {
+    "api_before": 157,
+    "api_after": 165,
+    "browser": 44,
+    "baseline_total": 201,
+    "candidate_total": 209
+  },
+  "publication_scan": {
+    "commit": "63f26628327b7d1c7ead827f201f2f1ee2dfb972",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Mac lander runs the publication scan; unavailable and not required in cloud"
+  },
+  "landing": {
+    "main_equals_candidate": false,
+    "run_site_candidate": null,
+    "guarded_lander_pending": true
+  }
+}
