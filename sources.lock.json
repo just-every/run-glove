@@ -5596,7 +5596,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "7b0381ada62ccc99c3d7a48995e3da604f47abe394076acce768925eab97af23",
+      "sha256": "3d36648f3293a48d922c29c85831088538d343638eb51544b501a010aa256df7",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5657,6 +5657,10 @@
     },
     "tests/api/purchasing.test.mjs": {
       "sha256": "9b859e9d1281c3dff909155358252240b6972650b3eb8977b7fa0b1fa3a30a08",
+      "executable": false
+    },
+    "tests/api/push-subscriptions.test.mjs": {
+      "sha256": "9fae077d22873a01a5cb81c3ec943fb74e6600e523b4032adf2b5177d9c511a9",
       "executable": false
     },
     "tests/api/push.test.mjs": {
@@ -5833,6 +5837,10 @@
     },
     "tests/browser/playwright.config.ts": {
       "sha256": "652303de1db586fd75abd69a2e193a596dd6d483fe00df937c237b74504e686a",
+      "executable": false
+    },
+    "tests/browser/push-settings.spec.ts": {
+      "sha256": "374ee98c048a91cc0ffb638c93ee5b868eb23b620dec62c04fc932446b15d2d6",
       "executable": false
     },
     "tests/browser/quickbooks.spec.ts": {
@@ -6068,7 +6076,7 @@
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
-      "sha256": "aa0033a65df34a42d6f8f7075012cd11eef1e2c10ea6aaf6053b75b63f95e33f",
+      "sha256": "bcb639aeca3a805aad53220c0e8b8446789153956f779c153e8e6ce75c684b3f",
       "executable": false
     },
     "tests/fixtures/quickbooks-business.mjs": {
@@ -6288,7 +6296,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359",
+      "sha256": "8201048c822163739b2b518b6dd9b8f565a613fd9e3116cfef1efb0c8ea3f75e",
       "executable": false
     },
     "tests/runtime.mjs": {

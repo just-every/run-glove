@@ -1,3 +1,4 @@
+import { phoneKeys, installationPushSecrets } from './fixtures/push-service.mjs'
 import { twilioEdge } from './fixtures/twilio.mjs'
 // Leave with everything: a real installation (rer setup + rer dev) runs a
 // job from quote to field evidence and a ServiceM8 move-in, `rer export`
@@ -132,7 +133,7 @@ async function start(root, port) {
       get: async path => (await request(path, 'GET', undefined, cookie)).json(),
     })
     return {
-      request, owner: as(await enter(fragment.get('as'))),
+      origin, request, owner: as(await enter(fragment.get('as'))),
       callback: password => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: '{}' }),
       quoteRespond: (token, body) => fetch(origin + '/api/glove/public/quote', { method: 'POST', headers: { origin, 'content-type': 'application/json', authorization: `Bearer ${token}`, cookie: gate }, body: JSON.stringify(body) }),
       quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
@@ -305,6 +306,25 @@ try {
   assert.deepEqual(chosenInspection.addOns.map(a => a.totals.total), ['25.00'])
   assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
   const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
+  // FIELD-009: populate real phone custody before the actual archive, with a local push service edge.
+  await owner.cmd('push.setup', {})
+  const pushPublicKey = (await owner.get('/api/glove/state')).business[0].webPush.publicKey
+  const phone = await phoneKeys(), phoneEndpoint = recorderOrigin + '/push-phone'
+  const phonePayload = { endpoint: phoneEndpoint, keys: phone.keys, device: 'Portable phone' }
+  const phoneCommandId = randomUUID()
+  const subscription = await priya.cmd('push.subscribe', phonePayload, phoneCommandId)
+  const phoneJob = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Portable notification visit', lines: [{ description: 'Inspection', quantity: '1', unitPrice: '20.00' }] })
+  await owner.cmd('visit.book', { jobId: phoneJob.id, technicianId: tech.id, date: '2030-03-12', start: '09:00', end: '10:00' })
+  const phoneList = (await priya.get('/api/glove/push')).devices
+  assert.deepEqual(phoneList.map(d => [d.id, d.device, d.thisSession, d.lastOutcome]), [[subscription.id, 'Portable phone', true, 'Handed to the push service']])
+  assert.ok(phoneList[0].lastAt)
+  assert.equal(stripePosts.get('push-phone'), 1, 'the source phone actually receives a push')
+  const pushSecrets = await installationPushSecrets(source)
+  assert.ok(pushSecrets.privateKey && pushSecrets.subscriptions.length === 1, 'private key and phone are populated before export')
+  const privatePushValues = [pushSecrets.privateKey, phoneEndpoint, phone.keys.p256dh, phone.keys.auth]
+  for (const surface of [await owner.get('/api/glove/state'), await owner.get('/api/glove/activity'), await owner.get('/api/glove/export'), phoneList]) {
+    for (const value of privatePushValues) assert.ok(!JSON.stringify(surface).includes(value), 'FIELD-009 private push material is absent from public records')
+  }
   const before = await owner.get('/api/glove/export')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
   assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
@@ -323,6 +343,8 @@ try {
   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
   assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
   for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
+  for (const value of privatePushValues) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'FIELD-009 actual archive excludes populated private push material')
+  assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_push_subscriptions'), 'FIELD-009 archive contains no subscription table')
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
   assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
@@ -339,6 +361,39 @@ try {
   const after = await running.owner.get('/api/glove/export')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
+  // Restored development people require explicit owner reactivation, independently of push consent.
+  assert.equal((await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)).status, 200)
+  const restoredPhone = await running.persona('member')
+  assert.equal((await running.request('/api/glove/push', 'GET', undefined, priya.cookie)).status, 401, 'FIELD-009 old phone session remains revoked after reactivation')
+  assert.deepEqual((await restoredPhone.get('/api/glove/push')).devices, [], 'FIELD-009 no source phone is restored')
+  const restoredSecrets = await installationPushSecrets(destination)
+  assert.equal(restoredSecrets.privateKey, null, 'FIELD-009 no VAPID private key is restored')
+  assert.deepEqual(restoredSecrets.subscriptions, [])
+  const refusePhone = async () => {
+    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'push.subscribe', payload: phonePayload }, restoredPhone.cookie)
+    assert.equal(response.status, 409, 'FIELD-009 restored owner must enable notifications before fresh subscription')
+    assert.equal((await response.json()).error.code, 'PUSH')
+  }
+  await refusePhone()
+  assert.equal(stripePosts.get('push-phone'), 1, 'FIELD-009 import and startup send no push')
+  const restoredPort = Number(new URL(running.origin).port)
+  await running.close()
+  running = await start(destination, restoredPort)
+  const afterRestart = await running.persona('member')
+  // This new signed-in session replaces only the test handle, never restored phone authority.
+  restoredPhone.cookie = afterRestart.cookie
+  assert.deepEqual((await afterRestart.get('/api/glove/push')).devices, [])
+  await refusePhone()
+  await running.owner.cmd('push.setup', {})
+  assert.notEqual((await running.owner.get('/api/glove/state')).business[0].webPush.publicKey, pushPublicKey)
+  const freshPhone = await afterRestart.cmd('push.subscribe', phonePayload)
+  assert.notEqual(freshPhone.id, subscription.id)
+  assert.deepEqual((await afterRestart.get('/api/glove/push')).devices.map(d => [d.id, d.thisSession]), [[freshPhone.id, true]])
+  await running.owner.cmd('visit.book', { jobId: phoneJob.id, technicianId: tech.id, date: '2030-03-13', start: '09:00', end: '10:00' })
+  assert.equal(stripePosts.get('push-phone'), 2, 'FIELD-009 only the freshly subscribed phone receives the later push')
+  await running.owner.cmd('push.setup', { off: true })
+  console.log('FIELD-009 real archive passed: no private key or subscriptions restored; restart requires owner enablement and fresh phone consent')
+
   assert.deepEqual(after.segments, before.segments)
   for (const replay of audienceReplays) {
     const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'segment.push', payload: replay.payload }, running.owner.cookie)

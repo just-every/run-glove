@@ -217,6 +217,21 @@ globalThis.fetch = async (input, options) => {
       if (role) await command('role.set', { operatorId: session.operator.id, role })
       return { name, cookie, session, id: session.operator.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
     }
+    /** A second real session for an existing person, through native email sign-in. */
+    const signIn = async person => {
+      const email = person.session.operator.email
+      const requested = await request('/auth/magic-link', { method: 'POST', as: '', body: { email } })
+      assert.equal(requested.status, 202)
+      const mail = mails.findLast(m => m.to?.includes(email))
+      const link = String(mail?.text).match(/https:[^\s]+\/auth\/confirm\?token=([^\s]+)/)
+      assert.ok(link, 'native sign-in link')
+      const confirmed = await request('/auth/confirm', { method: 'POST', as: '', body: { token: decodeURIComponent(link[1]) } })
+      assert.equal(confirmed.status, 303)
+      const cookie = cookies(confirmed)
+      const session = await (await request('/auth/session', { as: cookie })).json()
+      assert.equal(session.operator.id, person.id)
+      return { name: person.name, cookie, session, id: person.id, run: (type, payload, opts = {}) => command(type, payload, { as: cookie, ...opts }), state: () => state(cookie) }
+    }
     /** Run the Worker's cron handler as Cloudflare would at this instant (ms or ISO). */
     const scheduled = async at => { const worker = await mf.getWorker('app'); const run = await worker.scheduled({ scheduledTime: new Date(at) }); assert.equal(run.outcome, 'ok'); return run }
     // Shut down the actual Worker, retaining its installation and D1 on disk.
@@ -271,7 +286,7 @@ with sqlite3.connect(path) as db:
         if (currentTime) await setTime(currentTime)
       }
     }
-    return { get mf() { return mf }, origin, get db() { return db }, restart, corruptSignedQuoteChunk, setTime, request, command, state, scheduled, person, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, logs, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
+    return { get mf() { return mf }, origin, get db() { return db }, restart, corruptSignedQuoteChunk, setTime, request, command, state, scheduled, person, signIn, outbound, xero, fleet, calendars, calendarSync, quickbooks, checkpoints, marketing, logs, models, pushes, mails, email, twilio, companycam, maps, leads, stripeTax, stripePayments, wisetack, avatax, turnstile, owner: () => owner, async close() { await mf.dispose(); await rm(root, { recursive: true, force: true }) } }
   } catch (error) {
     await mf.dispose().catch(() => {})
     await rm(root, { recursive: true, force: true }).catch(() => {})

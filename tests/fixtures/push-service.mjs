@@ -35,3 +35,25 @@ export async function decrypt(body, phone) {
   if (plain[end] !== 2) throw new Error('not a final aes128gcm record')
   return new TextDecoder().decode(plain.slice(0, end))
 }
+
+/** Inspect only generated push secrets in an owned disposable installation, never its environment. */
+export async function installationPushSecrets(root) {
+  const { execFileSync } = await import('node:child_process')
+  return JSON.parse(execFileSync('python3', ['-c', `
+import json
+from pathlib import Path
+import sqlite3
+import sys
+
+found = []
+for path in (Path(sys.argv[1]) / '.wrangler').rglob('*.sqlite'):
+    with sqlite3.connect(path.as_uri() + '?mode=ro', uri=True) as db:
+        if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='glove_provider_keys'").fetchone():
+            key = db.execute("SELECT value FROM glove_provider_keys WHERE provider='vapid'").fetchone()
+            rows = db.execute('SELECT endpoint,p256dh,auth FROM glove_push_subscriptions').fetchall()
+            found.append(dict(privateKey=json.loads(key[0])['d'] if key else None, subscriptions=rows))
+if len(found) != 1:
+    raise RuntimeError('Expected one owned push database')
+print(json.dumps(found[0]))
+`, root], { encoding: 'utf8' }))
+}
