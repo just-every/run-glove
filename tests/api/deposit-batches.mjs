@@ -256,13 +256,31 @@ export async function depositBatchQualification(t) {
 
   // Point 3: erase one payer from populated shared batch and Stripe sources.
   const customer = (await h.state()).customers.find(c => c.id === customers[0].customer.id)
+  const privacyToken = await h.command('token.issue', { name: 'Synthetic privacy refusal', role: 'office' })
+  // Establish ordinary authenticated token use before comparing refused writes.
+  // The installation clock is pinned, so its last-use audit value stays exact.
+  assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${privacyToken.token}` } })).status, 200)
   const beforePreview = await h.state(), preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
   assert.ok(preview.fingerprint)
   assert.equal(preview.counts.payouts, 3, 'preview includes the peer-only batch whose note copied the erased payer receipt')
   assert.deepEqual((await h.state()).payouts, beforePreview.payouts, 'preview changes no financial history')
   assert.deepEqual((await h.state()).payments, beforePreview.payments)
+  const erasePayload = { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint }
+  const beforeRefusals = await h.state()
+  for (const person of [b.office, b.dispatcher, b.priyaPerson, b.agent, scopedOffice, scopedOwner]) {
+    await person.run('privacy.preview', { customerId: customer.id, version: customer.version }, { error: 'FORBIDDEN' })
+    await person.run('privacy.erase', erasePayload, { error: 'FORBIDDEN' })
+    assert.deepEqual(await h.state(), beforeRefusals, 'excluded or branch-limited people cannot inspect or erase shared payout sources')
+  }
+  for (const type of ['privacy.preview', 'privacy.erase']) {
+    const response = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${privacyToken.token}` }, body: { type, commandId: randomUUID(), payload: erasePayload } })
+    assert.equal(response.status, 403)
+    assert.deepEqual(await h.state(), beforeRefusals, 'an integration token cannot confirm a person’s privacy decision')
+  }
+  await h.command('privacy.erase', { ...erasePayload, fingerprint: 'synthetic-glove-stale-preview' }, { error: 'STALE_PREVIEW' })
+  assert.deepEqual(await h.state(), beforeRefusals, 'a stale preview cannot erase or change any record')
   const peerBefore = (await h.state()).payments.filter(p => p.customerId === customers[1].customer.id)
-  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  await h.command('privacy.erase', erasePayload)
   const erasedRead = async () => {
     const state = await h.state(), events = await activity(h), exported = await read(h, '/api/glove/export')
     const retainedBatch = state.payouts.find(p => p.id === batch.id), retainedProvider = state.payouts.find(p => p.id === payout.id)

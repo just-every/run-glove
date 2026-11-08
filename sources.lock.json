@@ -5552,7 +5552,7 @@
       "executable": false
     },
     "tests/api/deposit-batches.mjs": {
-      "sha256": "59f683198022db1c67494e9017a1c6ee7f350f4888e0ed8a2717309ef8fcafa1",
+      "sha256": "0f33695e2ebc0d41cbc7bcc649866bf131864db87e3036ac3aaf1ae1d50fb206",
       "executable": false
     },
     "tests/api/discounts.test.mjs": {
