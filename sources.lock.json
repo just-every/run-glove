@@ -5668,7 +5668,7 @@
       "executable": false
     },
     "tests/api/quote-link-custody.test.mjs": {
-      "sha256": "da5d9c6b174351c8931a0ab3e05b4fd84e6d7db5559ec97a63ad8cecbb538aad",
+      "sha256": "84d5a83c7357d97da60fdad88b8635c16992599ba02211dd294c3b2a5dbc45a8",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -5849,6 +5849,10 @@
     },
     "tests/browser/quickbooks.spec.ts": {
       "sha256": "4e03e8abf9a9d657299ae352e42feccc116e7e225a386d95ab26dea39b14335b",
+      "executable": false
+    },
+    "tests/browser/quote-link-custody.spec.ts": {
+      "sha256": "704a986f09d06336e4296ba48b2040d339171ca67ba43e7cf8f09aba444af86b",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
@@ -6304,7 +6308,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "233fbab6ab9800d8a9478e47398f4db21ebf81f4d35325b24a46d1add825466d",
+      "sha256": "2ab6cf49ac2ffd02747d83822d3257caca5f181775b3464a910217d49730214f",
       "executable": false
     },
     "tests/runtime.mjs": {
