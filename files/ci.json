@@ -1,0 +1,29 @@
+{
+  "head": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+  "discovery": [
+    {
+      "id": 42472034889,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42472034889"
+    }
+  ],
+  "api_calls_used": 5,
+  "status_checks": [
+    {
+      "conclusion": null,
+      "head_sha": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42472034889",
+      "status": "in_progress"
+    },
+    {
+      "conclusion": "success",
+      "head_sha": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42472034889",
+      "status": "completed"
+    }
+  ]
+}

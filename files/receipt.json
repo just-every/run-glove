@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f118",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f118",
+  "head": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+  "base": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+  "product_push": "succeeded",
+  "pr": null,
+  "tests": {
+    "command": "node --test --test-concurrency=1 tests/api/agreements.test.mjs",
+    "runtime": "22.20.0",
+    "exit": 0,
+    "passed": 7,
+    "failed": 0,
+    "registrations_before": 7,
+    "registrations_after": 7,
+    "exact_committed_head_run": true
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "runtime": "22.20.0",
+    "exit": 0
+  },
+  "mechanical": {
+    "views_write": {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0
+    },
+    "views_check": {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    "views_restored": true,
+    "lock": {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    "lock_check": {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true
+    },
+    "ledger": {
+      "command": null,
+      "reason": "No migration changed",
+      "exit": 0
+    },
+    "first_party": {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    }
+  },
+  "contract_unchanged": true,
+  "browser_proof": {
+    "status": "not required",
+    "reason": "No UI or production source changed; existing due-visits journey preserved",
+    "path": "tests/browser/due-visits.spec.ts",
+    "sha256": "6b1bb6de9aa8e88b67fb21621f09bda30b8029ab0b72a5fb5c623e1513f51cdf"
+  },
+  "counts": {
+    "before": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29
+    },
+    "committed_after": {
+      "done": 11,
+      "partial": 223,
+      "missing": 29
+    },
+    "requested_after_judgment": {
+      "done": 12,
+      "partial": 222,
+      "missing": 29
+    }
+  },
+  "ci": {
+    "status": "completed",
+    "api_calls_used": 5,
+    "main_verify_run_ids": [
+      42467836802,
+      42466797960
+    ],
+    "main_run_site": 42467837032,
+    "run_id": 42472034889,
+    "event": "push",
+    "head_sha": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42472034889"
+  },
+  "publication_scan": {
+    "commit": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "status": "not run in cloud; guarded Mac lander owns scan"
+  },
+  "landing": {
+    "main_equals_candidate": false,
+    "status": "branch only; lander pending"
+  },
+  "artifacts": {
+    "agreements.tap": {
+      "bytes": 2826,
+      "sha256": "aafa876310a84e500d6f2862bee06e3bf16074e53dec0a4cffe752bcabdc9614"
+    },
+    "typecheck.txt": {
+      "bytes": 90,
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    "mechanical.txt": {
+      "bytes": 285,
+      "sha256": "30f57df8ef6fcc45ea3d29b825d42fdfb3e54f665b50eedc21fa3cca3b2804c6"
+    }
+  },
+  "remote_heads": {
+    "refs/heads/cloud/sx-glove-c-f118": "3a995db0ea145ea58cf86d0f57ab001b2db36062",
+    "refs/heads/main": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4"
+  },
+  "source_tree_clean": true,
+  "test_file_sha256": "85786719d6ff75316f331c97433cc51104b2207cdcd82b39f53fe4e6b65eb410"
+}

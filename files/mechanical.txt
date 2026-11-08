@@ -1,0 +1,3 @@
+MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write and check exit=0, generated views restored; ledger=none exit=0
+First-party check exit=0
+Contract unchanged; generated views unchanged; production source unchanged.
