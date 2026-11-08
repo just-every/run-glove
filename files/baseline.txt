@@ -1,0 +1,60 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+Running 1 test using 1 worker
+
+(node:2194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:2194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (23.9s)
+
+
+  1) tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 8
+    + Received  + 1
+
+    - Array [
+    -   "INV-0004approved after period end2025-01-312025-02-032025-02-17",
+    -   "INV-0007approved after period end2025-02-282025-03-032025-03-17",
+    -   "INV-0010approved after period end2025-03-312025-04-032025-04-17",
+    -   "PAC-INV-0001approved after period end2025-01-312025-02-022025-02-16",
+    -   "PAC-INV-0002approved after period end2025-02-282025-03-022025-03-16",
+    -   "PAC-INV-0003approved after period end2025-03-312025-04-022025-04-16",
+    - ]
+    + Array []
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      186 |       await page.getByLabel('Report', { exact: true }).selectOption(kind)
+      187 |       await expect(page.locator('#report-title')).toHaveText(label)
+    > 188 |       await expect.poll(lateRows).toEqual([...expectedRows].sort())
+          |                                   ^
+      189 |       await expect(panel).toContainText(total)
+      190 |       const result = await download()
+      191 |       expect(result.status).toBe(200)
+        at fixedMonthlyRevenue (/workspace/glove-f156/tests/browser/revenue.spec.ts:188:35)
+        at /workspace/glove-f156/tests/browser/revenue.spec.ts:150:3
+
+    Error Context: ../../tmp/glove-browser-results/revenue-REPORT-002-REPORT--4bde6-atching-CSV-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 

@@ -1,0 +1,70 @@
+{
+  "files": [
+    {
+      "blob": "d3d407cfeefe0e569905da2d2413d6a1d461abd1",
+      "bytes": 13831,
+      "path": "REPORT.md",
+      "sha256": "d866f6fcb71459c60c7888b9580f811d9fc3afd451ae13b1a18539fa32d2cc29"
+    },
+    {
+      "blob": "b7e2b173b35dee1b532e7c78f43b5fbd27c3b24e",
+      "bytes": 1183,
+      "path": "api.txt",
+      "sha256": "e1d797a925ef98ba1dae93b335bc814ffaeb13b5eef01cc6196927c97ae49113"
+    },
+    {
+      "blob": "d45fb099124fe69fa652dc52a259eb1c4355db20",
+      "bytes": 3251,
+      "path": "baseline.txt",
+      "sha256": "68de8249ef6198cc3a9bb75da2c264b88c7953c8a88b7633e78096ca427585f7"
+    },
+    {
+      "blob": "a7bfa1788be16edd1ab8e78d7a3a542d9e283abc",
+      "bytes": 1685,
+      "path": "browser.txt",
+      "sha256": "99a8215201828cd739d1365527a056fd924b7cc9464776eee849dd38e6bbef12"
+    },
+    {
+      "blob": "cc354295f2167a3174b9145cffa3572b073d4f9e",
+      "bytes": 260151,
+      "path": "mechanical.txt",
+      "sha256": "a49ca6d60e468855854be456b7c5fa65097227616e1a2c76b71e05b52fb3d90b"
+    },
+    {
+      "blob": "b95f488ec10c31703d6592a70694dffec0ad8189",
+      "bytes": 3536,
+      "path": "receipt.json",
+      "sha256": "7144c9ecc68a6a458038ecce6d3c91b16a4aeaf5d2a4417564c789e3402e7a16"
+    },
+    {
+      "blob": "7e4038bbb01a0268f05110e381fbd40cba196033",
+      "bytes": 431916,
+      "path": "screenshots/1440-monthly-revenue-late-approvals.png",
+      "sha256": "d78e03e66b477c595a31cc1b4809ef1b41c6c261ed7f2c3c002e3705f66a5186"
+    },
+    {
+      "blob": "f3000d51f8d6321d36faa287c0f375e5fc7867ac",
+      "bytes": 454469,
+      "path": "screenshots/1440-monthly-tax-late-approvals.png",
+      "sha256": "33f178270049f52787330a47b188dc7ca335611d5d50aea36c0dab3661b94781"
+    },
+    {
+      "blob": "6bd6186387e72e29dec652a46208467d9d6627ad",
+      "bytes": 407980,
+      "path": "screenshots/390-monthly-revenue-late-approvals.png",
+      "sha256": "a0d00f67171b12261e3fd5da4be25966fd0e4016eabc19d9e0b2e8e53251f3cc"
+    },
+    {
+      "blob": "2435076c417e89762703fe20bdfb761e649743ec",
+      "bytes": 434835,
+      "path": "screenshots/390-monthly-tax-late-approvals.png",
+      "sha256": "d05aa43a63db88217aeea778ade0455ecf0a0de7e61cd532fb9c4ad253d1b2c1"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f156",
+  "product_head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58",
+  "ref": "refs/heads/evidence/sx-glove-c-f156",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f156"
+}

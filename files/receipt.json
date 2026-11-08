@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f156",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f156",
+  "head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58",
+  "base_main": "4eea04c27f02aa2cb0c12edc421a9b4e574de0bf",
+  "product_push": "success",
+  "pr": null,
+  "contract": {
+    "clause": "REPORT-004",
+    "status_before": "partial",
+    "status_after": "partial",
+    "qualified_points": [
+      2
+    ],
+    "counts_before": {
+      "done": 20,
+      "partial": 214,
+      "missing": 29
+    },
+    "counts_after": {
+      "done": 20,
+      "partial": 214,
+      "missing": 29
+    }
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/fixed-monthly-reports.test.mjs tests/api/reports.test.mjs",
+      "exit": 0,
+      "tests": 3,
+      "head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses REPORT-004",
+      "exit": 0,
+      "head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium timeout 1200 node tests/browser/run.mjs tests/browser/revenue.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "screenshots": [
+        1440,
+        390
+      ],
+      "head": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58",
+      "runtime": "fresh install, native setup and dev, actual production Worker fixture"
+    }
+  ],
+  "verify": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42518845292",
+      "id": 42518845292,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "publication_scan": {
+    "status": "not run in cloud; fleet gate",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null
+  },
+  "landing": {
+    "main_equals_candidate": false,
+    "run_site": "pending guarded landing"
+  },
+  "remaining": [
+    "REPORT-004 acceptance 1 and all quoted inherited holds"
+  ],
+  "notes": [
+    "Initial published commit omitted three unstaged files; the final published commit completes them without history rewrite.",
+    "First official fresh-install browser invocation lacked the system Chromium selector; repeated with PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium."
+  ],
+  "browser_baseline": {
+    "outcome": "failed before UI repair",
+    "error": "six expected late-approval rows; received []",
+    "file": "baseline.txt"
+  },
+  "screenshots": [
+    "screenshots/1440-monthly-revenue-late-approvals.png",
+    "screenshots/1440-monthly-tax-late-approvals.png",
+    "screenshots/390-monthly-revenue-late-approvals.png",
+    "screenshots/390-monthly-tax-late-approvals.png"
+  ],
+  "verify_observation": {
+    "conclusion": null,
+    "head_sha": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42518845292",
+    "status": "in_progress",
+    "run_id": 42518845292,
+    "event": "push",
+    "observed_at": "2026-11-08T20:17:10Z"
+  },
+  "github_calls": 2
+}

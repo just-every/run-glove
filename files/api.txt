@@ -1,0 +1,30 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+ok 1 - REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+  ---
+  duration_ms: 8375.85743
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+ok 2 - REPORT-002, REPORT-004 a month of work: each report against its records and CSV, and one filter each
+  ---
+  duration_ms: 7671.917235
+  type: 'test'
+  ...
+# Subtest: REPORT-003 native USD aging: two customers, every boundary, complete JSON and CSV, restart and read refusals
+ok 3 - REPORT-003 native USD aging: two customers, every boundary, complete JSON and CSV, restart and read refusals
+  ---
+  duration_ms: 5402.78431
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23807.192638
