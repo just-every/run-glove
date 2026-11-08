@@ -7,7 +7,7 @@ import { installation, postEvents } from '../api/harness.mjs'
 import { connectMail, receipt } from '../fixtures/mail-providers.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-async function screens(page: Page, name: string, anchor: Locator) {
+async function screens(page: Page, name: string, anchor: Locator, region = false) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 })
     await anchor.scrollIntoViewIfNeeded()
@@ -15,7 +15,7 @@ async function screens(page: Page, name: string, anchor: Locator) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     if (process.env.GLOVE_SCREENSHOTS) {
       await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-      await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-due-${name}.png`) })
+      await (region ? anchor : page).screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-due-${name}.png`) })
     }
   }
   await page.setViewportSize({ width: 1440, height: 1050 })
@@ -490,7 +490,7 @@ async function offerCommunicationHistory(page: Page, h: any, office: any, servic
     await expect(history).not.toContainText('Other Property Care')
     return history
   }
-  await screens(page, 'email-history-accepted', await showHistory('Accepted by Postmark; delivery not yet reported'))
+  await screens(page, 'email-history-accepted', await showHistory('Accepted by Postmark; delivery not yet reported'), true)
   for (const [outcome, at, state] of [
     ['delivered', '2030-01-02T02:01:00.000Z', `Delivered to ${email}'s mail server (reported by Postmark)`],
     ['bounced', '2030-01-02T02:02:00.000Z', `Bounced: ${email} did not accept it (reported by Postmark)`],
@@ -499,13 +499,18 @@ async function offerCommunicationHistory(page: Page, h: any, office: any, servic
     await page.goto(`${origin}/app#dispatch`)
     await expect(offers).toContainText(state)
     await screens(page, `email-${outcome}`, offers)
-    await screens(page, `email-history-${outcome}`, await showHistory(state))
+    await screens(page, `email-history-${outcome}`, await showHistory(state), true)
   }
   await page.goto(`${origin}/app#dispatch`)
   await offers.getByLabel('Sent outside Glove by', { exact: true }).fill('phone follow-up')
   await offers.getByRole('button', { name: 'Record as sent outside Glove', exact: true }).click()
-  // The mail result continues to show the provider fact; the separate outside
-  // send is honestly labelled in property history.
+  // Read the committed outside-send outcome before requesting another change.
+  const outsideHistory = await showHistory(`Bounced: ${email} did not accept it (reported by Postmark)`)
+  await expect(outsideHistory).toContainText('History Care visit 1: recorded by Booking Office Browser as sent by phone follow-up')
+  await expect(outsideHistory).toContainText('delivery not verified')
+  await screens(page, 'email-history-outside-send', outsideHistory, true)
+  await page.goto(`${origin}/app#dispatch`)
+  await expect(offers).toContainText(`Bounced: ${email} did not accept it (reported by Postmark)`)
   await offers.getByRole('button', { name: 'Revoke booking link', exact: true }).click()
   await expect(offers.getByText('Revoked ·', { exact: false })).toBeVisible()
   await screens(page, 'email-revoked', offers)
@@ -513,13 +518,13 @@ async function offerCommunicationHistory(page: Page, h: any, office: any, servic
   await expect(history).toContainText('History Care visit 1: recorded by Booking Office Browser as sent by phone follow-up')
   await expect(history).toContainText('delivery not verified')
   await expect(history).toContainText('History Care visit 1: revoked')
-  await screens(page, 'email-history-revoked', history)
+  await screens(page, 'email-history-revoked', history, true)
   await page.getByRole('button', { name: `History at ${otherSite.address}`, exact: true }).click()
   const otherHistory = page.getByRole('region', { name: `History at ${otherSite.address}`, exact: true })
   await expect(otherHistory).toContainText('Other Property Care visit 1: 1 slot offered by Booking Office Browser')
   await expect(otherHistory).not.toContainText('booking link emailed')
   await expect(otherHistory).not.toContainText('phone follow-up')
   await expect(otherHistory).not.toContainText('History Care visit 1: revoked')
-  await screens(page, 'other-property-history', otherHistory)
+  await screens(page, 'other-property-history', otherHistory, true)
   expect(h.email.sent.length).toBe(sentBefore + 1)
 }
