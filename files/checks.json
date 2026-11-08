@@ -1,0 +1,133 @@
+{
+  "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+  "checks": [
+    {
+      "name": "api",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/morning-brief.test.mjs"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 15.573,
+      "log": "api.log",
+      "sha256": "60a00a1c01fe0068fc44589ea827400712320573cc339fa74dd06db376c3141c"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 0.323,
+      "log": "typecheck.log",
+      "sha256": "c83938b6e93a517550c0ea78d7a964262bc6b851f8b4a7f739693cea75c974d8"
+    },
+    {
+      "name": "first-party",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 1.074,
+      "log": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "views-write",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "--clauses",
+        "AGENT-008"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 0.185,
+      "log": "views-write.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "name": "views-check",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 0.152,
+      "log": "views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "name": "restore-views",
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 0.004,
+      "log": "restore-views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lock-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 0.22,
+      "log": "lock-check.log",
+      "sha256": "4c2cb7adef46b2331ab45463dcf31081f00e1d923b5ea41fe2289f3d688d8450"
+    },
+    {
+      "name": "contract-unchanged",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "origin/main...HEAD",
+        "--",
+        "CONTRACT.md"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 0.002,
+      "log": "contract-unchanged.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "clean-product",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code"
+      ],
+      "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+      "exit": 0,
+      "seconds": 0.003,
+      "log": "clean-product.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

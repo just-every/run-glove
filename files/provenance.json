@@ -1,0 +1,30 @@
+{
+  "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+  "main": "508403025ce0d57d57c24dae142f16f8fb190285",
+  "branch": "cloud/sx-glove-c-f152",
+  "shallow": false,
+  "files": {
+    "tests/api/harness.mjs": "424e9d8e82c9e8ba5eeea0b3ccbcfea16b3f45baaa31d2450cf52a31b79912b5",
+    "tests/api/morning-brief.test.mjs": "e0717a16e7205c3091e24e96634d1a405a668ff9e69d4d6dd5812c948b512e29",
+    "tests/browser/morning-brief.spec.ts": "2d3a3fa9085a37f6db72abbbf11f990ea42b6d66688b67d05012031f3faccb34",
+    "src/glove/morning-brief.ts": "46afc80128bcf03977e5c3f1656cc11aa2edbd3623f98e0ee407c54e5177bb3a",
+    "src/glove/morning-email.ts": "6040239e27cc2b7c88fb17a9417c1b896deb444586de5286e7970a14ee78a964",
+    "src/glove/api.ts": "ef4096c63ceeab3cb1963fe484f48438f244434abb3fac44120cfa970df1e33c",
+    "src/ui/morning-brief.tsx": "48e3b5fc5f6e99febbcf2d49b15140c88f72d26725cbf9aaec25468fe2d3b20f",
+    "verification.json": "691e615aa78b041fb005073dadf35bb2eb46349706e9e29712f552864447a36f",
+    "scripts/verify-app.mjs": "4c8f1056c92e7879197ccb4ccca8dbc9a2273af53afe477b157529350ac93d89",
+    "sources.lock.json": "673361590546f3e46a2ffabbed2fd6733e1661d43834c3d2b7ba58a86cc67924",
+    "CONTRACT.md": "50aa43ba402f2d491fc76c44d8e9083bdff74dee565460b0a9a77931dd7f9faf"
+  },
+  "diff_stat": " sources.lock.json                   |   6 +-\n tests/api/harness.mjs               |  62 ++++++++++\n tests/api/morning-brief.test.mjs    | 226 +++++++++++++++++++++++++-----------\n tests/browser/morning-brief.spec.ts |  72 ++++++------\n 4 files changed, 262 insertions(+), 104 deletions(-)\n",
+  "commits": [
+    "c4106b3967f01baa6df50e525d2e6aa7d8851fe3 Qualify Today navigation as a durable read-only brief journey",
+    "aa8e478150537baceb6003cd510e4e622b35f8b2 Prove brief branch identities and erased-customer custody [skip ci]",
+    "cb066e34a4f72ead3174253d3efb136830d1b150 Keep morning brief proof within its existing test registrations",
+    "b3069810cf01214ea5670e3c5bfed93582f3dc65 Qualify the owner morning brief at fixed business dates"
+  ],
+  "remote_refs": [
+    "c4106b3967f01baa6df50e525d2e6aa7d8851fe3\trefs/heads/cloud/sx-glove-c-f152",
+    "508403025ce0d57d57c24dae142f16f8fb190285\trefs/heads/main"
+  ]
+}

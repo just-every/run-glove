@@ -1,0 +1,251 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f152",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f152",
+  "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+  "observed_at": "2026-11-08T18:43:04.373874+00:00",
+  "browser": {
+    "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/morning-brief.spec.ts",
+    "head": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+    "exit": 0,
+    "runner": "exec_command session 27977",
+    "log": "browser.log",
+    "screenshots": [
+      {
+        "path": "screenshots/1440-brief-dispatch.png",
+        "bytes": 178689,
+        "sha256": "5063bce23dd5cd8fdadc10fcb14b9a1d5cdb9efe1ba9f2e42a5565c16a1760fd"
+      },
+      {
+        "path": "screenshots/1440-brief-invoices.png",
+        "bytes": 136282,
+        "sha256": "036a8d7fc40ab43563c88b93f373b72bfb57944376c34c5ffbf8b0533f988db5"
+      },
+      {
+        "path": "screenshots/1440-brief-jobs.png",
+        "bytes": 126290,
+        "sha256": "7c1eabd253e160d3f732e8006ed4ac726d67256d1061479c2b60cd7b0079f7c2"
+      },
+      {
+        "path": "screenshots/1440-brief-quotes.png",
+        "bytes": 139702,
+        "sha256": "d0a4ccc2ec65e35c09452dac2e9dca1b7ad97a2bbc1af9a5674ac5f88c85a175"
+      },
+      {
+        "path": "screenshots/1440-brief-today.png",
+        "bytes": 224679,
+        "sha256": "9e886026709d8f29705180f171797c2e4ba2252c85b85ff5f257bac606f0f758"
+      },
+      {
+        "path": "screenshots/390-brief-dispatch.png",
+        "bytes": 74716,
+        "sha256": "99a95b37bb09a63b53e3dd620632c382eea1e2c93f37e4f46997ae7847347ad4"
+      },
+      {
+        "path": "screenshots/390-brief-invoices.png",
+        "bytes": 68202,
+        "sha256": "1e75019553307715e1077292f21aab57d06dc698896681ab09d1811ec02f5dc5"
+      },
+      {
+        "path": "screenshots/390-brief-jobs.png",
+        "bytes": 55736,
+        "sha256": "2ce5b1258f1e987d8b75c4d3db060b5c0c67ffb63df3f147b4a04722f9c26772"
+      },
+      {
+        "path": "screenshots/390-brief-quotes.png",
+        "bytes": 73302,
+        "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+      },
+      {
+        "path": "screenshots/390-brief-today.png",
+        "bytes": 197685,
+        "sha256": "5d187b963f297b890d6bcd1b1bcfb72bd5af90ad5ec79708d5984c1ea5630414"
+      }
+    ]
+  },
+  "checks": "checks.json",
+  "status_counts_before": {
+    "done": 19,
+    "partial": 215,
+    "missing": 29
+  },
+  "status_counts_after": {
+    "done": 19,
+    "partial": 215,
+    "missing": 29
+  },
+  "target_proven_points": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "scan": {
+    "commit": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "fleet lander only"
+  },
+  "files": [
+    {
+      "path": "CI.json",
+      "bytes": 285,
+      "sha256": "fed0148e0b3f7f7497e32a29bab2bcabd4f03e531e55090605c1cfc4d0f3e8b6"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 2081,
+      "sha256": "dc0724d3f76602be2493ae07c69270729698f0d07f92d48808828307ce3a00e1"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 15521,
+      "sha256": "fe83d9aa10cbf4a3a932388369913faf41b621646a1a27ed3dd93be3e6908736"
+    },
+    {
+      "path": "api.log",
+      "bytes": 513,
+      "sha256": "60a00a1c01fe0068fc44589ea827400712320573cc339fa74dd06db376c3141c"
+    },
+    {
+      "path": "browser.log",
+      "bytes": 1082,
+      "sha256": "532bf53d121f9513833d17348f00ea1d9649b436c31d76b071eb0b25679e179a"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 3444,
+      "sha256": "33c0f8924cf54d57f6874bacec64fcd25ec9c72549e19af8658a3b9f25567221"
+    },
+    {
+      "path": "clean-product.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "contract-unchanged.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "first-party.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "identity.log",
+      "bytes": 419,
+      "sha256": "9679f4f0087842a8590aa9704d5863b23a6a0dc492ced983705acf52883dec65"
+    },
+    {
+      "path": "lock-check.log",
+      "bytes": 259585,
+      "sha256": "4c2cb7adef46b2331ab45463dcf31081f00e1d923b5ea41fe2289f3d688d8450"
+    },
+    {
+      "path": "main-CI.json",
+      "bytes": 1143,
+      "sha256": "6e3c3950a0a7d42a601abad225ff1d43b4aa7be947b064d61971699f48d0e703"
+    },
+    {
+      "path": "product-push.log",
+      "bytes": 712,
+      "sha256": "33dc19456bfbab703f98d1b9487238e112d7422c605802f1b4b1edcf86ef4f0f"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 2213,
+      "sha256": "a31099afded90b05ecbd05d7442a0a8c3b8329013be43ca5cd4f249275a0291a"
+    },
+    {
+      "path": "restore-views.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "save-push.log",
+      "bytes": 898,
+      "sha256": "b4614c80911b25f7751ccb23a22facf521d7cc9c6021ae0b4c2ca6b49036036d"
+    },
+    {
+      "path": "screenshots/1440-brief-dispatch.png",
+      "bytes": 178689,
+      "sha256": "5063bce23dd5cd8fdadc10fcb14b9a1d5cdb9efe1ba9f2e42a5565c16a1760fd"
+    },
+    {
+      "path": "screenshots/1440-brief-invoices.png",
+      "bytes": 136282,
+      "sha256": "036a8d7fc40ab43563c88b93f373b72bfb57944376c34c5ffbf8b0533f988db5"
+    },
+    {
+      "path": "screenshots/1440-brief-jobs.png",
+      "bytes": 126290,
+      "sha256": "7c1eabd253e160d3f732e8006ed4ac726d67256d1061479c2b60cd7b0079f7c2"
+    },
+    {
+      "path": "screenshots/1440-brief-quotes.png",
+      "bytes": 139702,
+      "sha256": "d0a4ccc2ec65e35c09452dac2e9dca1b7ad97a2bbc1af9a5674ac5f88c85a175"
+    },
+    {
+      "path": "screenshots/1440-brief-today.png",
+      "bytes": 224679,
+      "sha256": "9e886026709d8f29705180f171797c2e4ba2252c85b85ff5f257bac606f0f758"
+    },
+    {
+      "path": "screenshots/390-brief-dispatch.png",
+      "bytes": 74716,
+      "sha256": "99a95b37bb09a63b53e3dd620632c382eea1e2c93f37e4f46997ae7847347ad4"
+    },
+    {
+      "path": "screenshots/390-brief-invoices.png",
+      "bytes": 68202,
+      "sha256": "1e75019553307715e1077292f21aab57d06dc698896681ab09d1811ec02f5dc5"
+    },
+    {
+      "path": "screenshots/390-brief-jobs.png",
+      "bytes": 55736,
+      "sha256": "2ce5b1258f1e987d8b75c4d3db060b5c0c67ffb63df3f147b4a04722f9c26772"
+    },
+    {
+      "path": "screenshots/390-brief-quotes.png",
+      "bytes": 73302,
+      "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+    },
+    {
+      "path": "screenshots/390-brief-today.png",
+      "bytes": 197685,
+      "sha256": "5d187b963f297b890d6bcd1b1bcfb72bd5af90ad5ec79708d5984c1ea5630414"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 130,
+      "sha256": "c83938b6e93a517550c0ea78d7a964262bc6b851f8b4a7f739693cea75c974d8"
+    },
+    {
+      "path": "views-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "path": "views-write.log",
+      "bytes": 28,
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    }
+  ],
+  "ci": {
+    "conclusion": null,
+    "head_sha": "c4106b3967f01baa6df50e525d2e6aa7d8851fe3",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42510886582",
+    "status": "in_progress",
+    "id": 42510886582,
+    "event": "push",
+    "observed_at": "2026-11-08T18:42:35.442565+00:00"
+  }
+}
