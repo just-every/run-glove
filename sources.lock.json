@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "bccdae0ee3a8217dd1cf53f68fcbdbe10db7c1970eba1e5537a2d71a4f5fe2cb",
+      "sha256": "dce3c87b16c49d7923fa8f11785494e051d7acd7df0af56f350c37df215792fc",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -2500,7 +2500,7 @@
       "executable": false
     },
     "src/glove/subcontract.ts": {
-      "sha256": "0344bc613efe2819d821192513acc2aa18188abb2f197e94bc3db38c06f7b645",
+      "sha256": "1999540646363008d3b80da80cf6c1b44a8b2aa61000d281ec5d66045585a650",
       "executable": false
     },
     "src/glove/technician-portraits.ts": {
@@ -5712,7 +5712,7 @@
       "executable": false
     },
     "tests/api/subcontract.test.mjs": {
-      "sha256": "1a89c9a0984079ae7c692b9fe02bc8ff37b427f5cbe056bb3ee0cc1f379024ae",
+      "sha256": "be68204797c186daebfe6b87353baaaecd6479e8e34d7f69a967276cf82d5328",
       "executable": false
     },
     "tests/api/suggest.test.mjs": {
