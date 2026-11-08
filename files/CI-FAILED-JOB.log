@@ -1,0 +1,162 @@
+shards (browser-2)	Run this shard	﻿2026-11-08T17:06:53.2872896Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2873532Z [36;1mnode scripts/verify-ci.mjs "$SHARD"[0m
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2890527Z shell: /usr/bin/bash -e {0}
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2890739Z env:
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2890898Z   CI: true
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2891077Z   GLOVE_VERIFY_SHARD: browser-2
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2891293Z   WRANGLER_SEND_METRICS: false
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2891512Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2891713Z   GLOVE_CI_PREBUILT: 1
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2891984Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2892272Z   SHARD: browser-2
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.2892446Z ##[endgroup]
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.3156283Z > pnpm run verify:app
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.5175625Z 
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.5176138Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.5176827Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.5177130Z 
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.5928642Z verify:app
+shards (browser-2)	Run this shard	2026-11-08T17:06:53.6207946Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/email.spec.ts' 'tests/browser/money.spec.ts' 'tests/browser/receivables.spec.ts'
+shards (browser-2)	Run this shard	2026-11-08T17:06:54.3117393Z [verify phase] frozen install: start
+shards (browser-2)	Run this shard	2026-11-08T17:07:00.0725762Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=5762
+shards (browser-2)	Run this shard	2026-11-08T17:07:00.0729495Z [verify phase] rer: start
+shards (browser-2)	Run this shard	2026-11-08T17:07:04.2189391Z [verify phase] rer: exit=0 signal=none elapsed_ms=4143
+shards (browser-2)	Run this shard	2026-11-08T17:07:04.2194047Z [verify phase] site build: start
+shards (browser-2)	Run this shard	2026-11-08T17:07:06.3498109Z [verify phase] site build: exit=0 signal=none elapsed_ms=2133
+shards (browser-2)	Run this shard	2026-11-08T17:07:06.3995559Z [verify phase] native setup: start
+shards (browser-2)	Run this shard	2026-11-08T17:07:39.5572396Z [verify phase] native setup: exit=0 signal=none elapsed_ms=33158
+shards (browser-2)	Run this shard	2026-11-08T17:07:39.5577259Z [verify phase] native dev: start
+shards (browser-2)	Run this shard	2026-11-08T17:07:52.3822016Z [verify phase] browser assertions: start
+shards (browser-2)	Run this shard	2026-11-08T17:07:54.2459725Z [verify progress] Running 9 tests using 1 worker
+shards (browser-2)	Run this shard	2026-11-08T17:08:33.7928653Z [verify progress]   ✓  1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (38.2s)
+shards (browser-2)	Run this shard	2026-11-08T17:08:38.1807991Z [verify progress]   ✓  2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (4.4s)
+shards (browser-2)	Run this shard	2026-11-08T17:09:25.0161822Z [verify progress]   ✓  3 tests/browser/email.spec.ts:28:1 › COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390 (46.8s)
+shards (browser-2)	Run this shard	2026-11-08T17:10:04.5762591Z [verify progress]   ✓  4 tests/browser/email.spec.ts:236:1 › COMM-013 owner email settings retain the exact last matched callback time and SNS cancellation warning through rejected and unmatched traffic and Worker restart at 1440 and 390 (39.6s)
+shards (browser-2)	Run this shard	2026-11-08T17:10:24.3860971Z [verify progress]   ✘  5 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (19.7s)
+shards (browser-2)	Run this shard	2026-11-08T17:10:32.4193831Z [verify progress]   ✓  6 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (6.5s)
+shards (browser-2)	Run this shard	2026-11-08T17:10:47.1440308Z [verify progress]   ✓  7 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (14.7s)
+shards (browser-2)	Run this shard	2026-11-08T17:10:55.4970564Z [verify progress]   ✓  8 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (8.3s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.0593216Z [verify progress]   ✓  9 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (11.6s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1299926Z [verify progress]   1 failed
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1585565Z [verify progress]   8 passed (3.2m)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1586253Z [verify phase] browser assertions: exit=1 signal=none elapsed_ms=194777
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1595999Z Dev runtime output (last 6000 characters):
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1598169Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1601139Z rer dev: checking the server limit
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1601983Z Checking pinned pnpm
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1602440Z 10.12.4
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1602810Z Applying database migrations
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1603428Z Applying database migrations
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1603739Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1605318Z  ⛅️ wrangler 4.129.1 (update available 4.158.0)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1606639Z ───────────────────────────────────────────────
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1607289Z Resource location: local 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1607646Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1608010Z Use --remote if you want to access the remote instance.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1608438Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1608762Z ✅ No migrations to apply!
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1609308Z Starting your application on this computer
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1609914Z Starting your application on this computer
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1610457Z Using secrets defined in .dev.vars
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1611005Z   ➜  Local:   [URL]
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1611521Z Opening your application
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1611986Z Your application is running locally
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1612487Z Building the run site
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1612864Z {"pages":22,"assets":6,"styles":1}
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1614658Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1616121Z Open your app, already signed in on this computer: [URL]
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1616533Z App address (without sign-in): [URL]
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1616916Z Keep the sign-in link private.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1617577Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1618830Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1620602Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512151552 bytes.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1621454Z Details for tools and troubleshooting:
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1621809Z RER_READY [URL]
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1622139Z RER_SIGNED_IN owner@example.test
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1622489Z [private runtime entry]
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1622914Z Running the scheduled trigger locally: */15 * * * *
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.1623327Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.3221899Z [verify phase] native dev: exit=143 signal=none elapsed_ms=207764
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6186588Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6187282Z Running 9 tests using 1 worker
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6187605Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6189113Z   ✓  1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (38.2s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6190232Z QUOTE-007 screen: revise-form
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6190618Z QUOTE-007 screen: quote-allocation
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6191027Z QUOTE-007 screen: invoice-allocation
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6191414Z QUOTE-007 screen: role-limits
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6191809Z QUOTE-007 screen: price-book-discount
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6193426Z   ✓  2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (4.4s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6195903Z   ✓  3 tests/browser/email.spec.ts:28:1 › COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390 (46.8s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6196761Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6197031Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6197279Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6197509Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6197732Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6197973Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6198203Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6198440Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6198673Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6198898Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6199124Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6199352Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6199586Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6199811Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6200035Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6200274Z Customer email callback rejected
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6201169Z   ✓  4 tests/browser/email.spec.ts:236:1 › COMM-013 owner email settings retain the exact last matched callback time and SNS cancellation warning through rejected and unmatched traffic and Worker restart at 1440 and 390 (39.6s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6201929Z MONEY-001 screen: new-us-installation
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6202207Z MONEY-001 screen: business-tax
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6202434Z MONEY-001 screen: branch-tax
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6202679Z MONEY-001 screen: pricebook-tax
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6202950Z MONEY-001 screen: stripe-proposal
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6206133Z MONEY-001 screen: avatax-proposal
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6206393Z MONEY-001 screen: avatax-unavailable
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6206639Z MONEY-001 screen: certificate
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6206861Z MONEY-001 screen: site-tax
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6207071Z MONEY-001 screen: quote-tax
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6207280Z MONEY-001 screen: invoice-tax
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6207568Z MONEY-001 screen: qbo-inspection
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6207799Z MONEY-001 screen: tax-report
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6208038Z MONEY-001 screen: branch-tax-report
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6208314Z MONEY-001 screen: ambiguous-quote-refusal
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6208790Z MONEY-001 screen: explicit-site-city
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6209048Z MONEY-001 screen: explicit-quote-city
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6209325Z MONEY-001 screen: explicit-site-district
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6209597Z MONEY-001 screen: explicit-quote-district
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6209863Z MONEY-001 screen: unmatched-quote-refusal
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6210101Z MONEY-001 screen: today
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6210343Z MONEY-001 screen: dispatch
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6210549Z MONEY-001 screen: jobs
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6210746Z MONEY-001 screen: activity
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6210951Z MONEY-001 screen: move-in
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6211147Z MONEY-001 screen: rules
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6211335Z MONEY-001 screen: stock
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6212219Z   ✘  5 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (19.7s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6213562Z   ✓  6 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (6.5s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6214814Z   ✓  7 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (14.7s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6216139Z   ✓  8 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (8.3s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6217289Z   ✓  9 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (11.6s)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6217795Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6217801Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6218545Z   1) tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6219147Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6219316Z     Error: route.fulfill: Route is already handled!
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6219495Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6219672Z       66 |         const req = route.request(), url = new URL(req.url())
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6220362Z       67 |         const response = await backend.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6221299Z     > 68 |         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6221855Z          |                     ^
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6222079Z       69 |       })
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6222336Z       70 |       await page.goto(`${origin}/app#team`)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6222810Z       71 |       const first = page.getByRole('heading', { name: 'Set up your business', exact: true }).locator('..')
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6223473Z         at [REDACTED]/tests/browser/money.spec.ts:68:21
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6223698Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6233986Z     Error Context: ../../../../../tmp/glove-browser-evidence/results/journeys/money-MONEY-001-MONEY-004--3e448-invoice-tax-at-1440-and-390/error-context.md
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6234742Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6234860Z   1 failed
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6236164Z     tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6236861Z   8 passed (3.2m)
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6236977Z 
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.6972098Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-2)	Run this shard	2026-11-08T17:11:07.7160228Z ##[error]Process completed with exit code 1.

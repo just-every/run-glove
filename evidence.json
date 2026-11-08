@@ -13,10 +13,34 @@
       "sha256": "bc5b3dd7f07c1fa702df92081b113c3ac8feeb007b9b151b8c639e87e7955150"
     },
     {
-      "blob": "a32c88788fe7d0e87a19153215406c2a31ae4135",
-      "bytes": 370,
+      "blob": "19a04e63ebecd62557f5ca9189d16ddacbb4ad19",
+      "bytes": 10528,
+      "path": "CI-CANDIDATE-REPRO.log",
+      "sha256": "bc998e479604864e4267ce867f2d857e5f1cac752ed7dd22c51f822fdda96f38"
+    },
+    {
+      "blob": "207a5d67325d1fcaae28b6b20ffb50c6b96377cc",
+      "bytes": 20637,
+      "path": "CI-FAILED-JOB.log",
+      "sha256": "9c1a46dedc6162d8314e4694f16d036bc123aa4b528d9802876046fa639ffb09"
+    },
+    {
+      "blob": "4e3b41baaaafb3fbf9d954cc4a0ee0b0bc920f25",
+      "bytes": 15378,
+      "path": "CI-JOBS.json",
+      "sha256": "b5669498b2c1cf2463b55d2795d1eb6b8fc74542e6b65de73925c63016fd2420"
+    },
+    {
+      "blob": "34706647f62e53cbffeaa22745f341ec747942cd",
+      "bytes": 7244,
+      "path": "CI-MAIN-COMPARISON.log",
+      "sha256": "6e08ff292e4c91c873279275f4d5cbd6b13ccef82e3848a9fc5cd9f8df4629e6"
+    },
+    {
+      "blob": "66cb95d72a4de20a872dce8d9a217171f22a9e22",
+      "bytes": 2390,
       "path": "CI.json",
-      "sha256": "bd1cb1b41e99c2666139c8c839bbfe6d09f4ba62121394b3c767397cee740c68"
+      "sha256": "8c83498f110ec4d7771884a7818e9eea774d803f89071ede1dc3e8fa746d92ec"
     },
     {
       "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -31,10 +55,10 @@
       "sha256": "ded43bb7b743638549b6406e56582143f012e9761caa9c1eafdc707d4a71ee47"
     },
     {
-      "blob": "702508d2ac7bec2353cd629190ab7de79af3fbad",
-      "bytes": 16978,
+      "blob": "c7e402332b82454e883a0963a54c5b1c60e7b774",
+      "bytes": 23129,
       "path": "REPORT.md",
-      "sha256": "a6ca64c898fd1cce970d3e26d21a5ceffb238f5741203a042250587c1b70c258"
+      "sha256": "b64bbc526887c55ed8a7037cb9af1b727502ac45069343d5b0da033d6ded5e4d"
     },
     {
       "blob": "c62311c44ba93039983d57572b5e6d5dca9d76b5",
@@ -55,16 +79,16 @@
       "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
     },
     {
-      "blob": "23718168f0e0d17ec5b194215ca795f9c0d84c29",
-      "bytes": 1185,
+      "blob": "371ddac171a61d8d7b90c0daf82231ce6ebeebf6",
+      "bytes": 1188,
       "path": "claim.txt",
-      "sha256": "afeb494eb0a350258e6a50e63f6d0405d0d4b5a5e3082f5c2bb1a9ce3b1d8845"
+      "sha256": "de8a8c616f466ad7060a43327793a034633dc8ec69dfc139dd141e1a5a80ec9a"
     },
     {
-      "blob": "d90c81be0abc6a3fdd375e53349e952b90a4664c",
-      "bytes": 8205,
+      "blob": "15764cc017b20efdd188910c5c7e0e07e8bcd8f0",
+      "bytes": 11817,
       "path": "receipts.json",
-      "sha256": "50e26c8610e30b34375c4926cc41cb8a58f1437ad54a38d452ce903ad82fbffc"
+      "sha256": "9f23b56cc8bafee2fdd780a58bd382045541069a3a863a5db503c377c0057bbd"
     },
     {
       "blob": "d41a2e3cc6d84390ea87ffda7c1e9f48ca449c76",

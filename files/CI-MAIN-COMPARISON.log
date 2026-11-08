@@ -1,0 +1,144 @@
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=9868
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=5857
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2619
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=39180
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 3 tests using 1 worker
+[verify progress]   ✓  1 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (29.7s)
+[verify progress]   ✓  2 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (25.5s)
+[verify progress]   ✓  3 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (25.4s)
+[verify progress]   3 passed (1.5m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=89828
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 3 tests using 1 worker
+
+(node:9006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:9006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: new-us-installation
+MONEY-001 screen: business-tax
+MONEY-001 screen: branch-tax
+MONEY-001 screen: pricebook-tax
+MONEY-001 screen: stripe-proposal
+MONEY-001 screen: avatax-proposal
+MONEY-001 screen: avatax-unavailable
+MONEY-001 screen: certificate
+MONEY-001 screen: site-tax
+MONEY-001 screen: quote-tax
+MONEY-001 screen: invoice-tax
+MONEY-001 screen: qbo-inspection
+MONEY-001 screen: tax-report
+MONEY-001 screen: branch-tax-report
+MONEY-001 screen: ambiguous-quote-refusal
+MONEY-001 screen: explicit-site-city
+MONEY-001 screen: explicit-quote-city
+MONEY-001 screen: explicit-site-district
+MONEY-001 screen: explicit-quote-district
+MONEY-001 screen: unmatched-quote-refusal
+(node:9006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: today
+MONEY-001 screen: dispatch
+MONEY-001 screen: jobs
+MONEY-001 screen: activity
+MONEY-001 screen: move-in
+MONEY-001 screen: rules
+MONEY-001 screen: stock
+  ✓  1 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (29.7s)
+(node:9182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:9182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: new-us-installation
+MONEY-001 screen: business-tax
+MONEY-001 screen: branch-tax
+MONEY-001 screen: pricebook-tax
+MONEY-001 screen: stripe-proposal
+MONEY-001 screen: avatax-proposal
+MONEY-001 screen: avatax-unavailable
+MONEY-001 screen: certificate
+MONEY-001 screen: site-tax
+MONEY-001 screen: quote-tax
+MONEY-001 screen: invoice-tax
+MONEY-001 screen: qbo-inspection
+MONEY-001 screen: tax-report
+MONEY-001 screen: branch-tax-report
+MONEY-001 screen: ambiguous-quote-refusal
+MONEY-001 screen: explicit-site-city
+MONEY-001 screen: explicit-quote-city
+MONEY-001 screen: explicit-site-district
+MONEY-001 screen: explicit-quote-district
+MONEY-001 screen: unmatched-quote-refusal
+(node:9182) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: today
+MONEY-001 screen: dispatch
+MONEY-001 screen: jobs
+MONEY-001 screen: activity
+MONEY-001 screen: move-in
+MONEY-001 screen: rules
+MONEY-001 screen: stock
+  ✓  2 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (25.5s)
+(node:9360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:9360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: new-us-installation
+MONEY-001 screen: business-tax
+MONEY-001 screen: branch-tax
+MONEY-001 screen: pricebook-tax
+MONEY-001 screen: stripe-proposal
+MONEY-001 screen: avatax-proposal
+MONEY-001 screen: avatax-unavailable
+MONEY-001 screen: certificate
+MONEY-001 screen: site-tax
+MONEY-001 screen: quote-tax
+MONEY-001 screen: invoice-tax
+MONEY-001 screen: qbo-inspection
+MONEY-001 screen: tax-report
+MONEY-001 screen: branch-tax-report
+MONEY-001 screen: ambiguous-quote-refusal
+MONEY-001 screen: explicit-site-city
+MONEY-001 screen: explicit-quote-city
+MONEY-001 screen: explicit-site-district
+MONEY-001 screen: explicit-quote-district
+MONEY-001 screen: unmatched-quote-refusal
+(node:9360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MONEY-001 screen: today
+MONEY-001 screen: dispatch
+MONEY-001 screen: jobs
+MONEY-001 screen: activity
+MONEY-001 screen: move-in
+MONEY-001 screen: rules
+MONEY-001 screen: stock
+  ✓  3 tests/browser/money.spec.ts:29:1 › MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390 (25.4s)
+
+  3 passed (1.5m)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f145/reproduce-main/screenshots
+[verify phase] native dev: exit=143 signal=none elapsed_ms=108035

@@ -23,6 +23,31 @@
       "sha256": "bc5b3dd7f07c1fa702df92081b113c3ac8feeb007b9b151b8c639e87e7955150"
     },
     {
+      "bytes": 10528,
+      "path": "CI-CANDIDATE-REPRO.log",
+      "sha256": "bc998e479604864e4267ce867f2d857e5f1cac752ed7dd22c51f822fdda96f38"
+    },
+    {
+      "bytes": 20637,
+      "path": "CI-FAILED-JOB.log",
+      "sha256": "9c1a46dedc6162d8314e4694f16d036bc123aa4b528d9802876046fa639ffb09"
+    },
+    {
+      "bytes": 15378,
+      "path": "CI-JOBS.json",
+      "sha256": "b5669498b2c1cf2463b55d2795d1eb6b8fc74542e6b65de73925c63016fd2420"
+    },
+    {
+      "bytes": 7244,
+      "path": "CI-MAIN-COMPARISON.log",
+      "sha256": "6e08ff292e4c91c873279275f4d5cbd6b13ccef82e3848a9fc5cd9f8df4629e6"
+    },
+    {
+      "bytes": 2390,
+      "path": "CI.json",
+      "sha256": "8c83498f110ec4d7771884a7818e9eea774d803f89071ede1dc3e8fa746d92ec"
+    },
+    {
       "bytes": 0,
       "path": "FIRST-PARTY.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -46,6 +71,11 @@
       "bytes": 28,
       "path": "VIEWS-WRITE.log",
       "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "bytes": 1188,
+      "path": "claim.txt",
+      "sha256": "de8a8c616f466ad7060a43327793a034633dc8ec69dfc139dd141e1a5a80ec9a"
     },
     {
       "bytes": 128286,
@@ -96,16 +126,66 @@
     ]
   },
   "ci": {
-    "api_calls_used": 4,
-    "conclusion": null,
+    "api_calls_used": 7,
+    "blocker": "Verify 42503222307 job 128800395594 failed at tests/browser/money.spec.ts:68 with Error: route.fulfill: Route is already handled!; exact candidate shard and main comparison passed without edits; brief requires BLOCKED for an unreproduced Verify failure",
+    "candidate_reproduction": {
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 SHARD=browser-2 node scripts/verify-ci.mjs browser-2",
+      "execution_session_id": 63480,
+      "exit": 0,
+      "failed": 0,
+      "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+      "job": 128800395594,
+      "passed": 9,
+      "result": "not reproduced; same shard passed with no edit"
+    },
+    "comm_013_api_shards": "success",
+    "comm_013_browser_journey": "passed in browser-2 before unrelated money failure",
+    "conclusion": "failure",
     "event": "push",
+    "failed_job": {
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 SHARD=browser-2 node scripts/verify-ci.mjs browser-2",
+      "error": "Error: route.fulfill: Route is already handled!",
+      "id": 128800395594,
+      "location": "tests/browser/money.spec.ts:68",
+      "name": "shards (browser-2)",
+      "test": "tests/browser/money.spec.ts#MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390"
+    },
+    "github_reruns": 0,
     "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
     "head_sha": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42503222307",
     "id": 42503222307,
+    "main_comparison": {
+      "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 SHARD=browser-2 node --import ./scripts/verify-progress.mjs tests/browser/run.mjs tests/browser/money.spec.ts --repeat-each=3",
+      "execution_session_id": 90462,
+      "exit": 0,
+      "failed": 0,
+      "head": "8292c91a27427bd0779ec996f790073fffe0509b",
+      "passed": 3,
+      "result": "not reproduced in three serial runs at ordinary load",
+      "same_vm": true
+    },
     "name": "Verify",
-    "observed_at": "2026-11-08T17:10:51Z",
-    "status": "in_progress"
+    "observed_at": "2026-11-08T17:15:51Z",
+    "repair_edits": 0,
+    "status": "completed",
+    "verify_reproduced": false
+  },
+  "claim": {
+    "clause": "COMM-013",
+    "gap": "Unrelated exact-SHA Verify failure remains unreproduced; triage must resolve it before DONE or READY",
+    "native_acceptance_remainder": null,
+    "points_proven": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "status": "PARTIAL"
   },
   "counts": {
     "before": {
@@ -133,14 +213,14 @@
           7,
           8
         ],
-        "to": "done"
+        "to": "partial"
       }
     }
   },
   "done_riders": {
     "1": {
       "proof": "API points 1 through 6 and 8; Browser focused COMM-013 journey",
-      "status": "LOCAL_PASS_CI_RUNNING"
+      "status": "LOCAL_PROOF_PASS_CI_BLOCKED"
     },
     "10": {
       "proof": "No policy default or production change",
@@ -158,7 +238,7 @@
       "event": "push",
       "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
       "run_id": 42503222307,
-      "status": "CI_RUNNING"
+      "status": "BLOCKED_OVERALL_VERIFY_RED"
     },
     "4": {
       "proof": "Exact-head local API and built-browser logs; no later source edit",
@@ -185,6 +265,7 @@
       "status": "PASS"
     }
   },
+  "final_custody": "BLOCKED",
   "first_party": {
     "command": "npx -y @runeditrun/rer check --profile first-party",
     "execution_session_id": 38998,
@@ -192,6 +273,7 @@
     "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
     "log": "FIRST-PARTY.log"
   },
+  "full_history": true,
   "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
   "landing": {
     "candidate_run_site": null,
@@ -268,11 +350,17 @@
     "complete": null,
     "custodian": "guarded fleet lander",
     "findings": null,
+    "full_history_available": true,
     "historyScanned": null,
     "status": "NOT_RUN_CLOUD_ROUTE"
   },
   "repository": "just-every/run-glove",
   "schema": 1,
+  "source_lock": {
+    "check_exit": 0,
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "sha256": "6cf0d4e97c94006b613afbb24405fdf71876122d618bead64444596d9d68f568"
+  },
   "tag": "sx-glove-c-f145",
   "typecheck": {
     "command": "pnpm typecheck",

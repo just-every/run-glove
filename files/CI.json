@@ -1,12 +1,46 @@
 {
-  "api_calls_used": 4,
-  "conclusion": null,
+  "api_calls_used": 7,
+  "blocker": "Verify 42503222307 job 128800395594 failed at tests/browser/money.spec.ts:68 with Error: route.fulfill: Route is already handled!; exact candidate shard and main comparison passed without edits; brief requires BLOCKED for an unreproduced Verify failure",
+  "candidate_reproduction": {
+    "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 SHARD=browser-2 node scripts/verify-ci.mjs browser-2",
+    "execution_session_id": 63480,
+    "exit": 0,
+    "failed": 0,
+    "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
+    "job": 128800395594,
+    "passed": 9,
+    "result": "not reproduced; same shard passed with no edit"
+  },
+  "comm_013_api_shards": "success",
+  "comm_013_browser_journey": "passed in browser-2 before unrelated money failure",
+  "conclusion": "failure",
   "event": "push",
+  "failed_job": {
+    "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 SHARD=browser-2 node scripts/verify-ci.mjs browser-2",
+    "error": "Error: route.fulfill: Route is already handled!",
+    "id": 128800395594,
+    "location": "tests/browser/money.spec.ts:68",
+    "name": "shards (browser-2)",
+    "test": "tests/browser/money.spec.ts#MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exemption evidence, Stripe and Avalara AvaTax proposals and frozen quote/invoice tax at 1440 and 390"
+  },
+  "github_reruns": 0,
   "head": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
   "head_sha": "94457cdf3a3651d6a84f3ecd6103d253af8ebf27",
   "html_url": "https://github.com/just-every/run-glove/actions/runs/42503222307",
   "id": 42503222307,
+  "main_comparison": {
+    "command": "CI=true GLOVE_VERIFY_SHARD=browser-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 SHARD=browser-2 node --import ./scripts/verify-progress.mjs tests/browser/run.mjs tests/browser/money.spec.ts --repeat-each=3",
+    "execution_session_id": 90462,
+    "exit": 0,
+    "failed": 0,
+    "head": "8292c91a27427bd0779ec996f790073fffe0509b",
+    "passed": 3,
+    "result": "not reproduced in three serial runs at ordinary load",
+    "same_vm": true
+  },
   "name": "Verify",
-  "observed_at": "2026-11-08T17:10:51Z",
-  "status": "in_progress"
+  "observed_at": "2026-11-08T17:15:51Z",
+  "repair_edits": 0,
+  "status": "completed",
+  "verify_reproduced": false
 }
