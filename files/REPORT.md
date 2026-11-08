@@ -1,9 +1,9 @@
 # DISP-003 route optimization qualification
 
 Candidate: `ef30c22140edde096a0aee697cf5e53acd238e43` on `cloud/sx-glove-c-f169` in https://github.com/just-every/run-glove.
-Product custody: pushed through the fleet guard; no PR required because branch pushes start Verify. Exact-candidate Verify push run: 42534469815. Its latest observed status is in CI.json. Publication scanning, main landing and Run site remain fleet duties.
+Product custody: pushed through the fleet guard; no PR required because branch pushes start Verify. Exact-candidate Verify push run: 42534469815. It completed successfully on this exact SHA; the REST observation is in CI.json. Eight GitHub calls were used, within the ten-call budget. Publication scanning, main landing and Run site remain fleet duties.
 
-The source judgments remain unchanged: DISP-003 PARTIAL in CONTRACT.md. The requested landing claim is DONE for native acceptance points 1–8, subject to the exact-candidate Verify and guarded landing. Source counts are 22 DONE, 212 PARTIAL and 29 MISSING before and after this product change; a sole accepted DISP-003 flip would produce 23 DONE, 211 PARTIAL and 29 MISSING. All 263 Status rows are preserved. No acceptance text, Status, Gap or Evidence cell changed. The plan row to update is DISP-003 only; this cloud did not edit the Mac plan.
+The source judgments remain unchanged: DISP-003 PARTIAL in CONTRACT.md. The requested landing claim is DONE for native acceptance points 1–8, with exact-candidate Verify green and guarded landing still pending. Source counts are 22 DONE, 212 PARTIAL and 29 MISSING before and after this product change; a sole accepted DISP-003 flip would produce 23 DONE, 211 PARTIAL and 29 MISSING. All 263 Status rows are preserved. No acceptance text, Status, Gap or Evidence cell changed. The plan row to update is DISP-003 only; this cloud did not edit the Mac plan.
 
 ## Work completed
 
@@ -24,7 +24,7 @@ Five focused API sanity flows qualify authority, bounded routing and retained co
 
 ## Frozen acceptance rubric
 
-Every row uses the candidate SHA above. No earlier rubric was provided beyond the eight planner-selected points; these R1–R8 rows freeze those items without adding acceptance obligations. The Verify event is push, run 42534469815; its observed conclusion is recorded in CI.json. PASS below describes the executed local public-door outcome; workflow admission remains dependent on that run.
+Every row uses the candidate SHA above. No earlier rubric was provided beyond the eight planner-selected points; these R1–R8 rows freeze those items without adding acceptance obligations. The Verify event is push, run 42534469815, completed successfully on this exact SHA. Every PASS below has executed local public-door proof and recorded exact-candidate Verify coverage.
 
 | Row | Acceptance sentence and outcome | Executed proof and lines | Result |
 | --- | --- | --- | --- |
@@ -50,9 +50,9 @@ Every row uses the candidate SHA above. No earlier rubric was provided beyond th
 
 | Rider | Check against exact candidate | Result |
 | --- | --- | --- |
-| 1 | Every named acceptance outcome is performed and inspected through real command, actual cron or built browser; mapping R1–R8 above. Verify run 42534469815 must admit the same SHA | Local PASS; exact Verify status in CI.json |
+| 1 | Every named acceptance outcome is performed and inspected through real command, actual cron or built browser; mapping R1–R8 above. Verify run 42534469815 must admit the same SHA | PASS; Verify push 42534469815 success |
 | 2 | Populated fixtures and independent expected totals; allowed authority completes, unsafe authority and travel fail with visits unchanged. API lines 27–48, 59–89, 99–161, 275–307 | PASS |
-| 3 | Existing Verify API glob loads the new file, and maintained browser partition includes the modified journey; no env flag hides the assertions. Exact Verify push run 42534469815 | Pending its observed conclusion in CI.json |
+| 3 | Existing Verify API glob loads the new file, and maintained browser partition includes the modified journey; no env flag hides the assertions. Exact Verify push run 42534469815 | PASS; Verify push 42534469815 success |
 | 4 | API and browser rerun after the final commit; no later source or test edit. RECEIPT.json binds the commands and screenshots to ef30c22140edde096a0aee697cf5e53acd238e43 | PASS |
 | 5 | No new inherited Base obligation or contract text introduced. Native route authority, minimal provider request and retained data obligations already appear in the receiving clause and operating rules | INSPECTED PASS |
 | 6 | Generator write and check pass; source lock fresh; all source judgments, counts and parent Status rows retained. The lander owns the final Evidence and Status flip | Mechanical PASS; landing metadata deferred |
@@ -68,7 +68,7 @@ Every row uses the candidate SHA above. No earlier rubric was provided beyond th
 2. No existing assertion was removed, skipped, narrowed or hidden behind a new width or branch condition. Existing routing, DISP-010 and browser assertions remain intact. This continuation adds no registrations beyond the predecessor's five focused flows. Main already has at least 207 static top-level API and browser registrations before generated cases; no test-budget file exists. No cap raise or unrelated deletion was made; the explicit requirement to preserve the existing related tests was followed.
 3. Live authority withdrawal, unchanged replay and no background movement are proven. Existing safe customer erasure assertions run unchanged. This repair adds no new read or resurrection path.
 4. No UI source is modified. The displayed route panel uses existing 13 px or larger text, full panel borders and text-labelled controls, with no icon-only route control. The existing shared board controls retain their tooltips. Existing placement and settings are unchanged.
-5. Source lock is fresh. Exact Verify is in CI.json. The cloud performs no publication scan or main push. Exact-SHA scan receipt: `commit=ef30c22140edde096a0aee697cf5e53acd238e43 complete=NOT_RUN historyScanned=NOT_RUN findings=NOT_ESTABLISHED`; the maintained lander must supply COMPLETE with zero findings. Run site on the candidate is not available before landing. Changed source and test files contain zero email-shaped strings; no environment dump, credential, provider key or held-out gate material enters this packet.
+5. Source lock is fresh. Exact Verify push 42534469815 succeeded; the observation is in CI.json. The cloud performs no publication scan or main push. Exact-SHA scan receipt: `commit=ef30c22140edde096a0aee697cf5e53acd238e43 complete=NOT_RUN historyScanned=NOT_RUN findings=NOT_ESTABLISHED`; the maintained lander must supply COMPLETE with zero findings. Run site on the candidate is not available before landing. Changed source and test files contain zero email-shaped strings; no environment dump, credential, provider key or held-out gate material enters this packet.
 
 ## Public-door probe results
 

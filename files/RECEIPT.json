@@ -100,5 +100,46 @@
   ],
   "mechanical": "MECHANICAL.json",
   "custody": "PRODUCT-CUSTODY.json",
-  "ci": "CI.json"
+  "ci": "CI.json",
+  "ci_observation": {
+    "run_id": 42534469815,
+    "conclusion": "success",
+    "head_sha": "ef30c22140edde096a0aee697cf5e53acd238e43",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42534469815",
+    "status": "completed",
+    "id": 42534469815,
+    "name": "Verify",
+    "event": "push",
+    "observed_at": "2026-11-08T23:33:36.400420+00:00",
+    "github_calls_used": 8,
+    "github_call_limit": 10
+  },
+  "scope": {
+    "changed_product_files": [
+      "src/glove/routing.ts",
+      "tests/api/route-optimization.test.mjs",
+      "tests/browser/routing.spec.ts",
+      "tests/fixtures/maps.mjs",
+      "sources.lock.json"
+    ],
+    "contract_status_changed": false,
+    "generated_views_changed": false,
+    "workflow_changed": false,
+    "new_ui_source": false,
+    "new_policy": false,
+    "live_maps_acceptance": false
+  },
+  "done_riders": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PENDING_LANDER"
+  }
 }
