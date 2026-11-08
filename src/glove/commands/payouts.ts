@@ -31,6 +31,8 @@ export const payouts: Handler = async (c, type, p, db) => {
   const key = await stripeKey(db)
   if (!key || !business(c.s).stripe) fail('PAYMENT_SETUP', 'Connect Stripe test mode first.')
   const id = providerId(p.providerId)
+  // Retained anonymous bank history must not be repopulated from the provider.
+  if (c.s.payouts.some(r => r.providerId === id && r.sourceDetailsErasedAt)) fail('ERASED', 'These payout source details were erased. The anonymous bank history remains readable.')
   if (type === 'payout.allocate') {
     const provider = await stripeRequest(key!, `payouts/${id}?expand[]=balance_transaction`), tx = provider.balance_transaction
     if (provider.id !== id || provider.livemode !== false || provider.automatic !== false || provider.currency !== 'usd' || !Number.isSafeInteger(provider.amount) || !tx || !Number.isSafeInteger(tx.fee) || tx.fee < 0) fail('PAYOUT_PROVIDER', 'Only a confirmed USD manual test payout takes an owner-reviewed source allocation.')
