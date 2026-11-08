@@ -31,6 +31,8 @@ export const payouts: Handler = async (c, type, p, db) => {
   const key = await stripeKey(db)
   if (!key || !business(c.s).stripe) fail('PAYMENT_SETUP', 'Connect Stripe test mode first.')
   const id = providerId(p.providerId)
+  // Retained anonymous bank history must not be repopulated from the provider.
+  if (c.s.payouts.some(r => r.providerId === id && r.sourceDetailsErasedAt)) fail('ERASED', 'These payout source details were erased. The anonymous bank history remains readable.')
   if (type === 'payout.allocate') {
     const provider = await stripeRequest(key!, `payouts/${id}?expand[]=balance_transaction`), tx = provider.balance_transaction
     if (provider.id !== id || provider.livemode !== false || provider.automatic !== false || provider.currency !== 'usd' || !Number.isSafeInteger(provider.amount) || !tx || !Number.isSafeInteger(tx.fee) || tx.fee < 0) fail('PAYOUT_PROVIDER', 'Only a confirmed USD manual test payout takes an owner-reviewed source allocation.')
@@ -46,13 +48,13 @@ export const payouts: Handler = async (c, type, p, db) => {
     for (const source of sources) bump(c.s, 'payments', source, { payoutAllocationId: allocation.id })
     const snapshot = await payoutSnapshot(key!, id, c.s)
     const row = bump(c.s, 'payouts', allocation, { ...snapshot, inspectedAt: c.now })
-    event(c, { jobId: null, subjectKind: 'payout', subjectId: row.id, kind: 'payout.sourcesAllocated', summary: 'Owner explicitly reviewed manual payout sources for the books; Stripe supplies only the actual debit and fee', data: { payoutId: row.id, provider: 'Stripe', providerReference: id, sourcePaymentIds: row.sourcePaymentIds, sourceNet: row.sourceNet, reconciled: row.reconciled } })
+    event(c, { jobId: null, subjectKind: 'payout', subjectId: row.id, kind: 'payout.sourcesAllocated', summary: `Owner explicitly reviewed manual payout ${id} sources for the books; Stripe supplies only the actual debit and fee`, data: { payoutId: row.id, provider: 'Stripe', providerReference: id, sourcePaymentIds: row.sourcePaymentIds, sourceNet: row.sourceNet, reconciled: row.reconciled } })
     return row
   }
   const snapshot = await payoutSnapshot(key!, id, c.s)
   const old = c.s.payouts.find(r => r.providerId === id && r.connectionId === business(c.s).stripe.connectionId)
   if (old?.expectedFee && snapshot.payoutFee !== old.expectedFee) { snapshot.reconciled = false; snapshot.unmatched.push({ id: id + ':fee', type: 'payout fee', paymentId: null, providerReference: id, amountCents: 0, feeCents: cents(snapshot.payoutFee, 'fee'), netCents: 0, reason: 'actual payout fee differs from confirmed preview' }) }
   const row = old ? bump(c.s, 'payouts', old, { ...snapshot, inspectedAt: c.now }) : put(c.s, 'payouts', { id: newId(), version: 1, createdAt: c.now, kind: 'stripe', ...snapshot, connectionId: business(c.s).stripe.connectionId, inspectedAt: c.now })
-  event(c, { jobId: null, subjectKind: 'payout', subjectId: row.id, kind: 'payout.reconciled', summary: `Stripe test payout inspected: ${row.reconciled ? 'reconciled to the cent' : 'unmatched or not paid'}`, data: { payoutId: row.id, provider: 'Stripe', providerReference: id, amount: row.amount, fee: row.payoutFee, difference: row.difference, unmatched: row.unmatched, reconciled: row.reconciled } })
+  event(c, { jobId: null, subjectKind: 'payout', subjectId: row.id, kind: 'payout.reconciled', summary: `Stripe test payout ${id} inspected: ${row.reconciled ? 'reconciled to the cent' : 'unmatched or not paid'}`, data: { payoutId: row.id, provider: 'Stripe', providerReference: id, amount: row.amount, fee: row.payoutFee, difference: row.difference, unmatched: row.unmatched, reconciled: row.reconciled } })
   return row
 }

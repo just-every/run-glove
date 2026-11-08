@@ -10,7 +10,17 @@ test('CUST-001: each property has its whole history, and a business customer bil
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
-  const { customer, apEmail, contactEmail, histories, trail, replays } = await customerHistoryFixture(h, b)
+  const { customer, apEmail, contactEmail, histories, trail, replays } = await customerHistoryFixture(h, b, {
+    beforeJob: async ({ site, request }) => {
+      assert.deepEqual((await h.state()).jobs.filter(job => job.siteId === site.id), [], 'the property has no job yet')
+      const response = await h.request(`/api/glove/sites/${site.id}/history`)
+      assert.equal(response.status, 200, await response.clone().text())
+      const { entries } = await response.json()
+      assert.deepEqual(entries.map(entry => entry.kind).sort(), ['equipment', 'message', 'request'], 'the request and its inbound message are readable before any property job exists')
+      assert.equal(entries.find(entry => entry.kind === 'request').id, request.id)
+      assert.equal(entries.find(entry => entry.kind === 'message').id, `request:${request.id}`)
+    },
+  })
   const [a] = histories
   const initial = await h.state()
   assert.deepEqual(histories.map(({ site }) => {

@@ -1,7 +1,7 @@
 import { TextInbox } from './sms-inbox'
 import { WebsiteRequestNotices } from './website-requests'
 import { useEffect, useState } from 'react'
-import { roleName, today, useGlove } from './api'
+import { PendingCommandContext, roleName, today, useGlove } from './api'
 import { Empty } from './controls'
 import { Glyph, type GlyphName } from './glyphs'
 import { Dispatch } from './dispatch'
@@ -58,7 +58,7 @@ export function GloveApp() {
   const shown = primary.filter(([id]) => id !== 'today' || (reports && !setup))
   const link = ([id, label, glyph]: readonly [string, string, GlyphName]) => <a key={id} href={`#${id}`} aria-current={view === id ? 'page' : undefined} onClick={() => setMenu(false)}><Glyph name={glyph} /><span>{label}</span></a>
   const here = [...primary, ...more].find(([id]) => id === view)?.[1] ?? 'Menu'
-  return <div className={`glove-app${menu ? ' menu-open' : ''}`} aria-busy={busy}>
+  return <PendingCommandContext.Provider value={unconfirmed}><div className={`glove-app${menu ? ' menu-open' : ''}`} aria-busy={busy}>
     <aside className="rail">
       <a className="brand" href="#dispatch"><img className="brand-mark" src="/brand/mark.svg" alt="" width="30" height="30" /><span data-rer-name>Glove</span></a>
       <button className="menu-toggle" aria-expanded={menu} aria-controls="main-nav" onClick={() => setMenu(!menu)}><Glyph name={menu ? 'close' : 'menu'} /><span>{here}</span></button>
@@ -97,5 +97,5 @@ export function GloveApp() {
       {view === 'activity' && <Activity s={s} />}
       {view === 'team' && <Team s={s} run={run} refresh={refresh} />}
     </main>
-  </div>
+  </div></PendingCommandContext.Provider>
 }

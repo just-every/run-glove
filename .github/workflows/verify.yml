@@ -57,9 +57,44 @@ jobs:
           NIGHTLY_CACHE_HIT: ${{ steps.nightly.outputs.cache-hit }}
         run: node scripts/verify-ci.mjs --plan
 
+  build:
+    needs: plan
+    if: ${{ needs.plan.outputs.has_shards == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CI: 'true'
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22.20.0'
+          package-manager-cache: false
+      - run: node scripts/edition-authoring/cli.mjs check
+      - run: npm install --global pnpm@10.12.4
+      - run: pnpm config set store-dir "$RUNNER_TEMP/pnpm-store"
+      - uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684
+        with:
+          path: ${{ runner.temp }}/pnpm-store
+          key: seed-ubuntu24-build-store-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
+      - run: pnpm install --frozen-lockfile
+      - name: Build the production application once
+        run: pnpm run build
+      - name: Archive this run's production build
+        run: tar -czf "$RUNNER_TEMP/verify-build.tar.gz" dist
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: verify-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/verify-build.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+
   shards:
     name: shards (${{ matrix.name }})
-    needs: plan
+    needs: [plan, build]
     if: ${{ needs.plan.outputs.has_shards == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ inputs.timeout || 17 }}
@@ -71,6 +106,7 @@ jobs:
       GLOVE_VERIFY_SHARD: ${{ matrix.name }}
       WRANGLER_SEND_METRICS: 'false'
       PLAYWRIGHT_SKIP_BROWSER_GC: '1'
+      GLOVE_CI_PREBUILT: '1'
     steps:
       # Job env is evaluated before the runner context is available.
       - name: Set runner-owned browser cache
@@ -114,7 +150,6 @@ jobs:
           # Old snapshots contain absolute HOME paths; do not restore them here.
           key: seed-ubuntu24-temp-store-${{ runner.arch }}-browser-${{ matrix.browser }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run deps
       - name: Install and probe Chromium before system dependencies
         if: matrix.browser
         run: |
@@ -139,6 +174,12 @@ jobs:
             if [ "$(free_kib)" -ge "$((20 * 1024 * 1024))" ]; then break; fi
             sudo rm -rf -- "$unused_tools"
           done
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: verify-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/verify-build
+      - name: Restore this run's production build
+        run: tar -xzf "$RUNNER_TEMP/verify-build/verify-build.tar.gz"
       - name: Run this shard
         env:
           SHARD: ${{ matrix.name }}

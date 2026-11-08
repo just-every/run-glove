@@ -1,72 +1,154 @@
-import { calendarDate } from '../fixtures/calendar.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { installation } from './harness.mjs'
+import { installation, morningBriefFixture, morningBriefAt, mailEvents, assertTrail } from './harness.mjs'
 
-test('AGENT-008, AGENT-016 the owner\'s morning brief lists exactly the at-risk visits, unbilled work, jobs over estimate and waiting leads of a fixture day, each linked to its screen, read only', async t => {
-  const h = await installation(); t.after(() => h.close())
-  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
-  const labor = await h.command('service.save', { code: 'LABOR', name: 'Repair labor', kind: 'service', unitPrice: '200.00', unitCost: '100.00', tax: 'TAXABLE' })
-  const crew = async name => { const person = await h.person(name, 'technician'); return { person, tech: await h.command('technician.save', { name, operatorId: person.id }) } }
-  const priya = await crew('Priya Nair'), tom = await crew('Tom Brooks')
-  const date = calendarDate(2, 'America/Chicago')
-  const job = async (name, who, start, end) => {
-    const customer = await h.command('customer.save', { name })
-    const site = await h.command('site.save', { customerId: customer.id, address: `1 ${name} St, Austin TX 78704` })
-    const q = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: `${name} repair`, lines: [{ description: labor.name, serviceId: labor.id, quantity: '1', unitPrice: labor.unitPrice }] })
-    const approved = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
-    await h.command('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: name })
-    const j = await h.command('job.create', { quoteId: q.id })
-    const visit = await h.command('visit.book', { jobId: j.id, technicianId: who.tech.id, date, start, end })
-    return { job: j, visit }
-  }
-  const late = await job('Late Arrival', priya, '09:00', '10:00')
-  const open = await job('Still Open', tom, '12:00', '13:00')
-  await tom.person.run('visit.arrive', { visitId: open.visit.id, deviceTime: open.visit.startAt })
-  const later = await job('Later Today', priya, '16:00', '17:00')
-  const finish = async x => { await x.who.person.run('visit.arrive', { visitId: x.visit.id, deviceTime: x.visit.startAt }); await x.who.person.run('visit.complete', { visitId: x.visit.id, deviceTime: x.visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } }) }
-  const noInvoice = await job('No Invoice', tom, '07:00', '08:00'); await finish({ ...noInvoice, who: tom })
-  const draftInvoice = await job('Draft Invoice', tom, '08:00', '09:00'); await finish({ ...draftInvoice, who: tom })
-  const draft = await h.command('invoice.prepare', { jobId: draftInvoice.job.id })
-  const billed = await job('Billed', tom, '06:00', '07:00'); await finish({ ...billed, who: tom })
-  const inv = await h.command('invoice.prepare', { jobId: billed.job.id })
-  await h.command('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
-  await h.command('expense.record', { jobId: late.job.id, category: 'permit', vendor: 'City of Austin', amount: '150.00', billable: false })
-  await h.command('expense.record', { jobId: later.job.id, category: 'permit', vendor: 'City of Austin', amount: '40.00', billable: false })
-  const customer = await h.command('customer.save', { name: 'Waiting Lead' })
-  const waiting = await h.command('enquiry.create', { customerId: customer.id, description: 'Water heater leaking', source: 'google' })
-  const contacted = await h.command('enquiry.create', { customerId: customer.id, description: 'AC tune-up', source: 'referral' })
-  await h.command('enquiry.contact', { enquiryId: contacted.id, version: contacted.version, note: 'Left a voicemail' })
+const read = async (h, at = morningBriefAt, options = {}) => {
+  const response = await h.request(`/api/glove/brief?at=${at}`, options)
+  assert.equal(response.status, 200)
+  return response.json()
+}
+const ordered = rows => [...rows].sort((a, b) => a.id.localeCompare(b.id))
+const normalized = sections => Object.fromEntries(Object.entries(sections).map(([key, rows]) => [key, ordered(rows)]))
+const item = (kind, id, text, label, href) => ({ kind, id, text, action: { label, href } })
+const expected = f => ({
+  atRisk: [
+    item('atRisk', f.arrived.visit.id, `${f.arrived.job.number} at 6:00 AM for Still Open: Tom Brooks is still on site after the planned end`, 'Open dispatch', '#dispatch'),
+    item('atRisk', f.late.visit.id, `${f.late.job.number} at 7:00 AM for Late Arrival: Priya Nair has not arrived 15 minutes after the start`, 'Open dispatch', '#dispatch'),
+  ],
+  unbilled: [
+    item('unbilled', f.noInvoice.job.id, `${f.noInvoice.job.number} for No Invoice is complete with no invoice`, 'Prepare invoice', '#invoices'),
+    item('unbilled', f.draftInvoice.job.id, `${f.draftInvoice.job.number} for Draft Invoice is complete and ${f.draft.number} awaits approval`, 'Approve invoice', '#invoices'),
+  ],
+  overEstimate: [item('overEstimate', f.late.job.id, `${f.late.job.number} for Late Arrival has cost $150.00 against a $100.00 estimate`, 'Review job costs', '#jobs')],
+  leads: [
+    item('leadWaiting', f.waiting.id, "Waiting Lead's google request has been new for 24 hours", 'Contact the customer', '#quotes'),
+    item('leadWaiting', f.contacted.id, "Contacted Lead's google request has been contacted for 24 hours", 'Quote the request', '#quotes'),
+  ], agreements: [], overdue: [],
+})
+const snapshot = async h => ({
+  state: await h.state(),
+  commands: (await h.db.prepare('SELECT * FROM glove_commands ORDER BY id').all()).results,
+  events: (await h.db.prepare('SELECT * FROM glove_events ORDER BY id').all()).results,
+})
 
-  const at = new Date(Date.parse(open.visit.endAt) + 30 * 60_000).toISOString()
-  const brief = await h.request(`/api/glove/brief?at=${at}`).then(r => r.json())
-  assert.equal(brief.date, date)
-  const ids = section => brief.sections[section].map(x => x.id).sort()
-  assert.deepEqual(ids('atRisk'), [late.visit.id, open.visit.id].sort())
-  assert.match(brief.sections.atRisk.find(x => x.id === late.visit.id).text, new RegExp(`^${late.job.number} at 9:00 AM for Late Arrival: Priya Nair has not arrived 15 minutes after the start$`))
-  assert.match(brief.sections.atRisk.find(x => x.id === open.visit.id).text, /Still Open: Tom Brooks is still on site after the planned end$/)
-  assert.deepEqual(ids('unbilled'), [noInvoice.job.id, draftInvoice.job.id].sort())
-  assert.deepEqual(brief.sections.unbilled.find(x => x.id === draftInvoice.job.id).action, { label: 'Approve invoice', href: '#invoices' })
-  assert.match(brief.sections.unbilled.find(x => x.id === draftInvoice.job.id).text, new RegExp(`${draft.number} awaits approval`))
-  assert.deepEqual(brief.sections.unbilled.find(x => x.id === noInvoice.job.id).action, { label: 'Prepare invoice', href: '#invoices' })
-  assert.deepEqual(ids('overEstimate'), [late.job.id])
-  assert.match(brief.sections.overEstimate[0].text, /has cost \$150\.00 against a \$100\.00 estimate/)
-  assert.deepEqual(ids('leads'), [waiting.id, contacted.id].sort())
-  assert.deepEqual(brief.sections.leads.find(x => x.id === waiting.id).action, { label: 'Contact the customer', href: '#quotes' })
-  assert.deepEqual(brief.sections.leads.find(x => x.id === contacted.id).action, { label: 'Quote the request', href: '#quotes' })
-  assert.deepEqual(brief.sections.atRisk.map(x => x.action), [{ label: 'Open dispatch', href: '#dispatch' }, { label: 'Open dispatch', href: '#dispatch' }])
-  assert.deepEqual(brief.notTracked, [])
-  assert.deepEqual(brief.sections.overdue, [])
+// Native commands create the normal records. These three retained edge states
+// have no current creation command; seed their storage shape, then exercise
+// only the production HTTP reader, including its actual Worker restart.
+async function retainedEdges(h, f) {
+  const visit = { ...f.later.visit, id: 'synthetic-glove-unassigned', technicianId: null }
+  const requests = ['scheduled', 'assessed'].map(status => ({ ...f.waiting, id: `synthetic-glove-${status}`, status }))
+  for (const [kind, row] of [['visits', visit], ...requests.map(row => ['enquiries', row])]) await h.db.prepare('INSERT INTO glove_records (kind,id,version,data) VALUES (?,?,?,?)').bind(kind, row.id, row.version, JSON.stringify(row)).run()
+  return visit
+}
 
-  // Earlier the same morning nothing is late yet and the leads are still fresh; the brief writes nothing.
-  const before = await h.state()
-  const mailCount = h.mails.length, pushCount = h.pushes.sent.length
-  const early = await h.request(`/api/glove/brief?at=${new Date(Date.parse(late.visit.startAt) - 60 * 60_000).toISOString()}`).then(r => r.json())
-  assert.deepEqual(early.sections.atRisk, [])
-  assert.equal((await h.state()).version, before.version)
-  assert.equal(h.mails.length, mailCount, "AGENT-008 reads send no email")
-  assert.equal(h.pushes.sent.length, pushCount, "AGENT-008 reads send no push")
-  const dispatcher = await h.person('Dee Dispatcher', 'dispatcher')
-  assert.equal((await h.request('/api/glove/brief', { as: dispatcher.cookie })).status, 403)
-  assert.equal((await h.request('/api/glove/brief?at=tomorrow')).status, 400)
+async function recordsJourney() {
+  const h = await installation({ at: '2026-11-07T12:00:00.000Z' })
+  try {
+    const f = await morningBriefFixture(h), unassigned = await retainedEdges(h, f)
+    const want = expected(f)
+    want.atRisk.push(item('atRisk', unassigned.id, `${f.later.job.number} at 4:00 PM for Later Today: no technician is assigned`, 'Open dispatch', '#dispatch'))
+    const before = await snapshot(h), outbound = h.outbound.attempts
+    for (const restarted of [false, true]) {
+      if (restarted) await h.restart()
+      const brief = await read(h)
+      assert.deepEqual([brief.date, brief.timezone, brief.at, brief.preparedBy, brief.notTracked], ['2026-11-09', 'America/Chicago', morningBriefAt, 'Glove, from your records', []])
+      for (const section of ['atRisk', 'unbilled', 'overEstimate', 'leads', 'agreements', 'overdue']) assert.deepEqual(ordered(brief.sections[section]), ordered(want[section]), `point ${ { atRisk: 5, unbilled: 6, overEstimate: 7, leads: 8 }[section] ?? 1}: complete ${section} identities, text and links`)
+      const early = await read(h, '2026-11-09T13:14:00.000Z')
+      assert.deepEqual(early.sections.atRisk, [want.atRisk[2]], 'one minute before both thresholds only the unassigned visit is at risk')
+      assert.deepEqual(early.sections.leads, [], 'new and contacted leads just before 24 hours are absent')
+      assert.deepEqual(await snapshot(h), before, 'every read preserves state version, domain records, events and saved command outcomes')
+    }
+    assert.equal(h.outbound.attempts, outbound, 'brief reads make no outbound request, including email, push or model')
+    assert.deepEqual([h.email.sent.length, h.pushes.sent.length, h.models.calls.length], [0, 0, 0])
+  } finally { await h.close() }
+}
+
+async function authorityJourney() {
+  const h = await installation({ at: '2026-11-07T12:00:00.000Z' })
+  try {
+    const f = await morningBriefFixture(h)
+    const excluded = []
+    for (const role of ['office', 'dispatcher', 'technician']) excluded.push(await h.person(`Excluded ${role}`, role))
+    const custom = await h.command('role.save', { name: 'Brief reader', permissions: ['customer.save'] })
+    excluded.push(await h.person('Excluded Custom', `custom:${custom.id}`))
+    const token = await h.command('token.issue', { name: 'Brief integration', role: 'dispatcher' })
+    const branch = await h.command('branch.save', { name: 'North', prefix: 'NTH', timezone: 'America/Chicago', zips: [] })
+    const scoped = await h.person('North Owner', 'owner')
+    const own = await f.job('North Only', f.labor, branch.id)
+    const tech = await h.command('technician.save', { name: 'North Technician', branchId: branch.id })
+    await h.command('visit.book', { jobId: own.job.id, technicianId: tech.id, date: '2026-11-09', start: '06:00', end: '07:00' })
+    await h.command('expense.record', { jobId: own.job.id, category: 'permit', vendor: 'North permit', amount: '175.00', billable: false })
+    await h.command('branch.limit', { operatorId: scoped.id, branchId: branch.id })
+    // Prime the shared integration-token usage timestamp before comparing domain reads.
+    await h.mf.dispatchFetch(h.origin + '/api/glove/brief', { headers: { authorization: `Bearer ${token.token}` } })
+    const before = await snapshot(h), outbound = h.outbound.attempts
+    for (const person of excluded) {
+      const response = await h.request('/api/glove/brief', { as: person.cookie })
+      assert.equal(response.status, 403, person.name)
+      assert.equal((await response.json()).error.code, 'FORBIDDEN')
+      assert.deepEqual(await snapshot(h), before)
+    }
+    assert.equal((await h.request('/api/glove/brief', { as: '' })).status, 401)
+    const tokenRead = await h.mf.dispatchFetch(h.origin + '/api/glove/brief', { headers: { authorization: `Bearer ${token.token}` } })
+    assert.equal(tokenRead.status, 403)
+    assert.deepEqual(await snapshot(h), before)
+    const limited = await read(h, morningBriefAt, { as: scoped.cookie })
+    assert.equal(limited.sections.atRisk.length, 1)
+    assert.equal(limited.sections.atRisk[0].text, `${own.job.number} at 6:00 AM for North Only: North Technician has not arrived 15 minutes after the start`)
+    assert.deepEqual(limited.sections.overEstimate, [item('overEstimate', own.job.id, `${own.job.number} for North Only has cost $175.00 against a $100.00 estimate`, 'Review job costs', '#jobs')])
+    for (const section of ['unbilled', 'leads', 'agreements', 'overdue']) assert.deepEqual(limited.sections[section], [])
+    const prior = await read(h, '2026-11-09T05:59:00.000Z'), next = await read(h, '2026-11-09T06:00:00.000Z')
+    assert.deepEqual([prior.date, next.date], ['2026-11-08', '2026-11-09'])
+    assert.deepEqual(prior.sections.atRisk.map(x => x.id), [f.yesterday.visit.id])
+    assert.deepEqual(next.sections.atRisk, [], 'at midnight today no assigned visit is late')
+    assert.equal((await h.request('/api/glove/brief?at=tomorrow')).status, 400)
+    assert.deepEqual(await snapshot(h), before)
+    assert.equal(h.outbound.attempts, outbound)
+    await h.restart()
+    assert.deepEqual(await read(h, morningBriefAt, { as: scoped.cookie }), limited, 'branch-scoped brief survives actual Worker restart')
+    const current = await h.request('/api/glove/brief').then(r => r.json())
+    assert.deepEqual(current, await read(h), 'an ordinary read uses the pinned runtime instant')
+    assert.deepEqual(await snapshot(h), before)
+    await h.command('role.set', { operatorId: scoped.id, role: 'office' })
+    const revoked = await snapshot(h)
+    assert.equal((await h.request('/api/glove/brief', { as: scoped.cookie })).status, 403)
+    assert.deepEqual(await snapshot(h), revoked, 'the next read after owner withdrawal is refused without effects')
+  } finally { await h.close() }
+}
+
+async function deliveryJourney() {
+  const h = await installation({ at: '2026-11-07T12:00:00.000Z' })
+  try {
+    const f = await morningBriefFixture(h), signer = mailEvents('sendgrid')
+    await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-brief-mail', eventKey: signer.eventKey, fromEmail: ['synthetic-glove-office', 'example.test'].join('@') })
+    await h.command('mail.morning', { enabled: true, time: '07:15' })
+    const brief = await read(h)
+    assert.deepEqual(normalized(brief.sections), normalized(expected(f)))
+    assert.equal(h.email.sent.length, 0, 'reading with morning mail enabled sends nothing')
+    await h.scheduled('2026-11-09T13:14:00.000Z')
+    assert.equal(h.email.sent.length, 0)
+    await Promise.all([h.scheduled(morningBriefAt), h.scheduled(morningBriefAt)])
+    assert.equal(h.email.sent.length, 1)
+    const sent = h.email.sent[0], titles = [['overdue', 'Overdue invoices'], ['atRisk', 'At risk today'], ['unbilled', 'Unbilled work'], ['overEstimate', 'Over their cost estimate'], ['leads', 'Leads waiting'], ['agreements', 'Agreement visits due']]
+    const text = `Pacheco Plumbing & HVAC morning brief for 2026-11-09, prepared by Glove, from your records. It is read only; open Glove to act on any item.\n\n${titles.map(([key, title]) => `${title}\n${brief.sections[key].map(x => `- ${x.text} (${x.action.label})`).join('\n') || 'Nothing here.'}`).join('\n\n')}\n\n`
+    assert.equal(sent.body.content[0].value, text, 'complete email text equals the independently checked public brief at this instant')
+    assert.deepEqual([sent.provider, sent.body.custom_args.rer_delivery_id, sent.body.subject], ['sendgrid', 'brief:2026-11-09', 'Morning brief for 2026-11-09 from Pacheco Plumbing & HVAC'])
+    assert.equal(sent.to, ['owner', 'example.test'].join('@'))
+    assert.equal((await read(h)).emailed.status, 'accepted', 'provider acceptance is not claimed as delivery')
+    const trail = await assertTrail(h, ['email.queued', 'email.accepted'])
+    const facts = trail.exported.timeline.filter(e => e.subject_kind === 'brief')
+    assert.deepEqual(facts.map(e => [e.kind, e.subject_id, JSON.parse(e.data).date]), [['email.queued', 'brief:2026-11-09', '2026-11-09'], ['email.accepted', 'brief:2026-11-09', '2026-11-09']])
+    assert.equal(JSON.parse(facts[1].data).providerMessageId, 'sg-receipt-1')
+    await h.restart()
+    await h.scheduled('2026-11-09T14:00:00.000Z')
+    assert.equal(h.email.sent.length, 1, 'later cron after actual Worker restart cannot duplicate this local date')
+    assert.deepEqual((await read(h)).sections, brief.sections)
+    assert.equal(h.pushes.sent.length, 0)
+  } finally { await h.close() }
+}
+
+test('AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart', async () => {
+  await recordsJourney()
+  await authorityJourney()
+  await deliveryJourney()
 })

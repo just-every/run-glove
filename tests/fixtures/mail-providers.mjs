@@ -18,3 +18,26 @@ export async function connectMail(h, provider) {
 export const receipt = (h, m) => ({ ...m, receipt: `${h.email.sent.at(-1).provider === 'postmark' ? 'pm' : 'ses'}-receipt-${h.email.sent.length}` })
 export const textOf = sent => sent.provider === 'postmark' ? sent.body.TextBody : sent.provider === 'ses' ? sent.body.Content.Simple.Body.Text.Data : sent.body.content[0].value
 export const deliveryIdOf = sent => sent.provider === 'postmark' ? sent.body.Metadata.glove_delivery_id : sent.provider === 'ses' ? Buffer.from(sent.body.EmailTags[0].Value, 'base64url').toString() : sent.body.custom_args.rer_delivery_id
+
+// Postmark's documented Delivery, Bounce and SpamComplaint webhook fields:
+// https://postmarkapp.com/developer/webhooks/bounce-webhook
+// https://postmarkapp.com/developer/webhooks/delivery-webhook
+// https://postmarkapp.com/developer/webhooks/spam-complaint-webhook
+export function postmarkOutcome(message, details, at) {
+  return {
+    MessageStream: 'outbound', ServerID: 23, MessageID: message.receipt,
+    Metadata: { glove_delivery_id: message.id },
+    ...(details.RecordType === 'Delivery'
+      ? { Recipient: message.to, DeliveredAt: at, Details: '250 2.0.0 OK' }
+      : { Email: message.to, BouncedAt: at, DumpAvailable: false }),
+    ...details,
+  }
+}
+
+// Real Postmark callback bytes and Basic credentials for the public event door.
+export function postmarkCallback(message, password, { at, id, details = {}, headers = {} } = {}) {
+  return {
+    raw: JSON.stringify(postmarkOutcome(message, { RecordType: 'Delivery', ...(id === undefined ? {} : { ID: id }), ...details }, at)),
+    headers: { authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}`, ...headers },
+  }
+}

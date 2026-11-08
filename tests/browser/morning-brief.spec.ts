@@ -2,53 +2,33 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Real production Worker/native sessions/D1 fixture, only provider edges are fake.
-import { installation } from '../api/harness.mjs'
+import { installation, morningBriefFixture, morningBriefAt, mailEvents } from '../api/harness.mjs'
 
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-async function send(page: Page, button: Locator) {
-  const answer = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
-  await button.click()
-  const body = await (await answer).json()
-  expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
-  await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
-}
 async function screens(page: Page, name: string, anchor?: Locator) {
   console.log('AGENT-008 screen:', name)
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 })
     if (anchor) await anchor.scrollIntoViewIfNeeded()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
-    if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-brief-${name}.png`) }) }
+    if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-brief-${name}.png`), fullPage: name === 'today' }) }
   }
 }
 
-test('AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390', async ({ browser }) => {
-  const h = await installation()
+test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending', async ({ browser }) => {
+  const h = await installation({ at: '2026-11-07T12:00:00.000Z' })
   try {
-    await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
-    const labor = await h.command('service.save', { code: 'LABOR', name: 'Repair labor', kind: 'service', unitPrice: '200.00', unitCost: '100.00', tax: 'TAXABLE' })
-    const person = await h.person('Tom Brooks', 'technician')
-    const tech = await h.command('technician.save', { name: 'Tom Brooks', operatorId: person.id })
-    const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date())
-    const job = async (name: string, finish: boolean, start: string) => {
-      const customer = await h.command('customer.save', { name })
-      const site = await h.command('site.save', { customerId: customer.id, address: `1 ${name} St, Austin TX 78704` })
-      const q = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: `${name} repair`, lines: [{ description: labor.name, serviceId: labor.id, quantity: '1', unitPrice: labor.unitPrice }] })
-      const approved = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
-      await h.command('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: name })
-      const j = await h.command('job.create', { quoteId: q.id })
-      const visit = await h.command('visit.book', { jobId: j.id, technicianId: tech.id, date, start, end: start.replace(':00', ':30') })
-      if (finish) { await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }); await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } }) }
-      return j
-    }
-    const done = await job('Rosa Diaz', true, '22:00'), open = await job('Lee Park', false, '23:00')
-    await h.command('expense.record', { jobId: open.id, category: 'permit', vendor: 'City of Austin', amount: '150.00', billable: false })
+    const f = await morningBriefFixture(h)
+    await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-browser-mail', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['synthetic-glove-office', 'example.test'].join('@') })
+    await h.command('mail.morning', { enabled: true, time: '07:15' })
+    const before = await h.state(), outbound = h.outbound.attempts, mailCount = h.mails.length
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      await page.clock.install({ time: new Date(morningBriefAt) })
       await page.route(`${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -57,14 +37,32 @@ test('AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an
       await page.goto(`${origin}/app#today`)
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })
       const unbilled = brief.getByRole('region', { name: 'Unbilled work', exact: true })
-      await expect(unbilled).toContainText(`${done.number} for Rosa Diaz is complete with no invoice`)
-      await expect(brief.getByRole('region', { name: 'Over their cost estimate', exact: true })).toContainText(`${open.number} for Lee Park has cost $150.00 against a $100.00 estimate`)
+      await expect(unbilled).toContainText(`${f.noInvoice.job.number} for No Invoice is complete with no invoice`)
+      await expect(unbilled).toContainText(`${f.draftInvoice.job.number} for Draft Invoice is complete and ${f.draft.number} awaits approval`)
+      await expect(brief.getByRole('region', { name: 'Over their cost estimate', exact: true })).toContainText(`${f.late.job.number} for Late Arrival has cost $150.00 against a $100.00 estimate`)
+      await expect(brief.getByRole('region', { name: 'At risk today', exact: true })).toContainText(`${f.late.job.number} at 7:00 AM for Late Arrival: Priya Nair has not arrived 15 minutes after the start`)
+      await expect(brief.getByRole('region', { name: 'Leads waiting', exact: true })).toContainText("Waiting Lead's google request has been new for 24 hours")
       await expect(brief.getByRole('heading', { name: 'Overdue invoices', exact: true })).toBeVisible()
+      await expect(brief.getByRole('status')).toContainText('not yet sent')
       await screens(page, 'today', brief)
-      await unbilled.getByRole('link', { name: 'Prepare invoice', exact: true }).click()
-      await page.waitForURL(u => u.hash === '#invoices')
-      await expect(page.locator('.page')).toContainText('Completed jobs to invoice')
-      await screens(page, 'invoices')
+      for (const [section, action, hash, content] of [
+        ['Unbilled work', 'Prepare invoice', '#invoices', 'Completed jobs to invoice'],
+        ['Unbilled work', 'Approve invoice', '#invoices', f.draft.number],
+        ['At risk today', 'Open dispatch', '#dispatch', f.late.job.number],
+        ['Over their cost estimate', 'Review job costs', '#jobs', f.late.job.number],
+        ['Leads waiting', 'Contact the customer', '#quotes', 'Waiting Lead'],
+        ['Leads waiting', 'Quote the request', '#quotes', 'Contacted Lead'],
+      ]) {
+        await page.setViewportSize({ width: 1440, height: 1050 })
+        await page.goto(`${origin}/app#today`)
+        await brief.getByRole('region', { name: section, exact: true }).getByRole('link', { name: action, exact: true }).first().click()
+        await page.waitForURL(u => u.hash === hash)
+        await expect(page.getByRole('heading', { name: { '#invoices': 'Invoices', '#dispatch': 'Dispatch', '#jobs': 'Jobs', '#quotes': 'Quotes' }[hash], level: 1, exact: true })).toBeVisible()
+        await expect(page.getByRole('main')).toContainText(content)
+        if (['Prepare invoice', 'Open dispatch', 'Review job costs', 'Contact the customer'].includes(action)) await screens(page, hash.slice(1))
+      }
+      expect(await h.state()).toEqual(before)
+      expect([h.mails.length, h.email.sent.length, h.pushes.sent.length, h.models.calls.length, h.outbound.attempts]).toEqual([mailCount, 0, 0, 0, outbound])
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })

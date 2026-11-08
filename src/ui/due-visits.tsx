@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { today, type Glove, type Rec, type Run } from './api'
+import { useContext, useEffect, useState } from 'react'
+import { PendingCommandContext, today, type Glove, type Rec, type Run } from './api'
 import { Field } from './controls'
 import { BookingOffers } from './booking-offers'
 import { DeclineVisit } from './decline-visit'
@@ -11,6 +11,12 @@ type BatchResult = { message: string; pending?: { agreementId: string; index: nu
 // and conflict controls. Each batch result is shown independently; failures
 // leave the entitlement due and its created job available for another try.
 export function DueVisits({ s, run }: { s: Glove; run: Run }) {
+  const pending = useContext(PendingCommandContext)
+  const recovering = pending?.type === 'job.create' || pending?.type === 'visit.book'
+  const pendingRow = (row: Rec) => recovering && (
+    (pending.payload.jobId && pending.payload.jobId === row.jobId) ||
+    (pending.payload.agreementId === row.agreementId && pending.payload.agreementVisitIndex === row.index)
+  )
   const zone = s.business[0]?.timezone ?? 'America/Chicago'
   const [through, setThrough] = useState(today(zone)), [from, setFrom] = useState(''), [area, setArea] = useState('')
   const [maintenance, setMaintenance] = useState<Rec[]>([])
@@ -27,6 +33,7 @@ export function DueVisits({ s, run }: { s: Glove; run: Run }) {
   }, [s.version, through, from, area])
   const available = rows.filter(v => !v.booked)
   const batch = async () => {
+    if (recovering) return
     setRunning(true); setOutcomes([]); setError('')
     const execute = async (type: string, payload: object) => { const answer = await run(type, payload); if (!answer.ok) throw Object.assign(new Error(answer.error.message), { code: answer.error.code }); return answer.result }
     let minute = Number(start.slice(0, 2)) * 60 + Number(start.slice(3))
@@ -75,16 +82,16 @@ export function DueVisits({ s, run }: { s: Glove; run: Run }) {
       <Field label="Area ZIP (optional)">{p => <input {...p} value={area} onChange={e => setArea(e.target.value)} />}</Field>
     </div>
     <p role="status">{rows.length} included visits due in this range</p>
-    {can(s.actor, 'visit.book') && <p><button type="button" disabled={running || !available.length} onClick={() => setSelected(available.map(v => v.id))}>Select unbooked visits</button></p>}
+    {can(s.actor, 'visit.book') && <p><button type="button" disabled={running || recovering || !available.length} onClick={() => setSelected(available.map(v => v.id))}>Select unbooked visits</button></p>}
     <ul className="rows">{rows.map(v => <li key={v.id}><div>
-      {can(s.actor, 'visit.book') && !v.booked && <label><input type="checkbox" aria-label={`Select ${v.customer} visit ${v.index + 1}`} disabled={running} checked={selected.includes(v.id)} onChange={e => setSelected(e.target.checked ? [...selected, v.id] : selected.filter(id => id !== v.id))} /> </label>}
+      {can(s.actor, 'visit.book') && !v.booked && <label><input type="checkbox" aria-label={`Select ${v.customer} visit ${v.index + 1}`} disabled={running || recovering} checked={selected.includes(v.id)} onChange={e => setSelected(e.target.checked ? [...selected, v.id] : selected.filter(id => id !== v.id))} /> </label>}
       <a href={`#customers/${v.customerId}`}>{v.customer} · {v.plan}</a><p className="muted">Visit {v.index + 1} · due {v.due} · {v.address}</p>
-      <p>{v.booked ? 'Booked, awaiting completion' : 'Awaiting booking'}{v.jobId && <> · <a href={`#jobs/${v.jobId}`}>Open job</a></>}</p>
+      <p>{pendingRow(v) ? 'Outcome unconfirmed; use Retry to recover this visit.' : v.booked ? 'Booked, awaiting completion' : 'Awaiting booking'}{v.jobId && <> · <a href={`#jobs/${v.jobId}`}>Open job</a></>}</p>
       {can(s.actor, 'agreement.decline') && !v.booked && <DeclineVisit s={s} run={run} visit={v} />}
       <BookingOffers s={s} run={run} visit={v} />
     </div></li>)}</ul>
     {can(s.actor, 'visit.book') && <form onSubmit={e => { e.preventDefault(); void batch() }} aria-label="Batch book included visits">
-      <fieldset disabled={running}><div className="form-grid">
+      <fieldset disabled={running || recovering}><div className="form-grid">
         <Field label="Batch technician">{p => <select {...p} value={tech} onChange={e => setTech(e.target.value)} required><option value="">Choose</option>{s.technicians.filter(t => t.active).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select>}</Field>
         <Field label="Batch date">{p => <input {...p} type="date" value={date} onChange={e => setDate(e.target.value)} required />}</Field>
         <Field label="First visit starts">{p => <input {...p} type="time" value={start} onChange={e => setStart(e.target.value)} required />}</Field>
@@ -110,6 +117,7 @@ export function DueVisits({ s, run }: { s: Glove; run: Run }) {
         }}>Prepare maintenance check</button>}
       </div></li>)}</ul>
     </section>
+    {recovering && <p role="status">Batch booking is paused. Use Retry above to recover the pending action before continuing.</p>}
     {!!outcomes.length && <ul aria-label="Batch results">{outcomes.map((result, i) => <li key={i}>{outcomeText(result)}</li>)}</ul>}
     {error && <p role="alert">{error}</p>}
   </section>
