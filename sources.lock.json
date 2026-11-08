@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
+      "sha256": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -2416,7 +2416,7 @@
       "executable": false
     },
     "src/glove/reports.ts": {
-      "sha256": "72716c1927c9208edc2e46dd9e110f727aea5bc1c56246594261acecea5e121a",
+      "sha256": "6d809ccc24e8169f782696d1f166673d7feae80a86040d5ac77878b3e528b788",
       "executable": false
     },
     "src/glove/request-model-photos.ts": {
@@ -5771,6 +5771,10 @@
       "sha256": "12049d63d3cff960054294715aa99fbb013c9d44425d4aad46c15d9eb21128b2",
       "executable": false
     },
+    "tests/api/tax-evidence.test.mjs": {
+      "sha256": "216bd73c6224c164a50a1382d59e4ab4202e9d6e02d6366d8f3efbc9841da1e8",
+      "executable": false
+    },
     "tests/api/time.test.mjs": {
       "sha256": "04a6e4c5c4fa3a4c14cf92b8cf4bd3c802832d403df32ac73a83e5a3f017a3fe",
       "executable": false
@@ -5937,6 +5941,10 @@
     },
     "tests/browser/subcontractor.spec.ts": {
       "sha256": "77856ff5092f714407e1d5f39d7d72038dff5ca2e2d9d3fc70b623ea3af364ae",
+      "executable": false
+    },
+    "tests/browser/tax-evidence.spec.ts": {
+      "sha256": "9e7f73eba84fab128053ca01e4e1e44626d51c26806191dcc5fb6c661a05e530",
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {
@@ -6352,7 +6360,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "9b69d542b155552d93cb02965df4c6e9dc0bed7b2ef0a844924f51717d073e2d",
+      "sha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
       "executable": false
     },
     "tests/runtime.mjs": {
