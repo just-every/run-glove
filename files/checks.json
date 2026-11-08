@@ -1,0 +1,208 @@
+{
+  "tag": "sx-glove-c-f137",
+  "repository": "just-every/run-glove",
+  "initial_head": "f5d2b44b4e731aaee612cdde0fcb6cc24b2181b5",
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/push-subscriptions.test.mjs tests/api/push.test.mjs",
+      "exit": 0,
+      "tests": 9,
+      "note": "First independent API qualification; later receipt will identify final unchanged proof bytes."
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/push-subscriptions.test.mjs tests/api/push.test.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "tests": 8,
+      "receipt": "api.txt",
+      "scope": "repaired subscription command"
+    },
+    {
+      "command": "pnpm typecheck",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "scope": "repaired subscription command"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "scope": "repaired subscription command"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "scope": "repaired subscription command"
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/push-settings.spec.ts",
+      "runtime": "Node 22.20.0; Chromium at /usr/bin/chromium with --no-sandbox",
+      "exit": 0,
+      "tests": 1,
+      "screenshots": 10,
+      "receipt": "browser.txt",
+      "scope": "repaired subscription command"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses FIELD-009; node scripts/contract-docs.mjs check --clauses FIELD-009",
+      "exit": 0,
+      "note": "Generated views restored from origin/main; no view changes committed"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/push-subscriptions.test.mjs tests/api/push.test.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "tests": 8,
+      "receipt": "api.txt",
+      "scope": "merged candidate source"
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/push-settings.spec.ts",
+      "runtime": "Node 22.20.0; Chromium /usr/bin/chromium --no-sandbox",
+      "exit": 0,
+      "tests": 1,
+      "seconds": 58,
+      "screenshots": 10,
+      "receipt": "browser.txt",
+      "scope": "merged candidate source"
+    },
+    {
+      "command": "pnpm typecheck",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "scope": "merged candidate source"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "scope": "merged candidate source"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses FIELD-009; node scripts/contract-docs.mjs check --clauses FIELD-009",
+      "exit": 0,
+      "scope": "candidate tree; generated files restored from incoming main"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "scope": "exact candidate tree"
+    },
+    {
+      "command": "timeout 1200 node tests/portable.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "receipt": "portable.txt",
+      "scope": "complete actual archive, restore, restart, erasure and payment suite; FIELD-009 source bytes match candidate"
+    }
+  ],
+  "pending": [
+    "exact-head Verify conclusion",
+    "fleet publication scan and landing"
+  ],
+  "head": "30d23cde995571134f055ae459448b2dc36de91c",
+  "branch": "cloud/sx-glove-c-f137",
+  "merged_main": "d4db6606f259cabcc10cb4b3b7232b802ba70df5",
+  "candidate_verify": {
+    "id": 42497583970,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "30d23cde995571134f055ae459448b2dc36de91c",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42497583970"
+  },
+  "candidate_source_files": {
+    "src/glove/commands/push.ts": {
+      "sha256": "c2a6d9e5d8e8c239a7320149fe535425179819ef441afa8476c8632d3eb4c3ee",
+      "blob": "302349878eb1ea931b228a227e392cd96f1007cc"
+    },
+    "src/glove/push.ts": {
+      "sha256": "4099998ca1498304abfa67c59b172e9cc88c93ca444d8b65014a1ec2ec122532",
+      "blob": "6e457b734a743ec09912dbe8f3c218b9a57fe7ad"
+    },
+    "src/ui/push.tsx": {
+      "sha256": "c62c43892044fb31831b1f81cbcd9f87d720962151a8eee1c658a6ce7527155d",
+      "blob": "02d9b92998e44d8223f5df57f09c68a3273e0813"
+    },
+    "tests/api/harness.mjs": {
+      "sha256": "3d36648f3293a48d922c29c85831088538d343638eb51544b501a010aa256df7",
+      "blob": "0cac333cf62b8a63c45e9a08fa2f9215e3485974"
+    },
+    "tests/api/push-subscriptions.test.mjs": {
+      "sha256": "9fae077d22873a01a5cb81c3ec943fb74e6600e523b4032adf2b5177d9c511a9",
+      "blob": "0c7d365efbb1d7ad0440c8732d3ae1cb39a26fe0"
+    },
+    "tests/browser/push-settings.spec.ts": {
+      "sha256": "374ee98c048a91cc0ffb638c93ee5b868eb23b620dec62c04fc932446b15d2d6",
+      "blob": "c2a558e0a43828b7df8a6338b25a53fb08388772"
+    },
+    "tests/fixtures/push-service.mjs": {
+      "sha256": "bcb639aeca3a805aad53220c0e8b8446789153956f779c153e8e6ce75c684b3f",
+      "blob": "b8b4510b6895e16ea9f94cde845b1f41146b071a"
+    },
+    "tests/portable.mjs": {
+      "sha256": "73cda7be41f2b378e53eeddb32ba39ffb895858024c9f25fe40791d3dd8b2dfb",
+      "blob": "331ade93ae6b13120935b88db48edc997a654d1e"
+    }
+  },
+  "product_push": {
+    "head": "30d23cde995571134f055ae459448b2dc36de91c",
+    "ref": "refs/heads/cloud/sx-glove-c-f137",
+    "exit": 0,
+    "verified_remote": true,
+    "receipt": "product-push.txt"
+  },
+  "publication_scan": {
+    "commit": "30d23cde995571134f055ae459448b2dc36de91c",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Maintained fleet lander runs the scan; cloud branch push does not establish it."
+  },
+  "local_probes": [
+    {
+      "point": 1,
+      "result": "PASS",
+      "door": "Owner setup, rotation, off, public reads and actual archive"
+    },
+    {
+      "point": 2,
+      "result": "PASS",
+      "door": "Technician native sessions and subscribe command"
+    },
+    {
+      "point": 3,
+      "result": "PASS",
+      "door": "Independent removal triggers, Worker restart and later visit booking"
+    },
+    {
+      "point": 4,
+      "result": "PASS",
+      "door": "Actual archive import, restart, refused subscription and explicit re-enable"
+    }
+  ],
+  "complete_portable_progress": [
+    "CUST-006 archive",
+    "FIELD-009 archive and restart",
+    "MOVE-003 and MOVE-004 retained custody",
+    "DISP-011 restore and erasure",
+    "DATA-001 older-backup refusal and original withdrawal"
+  ],
+  "all_local_checks_passed": true,
+  "github_api_calls": 4,
+  "terminal_reported_at": "2026-11-08T16:11:13Z"
+}

@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: FIELD-009 restored owner must enable notifications before fresh subscription
+
+200 !== 409
+
+    at refusePhone (file:///workspace/run-glove/tests/portable.mjs:374:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///workspace/run-glove/tests/portable.mjs:377:3 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 200,
+  expected: 409,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

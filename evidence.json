@@ -1,0 +1,148 @@
+{
+  "files": [
+    {
+      "blob": "58ea771368b82e9d048b52ee6df90fbd12310b55",
+      "bytes": 12681,
+      "path": "REPORT.md",
+      "sha256": "4369353430f2b4e0f637e019dedb94853049a2c8a33ec4ad1b0db6a980d084ea"
+    },
+    {
+      "blob": "9f6e63fc1ef8105f31a39ef55822af98982b645a",
+      "bytes": 3495,
+      "path": "api.txt",
+      "sha256": "d004ee160192504bab4792a809a4cbd2c11bddc6b709242f04900eb6974ccb8e"
+    },
+    {
+      "blob": "654d9d17ab9f2061e5137d9517075cf1e5b1dafb",
+      "bytes": 1094,
+      "path": "browser.txt",
+      "sha256": "c6ce26317ba750c3dd6d2a718903960b87256c266328a60f1abda955d41b1d2f"
+    },
+    {
+      "blob": "44f5fdde7917d93b5f03f7143306c42fbcd63678",
+      "bytes": 175,
+      "path": "candidate-ci-status.json",
+      "sha256": "ec69b3ee3be0b9ccffcfd41736eee11a3bfd8f37cd831d88967dff3d7711205c"
+    },
+    {
+      "blob": "54c18d26c96771bfd7612c6aedbecd4a8efdf4d7",
+      "bytes": 223,
+      "path": "candidate-ci.jsonl",
+      "sha256": "1955cfc5d16f24a4e6bc6e51121d02d7e3b0ae9234bbf7bbe9a53fa34f87ac97"
+    },
+    {
+      "blob": "d6f9c5b65985f9ed8154efd409f9ec1d6f50411c",
+      "bytes": 7014,
+      "path": "checks.json",
+      "sha256": "55c104362599250f82caf4e3edb12a83ab07fa3e3cadd972b1052e68664ef2b5"
+    },
+    {
+      "blob": "8b397759c3490f5d34b737e6b013a75c1929a9a8",
+      "bytes": 170,
+      "path": "identity.txt",
+      "sha256": "c9f719ac04ee5a87f887bd38a32e08c08cd63abd5a2deb8c3e01856328b8b56d"
+    },
+    {
+      "blob": "dbb5a84cbd3dae5fdaee59d03a0f781de4f9fe56",
+      "bytes": 1143,
+      "path": "main-ci.jsonl",
+      "sha256": "e41fb850582f2d3e0c933a1e2c83c163553ec0201cb0056f57547d176d98e261"
+    },
+    {
+      "blob": "03d3ed2ab957fdffda180a62a899965a5f7fa915",
+      "bytes": 1298,
+      "path": "portable.txt",
+      "sha256": "99dc0082b19deb0318e14de33bf211370c5dfebcd13627720ac2adc8828949b2"
+    },
+    {
+      "blob": "370b167046cf73cd5906117ffb8a687145e4eae8",
+      "bytes": 713,
+      "path": "product-push.txt",
+      "sha256": "2635abdbe4ddf77c58fd0110faf72542e01fb2fa485ef0172c86cdb1cd60d8e6"
+    },
+    {
+      "blob": "63352d8abe7bfd5b470da1c206075a9d9fc3753e",
+      "bytes": 569,
+      "path": "restore-defect.txt",
+      "sha256": "602e87e47efbe39257b9e20a7a2e18eb68dc8ea8a41c1689571668d057b6ffe1"
+    },
+    {
+      "blob": "472fe79a259b347d87bdde1c35d689199f1cd3e1",
+      "bytes": 105029,
+      "path": "screenshots/1440-push-owner-off.png",
+      "sha256": "cf5a34a9a589852def49cfefe8051fe5351e5f1d6b2d962007350027730e6b0b"
+    },
+    {
+      "blob": "7fa210e4f2f6bbad841aedde7570d7d5bea7c289",
+      "bytes": 129442,
+      "path": "screenshots/1440-push-owner-on.png",
+      "sha256": "2459e45739dcdad1ec7767dec50c4dfd48784a61ad583c0f6ff2ce204e625048"
+    },
+    {
+      "blob": "6bcb59640f197e6851a1c40dbe2bc71ef9bd4d2a",
+      "bytes": 89306,
+      "path": "screenshots/1440-push-technician-off.png",
+      "sha256": "86e50bb234c584b7a975e05f49bb937665e1fc24d12e211ac2256f6be748d8a7"
+    },
+    {
+      "blob": "b9e3052a27a001a4ee04f9466b8416e815face3c",
+      "bytes": 71669,
+      "path": "screenshots/1440-push-technician-removed.png",
+      "sha256": "251cd26e9bf4490044c0aa0e9e45e47374fbdead86b6edf23bf9769300576acd"
+    },
+    {
+      "blob": "7b1c589c0f3327af7f3674586086feaaf79c2c9b",
+      "bytes": 75437,
+      "path": "screenshots/1440-push-technician-two-phones.png",
+      "sha256": "f05a6d991a0a9218c4808514d21a3315d46f7f588985344eea219e161243c834"
+    },
+    {
+      "blob": "365d7a730e2f3c4e25b693363a0ad5f2385e9a39",
+      "bytes": 69170,
+      "path": "screenshots/390-push-owner-off.png",
+      "sha256": "861f2b3aea9d4a268a3fbef5d1f21f890f3bc289730cf76a3dca00dcda1dbb95"
+    },
+    {
+      "blob": "00b8cad91818dd24ed1bb13b31f215494e53f225",
+      "bytes": 73159,
+      "path": "screenshots/390-push-owner-on.png",
+      "sha256": "38668ca876712222dfa6a5cbed404eeb4e74264edb4526bcf7307feeaf19a4ba"
+    },
+    {
+      "blob": "e29d626e286dbea78cb6a4f057da7eb052c026a6",
+      "bytes": 68783,
+      "path": "screenshots/390-push-technician-off.png",
+      "sha256": "542d64ed2e99afeadba135dc3460971acfe6f098081ac00a3851975099dac8a8"
+    },
+    {
+      "blob": "e50606a910b930187ab1f5ebae65ce0a1d4a32fa",
+      "bytes": 64774,
+      "path": "screenshots/390-push-technician-removed.png",
+      "sha256": "7f44f774d4fe96f1e81d6e1e3bf836a2c0f5c831132b64e2c7d9fb70f64e3684"
+    },
+    {
+      "blob": "cc187a987b1cf11b85b9321af6265d055031603f",
+      "bytes": 66775,
+      "path": "screenshots/390-push-technician-two-phones.png",
+      "sha256": "0865545ae412025f74d7a20f8ec5343f53e73ded633dc49b75cf84cceadee510"
+    },
+    {
+      "blob": "bf164ad6545d92723e37dbe2a1bff2882f3be650",
+      "bytes": 90,
+      "path": "typecheck.txt",
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "views.txt",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f137",
+  "product_head": "30d23cde995571134f055ae459448b2dc36de91c",
+  "ref": "refs/heads/evidence/sx-glove-c-f137",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f137"
+}
