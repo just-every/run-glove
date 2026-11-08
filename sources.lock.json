@@ -1828,7 +1828,7 @@
       "executable": false
     },
     "src/glove/access.ts": {
-      "sha256": "b6665c676b5781b6137786e3f12ad9dfe256cf205f7ccb1097458d38c6bdf42d",
+      "sha256": "729f7c84d55aa07563394a9d6c64f40bcfd5412ed05336632c07d10d6eb04e37",
       "executable": false
     },
     "src/glove/activity.ts": {
@@ -2136,7 +2136,7 @@
       "executable": false
     },
     "src/glove/eligibility.ts": {
-      "sha256": "cbe04b98328f88b4200b537df793b1d022a0e34ad14457cc6a2afa059e3a088a",
+      "sha256": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
       "executable": false
     },
     "src/glove/email-preferences.ts": {
@@ -5796,7 +5796,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "9ae9a9f9bcaefd343dd50eb48d61667a05513b91f891176ee75bcdd1a611f1f8",
+      "sha256": "4dbe75cd3a4d03f7f2b9bc09840957068ec7b307d84cd0176699c9043b443472",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -5908,7 +5908,7 @@
       "executable": false
     },
     "tests/fixtures/calendars.mjs": {
-      "sha256": "3fe77ff1458008d76fabdca30b6c231e499aec8c5e022fd23f7b68a3285502b7",
+      "sha256": "9657eed727419cdfab7c5dfdd0f99b5942ef819587f05069b9b3f3cade0a941a",
       "executable": false
     },
     "tests/fixtures/collection.mjs": {
@@ -6300,7 +6300,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359",
+      "sha256": "567767f47c611f598aa3578ffe00a16e0bc1758212caaa335607e26a0327bb4c",
       "executable": false
     },
     "tests/runtime.mjs": {
