@@ -27,17 +27,19 @@ let desk: Page, phone: Page, other: Page, dispatcher: Page
 let deskContext: BrowserContext, phoneContext: BrowserContext, otherContext: BrowserContext, dispatchContext: BrowserContext
 let key: string | null, tech: any, second: any, actor: string, secondActor: string, customer: any, site: any, service: any, form: any
 let one: any, two: any, hidden: any, history: any, v1: any, v2: any, hiddenVisit: any, prior: any, photo: any, equipment: any
+const receipts: { point: number; outcome: string }[] = []
+const proved = (point: number, outcome: string) => receipts.push({ point, outcome })
 const tag = `synthetic-glove-${crypto.randomUUID().slice(0, 8)}`
 
 async function enter(page: Page, persona: string) {
   await page.request.post(`${origin}/__dev/key`, { headers: { origin }, data: { key } })
-  await page.goto(`${origin}/auth/dev/enter?as=${persona}&returnTo=%2Fapp`)
+  await page.goto(`${origin}/auth/dev/enter?as=${persona}&returnTo=%2Fapp`, { waitUntil: 'domcontentloaded' })
   await page.waitForURL(u => u.pathname === '/app')
 }
 async function loadPhone(page = phone) {
-  await page.goto(`${origin}/app`)
+  await page.goto(`${origin}/app`, { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('heading', { name: 'Your visits', exact: true })).toBeVisible()
-  await expect.poll(async () => (await kept(page))?.state.version).toBe((await state(page)).version)
+  await expect.poll(async () => { const server = await state(page), local = await kept(page); return local?.actorId === server.actor.id && local?.state.version === server.version }).toBe(true)
 }
 async function shellReady(page = phone) {
   await expect.poll(async () => (await cachePaths(page))['glove-shell-v1']?.includes('/app')).toBe(true)
@@ -87,7 +89,12 @@ test.beforeAll(async ({ browser }) => {
   await command(phone, 'visit.complete', { visitId: prior.id, summary: 'Earlier service retained', signoff: { absentReason: 'Customer at work' }, deviceTime: '2030-06-10T10:00:00Z' })
   await loadPhone(); await shellReady()
 })
-test.afterAll(async () => { for (const context of [phoneContext, otherContext, dispatchContext, deskContext]) await context?.close() })
+test.afterAll(async () => {
+  for (const context of [phoneContext, otherContext, dispatchContext, deskContext]) await context?.close()
+  const output = process.env.GLOVE_BROWSER_OUTPUT || '/tmp/glove-browser-results'
+  await mkdir(output, { recursive: true })
+  await writeFile(join(output, 'offline-day-receipt.json'), JSON.stringify({ head: process.env.GLOVE_PRODUCT_HEAD || 'development', nativeSessions: true, browserOffline: true, receipts }, null, 2) + '\n')
+})
 
 
 async function openVisit(job: any, page = phone) {
@@ -104,6 +111,13 @@ async function note(page: Page, text: string) {
 async function enumerate(visitId: string) {
   const s = await state(desk)
   const timeline = await (await desk.request.get(`${origin}/api/glove/jobs/${s.visits.find((v: any) => v.id === visitId).jobId}/timeline`)).json()
+  const activity: any[] = []
+  let before: string | null = null
+  do {
+    const page = await (await desk.request.get(`${origin}/api/glove/activity${before ? `?before=${before}` : ''}`)).json()
+    activity.push(...page.events); before = page.next
+  } while (before)
+  expect(activity.filter(e => e.jobId === s.visits.find((v: any) => v.id === visitId).jobId).sort((a, b) => a.sequence - b.sequence)).toEqual(timeline.events)
   return { visit: s.visits.find((v: any) => v.id === visitId), captures: s.captures.filter((c: any) => c.visitId === visitId), events: timeline.events }
 }
 
@@ -155,7 +169,8 @@ test('FIELD-001 point 2: the kept view is exact, refreshed and cleared across na
   await phone.getByRole('button', { name: 'Sign out', exact: true }).click()
   await phone.waitForURL(u => u.pathname === '/signin')
   expect(await kept(phone)).toBe(null)
-  await expect.poll(async () => Object.keys(await cachePaths(phone)).filter(n => n.startsWith('glove-'))).toEqual([])
+  await expect.poll(async () => Object.values(await cachePaths(phone)).flat()).toEqual([])
+  proved(2, 'Exact own projection, history, absent prices, successful replacement, native identity changes, uncontrolled desk entry and sign-out clearance')
 })
 
 test('FIELD-001 point 3: network-first shell and originals never cache record or authentication answers', async () => {
@@ -191,6 +206,7 @@ test('FIELD-001 point 3: network-first shell and originals never cache record or
   await expect(dispatcher.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
   expect(await kept(dispatcher)).toBe(null)
   expect(await cachePaths(dispatcher)).toEqual({})
+  proved(3, 'Network originals while online; shell and photo fallback only with no signal; record and auth cache exclusion; no desk retention')
 })
 
 test('FIELD-001 point 4: waiting captures remain ordered and private to the recording person, including legacy entries', async () => {
@@ -221,6 +237,7 @@ test('FIELD-001 point 4: waiting captures remain ordered and private to the reco
   expect(sent.filter(x => queued.some((q: any) => q.commandId === x.commandId)).map(x => x.commandId)).toEqual(queued.map((q: any) => q.commandId))
   expect(sent.some(x => x.commandId === legacy.commandId)).toBe(false)
   phone.off('request', record)
+  proved(4, 'Capture order and identities retained; another native sign-in neither sees nor sends waiting or actorless captures; original actor reconnect sends once')
 })
 
 test('FIELD-001 point 1: offline reload completes every capture once with independently enumerated records and Activity', async () => {
@@ -230,7 +247,7 @@ test('FIELD-001 point 1: offline reload completes every capture once with indepe
   const visit = await command(dispatcher, 'visit.book', { jobId: job.id, technicianId: tech.id, date: day, start: '14:00', end: '15:00' })
   await loadPhone(); await shellReady()
   const savedAt = (await kept(phone)).savedAt
-  await phoneContext.setOffline(true); await phone.reload()
+  await phoneContext.setOffline(true); await phone.reload({ waitUntil: 'domcontentloaded' })
   await expect(phone.getByText(/^No signal: showing your day as of/)).toContainText(new Date(savedAt).toLocaleTimeString('en-US', { timeZone: 'UTC', hour: 'numeric', minute: '2-digit' }))
   await phone.getByRole('button', { name: new RegExp(`${job.number}.*Complete with no signal`) }).click()
   await phone.getByRole('button', { name: 'Record arrival', exact: true }).click()
@@ -245,6 +262,7 @@ test('FIELD-001 point 1: offline reload completes every capture once with indepe
   await expect(photos.getByLabel('Photo caption', { exact: true })).toBeVisible()
   await photos.getByLabel('Photo caption', { exact: true }).fill('Cleaned coil, before cover')
   await photos.locator('input[type=file]').setInputFiles({ name: 'coil.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') })
+  await expect(photos.getByRole('img', { name: 'Cleaned coil, before cover', exact: true })).toBeVisible()
   await phone.getByLabel('Describe it', { exact: true }).fill('Filter pad')
   await phone.getByLabel('Quantity', { exact: true }).fill('2')
   await phone.getByRole('button', { name: 'Add material', exact: true }).click()
@@ -258,7 +276,7 @@ test('FIELD-001 point 1: offline reload completes every capture once with indepe
   expect(new Set(queued.map((q: any) => q.commandId)).size).toBe(7)
   await expect(phone.getByText('Offline — 7 items waiting to send.')).toBeVisible()
   await picture(phone, 390, 'complete-waiting'); await picture(phone, 1440, 'complete-waiting'); await phone.setViewportSize({ width: 390, height: 950 })
-  await phone.reload()
+  await phone.reload({ waitUntil: 'domcontentloaded' })
   expect((await outbox(phone)).filter((q: any) => q.actorId === actor)).toEqual(queued)
   const posted: string[] = []
   const record = (r: any) => { if (r.url().endsWith('/api/glove/commands') && r.method() === 'POST') posted.push(r.postDataJSON().commandId) }
@@ -282,8 +300,9 @@ test('FIELD-001 point 1: offline reload completes every capture once with indepe
   }
   const replayed = await enumerate(visit.id)
   expect(replayed.captures).toEqual(landed.captures); expect(replayed.events).toEqual(landed.events)
-  await phone.reload()
+  await phone.reload({ waitUntil: 'domcontentloaded' })
   await expect.poll(async () => (await outbox(phone)).filter((q: any) => q.actorId === actor)).toEqual([])
+  proved(1, 'Offline open and reload, kept age, seven capture kinds with waiting arrival enabling completion, ordered reconnect, exact records and Activity, unchanged replay')
 })
 
 test('FIELD-001 point 5: reassigned offline evidence is retained, flagged and reviewed without overwriting either technician', async () => {
@@ -324,4 +343,5 @@ test('FIELD-001 point 5: reassigned offline evidence is retained, flagged and re
   expect(after.events.filter((e: any) => e.kind === 'visit.lateEvidenceReviewed')).toHaveLength(1)
   await dispatcher.reload()
   expect((await enumerate(visit.id)).visit.lateEvidence.every((x: any) => !!x.reviewed)).toBe(true)
+  proved(5, 'Offline original evidence retained and flagged after desk reassignment; new arrival and note preserved; native Dispatcher reviews with attributable Activity')
 })

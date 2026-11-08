@@ -15,7 +15,8 @@ const KEY = 'glove.outbox'
 const all = (): Queued[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]') } catch { return [] } }
 
 export function useOutbox(onSent: () => Promise<void>, actorId: string) {
-  const mine = (x: Queued) => !x.actorId || x.actorId === actorId
+  // Older entries without a recording person cannot acquire the current sign-in.
+  const mine = (x: Queued) => !!actorId && x.actorId === actorId
   const read = () => all().filter(mine)
   const [items, setItems] = useState<Queued[]>([])
   const [online, setOnline] = useState(true)

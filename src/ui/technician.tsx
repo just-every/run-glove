@@ -74,6 +74,7 @@ function Visit({ s, visit, online, queue, queued, all, keptAt, back, refresh }: 
   const captures = s.captures.filter(x => x.jobId === visit.jobId)
   const waitingArrival = queued.some(q => q.type === 'visit.arrive')
   const [note, setNote] = useState('')
+  const [caption, setCaption] = useState('')
   const [material, setMaterial] = useState({ serviceId: '', description: '', quantity: '1', unit: '' })
   const [completing, setCompleting] = useState(false)
   const capture = (payload: Record<string, any>, label: string) => queue('visit.capture', { visitId: visit.id, ...payload }, label)
@@ -134,7 +135,8 @@ function Visit({ s, visit, online, queue, queued, all, keptAt, back, refresh }: 
         {photos.map(p => <figure className="photo" key={p.id}><img src={`/api/glove/files/${p.file.fileId}`} alt={p.caption || 'Site photo'} /></figure>)}
         {pendingPhotos.map(p => <figure className="photo" key={p.commandId}><img src={`data:${p.payload.photo.mediaType};base64,${p.payload.photo.base64}`} alt={p.payload.caption || 'Site photo waiting to send'} /><figcaption className="waiting">Waiting to send</figcaption></figure>)}
       </div>
-      <label className="button photo-add"><Glyph name="plus" />Add photo<input className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={async e => { const file = e.target.files?.[0]; if (file) { capture({ kind: 'photo', caption: '', photo: await shrink(file) }, 'Photo'); e.target.value = '' } }} /></label>
+      <Field label="Photo caption">{p => <input {...p} value={caption} onChange={e => setCaption(e.target.value)} maxLength={300} />}</Field>
+      <label className="button photo-add"><Glyph name="plus" />Add photo<input className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={async e => { const file = e.target.files?.[0]; if (file) { capture({ kind: 'photo', caption: caption.trim(), photo: await shrink(file) }, 'Photo'); setCaption(''); e.target.value = '' } }} /></label>
     </section>
     {can(s.actor, 'expense.record') && <PhoneExpenses s={s} visit={visit} queue={queue} queued={queued} />}
     <section className="card materials" aria-labelledby="materials-title">
