@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 205 | 16 | 237 |
+| Core | 17 | 204 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 218 | 29 | 263 |
+| Full target | 17 | 217 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1357,7 +1357,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-
 
 #### COMM-015 — Postmark callback custody
 
-Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Postmark callback custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1371,8 +1371,8 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAI
 7. Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.
 8. Sends include Glove's delivery ID in Postmark metadata.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Postmark: HTTPS Basic user glove, with a per-installation password generated from 32 random bytes and shown only in the first owner response.; point 2 — Store only its SHA-256 hash and compare in constant time.; point 3 — Mail callback action keeps the previous hash valid for exactly 24 hours (exclusive expiry), revoking the previous credential ends that overlap immediately, and disconnect revokes both.; point 4 — Rotation, revocation and allowlist changes are Activity facts without secrets.; point 5 — The optional source-IP allowlist is off by default, pinned in source with a dated provider reference, fails closed when on and never replaces Basic authentication; reconnecting credentials preserves this owner option unless explicitly changed.; point 6 — Plain-HTTP Postmark callbacks are refused without writes.; point 7 — Replay identity is event type plus Postmark ID, or message ID + type + recipient + time when no ID exists; refuse events over 7 days old.; point 8 — Sends include Glove's delivery ID in Postmark metadata. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/postmark-custody.test.mjs` (COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once)
+**Gap.** None.
 
 #### COMM-016 — Postmark delivery-outcome mapping
 
