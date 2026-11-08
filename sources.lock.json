@@ -5732,7 +5732,7 @@
       "executable": false
     },
     "tests/api/travel-assignment.test.mjs": {
-      "sha256": "6a24f1e262213a1ef14d29a7850853c75b14fa7c915079de1aac6703350f455d",
+      "sha256": "71520e3b1ce7311a6925e69e1d3edcd4fd89999979906b7e6e72d82ccc7b96e8",
       "executable": false
     },
     "tests/api/visit-status-fixture.mjs": {
