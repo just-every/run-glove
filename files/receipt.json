@@ -104,13 +104,14 @@
     "screenshots/390-monthly-tax-late-approvals.png"
   ],
   "verify_observation": {
-    "conclusion": null,
+    "conclusion": "success",
     "head_sha": "ed241ebb34b7f0491ea056cdd53a0f40fdce9c58",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42518845292",
-    "status": "in_progress",
+    "status": "completed",
     "run_id": 42518845292,
     "event": "push",
-    "observed_at": "2026-11-08T20:17:10Z"
+    "observed_at": "2026-11-08T20:22:18Z"
   },
-  "github_calls": 2
+  "github_calls": 3,
+  "custody": "READY; cloud branch only; guarded scan and landing pending"
 }

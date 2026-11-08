@@ -48,9 +48,9 @@ UI regression proof: before the repair, the real browser expected six late-appro
 
 | Row | Result on this partial point | Evidence and limitation |
 | --- | --- | --- |
-| 1 | PARTIAL for the whole clause; P2 PASS locally | P2.1–P2.15 cover the complete assigned monthly point. Acceptance 1 remains held. |
+| 1 | PARTIAL for the whole clause; P2 PASS on exact-head Verify | P2.1–P2.15 cover the complete assigned monthly point. Acceptance 1 remains held. |
 | 2 | PASS locally | Populated real records; early approval and forbidden report reads are attempted and checked unchanged; correction is executed and read back. |
-| 3 | PENDING Verify until the recorded conclusion below | API wildcard and browser revenue file already run under existing push Verify commands; no workflow edits or hidden feature flag. |
+| 3 | PASS | Verify push run 42518845292 completed success on ed241ebb34b7f0491ea056cdd53a0f40fdce9c58. API wildcard and the browser revenue file run under its existing commands; no workflow edit or hidden feature flag. |
 | 4 | PASS locally | Exact committed head API and mechanical runs; relevant test and UI bytes match browser proof, with a fresh-install browser rerun on the exact head. |
 | 5 | INSPECTED | REPORT-004 acceptance 2 explicitly names PLAN-005, PLAN-012 and PLAN-013 and the inherited date duties; no new Base duty was invented. |
 | 6 | PASS mechanical; source judgments preserved | Contract generator write and check pass; generated views restored from main. Status counts and evidence cells are the lander's responsibility. |
@@ -78,4 +78,16 @@ GAP REPORT-004: Acceptance 1 remains held by QUOTE-006, QUOTE-016, QUOTE-017, QU
 
 Exact-head local results: the focused API and existing reports file pass 3 tests; typecheck, first-party checks, source-lock freshness and generated-view check all exit 0. The official fresh-install browser command passes its existing revenue registration (including the new monthly helper) and captures the changed revenue and tax rows at 1440 and 390. The initial official invocation missed the Chromium selector and failed before executing a journey; the rerun used the required system Chromium and passed without a source edit. All owned runtimes and browser processes exited.
 
-Exact-head CI: Verify push run 42518845292, head ed241ebb34b7f0491ea056cdd53a0f40fdce9c58, still in progress at 2026-11-08T20:17:10Z. REST calls used: 2 of 10; discovery and the first status observation were more than 300 seconds apart. Run site and the full-history publication scan remain guarded-landerer duties.
+Exact-head CI: Verify push run 42518845292, head ed241ebb34b7f0491ea056cdd53a0f40fdce9c58, still in progress at 2026-11-08T20:17:10Z. REST calls used: 2 of 10; discovery and the first status observation were more than 300 seconds apart. Run site and the full-history publication scan remain guarded-lander duties.
+
+
+## Final custody
+
+Verify: https://github.com/just-every/run-glove/actions/runs/42518845292 — event push, completed, success, exact head ed241ebb34b7f0491ea056cdd53a0f40fdce9c58, observed 2026-11-08T20:22:18Z. REST calls: 3 of the ten-call budget. No dispatch, workflow rerun, failed-job log request or repair round was required. The intermediate incomplete push is superseded by this fully tested green descendant; its history was preserved.
+
+All local commands completed. The committed tree is clean. Product branch is pushed and independently advertised at the candidate SHA; main remained 4eea04c27f02aa2cb0c12edc421a9b4e574de0bf in the final branch comparison. No PR is required. The report-only evidence ref is separate from product custody and conveys no landing or release authorization. The final evidence packet is fetched and hash-verified separately, then the scratch clone and its dependencies are removed as requested. The full plan and report packet remain outside the clone at the task packet path.
+
+Riders 1 and 3 now have exact-head green Verify for assigned point 2; whole-clause acceptance 1 remains held. Rider 11 remains with the guarded Mac lander: complete full-history publication scan, main equality and exact-main Run site. No COMPLETE scan or landing is claimed by the cloud builder.
+
+POST lanes/sx/INBOX.md: sx-glove-c-f156 REPORT-004 point 2 qualified, PARTIAL unchanged; branch cloud/sx-glove-c-f156 head ed241ebb34b7f0491ea056cdd53a0f40fdce9c58 Verify 42518845292 push success; counts 20 DONE, 214 PARTIAL, 29 MISSING unchanged; report and receipts on evidence/sx-glove-c-f156. Point 1 and all quoted holds remain. Existing default test-cap overage is documented for bookkeeping; no tests were weakened.
+READY branch=cloud/sx-glove-c-f156 head=ed241ebb34b7f0491ea056cdd53a0f40fdce9c58
