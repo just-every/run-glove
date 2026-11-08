@@ -16,7 +16,7 @@ The complete execution plan and its disposition are in PLAN.md. The machine-read
 
 After published saves, the candidate merged updated main without rewriting published history. Main's newer quote archive assertions and purchasing changes were retained. The focused API and typecheck were rerun on the final candidate. The browser and archive proof has unchanged relevant bytes after the merge: main's only additional production edit is an unrelated service.saved Activity cost filter in src/glove/api.ts. No calendar source, archive policy or browser code changed after those journeys took their fixtures.
 
-Candidate Verify: push run 42512217809, exact head 9ab2a9b10971e25958dd1f04dd5bdab231a07868; in progress at 2026-11-08T18:53:16Z. No other SHA is used as candidate proof.
+Candidate Verify: push run 42512217809, exact head 9ab2a9b10971e25958dd1f04dd5bdab231a07868; completed with success, observed at 2026-11-08T19:08:16.537603+00:00. No other SHA is used as candidate proof.
 
 ## Frozen acceptance rubric
 
@@ -47,9 +47,9 @@ PROBE DISP-008 7: technician.calendar and calendar.connect with distinct provide
 
 | Rider | Result | Evidence or remaining fleet duty |
 | --- | --- | --- |
-| 1 | PASS locally; exact Verify recorded in receipt | P1 through P7 reach every acceptance outcome through production public doors. |
+| 1 | PASS; exact-SHA push Verify 42512217809 success | P1 through P7 reach every acceptance outcome through production public doors. |
 | 2 | PASS | Seeded real business records, independent exact values, supported and forbidden paths, unchanged refusal-state comparisons; no empty-only acceptance. |
-| 3 | Pending exact-SHA Verify observation | All named journeys are loaded by normal push Verify; no env flag excludes them. Candidate run details are recorded in receipt.json. |
+| 3 | PASS; push Verify 42512217809 success on the exact candidate | All named journeys are loaded by normal push Verify; no env flag excludes them. Candidate run details are recorded in receipt.json. |
 | 4 | PASS | Final focused API and typecheck run on the candidate. Browser and restore relevant bytes are unchanged by the final main merge and lifecycle request assertion addition. |
 | 5 | PASS | The receiving clause explicitly cites BASE-DATA-001; D1 names its archive duty. |
 | 6 | PASS mechanically; source judgments intentionally retained | Generator write and check pass with --clauses DISP-008. Generated views restored whole from main. No Status edits, summary edits or dropped parent rows. |
@@ -61,7 +61,7 @@ PROBE DISP-008 7: technician.calendar and calendar.connect with distinct provide
 
 ## Pre-ready self-check and limits
 
-1. Every named native user outcome has a public-door journey with observable success and unsafe refusal; exact candidate CI is reported honestly in the receipt.
+1. Every named native user outcome has a public-door journey with observable success and unsafe refusal; push Verify 42512217809 completed with success on the exact candidate.
 2. No original assertion was removed, weakened or moved behind a width or branch condition. Only the continuation's helper invocation moved into five independently discovered registrations; the original eligibility calendar block and DISP-015 file are unchanged relative to main.
 3. Revoked authority and provider authorization refuse; personal erasure and replay do not resurrect calendar data; an actual restored installation inherits no calendar execution authority.
 4. No UI source changed. The touched calendar controls are labelled text buttons, with no icon-only control introduced. Existing dispatch navigation tooltip behavior is asserted by the browser journey. Existing Team placement and other styling are not changed by this proof-only browser extension. Selected calendar screens were inspected at both required widths.

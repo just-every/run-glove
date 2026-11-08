@@ -87,12 +87,12 @@
     "main_site": 42511316587,
     "main_conclusion": "success",
     "candidate_event": "push",
-    "candidate_status": "in_progress",
-    "candidate_conclusion": null,
+    "candidate_status": "completed",
+    "candidate_conclusion": "success",
     "candidate_head": "9ab2a9b10971e25958dd1f04dd5bdab231a07868",
     "candidate_url": "https://github.com/just-every/run-glove/actions/runs/42512217809",
-    "observed_at": "2026-11-08T18:53:16Z",
-    "github_calls_used": 3
+    "observed_at": "2026-11-08T19:08:16.537603+00:00",
+    "github_calls_used": 6
   },
   "publication_scan": {
     "commit": "9ab2a9b10971e25958dd1f04dd5bdab231a07868",
@@ -127,5 +127,34 @@
     "default_branch_changed": false,
     "push_exit": 0,
     "all_candidate_identity_and_trailer_inspection": "fleet identity; no trailers"
-  }
+  },
+  "evidence_transfer": {
+    "first_head": "45e5eee02db0b1193bde9e5adb8e477dce28479f",
+    "status": "verified by independent fetch",
+    "files": 20,
+    "manifest_and_file_hashes_verified": true
+  },
+  "riders": {
+    "1": "pass: public-door proof and exact candidate Verify success",
+    "2": "pass locally",
+    "3": "pass: push Verify 42512217809 success on exact candidate",
+    "4": "pass locally",
+    "5": "pass locally",
+    "6": "pass locally",
+    "7": "pass locally",
+    "8": "pass locally",
+    "9": "pass locally",
+    "10": "pass locally",
+    "11": "pending guarded landing"
+  },
+  "proven_acceptance_points": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "claim": "DONE subject to independent gate and guarded landing"
 }

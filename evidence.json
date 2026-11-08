@@ -7,10 +7,10 @@
       "sha256": "f42f16cd8d776deb69b0c787a8041b32394a29c0cb9c9e0a58638e292f210482"
     },
     {
-      "blob": "b6555b34ba9a6171fc88cbf3e8358e4e8c4470da",
-      "bytes": 12662,
+      "blob": "60edd2c1a383276ab731078e764268bbfccb7017",
+      "bytes": 12735,
       "path": "REPORT.md",
-      "sha256": "f7b4b7738979d75ccf109d9baa5f45e8afb9b5d2e36f477c54f44b89c5bd0ea9"
+      "sha256": "fa2c2e1d5060f3499c10c6381b26417fec3669bf848c68ea8da5f67ffd185d14"
     },
     {
       "blob": "32f89a7202aeadb271990afa03b82029722556cf",
@@ -25,10 +25,22 @@
       "sha256": "c15b707ff5ff8b6dfb8895e4a08e1a7958ef21b4ee10e6e896c083b691919838"
     },
     {
+      "blob": "a23cb9b9a5203624dc2cc3b98399f7c12b7b35f8",
+      "bytes": 271,
+      "path": "ci-latest.json",
+      "sha256": "ddce0ef53420cfe9c6bcd74b9dd6bd76402788c1a60d639d88c0f404194f8de2"
+    },
+    {
       "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
       "bytes": 32,
       "path": "contract-docs.log",
       "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "e64306d1419632daec587416e6869f21dc82f612",
+      "bytes": 4195,
+      "path": "evidence-transfer-verification.json",
+      "sha256": "7e9d4c7cd45b59d227993e705d855f7fcd62f82b54a814cfef7f87e8e2cad62f"
     },
     {
       "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -67,10 +79,10 @@
       "sha256": "4c055586d504f45e23663d6b6f15b788bf8522f07327fb705120ade43163a0d2"
     },
     {
-      "blob": "6f20e2b7cd6fdcc03539d226b18c2e40b77be827",
-      "bytes": 4124,
+      "blob": "e248b3b751543a4ba8335d7191a7e0790825a6e0",
+      "bytes": 4889,
       "path": "receipt.json",
-      "sha256": "fad14920bfc2fcef69e8b989f7a87ae51a153bf9c5e88a01458deb149137bb90"
+      "sha256": "05854042c9f5c7db8ef4f946f3f9953c1213c4edca2a2feed403061e64a36644"
     },
     {
       "blob": "5e171f084e651ac8785ff9434047f3ab3a809f58",
