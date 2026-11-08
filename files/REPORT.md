@@ -26,20 +26,20 @@ Each reference below names the actual public-door journey. API = tests/api/movei
 
 | Item | Public door and actual proof | Local result | Exact-SHA Verify |
 | --- | --- | --- | --- |
-| Point 1: each source destination, merge, rejection location and reason, unused record, missing attachment | API lines 17–57 independently enumerate all 22 source records and compare import.stage output. Browser lines 228–254 inspect the rendered review. | PASS | Run 42475951161, push; pending |
-| Point 2: exact reviewed preview, source IDs and received files | API lines 59–107 use import.commit, reject the wrong fingerprint unchanged, compare retained review, exact destination set, merged identities, independent mapped business values, and HTTP original bytes for all eight files. | PASS | Run 42475951161, push; pending |
-| Point 3: unchanged repeat, exact undo and both unsafe refusals | API lines 108–160 restart the real Worker, stage and commit again, compare unchanged business records, undo against the original snapshot, book a dependent visit and edit an imported customer, then compare all state after both refusals. | PASS | Run 42475951161, push; pending |
-| DATA-002 attribution inherited by the journey | API lines 119–124, 139, 157–160 and assertTrail in tests/api/harness.mjs open Activity and the business export and compare attribution. | PASS | Run 42475951161, push; pending |
-| Original-file current authority and privacy custody | API lines 98–106 and 140–144 exercise allowed reads, excluded people and withdrawn authority. Balance lines 216–242 exercise scoped export and erasure, unavailable originals and peer preservation. | PASS | Run 42475951161, push; pending |
-| Shared import-kit inheritance | CONTRACT.md GLOVE-11 requirement and docs/service-work-rules.md name exact journal, source, repeat and undo duties for every move-in kit. The entire existing move-in API file and browser file pass, including the other existing kit journeys. No Base-copied source was modified. | PASS and INSPECTED | Run 42475951161, push; pending |
+| Point 1: each source destination, merge, rejection location and reason, unused record, missing attachment | API lines 17–57 independently enumerate all 22 source records and compare import.stage output. Browser lines 228–254 inspect the rendered review. | PASS | Run 42475951161, push; completed success |
+| Point 2: exact reviewed preview, source IDs and received files | API lines 59–107 use import.commit, reject the wrong fingerprint unchanged, compare retained review, exact destination set, merged identities, independent mapped business values, and HTTP original bytes for all eight files. | PASS | Run 42475951161, push; completed success |
+| Point 3: unchanged repeat, exact undo and both unsafe refusals | API lines 108–160 restart the real Worker, stage and commit again, compare unchanged business records, undo against the original snapshot, book a dependent visit and edit an imported customer, then compare all state after both refusals. | PASS | Run 42475951161, push; completed success |
+| DATA-002 attribution inherited by the journey | API lines 119–124, 139, 157–160 and assertTrail in tests/api/harness.mjs open Activity and the business export and compare attribution. | PASS | Run 42475951161, push; completed success |
+| Original-file current authority and privacy custody | API lines 98–106 and 140–144 exercise allowed reads, excluded people and withdrawn authority. Balance lines 216–242 exercise scoped export and erasure, unavailable originals and peer preservation. | PASS | Run 42475951161, push; completed success |
+| Shared import-kit inheritance | CONTRACT.md GLOVE-11 requirement and docs/service-work-rules.md name exact journal, source, repeat and undo duties for every move-in kit. The entire existing move-in API file and browser file pass, including the other existing kit journeys. No Base-copied source was modified. | PASS and INSPECTED | Run 42475951161, push; completed success |
 
 ## DONE-RIDERS
 
 | Row | Result | Evidence or boundary |
 | --- | --- | --- |
-| 1 | PASS locally; Verify pending | All three acceptance outcomes are exercised through the API and browser journeys above, with independent data and unsafe paths. |
+| 1 | PASS | All three acceptance outcomes are exercised through the API and browser journeys above, with independent data and unsafe paths. |
 | 2 | PASS | API lines 55, 62, 67, 71–118, 135–138 and 154–160 compare real outcomes and complete unchanged state on refusal; received file contents are independently compared. |
-| 3 | PENDING | Push Verify 42475951161 is bound to 81b7665ce37d19dd38432198376a4189a5bf69a9. The committed Verify plan includes both touched API files and the browser file; it was not edited. |
+| 3 | PASS | Push Verify 42475951161 completed successfully on 81b7665ce37d19dd38432198376a4189a5bf69a9. The committed Verify plan includes both touched API files and the browser file; it was not edited. |
 | 4 | PASS | Relevant implementation, test, fixture and harness bytes did not change after local proof and integration; the final source hashes are in RECEIPT.json. A pinned Node 22.20.0 API rerun on the committed candidate is also recorded there. |
 | 5 | PASS, INSPECTED | No new Base duty is claimed or added. GLOVE-11 itself names the retained-source, journal, repeat and undo duties; its requirement explicitly passes them to other move-in kits. |
 | 6 | PASS mechanically; judgment metadata belongs to lander | Contract generator write and check pass. Main's generated views are retained whole, and CONTRACT.md has no diff. The lander owns any Status, Gap, Evidence and count changes from these claim lines. |
@@ -53,7 +53,7 @@ Each reference below names the actual public-door journey. API = tests/api/movei
 
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses GLOVE-11 and check exit=0; ledger=none exit=0
 
-1. Every named acceptance outcome is reached by the public-door journeys and independently checked. Exact-SHA branch Verify is pending at report preparation; it is never inferred from the earlier main runs.
+1. Every named acceptance outcome is reached by the public-door journeys and independently checked. Exact-SHA branch Verify 42475951161 completed successfully, observed at 11:39:31 UTC; it is never inferred from the earlier main runs.
 2. No user-flow assertion was weakened. The complete-state comparisons strengthen prior aggregate assertions. No test registration was added.
 3. Current authority withdrawal, source-file erasure, stable command replay and actual-restart repeated import are exercised. No new outbound, credential or payment authority is introduced.
 4. The owner review uses the existing seed components and readable inherited typography. Its added controls have text, with no added icon-only control, one-sided rounded border or top-level configuration action. The actual 1440 and 390 screens were visually inspected and fit their viewports.
@@ -61,7 +61,7 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; vi
 
 Publication scan: commit=81b7665ce37d19dd38432198376a4189a5bf69a9 complete=unestablished historyScanned=unestablished findings=unestablished. The guarded fleet lander must produce COMPLETE and zero findings. This is not a scan receipt.
 Main equality: not claimed. Integrated origin/main is 2bc83fc9cf947daa7e9befb37169b34e0a650c96; product candidate remains branch-only.
-Exact candidate Verify: run 42475951161, event push, in progress at preparation.
+Exact candidate Verify: run 42475951161, event push, completed success on 81b7665ce37d19dd38432198376a4189a5bf69a9, observed 2026-11-08T11:39:31.577256+00:00.
 Candidate Run site: not run; main-only after guarded landing.
 Prior observed main 3db9c3ec9cdad3f66b4b809b05126264fce2d38d had successful Verify 42473191949 and Run site 42473192011. These are context only and are not candidate proof.
 
@@ -72,3 +72,5 @@ PROBE GLOVE-11 3: Worker restart, restage and commit, then import.undo -> all re
 No native GLOVE-11 acceptance gap remains. Jobber, Housecall Pro and Workiz source and account holds, QuickBooks and balance prerequisites, saved-method policy and every existing account and Base hold remain unchanged; no real owner export or release is claimed. No later clause was selected because the extract provides no next unblocked clause touching these files after GLOVE-11. The only proposed plan-row change is GLOVE-11 PARTIAL to DONE after its independent gate; the Mac owns that edit.
 
 The full actual non-secret report, plan, selected logs, machine receipt and two review screenshots are in this packet. Evidence publication is a separate report-only ref and conveys no product acceptance, landing or release authority.
+
+Final custody: the product branch was pushed successfully on its first transport attempt and its exact-SHA Verify is green. Four GitHub CLI calls were used. The initial evidence packet was fetched and all 17 files verified against its manifest. This final packet adds the successful CI observation. The final report-only evidence ref is named in the terminal handoff; it remains separate from product custody.
