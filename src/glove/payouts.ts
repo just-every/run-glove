@@ -24,6 +24,7 @@ export async function payoutSnapshot(key: string, id: string, s: State) {
   for (let page = 0; page < 10; page++) {
     const list = await stripeRequest(key, `balance_transactions?payout=${encodeURIComponent(id)}&limit=100&expand[]=data.source${after ? `&starting_after=${encodeURIComponent(after)}` : ''}`)
     if (!Array.isArray(list.data) || typeof list.has_more !== 'boolean') fail('PAYOUT_PROVIDER', 'Stripe transaction list is incomplete.')
+    if (transactions.length + list.data.length > 1000) fail('PAYOUT_LIMIT', 'More than 1,000 transactions: nothing was marked reconciled.')
     for (const t of list.data) {
       if (typeof t.id !== 'string' || seen.has(t.id) || ![t.amount, t.fee, t.net].every(Number.isSafeInteger) || t.net !== t.amount - t.fee) fail('PAYOUT_PROVIDER', 'Stripe returned an inconsistent or repeated balance transaction.')
       if (t.currency !== payout.currency) fail('PAYOUT_PROVIDER', 'Stripe balance transaction currency differs from the USD payout.')
