@@ -1,4 +1,5 @@
 import test from 'node:test'
+import { calendarDelivery } from './calendar-delivery.test.mjs'
 import assert from 'node:assert/strict'
 import { assertTrail, installation, business, acceptedQuote } from './harness.mjs'
 
@@ -50,7 +51,7 @@ test('DISP-004: booking refuses a missing skill and a day off, warns outside the
   assert.deepEqual(away.details.conflicts.map(c => c.code), ['off:2026-10-21'])
 })
 
-test('DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician', async (t) => {
+test('DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician\'s calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review', async (t) => {
   const h = await installation({ at: '2026-11-01T00:00:00Z' })
   t.after(() => h.close())
   const b = await business(h)
@@ -135,6 +136,7 @@ test('DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician\'s ca
     await h.command('calendar.connect', { technicianId: b.tom.id, disconnect: true })
   }
   await assertTrail(h, ['calendar.connected', 'calendar.disconnected', 'calendar.outcome'])
+  await calendarDelivery()
 
 })
 
