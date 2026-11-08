@@ -1,0 +1,24 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f148",
+  "head": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+  "verify": {
+    "id": 42507940358,
+    "event": "push",
+    "conclusion": null,
+    "head_sha": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42507940358",
+    "status": "in_progress"
+  },
+  "lastObservedAt": "2026-11-08T18:07:44.019625+00:00",
+  "githubCalls": 2,
+  "localGatesPassed": true,
+  "landingReadyUnderCloudRule": true,
+  "verifyGreenClaimed": false,
+  "publicationCompleteClaimed": false,
+  "runSiteGreenClaimed": false,
+  "productPush": "product-push.log",
+  "mechanical": "mechanical-receipt.json",
+  "api": "api-final-receipt.json",
+  "scale": "scale-candidate-receipt.json"
+}

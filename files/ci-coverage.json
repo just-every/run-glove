@@ -1,0 +1,17 @@
+{
+  "head": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+  "selected": [
+    {
+      "name": "api-2",
+      "commands": [
+        "node --test --test-concurrency=1 'tests/api/assessments.test.mjs' 'tests/api/calendar-delivery.test.mjs' 'tests/api/companycam.test.mjs' 'tests/api/costing.test.mjs' 'tests/api/customer-quotes.test.mjs' 'tests/api/delays.test.mjs' 'tests/api/documents.test.mjs' 'tests/api/email.test.mjs' 'tests/api/expenses.test.mjs' 'tests/api/forms.test.mjs' 'tests/api/margins.test.mjs' 'tests/api/money.test.mjs' 'tests/api/movein.test.mjs' 'tests/api/options.test.mjs' 'tests/api/payout-reconciliation.test.mjs' 'tests/api/pipeline.test.mjs' 'tests/api/pricebook.test.mjs' 'tests/api/purchasing.test.mjs' 'tests/api/quickbooks.test.mjs' 'tests/api/recurring-billing.test.mjs' 'tests/api/reports.test.mjs' 'tests/api/rules.test.mjs' 'tests/api/segments.test.mjs' 'tests/api/service-reports.test.mjs' 'tests/api/stock.test.mjs' 'tests/api/subcontractor-field.test.mjs' 'tests/api/time.test.mjs' 'tests/api/travel-assignment.test.mjs'"
+      ]
+    },
+    {
+      "name": "browser-2",
+      "commands": [
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/email.spec.ts' 'tests/browser/money.spec.ts' 'tests/browser/receivables.spec.ts'"
+      ]
+    }
+  ]
+}

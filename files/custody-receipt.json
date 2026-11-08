@@ -1,0 +1,22 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f148",
+  "head": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+  "remoteRef": "refs/heads/cloud/sx-glove-c-f148",
+  "remoteHead": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+  "pushed": true,
+  "pr": null,
+  "baseMain": "d1d1a15cc01a553a6035a85d9764f102b8c6ff9f",
+  "mainEqualsCandidate": false,
+  "scan": {
+    "commit": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "reason": "Full-history publication scan is a Mac lander gate under the cloud route."
+  },
+  "runSite": {
+    "id": null,
+    "reason": "Main-only workflow after guarded landing."
+  }
+}

@@ -1,0 +1,2 @@
+{"at": "2026-11-08T18:02:43.626052+00:00", "command": ["gh", "api", "repos/just-every/run-glove/actions/runs?head_sha=122cf08f3baa7ec9100311f8b29e9da3026c9ee1&per_page=100", "--jq", ".workflow_runs | map({id,name,event,status,conclusion,head_sha,html_url})"], "exit": 0}
+{"at": "2026-11-08T18:07:44.019625+00:00", "command": ["gh", "api", "repos/just-every/run-glove/actions/runs/42507940358", "--jq", "{status,conclusion,head_sha,html_url}"], "exit": 0}

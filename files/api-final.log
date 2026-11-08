@@ -1,0 +1,59 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay
+ok 1 - PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay
+  ---
+  duration_ms: 4303.289128
+  type: 'test'
+  ...
+# Subtest: PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts
+ok 2 - PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts
+  ---
+  duration_ms: 2794.338973
+  type: 'test'
+  ...
+# Subtest: PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts
+ok 3 - PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts
+  ---
+  duration_ms: 3486.68015
+  type: 'test'
+  ...
+# Subtest: PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomplete pages, duplicates, inconsistent rows and wrong sources refuse safely
+ok 4 - PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomplete pages, duplicates, inconsistent rows and wrong sources refuse safely
+  ---
+  duration_ms: 4115.073792
+  type: 'test'
+  ...
+# Subtest: PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile
+ok 5 - PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile
+  ---
+  duration_ms: 2924.96462
+  type: 'test'
+  ...
+# Subtest: PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout
+ok 6 - PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout
+  ---
+  duration_ms: 2784.280306
+  type: 'test'
+  ...
+# Subtest: PAY-007 point 7: a manual payout has no Stripe source attribution before owner review
+ok 7 - PAY-007 point 7: a manual payout has no Stripe source attribution before owner review
+  ---
+  duration_ms: 2493.441979
+  type: 'test'
+  ...
+# Subtest: PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched
+ok 8 - PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched
+  ---
+  duration_ms: 3332.075305
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27267.880018

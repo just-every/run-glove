@@ -1,0 +1,16 @@
+{
+  "id": "sx-glove-c-f148-scale-candidate",
+  "head": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern",
+    "PAY-007 point 4:",
+    "tests/api/payout-reconciliation.test.mjs"
+  ],
+  "start": "2026-11-08T18:02:04.044030+00:00",
+  "end": "2026-11-08T18:02:09.676265+00:00",
+  "exit": 0,
+  "log": "scale-candidate.log",
+  "sha256": "baea0c654a7bfccd8d39a15edf6d32ebdb31e87d8f5ad34169c026777f2b2746"
+}

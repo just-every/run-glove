@@ -1,0 +1,54 @@
+{
+  "head": "122cf08f3baa7ec9100311f8b29e9da3026c9ee1",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "sha256": "877c336aead92672ec7059797b8894300b7714df1420b011b81ace3e6f9fd3ad"
+  },
+  "views": {
+    "command": "node scripts/contract-docs.mjs write --clauses PAY-007; node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "restored": [
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ]
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changes"
+  },
+  "typecheck": {
+    "exit": 0
+  },
+  "firstParty": {
+    "exit": 0
+  },
+  "build": {
+    "exit": 0
+  },
+  "browser": {
+    "exit": 0,
+    "screenshots": [
+      "screenshots/1440-payout-deposit-batch.png",
+      "screenshots/1440-payout-fee-confirmation.png",
+      "screenshots/1440-payout-instant-debit.png",
+      "screenshots/1440-payout-reconciled.png",
+      "screenshots/1440-payout-unmatched.png",
+      "screenshots/390-payout-deposit-batch.png",
+      "screenshots/390-payout-fee-confirmation.png",
+      "screenshots/390-payout-instant-debit.png",
+      "screenshots/390-payout-reconciled.png",
+      "screenshots/390-payout-unmatched.png"
+    ]
+  },
+  "identityAudit": {
+    "candidateCommits": 2,
+    "allowed": true,
+    "trailers": []
+  },
+  "contractJudgmentsChanged": false,
+  "retainedPaymentsTestsChanged": false,
+  "newFixtureEmailLiterals": 0,
+  "fullHistory": true
+}
