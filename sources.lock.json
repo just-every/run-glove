@@ -2020,7 +2020,7 @@
       "executable": false
     },
     "src/glove/commands/push.ts": {
-      "sha256": "643a15b68eda4005ac9a3a532a438efbcd216815d0df9a06477d7180d03f7a19",
+      "sha256": "c2a6d9e5d8e8c239a7320149fe535425179819ef441afa8476c8632d3eb4c3ee",
       "executable": false
     },
     "src/glove/commands/quickbooks.ts": {
@@ -6296,7 +6296,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "8201048c822163739b2b518b6dd9b8f565a613fd9e3116cfef1efb0c8ea3f75e",
+      "sha256": "73cda7be41f2b378e53eeddb32ba39ffb895858024c9f25fe40791d3dd8b2dfb",
       "executable": false
     },
     "tests/runtime.mjs": {

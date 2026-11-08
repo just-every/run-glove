@@ -23,7 +23,8 @@ export const push: Handler = async (c, type, p, db) => {
       return bump(c.s, 'business', b, { webPush: { publicKey: keys.publicKey, since: c.now, by: c.actor.name } })
     }
     case 'push.subscribe': {
-      if (!business(c.s).webPush) fail('PUSH', 'The owner has not turned on phone notifications.')
+      // Restored public settings do not restore the installation's private key or authority.
+      if (!business(c.s).webPush || !await db.prepare("SELECT 1 AS present FROM glove_provider_keys WHERE provider='vapid'").first()) fail('PUSH', 'The owner has not turned on phone notifications.')
       const endpoint = pushEndpoint(p.endpoint, !!c.local), keys = await deviceKeys(p.keys?.p256dh, p.keys?.auth)
       const id = newId(), device = text(p.device, 'device', { optional: true, max: 100 }) || 'Phone'
       c.sql.push({ sql: 'INSERT INTO glove_push_subscriptions(id,operator_id,session_id,device,endpoint,p256dh,auth,created_at) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(endpoint) DO UPDATE SET id=excluded.id,operator_id=excluded.operator_id,session_id=excluded.session_id,device=excluded.device,p256dh=excluded.p256dh,auth=excluded.auth,created_at=excluded.created_at,last_at=NULL,last_outcome=NULL', params: [id, c.actor.id, c.actor.sessionId, device, endpoint, keys.p256dh, keys.auth, c.now] })
