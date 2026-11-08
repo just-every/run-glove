@@ -1,0 +1,99 @@
+{
+  "branch": "cloud/sx-glove-c-f124",
+  "candidate_files": {
+    "src/glove/api.ts": "bccdae0ee3a8217dd1cf53f68fcbdbe10db7c1970eba1e5537a2d71a4f5fe2cb",
+    "src/glove/movein/kit.ts": "2c23645b5e273ade4e7731ce584a8f7c25c56682a989cb052be92efaccd0f6e6",
+    "src/glove/movein/servicem8.ts": "a399234d7a8e2a43ee35c1e18de95f61351ed50ea947c9af365e5e7cf9ed7eb3",
+    "src/ui/movein.tsx": "4378a7f813e938cbf6ff1ab98b3bd94ffc6c3faa772f4f75274a9f1791d38c4d",
+    "tests/api/flows.test.mjs": "982e9b5191c778e2021683042060bbf72b2bb3bc97d0de6eb81db268c8b7c388",
+    "tests/api/harness.mjs": "4d4ea2310f07f134b33d56a3b116bed6158c8c11161ddd08f1da8a5a1645430a",
+    "tests/api/movein.test.mjs": "f2b70c36a554801ddc46b757e1c7b33fab137be1617264f73d4992f752b70ff0",
+    "tests/browser/movein.spec.ts": "ae640903a66f997ff4988cb36195e9130f8ca9bb5e27d1d0df3970baf2397dee"
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/movein.test.mjs tests/api/flows.test.mjs",
+      "exit": 0,
+      "failed": 0,
+      "head": "81b7665ce37d19dd38432198376a4189a5bf69a9",
+      "log": "api-candidate-node22.log",
+      "passed": 31,
+      "runtime": "Node 22.20.0"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/movein.test.mjs tests/api/flows.test.mjs",
+      "exit": 0,
+      "note": "Prior to added independent values and original-fixture edit refusal; other touched code identical.",
+      "passed": 31
+    },
+    {
+      "command": "node --test --test-name-pattern=ServiceM8 tests/api/movein.test.mjs",
+      "exit": 0,
+      "note": "Final test bytes, unchanged by integration.",
+      "passed": 2
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/movein.spec.ts",
+      "exit": 0,
+      "note": "Relevant browser, implementation, harness and fixture bytes unchanged by final integration; full screenshots available locally.",
+      "passed": 3,
+      "timeout_seconds": 1800,
+      "viewports": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses GLOVE-11; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "generated_views_committed": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "lock_sha256": "8d15a7e97ee3109c9faf5ff2117658d3329c7c642ea7d1725128fe03fbbddf75"
+    },
+    {
+      "command": "git diff c2c7d4e..HEAD -- src/glove src/ui tests/api/harness.mjs tests/api/movein.test.mjs tests/api/flows.test.mjs tests/browser/movein.spec.ts tests/fixtures/servicem8-small-hvac package.json pnpm-lock.yaml",
+      "exit": 0,
+      "note": "No relevant byte changed between the local browser proof and final integrated candidate.",
+      "stdout": ""
+    }
+  ],
+  "ci": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "81b7665ce37d19dd38432198376a4189a5bf69a9",
+    "run": 42475951161,
+    "status": "in_progress"
+  },
+  "contract_status_diff": "",
+  "head": "81b7665ce37d19dd38432198376a4189a5bf69a9",
+  "integrated_main": "2bc83fc9cf947daa7e9befb37169b34e0a650c96",
+  "product_push": {
+    "attempts": 1,
+    "exit": 0
+  },
+  "publication_scan": {
+    "commit": "81b7665ce37d19dd38432198376a4189a5bf69a9",
+    "complete": null,
+    "findings": null,
+    "historyScanned": null,
+    "status": "not run in cloud; guarded fleet lander owns the complete full-history scan"
+  },
+  "remote_refs": "81b7665ce37d19dd38432198376a4189a5bf69a9\trefs/heads/cloud/sx-glove-c-f124\n2bc83fc9cf947daa7e9befb37169b34e0a650c96\trefs/heads/main\n",
+  "repository": "just-every/run-glove",
+  "run_site": {
+    "candidate": null,
+    "note": "Runs after guarded landing; no main push was attempted."
+  },
+  "tag": "sx-glove-c-f124"
+}

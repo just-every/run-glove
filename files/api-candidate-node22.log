@@ -1,0 +1,205 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: API-001 Glove first release: quote to booked visit to field evidence to invoice export
+    # Subtest: 01 owner sets up the business, price book, team and roles
+    ok 1 - 01 owner sets up the business, price book, team and roles
+      ---
+      duration_ms: 480.357508
+      type: 'test'
+      ...
+    # Subtest: 02 desk records a customer and the sites where work happens
+    ok 2 - 02 desk records a customer and the sites where work happens
+      ---
+      duration_ms: 847.311175
+      type: 'test'
+      ...
+    # Subtest: 03 an enquiry becomes a quote whose exact revision a person prices and approves
+    ok 3 - 03 an enquiry becomes a quote whose exact revision a person prices and approves
+      ---
+      duration_ms: 1109.775074
+      type: 'test'
+      ...
+    # Subtest: 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+    ok 4 - 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+      ---
+      duration_ms: 2894.26023
+      type: 'test'
+      ...
+    # Subtest: 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone
+    ok 5 - 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone
+      ---
+      duration_ms: 3162.929772
+      type: 'test'
+      ...
+    # Subtest: 06 the technician captures checklist, notes, photos and materials through a connectivity interruption
+    ok 6 - 06 the technician captures checklist, notes, photos and materials through a connectivity interruption
+      ---
+      duration_ms: 201.21053
+      type: 'test'
+      ...
+    # Subtest: 07 a dispatch change needs conflict review and keeps late evidence for review
+    ok 7 - 07 a dispatch change needs conflict review and keeps late evidence for review
+      ---
+      duration_ms: 1194.387403
+      type: 'test'
+      ...
+    # Subtest: 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing
+    ok 8 - 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing
+      ---
+      duration_ms: 184.470848
+      type: 'test'
+      ...
+    # Subtest: 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+    ok 9 - 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+      ---
+      duration_ms: 951.04015
+      type: 'test'
+      ...
+    # Subtest: 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+    ok 10 - 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+      ---
+      duration_ms: 250.849266
+      type: 'test'
+      ...
+    # Subtest: 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+    ok 11 - 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+      ---
+      duration_ms: 523.407546
+      type: 'test'
+      ...
+    # Subtest: 12 the job timeline names every step and person, and the business export carries it
+    ok 12 - 12 the job timeline names every step and person, and the business export carries it
+      ---
+      duration_ms: 105.155234
+      type: 'test'
+      ...
+    1..12
+ok 1 - API-001 Glove first release: quote to booked visit to field evidence to invoice export
+  ---
+  duration_ms: 11921.12879
+  type: 'suite'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+ok 2 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+  ---
+  duration_ms: 3723.352644
+  type: 'test'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+ok 3 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+  ---
+  duration_ms: 2991.874221
+  type: 'test'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+ok 4 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+  ---
+  duration_ms: 3230.641778
+  type: 'test'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+ok 5 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+  ---
+  duration_ms: 3586.768352
+  type: 'test'
+  ...
+# Subtest: AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+ok 6 - AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+  ---
+  duration_ms: 4870.206625
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone
+ok 7 - ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone
+  ---
+  duration_ms: 12083.727158
+  type: 'test'
+  ...
+# Subtest: ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo
+ok 8 - ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo
+  ---
+  duration_ms: 8096.603938
+  type: 'test'
+  ...
+# Subtest: MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work
+ok 9 - MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work
+  ---
+  duration_ms: 6904.646629
+  type: 'test'
+  ...
+# Subtest: an undo that takes several passes holds its records until it finishes
+ok 10 - an undo that takes several passes holds its records until it finishes
+  ---
+  duration_ms: 10315.822476
+  type: 'test'
+  ...
+# Subtest: MOVE-004, MOVE-010 fieldpulse: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+ok 11 - MOVE-004, MOVE-010 fieldpulse: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+  ---
+  duration_ms: 4252.934204
+  type: 'test'
+  ...
+# Subtest: MOVE-004, MOVE-010 workiz: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+ok 12 - MOVE-004, MOVE-010 workiz: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+  ---
+  duration_ms: 6472.349989
+  type: 'test'
+  ...
+# Subtest: MOVE-003, MOVE-009 servicetitan: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+ok 13 - MOVE-003, MOVE-009 servicetitan: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+  ---
+  duration_ms: 7077.109684
+  type: 'test'
+  ...
+# Subtest: MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions
+ok 14 - MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions
+  ---
+  duration_ms: 6462.129782
+  type: 'test'
+  ...
+# Subtest: MOVE-004, MOVE-010 fieldpulse: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+ok 15 - MOVE-004, MOVE-010 fieldpulse: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+  ---
+  duration_ms: 3378.133767
+  type: 'test'
+  ...
+# Subtest: MOVE-004, MOVE-010 workiz: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+ok 16 - MOVE-004, MOVE-010 workiz: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+  ---
+  duration_ms: 3341.495985
+  type: 'test'
+  ...
+# Subtest: MOVE-003, MOVE-009 servicetitan: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+ok 17 - MOVE-003, MOVE-009 servicetitan: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+  ---
+  duration_ms: 3181.89751
+  type: 'test'
+  ...
+# Subtest: MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site
+ok 18 - MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site
+  ---
+  duration_ms: 3148.349835
+  type: 'test'
+  ...
+# Subtest: MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named
+ok 19 - MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named
+  ---
+  duration_ms: 3776.051755
+  type: 'test'
+  ...
+# Subtest: MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work
+ok 20 - MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work
+  ---
+  duration_ms: 7929.699511
+  type: 'test'
+  ...
+1..20
+# tests 31
+# suites 1
+# pass 31
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 122212.766506
