@@ -54,13 +54,13 @@ async function action(c: Context, p: any, trigger: string, db: D1Database) {
 export const rules: Handler = async (c, type, p, db) => {
   if (type !== 'rule.save') return undefined
   const trigger = oneOf(p.trigger, triggers, 'trigger')
-  const condition = { source: text(p.condition?.source, 'condition.source', { optional: true, max: 40 }) || null, tag: text(p.condition?.tag, 'condition.tag', { optional: true, max: 40 }) || null, over: p.condition?.over === undefined || p.condition?.over === '' ? null : dollars(cents(p.condition.over, 'condition.over')) }
+  const condition = { source: text(p.condition?.source, 'condition.source', { optional: true, max: 40 }) || null, tag: text(p.condition?.tag, 'condition.tag', { optional: true, max: 40 }) || null, over: p.condition?.over == null || p.condition?.over === '' ? null : dollars(cents(p.condition.over, 'condition.over')) }
   const fields = { name: text(p.name, 'name', { max: 120 }), trigger, condition, action: await action(c, p.action, trigger, db), enabled: p.enabled !== false }
-  if (p.id === undefined) { const row = put(c.s, 'rules', { id: newId(), version: 1, createdAt: c.now, createdBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...fields }); event(c, { jobId: null, subjectKind: 'rule', subjectId: row.id, kind: 'rule.saved', summary: `${c.actor.name} created rule ${row.name}`, data: { enabled: row.enabled } }); return row }
+  if (p.id === undefined) { const row = put(c.s, 'rules', { id: newId(), version: 1, createdAt: c.now, createdBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, ...fields }); event(c, { jobId: null, subjectKind: 'rule', subjectId: row.id, kind: 'rule.saved', summary: `${c.actor.name} created rule ${row.name}`, data: { enabled: row.enabled, ruleVersion: row.version, createdBy: row.createdBy } }); return row }
   const rule = find(c.s, 'rules', p.id); expectVersion(rule, p.version)
   if (rule.createdBy.id !== c.actor.id && c.actor.role !== 'owner') fail('FORBIDDEN', 'Only the rule\'s creator or the owner changes it.', null, 403)
   const row = bump(c.s, 'rules', rule, fields)
-  event(c, { jobId: null, subjectKind: 'rule', subjectId: row.id, kind: 'rule.saved', summary: `${c.actor.name} saved rule ${row.name}`, data: { enabled: row.enabled } })
+  event(c, { jobId: null, subjectKind: 'rule', subjectId: row.id, kind: 'rule.saved', summary: `${c.actor.name} saved rule ${row.name}`, data: { enabled: row.enabled, ruleVersion: row.version, createdBy: row.createdBy } })
   return row
 }
 
@@ -84,9 +84,9 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     // CUST-004, CUST-006: a customer tag, compared without regard to case.
     if (rule.condition.tag && !f.tags.includes(rule.condition.tag.toLowerCase())) continue
     if (rule.condition.over && (f.total === null || f.total <= cents(rule.condition.over, 'over'))) continue
-    const log = (outcome: string, detail: string) => {
-      const run = put(c.s, 'ruleRuns', { id: newId(), version: 1, createdAt: c.now, ruleId: rule.id, ruleVersion: rule.version, rule: rule.name, trigger: { kind: e.kind, subjectId: e.subjectId, jobId: e.jobId }, outcome, detail })
-      event({ ...c, actor: as }, { jobId: e.jobId, subjectKind: 'rule', subjectId: rule.id, kind: 'rule.ran', summary: `Rule ${rule.name}: ${outcome}; ${detail}`, data: { runId: run.id, ruleVersion: rule.version, trigger: run.trigger } })
+    const log = (outcome: string, detail: string, noticeId: string | null = null) => {
+      const run = put(c.s, 'ruleRuns', { id: newId(), version: 1, createdAt: c.now, ruleId: rule.id, ruleVersion: rule.version, rule: rule.name, createdBy: { ...rule.createdBy }, executedBy: { id: as.id, name: rule.createdBy.name, role: as.role }, action: { ...rule.action }, noticeId, trigger: { kind: e.kind, subjectId: e.subjectId, jobId: e.jobId }, outcome, detail })
+      event({ ...c, actor: as }, { jobId: e.jobId, subjectKind: 'rule', subjectId: rule.id, kind: 'rule.ran', summary: `Rule ${rule.name}: ${outcome}; ${detail}`, data: { runId: run.id, ruleVersion: rule.version, trigger: run.trigger, outcome, detail, noticeId } })
       return run
     }
     // API-002, API-006, API-007: a rule a token created runs as that token's role and branch while it is unrevoked.
@@ -99,8 +99,8 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     if (rule.createdBy.id.startsWith('token:') && !byToken) { log('not allowed', `${rule.createdBy.name} was revoked`); continue }
     if (rule.action.kind === 'notify') {
       if (!(roles as readonly string[]).includes(as.role)) { log('not allowed', `${rule.createdBy.name} no longer holds a desk role`); continue }
-      put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [rule.action.to], ruleId: rule.id, jobId: e.jobId, message: `${rule.name}: ${f.job ? `${f.job.number} ` : ''}${rule.action.message}` })
-      log('done', `notice to ${rule.action.to}`)
+      const notice = put(c.s, 'notices', { id: newId(), version: 1, createdAt: c.now, to: [rule.action.to], ruleId: rule.id, ...(e.kind === 'enquiry.created' ? { subjectId: e.subjectId } : {}), jobId: e.jobId, message: `${rule.name}: ${f.job ? `${f.job.number} ` : ''}${rule.action.message}` })
+      log('done', `notice to ${rule.action.to}`, notice.id)
       continue
     }
     if (rule.action.kind === 'leadCost') {
