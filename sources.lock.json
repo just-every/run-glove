@@ -5564,7 +5564,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "d80747181efbf6f38f15f2b3ad840242fcd972301880960e60fc2e7930deeceb",
+      "sha256": "0109809dcd3faadb16ed16d1d5163118ba6ecf66ae029e333c46829b7c52962f",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
@@ -6028,7 +6028,7 @@
       "executable": false
     },
     "tests/fixtures/mail-providers.mjs": {
-      "sha256": "0cb9d32755eda3870d23731edbb637df35e57ae6baa9725daf51170544738ead",
+      "sha256": "bc961aec61b5e3d5f88ea466c5afb66359f8f71d3dc9c3400b5b43664a571de2",
       "executable": false
     },
     "tests/fixtures/maps.mjs": {
