@@ -315,8 +315,13 @@ async function calendarDeliveryReview(browser: any) {
     }
     await h.scheduled('2026-11-03T00:00:00.000Z')
     expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(writeCount)
-    for (const { calendar, provider, mapping } of review) {
+    for (const { calendar, provider, mapping, tech, visit } of review) {
+      const beforeReconnect = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
       await connect(calendar, provider, `synthetic-glove-${provider}-fresh`)
+      await expect(calendar.getByRole('status')).toContainText('No visit changes sent yet')
+      expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(beforeReconnect)
+      await b.dispatcher.run('visit.book', { jobId: visit.jobId, technicianId: tech.id, date: '2026-11-07', start: '09:00', end: '10:00' })
+      await page.reload()
       await expect(calendar.getByRole('status')).toContainText('confirmed')
       await expect(calendar.getByRole('region', { name: 'Retained calendar events' })).toContainText(mapping.event_id)
     }

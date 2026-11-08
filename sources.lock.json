@@ -1900,7 +1900,7 @@
       "executable": false
     },
     "src/glove/calendar-sync.ts": {
-      "sha256": "0416165eb8cc0dabdf5687d0587949bcff7b028e4c5bcbb0daaab557e2446702",
+      "sha256": "2ad5304d22cb0dcc7108304e09871ab8f4f066eb8337aa8dcf6d09220b8afd32",
       "executable": false
     },
     "src/glove/calendar.ts": {
@@ -5520,7 +5520,7 @@
       "executable": false
     },
     "tests/api/calendar-delivery.test.mjs": {
-      "sha256": "60571313595e7cf1ff72d43ce3e17531c7f64d5260b6bf4d62a75ff1d08b57ca",
+      "sha256": "f0793780b331ca421f8ef07f0d1e17920856b74d1129a9d7b8b17ed26abbfc43",
       "executable": false
     },
     "tests/api/callbacks.test.mjs": {
@@ -5592,7 +5592,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "466b36b803e4d619a66ec62edd6c0abcf979b63bbcdb4455d6f48a6b6c21b21d",
+      "sha256": "7b0381ada62ccc99c3d7a48995e3da604f47abe394076acce768925eab97af23",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5780,7 +5780,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "60e591ebe3f67ae98f1c841c895ce57394bf82f538e88d3b273739a6db35c511",
+      "sha256": "9ae9a9f9bcaefd343dd50eb48d61667a05513b91f891176ee75bcdd1a611f1f8",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {

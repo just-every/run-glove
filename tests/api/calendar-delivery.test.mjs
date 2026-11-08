@@ -139,8 +139,15 @@ async function uncertainty() {
         assert.equal(limited?.calendarRetainedEvents, undefined)
         assert.equal(limited?.calendarUncertainWrites, undefined)
       }
-      await connect(h, b.priya, provider, '3')
-      const reconnected = await technician(h, b.priya.id)
+      const beforeReconnect = writes(h).length, beforeReconnectWork = await work(h)
+      await connect(h, b.priya, provider)
+      assert.equal(writes(h).length, beforeReconnect, 'reconnecting the same calendar never resends an existing uncertain visit')
+      assert.deepEqual(await work(h), beforeReconnectWork, 'connection-only commands enqueue no visit work')
+      let reconnected = await technician(h, b.priya.id)
+      assert.equal(reconnected.calendarOutcome, null)
+      await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-08', start: '09:00', end: '10:00' })
+      assert.equal(writes(h).length, beforeReconnect + 1, 'a new committed visit starts delivery on the fresh connection')
+      reconnected = await technician(h, b.priya.id)
       assert.notEqual(reconnected.calendarSync.connectionId, originalConnection)
       assert.ok(reconnected.calendarUncertainWrites.some(w => w.visitId === uncertain.id))
       const oldWork = (await work(h)).filter(w => w.connection_id === originalConnection)
@@ -160,9 +167,10 @@ async function uncertainty() {
 
 async function routeDelivery() {
   const h = await installation({ at }); try {
-  const { b, visits, day } = await routingDay(h)
-  await connect(h, b.priya, 'google')
-  await connect(h, b.tom, 'microsoft', '2')
+  const { b, visits, day } = await routingDay(h, '2026-11-03', async b => {
+    await connect(h, b.priya, 'google')
+    await connect(h, b.tom, 'microsoft', '2')
+  })
   const queued = await b.dispatcher.run('route.optimize', { date: day })
   await h.scheduled(at)
   const ready = (await h.state()).routes.find(r => r.id === queued.id)
