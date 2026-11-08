@@ -803,6 +803,8 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     s = await h.state()
     assert.equal(s.customers.length, before.customers.length)
     assert.equal(s.jobs.length, before.jobs.length)
+    const records = ({ version, imports, events, ...rest }) => rest
+    assert.deepEqual(records(s), records(before), 'undo preserves every pre-existing record exactly')
     assert.ok(s.events.some(e => e.kind === 'import.committed') && s.events.some(e => e.kind === 'import.undone'), 'the timeline keeps both')
   })
 

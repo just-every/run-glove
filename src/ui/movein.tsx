@@ -93,9 +93,23 @@ function Batch({ s, batch, run }: { s: Glove; batch: Rec; run: Run }) {
     <h2>{batch.label} <Badge tone={batch.status === 'committed' ? 'green' : batch.status === 'undone' ? 'grey' : 'gold'}>{{ previewed: 'Preview', committed: 'Committed', undoing: 'Undo part-way', undone: 'Undone' }[batch.status as string]}</Badge></h2>
     <p className="muted">Previewed {when(batch.stagedAt, zone)} by {batch.stagedBy.name}{batch.committedBy ? ` · committed by ${batch.committedBy.name}` : ''}{batch.undoneBy ? ` · undone by ${batch.undoneBy.name}: ${batch.undoReason}` : ''}</p>
     {batch.system === 'CSV' ? <CsvPreview p={p} /> : <>
-    <div className="table-wrap"><table className="table"><thead><tr><th>{batch.system} list</th><th>Records</th><th>Become Glove records</th><th>Merged</th><th>Rejected</th></tr></thead><tbody>
-      {Object.entries(p.byKind as Record<string, Rec>).map(([kind, n]) => <tr key={kind}><td>{kind}</td><td data-label="Records">{n.input}</td><td data-label="Become Glove records">{n.mapped}</td><td data-label="Merged">{n.merged}</td><td data-label="Rejected">{n.rejected}</td></tr>)}
+    <div className="table-wrap"><table className="table"><thead><tr><th>{batch.system} list</th><th>Records</th><th>Become Glove records</th><th>Merged</th><th>Unused</th><th>Rejected</th></tr></thead><tbody>
+      {Object.entries(p.byKind as Record<string, Rec>).map(([kind, n]) => <tr key={kind}><td>{kind}</td><td data-label="Records">{n.input}</td><td data-label="Become Glove records">{n.mapped}</td><td data-label="Merged">{n.merged}</td><td data-label="Unused">{n.unused ?? 0}</td><td data-label="Rejected">{n.rejected}</td></tr>)}
     </tbody></table></div>
+    {p.records?.length > 0 && <details className="details" open><summary>Every source record ({p.records.length})</summary>
+      <p>Review where each record goes. Unused records stay in the original files.</p>
+      <ol aria-label="Source record review" style={{ paddingLeft: '1.5rem', overflowWrap: 'anywhere' }}>{p.records.map((r: Rec, i: number) => <li key={i} style={{ marginBottom: '1rem' }}>
+        <strong>{r.sourceKind} {r.sourceId}</strong>
+        <div>{r.location?.artifact} · item {r.location?.row}</div>
+        <div>{r.alreadyMovedIn ? 'Already moved in; left unchanged' : r.status === 'mapped' ? 'Becomes Glove records' : r.status === 'merged' ? 'Merged' : r.status === 'rejected' ? 'Rejected' : 'Unused'}</div>
+        {r.destinations.map((d: Rec) => <div key={d.kind + d.id}>Destination: {d.kind} {d.id}</div>)}
+        {r.mergeTargets.map((d: Rec) => <div key={d.kind + d.id}>Merge target: {d.kind} {d.id}</div>)}
+        {r.rejection && <div>Rejection: {r.rejection}</div>}
+        {r.unusedReason && <div>Unused reason: {r.unusedReason}</div>}
+        {r.reasons.filter((reason: string) => reason !== r.unusedReason).map((reason: string) => <div key={reason}>{reason}</div>)}
+        {r.missingAttachments.map((a: Rec) => <div key={a.name}>Missing attachment: {a.name} · {a.reason}</div>)}
+      </li>)}</ol>
+    </details>}
     {p.alreadyMovedIn > 0 && <p>{p.alreadyMovedIn} of these were moved in before and will be left exactly as they are.</p>}
     {p.possibleDuplicates?.length > 0 && <><h3>Possible duplicates of your customers ({p.possibleDuplicates.length})</h3><p className="muted">These move in as new customers; review and merge them on the Customers screen afterwards.</p><ul>{p.possibleDuplicates.map((d: Rec) => <li key={d.sourceId ?? d.name}>{d.name}: shares a {[...new Set(d.duplicates.flatMap((x: Rec) => x.matches))].join(', ')} with {d.duplicates.map((x: Rec) => x.name).join(', ')}</li>)}</ul></>}
     {p.rejections.length > 0 && <><h3>Rejected ({p.rejections.length})</h3><ul>{p.rejections.map((r: Rec) => <li key={r.kind + r.sourceId}>{r.kind} {r.location?.artifact} item {r.location?.row}: {r.reason}</li>)}</ul></>}
@@ -103,7 +117,7 @@ function Batch({ s, batch, run }: { s: Glove; batch: Rec; run: Run }) {
     {Object.keys(p.unmappedFields).length > 0 && <details className="details"><summary>{batch.system} fields Glove does not use</summary><ul>{Object.entries(p.unmappedFields as Record<string, string[]>).map(([k, f]) => <li key={k}>{k}: {f.join(', ')}</li>)}</ul></details>}
     </>}
     {batch.balanceAsOf && <p>Opening balances as of {batch.balanceAsOf}; imported balances are history, never new sales.</p>}
-    {batch.fileSummary?.length > 0 && <details className="details"><summary>Original files and checksums</summary><ul>{batch.fileSummary.map((f: Rec) => <li key={f.name}>{f.name} · {f.size} bytes · <span style={{ overflowWrap: 'anywhere' }}>{f.sha256}</span></li>)}</ul></details>}
+    {batch.fileSummary?.length > 0 && <details className="details"><summary>Original files and checksums</summary><ul>{batch.fileSummary.map((f: Rec) => <li key={f.name}>{owner && batch.jobId && !batch.privacyOmissions ? <a href={`/api/glove/imports/${batch.id}/files/${f.sha256}`}>{f.name}</a> : f.name} · {f.size} bytes · <span style={{ overflowWrap: 'anywhere' }}>{f.sha256}</span></li>)}</ul></details>}
     <Problem error={error} />
     {owner && batch.status === 'previewed' && <div className="actions"><button className="primary" onClick={() => act(run('import.commit', { batchId: batch.id, version: batch.version, fingerprint: p.fingerprint }))}>Commit exactly this preview</button></div>}
     {owner && batch.status === 'undoing' && <><p>The undo stopped part-way ({batch.undoReason}). Until it finishes, its records cannot be changed or used in new work.</p>

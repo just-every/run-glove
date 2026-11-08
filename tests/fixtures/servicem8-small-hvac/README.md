@@ -15,3 +15,6 @@ Cases it carries on purpose:
 - a job whose client is not in `company.json` (rejected and reported);
 - fields Glove does not use (`website`, `lat`, `travel_time_in_seconds`, ...)
   reported as unmapped.
+
+- an activity on a quote and an attachment on a customer: retained as unused
+  source history, with explicit reasons, rather than counted as merges.
