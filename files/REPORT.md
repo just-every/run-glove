@@ -23,7 +23,7 @@ The first exploratory API run exposed fixture mistakes: token last-use metadata 
 
 ## Frozen acceptance rubric
 
-Every row describes an actual command, route or built page outcome. The API command runs all four journeys; the browser command runs E; the portable command runs F. Verify's existing discovery includes both new test files and the additive portable assertions. No nightly or opt-in flag hides them. Verify event: push; exact candidate run 42519262845; status in_progress; conclusion None.
+Every row describes an actual command, route or built page outcome. The API command runs all four journeys; the browser command runs E; the portable command runs F. Verify's existing discovery includes both new test files and the additive portable assertions. No nightly or opt-in flag hides them. Verify event: push; exact candidate run 42519262845; status completed; conclusion success.
 
 | Row | Acceptance sentence and exercised outcomes | Public proof | Result |
 | --- | --- | --- | --- |
@@ -44,7 +44,7 @@ Every row describes an actual command, route or built page outcome. The API comm
 | BASE-ROLE-001 | PASS locally, A covers issuer roles and token exclusion; C covers live authority, activation and branch withdrawal; D covers cross-door denial. Contract already cites this duty. |
 | Rider 1 | PASS locally through A–F, one row for every acceptance outcome above; exact-SHA CI recorded separately below. |
 | Rider 2 | PASS: real seeded data; allowed choices complete; denied issuance, unsafe stale choices, unauthorized authority and erased replay change no business facts. B proves competing choices cannot both commit. |
-| Rider 3 | Verify discovery INSPECTED in `scripts/verify-app.mjs` and `verification.json`: API file glob, browser file glob and real portable command. Exact-SHA CI: 42519262845, in_progress, None. No green inference from base main. |
+| Rider 3 | Verify discovery INSPECTED in `scripts/verify-app.mjs` and `verification.json`: API file glob, browser file glob and real portable command. Exact-SHA CI: 42519262845, completed, success. No green inference from base main. |
 | Rider 4 | PASS: focused API and browser rerun on candidate. Portable began on save 502c111 and ran unchanged test and product bytes; diff to candidate changes only focused API, browser and source lock, with no portable or production byte changes. Relevant blob identities are in the receipt. |
 | Rider 5 | PASS INSPECTED: PLAN-010 explicitly cites BASE-DATA-001 and BASE-ROLE-001; receiving points already name the relevant duties. No inheritance text changed. |
 | Rider 6 | PASS mechanical: generator write and check pass; generated views restored from main. Builder deliberately retains main's status, Gap and Evidence; guarded lander owns status judgment. |
@@ -77,8 +77,12 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; vi
 
 ## CI, publication and custody
 
-Candidate SHA: `475a0b7d7738df51bf0f7f228e4f617d290ebc9d`. Exact-SHA Verify event push, run 42519262845, status in_progress, conclusion None. The baseline main `4eea04c27f02aa2cb0c12edc421a9b4e574de0bf` had successful Verify 42517513630 and Run site 42517513548; these are context only, never candidate proof.
+Candidate SHA: `475a0b7d7738df51bf0f7f228e4f617d290ebc9d`. Exact-SHA Verify event push, run 42519262845, status completed, conclusion success. The baseline main `4eea04c27f02aa2cb0c12edc421a9b4e574de0bf` had successful Verify 42517513630 and Run site 42517513548; these are context only, never candidate proof.
 
 Publication scan: commit=475a0b7d7738df51bf0f7f228e4f617d290ebc9d, complete=NOT_RUN_IN_CLOUD, historyScanned=NOT_RUN_IN_CLOUD, findings=UNESTABLISHED. Full history is present; cloud policy delegates the scan to the maintained Mac lander. Main equality=false; no main push, landing or release performed. Candidate Run site remains pending landing. Product push and report-only evidence publication are separate custody actions. No product blocker has been found.
 
 Actual commands and exits, hashes, CI observation and packet file hashes are in `receipt.json`. Full actual successful outputs are selected explicitly in the packet, together with the eight screenshots. The packet contains no credentials or saved runtime entry.
+
+## Claim
+
+CLAIM PLAN-010 DONE points=1,2,3,4,5,6,7,8 tests=tests/api/due-visit-offers.test.mjs#PLAN-010 desk issuance enforces slot bounds, current permissions and outstanding entitlement state while preserving included ordinals; tests/api/due-visit-offers.test.mjs#PLAN-010 bearer custody survives restart, expires at the runtime boundary and ends atomically on use or staff revocation; tests/portable.mjs#PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job; tests/api/due-visit-offers.test.mjs#PLAN-010 public reads and choices repeat conflicts, disclose only remaining offers and keep exhausted visits due; tests/api/due-visit-offers.test.mjs#PLAN-010 customer choices use live offering authority and refuse deactivation, role withdrawal, branch exclusion and erased replay; tests/browser/due-visit-offers.spec.ts#PLAN-010 customer sees only the included visit, chooses remaining open times and contacts the office when none remain

@@ -113,8 +113,12 @@
       "sha256": "82ede904574402ea23e46260ef9cd5215109a2de389ea3c75b3500f12380b00e"
     },
     "candidate-ci.json": {
-      "bytes": 207,
-      "sha256": "0f15f04187918655ff5bd957a0b354fe1240bdb62eb29e5301800d212f9400d3"
+      "bytes": 221,
+      "sha256": "ff0d4577982f3d929a0e821983f15f124f841228f7e10d30ffa5774e44445e10"
+    },
+    "ci-observations.jsonl": {
+      "bytes": 587,
+      "sha256": "aadd5ae6f57a11cb419b289dff01e6ff9548bcf2454ee5c4acec25bd83d52c75"
     },
     "first-party.log": {
       "bytes": 0,
@@ -180,7 +184,7 @@
     "historyScanned": null,
     "status": "NOT RUN in cloud; guarded fleet lander owns full-history scan"
   },
-  "recorded_at": "2026-11-08T20:16:59.727010+00:00",
+  "recorded_at": "2026-11-08T20:26:55.434820+00:00",
   "relevant_blobs": {
     "src/glove/booking-offers.ts": {
       "candidate": "6f46d4af7d0757962a52394e2a7e0fcaaf9e723a",
@@ -204,13 +208,26 @@
     }
   },
   "repository": "just-every/run-glove",
+  "riders": {
+    "1": "pass",
+    "10": "not_applicable_no_policy_default",
+    "11": "pending_guarded_landing",
+    "2": "pass",
+    "3": "pass",
+    "4": "pass",
+    "5": "pass",
+    "6": "pass",
+    "7": "pass",
+    "8": "pass",
+    "9": "pass"
+  },
   "tag": "sx-glove-c-f158",
   "verify": {
-    "conclusion": null,
+    "conclusion": "success",
     "event": "push",
     "head_sha": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42519262845",
     "id": 42519262845,
-    "status": "in_progress"
+    "status": "completed"
   }
 }
