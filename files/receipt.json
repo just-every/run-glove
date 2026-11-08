@@ -1,0 +1,216 @@
+{
+  "base_main": "4eea04c27f02aa2cb0c12edc421a9b4e574de0bf",
+  "branch": "cloud/sx-glove-c-f158",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/due-visit-offers.test.mjs",
+      "exit": 0,
+      "head": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+      "log": "api.log",
+      "tests": 4
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+      "log": "first-party.log"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs tests/browser/due-visit-offers.spec.ts (cloud_run; 1200 second alarm)",
+      "exit": 0,
+      "head": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+      "log": "browser.log",
+      "tests": 1
+    },
+    {
+      "command": "node tests/portable.mjs (cloud_run; 1800 second alarm)",
+      "equivalent_head": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+      "exit": 0,
+      "log": "portable.log",
+      "relevant_bytes_unchanged": true,
+      "started_head": "502c111cb0adc41b0e5b511550324b4d5b023c19"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses PLAN-010; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "views.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "mechanical.json"
+    }
+  ],
+  "claim": {
+    "clause": "PLAN-010",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "status": "DONE",
+    "status_judgment": "retained from main for guarded lander"
+  },
+  "contract_status_changes": "",
+  "counts_after": {
+    "done": 20,
+    "missing": 29,
+    "partial": 214,
+    "total": 263
+  },
+  "counts_before": {
+    "done": 20,
+    "missing": 29,
+    "partial": 214,
+    "total": 263
+  },
+  "full_history": true,
+  "head": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+  "landing": {
+    "main_equals_head": false,
+    "run_site_on_candidate": null,
+    "status": "branch only; no landing performed"
+  },
+  "migration_ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changed"
+  },
+  "portable_relevance_diff": "",
+  "pr": null,
+  "product_changes": [
+    "sources.lock.json",
+    "tests/api/due-visit-offers.test.mjs",
+    "tests/browser/due-visit-offers.spec.ts",
+    "tests/portable.mjs"
+  ],
+  "proof_files": {
+    "PLAN.md": {
+      "bytes": 3204,
+      "sha256": "fd597646d5c2672f376a0b4dd6f66de573facefe50907e33980b7e19d0011955"
+    },
+    "api.log": {
+      "bytes": 832,
+      "sha256": "df1b91f14ed6e6059bd94f1774881abe3c2e5bb5afbe5f087984076147cf84ec"
+    },
+    "base-main-ci.jsonl": {
+      "bytes": 1143,
+      "sha256": "d6c2c2aa6e7ffd4ff3c1e41f465c49ab69f5f4f6a542458ec1084edc1917f18b"
+    },
+    "browser.log": {
+      "bytes": 1260,
+      "sha256": "82ede904574402ea23e46260ef9cd5215109a2de389ea3c75b3500f12380b00e"
+    },
+    "candidate-ci.json": {
+      "bytes": 207,
+      "sha256": "0f15f04187918655ff5bd957a0b354fe1240bdb62eb29e5301800d212f9400d3"
+    },
+    "first-party.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "mechanical.json": {
+      "bytes": 960,
+      "sha256": "916062ad706e9179e0cf4dc7530cb8c635a5c11025db80afb98d60bc566e6d96"
+    },
+    "portable.log": {
+      "bytes": 1508,
+      "sha256": "682ba947239900426a7ed671c8ab9c74d73d6a8f48a669900c97aa3b20042549"
+    },
+    "product-push.log": {
+      "bytes": 617,
+      "sha256": "dc46acc2978021b715f011f1a6b8ff377e7a1b703c780e0719e51707f30bd3f3"
+    },
+    "screenshots/1440-due-offer-booked.png": {
+      "bytes": 31662,
+      "sha256": "e3ee0bd390a8190ce5238e2771562cc92b88fd625435d73c53c4a3644e8de5d0"
+    },
+    "screenshots/1440-due-offer-no-open-times.png": {
+      "bytes": 45953,
+      "sha256": "f8d02c629d4d7a1bfefc7219160f9593af71ebbaae5bcd9cc48b44d73b05f913"
+    },
+    "screenshots/1440-due-offer-open.png": {
+      "bytes": 52344,
+      "sha256": "562bc4f6f65a6a8cf3f6aff5724db92e801ba32705f8e9ce67358c6d270f84f0"
+    },
+    "screenshots/1440-due-offer-remaining.png": {
+      "bytes": 49058,
+      "sha256": "7458ba8207176cb74522448018075ea105da2de035b5d3796be87d4486fa3fca"
+    },
+    "screenshots/390-due-offer-booked.png": {
+      "bytes": 25556,
+      "sha256": "b4e057231c8344beb98d32f9cf1d1631724fd4c765f427290c57e16324acb171"
+    },
+    "screenshots/390-due-offer-no-open-times.png": {
+      "bytes": 39334,
+      "sha256": "5fbc2386346994bfad2b480406ad3b2a9b8124d41cac6f72356532c6ca7e39a0"
+    },
+    "screenshots/390-due-offer-open.png": {
+      "bytes": 44625,
+      "sha256": "ecbfe2ef7858fab6981cd6821aefe0c677df1fc613857d1081b64de0868a996a"
+    },
+    "screenshots/390-due-offer-remaining.png": {
+      "bytes": 42204,
+      "sha256": "13b3a5a9547fb443a57c490833e73aa57086089c9c2b712985b21bfe2e8938ce"
+    },
+    "typecheck.log": {
+      "bytes": 197,
+      "sha256": "7024bff941220e0f00138f417045cc90587e3329bf2b6001f26a694792ca0270"
+    },
+    "views.log": {
+      "bytes": 60,
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  },
+  "publication_scan": {
+    "commit": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+    "complete": null,
+    "findings": null,
+    "historyScanned": null,
+    "status": "NOT RUN in cloud; guarded fleet lander owns full-history scan"
+  },
+  "recorded_at": "2026-11-08T20:16:59.727010+00:00",
+  "relevant_blobs": {
+    "src/glove/booking-offers.ts": {
+      "candidate": "6f46d4af7d0757962a52394e2a7e0fcaaf9e723a",
+      "save": "6f46d4af7d0757962a52394e2a7e0fcaaf9e723a"
+    },
+    "src/glove/public-booking.ts": {
+      "candidate": "496d1f813aa0ee70a9a8943c754e71e4285e8418",
+      "save": "496d1f813aa0ee70a9a8943c754e71e4285e8418"
+    },
+    "src/ui/customer-booking.tsx": {
+      "candidate": "a004c26193e4cb42dbddcbaf784a123818a22e2d",
+      "save": "a004c26193e4cb42dbddcbaf784a123818a22e2d"
+    },
+    "tests/api/harness.mjs": {
+      "candidate": "770301c9eaec46d6fcbdc30b35954181c1fa277d",
+      "save": "770301c9eaec46d6fcbdc30b35954181c1fa277d"
+    },
+    "tests/portable.mjs": {
+      "candidate": "6cce6b1d3fd5fdb1f4548f79ff990d766b5757fd",
+      "save": "6cce6b1d3fd5fdb1f4548f79ff990d766b5757fd"
+    }
+  },
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-c-f158",
+  "verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42519262845",
+    "id": 42519262845,
+    "status": "in_progress"
+  }
+}

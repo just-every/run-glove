@@ -1,0 +1,38 @@
+{
+  "views_write": {
+    "command": "node scripts/contract-docs.mjs write --clauses PLAN-010",
+    "exit": 0
+  },
+  "views_check": {
+    "command": "node scripts/contract-docs.mjs check",
+    "exit": 0
+  },
+  "restored_views": [
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md"
+  ],
+  "lock_write": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0
+  },
+  "lock_check": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "observed_fields": {
+      "ok": true,
+      "schemaVersion": 1,
+      "edition": "just-every/run-glove",
+      "manifest": "50125c8f2015fca29b140c32568a049f5480b6b98b2f1c5c2a8b0a10228e4811",
+      "toolchain": {
+        "id": "runeditrun/edition-authoring",
+        "version": "1.1.0",
+        "sha256": "a44bae4aae36d7a2e3d5e2da4e080d3c92eb11f226f6e7322b23680f43e6f982"
+      }
+    }
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migrations changed"
+  }
+}

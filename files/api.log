@@ -1,0 +1,15 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ PLAN-010 desk issuance enforces slot bounds, current permissions and outstanding entitlement state while preserving included ordinals (7086.237248ms)
+✔ PLAN-010 bearer custody survives restart, expires at the runtime boundary and ends atomically on use or staff revocation (4297.396136ms)
+✔ PLAN-010 customer choices use live offering authority and refuse deactivation, role withdrawal, branch exclusion and erased replay (5163.536859ms)
+✔ PLAN-010 public reads and choices repeat conflicts, disclose only remaining offers and keep exhausted visits due (3112.559605ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20669.796573

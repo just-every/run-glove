@@ -1,0 +1,136 @@
+{
+  "files": [
+    {
+      "blob": "5cdfe36c477dcf38c75c62c0ca15a5e642a5bed0",
+      "bytes": 3204,
+      "path": "PLAN.md",
+      "sha256": "fd597646d5c2672f376a0b4dd6f66de573facefe50907e33980b7e19d0011955"
+    },
+    {
+      "blob": "1550ee3a93474c59b5cf3f21f85fe759c4a67fc9",
+      "bytes": 14501,
+      "path": "REPORT.md",
+      "sha256": "2fe7c67033f5d259fa78e0ac31db9dec61b6e8cf678c3304a9428042f04979e0"
+    },
+    {
+      "blob": "0e2b98ee664c326de2c90d7d5d424bc526234eed",
+      "bytes": 832,
+      "path": "api.log",
+      "sha256": "df1b91f14ed6e6059bd94f1774881abe3c2e5bb5afbe5f087984076147cf84ec"
+    },
+    {
+      "blob": "1fb64f0bed18e2609503102ad399215534864dd5",
+      "bytes": 1143,
+      "path": "base-main-ci.jsonl",
+      "sha256": "d6c2c2aa6e7ffd4ff3c1e41f465c49ab69f5f4f6a542458ec1084edc1917f18b"
+    },
+    {
+      "blob": "69b529fccef7dbd969e79a39e8bed5ebe65b0208",
+      "bytes": 1260,
+      "path": "browser.log",
+      "sha256": "82ede904574402ea23e46260ef9cd5215109a2de389ea3c75b3500f12380b00e"
+    },
+    {
+      "blob": "6599243804aff356083e43ded53eeaa7cd03e0b5",
+      "bytes": 207,
+      "path": "candidate-ci.json",
+      "sha256": "0f15f04187918655ff5bd957a0b354fe1240bdb62eb29e5301800d212f9400d3"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "1d192bab12c4f28f36755a82c21c71ad394932bb",
+      "bytes": 960,
+      "path": "mechanical.json",
+      "sha256": "916062ad706e9179e0cf4dc7530cb8c635a5c11025db80afb98d60bc566e6d96"
+    },
+    {
+      "blob": "9a26bce5e8799b3ec74120107eae4e2cc7b15de7",
+      "bytes": 1508,
+      "path": "portable.log",
+      "sha256": "682ba947239900426a7ed671c8ab9c74d73d6a8f48a669900c97aa3b20042549"
+    },
+    {
+      "blob": "463d4330d053f1cf24400e6a848cbff2cc84bfe6",
+      "bytes": 617,
+      "path": "product-push.log",
+      "sha256": "dc46acc2978021b715f011f1a6b8ff377e7a1b703c780e0719e51707f30bd3f3"
+    },
+    {
+      "blob": "6d7850f7bc02d57441b1883663ee885414d2ea6b",
+      "bytes": 6826,
+      "path": "receipt.json",
+      "sha256": "f6e8e88ac1813cf632d293a88695a98d030a90d69c2dba78a783b812c154c3d9"
+    },
+    {
+      "blob": "54ac30278bfd5a7bc7c2fd79e28e667edbb1b56e",
+      "bytes": 31662,
+      "path": "screenshots/1440-due-offer-booked.png",
+      "sha256": "e3ee0bd390a8190ce5238e2771562cc92b88fd625435d73c53c4a3644e8de5d0"
+    },
+    {
+      "blob": "49ae95c32923be01f176863f56d1306de5f785ce",
+      "bytes": 45953,
+      "path": "screenshots/1440-due-offer-no-open-times.png",
+      "sha256": "f8d02c629d4d7a1bfefc7219160f9593af71ebbaae5bcd9cc48b44d73b05f913"
+    },
+    {
+      "blob": "c9f6efa27c013ef3982909cba67425a06e78d3a2",
+      "bytes": 52344,
+      "path": "screenshots/1440-due-offer-open.png",
+      "sha256": "562bc4f6f65a6a8cf3f6aff5724db92e801ba32705f8e9ce67358c6d270f84f0"
+    },
+    {
+      "blob": "33c1107d3a8d9545a5e7a5cc7c41c6686c8f08d2",
+      "bytes": 49058,
+      "path": "screenshots/1440-due-offer-remaining.png",
+      "sha256": "7458ba8207176cb74522448018075ea105da2de035b5d3796be87d4486fa3fca"
+    },
+    {
+      "blob": "9355389cca88a820cd87c9a12604fc13f3a762b5",
+      "bytes": 25556,
+      "path": "screenshots/390-due-offer-booked.png",
+      "sha256": "b4e057231c8344beb98d32f9cf1d1631724fd4c765f427290c57e16324acb171"
+    },
+    {
+      "blob": "10f65e4dc0789b432dc36d6a1a9a0d666b0da641",
+      "bytes": 39334,
+      "path": "screenshots/390-due-offer-no-open-times.png",
+      "sha256": "5fbc2386346994bfad2b480406ad3b2a9b8124d41cac6f72356532c6ca7e39a0"
+    },
+    {
+      "blob": "0bb522562a4d89968cfc8f32d4f370a45dffe103",
+      "bytes": 44625,
+      "path": "screenshots/390-due-offer-open.png",
+      "sha256": "ecbfe2ef7858fab6981cd6821aefe0c677df1fc613857d1081b64de0868a996a"
+    },
+    {
+      "blob": "bf066446c7a59500115b0f9178929e54b52222de",
+      "bytes": 42204,
+      "path": "screenshots/390-due-offer-remaining.png",
+      "sha256": "13b3a5a9547fb443a57c490833e73aa57086089c9c2b712985b21bfe2e8938ce"
+    },
+    {
+      "blob": "ea555c9964e350e50116e520edc1992e7b607735",
+      "bytes": 197,
+      "path": "typecheck.log",
+      "sha256": "7024bff941220e0f00138f417045cc90587e3329bf2b6001f26a694792ca0270"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "views.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f158",
+  "product_head": "475a0b7d7738df51bf0f7f228e4f617d290ebc9d",
+  "ref": "refs/heads/evidence/sx-glove-c-f158",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f158"
+}
