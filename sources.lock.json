@@ -5060,7 +5060,7 @@
       "executable": false
     },
     "src/ui/booking-offers.tsx": {
-      "sha256": "879cc6b0258b44d82395774ac84b8a4a2792d584735f093f0592d93f014d353e",
+      "sha256": "b6674796643e8147d8cc17f074a811c6148611f977a54fa3aec40745f4b1d8ae",
       "executable": false
     },
     "src/ui/branches.tsx": {
@@ -5515,6 +5515,10 @@
       "sha256": "085688bc1b13397131367d9b9306d4c1895377d37ea27d72c0da630060bd0dd5",
       "executable": false
     },
+    "tests/api/booking-offer-history.test.mjs": {
+      "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2",
+      "executable": false
+    },
     "tests/api/branches.test.mjs": {
       "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
       "executable": false
@@ -5808,7 +5812,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "3d948fd5ddd7a9c8171af01cf41e31a6c111d8b753a4fd2ee84a48cc5bb13446",
+      "sha256": "82de7c287e455f5234a314c3ee9cbe36ea1f3d0c89e2c70f0662988eaa1ec0ca",
       "executable": false
     },
     "tests/browser/email.spec.ts": {
