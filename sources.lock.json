@@ -5759,6 +5759,10 @@
       "sha256": "12049d63d3cff960054294715aa99fbb013c9d44425d4aad46c15d9eb21128b2",
       "executable": false
     },
+    "tests/api/tax-evidence.test.mjs": {
+      "sha256": "068447fabc8d79dab4c46b5524ff13667f6aa461de4e497663d1c666834fee68",
+      "executable": false
+    },
     "tests/api/time.test.mjs": {
       "sha256": "04a6e4c5c4fa3a4c14cf92b8cf4bd3c802832d403df32ac73a83e5a3f017a3fe",
       "executable": false
@@ -5917,6 +5921,10 @@
     },
     "tests/browser/subcontractor.spec.ts": {
       "sha256": "77856ff5092f714407e1d5f39d7d72038dff5ca2e2d9d3fc70b623ea3af364ae",
+      "executable": false
+    },
+    "tests/browser/tax-evidence.spec.ts": {
+      "sha256": "9e7f73eba84fab128053ca01e4e1e44626d51c26806191dcc5fb6c661a05e530",
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {
