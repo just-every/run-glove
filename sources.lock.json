@@ -5664,7 +5664,7 @@
       "executable": false
     },
     "tests/api/quote-link-custody.test.mjs": {
-      "sha256": "948c584f5a2d184ddc013ea6405500fd890cefe5f12683910c5c0a77200e6034",
+      "sha256": "cac7f25209039d9d38f40ae47fe4ab8419dbcaa1311a358d128a2d2d20f6f5a8",
       "executable": false
     },
     "tests/api/records.test.mjs": {
