@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "ee938549e3b3ede5f3b9ad98e339bf6d052627a8d3ad4b3db8edec43d4ab78d8",
+      "sha256": "3808fa3de36087aa7e06e23753656fb1d6801e2fe31a516fff7d750bd9cfcb05",
       "executable": false
     },
     "src/glove/autopay.ts": {
