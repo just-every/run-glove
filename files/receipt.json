@@ -3,7 +3,7 @@
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f134",
   "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
-  "recordedAt": "2026-11-08T14:23:20.884322+00:00",
+  "recordedAt": "2026-11-08T14:31:07.470048+00:00",
   "checks": [
     {
       "kind": "api",
@@ -72,8 +72,9 @@
     "run": 42489217993,
     "event": "push",
     "head": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
-    "status": "pending",
-    "conclusion": null
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/just-every/run-glove/actions/runs/42489217993"
   },
   "publicationScan": {
     "commit": "ed9e736803a3554a65a8c9c8a9740c89678fbb6e",
@@ -135,5 +136,33 @@
     "allMessagesAndTrailers": true,
     "allowed": true,
     "openAICoauthors": 0
+  },
+  "claim": {
+    "clause": "PAY-025",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3
+    ],
+    "riders": {
+      "1": "pass",
+      "2": "pass",
+      "3": "pass",
+      "4": "pass",
+      "5": "pass",
+      "6": "pass",
+      "7": "pass",
+      "8": "pass",
+      "9": "pass",
+      "10": "pass",
+      "11": "pending guarded landing"
+    }
+  },
+  "transferValidation": {
+    "ref": "refs/heads/evidence/sx-glove-c-f134",
+    "head": "cc4141299afb30f7d8d167ac3096a547e56a9f46",
+    "status": "restored",
+    "receipt": "transfer-receipt.json"
   }
 }
