@@ -1948,7 +1948,7 @@
       "executable": false
     },
     "src/glove/commands/dispatch.ts": {
-      "sha256": "3c371328fb332ded707fbde7ac479f6465172e91dbcbcad2a0a893668cf5ac00",
+      "sha256": "144c2ffbcaaa333134929cc040ccd3c064a61327691c2794d4d3f4515985c222",
       "executable": false
     },
     "src/glove/commands/equipment.ts": {
@@ -4824,7 +4824,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5480,7 +5480,7 @@
       "executable": false
     },
     "src/ui/visit-panel.tsx": {
-      "sha256": "ce3cca9a7251d183218d11dba05ebbdc4be366b45bb12777bbb4602a0ef8c3a4",
+      "sha256": "13c54cc6e75a2f9dcc05e59f84bff31d988ef9e81a2c817d7a4d72f7b2cecfa4",
       "executable": false
     },
     "src/ui/visit-response.tsx": {
