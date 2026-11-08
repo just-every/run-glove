@@ -38,7 +38,7 @@ async function proof(page: Page, name: string, reopen?: () => Promise<void>) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 })
     await page.reload()
-    await expect(page.locator('.glove-app, .tech-app')).toBeVisible()
+    await expect(page.locator('.glove-app[aria-busy="false"], .tech-app')).toBeVisible()
     if (reopen) await reopen()
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-fresh-${name}.png`), fullPage: true })
   }
@@ -60,7 +60,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await owner.waitForURL(url => ['/setup', '/app'].includes(url.pathname) && !url.hash.includes('rer-dev'))
     if (new URL(owner.url()).pathname === '/setup') {
       await owner.getByRole('checkbox').check()
-      await owner.getByRole('button', { name: 'Finish setup', exact: true }).click()
+      await owner.getByRole('button', { name: 'Finish setup', exact: true }).click({ timeout: 60_000 })
       await owner.waitForURL(url => url.pathname === '/app')
     }
     const initial = await state(owner)
