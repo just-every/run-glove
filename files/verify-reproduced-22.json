@@ -1,0 +1,15 @@
+{
+  "head": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
+  "run": 42484107814,
+  "job": 128742375684,
+  "shard": "api-1",
+  "command": "pnpm run verify:app",
+  "node": "22.20.0",
+  "CI": "true",
+  "GLOVE_CI_PARTITION": "1",
+  "GLOVE_CI_PREBUILT": "1",
+  "GLOVE_VERIFY_SHARD": "api-1",
+  "test": "TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings",
+  "exit": 1,
+  "failure": "export keeps technician records without the transient calendar display"
+}

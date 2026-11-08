@@ -1,27 +1,31 @@
 {
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f130",
-  "head": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
+  "head": "8380229cfd03485b3c1ebf07a6aaba5a7f89068f",
   "remoteRefs": [
-    "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6\trefs/heads/cloud/sx-glove-c-f130",
-    "00543a4111453e00bfce85033457492098af9d3b\trefs/heads/main"
+    "8380229cfd03485b3c1ebf07a6aaba5a7f89068f\trefs/heads/cloud/sx-glove-c-f130",
+    "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2\trefs/heads/main"
   ],
   "productPushed": true,
-  "verifyRun": 42484107814,
+  "verifyRun": 42486432851,
   "verifyEvent": "push",
-  "verifyConclusion": "queued",
+  "verifyConclusion": null,
   "pullRequest": null,
   "mainEqualsCandidate": false,
   "publicationScan": {
-    "commit": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
+    "commit": "8380229cfd03485b3c1ebf07a6aaba5a7f89068f",
     "complete": null,
     "historyScanned": null,
     "findings": null,
     "reason": "cloud route delegates this scan to maintained fleet lander"
   },
   "supersededCandidate": {
-    "head": "e9257a43b01cadf3be2d57184315005b56e65274",
-    "verifyRun": 42483379309,
-    "reason": "Stronger same-calendar reconnection probe reproduced two unsafe writes; corrected in current candidate"
-  }
+    "head": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
+    "verifyRun": 42484107814,
+    "verifyConclusion": "failure",
+    "repairRound": 1,
+    "failure": "Empty review arrays changed unrelated technician record shape; reproduced on Node 22.20.0 and repaired without changing assertions"
+  },
+  "main": "3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2",
+  "verifyStatus": "in_progress"
 }

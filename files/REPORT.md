@@ -2,8 +2,8 @@
 
 Repository: just-every/run-glove
 Branch: cloud/sx-glove-c-f130
-Candidate: 2ce56cd27d78e45c6f4e8ff94e333b558282b0f6
-Merged main: 00543a4111453e00bfce85033457492098af9d3b
+Candidate: 8380229cfd03485b3c1ebf07a6aaba5a7f89068f
+Merged main: 3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2
 
 DISP-015 has complete native proof for points 1, 2 and 3, subject to the exact-candidate Verify and guarded landing. Source judgments are unchanged: 14 DONE, 220 PARTIAL, 29 MISSING before and after. The proposed landing change is DISP-015 PARTIAL to DONE, yielding 15 DONE, 219 PARTIAL, 29 MISSING only when the fleet lands and judges it.
 
@@ -38,14 +38,14 @@ DISP-015 cites no independent Base duty. Its three original acceptance sentences
 | 1 | Local PASS; CI pending | R1–R3 above reach all three acceptance outcomes through commands, owner state, Activity and browser. |
 | 2 | PASS | Nonempty provider events and real persisted D1; exact expected affected pairs and counts; refused route and role paths leave visits and work unchanged. Focused proof lines 21–88, 125–162 and 177–200. |
 | 3 | Pending exact-SHA Verify | Existing push Verify API and browser globs load both journeys. No assertion is hidden behind screenshot flags or width conditions. |
-| 4 | PASS locally | API, browser and mechanical receipts name 2ce56cd27d78e45c6f4e8ff94e333b558282b0f6; no relevant edit after the candidate commit. |
+| 4 | PASS locally | API, browser and mechanical receipts name 8380229cfd03485b3c1ebf07a6aaba5a7f89068f; no relevant edit after the candidate commit. |
 | 5 | INSPECTED | No Base duty is newly inherited or claimed. The clause's own points specify these native outcomes; DISP-008 keeps its separate duties. |
 | 6 | PASS mechanically; judgment owned by lander | Contract generator write and check exit 0; generated views restored. CONTRACT.md has no candidate diff. Source Status, Gap and Evidence remain main's, as required. |
 | 7 | INSPECTED PASS | No acceptance sentence, ruling, coverage map or Status row changed. |
 | 8 | PASS for applicable authority | Non-owner disconnect refuses; dispatcher, technician and Agent state omit retained-event projections; revoked dispatcher replay refuses without another write. Focused proof lines 126, 137–140 and 160–162. Existing DISP-008 consent and role assertions remain intact. |
 | 9 | INSPECTED PASS | Only fake provider-edge facts are claimed. No live account, legal compliance, provider deletion, provider retention guarantee or production activation is claimed. |
 | 10 | INSPECTED PASS | No new policy default; no scope narrowing. Explicit owner connection and disconnect and no automatic uncertain replay preserve the existing boundary. |
-| 11 | Pending guarded landing | Main is 00543a4111453e00bfce85033457492098af9d3b, not this candidate. Main Verify 42482766533 and 42481915149 and Run site 42482766463 succeeded there. Candidate scan, main equality and candidate Run site belong to the fleet lander. No landing claim. |
+| 11 | Pending guarded landing | Main is 3a6b0e410f4b2744b7c0d293a71c9cae4d3113d2, not this candidate. Its tree is unchanged from the earlier main 00543a4111453e00bfce85033457492098af9d3b, where Verify 42482766533 and 42481915149 and Run site 42482766463 succeeded. Exact CI for the new main commit was not queried; no green result is inferred from another SHA. Candidate scan, main equality and candidate Run site belong to the fleet lander. No landing claim. |
 
 ## Reproduced defects and repairs
 
@@ -65,10 +65,24 @@ PROBE DISP-015 1: native visit commands and accepted route -> one ordered provid
 PROBE DISP-015 2: unconfirmed create and timeout, queued later change, replay, repeated cron and actual Worker restart -> unknown remains visible and original call count unchanged.
 PROBE DISP-015 3: explicit owner disconnect, review and fresh reconnection -> pending work stopped with no provider write, existing event and mapping retained, uncertain old work never replayed.
 
-Publication scan: commit=2ce56cd27d78e45c6f4e8ff94e333b558282b0f6 complete=NOT_RUN historyScanned=NOT_RUN findings=UNESTABLISHED; delegated to the maintained fleet lander under the cloud route.
+Publication scan: commit=8380229cfd03485b3c1ebf07a6aaba5a7f89068f complete=NOT_RUN historyScanned=NOT_RUN findings=UNESTABLISHED; delegated to the maintained fleet lander under the cloud route.
 
 Plan row proposed: DISP-015, points 1–3 qualified. No fleet plan file was written. No account or policy blocker was encountered. Product custody and evidence publication are separate.
 
-Candidate Verify: push run 42484107814 on 2ce56cd27d78e45c6f4e8ff94e333b558282b0f6, initially queued. Previous run 42483379309 belongs to superseded head e9257a43b01cadf3be2d57184315005b56e65274 and supplies no final-candidate proof.
+Superseded candidate Verify: push run 42484107814 on 2ce56cd27d78e45c6f4e8ff94e333b558282b0f6 completed with API-1 failure. It supplies no final-candidate proof.
 
-Final local results: five touched API registrations passed; the combined browser registration passed with all existing map and phone assertions; production build, typecheck, first-party check, contract generation and source-lock check exited 0. api-receipt.json, browser-receipt.json and GATES.json all bind to 2ce56cd27d78e45c6f4e8ff94e333b558282b0f6.
+Final local results: the entire repaired API-1 shard passed, 104 tests and zero failures, including the touched calendar and routing journeys and the unchanged branch export assertion; the combined browser registration passed with all existing map and phone assertions; production build, typecheck, first-party check, contract generation and source-lock check exited 0. api-receipt.json, browser-receipt.json and GATES.json all bind to 8380229cfd03485b3c1ebf07a6aaba5a7f89068f.
+
+## Reproduced Verify repair, round 1
+
+Run 42484107814, job 128742375684 (API-1) failed on head 2ce56cd27d78e45c6f4e8ff94e333b558282b0f6. The existing TEAM-002, TEAM-004, TEAM-005 branch journey failed at `tests/api/branches.test.mjs:331`: "export keeps technician records without the transient calendar display". Empty `calendarRetainedEvents` and `calendarUncertainWrites` arrays were being added even for technicians with no review history.
+
+Before editing, the exact failed `pnpm run verify:app` command was run on the failed SHA with API-1 partition, prebuilt artifacts, CI mode and Node 22.20.0. It exited 1 with the same assertion. The same branch test passed on main 00543a4111453e00bfce85033457492098af9d3b on the same VM with Node 22.20.0. This was a regression, not a flake. The failed archive was read once. The earlier minimum-toolchain Node 24 reproduction also failed, but the Node 22 receipt is the governing reproduction.
+
+The repair emits review fields only when they contain retained or uncertain history. It preserves the existing unconnected technician shape and the original export assertion, and leaves actual retained-event review available. No assertion, workflow, pin or acceptance text changed. The full failed API-1 shard is rerun on the repair SHA; its receipt is api-receipt.json. This is the only CI repair round.
+
+VERIFY_REPRODUCED {"head":"2ce56cd27d78e45c6f4e8ff94e333b558282b0f6","job":128742375684,"command":"pnpm run verify:app","test":"TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings","exit":1,"failure":"export keeps technician records without the transient calendar display"}
+
+Repair candidate 8380229cfd03485b3c1ebf07a6aaba5a7f89068f: complete API-1 shard 104 PASS, browser 1 PASS at the specified widths, production build and all mechanical checks exit 0. No tests were weakened or removed.
+
+Current repair Verify: push run 42486432851, head 8380229cfd03485b3c1ebf07a6aaba5a7f89068f, observed in_progress. No result from a superseded head is counted.

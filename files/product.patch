@@ -1,5 +1,5 @@
 diff --git a/sources.lock.json b/sources.lock.json
-index 7c0dda3..f8909c2 100644
+index 7c0dda3..628908f 100644
 --- a/sources.lock.json
 +++ b/sources.lock.json
 @@ -1864,7 +1864,7 @@
@@ -7,7 +7,7 @@ index 7c0dda3..f8909c2 100644
      },
      "src/glove/api.ts": {
 -      "sha256": "e2143b8421ce6cdb6121aaa5fd8e1b7d27e30bccfa1b610838c9937fa18a350b",
-+      "sha256": "ee938549e3b3ede5f3b9ad98e339bf6d052627a8d3ad4b3db8edec43d4ab78d8",
++      "sha256": "3808fa3de36087aa7e06e23753656fb1d6801e2fe31a516fff7d750bd9cfcb05",
        "executable": false
      },
      "src/glove/autopay.ts": {
@@ -77,10 +77,10 @@ index 7c0dda3..f8909c2 100644
      },
      "tests/fixtures/collection.mjs": {
 diff --git a/src/glove/api.ts b/src/glove/api.ts
-index 90a332f..f557512 100644
+index 90a332f..e43cf50 100644
 --- a/src/glove/api.ts
 +++ b/src/glove/api.ts
-@@ -196,8 +196,17 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
+@@ -196,8 +196,19 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
      readRole(actor, 'state')
      const view = visible(s, actor)
      if (actor.role === 'owner') {
@@ -91,10 +91,12 @@ index 90a332f..f557512 100644
 +      view.technicians = view.technicians.map(t => {
 +        const own = work.filter(w => w.technician_id === t.id), connection = s.technicians.find(tech => tech.id === t.id)?.calendarSync?.connectionId
 +        const active = own.filter(w => w.connection_id === connection)
++        const retained = mappings.filter(m => m.connection_id !== connection && own.some(w => w.connection_id === m.connection_id && w.visit_id === m.visit_id)).map(m => ({ connectionId: m.connection_id, visitId: m.visit_id, eventId: m.event_id }))
++        const uncertain = own.filter(w => w.connection_id !== connection && ['unknown', 'sending'].includes(w.state)).map(w => ({ connectionId: w.connection_id, visitId: w.visit_id, state: w.state, action: w.action }))
 +        return { ...t,
 +          calendarOutcome: active.find(w => ['unknown', 'sending', 'failed'].includes(w.state)) ?? active.at(-1) ?? null,
-+          calendarRetainedEvents: mappings.filter(m => m.connection_id !== connection && own.some(w => w.connection_id === m.connection_id && w.visit_id === m.visit_id)).map(m => ({ connectionId: m.connection_id, visitId: m.visit_id, eventId: m.event_id })),
-+          calendarUncertainWrites: own.filter(w => w.connection_id !== connection && ['unknown', 'sending'].includes(w.state)).map(w => ({ connectionId: w.connection_id, visitId: w.visit_id, state: w.state, action: w.action })),
++          ...(retained.length ? { calendarRetainedEvents: retained } : {}),
++          ...(uncertain.length ? { calendarUncertainWrites: uncertain } : {}),
 +        }
 +      })
      }

@@ -1,11 +1,11 @@
 {
-  "head": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
+  "head": "8380229cfd03485b3c1ebf07a6aaba5a7f89068f",
   "checks": [
     {
       "command": "pnpm typecheck",
       "exit": 0,
-      "outputBytes": 197,
-      "outputSha256": "29416764ce644055ec24848b534a7e97b40394c7a3ed7a82b5d6ba06e9d3c26d"
+      "outputBytes": 91,
+      "outputSha256": "edc47071e36bf6e4f408ffb2855b3437255525e191312ee7e81503c9d42bcecb"
     },
     {
       "command": "npx -y @runeditrun/rer check --profile first-party",
@@ -35,13 +35,13 @@
       "command": "node scripts/edition-authoring/cli.mjs lock",
       "exit": 0,
       "outputBytes": 258098,
-      "outputSha256": "3ecddcdaccb810416c6974c4c35904f342f54cf0eda71fb7b8a6e609b1b6f04e"
+      "outputSha256": "894532a630e56a2f9beffc63dadfc318edd47d0b2ef38a550380e20a86756151"
     },
     {
       "command": "node scripts/edition-authoring/cli.mjs check",
       "exit": 0,
       "outputBytes": 258112,
-      "outputSha256": "dcdee8f11c2c3a99c862566b1409d523090bf734a0b286e3abd22492dc007724"
+      "outputSha256": "4a43b50adc600a7bd151f36b410c66d10851be3606260a8098a61ba0d1bde526"
     },
     {
       "command": "git diff --exit-code",
@@ -60,6 +60,6 @@
   "build": {
     "command": "npx -y @runeditrun/rer build",
     "exit": 0,
-    "logSha256": "f344bebdf9c00e7f36e2ade903c44a9b71d94145933b0494e47954977d03c7fe"
+    "logSha256": "333d0e315a1f96c9366fa5268cec888c415bcfcf1d70930eece49d86afdf7171"
   }
 }

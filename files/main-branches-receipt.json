@@ -1,0 +1,6 @@
+{
+  "head": "00543a4111453e00bfce85033457492098af9d3b",
+  "command": "node --test --test-concurrency=1 tests/api/branches.test.mjs",
+  "node": "22.20.0",
+  "exit": 0
+}

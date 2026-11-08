@@ -1,5 +1,11 @@
 {
-  "head": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
-  "command": "node --test --test-concurrency=1 tests/api/eligibility.test.mjs tests/api/routing.test.mjs",
+  "head": "8380229cfd03485b3c1ebf07a6aaba5a7f89068f",
+  "command": "pnpm run verify:app",
+  "shard": "api-1",
+  "node": "22.20.0",
+  "CI": "true",
+  "GLOVE_CI_PARTITION": "1",
+  "GLOVE_CI_PREBUILT": "1",
+  "GLOVE_VERIFY_SHARD": "api-1",
   "exit": 0
 }

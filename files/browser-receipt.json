@@ -1,6 +1,7 @@
 {
-  "head": "2ce56cd27d78e45c6f4e8ff94e333b558282b0f6",
+  "head": "8380229cfd03485b3c1ebf07a6aaba5a7f89068f",
   "command": "timeout 1200 node tests/browser/run.mjs tests/browser/dispatch-map.spec.ts",
+  "node": "22.20.0",
   "exit": 0,
   "assertionWidth": 1440,
   "screenshotWidths": [
