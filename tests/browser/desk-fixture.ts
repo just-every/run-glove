@@ -4,15 +4,25 @@ import { join } from 'node:path'
 export const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 export async function deskPage(browser: Browser, h: any, width: number, cookie?: string) {
   const context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
-  if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-  try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-  if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+  // Attach this installation before sign-in can hydrate /app and fetch state.
+  // A URL alone is not readiness: navigating its hash during hydration can be
+  // overwritten by the router's initial history update.
   await page.route(`${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url())
     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(cookie ? { as: cookie } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
     await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
   })
-  return { context, page }
+  try {
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+    return { context, page }
+  } catch (error) {
+    await page.unrouteAll({ behavior: 'wait' })
+    await context.close()
+    throw error
+  }
 }
 export async function action(page: Page, button: Locator, ok = true) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)

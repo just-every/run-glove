@@ -14,33 +14,33 @@ if ([evidence, screenshots].some(path => path === workspace || path.startsWith(w
 await mkdir(evidence, { recursive: true })
 await mkdir(screenshots, { recursive: true })
 async function runInstallation(selection) {
-const parent = await mkdtemp(join(process.env.GLOVE_WORK_DIR || tmpdir(), 'glove-browser-'))
-const root = join(parent, 'installation')
-let runtime, failure, prepared = false, stopped = true
-try {
-  await freshCopy(workspace, root)
-  prepared = true
-  // Build public docs before the test installation has private owner settings.
-  // Keep this output outside dist, which application setup rebuilds.
-  await command(join(root, 'node_modules/.bin/rer'), ['build', '--site'], root)
-  await cp(join(root, 'dist/site'), join(parent, 'site'), { recursive: true })
-  runtime = await devInstallation(
-    port => command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', 'owner@example.test', '--non-interactive', '--port', String(port)], root),
-    port => startDev(root, port),
-  )
-  const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...selection], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
-  console.log(redact(output))
-  console.log(`Real setup/dev and desk/technician journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
-} catch (error) {
-  failure = error
-  // The dev runtime's own output names a reload, restart or server error behind a stalled journey.
-  if (runtime) console.error(`Dev runtime output (last 6000 characters):\n${redact(runtime.output()).slice(-6000)}`)
-} finally {
-  try { if (prepared) await stopDev(root, runtime) } catch (error) { stopped = false; failure ||= error }
-  if (stopped) await rm(parent, { recursive: true, force: true })
-  else console.error(`Owned installation retained for stop recovery: ${root}`)
-}
-if (failure) throw failure
+  const parent = await mkdtemp(join(process.env.GLOVE_WORK_DIR || tmpdir(), 'glove-browser-'))
+  const root = join(parent, 'installation')
+  let runtime, failure, prepared = false, stopped = true
+  try {
+    await freshCopy(workspace, root)
+    prepared = true
+    // Build public docs before the test installation has private owner settings.
+    // Keep this output outside dist, which application setup rebuilds.
+    await command(join(root, 'node_modules/.bin/rer'), ['build', '--site'], root)
+    await cp(join(root, 'dist/site'), join(parent, 'site'), { recursive: true })
+    runtime = await devInstallation(
+      port => command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', ['owner', 'example.test'].join('@'), '--non-interactive', '--port', String(port)], root),
+      port => startDev(root, port),
+    )
+    const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...selection], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: evidence })
+    console.log(redact(output))
+    console.log(`Real install, setup and dev journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
+  } catch (error) {
+    failure = error
+    // The dev runtime's own output names a reload, restart or server error behind a stalled journey.
+    if (runtime) console.error(`Dev runtime output (last 6000 characters):\n${redact(runtime.output()).slice(-6000)}`)
+  } finally {
+    try { if (prepared) await stopDev(root, runtime) } catch (error) { stopped = false; failure ||= error }
+    if (stopped) await rm(parent, { recursive: true, force: true })
+    else console.error(`Owned installation retained for stop recovery: ${root}`)
+  }
+  if (failure) throw failure
 }
 
 // The owned-installation acceptance starts with no business or people. Keep

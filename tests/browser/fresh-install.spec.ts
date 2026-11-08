@@ -1,5 +1,5 @@
 import { test, expect, type Browser, type BrowserContext, type Locator, type Page } from '@playwright/test'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const origin = process.env.GLOVE_BASE_URL!
@@ -23,6 +23,7 @@ async function send(page: Page, control: Locator) {
 
 async function localSignIn(browser: Browser, as: string, key: string) {
   const context = await browser.newContext({ viewport: { width: as === 'technician' ? 390 : 1440, height: 1000 } })
+  context.setDefaultTimeout(15_000)
   const page = await context.newPage()
   expect((await page.request.post(`${origin}/__dev/key`, { headers: { origin }, data: { key } })).ok()).toBe(true)
   await page.goto(`${origin}/auth/dev/enter?as=${as}&returnTo=%2Fapp`)
@@ -30,15 +31,18 @@ async function localSignIn(browser: Browser, as: string, key: string) {
   return { context, page }
 }
 
-async function proof(page: Page, name: string) {
+async function proof(page: Page, name: string, reopen?: () => Promise<void>) {
   if (!process.env.GLOVE_SCREENSHOTS) return
   await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+  const viewport = page.viewportSize()!
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 })
     await page.reload()
     await expect(page.locator('.glove-app, .tech-app')).toBeVisible()
+    if (reopen) await reopen()
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-fresh-${name}.png`), fullPage: true })
   }
+  await page.setViewportSize(viewport)
 }
 
 test('DATA-004 fresh local installation completes service work as four separately signed-in people', async ({ browser }) => {
@@ -49,6 +53,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
   const contexts: BrowserContext[] = []
   try {
     const ownerContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
+    ownerContext.setDefaultTimeout(15_000)
     contexts.push(ownerContext)
     const owner = await ownerContext.newPage()
     await owner.goto(entry)
@@ -132,7 +137,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await send(d, d.getByRole('button', { name: /^Approve revision 1 at/ }))
     await send(d, d.getByRole('button', { name: 'Record as sent', exact: true }))
     await send(d, d.getByRole('button', { name: 'Record acceptance', exact: true }))
-    await proof(d, 'quote')
+    await proof(d, 'quote', () => d.getByRole('button', { name: / · Synthetic maintenance visit$/, exact: true }).click())
     await d.goto(`${origin}/app#dispatch`)
     await send(d, d.locator('.queue li').filter({ hasText: 'Synthetic Glove customer' }).getByRole('button', { name: 'Create job', exact: true }))
     await d.locator('.queue li').filter({ hasText: 'Synthetic Glove customer' }).getByRole('button', { name: 'Book a visit', exact: true }).click()
@@ -164,7 +169,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     }
     const maintenance = await command(d, 'job.create', { customerId: job.customerId, siteId: job.siteId, title: 'Synthetic recurring maintenance', lines: [{ serviceId: booked.services[0].id, description: 'Maintenance inspection', quantity: '1', unitPrice: '200.00' }] })
     await d.goto(`${origin}/app#jobs`)
-    await d.getByRole('button', { name: maintenance.number, exact: true }).click()
+    await d.getByRole('button', { name: `${maintenance.number} · Synthetic recurring maintenance`, exact: true }).click()
     const repeat = d.getByRole('form', { name: 'Repeat this job', exact: true })
     const seriesFrom = new Date(`${day}T00:00:00Z`)
     seriesFrom.setUTCDate(seriesFrom.getUTCDate() + 7)
@@ -179,6 +184,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await repeat.getByLabel('Technician', { exact: true }).selectOption(tech.id)
     await repeat.getByLabel('Ends on (optional)', { exact: true }).fill(dates[2])
     await send(d, repeat.getByRole('button', { name: 'Make it repeat', exact: true }))
+    await d.goto(`${origin}/app#jobs/${maintenance.id}`)
     await proof(d, 'series')
 
     // A real disconnected phone queues the visit's evidence and completion.
@@ -223,8 +229,9 @@ test('DATA-004 fresh local installation completes service work as four separatel
     const invoiceCsv = await (await o.request.get(`${origin}${await o.getByRole('link', { name: 'Download CSV', exact: true }).getAttribute('href')}`)).text()
     expect(invoiceCsv).toContain('Synthetic Glove customer')
     expect(invoiceCsv).toContain('200.00')
-    await proof(o, 'invoice')
     const invoice = (await state(owner)).invoices[0]
+    await o.goto(`${origin}/app#invoices/${invoice.id}`)
+    await proof(o, 'invoice')
     const beforeRefusals = await state(owner)
     const stable = (s: any) => Object.fromEntries(['version', 'business', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits', 'captures', 'invoices', 'payments', 'exports', 'approvals', 'events'].map(k => [k, s[k]]))
     // Each role attempts a valid operation belonging to someone else's role.
@@ -242,11 +249,15 @@ test('DATA-004 fresh local installation completes service work as four separatel
     // reload. Screens of this same persisted result are captured at both widths.
     await Promise.all([owner.reload(), d.reload(), phone.reload(), o.reload()])
     const s = await state(owner)
+    for (const [page, actor] of [[d, actors.dispatcher], [phone, actors.technician], [o, actors.office]] as const) expect(identity((await state(page)).actor)).toEqual(actor)
+    await expect(o.getByText('Amount due $0.00', { exact: true })).toBeVisible()
     expect(s.business[0]).toMatchObject({ name: 'Synthetic Glove service company', abn: '12-3456789', currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 14 })
     expect(s.services).toHaveLength(1)
     expect(s.services[0]).toMatchObject({ code: 'synthetic-glove-126', unitPrice: '200.00', createdBy: actors.owner.id, checklist: [{ label: 'Isolate power', required: true }, { label: 'Clean filter', required: true }, { label: 'Check noise', required: false }] })
     for (const role of ['dispatcher', 'technician', 'office'] as const) expect(s.operators.find((p: any) => p.id === actors[role].id)).toMatchObject({ name: actors[role].name, role, status: 'active' })
     expect(s.technicians[0]).toMatchObject({ operatorId: actors.technician.id, createdBy: actors.owner.id })
+    expect(s.customers[0]).toMatchObject({ name: 'Synthetic Glove customer', contact: 'Synthetic customer', phone: '212-555-0126', billingAddress: 'PO Box 126', createdBy: actors.dispatcher.id })
+    expect(s.sites[0]).toMatchObject({ customerId: s.customers[0].id, address: '126 Synthetic Street', createdBy: actors.dispatcher.id })
     expect(s.enquiries).toHaveLength(1)
     expect(s.enquiries[0]).toMatchObject({ description: 'Annual filter maintenance', status: 'won', createdBy: actors.dispatcher })
     const quote = s.quotes[0]
@@ -263,6 +274,8 @@ test('DATA-004 fresh local installation completes service work as four separatel
     }
     expect(captures.filter((c: any) => c.kind === 'checklist').map((c: any) => [c.label, c.result])).toEqual([['Isolate power', 'done'], ['Clean filter', 'done']])
     expect(captures.find((c: any) => c.kind === 'note').text).toBe('Filter cleaned; airflow restored')
+    expect(s.jobs.find((j: any) => j.id === job.id).checklist.map((c: any) => [c.label, c.required])).toEqual([['Isolate power', true], ['Clean filter', true], ['Check noise', false]])
+    expect(s.jobs).toHaveLength(2)
     const recurring = s.jobs.find((j: any) => j.id === maintenance.id)
     expect(recurring).toMatchObject({ status: 'open', series: { through: dates[2], until: dates[2], missed: [], revisions: [{ n: 1, from: dates[0], rule: { unit: 'week', interval: 1 }, start: '13:00', end: '14:00', technicianId: tech.id, by: actors.dispatcher }] } })
     const future = s.visits.filter((v: any) => v.jobId === maintenance.id)
@@ -284,7 +297,8 @@ test('DATA-004 fresh local installation completes service work as four separatel
     }
     const businessExport = await (await owner.request.get(`${origin}/api/glove/export`)).json()
     expect(businessExport.format).toBe('glove-business-v1')
-    for (const collection of ['business', 'services', 'enquiries', 'jobs', 'visits', 'captures', 'payments', 'exports', 'approvals']) expect(businessExport[collection]).toEqual(s[collection])
+    for (const collection of ['business', 'services', 'enquiries', 'jobs', 'visits', 'captures', 'payments', 'approvals']) expect(businessExport[collection]).toEqual(s[collection])
+    expect(businessExport.exports).toEqual(s.exports.map((record: any) => ({ ...record, csv: invoiceCsv })))
     // Read projections can add reminder summaries; the stored financial facts
     // and actual people still have to agree with the separately checked state.
     expect(businessExport.quotes[0].acceptance).toEqual(quote.acceptance)
@@ -301,5 +315,10 @@ test('DATA-004 fresh local installation completes service work as four separatel
       }
     }
     await proof(owner, 'activity')
+    await owner.goto(`${origin}/app#jobs/${job.id}`)
+    await expect(owner.getByText('Completed the annual filter service', { exact: true })).toBeVisible()
+    await proof(owner, 'completed-job')
+    await proof(phone, 'technician-visits')
+    await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT || test.info().outputDir, 'fresh-install-receipt.json'), JSON.stringify({ clause: 'DATA-004', point: 1, people: actors, jobId: job.id, visitId: visit.id, invoiceId: invoice.id, payment: { method: 'check', amount: '200.00', balance: '0.00' }, series: { jobId: maintenance.id, dates }, captureKinds: captures.map((c: any) => c.kind), offlineServerState: 'booked with no arrival or captures', roleRefusals: ['owner:visit.arrive', 'dispatcher:invoice.approve', 'technician:payment.record', 'office:service.save'], duplicateExport: 'NOTHING_TO_EXPORT', activityKinds: Object.keys(eventRoles), exportCount: 1, passed: true }, null, 2) + '\n')
   } finally { for (const context of contexts) await context.close() }
 })
