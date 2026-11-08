@@ -656,7 +656,7 @@
       "executable": false
     },
     "public/glove-sw.js": {
-      "sha256": "ab885bf3e36c15fe05f794a28532a1bfe4e24623567eff9cfe44741eb56f9e10",
+      "sha256": "b52cc83d790ad2262cb96f1a1bec6574473d2ba6378eac5f4aed13f588d1f4c9",
       "executable": false
     },
     "public/manifest.webmanifest": {
@@ -4824,7 +4824,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5268,7 +5268,7 @@
       "executable": false
     },
     "src/ui/offline-day.ts": {
-      "sha256": "f9581ff22fc310e4d16f7d937346b9d3537de12adf55f14d6b66bdc47a2fdd4a",
+      "sha256": "8547c84eb471bd2b230f29e7829c954320f39798439c740b671b6d328f3a70ec",
       "executable": false
     },
     "src/ui/options.tsx": {
@@ -5861,6 +5861,10 @@
     },
     "tests/browser/movein.spec.ts": {
       "sha256": "ae640903a66f997ff4988cb36195e9130f8ca9bb5e27d1d0df3970baf2397dee",
+      "executable": false
+    },
+    "tests/browser/offline-day.spec.ts": {
+      "sha256": "e383829023a0dcd16c5cbae7ab18a81ed7b03b89276a08537d1b39c6b5be34c4",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
