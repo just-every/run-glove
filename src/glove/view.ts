@@ -21,14 +21,8 @@ const strip = (v: unknown): unknown => Array.isArray(v) ? v.map(strip) : v && ty
 const unrated = ({ costRate: _r, fieldPricing: _f, fieldInvoicing: _i, fleet: _fleet, locationConsent: _consent, portrait: _portrait, ...rest }: Row) => rest
 const unpriced = (job: Row) => { const { lines, totals: _totals, series, ...rest } = job; const { billing: _billing, ...schedule } = series ?? {}; return { ...rest, ...(series ? { series: schedule } : {}), lines: lines.map((l: Row) => ({ description: l.description, quantity: l.quantity })) } }
 
-/**
- * DISP-007, DISP-013, DISP-014 (as ct approved 19 Oct 11:36Z): a Subcontractor sees only the
- * visits now assigned to them and, for those, the job title, checklist and
- * forms, the site's address and access notes, the customer's name and phone,
- * and their own captures; never money, other people's work or other visits.
- */
 /** The same bounded visit record is used for state and completion answers. */
-export function subcontractorVisit(visit: Row, technicianId: string) {
+function subcontractorVisit(visit: Row, technicianId: string) {
   const { id, version, jobId, startAt, endAt, local, status, arrival, completion, lateEvidence } = visit
   return { id, version, jobId, technicianId, startAt, endAt, local, status,
     arrival: arrival?.technicianId === technicianId ? arrival : null,
@@ -36,6 +30,12 @@ export function subcontractorVisit(visit: Row, technicianId: string) {
     lateEvidence: (lateEvidence ?? []).filter((x: Row) => x.technicianId === technicianId), assignments: [] }
 }
 
+/**
+ * DISP-007, DISP-013, DISP-014 (as ct approved 19 Oct 11:36Z): a Subcontractor sees only the
+ * visits now assigned to them and, for those, the job title, checklist and
+ * forms, the site's address and access notes, the customer's name and phone,
+ * and their own captures; never money, other people's work or other visits.
+ */
 function subcontracted(s: State, actor: Actor) {
   const me = s.technicians.find(t => t.operatorId === actor.id)
   const visits = me ? s.visits.filter(v => v.technicianId === me.id && v.status !== 'cancelled').map(v => subcontractorVisit(v, me.id)) : []
