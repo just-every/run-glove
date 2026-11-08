@@ -5816,7 +5816,7 @@
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
-      "sha256": "fd785c899d21fb31aa061dd4030746bc48986a17a6e10f2706182c0c78eaea41",
+      "sha256": "8a25bace0ea61a19be43c9aaedb8518fe92a4316eb8e4a2823153f8371bc3546",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
@@ -6304,7 +6304,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "0a30327c262e7601eeefe8daf2a2829b71bb8f12a1d1a2812c6d5fe15a5e50ab",
+      "sha256": "ba237331e5c1f3dcf3d7794fc48a819644c9635ddcb511e498008c8f20a7ed17",
       "executable": false
     },
     "tests/runtime.mjs": {
