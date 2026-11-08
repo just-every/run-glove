@@ -5,7 +5,7 @@
   "branch": "cloud/sx-glove-c-f136",
   "head": "203197587a05b9f7ef8ea3d054bcef2848bea092",
   "main_at_final_fetch": "f5d2b44b4e731aaee612cdde0fcb6cc24b2181b5",
-  "created_at": "2026-11-08T15:28:16.053895+00:00",
+  "created_at": "2026-11-08T15:35:09.439848+00:00",
   "checks": [
     {
       "command": "cloud_run npx -y @runeditrun/rer queue test:api -- sh -c \"node --test tests/api/travel-assignment.test.mjs\"",
@@ -53,13 +53,14 @@
   "views_committed": false,
   "migrations_changed": false,
   "ci": {
-    "conclusion": null,
+    "conclusion": "success",
     "event": "push",
     "head_sha": "203197587a05b9f7ef8ea3d054bcef2848bea092",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42495298542",
     "id": 42495298542,
     "name": "Verify",
-    "status": "pending"
+    "status": "completed",
+    "observed_at": "2026-11-08T15:48:40.205182+00:00"
   },
   "publication_scan": {
     "commit": "e612f529fb48dfc515538158e108f14660455274",
@@ -84,5 +85,76 @@
       "verify": 42494749366,
       "status": "superseded by additional route-collection assertion; no green claim"
     }
-  ]
+  ],
+  "proof_run_completed_at": "2026-11-08T15:33:04.823251+00:00",
+  "contract_counts": {
+    "before": {
+      "done": 17,
+      "partial": 217,
+      "missing": 29
+    },
+    "after_source_unchanged": {
+      "done": 17,
+      "partial": 217,
+      "missing": 29
+    },
+    "proposed_after_judgment": {
+      "done": 18,
+      "partial": 216,
+      "missing": 29
+    }
+  },
+  "riders": {
+    "1": {
+      "result": "pass",
+      "details": "All three public-door journeys pass locally and push Verify 42495298542 succeeded on exact head."
+    },
+    "2": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "3": {
+      "result": "pass",
+      "details": "Verify 42495298542 push completed success on exact head; focused file included in api-1."
+    },
+    "4": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "5": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "6": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "7": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "8": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "9": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "10": {
+      "result": "pass_or_inspected",
+      "details": "See per-row report and exact-SHA CI status"
+    },
+    "11": {
+      "result": "pending_guarded_lander",
+      "details": "Publication scan, main equality and Run site are not established by this cloud run."
+    }
+  },
+  "verify_inclusion": {
+    "shard": "api-1",
+    "test": "tests/api/travel-assignment.test.mjs",
+    "registered": true,
+    "totalShards": 8
+  },
+  "github_core_calls_used": 7
 }

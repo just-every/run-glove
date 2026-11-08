@@ -1,0 +1,6 @@
+{
+  "shard": "api-1",
+  "test": "tests/api/travel-assignment.test.mjs",
+  "registered": true,
+  "totalShards": 8
+}

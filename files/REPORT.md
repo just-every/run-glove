@@ -2,7 +2,7 @@
 
 Candidate: `203197587a05b9f7ef8ea3d054bcef2848bea092` on `cloud/sx-glove-c-f136` in `just-every/run-glove`.
 Parent main at the final fetch: `f5d2b44b4e731aaee612cdde0fcb6cc24b2181b5`. Main was unchanged at candidate rebase.
-No PR is required: branch pushes start Verify. Run `42495298542`, event `push`, is in progress on the exact candidate. The last observed main Verify `42493578218` and Run site `42493578258` succeeded on `f5d2b44b4e731aaee612cdde0fcb6cc24b2181b5`.
+No PR is required: branch pushes start Verify. Run `42495298542`, event `push`, completed successfully on the exact candidate. The last observed main Verify `42493578218` and Run site `42493578258` succeeded on `f5d2b44b4e731aaee612cdde0fcb6cc24b2181b5`.
 
 Plan and results
 
@@ -16,21 +16,21 @@ Only product changes: `tests/api/travel-assignment.test.mjs` and generated `sour
 
 Frozen rubric and acceptance proof
 
-Every runtime row below passed locally on `203197587a05b9f7ef8ea3d054bcef2848bea092`. All are included automatically in the existing push Verify API glob. Exact-SHA CI conclusion remains pending and will be recorded in the receipt before transfer.
+Every runtime row below passed locally on `203197587a05b9f7ef8ea3d054bcef2848bea092`. All are included automatically in the existing push Verify API glob. Exact-SHA push Verify 42495298542 completed with conclusion success, including the api-1 shard that invokes this file.
 
 | Row | Acceptance sentence or named outcome | Public-door proof and lines in tests/api/travel-assignment.test.mjs |
 | --- | --- | --- |
 | R1 | Point 1: travel time joins automatic ranking | Point 1 journey, lines 128 to 149; fixed expected ranking at line 6, visit result at lines 104 to 108. Bea wins with 75 booked and 5 drive, beating Zoe's 60 booked and 20 drive by name despite more booked work. |
 | R2 | Point 2: with Maps connected, each candidate adds previous same-day drive to booked minutes | Point 1 journey, Owner maps.connect at line 14, public site.save at lines 16 to 20 and technician.save at line 33; route durations independent at lines 36 to 42; exact ranking at lines 106 to 108. |
-| R3 | Point 2: latest visit ending by new start; no previous means no drive | Point 1 journey, fixture lines 45 to 55: Ada has 120 future booked minutes and zero drive; Bea ends exactly at 10:00; Cy's latest eligible visit is 09:00 to 09:30, ignoring an earlier visit, a later cancelled one and a future one. Prior-day Ada visit at line 131 is ignored. Complete origin coordinates asserted at lines 113 to 118. |
+| R3 | Point 2: latest visit ending by new start; no previous means no drive | Point 1 journey, fixture lines 45 to 55: Ada has 120 future booked minutes and zero drive; Bea ends exactly at 10:00; Cy's latest eligible visit is 09:00 to 09:30, ignoring an earlier visit, a later cancelled one and a future one. Prior-day Ada visit at line 132 is ignored. Complete origin coordinates asserted at lines 113 to 118. |
 | R4 | Point 2: fewest total then name, ranking names every candidate's booked and drive minutes | Point 1 journey, line 6 and lines 106 to 108. Exact ordered result: Bea 75+5=80; Zoe 60+20=80; Cy 90+5=95; Ada 120+0=120. |
-| R5 | Point 2: unplaceable job site refuses so dispatcher chooses | Point 2 journey, lines 172 to 191, both visit.book and assessment.book return MAP_LOCATION without changes, then the explicit technician books. |
-| R6 | Point 2: unplaceable previous-visit site refuses so dispatcher chooses | Point 2 journey, same independent scenario loop, lines 172 to 191; MAP_LOCATION and complete unchanged state and Activity. |
-| R7 | Point 2: route not found refuses so dispatcher chooses | Point 2 journey, lines 172 to 191; edge returns ROUTE_NOT_FOUND using null duration; both automatic doors return ROUTING and change nothing; explicit choice makes no Maps call. |
+| R5 | Point 2: unplaceable job site refuses so dispatcher chooses | Point 2 journey, lines 173 to 192, both visit.book and assessment.book return MAP_LOCATION without changes, then the explicit technician books. |
+| R6 | Point 2: unplaceable previous-visit site refuses so dispatcher chooses | Point 2 journey, same independent scenario loop, lines 173 to 192; MAP_LOCATION and complete unchanged state and Activity. |
+| R7 | Point 2: route not found refuses so dispatcher chooses | Point 2 journey, lines 173 to 192; edge returns ROUTE_NOT_FOUND using null duration; both automatic doors return ROUTING and change nothing; explicit choice makes no Maps call. |
 | R8 | Named door coverage: quoted work, service-call visit and assessment | Point 1 journey lines 83 to 108 and 133 to 135; real approval and person-recorded quote acceptance, native serviceCall identity, native enquiry and automatic assessment. |
-| R9 | Named retention and DATA-002 duty: exact reason retained on visit, Activity and business export | Point 1 journey via retained helper lines 61 to 80, invoked at line 119 and after restart at line 139. Actor, role, time, command and visit identities retained. Activity lowercases the automatic ranking and retains every candidate's exact minutes; business export retains the full assignment reason and corresponding timeline summary. |
+| R9 | Named retention and DATA-002 duty: exact reason retained on visit, Activity and business export | Point 1 journey via retained helper lines 61 to 80, invoked at line 120 and after restart at line 140. Actor, role, time, command and visit identities retained. Activity lowercases the automatic ranking and retains every candidate's exact minutes; business export retains the full assignment reason and corresponding timeline summary. |
 | R10 | Named restart and replay stability | Point 1 journey lines 121 to 124 and 138 to 149: replay has no new state or provider call; actual Worker is disposed and recreated with D1 retained, followed by all saved replays and a fresh identical assessment decision. |
-| R11 | Named disconnected fallback: booked minutes only, no Routes call | Point 2 journey lines 151 to 167: visit selects Bea at 30 versus 60 booked, assessment then selects Ada at 60 versus 90; exact reasons and zero Maps calls. |
+| R11 | Named disconnected fallback: booked minutes only, no Routes call | Point 2 journey lines 152 to 168: visit selects Bea at 30 versus 60 booked, assessment then selects Ada at 60 versus 90; exact reasons and zero Maps calls. |
 | R12 | Point 3: live positions remain with DISP-005 and DISP-012 | Point 3 journey lines 197 to 208, a real phone consent, shift, timer and accepted live point; complete assignment route origins at lines 113 to 118 are previous visit sites, never the live point. |
 | R13 | Point 3: optimization remains with DISP-003 and DISP-011 | Point 3 journey line 205 uses public visit.book; lines 109 to 112 compare all previous visits, general proposals and route-optimization proposals, lines 209 and 210 assert no general or route-optimization proposal exists. No route-optimization action is invoked or inferred. |
 
@@ -38,9 +38,9 @@ DONE-RIDERS
 
 | Row | Result and evidence |
 | --- | --- |
-| 1 | Local PASS: all acceptance outcomes covered by R1 to R13 and the three named journeys; exact-SHA Verify pending. |
+| 1 | PASS: all acceptance outcomes covered by R1 to R13 and the three named journeys; exact-SHA push Verify 42495298542 completed success. |
 | 2 | PASS: nonempty independent schedules and exact expected outcomes; provider refusal cases compare complete state and Activity. No money action is added. |
-| 3 | Pending: push Verify run 42495298542 on the candidate includes the new file through the existing API glob and shard discovery. No env flag or nightly restriction. |
+| 3 | PASS: push Verify run 42495298542 completed success on the candidate and includes the new file through the existing API glob and shard discovery. No env flag or nightly restriction. |
 | 4 | PASS: touched tests run again on the exact committed candidate through rer's selected runtime. Output is travel-tests.log and receipt.json. |
 | 5 | INSPECTED: no new Base inheritance; own point 3 already names the four owning location and optimization clauses. Named Activity and export duty proved in R9. |
 | 6 | PASS for builder mechanics: contract generator write and check exit 0, zero generated documents changed. Status, Gap and Evidence remain main's judgments for the lander to update from the claim. |
@@ -52,11 +52,11 @@ DONE-RIDERS
 
 Pre-ready check
 
-1. PASS locally: each named behavior has public-door assertions checking independently expected visible results; CI pending.
+1. PASS locally: each named behavior has public-door assertions checking independently expected visible results; Exact-SHA Verify is green.
 2. PASS: diff adds a new focused file only; existing assertions remain intact.
 3. INSPECTED: production authority, erasure and capture replay code is unchanged. Booking replay is explicitly tested and cannot duplicate visits or events. No new data retention, exposure or outbound authority.
 4. Not applicable: no touched screen or control.
-5. Source lock is fresh. Exact-SHA Verify pending. Candidate scan, main equality and candidate Run site are fleet duties; these receipts do not establish them.
+5. Source lock is fresh. Exact-SHA Verify 42495298542 is green. Candidate scan, main equality and candidate Run site are fleet duties; these receipts do not establish them.
 
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; views=node scripts/contract-docs.mjs write then check exit=0; ledger=none exit=0.
 PROBE DISP-010 1: visit.book auto on quoted and service-call jobs plus assessment.book auto -> Bea; ranking Bea 75 booked + 5 drive, Zoe 60 booked + 20 drive, Cy 90 booked + 5 drive, Ada 120 booked + 0 drive; exact retained results survive Worker restart and command replay.
@@ -75,6 +75,10 @@ Claim and remaining landing gates
 
 CLAIM DISP-010 DONE points=1,2,3 tests=tests/api/travel-assignment.test.mjs#DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay; tests/api/travel-assignment.test.mjs#DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books; tests/api/travel-assignment.test.mjs#DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule
 
-This is a native-behavior claim for guarded landing. DONE-RIDERS row 11 remains the lander's duty; row 3 is pending exact-SHA Verify at this report revision. No live-provider or release claim is made.
+This is a native-behavior claim for guarded landing. DONE-RIDERS row 11 remains the lander's duty; row 3 passes with exact-SHA push Verify 42495298542, completed success. No live-provider or release claim is made.
 
 Final proof refinement: the second published commit adds explicit checks of the actual route-optimization collection, retaining all general-proposal checks. Both commits have fleet author and committer identity and no trailers. The first candidate was superseded before its conclusion was observed; no earlier-SHA CI result is used. Main was fetched again and merged before the final commit; it was unchanged.
+
+Verify integration inspected on final head: the unchanged verification plan places the focused test in api-1 among eight push shards. This is recorded in verify-inclusion.json. Final exact-SHA REST status: completed, conclusion success; actual response saved in ci-status.json.
+
+Final custody: product candidate is pushed at 203197587a05b9f7ef8ea3d054bcef2848bea092; push Verify 42495298542 is completed and successful on that exact SHA. All three local focused journeys and required local gates passed. DONE-RIDERS rows 1 to 10 pass or are inspected as detailed above; row 11 awaits guarded fleet landing. Seven GitHub core calls used. No failing Verify repair was needed. Publication scanning and Run site remain fleet gates; they are not claimed complete here.
