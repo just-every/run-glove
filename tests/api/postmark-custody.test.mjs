@@ -28,7 +28,11 @@ async function secretFree(h, secrets) {
   const exported = await h.request('/api/glove/export').then(r => r.json())
   const outcomes = (await h.db.prepare('SELECT result FROM glove_commands').all()).results
   for (const [label, value] of Object.entries({ state, activity, exported, outcomes, logs: h.logs })) {
-    for (const secret of secrets) assert.ok(!JSON.stringify(value).includes(secret), `${label} contains no callback password or provider key`)
+    for (const secret of secrets) {
+      for (const exposed of [secret, Buffer.from(`glove:${secret}`).toString('base64')]) {
+        assert.ok(!JSON.stringify(value).includes(exposed), `${label} contains no callback password, encoded Basic credential or provider key`)
+      }
+    }
   }
 }
 
@@ -200,6 +204,9 @@ test('COMM-015 points 1–8: Owner-only Postmark custody survives restart, refus
   assert.equal(await snapshot(h), before, 'authenticated callbacks after erasure resurrect no personal data or facts')
 
   // Point 3: disconnect while both hashes are active revokes both immediately.
+  for (const credential of [third, fourth]) {
+    assert.equal((await postEvents(h, postmarkCallback(revocation, credential, { at: revocationAt }))).status, 200, 'both overlap credentials work immediately before disconnect')
+  }
   await h.command('mail.connect', { provider: null })
   for (const credential of [third, fourth]) await refused(h, postmarkCallback(revocation, credential, { at: revocationAt, headers: listed }), { status: 404 })
   assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_mail_callback_auth').first()).n, 0)
