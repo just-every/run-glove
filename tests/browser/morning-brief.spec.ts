@@ -23,6 +23,8 @@ test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and f
     await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-browser-mail', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['synthetic-glove-office', 'example.test'].join('@') })
     await h.command('mail.morning', { enabled: true, time: '07:15' })
     const before = await h.state(), outbound = h.outbound.attempts, mailCount = h.mails.length
+    const savedCommands = (await h.db.prepare('SELECT * FROM glove_commands ORDER BY id').all()).results
+    const savedEvents = (await h.db.prepare('SELECT * FROM glove_events ORDER BY id').all()).results
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
@@ -62,6 +64,8 @@ test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and f
         if (['Prepare invoice', 'Open dispatch', 'Review job costs', 'Contact the customer'].includes(action)) await screens(page, hash.slice(1))
       }
       expect(await h.state()).toEqual(before)
+      expect((await h.db.prepare('SELECT * FROM glove_commands ORDER BY id').all()).results).toEqual(savedCommands)
+      expect((await h.db.prepare('SELECT * FROM glove_events ORDER BY id').all()).results).toEqual(savedEvents)
       expect([h.mails.length, h.email.sent.length, h.pushes.sent.length, h.models.calls.length, h.outbound.attempts]).toEqual([mailCount, 0, 0, 0, outbound])
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }

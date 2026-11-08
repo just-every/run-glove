@@ -5832,7 +5832,7 @@
       "executable": false
     },
     "tests/browser/morning-brief.spec.ts": {
-      "sha256": "f46f9e2c078435b5a6a99de136567323207fd656a2c0230666a90c2cfc13f114",
+      "sha256": "2d3a3fa9085a37f6db72abbbf11f990ea42b6d66688b67d05012031f3faccb34",
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
