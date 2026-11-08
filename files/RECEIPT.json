@@ -4,7 +4,7 @@
   "branch": "cloud/sx-glove-c-f117",
   "head": "f0be713bf60cde70c4329d66914c8642d6230e96",
   "main_observed": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
-  "reported_at": "2026-11-08T10:37:17.086729+00:00",
+  "reported_at": "2026-11-08T11:02:02.507112+00:00",
   "checks": [
     {
       "command": "node --test --test-concurrency=1 tests/api/customer-quotes.test.mjs",
@@ -71,6 +71,17 @@
       "fail": 0,
       "log": "exact-probe.log",
       "completed_at": "2026-11-08T10:39:13.681858+00:00"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/customer-quotes.spec.ts --grep 'owner enters disclosure'",
+      "head": "f0be713bf60cde70c4329d66914c8642d6230e96",
+      "exit": 1,
+      "result": "Environment policy prevents file navigation after successful drawn signing and download",
+      "failure": "page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at file:///.../signed-quote.html",
+      "failed_test": "tests/browser/customer-quotes.spec.ts:243 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard",
+      "log": "browser-attempt.log",
+      "product_change": false,
+      "retry": false
     }
   ],
   "migration_ledger": {
@@ -120,10 +131,25 @@
     "run_id": 42472118922,
     "event": "push",
     "head": "f0be713bf60cde70c4329d66914c8642d6230e96",
-    "status": "in_progress",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "failure",
     "url": "https://github.com/just-every/run-glove/actions/runs/42472118922",
-    "github_calls_used": 2
+    "github_calls_used": 7,
+    "failed_job": {
+      "id": 128705340331,
+      "name": "shards (browser-2)",
+      "test": "tests/browser/rules.spec.ts:136 The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440",
+      "failure": "getByRole('heading', { name: 'Rules', exact: true }) not found within 5000ms"
+    },
+    "passing_jobs": {
+      "api-1": 128705340384,
+      "api-2": 128705340292,
+      "browser-1": 128705340316,
+      "browser-3": 128705340334,
+      "browser-4": 128705340319,
+      "foundation": 128705340311,
+      "portable": 128705340306
+    }
   },
   "landing": {
     "status": "not landed",
@@ -153,10 +179,11 @@
   },
   "claim": {
     "id": "QUOTE-011",
-    "status": "DONE on landing",
+    "status": "PARTIAL",
     "points": [
       1
-    ]
+    ],
+    "gap": "Native point complete, but exact-SHA Verify failed in an unrelated Rules browser journey and the failure did not reproduce locally; brief requires BLOCKED rather than guessed repair"
   },
   "environment": {
     "node": "24.19.0",
@@ -170,5 +197,50 @@
     "product_push": "succeeded",
     "product_sha": "f0be713bf60cde70c4329d66914c8642d6230e96",
     "identity_review": "one candidate commit; fleet author and committer; no trailers; side parents included"
+  },
+  "verify_reproduction": {
+    "head": "f0be713bf60cde70c4329d66914c8642d6230e96",
+    "job": 128705340331,
+    "command": "node scripts/verify-ci.mjs browser-2",
+    "environment": {
+      "node": "22.20.0",
+      "CI": "true",
+      "GLOVE_VERIFY_SHARD": "browser-2",
+      "GLOVE_CI_PREBUILT": "1",
+      "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/usr/bin/chromium"
+    },
+    "exit": 0,
+    "pass": 6,
+    "fail": 0,
+    "result": "CI failure not reproduced: candidate 6 passed, observed main 6 passed, both exit 0; no repair or CI rerun"
+  },
+  "main_comparison": {
+    "head": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+    "command": "node scripts/verify-ci.mjs browser-2",
+    "exit": 0,
+    "pass": 6,
+    "fail": 0,
+    "same_local_runner": true,
+    "log": "main-shard-comparison.log"
+  },
+  "terminal_status": "BLOCKED",
+  "repair_edits": 0,
+  "ci_reruns": 0,
+  "terminal_lock_check": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "riders": {
+    "1": "PASS native or inspected; see report evidence",
+    "2": "PASS native or inspected; see report evidence",
+    "3": "FAIL: overall exact-SHA Verify red",
+    "4": "PASS native or inspected; see report evidence",
+    "5": "PASS native or inspected; see report evidence",
+    "6": "PASS native or inspected; see report evidence",
+    "7": "PASS native or inspected; see report evidence",
+    "8": "PASS native or inspected; see report evidence",
+    "9": "PASS native or inspected; see report evidence",
+    "10": "PASS native or inspected; see report evidence",
+    "11": "PENDING: lander"
   }
 }

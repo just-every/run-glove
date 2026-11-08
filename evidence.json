@@ -13,22 +13,40 @@
       "sha256": "bec6b811a2540df6db72c87a332b664163b24cbfeac22315050d0e823ac4647e"
     },
     {
-      "blob": "0369151d4280c947ca95c7b2d79573aea6291606",
-      "bytes": 5524,
+      "blob": "ca4f15925a5a426055fbb861dd910c895148c0b3",
+      "bytes": 8724,
       "path": "RECEIPT.json",
-      "sha256": "d9f587350e9106d1f34f5dcde2f33ba51261a106dfd40b6e49e86039fc4328db"
+      "sha256": "9e6f5bc247b565f45c1d7455adcd385e7818ea5818eece3470c33f5d8cc69d89"
     },
     {
-      "blob": "074a800116ae76a4a04a78305261e93bed5696a6",
-      "bytes": 11464,
+      "blob": "5356f95cce1bfe16bc7be2342b63af0665e22d1e",
+      "bytes": 16194,
       "path": "REPORT.md",
-      "sha256": "d7d57e9b6b4b68a7702c4c13e468fcca64c71f596240a53637c1c305e2370a22"
+      "sha256": "a45e2d9afc4f57cc1f5280cfe2769398f5d1d059087df1ac8c8d35bd647f045d"
     },
     {
       "blob": "30fd56f94ea6c105095d46ebf1fb292b30fd851c",
       "bytes": 1914,
       "path": "api-test.log",
       "sha256": "84ce6a4506dda1f4740f86cd53ba6490fffc45f9ade5ae42306e4ef0b5f974ae"
+    },
+    {
+      "blob": "f8db961ae338a5a040054487c00594f244622673",
+      "bytes": 4849,
+      "path": "browser-attempt.log",
+      "sha256": "4e556158b3f3b59456ef852ce7f95a61b896e593743186ee06880d2481a2771c"
+    },
+    {
+      "blob": "5cca4c31eac014526aa1c3781fb22b61578e549a",
+      "bytes": 7100,
+      "path": "candidate-shard-reproduction.log",
+      "sha256": "32e408221fd6b9490122ea0d278fe1b829456e2b63af4bb98b5f68297aa69f33"
+    },
+    {
+      "blob": "39a665ddba71b33f1514c37e03f04dd8a9c843a8",
+      "bytes": 15063,
+      "path": "ci-failure.log",
+      "sha256": "64fcdebe30cad1a173061e8b412c2fbf9dbe1b73c97de0e62787c3e537ae6ffe"
     },
     {
       "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
@@ -41,6 +59,12 @@
       "bytes": 376,
       "path": "exact-probe.log",
       "sha256": "10e290fc91a548c97ef2eecb160b26472bc9bea31a91aecd5b6740663f4255d5"
+    },
+    {
+      "blob": "62f7575fa993c764d770c67774bbfc037a2e5010",
+      "bytes": 7105,
+      "path": "main-shard-comparison.log",
+      "sha256": "4d98cfed6ccc1e52398b721a9b83b2eebe362da73b9012f32038d4dcbc0e9c44"
     },
     {
       "blob": "049bcae619dba01f03013c0278e1a30f9b02464d",

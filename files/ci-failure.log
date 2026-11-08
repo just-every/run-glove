@@ -1,0 +1,114 @@
+> pnpm run verify:app
+shards (browser-2)	Run this shard	2026-11-08T10:37:53.2007746Z 
+shards (browser-2)	Run this shard	2026-11-08T10:37:53.2009261Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser-2)	Run this shard	2026-11-08T10:37:53.2009891Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser-2)	Run this shard	2026-11-08T10:37:53.2010082Z 
+shards (browser-2)	Run this shard	2026-11-08T10:37:53.2733594Z verify:app
+shards (browser-2)	Run this shard	2026-11-08T10:37:53.2988499Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/email.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/rules.spec.ts'
+shards (browser-2)	Run this shard	2026-11-08T10:37:54.1437817Z [verify phase] frozen install: start
+shards (browser-2)	Run this shard	2026-11-08T10:38:00.4485927Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=6306
+shards (browser-2)	Run this shard	2026-11-08T10:38:00.4487401Z [verify phase] site build: start
+shards (browser-2)	Run this shard	2026-11-08T10:38:03.5892677Z [verify phase] site build: exit=0 signal=none elapsed_ms=3138
+shards (browser-2)	Run this shard	2026-11-08T10:38:03.6136737Z [verify phase] native setup: start
+shards (browser-2)	Run this shard	2026-11-08T10:38:32.0255420Z [verify phase] native setup: exit=0 signal=none elapsed_ms=28412
+shards (browser-2)	Run this shard	2026-11-08T10:38:32.0258049Z [verify phase] native dev: start
+shards (browser-2)	Run this shard	2026-11-08T10:38:44.6541803Z [verify phase] browser assertions: start
+shards (browser-2)	Run this shard	2026-11-08T10:38:46.4397377Z [verify progress] Running 6 tests using 1 worker
+shards (browser-2)	Run this shard	2026-11-08T10:39:26.1238252Z [verify progress]   ✓  1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (38.4s)
+shards (browser-2)	Run this shard	2026-11-08T10:39:30.5673202Z [verify progress]   ✓  2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (4.4s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:16.8844184Z [verify progress]   ✓  3 tests/browser/email.spec.ts:28:1 › COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390 (46.3s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:20.0810650Z [verify progress]   ✓  4 tests/browser/morning-brief.spec.ts:26:1 › AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390 (3.2s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:29.7901961Z [verify progress]   ✓  5 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (9.7s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5002367Z [verify progress]   ✘  6 tests/browser/rules.spec.ts:136:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (7.7s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5501968Z [verify progress]   1 failed
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5504845Z [verify progress]   5 passed (1.9m)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5656688Z [verify phase] browser assertions: exit=1 signal=none elapsed_ms=112912
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5670319Z Dev runtime output (last 6000 characters):
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5672698Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5674080Z rer dev: checking the server limit
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5674399Z Checking pinned pnpm
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5674653Z 10.12.4
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5674897Z Applying database migrations
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5675365Z Applying database migrations
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5675558Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5675841Z  ⛅️ wrangler 4.129.1 (update available 4.158.0)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5676293Z ───────────────────────────────────────────────
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5676590Z Resource location: local 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5676762Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5676979Z Use --remote if you want to access the remote instance.
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5677225Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5677402Z ✅ No migrations to apply!
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5677719Z Starting your application on this computer
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5678094Z Starting your application on this computer
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5678442Z Using secrets defined in .dev.vars
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5678742Z   ➜  Local:   [URL]
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5679028Z Opening your application
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5679469Z Your application is running locally
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5679812Z Building the run site
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5680120Z {"pages":22,"assets":6,"styles":1}
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5681307Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5682405Z Open your app, already signed in on this computer: [URL]
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5682803Z App address (without sign-in): [URL]
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5683119Z Keep the sign-in link private.
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5683649Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5684562Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5685565Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512155648 bytes.
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5686183Z Details for tools and troubleshooting:
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5686477Z RER_READY [URL]
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5686736Z RER_SIGNED_IN owner@example.test
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5687003Z [private runtime entry]
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5687317Z Running the scheduled trigger locally: */15 * * * *
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.5687536Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.7016347Z [verify phase] native dev: exit=143 signal=none elapsed_ms=125676
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9895978Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9896855Z Running 6 tests using 1 worker
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9897147Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9898388Z   ✓  1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (38.4s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9899260Z QUOTE-007 screen: revise-form
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9899720Z QUOTE-007 screen: quote-allocation
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9900102Z QUOTE-007 screen: invoice-allocation
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9900371Z QUOTE-007 screen: role-limits
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9900648Z QUOTE-007 screen: price-book-discount
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9901681Z   ✓  2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (4.4s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9903489Z   ✓  3 tests/browser/email.spec.ts:28:1 › COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390 (46.3s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9904587Z AGENT-008 screen: today
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9904881Z AGENT-008 screen: invoices
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9905675Z   ✓  4 tests/browser/morning-brief.spec.ts:26:1 › AGENT-008, AGENT-016 owner reads the morning brief on Today and follows an item to its screen at 1440 and 390 (3.2s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9907413Z   ✓  5 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (9.7s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9908929Z   ✘  6 tests/browser/rules.spec.ts:136:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 (7.7s)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9909693Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9909706Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9910649Z   1) tests/browser/rules.spec.ts:136:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 › Request notice rules retain exact sources, versions and current authority 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9911408Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9911593Z     Error: expect(locator).toBeVisible() failed
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9911861Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9912124Z     Locator: getByRole('heading', { name: 'Rules', exact: true })
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9912547Z     Expected: visible
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9912788Z     Timeout: 5000ms
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9913031Z     Error: element(s) not found
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9913229Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9913318Z     Call log:
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9913783Z       - Expect "toBeVisible" getByRole('heading', { name: 'Rules', exact: true }) with timeout 5000ms
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9914354Z       - waiting for getByRole('heading', { name: 'Rules', exact: true })
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9914634Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9914647Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9914796Z       17 |     const outboundBefore = outbound()
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9915176Z       18 |     const ownerId = (await h.state()).actor.id
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9916058Z     > 19 |     const open = async (page: Page) => { await page.goto(`${origin}/app#rules`); await page.reload(); await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible() }
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9917018Z          |                                                                                                                                                                               ^
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9918038Z       20 |     const row = (page: Page, name: string) => page.getByRole('region', { name: 'Your rules' }).getByRole('listitem', { name, exact: true })
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9918954Z       21 |     const make = async (page: Page, name: string, to: string, message: string) => {
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9921837Z       22 |       await open(page)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9922219Z         at open ([REDACTED]/tests/browser/rules.spec.ts:19:175)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9922696Z         at make ([REDACTED]/tests/browser/rules.spec.ts:22:7)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9923138Z         at rulesBrowser ([REDACTED]/tests/browser/rules.spec.ts:72:15)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9923547Z         at [REDACTED]/tests/browser/rules.spec.ts:137:3
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9923740Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9924242Z     Error Context: ../../../../../tmp/glove-browser-evidence/rules-The-Owner-runs-the-w-59f33-le-refusals-at-390-and-1440/error-context.md
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9924662Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9924729Z   1 failed
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9925686Z     tests/browser/rules.spec.ts:136:1 › The Owner runs the whole phone desk and Office repeats its permitted steps with exact role refusals at 390 and 1440 
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9926344Z   5 passed (1.9m)
+shards (browser-2)	Run this shard	2026-11-08T10:40:37.9926524Z 
+shards (browser-2)	Run this shard	2026-11-08T10:40:38.0651354Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-2)	Run this shard	2026-11-08T10:40:38.0813220Z ##[error]Process completed with exit code 1.

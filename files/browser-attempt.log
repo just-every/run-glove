@@ -1,0 +1,82 @@
+Dev runtime output (last 6000 characters):
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+  ➜  Local:   [URL]
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+Open your app, already signed in on this computer: [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 10612736 bytes; clone (Git objects): not measured; dependencies: 503320576 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN owner@example.test
+[private runtime entry]
+Running the scheduled trigger locally: */15 * * * *
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:3804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:3804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/customer-quotes.spec.ts:243:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard (11.8s)
+
+
+  1) tests/browser/customer-quotes.spec.ts:243:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard 
+
+    Error: page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at file:///home/agent/rer-consolidation/work/sx-glove-c-f117/browser/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/signed-quote.html
+    Call log:
+      - navigating to "file:///home/agent/rer-consolidation/work/sx-glove-c-f117/browser/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/signed-quote.html", waiting until "load"
+
+
+      337 |     await savedCopy.saveAs(signedPath)
+      338 |     const copyPage = await context.newPage()
+    > 339 |     await copyPage.goto(`file://${signedPath}`)
+          |                    ^
+      340 |     await expect(copyPage.getByRole('img', { name: 'Drawn signature', exact: true })).toBeVisible()
+      341 |     await expect(copyPage.locator('main')).toContainText('Washable filter')
+      342 |     await expect(copyPage.locator('main')).toContainText(disclosure)
+        at /workspace/glove-f117/tests/browser/customer-quotes.spec.ts:339:20
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f117/browser/customer-quotes-QUOTE-002--a79d4--works-entirely-by-keyboard/error-context.md
+
+  1 failed
+    tests/browser/customer-quotes.spec.ts:243:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard 
+
