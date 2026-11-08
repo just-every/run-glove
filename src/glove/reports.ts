@@ -106,7 +106,8 @@ function proportionalMoney(value: string, effect: number, total: number) {
 
 function tax(s: State, zone: string, from: string, to: string) {
   const rows = approvedInvoices(s, zone, from, to, true)
-  const collected = !!s.business[0]?.stripe
+  // Disconnecting Stripe keeps the collected basis of its retained payments.
+  const collected = !!s.business[0]?.stripe || s.payments.some(p => p.mode === 'test' && ['card', 'ach'].includes(p.method))
   const entries = collected ? s.payments.flatMap(p => (p.effects ?? []).flatMap((e: Row) => {
     const date = localParts(e.at, branchZone(s, p)).date
     if (date < from || date > to) return []
