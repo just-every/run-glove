@@ -1,0 +1,9 @@
+{
+  "conclusion": "success",
+  "event": "push",
+  "head_sha": "a8aedad0aad3f752a517e39b5d3c799f76152b2d",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42473064803",
+  "id": 42473064803,
+  "name": "Verify",
+  "status": "completed"
+}

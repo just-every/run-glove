@@ -1,0 +1,11 @@
+{
+  "tests/api/segments.test.mjs": "19fd4ebe2a41f7a47bba1916bd6de7cbf0ddc0d76fc53bc2e0e559a61a4382b6",
+  "tests/api/harness.mjs": "5a0a4040bfdf79103a62333d72bba3406e61f0efc410b1fd145b6cf4f04dacb9",
+  "tests/portable.mjs": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359",
+  "src/glove/commands/marketing.ts": "a0430e995f866d73290a213aa75f05ddbfba0993e051d04583177df8b4549817",
+  "src/glove/segments.ts": "95a9e37d7311cff47f472811bdfe51ba32d45d6dccbc9eeba6749fa31567bb47",
+  "src/glove/api.ts": "e2143b8421ce6cdb6121aaa5fd8e1b7d27e30bccfa1b610838c9937fa18a350b",
+  "src/glove/privacy.ts": "fa1346de9061e5a86a4c66680b8f491d7bb0e8027e3a5a99788b98b6634ec1db",
+  "scripts/installer/local.mjs": "6d79557799a7dac76c14a224943dae7d3f7c3b3174a84f4de88f4a082480be1c",
+  "CONTRACT.md": "24e717bcbf026724e9fbaf46a2a78f822d729b14ab3564a4173e3c79540f8b17"
+}

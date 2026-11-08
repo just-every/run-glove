@@ -1,0 +1,19 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f119",
+  "head": "a8aedad0aad3f752a517e39b5d3c799f76152b2d",
+  "base": "e555cc0ada4915dd1f64a5fa09ab77cff7a468a4",
+  "product_changes": [
+    "sources.lock.json",
+    "tests/api/harness.mjs",
+    "tests/api/segments.test.mjs",
+    "tests/portable.mjs"
+  ],
+  "contract_unchanged": true,
+  "proof_files_match": true,
+  "generated_views_committed": false,
+  "source_lock_check_exit": 0,
+  "views_write_exit": 0,
+  "views_check_exit": 0,
+  "migration_ledger": "not applicable: no migrations changed"
+}

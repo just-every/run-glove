@@ -1,0 +1,94 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f119",
+  "head": "a8aedad0aad3f752a517e39b5d3c799f76152b2d",
+  "source_proof": "Relevant sources and tests are byte-identical to the passing local invocations; all local checks, including the complete portable script, finished successfully.",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/segments.test.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "log": "segments.log",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "generated_changes": 0,
+      "log": "views.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "views.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node tests/portable.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "status": "passed complete script",
+      "log": "portable.log"
+    }
+  ],
+  "proof_files": {
+    "tests/api/segments.test.mjs": "19fd4ebe2a41f7a47bba1916bd6de7cbf0ddc0d76fc53bc2e0e559a61a4382b6",
+    "tests/api/harness.mjs": "5a0a4040bfdf79103a62333d72bba3406e61f0efc410b1fd145b6cf4f04dacb9",
+    "tests/portable.mjs": "e8d8ea332e7593283dcd55fd7e62d56e513de13deade748eaa99a8aeb2365359",
+    "src/glove/commands/marketing.ts": "a0430e995f866d73290a213aa75f05ddbfba0993e051d04583177df8b4549817",
+    "src/glove/segments.ts": "95a9e37d7311cff47f472811bdfe51ba32d45d6dccbc9eeba6749fa31567bb47",
+    "src/glove/api.ts": "e2143b8421ce6cdb6121aaa5fd8e1b7d27e30bccfa1b610838c9937fa18a350b",
+    "src/glove/privacy.ts": "fa1346de9061e5a86a4c66680b8f491d7bb0e8027e3a5a99788b98b6634ec1db",
+    "scripts/installer/local.mjs": "6d79557799a7dac76c14a224943dae7d3f7c3b3174a84f4de88f4a082480be1c",
+    "CONTRACT.md": "24e717bcbf026724e9fbaf46a2a78f822d729b14ab3564a4173e3c79540f8b17"
+  },
+  "files_match_committed_candidate": true,
+  "contract_diff_empty": true,
+  "new_test_registrations": 0,
+  "removed_test_registrations": 0,
+  "migration_ledger": "not applicable; no migrations changed",
+  "publication_scan": {
+    "status": "not run in cloud",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "owner": "maintained fleet lander"
+  },
+  "run_site": {
+    "status": "not triggered on cloud branch",
+    "owner": "maintained fleet lander"
+  },
+  "verify": {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "a8aedad0aad3f752a517e39b5d3c799f76152b2d",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42473064803",
+    "id": 42473064803,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "github_calls": 4
+}
