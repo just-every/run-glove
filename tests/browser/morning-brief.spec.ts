@@ -2,7 +2,7 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Real production Worker/native sessions/D1 fixture, only provider edges are fake.
-import { installation, morningBriefFixture, morningBriefAt, mailEvents } from '../api/harness.mjs'
+import { installation, morningBriefFixture, morningBriefAt, mailEvents, postEvents } from '../api/harness.mjs'
 
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
@@ -19,8 +19,8 @@ async function screens(page: Page, name: string, anchor?: Locator) {
 test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending', async ({ browser }) => {
   const h = await installation({ at: '2026-11-07T12:00:00.000Z' })
   try {
-    const f = await morningBriefFixture(h)
-    await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-browser-mail', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['synthetic-glove-office', 'example.test'].join('@') })
+    const f = await morningBriefFixture(h), signer = mailEvents('sendgrid')
+    await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-browser-mail', eventKey: signer.eventKey, fromEmail: ['synthetic-glove-office', 'example.test'].join('@') })
     await h.command('mail.morning', { enabled: true, time: '07:15' })
     const before = await h.state(), outbound = h.outbound.attempts, mailCount = h.mails.length
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
@@ -63,6 +63,66 @@ test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and f
       }
       expect(await h.state()).toEqual(before)
       expect([h.mails.length, h.email.sent.length, h.pushes.sent.length, h.models.calls.length, h.outbound.attempts]).toEqual([mailCount, 0, 0, 0, outbound])
+
+      // COMM-012: display only actual provider facts produced by the cron and
+      // signed callback doors. Assertions run at desktop width; phone captures
+      // show the same status once without multiplying the test registrations.
+      const ownerAddress = ['owner', 'example.test'].join('@')
+      const showStatus = async (name: string, at: string, text: RegExp, next?: RegExp) => {
+        await page.setViewportSize({ width: 1440, height: 1050 })
+        await page.clock.setFixedTime(new Date(at))
+        const count = h.email.sent.length, requests = h.outbound.attempts
+        await page.goto(`${origin}/app#today`)
+        const status = brief.getByRole('status')
+        await expect(status).toContainText(text)
+        if (next) await expect(status).toContainText(next)
+        await expect(status).toContainText(`Morning email for ${at.slice(0, 10)}`)
+        expect(await status.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(13)
+        expect(h.email.sent.length).toBe(count)
+        expect(h.outbound.attempts).toBe(requests)
+        for (const width of [1440, 390]) {
+          await page.setViewportSize({ width, height: 1050 })
+          await status.scrollIntoViewIfNeeded()
+          if (process.env.GLOVE_SCREENSHOTS) {
+            await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
+            await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-morning-email-${name}.png`) })
+          }
+        }
+      }
+      await showStatus('scheduled', morningBriefAt, /Scheduled for 07:15 business time; not yet sent/)
+      let entered: () => void = () => {}, release: () => void = () => {}
+      const posted = new Promise<void>(resolve => { entered = resolve })
+      const paused = new Promise<void>(resolve => { release = resolve })
+      h.email.beforeRespond = async () => { entered(); await paused }
+      const pending = h.scheduled(morningBriefAt)
+      try {
+        await posted
+        await showStatus('queued', morningBriefAt, /Queued: no answer from SendGrid yet/, /Check SendGrid's activity/)
+      } finally { release(); await pending; h.email.beforeRespond = null }
+      await showStatus('accepted', morningBriefAt, /Accepted by SendGrid; delivery not yet reported/)
+      for (const [day, http, name, text] of [
+        ['10', 400, 'refused', /Not sent: SendGrid refused it/],
+        ['11', 429, 'rate-limited', /Not sent: SendGrid is limiting sends/],
+        ['12', 599, 'not-confirmed', /Outcome unknown: SendGrid did not confirm it/],
+      ] as const) {
+        const at = `2026-11-${day}T13:15:00.000Z`
+        await h.setTime(at)
+        h.email.status[ownerAddress] = http
+        await h.scheduled(at)
+        await showStatus(name, at, text, /Check the email connection; Glove does not retry, and sends the next brief on the next business-local date/)
+      }
+      const callbackAt = '2026-11-12T13:16:00.000Z', timestamp = Math.floor(Date.parse(callbackAt) / 1000)
+      await h.setTime(callbackAt)
+      for (const [outcome, name, text, next] of [
+        ['delivered', 'delivered', /Delivered to .* mail server \(reported by SendGrid\)/, undefined],
+        ['bounce', 'bounced', /Bounced: .* did not accept it \(reported by SendGrid\)/, /Check the owner's sign-in address; the brief is on the Today screen/],
+      ] as const) {
+        const response = await postEvents(h, signer.signed([{ email: ownerAddress, timestamp: timestamp + (outcome === 'bounce' ? 1 : 0), event: outcome, sg_event_id: `synthetic-glove-morning-${name}`, sg_message_id: 'sg-receipt-1.filter0001', rer_delivery_id: 'brief:2026-11-09' }], { at: timestamp }))
+        expect(response.status).toBe(200)
+        await h.setTime(morningBriefAt)
+        await showStatus(name, morningBriefAt, text, next)
+        await h.setTime(callbackAt)
+      }
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
