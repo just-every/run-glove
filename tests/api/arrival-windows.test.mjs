@@ -25,11 +25,18 @@ test('Arrival windows validate before automatic selection and retain inclusive b
       ['09:00', '10:30', { start: '08:00', end: '24:00' }],
       ['09:00', '10:30', { start: '10:00', end: '10:00' }],
       ['09:00', '10:30', { start: '11:00', end: '08:00' }],
-    ]) await refuse(h, b.dispatcher.run, 'visit.book', { jobId: j.id, technicianId, date: '2026-11-03', start, end, window: promised }, 'WINDOW')
+    ]) {
+      await refuse(h, b.dispatcher.run, 'visit.book', { jobId: j.id, technicianId, date: '2026-11-03', start, end, window: promised }, 'WINDOW')
+      const enquiry = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Assessment arrival promise' })
+      await refuse(h, b.dispatcher.run, 'assessment.book', { enquiryId: enquiry.id, technicianId, date: '2026-11-03', start, end, window: promised }, 'WINDOW')
+    }
     for (const [date, start, end] of [['2026-11-04','08:00','09:00'], ['2026-11-05','10:00','11:00']]) {
       const v = await b.dispatcher.run('visit.book', { jobId: j.id, technicianId, date, start, end, window })
       assert.deepEqual(v.arrivalWindow, window)
       assert.deepEqual([v.local.start, v.local.end, v.local.timezone], [start, end, 'Australia/Sydney'])
+      const enquiry = await b.office.run('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, source: 'phone', description: 'Assessment at the promised boundary' })
+      const assessment = await b.dispatcher.run('assessment.book', { enquiryId: enquiry.id, technicianId, date: date === '2026-11-04' ? '2026-11-12' : '2026-11-13', start, end, window })
+      assert.deepEqual([assessment.visit.arrivalWindow, assessment.visit.local.start, assessment.visit.local.end, assessment.visit.local.timezone], [window, start, end, 'Australia/Sydney'])
     }
   }
 })
@@ -39,6 +46,11 @@ test('Approved dispatch and move proposals retain exact windows and changed prom
   const b = await business(h), j = await job(h, b)
   const proposal = await b.agent.run('proposal.prepare', { kind: 'dispatch', plan: { jobId: j.id, technicianId: b.priya.id, date: '2026-11-03', start: '09:00', end: '10:30', window }, rationale: 'Requested morning visit' })
   const dispatchDecision = { proposalId: proposal.id, version: proposal.version }
+  const viewer = await h.person('Proposal Window Viewer', 'viewer')
+  await h.command('grant.create', { agentId: b.agent.id, action: 'visit.book', dailyLimit: 10 })
+  for (const run of [b.office.run, b.priyaPerson.run, viewer.run, b.agent.run]) {
+    await refuse(h, run, 'proposal.approve', dispatchDecision, 'FORBIDDEN')
+  }
   const approved = await b.dispatcher.run('proposal.approve', dispatchDecision, { commandId: 'synthetic-glove-window-proposal' })
   const visit = (await h.state()).visits.find(v => v.id === approved.visitId)
   assert.deepEqual(visit.arrivalWindow, window)
@@ -64,6 +76,18 @@ test('Approved dispatch and move proposals retain exact windows and changed prom
   assert.deepEqual(moved.arrivalWindow, { start: '12:30', end: '14:30' })
   await h.command('grant.create', { agentId: b.agent.id, action: 'visit.change', dailyLimit: 10 })
   await refuse(h, b.agent.run, 'visit.change', { visitId: moved.id, version: moved.version, window, start: '09:00', end: '10:30', reason: 'Try to execute the changed promise' }, 'GRANT_SCOPE')
+  const pending = await b.agent.run('proposal.prepare', { kind: 'move', visitId: moved.id, plan: { technicianId: b.priya.id, date: '2026-11-03', start: '13:00', end: '14:30', window: afternoon }, rationale: 'A changed window requires the dispatcher again' })
+  assert.equal(pending.customer, 'customer not yet asked')
+  await refuse(h, b.agent.run, 'proposal.approve', { proposalId: pending.id, version: pending.version }, 'FORBIDDEN')
+  const kept = await h.state()
+  await h.restart()
+  assert.deepEqual(await h.state(), kept)
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  const saved = exported.visits.find(v => v.id === moved.id)
+  assert.deepEqual([saved.arrivalWindow, saved.assignments], [moved.arrivalWindow, moved.assignments])
+  const changedEvent = exported.timeline.find(e => e.kind === 'visit.changed' && e.subject_id === moved.id && e.summary.includes('12:30 PM'))
+  assert.ok(changedEvent.summary.includes('customer not yet asked'))
+  assert.deepEqual([changedEvent.actor_id, changedEvent.actor_name, changedEvent.actor_role, changedEvent.at], [b.dispatcher.id, b.dispatcher.name, 'dispatcher', at])
 })
 
 test('Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart', async t => {

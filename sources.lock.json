@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "70ecaca01acad163458d5d5759884c30b21e2567aaa38e3fbdbf5bb150bd5e62",
+      "sha256": "dc4b6970dffe7a764ffa819959f9241bd9ef959bfe9e9644358bd9087ac01b74",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9dfba68547be85b05f73b9f78529a772212acbb0c27cd827fd50691e08884726",
+      "sha256": "eaf196681729806c7454a6c6928dae9ef68e6542fe94e8bf8cd39968ac32e973",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "55102021b7ce97f97c19b2dbd56e51dd9ba85a271b085baedffa5dc778be5e2a",
+      "sha256": "64e55deea9a335cf30cf264eb9aff15f4003cfa610f589c59756a195e712e052",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -2188,7 +2188,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "a93b23a44f3fb4d1904806d94807c990cefb7967ea9fefe575a58c2e7671419e",
+      "sha256": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -5480,7 +5480,7 @@
       "executable": false
     },
     "src/ui/visit-panel.tsx": {
-      "sha256": "13c54cc6e75a2f9dcc05e59f84bff31d988ef9e81a2c817d7a4d72f7b2cecfa4",
+      "sha256": "2e98c8c42b0cc945cd8df559d3fdc1091bd1f2c44a059b9a661de87007fc9884",
       "executable": false
     },
     "src/ui/visit-response.tsx": {
@@ -5512,7 +5512,7 @@
       "executable": false
     },
     "tests/api/arrival-windows.test.mjs": {
-      "sha256": "49596ecb2bddc34802d2cbed7c41375326f2fdf2538476a94dfb6042c3317e9d",
+      "sha256": "790e33defe9be2703ac40d6b6de868c3fbdaee2799edb4a5a306d07e428f22d9",
       "executable": false
     },
     "tests/api/assessments.test.mjs": {
@@ -5579,6 +5579,10 @@
       "sha256": "a1a78a5145adf5a0848cb38c8d4d9e46f81f73359cb86e474bf55862ceb0705a",
       "executable": false
     },
+    "tests/api/due-visit-offers.test.mjs": {
+      "sha256": "416dd4e7fbcb4feb81f35477e7d2844de232a399be77539dc1e06e69149c7c25",
+      "executable": false
+    },
     "tests/api/eligibility.test.mjs": {
       "sha256": "850246f89dce5cc2f944a184f5a36b2d44f88f5bce3283fae1c70ef6cc48b5c1",
       "executable": false
@@ -5612,7 +5616,11 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "bd623284ad250eaecadab15ccf5ab90ac967ff55e1576e7553317729e10c5e91",
+      "sha256": "01a55648da59d36280f1bbc57baaf031800c5ed2a66973ebf0e9ef431d84fb1b",
+      "executable": false
+    },
+    "tests/api/live-locations.test.mjs": {
+      "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5796,7 +5804,7 @@
       "executable": false
     },
     "tests/browser/arrival-windows.spec.ts": {
-      "sha256": "bff8e147a043230a5df14781bf8b6f4f61ce9c9e74e18069f1f0e0c0e77b5d7a",
+      "sha256": "782d52a76743a5f224b3b244f596a008919889e3a2fab26a5b9d2c24398ca393",
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
@@ -5835,6 +5843,10 @@
       "sha256": "571a48e5fe1a36a7c80c649b994d3b55228ddf13389c2767d0e24c972d8831ac",
       "executable": false
     },
+    "tests/browser/due-visit-offers.spec.ts": {
+      "sha256": "f5ca0e79d612e819ba9df8ed84970ec6d8e4e92b5585923d166a2248938f95c4",
+      "executable": false
+    },
     "tests/browser/due-visits.spec.ts": {
       "sha256": "3d948fd5ddd7a9c8171af01cf41e31a6c111d8b753a4fd2ee84a48cc5bb13446",
       "executable": false
@@ -5869,6 +5881,10 @@
     },
     "tests/browser/phone-desk.ts": {
       "sha256": "b76d403b5674cc8f080e2a35084a03f6f9713f1b17a2a3a0e5178fb596193830",
+      "executable": false
+    },
+    "tests/browser/phone-location.spec.ts": {
+      "sha256": "2e6608c6170bb540fcd75e36ea901713ddca91869d10c5eaa38a54a636d8c97d",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -6340,7 +6356,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "e0936f0467da1e79485d3bc254e67de67112eee6f7a19bec7cfbfedad94faa73",
+      "sha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
       "executable": false
     },
     "tests/runtime.mjs": {

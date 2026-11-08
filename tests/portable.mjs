@@ -329,7 +329,8 @@ try {
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
   const agreement = await owner.cmd('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: today })
   const offerPayload = { agreementId: agreement.id, index: 0, slots: [{ technicianId: tech.id, date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), start: '11:00', end: '11:30' }] }
-  const bookingLink = await owner.cmd('agreement.offer', offerPayload)
+  const bookingCommandId = randomUUID()
+  const bookingLink = await owner.cmd('agreement.offer', offerPayload, bookingCommandId)
   assert.equal((await running.booking(bookingLink.token)).status, 200, 'PLAN-004 source booking link works')
   // QUOTE-002: retain the exact revision document and hash, require a new bearer after restore.
   const sourceQuoteIssues = []
@@ -400,7 +401,9 @@ try {
   await owner.cmd('location.fleetConnect', { technicianId: tech.id, vehicleId: '12345', key: fleetKey })
   await priya.cmd('clock.in', { deviceTime: locationNow() })
   await priya.cmd('timer.start', { visitId: locationVisit.id, kind: 'job', deviceTime: locationNow() })
-  await priya.cmd('location.phone', { lat: 41.89067, lng: -87.63067, observedAt: locationNow() })
+  const locationCaptureId = randomUUID()
+  const locationCapture = { lat: 41.89067, lng: -87.63067, observedAt: locationNow() }
+  await priya.cmd('location.phone', locationCapture, locationCaptureId)
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   // COMM-006: populated inspection crosses the real archive boundary as business records only.
@@ -480,6 +483,11 @@ try {
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
   assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  // DISP-005 populated source custody stays transient across an actual installation archive.
+  for (const name of ['glove_live_locations', 'glove_fleet_credentials']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
+  const locationHistory = before.timeline.filter(e => ['location.consent', 'location.received', 'location.fleetConnected'].includes(e.kind))
+  assert.deepEqual(locationHistory.map(e => e.kind).sort(), ['location.consent', 'location.fleetConnected', 'location.received'])
+  for (const e of locationHistory) assert.ok(e.actor_id && e.at && e.command_id)
   assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
   for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
   for (const { result } of sourceQuoteIssues) {
@@ -500,7 +508,10 @@ try {
   assert.equal(restoredPosition.position, null, 'DISP-005 restored installation has no captured position')
   const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
+  const oldCapture = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.phone', payload: locationCapture }, priya.cookie)
+  assert.equal(oldCapture.status, 401, 'DISP-005 source sign-in cannot write in the restored installation')
   const after = await running.owner.get('/api/glove/export')
+  for (const e of locationHistory) assert.deepEqual(after.timeline.find(x => x.id === e.id), e, 'DISP-005 attributable history survives the real restore without private location material')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   for (const original of before.quotes) {
     const restoredQuote = after.quotes.find(quote => quote.id === original.id)
@@ -579,6 +590,9 @@ try {
   const reactivated = await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)
   assert.equal(reactivated.status, 200, 'a current Owner explicitly reactivates the restored staff member')
   const restoredMember = await running.persona('member')
+  assert.deepEqual(await restoredMember.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome after explicit staff reactivation')
+  assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
+  console.log('DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position')
   const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
   assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
   for (const batch of sourceBatches) {
@@ -611,6 +625,19 @@ try {
   assert.equal(freshUnrelatedLink.documentHash, unrelatedLink.documentHash)
   const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
   assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
+  // PLAN-010: a real archive carries offer evidence, never its execution credential.
+  const { token: sourceBookingToken, ...sourceBookingMetadata } = bookingLink
+  assert.deepEqual(after.bookingOffers.find(o => o.id === bookingLink.id), sourceBookingMetadata, 'PLAN-010 original offer metadata restores exactly')
+  assert.deepEqual(await running.owner.cmd('agreement.offer', offerPayload, bookingCommandId), sourceBookingMetadata, 'PLAN-010 restored command replay reveals only saved metadata')
+  assert.equal((await running.booking(sourceBookingToken)).status, 404, 'PLAN-010 replay cannot resurrect the source bearer')
+  assert.notEqual(freshBookingLink.token, sourceBookingToken)
+  assert.equal(freshBookingLink.jobId, bookingLink.jobId, 'PLAN-010 fresh issuance reuses the restored included job')
+  const freshBookingView = await (await running.booking(freshBookingLink.token)).json()
+  assert.deepEqual(freshBookingView.offer, { business: 'Harbour Air & Electrical', service: 'Split system service', address: site.address, expiresAt: freshBookingLink.expiresAt, slots: freshBookingLink.slots.map(s => ({ id: s.id, ...s.local })) }, 'PLAN-010 fresh bearer exposes only the restored included visit')
+  const restoredOfferExport = await running.owner.get('/api/glove/export')
+  for (const secret of [sourceBookingToken, freshBookingLink.token]) assert.equal(JSON.stringify(restoredOfferExport).includes(secret), false)
+  console.log('PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job')
+
   const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
   assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
   assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
