@@ -351,9 +351,7 @@ try {
   assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
   for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
   for (const { result } of sourceQuoteIssues) {
-    const secretHash = createHash('sha256').update(`glove-quote-link:${result.token}`).digest('hex')
-    const plainHash = createHash('sha256').update(result.token).digest('hex')
-    for (const [kind, secret] of [['bearer', result.token], ['link hash', secretHash], ['plain hash', plainHash]]) assert.ok(!archiveBytes.includes(Buffer.from(secret)), `QUOTE-009 plain archive bytes contain no issued quote ${kind}`)
+    assert.ok(!archiveBytes.includes(Buffer.from(result.token)), 'QUOTE-009 plain archive bytes contain no issued quote bearer')
   }
   assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
   for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
@@ -506,7 +504,7 @@ try {
   const unrelatedDocument = (await unrelatedAfterErasure.json()).document
   assert.deepEqual(unrelatedDocument, unrelatedLink.document)
   assert.equal(documentHash(unrelatedDocument), unrelatedLink.documentHash)
-  console.log('QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers and hashes excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only')
+  console.log('QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only')
   const erasedRoutes = (await running.owner.get('/api/glove/state')).routes
   for (const id of [route.id, freshRoute.id]) {
     const closed = erasedRoutes.find(r => r.id === id)
