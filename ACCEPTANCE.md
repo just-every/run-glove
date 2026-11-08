@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 16 | 205 | 16 | 237 |
+| Core | 15 | 206 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 16 | 218 | 29 | 263 |
+| Full target | 15 | 219 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1194,7 +1194,7 @@ Core · target · **partial** · From DISP-007 · Cites BASE-AUDIT-001, BASE-ROL
 
 #### DISP-014 — Subcontractor agreed amounts and filing totals
 
-Core · target · **partial** · From DISP-007
+Core · target · **done** · From DISP-007
 
 **Requirement.** Subcontractor agreed amounts and filing totals supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations.
 
@@ -1205,8 +1205,8 @@ Core · target · **partial** · From DISP-007
 4. They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing.
 5. Timesheets and payroll exports stay `COST-002, COST-006, COST-007`'s.
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner marks a technician record as a subcontractor with a 1099 payee name and the last 4 digits of the TIN; a full TIN is refused and never stored.; point 2 — The owner sets an agreed amount on each of their visits.; point 3 — The 1099-NEC totals for a calendar year, which the owner and office read as JSON or CSV, sum each subcontractor's agreed amounts on their visits completed that year (dated by the completion Glove received, in the business time zone), with the visit count and whether the total is $600 or more.; point 4 — They are labelled "Totals for your filing, not a filed 1099"; Glove files nothing.; point 5 — Timesheets and payroll exports stay COST-002, COST-006, COST-007's. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/subcontract.test.mjs` (DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year)
+**Gap.** None.
 
 #### DISP-008 — Google Calendar and Outlook sync
 
@@ -1228,7 +1228,7 @@ Core · target · **partial** · From DISP-008 · Cites BASE-DATA-001
 
 #### DISP-015 — Calendar change delivery and uncertainty
 
-Core · target · **done** · From DISP-008
+Core · target · **partial** · From DISP-008
 
 **Requirement.** Calendar change delivery and uncertainty supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-008-operating-rules) retain the record formats and calculations.
 
@@ -1237,8 +1237,8 @@ Core · target · **done** · From DISP-008
 2. Uncertain writes remain visible and stop later work on that connection, without automatic replay.
 3. Disconnect stops writes and retains existing provider events for owner review.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`; `tests/api/eligibility.test.mjs` (DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking); `tests/browser/dispatch-map.spec.ts` (DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390)
-**Gap.** None.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`, `src/glove/calendar-sync.ts`, `src/ui/calendar-sync.tsx`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — All committed visit changes enqueue provider work, including technician reassignment.; point 2 — Uncertain writes remain visible and stop later work on that connection, without automatic replay.; point 3 — Disconnect stops writes and retains existing provider events for owner review. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### DISP-009 — Delegated dispatcher position view
 
@@ -2365,7 +2365,7 @@ Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
 
 #### PAY-025 — Cash and check deposit batches
 
-Core · target · **done** · From PAY-007 · Cites BASE-DATA-003
+Core · target · **partial** · From PAY-007 · Cites BASE-DATA-003
 
 **Requirement.** Cash and check deposit batches supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2374,8 +2374,8 @@ Core · target · **done** · From PAY-007 · Cites BASE-DATA-003
 2. Only the owner reads provider-wide payout and fee records; the office sees its branch's cash/check batches.
 3. DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/payments.test.mjs` (PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly)
-**Gap.** None.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Cash/check deposits (payment deposit batch action) group 1–100 confirmed same-currency/branch records once, net of prior recorded refunds, as staff-recorded deposits without a bank-confirmation claim.; point 2 — Only the owner reads provider-wide payout and fee records; the office sees its branch's cash/check batches.; point 3 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### PAY-026 — Instant payout preview and execution
 
