@@ -4,10 +4,12 @@ import { cp, mkdtemp, mkdir, rm } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
+import { execFileSync } from 'node:child_process'
 import { devInstallation } from '../dev-installation.mjs'
 import { freshCopy, command, startDev, stopDev, redact } from './runtime.mjs'
 
 const workspace = resolve(fileURLToPath(new URL('../..', import.meta.url)))
+const sourceHead = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: workspace, encoding: 'utf8' }).trim()
 const evidence = resolve(process.env.GLOVE_BROWSER_OUTPUT || join(tmpdir(), 'glove-browser-evidence'))
 const screenshots = resolve(process.env.GLOVE_SCREENSHOTS || join(evidence, 'screenshots'))
 if ([evidence, screenshots].some(path => path === workspace || path.startsWith(workspace + '/'))) throw new Error('Browser evidence must be outside the product checkout.')
@@ -28,7 +30,7 @@ async function runInstallation(selection, name) {
       port => command(join(root, 'node_modules/.bin/rer'), ['setup', '--owner-email', ['owner', 'example.test'].join('@'), '--non-interactive', '--port', String(port)], root),
       port => startDev(root, port),
     )
-    const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...selection], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_BROWSER_OUTPUT: join(evidence, 'results', name) })
+    const output = await command(join(workspace, 'node_modules/.bin/playwright'), ['test', '--config', join(workspace, 'tests/browser/playwright.config.ts'), '--workers=1', ...selection], workspace, { GLOVE_BASE_URL: runtime.origin, GLOVE_OPEN: runtime.entry, GLOVE_SITE_ROOT: join(parent, 'site'), GLOVE_SCREENSHOTS: screenshots, GLOVE_PRODUCT_HEAD: sourceHead, GLOVE_BROWSER_OUTPUT: join(evidence, 'results', name) })
     console.log(redact(output))
     console.log(`Real install, setup and dev journeys passed at 1440 and 390. Screenshots: ${screenshots}`)
   } catch (error) {

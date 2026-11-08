@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a044c1c83e79c6adc664b188a52926049845c4f66d6bab2ff8f3fbb2e875b177",
+      "sha256": "cfcb922eb6aaa95c421204878af25167e006cc584fee71bee3719af8b4ac4538",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "50aa43ba402f2d491fc76c44d8e9083bdff74dee565460b0a9a77931dd7f9faf",
+      "sha256": "c76a4bc5d15c9aab0c62218f8d1fc5143b78558695968ad171e82ead4eb9ab13",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "4bddb269aa9fa07c8e1013804ec35da66a60845554bba5a1daa925f795cac467",
+      "sha256": "55102021b7ce97f97c19b2dbd56e51dd9ba85a271b085baedffa5dc778be5e2a",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "ef4096c63ceeab3cb1963fe484f48438f244434abb3fac44120cfa970df1e33c",
+      "sha256": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -5515,6 +5515,10 @@
       "sha256": "085688bc1b13397131367d9b9306d4c1895377d37ea27d72c0da630060bd0dd5",
       "executable": false
     },
+    "tests/api/booking-offer-history.test.mjs": {
+      "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2",
+      "executable": false
+    },
     "tests/api/branches.test.mjs": {
       "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
       "executable": false
@@ -5600,7 +5604,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "8af8518956876244433615579f5b6732e0762523d9b9d7410a4145b8415d9a09",
+      "sha256": "424e9d8e82c9e8ba5eeea0b3ccbcfea16b3f45baaa31d2450cf52a31b79912b5",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5616,7 +5620,7 @@
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "73c3a919f0b30fa23134af2af6d87bba9d3a69d1c872cfdcaf026b457fc30961",
+      "sha256": "97ab27f5afac5393f3b44d3ce96688bf122211de083f83cd498bde17d8564853",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
@@ -5660,7 +5664,7 @@
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
-      "sha256": "9b859e9d1281c3dff909155358252240b6972650b3eb8977b7fa0b1fa3a30a08",
+      "sha256": "8b26280de0736e3b80a6ed9d10a625de973dc8e0f0102c68a3040f92762939aa",
       "executable": false
     },
     "tests/api/push.test.mjs": {
@@ -5812,7 +5816,7 @@
       "executable": false
     },
     "tests/browser/due-visits.spec.ts": {
-      "sha256": "6b1bb6de9aa8e88b67fb21621f09bda30b8029ab0b72a5fb5c623e1513f51cdf",
+      "sha256": "3d948fd5ddd7a9c8171af01cf41e31a6c111d8b753a4fd2ee84a48cc5bb13446",
       "executable": false
     },
     "tests/browser/email.spec.ts": {
@@ -5820,7 +5824,7 @@
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
-      "sha256": "8a25bace0ea61a19be43c9aaedb8518fe92a4316eb8e4a2823153f8371bc3546",
+      "sha256": "bc98db9fdbd767189b1ae94e33aca062b78c38fd3e7a5241961f353f49ee562b",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
@@ -5836,7 +5840,7 @@
       "executable": false
     },
     "tests/browser/morning-brief.spec.ts": {
-      "sha256": "34085f17c242bf47a3f3a365f680420d9a2896e45ada8d433eff2a09f97718b4",
+      "sha256": "f46f9e2c078435b5a6a99de136567323207fd656a2c0230666a90c2cfc13f114",
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
@@ -5884,7 +5888,7 @@
       "executable": false
     },
     "tests/browser/run.mjs": {
-      "sha256": "5f0dad0590eb727d41f4e0d45bd8ac6023fafd92cb4e7bc3334418ba270c03a8",
+      "sha256": "a37e982bc6f03e88812bf5b622beb6921315bb1d916130b4325e9a289571163c",
       "executable": false
     },
     "tests/browser/runtime.mjs": {
