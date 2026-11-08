@@ -1,0 +1,86 @@
+Actual failed-job output, with workflow environment block, runtime identity and private values omitted.
+
+shards (browser-3)	Run this shard	﻿2026-11-08T16:35:36.9965646Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (browser-3)	Run this shard	2026-11-08T16:35:36.9966062Z node scripts/verify-ci.mjs "$SHARD"
+shards (browser-3)	Run this shard	2026-11-08T16:35:36.9985840Z shell: /usr/bin/bash -e {0}
+shards (browser-3)	Run this shard	2026-11-08T16:35:37.0313887Z > pnpm run verify:app
+shards (browser-3)	Run this shard	2026-11-08T16:35:37.3058444Z 
+shards (browser-3)	Run this shard	2026-11-08T16:35:37.3059393Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser-3)	Run this shard	2026-11-08T16:35:37.3060337Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser-3)	Run this shard	2026-11-08T16:35:37.3060603Z 
+shards (browser-3)	Run this shard	2026-11-08T16:35:37.4005173Z verify:app
+shards (browser-3)	Run this shard	2026-11-08T16:35:37.4323998Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/conversation.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/fresh-install.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/receivables.spec.ts'
+shards (browser-3)	Run this shard	2026-11-08T16:35:38.4690981Z [verify phase] frozen install: start
+shards (browser-3)	Run this shard	2026-11-08T16:35:45.6889423Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=7222
+shards (browser-3)	Run this shard	2026-11-08T16:35:45.6893383Z [verify phase] rer: start
+shards (browser-3)	Run this shard	2026-11-08T16:35:50.8483901Z [verify phase] rer: exit=0 signal=none elapsed_ms=5159
+shards (browser-3)	Run this shard	2026-11-08T16:35:50.8488415Z [verify phase] site build: start
+shards (browser-3)	Run this shard	2026-11-08T16:35:53.4391229Z [verify phase] site build: exit=0 signal=none elapsed_ms=2590
+shards (browser-3)	Run this shard	2026-11-08T16:35:53.4774797Z [verify phase] native setup: start
+shards (browser-3)	Run this shard	2026-11-08T16:36:31.3025908Z [verify phase] native setup: exit=0 signal=none elapsed_ms=37825
+shards (browser-3)	Run this shard	2026-11-08T16:36:31.3036226Z [verify phase] native dev: start
+shards (browser-3)	Run this shard	2026-11-08T16:36:47.3368294Z [verify phase] browser assertions: start
+shards (browser-3)	Run this shard	2026-11-08T16:36:48.3117076Z [verify progress] Running 1 test using 1 worker
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1135531Z [verify progress]   ✘  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (18.0s)
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1355441Z [verify progress]   1 failed
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1487732Z [verify phase] browser assertions: exit=1 signal=none elapsed_ms=19812
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1508910Z Dev runtime output (last 6000 characters):
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1513832Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1515390Z rer dev: checking the server limit
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1522901Z Checking pinned pnpm
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1523662Z 10.12.4
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1524266Z Applying database migrations
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1524974Z Applying database migrations
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1525488Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1526126Z  ⛅️ wrangler 4.129.1 (update available 4.158.0)
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1527110Z ───────────────────────────────────────────────
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1527849Z Resource location: local 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1528335Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1528876Z Use --remote if you want to access the remote instance.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1529945Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1530556Z ✅ No migrations to apply!
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1531130Z Starting your application on this computer
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1531727Z Starting your application on this computer
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1532261Z Using secrets defined in .dev.vars
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1532734Z   ➜  Local:   [URL]
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1533164Z Opening your application
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1533702Z Your application is running locally
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1534186Z Building the run site
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1534672Z {"pages":22,"assets":6,"styles":1}
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1536816Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1539774Z Open your app, already signed in on this computer: [URL]
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1540534Z App address (without sign-in): [URL]
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1541143Z Keep the sign-in link private.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1542121Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1543528Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1545082Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512155648 bytes.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1545992Z Details for tools and troubleshooting:
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1546336Z RER_READY [URL]
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1547332Z [private runtime entry]
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1547877Z Running the scheduled trigger locally: */15 * * * *
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.1548291Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.3360665Z [verify phase] native dev: exit=143 signal=none elapsed_ms=36032
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6535251Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6535977Z Running 1 test using 1 worker
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6536364Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6537647Z   ✘  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (18.0s)
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6538279Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6538286Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6538986Z   1) tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6539877Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6540306Z     Error: clock.pauseAt: Error: Cannot fast-forward to the past
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6541192Z         at ClockController._innerFastForwardTo (eval at evaluate (:311:30), <anonymous>:201:13)
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6541932Z         at ClockController.pauseAt (eval at evaluate (:311:30), <anonymous>:132:16)
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6542444Z         at async <anonymous>:337:30
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6542958Z         at ClockController._innerFastForwardTo (eval at evaluate (:311:30), <anonymous>:201:13)
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6543919Z         at ClockController.pauseAt (eval at evaluate (:311:30), <anonymous>:132:16)
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6544419Z         at async <anonymous>:337:30
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6544848Z         at [REDACTED]/tests/browser/fresh-install.spec.ts:196:23
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6545195Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6545974Z     Error Context: ../../../../../tmp/glove-browser-evidence/results/fresh-install/fresh-install-DATA-004-fre-377b8-separately-signed-in-people/error-context.md
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6546650Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6546761Z   1 failed
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6547562Z     tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.6548138Z 
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.7402885Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-3)	Run this shard	2026-11-08T16:37:07.7628008Z ##[error]Process completed with exit code 1.

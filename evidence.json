@@ -7,10 +7,10 @@
       "sha256": "940ec19997a4bd89d35cb6db0bcc6722c03a10c2ccf305d1ec820bc95f1da7f8"
     },
     {
-      "blob": "8b29a68ec859dc55c17ff38cae1a69e2ab08a9a7",
-      "bytes": 19067,
+      "blob": "83a98d8684b8d56b4ecd723d93484002d0d5e3ef",
+      "bytes": 19103,
       "path": "REPORT.md",
-      "sha256": "7fefbf063b3dae6dd07b469a633ceef8eabf84650d56c58c1b3a4c46aa35b788"
+      "sha256": "5fa70df39081bea0ecb4a32e2f0ab91f938e34afec583cbaafb134859cccb7a6"
     },
     {
       "blob": "5e5f8ef9a6a35a27138c5c0177c1cb9b396ed466",
@@ -35,6 +35,12 @@
       "bytes": 7615,
       "path": "candidate-shard-output.txt",
       "sha256": "0e0a3033c33241907d277fd6dba764ba406caf8f4d25b530369a4d3512486707"
+    },
+    {
+      "blob": "78594802dfe14dea54fe9a85a983ef9ea9db9ac9",
+      "bytes": 9918,
+      "path": "ci-failed-job-output.txt",
+      "sha256": "886fcde782a00dca35385f4220a3754dde48c89901a96d9d2eb645f0ea73e699"
     },
     {
       "blob": "60cb6cafff17fc4a4de65066517fb8d494a0e813",
