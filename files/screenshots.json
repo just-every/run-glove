@@ -1,0 +1,107 @@
+{
+  "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c",
+  "screenshots": [
+    {
+      "path": "browser/screenshots/1440-fresh-settings.png",
+      "bytes": 1299782,
+      "sha256": "9c6bed784f6781976fbcb08e3290f9c229ef98eec360743a37f58de5afc1aee9",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-settings.png",
+      "bytes": 1230297,
+      "sha256": "e96395b39d17ce0255e767e81b7558f644b34293d97298e32c1f0c09cf30eed0",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/1440-fresh-quote.png",
+      "bytes": 209208,
+      "sha256": "b0270962432521f65c3070ef381078a4974e990ad1ae07a4f05118845faa9892",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-quote.png",
+      "bytes": 161846,
+      "sha256": "1f9fd4303eadd5956a22ba3b35da984e785c6291f6fd829ab4984a6676fbe5d6",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/1440-fresh-dispatch.png",
+      "bytes": 206090,
+      "sha256": "ab6f18c1063cf388140ecb73fdcecae16465a0e9fc0be48a787d1507dc9af15a",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-dispatch.png",
+      "bytes": 160565,
+      "sha256": "9f52f6e2155389fda089dccf2b0c19a54c259672df913f4c76cf785f57ecdf32",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/1440-fresh-series.png",
+      "bytes": 275789,
+      "sha256": "0a80fd536a4bdb727cd50e3b289c6b1322d3459e2482d1fb73a434024a4d35c6",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-series.png",
+      "bytes": 209997,
+      "sha256": "d9b9ad4cb74ea97584363df58328067fce4222625f3cbaff1d7d69f1d81df8e5",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/1440-fresh-invoice.png",
+      "bytes": 278261,
+      "sha256": "30894c7f44e6af05b9a44c73d9085ec3a6017102cf165e2b24ead54dce5c8fb6",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-invoice.png",
+      "bytes": 233154,
+      "sha256": "27832a9fee58a48df3abf2bd7a5f13f7be853102a11570b806c5d94d6f80b539",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/1440-fresh-activity.png",
+      "bytes": 424335,
+      "sha256": "2bba5e6b828b8063fc4a418bba73226355558a71ee813e5b2de2741835e019db",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-activity.png",
+      "bytes": 364351,
+      "sha256": "a73d2e1de9cce324b0930742c6754a01153dd1a94c74d546b4849185afafdd58",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/1440-fresh-completed-job.png",
+      "bytes": 246875,
+      "sha256": "686b6bb7458ab6c86fb491e3af2ac2bd99ef832b61194f9ab19f874b5cb67a7e",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-completed-job.png",
+      "bytes": 194544,
+      "sha256": "36934d7fe383039ecf5139d831596d009381bd2cb8a7221dce30011e19c33864",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/1440-fresh-technician-visits.png",
+      "bytes": 153653,
+      "sha256": "e9d8463ef24c93bab1d395127f523366a65fba08647ab6ad99f5713fb2ffad7c",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-technician-visits.png",
+      "bytes": 125966,
+      "sha256": "2b97681ea01d1c4e50c26fffa2e3b134845e1b327f9d687c62011be050bf23d3",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    },
+    {
+      "path": "browser/screenshots/390-fresh-phone-offline.png",
+      "bytes": 231790,
+      "sha256": "44e57510adb0a94b5025e09b8f3ba87c52d619aef8dfe4aeeefebf3335fd7441",
+      "sourceHead": "be3c0d35d34c1b30a7162da2cd438304c023ac6c"
+    }
+  ]
+}

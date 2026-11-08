@@ -1,0 +1,8 @@
+# DATA-004 continuation plan
+
+1. Read the inline target, operating rules, inherited duties and all eleven DONE riders. Read the repository installation commands, journey harness and existing assertions. Preserve the original journey and existing browser partitions.
+2. Start at the prescribed continuation head with a full-history clone. Integrate current main, keeping all newer contract judgments and tests. Preserve the resolution changes carried by the previous round's merge commits; ordinary rebase does not replay merge-resolution hunks.
+3. Run the focused fresh-install browser journey through the documented install, setup and dev verbs. Prove four independent native sign-ins, owner setup and invitations, dispatcher request and quote through booking and recurrence, disconnected technician work, office invoice approval, check and once-only export. Inspect persisted records, Activity, exported business data, all four role refusals, and reloaded screens at both widths.
+4. Run touched typecheck, first-party project check, generator write and check, restore generated views from current main, and regenerate and check the edition lock last. Keep contract judgments and generated views out of builder commits.
+5. Save product commits on the named branch with fleet identities and preserved hooks. Integrate updated main once more, run the local proof on the final committed head, push the landing candidate, and inspect exact-head Verify through the permitted REST calls.
+6. Write the proof matrix, rider results, actual receipts, limits and terminal provenance in this packet. Publish only explicitly selected non-secret files on the separate evidence ref. Leave scanning, status changes, guarded landing and Run site to the fleet.

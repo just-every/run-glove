@@ -1,0 +1,65 @@
+{
+  "shardCount": 8,
+  "shards": [
+    {
+      "name": "foundation",
+      "commands": [
+        "pnpm run build",
+        "pnpm run check --profile first-party",
+        "pnpm run typecheck",
+        "node tests/runtime.mjs",
+        "node tests/email-link.mjs",
+        "node tests/site.mjs"
+      ]
+    },
+    {
+      "name": "api-1",
+      "commands": [
+        "pnpm run build",
+        "node --test --test-concurrency=1 'tests/api/agreements.test.mjs' 'tests/api/branches.test.mjs' 'tests/api/companycam.test.mjs' 'tests/api/costing.test.mjs' 'tests/api/customer-quotes.test.mjs' 'tests/api/delays.test.mjs' 'tests/api/documents.test.mjs' 'tests/api/email.test.mjs' 'tests/api/expenses.test.mjs' 'tests/api/forms.test.mjs' 'tests/api/margins.test.mjs' 'tests/api/money.test.mjs' 'tests/api/movein.test.mjs' 'tests/api/options.test.mjs' 'tests/api/payroll.test.mjs' 'tests/api/pricebook.test.mjs' 'tests/api/purchasing.test.mjs' 'tests/api/quickbooks.test.mjs' 'tests/api/recurring-billing.test.mjs' 'tests/api/reports.test.mjs' 'tests/api/rules.test.mjs' 'tests/api/segments.test.mjs' 'tests/api/service-reports.test.mjs' 'tests/api/stock.test.mjs' 'tests/api/suggest.test.mjs' 'tests/api/tokens.test.mjs'"
+      ]
+    },
+    {
+      "name": "api-2",
+      "commands": [
+        "pnpm run build",
+        "node --test --test-concurrency=1 'tests/api/assessments.test.mjs' 'tests/api/callbacks.test.mjs' 'tests/api/conversation.test.mjs' 'tests/api/csv.test.mjs' 'tests/api/customers.test.mjs' 'tests/api/discounts.test.mjs' 'tests/api/eligibility.test.mjs' 'tests/api/equipment.test.mjs' 'tests/api/flows.test.mjs' 'tests/api/grants.test.mjs' 'tests/api/merge.test.mjs' 'tests/api/morning-brief.test.mjs' 'tests/api/nameplates.test.mjs' 'tests/api/payments.test.mjs' 'tests/api/pipeline.test.mjs' 'tests/api/privacy.test.mjs' 'tests/api/push.test.mjs' 'tests/api/records.test.mjs' 'tests/api/reminders.test.mjs' 'tests/api/routing.test.mjs' 'tests/api/security.test.mjs' 'tests/api/series.test.mjs' 'tests/api/servicecall.test.mjs' 'tests/api/subcontract.test.mjs' 'tests/api/time.test.mjs' 'tests/api/xero.test.mjs'"
+      ]
+    },
+    {
+      "name": "portable",
+      "commands": [
+        "pnpm run build",
+        "node tests/portable.mjs"
+      ]
+    },
+    {
+      "name": "browser-1",
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/branches.spec.ts' 'tests/browser/customer-quotes.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/quickbooks.spec.ts' 'tests/browser/revenue.spec.ts' 'tests/browser/routing.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-2",
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/email.spec.ts' 'tests/browser/money.spec.ts' 'tests/browser/receivables.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-3",
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/conversation.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/fresh-install.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/rules.spec.ts'"
+      ]
+    },
+    {
+      "name": "browser-4",
+      "commands": [
+        "pnpm run build",
+        "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/custom-roles.spec.ts' 'tests/browser/documents.spec.ts' 'tests/browser/invoice-batch.spec.ts' 'tests/browser/movein.spec.ts' 'tests/browser/reminders.spec.ts' 'tests/browser/service-reports.spec.ts'"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "candidate": "be3c0d35d34c1b30a7162da2cd438304c023ac6c",
+  "commits": [
+    {
+      "head": "be3c0d35d34c1b30a7162da2cd438304c023ac6c",
+      "author_allowed": true,
+      "committer_allowed": true,
+      "trailers": "absent"
+    },
+    {
+      "head": "8e9e3f0f53022f98318e18ccf0b60195178da414",
+      "author_allowed": true,
+      "committer_allowed": true,
+      "trailers": "absent"
+    },
+    {
+      "head": "98db3078c0ca0a15f0ea1ef2df8b29d78ab8de02",
+      "author_allowed": true,
+      "committer_allowed": true,
+      "trailers": "absent"
+    },
+    {
+      "head": "45da869b15ba5c3052baf02e966adca2eabc2b20",
+      "author_allowed": true,
+      "committer_allowed": true,
+      "trailers": "absent"
+    },
+    {
+      "head": "fb76a3e5cb9ace6be5c3821113cd41ebc7e321e4",
+      "author_allowed": true,
+      "committer_allowed": true,
+      "trailers": "absent"
+    },
+    {
+      "head": "c4c06e2ed69e23ef64dd948748d916721acbbf13",
+      "author_allowed": true,
+      "committer_allowed": true,
+      "trailers": "absent"
+    }
+  ],
+  "all_side_parents_included": true
+}

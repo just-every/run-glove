@@ -1,0 +1,15 @@
+{
+  "candidate": "be3c0d35d34c1b30a7162da2cd438304c023ac6c",
+  "integrated_main": "e65fd420554c15d42ef2dbb77300adf99e600704",
+  "method": "TypeScript AST direct calls to test across tracked test source files; no test execution",
+  "main_direct_registrations": 201,
+  "candidate_direct_registrations": 202,
+  "candidate_api_direct_registrations": 159,
+  "candidate_browser_direct_registrations": 43,
+  "delta": 1,
+  "limitations": "Does not expand loop-generated cases or count standalone assertion scripts. This is a lower bound, not a complete cap receipt.",
+  "assertions_removed": false,
+  "original_journey_changed": false,
+  "ci_shards": 8,
+  "browser_shards": 4
+}

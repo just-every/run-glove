@@ -1,0 +1,83 @@
+{
+  "head": "be3c0d35d34c1b30a7162da2cd438304c023ac6c",
+  "branch": "cloud/sx-glove-c-f133",
+  "checked_at": "2026-11-08T14:10:00.077433+00:00",
+  "commands": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium timeout 1200 node tests/browser/run.mjs tests/browser/fresh-install.spec.ts",
+      "exit": 0,
+      "receipt": "fresh-install.log",
+      "test": "DATA-004 fresh local installation completes service work as four separately signed-in people",
+      "duration_seconds": 29.8
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "receipt": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DATA-004",
+      "exit": 0,
+      "receipt": "views-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "views-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "receipt": "lock-write.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "receipt": "lock-check.log"
+    }
+  ],
+  "contract_judgments_unchanged": true,
+  "generated_views_unchanged": true,
+  "original_journey_unchanged": true,
+  "workflow_unchanged": true,
+  "git_clean": true,
+  "shard_count": 8,
+  "browser_shard_count": 4,
+  "role_refusals": [
+    "owner:visit.arrive",
+    "dispatcher:invoice.approve",
+    "technician:payment.record",
+    "office:service.save"
+  ],
+  "guarded_landing": "pending fleet",
+  "publication_scan": "deferred to guarded lander",
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "be3c0d35d34c1b30a7162da2cd438304c023ac6c",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42488243039",
+    "status": "completed",
+    "id": 42488243039,
+    "event": "push",
+    "name": "Verify"
+  },
+  "api_calls_used": 8,
+  "done_riders": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS INSPECTED",
+    "6": "PASS MECHANICAL",
+    "7": "PASS INSPECTED",
+    "8": "PASS",
+    "9": "PASS INSPECTED",
+    "10": "PASS INSPECTED",
+    "11": "PENDING GUARDED LANDER"
+  },
+  "ready": true
+}
