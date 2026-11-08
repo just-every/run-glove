@@ -86,5 +86,10 @@
     "partial": 220,
     "missing": 29
   },
-  "clause_status_cells_changed": false
+  "clause_status_cells_changed": false,
+  "observed_remote_main_after_candidate": "00543a4111453e00bfce85033457492098af9d3b",
+  "main_drift": "Advanced after candidate publication; branch preserved without rewriting; guarded lander owns integration.",
+  "github_api_calls": 2,
+  "ci_observed_utc": "2026-11-08T13:02:20Z",
+  "claim": "COMM-015 DONE points 1\u20138, proposed for independent guarded landing; source judgment unchanged."
 }

@@ -73,3 +73,11 @@ Publication scan receipt: commit=3041ce39fb8a867522c4b3cac85402ba32d3ff83 comple
 Local checks: focused custody 1/1 passed on exact candidate under Node 22.20.0; email regression 6/6 passed; browser email journey passed at 1440 and 390; typecheck, production build, first-party check, contract generation and source lock check all exited 0. The exact candidate’s typecheck and first-party check were rerun. Actual non-secret logs and machine receipt accompany this report. No production repair was needed. The initial test-development correction read action payloads from export, because Activity intentionally exposes audit metadata rather than the payload.
 
 Blockers: none in the local product proof. CI qualification and fleet landing gates are pending and are not represented as completed. PR: none required. No release, live send or main push was performed.
+
+Remote custody: Git ls-remote confirmed the named cloud branch at the full candidate SHA. Main advanced after the candidate push to 00543a4111453e00bfce85033457492098af9d3b; published history is retained unchanged for the guarded lander. No manual main update was attempted.
+
+CLAIM COMM-015 DONE points=1,2,3,4,5,6,7,8 tests=tests/api/postmark-custody.test.mjs#COMM-015 points 1–8: Owner-only Postmark custody survives restart, refuses unsafe callbacks and applies replay once
+
+Final CI observation: push Verify 42482616582, exact head 3041ce39fb8a867522c4b3cac85402ba32d3ff83, status in_progress, conclusion null. Two GitHub API calls total; the second observation was at least 300 seconds after discovery. No dispatch, rerun or failed-log call was made. The cloud handoff does not claim CI green. The maintained fleet lander enforces exact-SHA Verify, publication scan and Run site before counting DONE.
+
+Product branch custody is confirmed. The complete packet is published on the separate evidence ref. The earlier 18-file evidence transport round-trip verified its manifest and hashes. No product checkout, head or index was changed by evidence publication.
