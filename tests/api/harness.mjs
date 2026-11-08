@@ -25,8 +25,8 @@ import assert from 'node:assert/strict'
 export async function installation({ isolates = 1, at = null, captureLogs = false } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   // The loopback service represents callback errors as HTTP 500. Translate
-  // only the marketing edge's explicit transport-failure marker at fetch,
-  // so an unreachable provider rejects inside the actual Worker instead.
+  // the marketing transport-failure marker and calendar timeout marker at
+  // fetch, so network failures reject inside the actual Worker instead.
   const banner = { js: `
 const networkFetch = globalThis.fetch;
 globalThis.fetch = async (input, options) => {

@@ -199,7 +199,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
       const work = (await db.prepare("SELECT technician_id,connection_id,visit_id,state,action,at FROM glove_calendar_work ORDER BY sequence").all<any>()).results
       const mappings = (await db.prepare('SELECT connection_id,visit_id,event_id FROM glove_calendar_events').all<any>()).results
       view.technicians = view.technicians.map(t => {
-        const own = work.filter(w => w.technician_id === t.id), connection = t.calendarSync?.connectionId
+        const own = work.filter(w => w.technician_id === t.id), connection = s.technicians.find(tech => tech.id === t.id)?.calendarSync?.connectionId
         const active = own.filter(w => w.connection_id === connection)
         return { ...t,
           calendarOutcome: active.find(w => ['unknown', 'sending', 'failed'].includes(w.state)) ?? active.at(-1) ?? null,
