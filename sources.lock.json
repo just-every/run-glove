@@ -5600,7 +5600,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "8af8518956876244433615579f5b6732e0762523d9b9d7410a4145b8415d9a09",
+      "sha256": "424e9d8e82c9e8ba5eeea0b3ccbcfea16b3f45baaa31d2450cf52a31b79912b5",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5616,7 +5616,7 @@
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "73c3a919f0b30fa23134af2af6d87bba9d3a69d1c872cfdcaf026b457fc30961",
+      "sha256": "c6cef836719fcc66c79a993a1afa0465841eeee8dcee86b219f87d0e13ded076",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
@@ -5836,7 +5836,7 @@
       "executable": false
     },
     "tests/browser/morning-brief.spec.ts": {
-      "sha256": "34085f17c242bf47a3f3a365f680420d9a2896e45ada8d433eff2a09f97718b4",
+      "sha256": "f46f9e2c078435b5a6a99de136567323207fd656a2c0230666a90c2cfc13f114",
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
