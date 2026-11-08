@@ -1,0 +1,47 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+▶ API-001 Glove first release: quote to booked visit to field evidence to invoice export
+  ✔ 01 owner sets up the business, price book, team and roles (452.18251ms)
+  ✔ 02 desk records a customer and the sites where work happens (745.05549ms)
+  ✔ 03 an enquiry becomes a quote whose exact revision a person prices and approves (951.360184ms)
+  ✔ 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions (2555.557935ms)
+  ✔ 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone (2948.627152ms)
+  ✔ 06 the technician captures checklist, notes, photos and materials through a connectivity interruption (181.845401ms)
+  ✔ 07 a dispatch change needs conflict review and keeps late evidence for review (1082.770694ms)
+  ✔ 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing (152.829259ms)
+  ✔ 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (750.503193ms)
+  ✔ 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded (188.516914ms)
+  ✔ 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo (436.381312ms)
+  ✔ 12 the job timeline names every step and person, and the business export carries it (88.421872ms)
+✔ API-001 Glove first release: quote to booked visit to field evidence to invoice export (10546.66975ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation (2980.659238ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail (2742.108431ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission (2782.252649ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure (3044.456446ms)
+✔ AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money (3833.97974ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone (12252.592795ms)
+✔ ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo (6146.290887ms)
+✔ MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work (5836.229852ms)
+✔ an undo that takes several passes holds its records until it finishes (8624.242897ms)
+✔ MOVE-004, MOVE-010 fieldpulse: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work (2868.613192ms)
+✔ MOVE-004, MOVE-010 workiz: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work (5080.777532ms)
+✔ MOVE-003, MOVE-009 servicetitan: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work (5497.244235ms)
+✔ MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions (5134.713353ms)
+✔ MOVE-004, MOVE-010 fieldpulse: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo (2604.180843ms)
+✔ MOVE-004, MOVE-010 workiz: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo (2505.689895ms)
+✔ MOVE-003, MOVE-009 servicetitan: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo (2633.58233ms)
+✔ MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site (2702.630413ms)
+✔ MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named (2572.536038ms)
+✔ MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work (5729.148901ms)
+ℹ tests 31
+ℹ suites 1
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101400.296431

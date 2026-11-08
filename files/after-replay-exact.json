@@ -1,0 +1,20 @@
+{
+  "initialRuntime": "origin/main c993c94",
+  "records": 22,
+  "mainRepeatUnchanged": true,
+  "upgradedPreviewAlreadyMovedIn": 22,
+  "status": 200,
+  "error": null,
+  "resultStatus": "committed",
+  "unchangedBusinessAndOriginalJournal": true,
+  "before": {
+    "business": "789f1690e978ba16c18e49fd34028b5ef681dccce2c45209a080e6a3b247d601",
+    "ik_sources": "f0a688b0fd371153b383d6b5ae3cbb3a32315a13c7d354d8392cc83c906ec45f",
+    "ik_provenance": "8a5f264c26c73467224a4643ac7a8cc488fe8366ce2ae65b23dfba7d8f09a4fc"
+  },
+  "after": {
+    "business": "789f1690e978ba16c18e49fd34028b5ef681dccce2c45209a080e6a3b247d601",
+    "ik_sources": "f0a688b0fd371153b383d6b5ae3cbb3a32315a13c7d354d8392cc83c906ec45f",
+    "ik_provenance": "8a5f264c26c73467224a4643ac7a8cc488fe8366ce2ae65b23dfba7d8f09a4fc"
+  }
+}

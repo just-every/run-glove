@@ -1,0 +1,100 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f124fix1",
+  "head": "706d282048b79271445ae179aa83234635826062",
+  "mergedMain": "434cc298a5bf6af70b08e6c389cede64a85cce7e",
+  "initialCandidate": "81b7665ce37d19dd38432198376a4189a5bf69a9",
+  "fixCommit": "c0f9999a820d47fe3965959c97cdb06a406c0599",
+  "push": {
+    "first": "succeeded",
+    "final": "succeeded",
+    "guard": "cloud-push.py",
+    "force": false,
+    "defaultBranchWritten": false
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/movein.test.mjs tests/api/flows.test.mjs",
+      "exit": 0,
+      "passed": 31,
+      "failed": 0,
+      "note": "complete touched suites before final main-only merge; main merge changed agreement tests and contract judgments, no runtime code"
+    },
+    {
+      "command": "node --test --test-name-pattern='ServiceM8 every source record' tests/api/movein.test.mjs",
+      "exit": 0,
+      "passed": 1,
+      "failed": 0,
+      "head": "706d282048b79271445ae179aa83234635826062"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "706d282048b79271445ae179aa83234635826062"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses GLOVE-11",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "head": "706d282048b79271445ae179aa83234635826062"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "706d282048b79271445ae179aa83234635826062"
+    },
+    {
+      "command": "actual-main persisted 22-record replay probe",
+      "exit": 0,
+      "head": "706d282048b79271445ae179aa83234635826062",
+      "beforeHTTP": 409,
+      "beforeError": "SOURCE_ID_CONTENT_CONFLICT",
+      "afterHTTP": 200,
+      "afterStatus": "committed",
+      "mainRepeatHTTP": 200,
+      "businessUnchanged": true,
+      "originalSourceClaimsUnchanged": true,
+      "originalProvenanceUnchanged": true
+    },
+    {
+      "command": "actual-main upgrade changed-source and native-edit refusal probes",
+      "exit": 0,
+      "head": "706d282048b79271445ae179aa83234635826062",
+      "changedSourceHTTP": 409,
+      "changedSourceError": "SOURCE_ID_CONTENT_CONFLICT",
+      "nativeEditHTTP": 409,
+      "nativeEditError": "NATIVE_EDIT_CONFLICT",
+      "bothRefusalsPreservedBusinessAndOriginalJournal": true,
+      "receipt": "after-refusals-exact.json"
+    }
+  ],
+  "newTestRegistrations": 0,
+  "newRegressionAssertions": 1,
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "706d282048b79271445ae179aa83234635826062",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42481575549",
+    "status": "completed",
+    "run_id": 42481575549,
+    "observed_at": "2026-11-08T12:53:59.217793+00:00",
+    "api_calls": 3
+  },
+  "pr": null,
+  "publicationScan": "not run, explicitly excluded by the FIX brief",
+  "contractJudgmentsChanged": false,
+  "generatedViewsEqualMergedMain": true,
+  "browserProof": "not run: this FIX changes only server import compatibility and its regression, with no screen changes",
+  "independentGate": "pending fleet gate on frozen rubric; this report makes no landing or clause completion claim",
+  "productWorktreeClean": true,
+  "remoteProductRefIndependentlyVerified": true,
+  "githubApiCalls": 3,
+  "blockers": [],
+  "evidenceDestination": "refs/heads/evidence/sx-glove-f124fix1"
+}

@@ -1,0 +1,20 @@
+{
+  "initialRuntime": "origin/main c993c94",
+  "records": 22,
+  "mainRepeatUnchanged": true,
+  "upgradedPreviewAlreadyMovedIn": 22,
+  "status": 409,
+  "error": "SOURCE_ID_CONTENT_CONFLICT",
+  "resultStatus": null,
+  "unchangedBusinessAndOriginalJournal": true,
+  "before": {
+    "business": "2f4b5c9f934b47bd5b75794b6ce0cd734f76aad94530aa00cae0f5fc30b1cacc",
+    "ik_sources": "d9a781c8bc1ca315ad8569766f5ac935caa8b426813b71d64a8b517b3417c23d",
+    "ik_provenance": "676503f5c43f4a9a90258359964907f8982ac41126d370652b44be207a211247"
+  },
+  "after": {
+    "business": "2f4b5c9f934b47bd5b75794b6ce0cd734f76aad94530aa00cae0f5fc30b1cacc",
+    "ik_sources": "d9a781c8bc1ca315ad8569766f5ac935caa8b426813b71d64a8b517b3417c23d",
+    "ik_provenance": "676503f5c43f4a9a90258359964907f8982ac41126d370652b44be207a211247"
+  }
+}

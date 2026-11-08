@@ -1,0 +1,32 @@
+{
+  "initialRuntime": "origin/main c993c94",
+  "records": 22,
+  "mainRepeatUnchanged": true,
+  "upgradedPreviewAlreadyMovedIn": 22,
+  "status": 200,
+  "error": null,
+  "resultStatus": "committed",
+  "unchangedBusinessAndOriginalJournal": true,
+  "before": {
+    "business": "38f18b5c66da011b25c18751a5c6b88b1f11365dbe6c94aed552bfbe77426672",
+    "ik_sources": "bf7411c9e9d6d24f891ae8955fe5e6d9ea03e581badbf74febb5f2993122f23e",
+    "ik_provenance": "73fbabc5658c0bb2eb6f127237ce13147d7a0e4cc5af3d36dfd138851e25ce1d"
+  },
+  "after": {
+    "business": "38f18b5c66da011b25c18751a5c6b88b1f11365dbe6c94aed552bfbe77426672",
+    "ik_sources": "bf7411c9e9d6d24f891ae8955fe5e6d9ea03e581badbf74febb5f2993122f23e",
+    "ik_provenance": "73fbabc5658c0bb2eb6f127237ce13147d7a0e4cc5af3d36dfd138851e25ce1d"
+  },
+  "regressions": {
+    "changedSource": {
+      "status": 409,
+      "error": "SOURCE_ID_CONTENT_CONFLICT",
+      "unchangedOnRefusal": true
+    },
+    "nativeEdit": {
+      "status": 409,
+      "error": "NATIVE_EDIT_CONFLICT",
+      "unchangedOnRefusal": true
+    }
+  }
+}
