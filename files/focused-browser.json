@@ -1,0 +1,18 @@
+{
+  "label": "focused-browser",
+  "head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "command": [
+    "perl",
+    "-e",
+    "alarm 1200; exec @ARGV",
+    "--",
+    "node",
+    "tests/browser/run.mjs",
+    "tests/browser/morning-brief.spec.ts"
+  ],
+  "started": "2026-11-08T23:20:50.631453+00:00",
+  "finished": "2026-11-08T23:21:56.038422+00:00",
+  "exit": 0,
+  "log": "focused-browser.log",
+  "sha256": "81f9f35c318747f65b880e825ec595debb2fef5705ac2bb84f2e70570d911e7c"
+}

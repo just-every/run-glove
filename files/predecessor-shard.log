@@ -1,0 +1,62 @@
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/branches.spec.ts' 'tests/browser/customer-quotes.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/quickbooks.spec.ts' 'tests/browser/reminders.spec.ts' 'tests/browser/routing.spec.ts' 'tests/browser/service-reports.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=4818
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=4186
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=1641
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=22891
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 23 tests using 1 worker
+[verify progress]   ✓   1 tests/browser/branches.spec.ts:15:1 › TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (10.4s)
+[verify progress]   ✓   2 tests/browser/customer-quotes.spec.ts:34:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated (22.5s)
+[verify progress]   ✓   3 tests/browser/customer-quotes.spec.ts:243:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard (10.6s)
+[verify progress]   ✓   4 tests/browser/customer-quotes.spec.ts:496:1 › BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390 (23.0s)
+[verify progress]   ✓   5 tests/browser/customer-quotes.spec.ts:588:1 › QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the requirement and no Checkout authority at 1440 and 390 (4.3s)
+[verify progress]   ✓   6 tests/browser/customer-quotes.spec.ts:623:1 › PAY-006, PAY-024 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390 (8.5s)
+[verify progress]   ✓   7 tests/browser/customer-quotes.spec.ts:677:1 › COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access (6.0s)
+[verify progress]   ✓   8 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (30.9s)
+[verify progress]   ✓   9 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (50.5s)
+[verify progress]   ✓  10 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (27.5s)
+[verify progress]   ✓  11 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (12.8s)
+[verify progress]   ✓  12 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (3.7s)
+[verify progress]   ✓  13 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (7.2s)
+[verify progress]   ✓  14 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (11.0s)
+[verify progress]   ✓  15 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (12.2s)
+[verify progress]   ✓  16 tests/browser/quickbooks.spec.ts:27:1 › QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390 (10.2s)
+[verify progress]   ✓  17 tests/browser/quickbooks.spec.ts:184:1 › QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390 (36.2s)
+[verify progress]   ✓  18 tests/browser/quickbooks.spec.ts:286:1 › Xero remittance shows each property invoice allocation and refuses unsupported refund controls (3.5s)
+[verify progress]   ✓  19 tests/browser/reminders.spec.ts:10:1 › PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390 (18.0s)
+[verify progress]   ✓  20 tests/browser/reminders.spec.ts:352:1 › COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390 (16.5s)
+[verify progress]   ✓  21 tests/browser/reminders.spec.ts:355:1 › COMM-009, COMM-028 native call history is Owner-only while the desk retains text history (4.9s)
+[verify progress]   ✓  22 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (7.7s)
+[verify progress]   ✓  23 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (8.9s)
+[verify progress]   23 passed (5.9m)
+[verify phase] browser assertions: exit=0 signal=none elapsed_ms=351748
+  ✓   1 tests/browser/branches.spec.ts:15:1 › TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (10.4s)
+  ✓   2 tests/browser/customer-quotes.spec.ts:34:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 customer revision links, change requests, superseded documents, declines and expired updates at 1440 and 390; signing stays gated (22.5s)
+  ✓   3 tests/browser/customer-quotes.spec.ts:243:1 › QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 owner enters disclosure; middle option and add-on become a revised drawn signature and exact job; 390px typed approval works entirely by keyboard (10.6s)
+  ✓   4 tests/browser/customer-quotes.spec.ts:496:1 › BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390 (23.0s)
+  ✓   5 tests/browser/customer-quotes.spec.ts:588:1 › QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the requirement and no Checkout authority at 1440 and 390 (4.3s)
+  ✓   6 tests/browser/customer-quotes.spec.ts:623:1 › PAY-006, PAY-024 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390 (8.5s)
+  ✓   7 tests/browser/customer-quotes.spec.ts:677:1 › COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two customers through restricted previews, then sees unavailable and withdrawn access (6.0s)
+  ✓   8 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (30.9s)
+  ✓   9 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (50.5s)
+  ✓  10 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (27.5s)
+  ✓  11 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (12.8s)
+  ✓  12 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (3.7s)
+  ✓  13 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (7.2s)
+  ✓  14 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (11.0s)
+  ✓  15 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (12.2s)
+  ✓  16 tests/browser/quickbooks.spec.ts:27:1 › QuickBooks owner connects and maps existing records, repairs a rejected invoice, syncs once and reads its payment at 1440 and 390 (10.2s)
+  ✓  17 tests/browser/quickbooks.spec.ts:184:1 › QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390 (36.2s)
+  ✓  18 tests/browser/quickbooks.spec.ts:286:1 › Xero remittance shows each property invoice allocation and refuses unsupported refund controls (3.5s)
+  ✓  19 tests/browser/reminders.spec.ts:10:1 › PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390 (18.0s)
+  ✓  20 tests/browser/reminders.spec.ts:352:1 › COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390 (16.5s)
+  ✓  21 tests/browser/reminders.spec.ts:355:1 › COMM-009, COMM-028 native call history is Owner-only while the desk retains text history (4.9s)
+  ✓  22 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (7.7s)
+  ✓  23 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (8.9s)
+  23 passed (5.9m)
+[verify phase] native dev: exit=143 signal=none elapsed_ms=362110

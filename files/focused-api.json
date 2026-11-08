@@ -1,0 +1,17 @@
+{
+  "label": "focused-api",
+  "head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/morning-email.test.mjs",
+    "tests/api/email.test.mjs",
+    "tests/api/morning-brief.test.mjs"
+  ],
+  "started": "2026-11-08T23:20:50.598492+00:00",
+  "finished": "2026-11-08T23:21:57.807905+00:00",
+  "exit": 0,
+  "log": "focused-api.log",
+  "sha256": "6ae8025977e78652cd47841ed6078cf764ddaafb76b6abc34235b881b99dcc9a"
+}

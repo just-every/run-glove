@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f168",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f168",
+  "head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "main": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
+  "main_equals_candidate": false,
+  "verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "a8f9867a413fe790732df707a8f74172b095d966",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42534874359",
+    "id": 42534874359,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "checks": {
+    "typecheck": {
+      "label": "typecheck",
+      "head": "a8f9867a413fe790732df707a8f74172b095d966",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "started": "2026-11-08T23:20:38.269913+00:00",
+      "finished": "2026-11-08T23:20:46.513259+00:00",
+      "exit": 0,
+      "log": "typecheck.log",
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    },
+    "first-party-check": {
+      "label": "first-party-check",
+      "head": "a8f9867a413fe790732df707a8f74172b095d966",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "started": "2026-11-08T23:20:46.555758+00:00",
+      "finished": "2026-11-08T23:20:47.208130+00:00",
+      "exit": 0,
+      "log": "first-party-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "focused-api": {
+      "label": "focused-api",
+      "head": "a8f9867a413fe790732df707a8f74172b095d966",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/morning-email.test.mjs",
+        "tests/api/email.test.mjs",
+        "tests/api/morning-brief.test.mjs"
+      ],
+      "started": "2026-11-08T23:20:50.598492+00:00",
+      "finished": "2026-11-08T23:21:57.807905+00:00",
+      "exit": 0,
+      "log": "focused-api.log",
+      "sha256": "6ae8025977e78652cd47841ed6078cf764ddaafb76b6abc34235b881b99dcc9a"
+    },
+    "focused-browser": {
+      "label": "focused-browser",
+      "head": "a8f9867a413fe790732df707a8f74172b095d966",
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1200; exec @ARGV",
+        "--",
+        "node",
+        "tests/browser/run.mjs",
+        "tests/browser/morning-brief.spec.ts"
+      ],
+      "started": "2026-11-08T23:20:50.631453+00:00",
+      "finished": "2026-11-08T23:21:56.038422+00:00",
+      "exit": 0,
+      "log": "focused-browser.log",
+      "sha256": "81f9f35c318747f65b880e825ec595debb2fef5705ac2bb84f2e70570d911e7c"
+    }
+  },
+  "mechanical": {
+    "head": "a8f9867a413fe790732df707a8f74172b095d966",
+    "checks": [
+      {
+        "command": [
+          "node",
+          "scripts/contract-docs.mjs",
+          "write",
+          "--clauses",
+          "COMM-012"
+        ],
+        "exit": 0,
+        "output": "Wrote 0 contract documents."
+      },
+      {
+        "command": [
+          "node",
+          "scripts/contract-docs.mjs",
+          "check",
+          "--clauses",
+          "COMM-012"
+        ],
+        "exit": 0,
+        "output": "Contract documents are current."
+      },
+      {
+        "command": [
+          "git",
+          "checkout",
+          "origin/main",
+          "--",
+          "ACCEPTANCE.md",
+          "docs/CLAIMS.md"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "command": [
+          "node",
+          "scripts/edition-authoring/cli.mjs",
+          "lock"
+        ],
+        "exit": 0,
+        "edition": "just-every/run-glove",
+        "schemaVersion": 1
+      },
+      {
+        "command": [
+          "node",
+          "scripts/edition-authoring/cli.mjs",
+          "check"
+        ],
+        "exit": 0,
+        "ok": true,
+        "edition": "just-every/run-glove",
+        "schemaVersion": 1
+      }
+    ],
+    "ledger": {
+      "required": false,
+      "reason": "No migrations changed."
+    }
+  },
+  "counts": {
+    "before": {
+      "done": 22,
+      "partial": 212,
+      "missing": 29,
+      "total": 263
+    },
+    "after": {
+      "done": 22,
+      "partial": 212,
+      "missing": 29,
+      "total": 263
+    }
+  },
+  "contract_unchanged": true,
+  "protected_files_unchanged": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    "tests/api/email.test.mjs",
+    "tests/api/morning-brief.test.mjs",
+    "tests/fixtures/mail-providers.mjs",
+    "tests/browser/email.spec.ts",
+    ".github/workflows/verify.yml",
+    "src/glove/morning-email.ts",
+    "src/glove/commands/mail.ts",
+    "src/ui/morning-brief.tsx"
+  ],
+  "publication_scan": {
+    "commit": "a8f9867a413fe790732df707a8f74172b095d966",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "NOT RUN IN CLOUD; fleet landing gate"
+  },
+  "claim": "CLAIM COMM-012 DONE points=1,2,3,4,5,6,7 tests=tests/api/morning-email.test.mjs#COMM-012 points 1\u20137: morning delivery, owner authority, local clock, interruption, provider facts and no retries; tests/browser/morning-brief.spec.ts#AGENT-008 points 1\u20132 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending",
+  "plan_rows_changed": [
+    "COMM-012 proof for points 1 through 7; no plan file or source status cell written"
+  ],
+  "blockers": [],
+  "generated_at": "2026-11-08T23:27:44.736736+00:00"
+}

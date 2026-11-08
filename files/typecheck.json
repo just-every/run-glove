@@ -1,0 +1,13 @@
+{
+  "label": "typecheck",
+  "head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "started": "2026-11-08T23:20:38.269913+00:00",
+  "finished": "2026-11-08T23:20:46.513259+00:00",
+  "exit": 0,
+  "log": "typecheck.log",
+  "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+}

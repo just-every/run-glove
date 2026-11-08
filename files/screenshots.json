@@ -1,0 +1,166 @@
+{
+  "head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "assertion_width": 1440,
+  "capture_widths": [
+    1440,
+    390
+  ],
+  "screens": [
+    {
+      "path": "screenshots/1440-brief-today.png",
+      "width": 1440,
+      "bytes": 224683,
+      "sha256": "eb556642b8d2736a880d1505ee6472a0e9f4db4f900f8740ce9befc833f43f32"
+    },
+    {
+      "path": "screenshots/1440-brief-dispatch.png",
+      "width": 1440,
+      "bytes": 158701,
+      "sha256": "dcd84f8d5b1e91ba799f765ce24d2c67b94d88add31354bcc773892ecf4eda50"
+    },
+    {
+      "path": "screenshots/1440-brief-invoices.png",
+      "width": 1440,
+      "bytes": 136282,
+      "sha256": "036a8d7fc40ab43563c88b93f373b72bfb57944376c34c5ffbf8b0533f988db5"
+    },
+    {
+      "path": "screenshots/1440-brief-jobs.png",
+      "width": 1440,
+      "bytes": 126269,
+      "sha256": "a86c069a5625593e91a1f057c42dd6ea752cc32dcd1ddd25b2416c681ada3d86"
+    },
+    {
+      "path": "screenshots/1440-brief-quotes.png",
+      "width": 1440,
+      "bytes": 139889,
+      "sha256": "7184caddf47a8a31a41c344ce52c527237a4ed8517c60713c91561f1be053d1c"
+    },
+    {
+      "path": "screenshots/1440-morning-email-scheduled.png",
+      "width": 1440,
+      "bytes": 138144,
+      "sha256": "ee7ba1309f5a4cc7c47d4c4490057972f26718e89a645b7852620c5e869efc5d"
+    },
+    {
+      "path": "screenshots/1440-morning-email-queued.png",
+      "width": 1440,
+      "bytes": 140349,
+      "sha256": "d1fdf8a3a7c1bf25bb64a9b15e5ebe5865968f2c66083d72170e19c1b111806e"
+    },
+    {
+      "path": "screenshots/1440-morning-email-accepted.png",
+      "width": 1440,
+      "bytes": 138162,
+      "sha256": "4fe522fe9abbd0d198c374be416a9ff25da490020990528701dca92886a30272"
+    },
+    {
+      "path": "screenshots/1440-morning-email-refused.png",
+      "width": 1440,
+      "bytes": 136930,
+      "sha256": "a29395664455f854be0635c1f81dbaeb276878ea6bedf371a93937ca9fdf2576"
+    },
+    {
+      "path": "screenshots/1440-morning-email-rate-limited.png",
+      "width": 1440,
+      "bytes": 134534,
+      "sha256": "ee5904f63e6e28be96ca6f1ddcacf6232f3adab3a69730cdc9853905d8215be5"
+    },
+    {
+      "path": "screenshots/1440-morning-email-not-confirmed.png",
+      "width": 1440,
+      "bytes": 135963,
+      "sha256": "4ef44930cfef3ff78ea600006a68c526eabf72c4165be787f66a175d9a2e66a6"
+    },
+    {
+      "path": "screenshots/1440-morning-email-delivered.png",
+      "width": 1440,
+      "bytes": 139748,
+      "sha256": "5b923bcfd266bfa685a3eec48b03c80c82e50e2eac61d81dec377703c1af4db2"
+    },
+    {
+      "path": "screenshots/1440-morning-email-bounced.png",
+      "width": 1440,
+      "bytes": 142158,
+      "sha256": "9053aa25cb7a50456f88a763d299f7080029854405d527d5d8a975a7e505e1b2"
+    },
+    {
+      "path": "screenshots/390-brief-today.png",
+      "width": 390,
+      "bytes": 197691,
+      "sha256": "48a7d1ded47b4e3798529e79cf3800cf6a77dcdfefb3fe5e1050597c67b379c2"
+    },
+    {
+      "path": "screenshots/390-brief-dispatch.png",
+      "width": 390,
+      "bytes": 74898,
+      "sha256": "b03521f3a226510146ba16f8762817eb996d2c3f1a8e583d33ee4f4e4cc5a1ab"
+    },
+    {
+      "path": "screenshots/390-brief-invoices.png",
+      "width": 390,
+      "bytes": 68202,
+      "sha256": "1e75019553307715e1077292f21aab57d06dc698896681ab09d1811ec02f5dc5"
+    },
+    {
+      "path": "screenshots/390-brief-jobs.png",
+      "width": 390,
+      "bytes": 56288,
+      "sha256": "569ec0d7ad2e30054ebc066a4593acf880d4dccc8ade55d0de84c3c5e041ff79"
+    },
+    {
+      "path": "screenshots/390-brief-quotes.png",
+      "width": 390,
+      "bytes": 73302,
+      "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+    },
+    {
+      "path": "screenshots/390-morning-email-scheduled.png",
+      "width": 390,
+      "bytes": 77194,
+      "sha256": "7d41204a363ddf2a9842a9a2ec97c26f5e53f555b34d4d2e441e78bf50383a31"
+    },
+    {
+      "path": "screenshots/390-morning-email-queued.png",
+      "width": 390,
+      "bytes": 79976,
+      "sha256": "c2bb3ea1bdc1f21161a5266643c85e14927f1fdb6199f58ea8a011621a774a17"
+    },
+    {
+      "path": "screenshots/390-morning-email-accepted.png",
+      "width": 390,
+      "bytes": 77340,
+      "sha256": "ffba7c7c70b711056cbd9863a671ff929a665752774ece04ae9e023edf11d6a1"
+    },
+    {
+      "path": "screenshots/390-morning-email-refused.png",
+      "width": 390,
+      "bytes": 72468,
+      "sha256": "090a25233d51ef64e4f32a1849890005a43054786da114d6745c51daafeaac2b"
+    },
+    {
+      "path": "screenshots/390-morning-email-rate-limited.png",
+      "width": 390,
+      "bytes": 70988,
+      "sha256": "bab3add69c098ebb12cb3ee5126dde35bbe76e73f183812c694278b702aa89e6"
+    },
+    {
+      "path": "screenshots/390-morning-email-not-confirmed.png",
+      "width": 390,
+      "bytes": 71939,
+      "sha256": "4cce976db90e43ba2343f28b650820dd9a0db486dfcb81a92bdb89a127869f46"
+    },
+    {
+      "path": "screenshots/390-morning-email-delivered.png",
+      "width": 390,
+      "bytes": 78812,
+      "sha256": "7c31d8de1c01c365daa4c8135cb1369503b27c997bf3f75c3f86c6ded2d09d59"
+    },
+    {
+      "path": "screenshots/390-morning-email-bounced.png",
+      "width": 390,
+      "bytes": 82313,
+      "sha256": "1fe70e0b0655602f14714c70f201b60606b3f39c1a092ad34737d6feb6c4e640"
+    }
+  ]
+}

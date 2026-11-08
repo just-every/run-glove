@@ -1,0 +1,23 @@
+{
+  "predecessor_head": "10d84256718bb3e216c741ed6d221adaa2154efe",
+  "failed_run": 42529815126,
+  "failed_job": 128881480080,
+  "failed_command": "node scripts/verify-ci.mjs browser-2",
+  "failure": "tests/browser/due-visits.spec.ts:63:26 TypeError: fetch failed; SocketError: other side closed",
+  "reproduction": {
+    "exit": 0,
+    "passed": 23,
+    "log": "predecessor-shard.log",
+    "node": "24.19.0",
+    "chromium": "/usr/bin/chromium"
+  },
+  "main_comparison": {
+    "head": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
+    "exit": 0,
+    "passed": 1,
+    "command": "node tests/browser/run.mjs tests/browser/due-visits.spec.ts --grep Office batch books due visits",
+    "log": "main-comparison.log"
+  },
+  "repair_rounds": 0,
+  "classification": "Unreproduced transport failure; no product repair"
+}

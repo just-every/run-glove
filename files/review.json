@@ -1,0 +1,17 @@
+{
+  "head": "a8f9867a413fe790732df707a8f74172b095d966",
+  "main": "5fc3e002ef52aef13409cc8e93786fd74afb6c6a",
+  "changed": [
+    "sources.lock.json",
+    "tests/api/harness.mjs",
+    "tests/api/morning-email.test.mjs",
+    "tests/browser/morning-brief.spec.ts"
+  ],
+  "protected_unchanged": true,
+  "added_literal_email_addresses": [],
+  "working_tree_clean": true,
+  "no_runtime_code_change": true,
+  "no_workflow_change": true,
+  "no_generated_view_change": true,
+  "full_history": true
+}
