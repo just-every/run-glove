@@ -390,7 +390,9 @@ try {
   await owner.cmd('location.fleetConnect', { technicianId: tech.id, vehicleId: '12345', key: fleetKey })
   await priya.cmd('clock.in', { deviceTime: locationNow() })
   await priya.cmd('timer.start', { visitId: locationVisit.id, kind: 'job', deviceTime: locationNow() })
-  await priya.cmd('location.phone', { lat: 41.89067, lng: -87.63067, observedAt: locationNow() })
+  const locationCaptureId = randomUUID()
+  const locationCapture = { lat: 41.89067, lng: -87.63067, observedAt: locationNow() }
+  await priya.cmd('location.phone', locationCapture, locationCaptureId)
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   // COMM-006: populated inspection crosses the real archive boundary as business records only.
@@ -470,6 +472,11 @@ try {
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
   assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  // DISP-005 populated source custody stays transient across an actual installation archive.
+  for (const name of ['glove_live_locations', 'glove_fleet_credentials']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
+  const locationHistory = before.timeline.filter(e => ['location.consent', 'location.received', 'location.fleetConnected'].includes(e.kind))
+  assert.deepEqual(locationHistory.map(e => e.kind).sort(), ['location.consent', 'location.fleetConnected', 'location.received'])
+  for (const e of locationHistory) assert.ok(e.actor_id && e.at && e.command_id)
   assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
   for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
   for (const { result } of sourceQuoteIssues) {
@@ -490,7 +497,12 @@ try {
   assert.equal(restoredPosition.position, null, 'DISP-005 restored installation has no captured position')
   const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
+  const oldCapture = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.phone', payload: locationCapture }, priya.cookie)
+  assert.equal(oldCapture.status, 401, 'DISP-005 source sign-in cannot write in the restored installation')
+  assert.deepEqual(await running.owner.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome')
+  assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
   const after = await running.owner.get('/api/glove/export')
+  for (const e of locationHistory) assert.deepEqual(after.timeline.find(x => x.id === e.id), e, 'DISP-005 attributable history survives the real restore without private location material')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   for (const original of before.quotes) {
     const restoredQuote = after.quotes.find(quote => quote.id === original.id)

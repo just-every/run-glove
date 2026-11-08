@@ -2188,7 +2188,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "a93b23a44f3fb4d1904806d94807c990cefb7967ea9fefe575a58c2e7671419e",
+      "sha256": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -5608,7 +5608,11 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "424e9d8e82c9e8ba5eeea0b3ccbcfea16b3f45baaa31d2450cf52a31b79912b5",
+      "sha256": "89b68288f34e4e6870b1173ec7d2721109669e6d280aef950d618130c3c52069",
+      "executable": false
+    },
+    "tests/api/live-locations.test.mjs": {
+      "sha256": "356e5375738563114219ade82ca145fc93ae0c697ca4cf9b820fd84d9bbdbc03",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5857,6 +5861,10 @@
     },
     "tests/browser/phone-desk.ts": {
       "sha256": "b76d403b5674cc8f080e2a35084a03f6f9713f1b17a2a3a0e5178fb596193830",
+      "executable": false
+    },
+    "tests/browser/phone-location.spec.ts": {
+      "sha256": "583ec67e969a6f418880d5548ab7105fda70bdf23a528b6c2c8ee1829dcd2baf",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -6324,7 +6332,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "f535f7a345e776f23042e957c12f03c17cbf6b87b26e71e23c292a7eb067222e",
+      "sha256": "518b4ebaf1804912a44a3765676980da71d282ef01a1c742b93eb653f409e48d",
       "executable": false
     },
     "tests/runtime.mjs": {

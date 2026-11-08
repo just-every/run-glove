@@ -33,6 +33,7 @@ globalThis.fetch = async (input, options) => {
   const response = await networkFetch(input, options);
   const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url);
   if ((url.origin === 'https://mango.example.test' || url.origin === 'https://us21.api.mailchimp.com') && response.headers.get('x-synthetic-glove-network-error') === '1') throw new TypeError('Synthetic provider unreachable');
+  if (url.origin === 'https://api.samsara.com' && response.headers.get('x-synthetic-glove-fleet-unreachable') === '1') throw new TypeError('Synthetic fleet unreachable');
   if (['www.googleapis.com', 'graph.microsoft.com'].includes(url.hostname) && response.headers.get('x-synthetic-glove-calendar-timeout') === '1') throw new DOMException('Synthetic calendar timeout', 'TimeoutError');
   return response;
 };` }
@@ -42,7 +43,7 @@ globalThis.fetch = async (input, options) => {
   // port: workerd binds its own, never one released here for another bind to take.
   const origin = 'https://127.0.0.1', setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
-  const fleet = { calls: [], status: 200, data: [], beforeReply: null }
+  const fleet = { calls: [], status: 200, data: [], beforeReply: null, unreachable: false }
   const xero = xeroEdge()
   const checkpoints = { qboComplete: null }
   const calendarSync = calendarEdge()
@@ -80,7 +81,7 @@ globalThis.fetch = async (input, options) => {
         if (new URL(request.url).origin === 'https://api.samsara.com') {
           fleet.calls.push({ url: request.url, method: request.method, authorization: request.headers.get('authorization') })
           if (fleet.beforeReply) await fleet.beforeReply()
-          return Response.json({ data: fleet.data }, { status: fleet.status })
+          return Response.json({ data: fleet.data }, { status: fleet.status, headers: fleet.unreachable ? { 'x-synthetic-glove-fleet-unreachable': '1' } : {} })
         }
         const xeroResponse = await xero.answer(request)
         if (xeroResponse) return xeroResponse
@@ -598,4 +599,36 @@ export async function morningBriefFixture(h) {
   await h.command('enquiry.contact', { enquiryId: restarted.id, version: restarted.version, note: 'Stage starts again now' })
   await h.setTime(morningBriefAt)
   return { labor, priya, tom, job, book, late, arrived, later, yesterday, tomorrow, cancelled, noInvoice, draftInvoice, draft, billed, equal, below, noEstimate, waiting, contacted, fresh, freshContacted, restarted, quoted, won, lost }
+}
+
+/** A fixed on-clock dispatch day, using only native commands and provider edges. */
+export async function liveLocationFixture(h) {
+  const b = await business(h, { timezone: 'UTC' })
+  await h.command('maps.connect', { key: 'synthetic-glove-701' })
+  const address = '233 S Wacker Dr, Chicago, IL 60606'
+  h.maps.places.set(address, { lat: 41.8789, lng: -87.6359 })
+  const site = await h.command('site.save', { customerId: b.customer.id, address })
+  const job = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: site.id, title: 'Live location service' })
+  const visits = []
+  for (const tech of [b.priya, b.tom]) {
+    visits.push(await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-09', start: '08:00', end: '09:00' }))
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-09', start: '10:00', end: '11:00' })
+  }
+  let time = Date.parse('2026-11-09T08:00:00.000Z')
+  const now = () => new Date(time).toISOString()
+  const tick = async (ms = 1000) => { time += ms; await h.setTime(now()); return now() }
+  await h.setTime(now())
+  const start = async (person = b.priyaPerson, visit = visits[0]) => {
+    await person.run('location.consent', { enabled: true })
+    await person.run('clock.in', { deviceTime: now() })
+    await person.run('timer.start', { visitId: visit.id, kind: 'travel', deviceTime: now() })
+  }
+  const point = () => ({ lat: 41.89071, lng: -87.63071, observedAt: now() })
+  const rows = async () => (await h.db.prepare('SELECT * FROM glove_live_locations ORDER BY technician_id').all()).results
+  const board = async () => {
+    const response = await h.request('/api/glove/map?date=2026-11-09&branch=main')
+    assert.equal(response.status, 200)
+    return (await response.json()).technicians
+  }
+  return { b, job, site, visits, now, tick, start, point, rows, board }
 }
