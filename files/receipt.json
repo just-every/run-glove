@@ -1,0 +1,112 @@
+{
+  "tag": "sx-glove-c-f160",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f160",
+  "head": "62d845a5c88e50c613dae0056b4893e59edd0984",
+  "main": "ae9d599b7b7914596d0586cf0cfb243d1621482f",
+  "at": "2026-11-08T20:48:37.889659+00:00",
+  "results": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/arrival-windows.test.mjs",
+      "exit": 0,
+      "tests": 5,
+      "log": "api.log"
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/arrival-windows.spec.ts",
+      "exit": 0,
+      "tests": 1,
+      "assertionWidth": 1440,
+      "proofWidths": [
+        1440,
+        390
+      ],
+      "browser": "/usr/bin/chromium",
+      "log": "browser.log"
+    }
+  ],
+  "mechanicalReceipt": "mechanical.json",
+  "migration": false,
+  "changedFiles": [
+    {
+      "path": "sources.lock.json",
+      "sha256": "8626f65595cf4a34cdda50525d1fb373f384ac7aef7aba8ca77cc8941c2e7389"
+    },
+    {
+      "path": "src/glove/commands/dispatch.ts",
+      "sha256": "144c2ffbcaaa333134929cc040ccd3c064a61327691c2794d4d3f4515985c222"
+    },
+    {
+      "path": "src/ui/visit-panel.tsx",
+      "sha256": "2e98c8c42b0cc945cd8df559d3fdc1091bd1f2c44a059b9a661de87007fc9884"
+    },
+    {
+      "path": "tests/api/arrival-windows.test.mjs",
+      "sha256": "790e33defe9be2703ac40d6b6de868c3fbdaee2799edb4a5a306d07e428f22d9"
+    },
+    {
+      "path": "tests/browser/arrival-windows.spec.ts",
+      "sha256": "782d52a76743a5f224b3b244f596a008919889e3a2fab26a5b9d2c24398ca393"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/1440-arrival-dispatcher.png",
+      "bytes": 290435,
+      "sha256": "5ff8d481b63166c39f27ec5719e2cc1cd712dfdf2f00b82aac036bb1a3adb080"
+    },
+    {
+      "path": "screenshots/1440-arrival-technician.png",
+      "bytes": 112664,
+      "sha256": "90fa274cdd24b5cd6dd5e831207b893f5af531debff6c157772db82dca4efb74"
+    },
+    {
+      "path": "screenshots/390-arrival-dispatcher.png",
+      "bytes": 242980,
+      "sha256": "1e8e56291bf84632c611579efd140307b651a74d06bae6e506b46254d1b01958"
+    },
+    {
+      "path": "screenshots/390-arrival-technician.png",
+      "bytes": 73149,
+      "sha256": "b11fc9419033f8da15fa7c853875627eeea85b2f7783759b5d17667456661866"
+    }
+  ],
+  "generatedFilesCommitted": false,
+  "contractJudgmentsChanged": false,
+  "protectedFilesChanged": false,
+  "push": "push.log",
+  "publicationScan": {
+    "commit": "62d845a5c88e50c613dae0056b4893e59edd0984",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Cloud branch transport only; publication scan is a guarded Mac lander duty."
+  },
+  "redGreen": {
+    "before": "The extended browser journey failed on the missing arrival-window field at tests/browser/arrival-windows.spec.ts:101 before the controls were implemented.",
+    "after": "The journey now passes through kept, refused, revised and removed promises and their technician projections."
+  },
+  "ci": {
+    "head": "62d845a5c88e50c613dae0056b4893e59edd0984",
+    "at": "2026-11-08T20:53:20.218800+00:00",
+    "apiCallsUsed": 5,
+    "runs": [
+      {
+        "id": 42521959198,
+        "name": "Verify",
+        "status": "in_progress",
+        "conclusion": null,
+        "head_sha": "62d845a5c88e50c613dae0056b4893e59edd0984",
+        "event": "push",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42521959198"
+      }
+    ],
+    "previousObservation": {
+      "head": "62d845a5c88e50c613dae0056b4893e59edd0984",
+      "at": "2026-11-08T20:48:07.648892+00:00",
+      "apiCallsUsed": 4,
+      "runs": []
+    }
+  },
+  "ciGreenClaimed": false
+}

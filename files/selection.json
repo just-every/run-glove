@@ -1,0 +1,37 @@
+{
+  "files": [
+    "REPORT.md",
+    "PLAN.md",
+    "receipt.json",
+    "mechanical.json",
+    "identity.json",
+    "ci.json",
+    "api.log",
+    "browser.log",
+    "push.log",
+    "predecessor-failed-job.log",
+    "precommit-local.json",
+    "screenshots/1440-arrival-dispatcher.png",
+    "screenshots/1440-arrival-technician.png",
+    "screenshots/390-arrival-dispatcher.png",
+    "screenshots/390-arrival-technician.png"
+  ],
+  "audit": "No symlinks or injected values in selected files.",
+  "sha256": {
+    "REPORT.md": "5467d79bcaaed82792e59ef3bb642acdc0780f91ce577251598a2173eac7a35b",
+    "PLAN.md": "1d12f02663f81cfcf158b672500cad5c68372621e5bde520ba01b3ce15254fb1",
+    "receipt.json": "767845c54ba2f790fd38b4ed60dcf007cc5689d4f5d7aee7ab718d7c214409b6",
+    "mechanical.json": "72f220da046d60e17393f04700d1f12871384ef13d74b9e25448a2a1b2965705",
+    "identity.json": "315923b73bfd720c7c98123227f80cbbf8fbee568f2438e02bad7432f9fce53b",
+    "ci.json": "4e172c58ac6f77b3be8da2aa8103ef09e66cc3c7fdd18e2dd97d375b06f5c6c3",
+    "api.log": "a6c66dfe34ceacb138891e9ec42f02e75602ad5c46d84c38364f25af1782fb9e",
+    "browser.log": "beff3c5410cdffc4cf802f391b9853b1e31316f426b8d46aca8eccf87f535b02",
+    "push.log": "8b8fa2395d1f3802fb18e9365d60577b87084796c9a190956f12fd5dd580edf7",
+    "predecessor-failed-job.log": "1a737414b8ad8b4ffa0e63923cb3d96e84ae85dd4140465d9d201c30faba48e9",
+    "precommit-local.json": "a67b9e8fae6b3f925659f7a5544c8b55168b2cbd7a3bd4834a58731d1a747894",
+    "screenshots/1440-arrival-dispatcher.png": "5ff8d481b63166c39f27ec5719e2cc1cd712dfdf2f00b82aac036bb1a3adb080",
+    "screenshots/1440-arrival-technician.png": "90fa274cdd24b5cd6dd5e831207b893f5af531debff6c157772db82dca4efb74",
+    "screenshots/390-arrival-dispatcher.png": "1e8e56291bf84632c611579efd140307b651a74d06bae6e506b46254d1b01958",
+    "screenshots/390-arrival-technician.png": "b11fc9419033f8da15fa7c853875627eeea85b2f7783759b5d17667456661866"
+  }
+}

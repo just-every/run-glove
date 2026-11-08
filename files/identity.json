@@ -1,0 +1,38 @@
+{
+  "head": "62d845a5c88e50c613dae0056b4893e59edd0984",
+  "candidateCommits": [
+    {
+      "head": "62d845a5c88e50c613dae0056b4893e59edd0984",
+      "fleetAuthor": true,
+      "fleetCommitter": true,
+      "coauthorTrailers": 0
+    },
+    {
+      "head": "c2836c1d8cb815efb2de5bc8664cc9c5cb2a86c5",
+      "fleetAuthor": true,
+      "fleetCommitter": true,
+      "coauthorTrailers": 0
+    },
+    {
+      "head": "b57f9b249b33e501296956a23a9dbd9d1f546a67",
+      "fleetAuthor": true,
+      "fleetCommitter": true,
+      "coauthorTrailers": 0
+    },
+    {
+      "head": "1df6218bd6b605ea60f8a1f0df1b43c9b1dd820f",
+      "fleetAuthor": true,
+      "fleetCommitter": true,
+      "coauthorTrailers": 0
+    },
+    {
+      "head": "63d26fa7853e9793ac135649233866978f336c9c",
+      "fleetAuthor": true,
+      "fleetCommitter": true,
+      "coauthorTrailers": 0
+    }
+  ],
+  "contractDiffEmpty": true,
+  "protectedDiffEmpty": true,
+  "workingTreeClean": true
+}

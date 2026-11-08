@@ -1,0 +1,26 @@
+{
+  "base": "647eb9a5629d507532fadc789c93119cea9e71c7",
+  "api": {
+    "command": "node --test --test-concurrency=1 tests/api/arrival-windows.test.mjs",
+    "exit": 0,
+    "passed": 5
+  },
+  "browser": {
+    "command": "node tests/browser/run.mjs tests/browser/arrival-windows.spec.ts",
+    "exit": 0,
+    "passed": 1,
+    "widths": [
+      1440,
+      390
+    ]
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0
+  },
+  "firstParty": {
+    "command": "npx -y @runeditrun/rer check --profile first-party",
+    "exit": 0
+  },
+  "mutation": "Before the panel controls were implemented, the extended browser journey failed at tests/browser/arrival-windows.spec.ts:101 because the arrival-window field was absent. The fixed journey passed."
+}
