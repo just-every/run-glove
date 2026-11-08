@@ -18,9 +18,10 @@
   "ci": {
     "id": 42510897436,
     "event": "push",
-    "status": "in_progress",
-    "conclusion": null,
-    "head_sha": "659a4d29a251899f46dfcf09a9af63265d9381a7"
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "659a4d29a251899f46dfcf09a9af63265d9381a7",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42510897436"
   },
   "browser": {
     "exit": 0,
@@ -101,5 +102,20 @@
       "partial": 214,
       "missing": 29
     }
-  }
+  },
+  "github_core_calls": 6,
+  "riders": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "INAPPLICABLE",
+    "11": "PENDING_FLEET_LANDING"
+  },
+  "claim": "PAY-007 DONE points 1 through 8, accept on guarded landing"
 }
