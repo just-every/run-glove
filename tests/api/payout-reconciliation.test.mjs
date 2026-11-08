@@ -30,8 +30,10 @@ async function fixture(t) {
   }
   const records = []
   const inspect = async payload => {
+    const payments = (await h.state()).payments
     const commandId = randomUUID(), before = h.stripePayments.calls.length
     const result = await h.command('payout.reconcile', payload, { commandId })
+    assert.deepEqual((await h.state()).payments, payments, 'inspection never posts or changes a source payment')
     records.push({ type: 'payout.reconcile', payload, commandId, result, calls: h.stripePayments.calls.length - before })
     return result
   }
@@ -162,7 +164,16 @@ test('PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD tes
     f.register('synthetic-glove-invalid-payout', [source.tx], change)
     await f.unchangedRefusal({ providerId: 'synthetic-glove-invalid-payout' }, 'PAYOUT_PROVIDER')
   }
+  const former = await h.person('Former payout Owner', 'owner'), formerCommand = randomUUID()
+  await former.run('payout.reconcile', payload, { commandId: formerCommand })
+  await h.command('role.set', { operatorId: former.id, role: 'office' })
+  const afterWithdrawal = await h.state(), calls = h.stripePayments.calls.length
+  await former.run('payout.reconcile', payload, { error: 'FORBIDDEN' })
+  await former.run('payout.reconcile', payload, { commandId: formerCommand, error: 'FORBIDDEN' })
+  assert.deepEqual(await h.state(), afterWithdrawal)
+  assert.equal(h.stripePayments.calls.length, calls, 'withdrawn authority cannot inspect or replay provider facts')
   await f.restart()
+  await former.run('payout.reconcile', payload, { commandId: formerCommand, error: 'FORBIDDEN' })
 })
 
 test('PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomplete pages, duplicates, inconsistent rows and wrong sources refuse safely', async t => {
@@ -280,4 +291,26 @@ test('PAY-007 point 8: only explicit owner books allocation reconciles manual so
   await h.command('payout.allocate', { ...unreviewed, paymentIds: [source.payment.id] }, { error: 'PAYOUT_ALLOCATION' })
   assert.deepEqual(await h.state(), allocated, 'one source cannot be allocated twice')
   await f.restart()
+  const customer = (await h.state()).customers.find(c => c.id === f.b.customer.id)
+  const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+  await h.command('privacy.erase', { customerId: customer.id, version: customer.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+  const erased = async () => {
+    const state = await h.state(), calls = h.stripePayments.calls.length
+    const bank = state.payouts.find(p => p.id === row.id)
+    assert.deepEqual([bank.amount, bank.payoutFee, bank.net, bank.reconciled], ['98.75', '0.25', '99.00', true])
+    assert.ok(bank.sourceDetailsErasedAt)
+    await h.command('payout.reconcile', payload, { error: 'ERASED' })
+    await h.command('payout.allocate', input, { error: 'ERASED' })
+    await h.command('payout.allocate', input, { commandId, error: 'ERASED' })
+    assert.deepEqual(await h.state(), state, 'neither fresh inspection nor replay restores erased source details')
+    assert.equal(h.stripePayments.calls.length, calls, 'erasure refuses before provider reads')
+    for (const value of [state.payouts, await read(h, '/api/glove/activity'), await read(h, '/api/glove/export')]) {
+      const text = JSON.stringify(value)
+      assert.ok(!text.includes(source.pi.latest_charge.id), 'erased provider source is absent from every retained public projection')
+    }
+    return state
+  }
+  const afterErasure = await erased()
+  await h.restart()
+  assert.deepEqual(await erased(), afterErasure)
 })
