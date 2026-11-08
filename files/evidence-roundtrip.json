@@ -1,10 +1,10 @@
 {
   "repository": "just-every/run-glove",
   "ref": "refs/heads/evidence/sx-glove-c-f146",
-  "head": "bdf0c641f4f66ea9e1ac614de3001d6afeaf2f85",
+  "head": "641424b9a1908b60d09397744210c011b571941e",
   "status": "restored",
-  "product_head": "f84f1d003c67a1adf8d23199660fa71761caba4e",
+  "product_head": "36cf2c441039625a5509aaf5be2f82709b754822",
   "product_branch": "cloud/sx-glove-c-f146",
-  "manifest_sha256": "00bd8d4c5360026449071de1fa19256910bf84723e0584b4b51538acce85de01",
-  "verifiedFiles": 33
+  "manifest_sha256": "6a8fcf155b651584b4f1a9951d6ec3a0e80af72aa9a6c7da7d46cbe3d2068b15",
+  "verifiedFiles": 38
 }

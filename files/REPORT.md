@@ -7,7 +7,7 @@ Merged main: d1d1a15cc01a553a6035a85d9764f102b8c6ff9f
 Product save: 3f9bd16; published merge f84f1d0 retains updated main; final candidate adds the tested sequential-action correction.
 PR: none; branch push is the existing Verify entry point.
 
-All three native acceptance points pass locally. No production defect was exposed, so production code, existing agreements tests, the API harness and provider fakes are unchanged. The candidate adds the requested focused API file, additive desk journey coverage and the generated source lock. No contract source, status, Gap, Evidence, acceptance sentence or generated view is changed. The requested plan-row change is PLAN-011, PARTIAL to DONE once the exact-SHA and guarded landing gates establish it. Current source counts remain 18 DONE, 216 PARTIAL and 29 MISSING before and after this candidate; no count promotion is claimed before landing.
+All three native acceptance points pass locally and push Verify 42509113058 is completed/success on the exact final candidate SHA. No production defect was exposed, so production code, existing agreements tests, the API harness and provider fakes are unchanged. The candidate adds the requested focused API file, additive desk journey coverage and the generated source lock. No contract source, status, Gap, Evidence, acceptance sentence or generated view is changed. The requested plan-row change is PLAN-011, PARTIAL to DONE once the guarded landing gates establish it; exact-SHA Verify is now green. Current source counts remain 18 DONE, 216 PARTIAL and 29 MISSING before and after this candidate; no count promotion is claimed before landing.
 
 ## Plan and actual results
 
@@ -23,12 +23,12 @@ The history test uses multiple properties of the same customer. It checks exact 
 
 | Item | Public door and proof | Result |
 | --- | --- | --- |
-| Point 1: created, used, revoked and outside-send attribution, time and no bearer | tests/api/booking-offer-history.test.mjs, `PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure`, lines 51–110; HTTP commands, public booking, Activity and export; lines 33–48 check all credential surfaces | PASS locally; Verify 42509113058, push event, pending |
-| Point 2: on-record email and provider-reported state | Same file, `PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states`, lines 112–170; command and authenticated callback doors | PASS locally; Verify 42509113058, push event, pending |
-| Point 2: outside-send method and recorder, delivery not verified | Lifecycle test and email test, plus existing Office outside-send controls in tests/browser/due-visits.spec.ts | PASS locally; same Verify pending |
-| Point 3: booking rows and emailed message state at the correct property | Same API file, `PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site`, lines 172–219; site-history routes | PASS locally; same Verify pending |
-| Point 3: real desk controls, visible provider state and property rows | tests/browser/due-visits.spec.ts, existing Office batch-booking journey registered at line 33; call at lines 221–224 and helper at lines 452–530 | PASS locally; same Verify pending |
-| Inherited BASE-AUDIT-001 | CONTRACT.md line 2421 cites it. Native Activity and export preserve the exact actor, historical role, time, subject, job, command and visit association through actual Worker restart | PASS locally; same Verify pending |
+| Point 1: created, used, revoked and outside-send attribution, time and no bearer | tests/api/booking-offer-history.test.mjs, `PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure`, lines 51–110; HTTP commands, public booking, Activity and export; lines 33–48 check all credential surfaces | PASS; Verify 42509113058, push event, success |
+| Point 2: on-record email and provider-reported state | Same file, `PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states`, lines 112–170; command and authenticated callback doors | PASS; Verify 42509113058, push event, success |
+| Point 2: outside-send method and recorder, delivery not verified | Lifecycle test and email test, plus existing Office outside-send controls in tests/browser/due-visits.spec.ts | PASS; same exact-SHA Verify success |
+| Point 3: booking rows and emailed message state at the correct property | Same API file, `PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site`, lines 172–219; site-history routes | PASS; same exact-SHA Verify success |
+| Point 3: real desk controls, visible provider state and property rows | tests/browser/due-visits.spec.ts, existing Office batch-booking journey registered at line 33; call at lines 221–224 and helper at lines 452–530 | PASS; same exact-SHA Verify success |
+| Inherited BASE-AUDIT-001 | CONTRACT.md line 2421 cites it. Native Activity and export preserve the exact actor, historical role, time, subject, job, command and visit association through actual Worker restart | PASS; same exact-SHA Verify success |
 
 All new tests are discovered by the existing API glob. The existing due-visits browser file remains in the browser glob and its existing Verify partition. No workflow or verification inventory was changed. A simple source-registration inventory of API and browser files was already above the general 200-test cap, 283 before and 286 after the three explicitly requested focused cases. The browser registration count is unchanged. No test was removed, weakened or hidden to offset that pre-existing suite budget debt; no cap increase is claimed.
 
@@ -42,15 +42,15 @@ R5 exact site history and peer-site exclusion: MET by the history journey and br
 R6 actual controls and both proof widths: MET by the preserved browser registration and twenty new screens.
 R7 inherited audit and unchanged credential fences: MET for the named lifecycle and refusal paths; unchanged erasure custody INSPECTED.
 R8 preserved assertions and judgments: MET by empty contract diff and additive browser changes; agreements, harness and fakes byte-identical to main.
-R9 exact-SHA Verify and guarded landing custody: PENDING; no scan, landing or live provider proof is inferred.
+R9 exact-SHA Verify: MET, 42509113058 completed/success; guarded landing remains pending. No scan, landing or live provider proof is inferred.
 
 ## DONE-RIDERS
 
 | Row | Result | Candidate-bound evidence |
 | --- | --- | --- |
-| 1 | PASS local; CI pending | All three named API journeys and the Office journey reach each native outcome; recorded push Verify 42509113058 is pending |
+| 1 | PASS | All three named API journeys and the Office journey reach each native outcome; recorded push Verify 42509113058 is completed/success on the final full SHA |
 | 2 | PASS | Nonempty native fixtures; missing-email and token refusals preserve the entire export and mail count; unauthenticated provider callback refused |
-| 3 | PENDING | Existing Verify globs and partitions invoke every journey; exact-SHA run 42509113058 is in progress |
+| 3 | PASS | Existing Verify globs and partitions invoke every journey; exact-SHA run 42509113058 is completed/success |
 | 4 | PASS | Production code and API proof are unchanged from the tested save; the updated browser journey passed under Node 22.20.0 immediately before the final commit, with identical tested file bytes and full property-region captures; receipt.json binds these hashes |
 | 5 | PASS | BASE-AUDIT-001 cited by PLAN-011; point 1 names the inherited audit outcome |
 | 6 | PASS mechanical | Contract write and check pass; generated files restored whole; Status, Gap and Evidence cells left for the lander |
@@ -62,7 +62,7 @@ R9 exact-SHA Verify and guarded landing custody: PENDING; no scan, landing or li
 
 ## Pre-ready self-check
 
-1. Each named user-visible outcome is reached by the focused API or real desk journey. Exact-SHA Verify is still pending at report creation.
+1. Each named user-visible outcome is reached by the focused API or real desk journey. Exact-SHA push Verify 42509113058 is completed/success on 36cf2c441039625a5509aaf5be2f82709b754822.
 2. No old assertion was deleted, narrowed or moved behind a width or branch condition. Existing agreements tests are unchanged.
 3. Replay and withdrawn role and branch authority pass in the touched and preserved journeys. No production authority or privacy path changed. Erasure deletes booking secrets and rewrites affected command results in src/glove/privacy.ts lines 140–148; that unchanged path is INSPECTED, not newly claimed as tested.
 4. Existing text and controls are preserved. Booking-offer controls have text labels; the existing browser journey checks the Previous day tooltip on focus. Desktop and phone proof show the changed flow without horizontal overflow. No configuration or visual design was added.
@@ -88,3 +88,12 @@ Evidence transport was independently fetched at bdf0c641f4f66ea9e1ac614de3001d6a
 The prior candidate f84f1d003c67a1adf8d23199660fa71761caba4e passed push Verify 42507488266. An additional screenshot-only local overlay then failed at the new `Revoked` visibility assertion after immediate consecutive outside-send and revoke clicks. The native command runner rejects another action while one is in flight; the journey had not waited for the first action's committed result. This diagnosis is from the control flow and command-runner inspection; the observed assertion failure itself is retained in preliminary-capture-failure.log.
 
 The final journey reads and asserts the actual outside-send history row before returning to Dispatch and revoking. No assertion was removed, narrowed, skipped or moved behind a conditional. The original revocation and final history assertions remain, and the intermediate outside-send result is also checked. The same committed screenshot helper now optionally captures the whole property-history region, so the phone proof includes the message and revocation below the first viewport. The updated complete journey passes in 52.2 seconds under Node 22.20.0; all twenty selected screens are from that successful run. This was a local test sequencing correction, not a repair of a red Verify run or a production change. The old green Verify does not establish success for the new candidate.
+
+The updated packet was also fetched and verified at evidence head 641424b9a1908b60d09397744210c011b571941e: all 38 selected files and manifest match, bound to product head 36cf2c441039625a5509aaf5be2f82709b754822.
+
+
+## Terminal disposition
+
+CLAIM PLAN-011 DONE points=1,2,3 tests=tests/api/booking-offer-history.test.mjs#PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure; tests/api/booking-offer-history.test.mjs#PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states; tests/api/booking-offer-history.test.mjs#PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site; tests/browser/due-visits.spec.ts#BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390
+
+Native verdict: ACCEPT ON LANDING. Riders 1–9 pass, rider 10 is inapplicable because no policy default was adopted, and rider 11 remains the guarded lander receipt. Eight fleet GitHub API calls were used. Verify 42509113058 (push) is completed/success on the full candidate SHA. No PR was required. Contract judgments and the before/after 18 DONE, 216 PARTIAL, 29 MISSING counts remain unchanged. Publication scanning, main equality and Run site remain fleet gates.

@@ -114,83 +114,163 @@
   "screenshots": [
     {
       "path": "screenshots/1440-due-email-accepted.png",
-      "sha256": "aade44889143893a045e836d7a50633614be1b8aeba67052df318566dd6ab027"
+      "sha256": "aade44889143893a045e836d7a50633614be1b8aeba67052df318566dd6ab027",
+      "imageWidth": 1440,
+      "imageHeight": 1050,
+      "viewportWidth": 1440,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/1440-due-email-delivered.png",
-      "sha256": "345f9f5cbe551b7121e195e64b93531a99c784991f8bffeb2112f96e0d05353c"
+      "sha256": "345f9f5cbe551b7121e195e64b93531a99c784991f8bffeb2112f96e0d05353c",
+      "imageWidth": 1440,
+      "imageHeight": 1050,
+      "viewportWidth": 1440,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/1440-due-email-bounced.png",
-      "sha256": "8c19997a0f183e9a19f7f452083eefa5b10e2bb4c03984fd5f8d2cc1fece813f"
+      "sha256": "8c19997a0f183e9a19f7f452083eefa5b10e2bb4c03984fd5f8d2cc1fece813f",
+      "imageWidth": 1440,
+      "imageHeight": 1050,
+      "viewportWidth": 1440,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/1440-due-email-revoked.png",
-      "sha256": "5dee621fd24194e1046f1e18b6585ca5692cc64ef7264d8de8e410b9b07f69b3"
+      "sha256": "5dee621fd24194e1046f1e18b6585ca5692cc64ef7264d8de8e410b9b07f69b3",
+      "imageWidth": 1440,
+      "imageHeight": 1050,
+      "viewportWidth": 1440,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/1440-due-email-history-accepted.png",
-      "sha256": "171ab7738c85d464c8c63a53d852d6f8cba9e5cec657e71e658d906b58c9702e"
+      "sha256": "171ab7738c85d464c8c63a53d852d6f8cba9e5cec657e71e658d906b58c9702e",
+      "imageWidth": 544,
+      "imageHeight": 702,
+      "viewportWidth": 1440,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/1440-due-email-history-delivered.png",
-      "sha256": "fb45081f157035f2cabe8d6745038efa8d1d656ee04b095211c5be93c9627ecf"
+      "sha256": "fb45081f157035f2cabe8d6745038efa8d1d656ee04b095211c5be93c9627ecf",
+      "imageWidth": 544,
+      "imageHeight": 702,
+      "viewportWidth": 1440,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/1440-due-email-history-bounced.png",
-      "sha256": "19e93b5cb93da93ffbcf22843b2a32ce68e3160b5ae9751bc4590a6467578314"
+      "sha256": "19e93b5cb93da93ffbcf22843b2a32ce68e3160b5ae9751bc4590a6467578314",
+      "imageWidth": 544,
+      "imageHeight": 702,
+      "viewportWidth": 1440,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/1440-due-email-history-outside-send.png",
-      "sha256": "c5eb2a1050d832808ae60a4149e8df850feced18a41c9b48152a252ffb734bcb"
+      "sha256": "c5eb2a1050d832808ae60a4149e8df850feced18a41c9b48152a252ffb734bcb",
+      "imageWidth": 544,
+      "imageHeight": 854,
+      "viewportWidth": 1440,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/1440-due-email-history-revoked.png",
-      "sha256": "07c4a03be91bb6e7c6f6cffdef9461e14c0d44a3db849fa622698f3bca4789d6"
+      "sha256": "07c4a03be91bb6e7c6f6cffdef9461e14c0d44a3db849fa622698f3bca4789d6",
+      "imageWidth": 544,
+      "imageHeight": 943,
+      "viewportWidth": 1440,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/1440-due-other-property-history.png",
-      "sha256": "e65e36b137c5346c04ff108f29ef50a5ec66c67b9abb829db608430bc46b3742"
+      "sha256": "e65e36b137c5346c04ff108f29ef50a5ec66c67b9abb829db608430bc46b3742",
+      "imageWidth": 544,
+      "imageHeight": 508,
+      "viewportWidth": 1440,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/390-due-email-accepted.png",
-      "sha256": "350f899cc4a2f6edce2ae2c8aabb4e5fd44e88a2fbeb23ac39cb8a9649b1d198"
+      "sha256": "350f899cc4a2f6edce2ae2c8aabb4e5fd44e88a2fbeb23ac39cb8a9649b1d198",
+      "imageWidth": 390,
+      "imageHeight": 1050,
+      "viewportWidth": 390,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/390-due-email-delivered.png",
-      "sha256": "80ac3055c5a6faa5acd5f8f428cb6eb6acd3ace4364a3680a406be4b7cb6f5de"
+      "sha256": "80ac3055c5a6faa5acd5f8f428cb6eb6acd3ace4364a3680a406be4b7cb6f5de",
+      "imageWidth": 390,
+      "imageHeight": 1050,
+      "viewportWidth": 390,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/390-due-email-bounced.png",
-      "sha256": "234b0467d325302510461cbe14a46ca3461afd9c9d798deccb4b079de0dc9d92"
+      "sha256": "234b0467d325302510461cbe14a46ca3461afd9c9d798deccb4b079de0dc9d92",
+      "imageWidth": 390,
+      "imageHeight": 1050,
+      "viewportWidth": 390,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/390-due-email-revoked.png",
-      "sha256": "22268e6fb6219422e069097df510e590f53993ea2194f99ba59a75bef165980d"
+      "sha256": "22268e6fb6219422e069097df510e590f53993ea2194f99ba59a75bef165980d",
+      "imageWidth": 390,
+      "imageHeight": 1050,
+      "viewportWidth": 390,
+      "capture": "viewport"
     },
     {
       "path": "screenshots/390-due-email-history-accepted.png",
-      "sha256": "d162555029dc873841586b0de9e725413b3ae4460dfd51839fe3cecc547f5ee7"
+      "sha256": "d162555029dc873841586b0de9e725413b3ae4460dfd51839fe3cecc547f5ee7",
+      "imageWidth": 324,
+      "imageHeight": 1085,
+      "viewportWidth": 390,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/390-due-email-history-delivered.png",
-      "sha256": "271f99865845d1bea6e0aaffa9080bf5e93d240077e46544ee811f14fe974903"
+      "sha256": "271f99865845d1bea6e0aaffa9080bf5e93d240077e46544ee811f14fe974903",
+      "imageWidth": 324,
+      "imageHeight": 1085,
+      "viewportWidth": 390,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/390-due-email-history-bounced.png",
-      "sha256": "65b6252b0ce469754f010d8d822f12b224f094b589e8e78b089cfd6721fb5b13"
+      "sha256": "65b6252b0ce469754f010d8d822f12b224f094b589e8e78b089cfd6721fb5b13",
+      "imageWidth": 324,
+      "imageHeight": 1085,
+      "viewportWidth": 390,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/390-due-email-history-outside-send.png",
-      "sha256": "4bf2ab03f4ec229f80f2fb4814f8c64a8c4a4cae2b18330861294d0e958dce11"
+      "sha256": "4bf2ab03f4ec229f80f2fb4814f8c64a8c4a4cae2b18330861294d0e958dce11",
+      "imageWidth": 324,
+      "imageHeight": 1339,
+      "viewportWidth": 390,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/390-due-email-history-revoked.png",
-      "sha256": "4ab09eddab7b996791e67bfabb1a904d83f3302c64f7d239fdd17e9fee599f9e"
+      "sha256": "4ab09eddab7b996791e67bfabb1a904d83f3302c64f7d239fdd17e9fee599f9e",
+      "imageWidth": 324,
+      "imageHeight": 1467,
+      "viewportWidth": 390,
+      "capture": "whole property-history region"
     },
     {
       "path": "screenshots/390-due-other-property-history.png",
-      "sha256": "5ab0c6af967571631b6683bc35991323830aa70ac0b4a200a5307eebac838117"
+      "sha256": "5ab0c6af967571631b6683bc35991323830aa70ac0b4a200a5307eebac838117",
+      "imageWidth": 324,
+      "imageHeight": 747,
+      "viewportWidth": 390,
+      "capture": "whole property-history region"
     }
   ],
   "contractStatusCounts": {
@@ -217,12 +297,12 @@
   "verify": {
     "id": 42509113058,
     "event": "push",
-    "status": "queued",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "success",
     "head_sha": "36cf2c441039625a5509aaf5be2f82709b754822",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42509113058"
   },
-  "githubApiCalls": 6,
+  "githubApiCalls": 8,
   "pr": null,
   "priorCandidate": {
     "head": "f84f1d003c67a1adf8d23199660fa71761caba4e",
@@ -241,5 +321,28 @@
     "failure": "Revoked state not visible after immediate consecutive outside-send and revoke clicks",
     "receipt": "preliminary-capture-failure.log",
     "resolution": "Native control flow now reads and asserts the committed outside-send history before revoking; original revocation assertion retained."
+  },
+  "claim": {
+    "clause": "PLAN-011",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3
+    ],
+    "qualification": "Native acceptance qualified; guarded landing and publication scan pending"
+  },
+  "doneRiders": {
+    "1": "pass",
+    "2": "pass",
+    "3": "pass",
+    "4": "pass",
+    "5": "pass",
+    "6": "pass",
+    "7": "pass",
+    "8": "pass",
+    "9": "pass",
+    "10": "not applicable; no policy default",
+    "11": "pending guarded landing"
   }
 }
