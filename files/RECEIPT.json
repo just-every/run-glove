@@ -104,6 +104,11 @@
       "sha256": "c6e764d657a349efef732e6494b0839df97f4bf71769a33421a1c92d481e75b5"
     },
     {
+      "path": "CANDIDATE-CI-FINAL.json",
+      "bytes": 223,
+      "sha256": "e9fe1836ae254c83545a7bbd302c1095562bff2ae7eeccb8bf936d5e70a66b99"
+    },
+    {
       "path": "CANDIDATE-CI.json",
       "bytes": 243,
       "sha256": "0336efe3eb4911728c669cfcebeb5dc61dc5d08c09217fe359c01eff486524df"
@@ -112,6 +117,16 @@
       "path": "CI-DISCOVERY.json",
       "bytes": 169,
       "sha256": "6468abd0698a3ed8d624ee38dbee6cc005cf05f8de28305fd22114aa24669d45"
+    },
+    {
+      "path": "DIFF-AUDIT.json",
+      "bytes": 390,
+      "sha256": "e7b616a61324f6e3d93aefaa5ea1a43cf44451d5188c5fba1fa8824b2ae48d84"
+    },
+    {
+      "path": "EVIDENCE-VERIFY.json",
+      "bytes": 4674,
+      "sha256": "a05c68b10b102654bbd1e8e36e98253fd2cb1740fdd3034dfd2d8e60d7afbbe6"
     },
     {
       "path": "LOCAL-CHECKS.txt",
@@ -188,5 +203,16 @@
       "bytes": 197682,
       "sha256": "8c9250651987d7d05d3ba82a33310a5fe70f65ece1b327f73425910a9cf15412"
     }
-  ]
+  ],
+  "ci_latest": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "72ce1fcb59291a920c7d75746dd02c8e69f9531f",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42559001651",
+    "id": 42559001651,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "ci_api_calls": 4,
+  "handoff": "PUSHED; exact-SHA Verify in progress, publication scan and landing deferred to fleet"
 }
