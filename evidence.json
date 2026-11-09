@@ -91,6 +91,12 @@
       "sha256": "4e94bec085cc635163baf60f80e413bddbaba975530d16aa4d5ace034fbae866"
     },
     {
+      "blob": "9a6935d82f5a53a52f2a6cc58deb02fdc45a6ff7",
+      "bytes": 220,
+      "path": "transfer-receipt.json",
+      "sha256": "a971efeeceb32797fd69c16bb58135ea49219d9315a171d8b05e683cca32a2f4"
+    },
+    {
       "blob": "817135fbc579f77c50bea7351804378aa97d00a7",
       "bytes": 130,
       "path": "typecheck-node22.log",
