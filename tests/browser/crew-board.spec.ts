@@ -22,9 +22,21 @@ async function send(page: Page, button: Locator, type: string) {
 
 async function screen(page: Page, name: string) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `${name} fits the viewport`).toBe(true)
+  const board = page.getByRole('region', { name: 'Board', exact: true })
+  if (await board.count()) {
+    const missing = await page.locator('button:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])') && !n.getAttribute('aria-describedby')).map(n => n.getAttribute('aria-label')))
+    expect(missing, 'icon controls have descriptive tooltips').toEqual([])
+    const button = page.locator('.icon-control button:visible').first()
+    await button.focus()
+    const tooltip = page.locator(`[id="${await button.getAttribute('aria-describedby')}"]`)
+    await expect(tooltip).toHaveCSS('opacity', '1')
+    expect((await tooltip.innerText()).trim().split(/\s+/).length).toBeGreaterThanOrEqual(2)
+    await board.scrollIntoViewIfNeeded()
+    expect(await board.locator('label, button').evaluateAll(nodes => nodes.filter(n => (n as HTMLElement).offsetHeight > 0).every(n => parseFloat(getComputedStyle(n).fontSize) >= 13))).toBe(true)
+  } else if (name === 'team') await page.getByRole('region', { name: 'Crews', exact: true }).scrollIntoViewIfNeeded()
   if (!process.env.GLOVE_SCREENSHOTS) return
   await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-  await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${page.viewportSize()!.width}-crew-${name}.png`), fullPage: true })
+  await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${page.viewportSize()!.width}-crew-${name}.png`) })
 }
 
 test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor', async ({ browser }, info) => {
