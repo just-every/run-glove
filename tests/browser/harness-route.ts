@@ -12,6 +12,17 @@ const live = new Set<Registration>()
 // answer intact. A Playwright interceptor may continue an outstanding route
 // when removed: draining after removal is too late for an async Worker reply.
 export async function harnessRoute(target: Target, pattern: Pattern, handler: Handler) {
+  // A fixture attached after native owner entry must start a new document.
+  // Otherwise the native installation's initial state read can finish after
+  // the fixture read and overwrite it in the same app. Existing proxy owners
+  // identify deliberate overrides; those retain the current document.
+  const pages = 'pages' in target ? target.pages() : [target]
+  for (const page of pages) {
+    if (new URL(page.url()).pathname === '/app'
+      && !registrations.get(page)?.length && !registrations.get(page.context())?.length) {
+      await page.goto('about:blank')
+    }
+  }
   const active = new Set<Promise<void>>(), pending = new Set<Promise<void>>()
   const failures: unknown[] = []
   let closing = false, paused = false, resume = () => {}
