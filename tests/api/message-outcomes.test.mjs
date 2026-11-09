@@ -1,4 +1,3 @@
-import test from 'node:test'
 import assert from 'node:assert/strict'
 import { scenario } from '../fixtures/scenario.mjs'
 import { connectMail, postmarkCallback, textOf } from '../fixtures/mail-providers.mjs'
@@ -9,7 +8,8 @@ const start = '2026-11-09T12:00:00.000Z'
 const names = { sendgrid: 'SendGrid', resend: 'Resend', postmark: 'Postmark', ses: 'Amazon SES' }
 const registration = 'COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart'
 
-test(registration, async t => {
+export async function messageOutcomes(t) {
+  await scenario(t, registration, async t => {
   const h = await installation({ at: start, captureLogs: true }); t.after(() => h.close())
   const b = await business(h, { timezone: 'UTC' })
   let customer = await h.command('customer.save', { ...b.customer, kind: 'business', email: mailbox('synthetic-glove-main'), apEmail: mailbox('synthetic-glove-ap') })
@@ -73,7 +73,7 @@ test(registration, async t => {
         return postmarkCallback(message, connected.callbackPassword, { at, id: `synthetic-glove-event-${++eventIndex}`, details: status === 'delivered' ? { RecordType: 'Delivery' } : status === 'complained' ? { RecordType: 'SpamComplaint' } : { RecordType: 'Bounce', Type: status === 'bounced' ? 'HardBounce' : 'SoftBounce', Inactive: status === 'failed' } })
       } }
     }
-    const signer = snsEvents(edge.connection.sns, { days: 30 })
+    const signer = snsEvents(edge.connection.sns, { days: 30, at: start })
     h.email.certificates.set(signer.certUrl, signer.cert)
     return { event(message, status, at) {
       const type = { delivered: 'Delivery', bounced: 'Bounce', complained: 'Complaint', deferred: 'DeliveryDelay', failed: 'Bounce', rejected: 'Reject' }[status]
@@ -281,7 +281,8 @@ test(registration, async t => {
     assert.equal(h.email.sent.length, count)
     assert.deepEqual(await snapshot(h), before)
   })
-})
+  })
+}
 
 function deliveryId(sent) {
   return sent.provider === 'resend' ? sent.idempotencyKey : sent.provider === 'postmark' ? sent.body.Metadata.glove_delivery_id : sent.provider === 'ses' ? Buffer.from(sent.body.EmailTags.find(t => t.Name === 'glove_delivery_id').Value, 'base64url').toString() : sent.body.custom_args.rer_delivery_id
