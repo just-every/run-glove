@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4d7b765fcd22bea79f5b861fa47107e1e4a5ba8e86929e3857c561e1711ebe1b",
+      "sha256": "c1d35dc8c3e603a96c240984c92e619034ad96d783352fe3a13a25cb697a4fc8",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "92d3cd1d75ede266900e6462a7804a4ea1c2e05ca27888ab0035d4fd07e6874c",
+      "sha256": "965339470d264320c5f83c18c40078dbf0333a5f9e30cebd5e94b0495bd2aa35",
       "executable": false
     },
     "DEMO.md": {
@@ -2292,7 +2292,7 @@
       "executable": false
     },
     "src/glove/payouts.ts": {
-      "sha256": "134fa5ca755069c73518a56e1c55be5911e3370b33dafb92fbcf31cff4ce6620",
+      "sha256": "1345122f30f79796216e79144bcb143675ad4767e491a3a856516ceab87a37a4",
       "executable": false
     },
     "src/glove/payroll.ts": {
@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/payout-reconciliation.test.mjs": {
-      "sha256": "f14d6e6d9c424d4cf24ac4dd279168cc502d81fc2e271f2c178b1a1dec030c3f",
+      "sha256": "7c1c7572293c2a08d3dac03a64bd18d925b9d1ecdd109155201ccc2fa52917dd",
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
