@@ -28,6 +28,12 @@ test('API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 t
 
   await scenario(t, 'FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones', async () => {
     await b.priyaPerson.run('push.subscribe', { endpoint: 'http://push.example.test/send/plain', keys: priyaPhone.keys }, { error: 'INPUT' })
+    // FIELD-004 point 6: this is a hosted installation, so plain http is refused even on this computer's own addresses
+    // (a local installation accepts http://127.0.0.1 for its browser journey's push service, which tests/browser/journey.spec.ts runs),
+    // as are credentials, fragments and an address over 1000 characters; nothing refused is stored.
+    for (const refused of ['http://127.0.0.1:8123/push/loopback', 'http://localhost:8123/push/loopback', 'http://[::1]:8123/push/loopback', 'https://user:secret@push.example.test/send/credentials', 'https://push.example.test/send/fragment#frag', `https://push.example.test/${'a'.repeat(1000)}`])
+      await b.priyaPerson.run('push.subscribe', { endpoint: refused, keys: priyaPhone.keys }, { error: 'INPUT' })
+    assert.deepEqual(await rows(b.priyaPerson.id), [], 'a refused address is never stored')
     await b.priyaPerson.run('push.subscribe', { endpoint: priyaUrl, keys: { p256dh: 'AAAA', auth: priyaPhone.keys.auth } }, { error: 'INPUT' })
     await b.agent.run('push.subscribe', { endpoint: 'https://push.example.test/send/agent', keys: tomPhone.keys }, { error: 'FORBIDDEN' })
     await b.office.run('push.subscribe', { endpoint: 'https://push.example.test/send/office', keys: tomPhone.keys }, { error: 'FORBIDDEN' })
