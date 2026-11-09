@@ -1,0 +1,15 @@
+{
+  "head": "a3936d7c06870e2ad10a9ac113a0cea3013142b8",
+  "files": {
+    "tests/api/map-board.test.mjs": "02ecd699088a3488fd2ce2d6c3ebf0daf65a2fbab20276e4ffd3eccfa0c33684",
+    "tests/api/harness.mjs": "aa680ef722ebaf11a21bf9f9a79e2adcf85022b892235eddad28694e629ff570",
+    "tests/browser/dispatch-map.spec.ts": "177c44ce558936091f3739ca047baf86d158ec8ceede10e3001f9632dfb742a3",
+    "tests/portable.mjs": "a2f52bd5e51bfc42daf4232c45d076c8e04311c7e25ed4873d0d39827d5926bb",
+    "src/glove/maps.ts": "df4eb5b3d8f4b92dac0698bdbde910c020ec5a6b05098d4ae2d9bc4dca562912",
+    "src/glove/commands/maps.ts": "08786694cb9c389d0c47a08f81abc368939f3936905dd3811053d91f7c26a0be",
+    "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+    "src/glove/api.ts": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
+    "src/ui/dispatch-map.tsx": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+    "src/ui/technician.tsx": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb"
+  }
+}

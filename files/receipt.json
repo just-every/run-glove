@@ -1,0 +1,122 @@
+{
+  "apiRuntime": "22.20.0",
+  "branch": "cloud/sx-glove-c-f173",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/map-board.test.mjs",
+      "exit": 0,
+      "head": "a3936d7c06870e2ad10a9ac113a0cea3013142b8",
+      "log": "api.log",
+      "result": "one registered map journey, five mandatory labeled scenarios"
+    },
+    {
+      "command": "timeout 1200 node tests/browser/run.mjs tests/browser/dispatch-map.spec.ts",
+      "exit": 0,
+      "log": "browser.log",
+      "result": "entire existing journey plus additive map qualification; Chromium, 1440 and 390"
+    },
+    {
+      "command": "timeout 1800 node tests/portable.mjs",
+      "exit": 0,
+      "log": "portable.log",
+      "result": "complete actual installation archive and restore journey"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DISP-002 then check",
+      "exit": 0,
+      "generatedViewsCommitted": false,
+      "log": "views.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock then check",
+      "exit": 0,
+      "lockCommitted": true
+    },
+    {
+      "baselineTotal": 203,
+      "candidateTotal": 204,
+      "cap": 200,
+      "command": "node tests/inventory.mjs",
+      "exit": 1,
+      "log": "test-counts-final.json",
+      "note": "pre-existing excess; one net new registration; no cap raise or removed assertion"
+    }
+  ],
+  "ci": {
+    "total_count": 1,
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_sha": "a3936d7c06870e2ad10a9ac113a0cea3013142b8",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42544379964",
+        "id": 42544379964,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ]
+  },
+  "claim": {
+    "clause": "DISP-002",
+    "contractEdited": false,
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "sourceStatus": "partial",
+    "status": "DONE"
+  },
+  "countsAfter": {
+    "done": 24,
+    "missing": 29,
+    "partial": 210
+  },
+  "countsBefore": {
+    "done": 24,
+    "missing": 29,
+    "partial": 210
+  },
+  "head": "a3936d7c06870e2ad10a9ac113a0cea3013142b8",
+  "integratedMain": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+  "landing": {
+    "mainEqualsCandidate": false,
+    "runSite": null,
+    "status": "PENDING"
+  },
+  "pr": null,
+  "productPushed": true,
+  "proofBytesUnchangedAfterRun": true,
+  "publicationScan": {
+    "complete": null,
+    "findings": null,
+    "historyScanned": null,
+    "responsibility": "guarded fleet lander",
+    "status": "NOT_RUN_IN_CLOUD"
+  },
+  "recordedAt": "2026-11-09T01:15:32.389094+00:00",
+  "remoteHead": "a3936d7c06870e2ad10a9ac113a0cea3013142b8",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "screenshots": [
+    "screenshots/1440-dispatch-map-qualified-board.png",
+    "screenshots/1440-dispatch-map-qualified-directions.png",
+    "screenshots/390-dispatch-map-qualified-board.png",
+    "screenshots/390-dispatch-map-qualified-directions.png"
+  ],
+  "tag": "sx-glove-c-f173"
+}
