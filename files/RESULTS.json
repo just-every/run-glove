@@ -13,7 +13,7 @@
       6,
       7
     ],
-    "proposed_status": "DONE",
+    "proposed_status": "PARTIAL",
     "source_status": "PARTIAL",
     "landing_judgment": "fleet gate"
   },
@@ -58,15 +58,20 @@
         1
       ],
       "failure": "unrelated cold calendar setup listener handshake deadline; target archive proof passed through native owner and real export"
+    },
+    "full_portable_ci": {
+      "job": 129347977211,
+      "conclusion": "success",
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e"
     }
   },
   "ci": {
-    "conclusion": null,
+    "conclusion": "failure",
     "head_sha": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42671242437",
-    "status": "in_progress"
+    "status": "completed"
   },
-  "github_rest_calls": 5,
+  "github_rest_calls": 10,
   "pr": null,
   "source_counts": {
     "before_upstream_merge": {
@@ -92,7 +97,7 @@
   "riders": {
     "1": "PASS native outcomes",
     "2": "PASS dangerous paths both ways",
-    "3": "pending exact-head Verify",
+    "3": "FAIL overall Verify conclusion; no failed job or command reported",
     "4": "PASS exact-head API, browser and native archive",
     "5": "INSPECTED existing six Base citations",
     "6": "PASS mechanical; source judgments preserved",
@@ -101,5 +106,19 @@
     "9": "PASS field-proof boundary, no live-provider claim",
     "10": "not applicable, no default",
     "11": "pending fleet scanning, landing and Run site"
+  },
+  "github_budget_note": "Ten explicit diagnostic commands, including one rejected rerun; bootstrap refresh is prescribed separately.",
+  "blocker": "Verify reports failure without any failed job; official failed-job rerun refused HTTP 403",
+  "retry": {
+    "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+    "run": 42671242437,
+    "command": "gh api --method POST repos/just-every/run-glove/actions/runs/42671242437/rerun-failed-jobs",
+    "exit": 1,
+    "accepted": false,
+    "observed_at": "2026-11-09T18:28:34.684757+00:00",
+    "reason": "Completed workflow reports failure while all nine returned jobs and exact-head checks are success or skipped; no failed assertion or failed job is reported. One infrastructure retry only.",
+    "output": "{\"message\":\"This workflow run cannot be retried\",\"documentation_url\":\"https://docs.github.com/rest/actions/workflow-runs#re-run-failed-jobs-from-a-workflow-run\",\"status\":\"403\"}gh: This workflow run cannot be retried (HTTP 403)\n",
+    "github_calls_used": 10,
+    "retry_status": "not observed; ten-call budget exhausted"
   }
 }

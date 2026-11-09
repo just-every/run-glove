@@ -43,16 +43,40 @@
       "sha256": "7d748a6eddb73f5a101181e6aa3bf89ffaaa4ce651567f1cd45ad23b452ab5f7"
     },
     {
+      "blob": "289fecb9c10e5a5fef5e82745fa573e570b577e7",
+      "bytes": 2154,
+      "path": "CI-CHECKS.json",
+      "sha256": "18db67d2a8a12092c0b57d722b76c383d49c7e4c838123ad380a77c2a40472f3"
+    },
+    {
+      "blob": "c950a1fd4c5ae94ab99a785460a325e362f0d247",
+      "bytes": 10170,
+      "path": "CI-DIAGNOSTIC.txt",
+      "sha256": "fccdded4d4ca37e8fe396ae70d5e4c9f0821fd6d5dd56e3d45d65c2a38ee5ff6"
+    },
+    {
       "blob": "90877763ef3db0b35b69c1407dd950ae68d3b481",
       "bytes": 237,
       "path": "CI-DISCOVERY.json",
       "sha256": "bd06288ca51129518db2892bd2cf7258bd17b05237888ea027cc389578e705b2"
     },
     {
-      "blob": "5997c3b1d1192803f36030edc972e37a33717f76",
-      "bytes": 175,
+      "blob": "723cfae1fb2bac8346118cac3abf4ad8b75501de",
+      "bytes": 178,
       "path": "CI-FINAL.json",
-      "sha256": "2eaabaafd245ff9c04f79ce6db3bbf634f6db23a483f771bae047db2cd100dea"
+      "sha256": "ee3bd02c39032f598edaaabc27f385f5ae5856da31cc9497f4753ef2d35d60ab"
+    },
+    {
+      "blob": "971e9e66b2b1f1a85911ca4cdb906be6346e1b00",
+      "bytes": 885,
+      "path": "CI-JOBS.json",
+      "sha256": "70bb3224e223a249a7c9c0ce38554244b48e1c87120bb7f7d3b366b4bd6a2669"
+    },
+    {
+      "blob": "b9022faf89d8be2889f659693afd7b6dde88be4a",
+      "bytes": 820,
+      "path": "CI-RETRY-RECEIPT.json",
+      "sha256": "090be883c3c640a6ef740d5b162f5fb793a6ec8fdb0e69a23bf0f9204fa88b3e"
     },
     {
       "blob": "5997c3b1d1192803f36030edc972e37a33717f76",
@@ -73,16 +97,16 @@
       "sha256": "4d37cc3401c7d03db91a6ae6c5d4af40217da82ad9113cc099427c9768dee627"
     },
     {
-      "blob": "65c7b0e1980dd208810f5517f06ca5a685716537",
-      "bytes": 22070,
+      "blob": "8f89c4fb27d14374c4a4d58795dd27afa1472239",
+      "bytes": 25986,
       "path": "REPORT.md",
-      "sha256": "28310471d2308dab21f51b0f584a34b8bc22e109289c8ad9ef117067cdb6b922"
+      "sha256": "ebceca024b1750be6c44f7049ee0c08beea61ae304567752c6accd594efff1d2"
     },
     {
-      "blob": "424dce34a594df305d940ae400c9c18816586979",
-      "bytes": 2517,
+      "blob": "9f10d8b4f4696f68054ca503d8c8a128c34e20d8",
+      "bytes": 3807,
       "path": "RESULTS.json",
-      "sha256": "b322ff25c8882a4cd4d372d518bdc775bf0da0513685c0ca18cb23157174bf92"
+      "sha256": "5355cceb192c6ce82511df6091e64f95985c0760ac1f3ad0c05168e55eae3420"
     },
     {
       "blob": "1978a8af821a68e4f190861cfbc7e69c0d0947ba",

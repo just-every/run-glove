@@ -1,0 +1,12 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "run": 42671242437,
+  "command": "gh api --method POST repos/just-every/run-glove/actions/runs/42671242437/rerun-failed-jobs",
+  "exit": 1,
+  "accepted": false,
+  "observed_at": "2026-11-09T18:28:34.684757+00:00",
+  "reason": "Completed workflow reports failure while all nine returned jobs and exact-head checks are success or skipped; no failed assertion or failed job is reported. One infrastructure retry only.",
+  "output": "{\"message\":\"This workflow run cannot be retried\",\"documentation_url\":\"https://docs.github.com/rest/actions/workflow-runs#re-run-failed-jobs-from-a-workflow-run\",\"status\":\"403\"}gh: This workflow run cannot be retried (HTTP 403)\n",
+  "github_calls_used": 10,
+  "retry_status": "not observed; ten-call budget exhausted"
+}

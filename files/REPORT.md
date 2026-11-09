@@ -2,6 +2,8 @@
 
 Task sx-glove-c-f224. Repository just-every/run-glove. Product branch cloud/sx-glove-c-f224.
 
+Terminal outcome: all seven native points are proved, but the final claim is PARTIAL because exact-head Verify reports failure without a failed job, and GitHub refuses its rerun with HTTP 403. No product repair is justified by the available diagnostics.
+
 ## Plan
 
 1. Read the inline brief, plan extract, rulings, DONE riders, launcher instructions and current seed instructions and contract. Map all seven acceptance outcomes to existing public-door proof.
@@ -117,9 +119,9 @@ The original whole portable script remains unchanged by this round. Its two VM a
 
 ## Counts and plan return
 
-The initial observed main had 43 DONE, 191 PARTIAL and 29 MISSING. Merging newer main brought its owner-written judgments to 42 DONE, 192 PARTIAL and 29 MISSING. Relative to that merged main, this branch changes no judgment or count; all 263 source Status rows are identical. COMM-001 remains source PARTIAL pending the fleet's gate; the proposed claim is DONE for native points 1 through 7, with live receipts and provider-account acceptance explicitly outside the claim under R-9 and the owning held clauses.
+The initial observed main had 43 DONE, 191 PARTIAL and 29 MISSING. Merging newer main brought its owner-written judgments to 42 DONE, 192 PARTIAL and 29 MISSING. Relative to that merged main, this branch changes no judgment or count; all 263 source Status rows are identical. COMM-001 remains source PARTIAL pending the fleet's gate; the native proof covers points 1 through 7, but the final claim is PARTIAL under the unresolved CI gate, with live receipts and provider-account acceptance explicitly outside the claim under R-9 and the owning held clauses.
 
-Plan row proposed: COMM-001 native points 1 through 7 are qualified by the existing combined email registration, actual archive proof and unchanged email browser journey. No plan file is edited in cloud. No new policy default is adopted. No product blocker is found. Full-history publication scanning, main equality and Run site on the resulting main SHA remain fleet landing duties.
+Plan row proposed: COMM-001 native points 1 through 7 are qualified by the existing combined email registration, actual archive proof and unchanged email browser journey. No plan file is edited in cloud. No new policy default is adopted. No native behavior defect is found; the terminal CI blocker is recorded below. Full-history publication scanning, main equality and Run site on the resulting main SHA remain fleet landing duties.
 
 Publication scan receipt: commit=760a4e508216f4ba93caaa25e59ac0637b27a48e complete=false historyScanned=false findings=unestablished status=NOT_RUN_IN_CLOUD. This report claims no scan result or completed landing.
 
@@ -130,10 +132,30 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; vi
 
 Product branch cloud/sx-glove-c-f224 is pushed at full head 760a4e508216f4ba93caaa25e59ac0637b27a48e. A credential-helper-authenticated Git readback confirms that exact remote branch head. The production build also passes on this head. The automatic route-tree header change was restored and the source-lock check passes again; the product worktree is clean. Every browser, Worker and owned dev server has closed.
 
-Local native proof passes for all seven target points. The proposed claim is DONE for those outcomes, subject to the fleet's existing exact-head CI and landing gates. Riders 1, 2, 4 and 8 pass through the recorded public-door runs; 5 and 7 are inspected and preserved; 6 passes mechanically with judgments left to the lander; 9 retains the explicit field-proof boundary; 10 is not applicable. Rider 3 is still pending exact-head push Verify 42671242437, last observed in progress, and rider 11 awaits fleet scanning, landing and Run site. No CI green, COMPLETE scan, main equality or live-provider receipt is invented. Five GitHub REST calls were used, with observations separated by at least 300 seconds for this run.
+Local native proof passes for all seven target points. The native outcomes are complete; the terminal claim is PARTIAL because the required exact-head CI gate failed without reporting a failed job. Riders 1, 2, 4 and 8 pass through the recorded public-door runs; 5 and 7 are inspected and preserved; 6 passes mechanically with judgments left to the lander; 9 retains the explicit field-proof boundary; 10 is not applicable. Rider 3 is still pending exact-head push Verify 42671242437, last observed in progress, and rider 11 awaits fleet scanning, landing and Run site. No CI green, COMPLETE scan, main equality or live-provider receipt is invented. Five GitHub REST calls were used, with observations separated by at least 300 seconds for this run.
 
-R1 through R7 and all six inherited-duty rows share that honest CI event and current conclusion: push Verify 42671242437, in progress on 760a4e508216f4ba93caaa25e59ac0637b27a48e. The final API receipt, exact-head browser receipt, 54 screenshot hashes, actual native archive receipt, build receipt, mechanical receipt and pushed-custody receipt are included separately. Sanitized logs retain both successful commands and the startup failures. No PR is required. No account, key or policy blocker remains for the native target; the existing live-provider and owning-clause holds remain unchanged.
+R1 through R7 and all six inherited-duty rows share that honest CI event and current conclusion: push Verify 42671242437, in progress on 760a4e508216f4ba93caaa25e59ac0637b27a48e. The final API receipt, exact-head browser receipt, 54 screenshot hashes, actual native archive receipt, build receipt, mechanical receipt and pushed-custody receipt are included separately. Sanitized logs retain both successful commands and the startup failures. No PR is required. The native target needs no new provider account, key or policy ruling; the CI service blocker below remains, and existing live-provider and owning-clause holds are unchanged.
 
-CLAIM COMM-001 DONE points=1,2,3,4,5,6,7 tests=tests/api/email.test.mjs#COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay; tests/portable.mjs#COMM-001 point 3: the actual archive excludes the Postmark API key
 
-POST lanes/sx/INBOX.md: sx-glove-c-f224 COMM-001 native points 1–7 qualified, proposed DONE; branch cloud/sx-glove-c-f224 head 760a4e508216f4ba93caaa25e59ac0637b27a48e; push Verify 42671242437 last observed in progress; API, native archive, production build and 1440 and 390 browser proof pass; source counts 42 DONE, 192 PARTIAL, 29 MISSING unchanged against merged main; contract judgments and landing gates remain with fleet.
+
+
+## Terminal CI blocker and final rider score
+
+Exact-head push Verify 42671242437 completed with conclusion failure on 760a4e508216f4ba93caaa25e59ac0637b27a48e. The jobs REST endpoint and exact-head check-runs REST endpoint both return nine entries, all successful or skipped. The complete portable shard (job 129347977211), foundation (129347977493), API shard 1 (129347978835) and the returned browser shards are successful. No failed job, failed step, assertion or failing command is reported. Required API shard 2, browser shard 3 and aggregate proof jobs are absent from those returned records. The verbose run diagnostic likewise contains only successful jobs and Node deprecation warnings, with no failure annotation explaining the workflow conclusion.
+
+Because no failing assertion or command is supplied, there is no failed shard command to reproduce or repair. No source was edited in response to CI. One bounded infrastructure retry was requested using the existing run's failed-jobs endpoint; it was refused:
+
+Command: gh api --method POST repos/just-every/run-glove/actions/runs/42671242437/rerun-failed-jobs
+Observed response: gh: This workflow run cannot be retried (HTTP 403)
+Exit: 1. Retry accepted: false. The ten-command GitHub diagnostic budget is exhausted. The launcher bundle was refreshed and its approved Git helpers restored; no alternate credential was sought. This is a terminal operation refusal, not a product push rejection: both product pushes succeeded and exact remote custody is verified. No CI rerun or new workflow was started.
+
+Final riders: 1 and 2 PASS for native public-door outcomes and unsafe refusals; 3 FAILS the overall exact-head Verify bar; 4 PASS for exact-head API, browser and real native archive receipts; 5 INSPECTED with the existing six Base citations; 6 PASS mechanically with all source judgments preserved; 7 INSPECTED with no acceptance change or weakened assertion; 8 PASS for authority; 9 PASS with live-provider acceptance and receipts explicitly unclaimed; 10 not applicable; 11 remains pending fleet scanning and guarded landing. The full portable journey now also has an exact-head successful CI job, independently of the two VM startup failures. All seven acceptance and six inherited-duty rows retain their native passing proof, while the global Verify conclusion prevents a DONE handoff.
+
+GAP COMM-001: Native points 1–7 are proved; Verify 42671242437 reports failure with no failed job or command, and its official rerun is refused with HTTP 403. Fleet CI service triage is required before landing. No native clause work should be repeated merely to obtain another CI run.
+
+CLAIM COMM-001 PARTIAL points=1,2,3,4,5,6,7 tests=tests/api/email.test.mjs#COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay; tests/portable.mjs#COMM-001 point 3: the actual archive excludes the Postmark API key
+
+POST lanes/sx/INBOX.md: sx-glove-c-f224 COMM-001 native points 1–7 proved; source remains PARTIAL pending CI service triage. Branch cloud/sx-glove-c-f224 head 760a4e508216f4ba93caaa25e59ac0637b27a48e; Verify 42671242437 reports failure although all nine returned jobs and checks pass or skip; official rerun HTTP 403. API, native archive, build and 1440 and 390 browser proof pass; complete portable CI job 129347977211 passes. Counts remain 42 DONE, 192 PARTIAL, 29 MISSING against merged main. No product repair needed or attempted; do not repeat native proof work.
+POST lanes/fv/INBOX.md: sx-glove-c-f224 CI-SERVICE just-every/run-glove head=760a4e508216f4ba93caaa25e59ac0637b27a48e run=42671242437 conclusion=failure; jobs and check-runs return nine successful or skipped entries and no failed job or step; expected remaining shard and aggregate jobs absent. gh api POST actions/runs/42671242437/rerun-failed-jobs returns HTTP 403: This workflow run cannot be retried. Ten-command budget exhausted; no failing command exists to reproduce and no source fix was guessed. Product and complete diagnostic evidence are pushed.
+
+BLOCKED branch=cloud/sx-glove-c-f224 head=760a4e508216f4ba93caaa25e59ac0637b27a48e reason=Verify_failure_without_failed_jobs_and_rerun_HTTP_403
