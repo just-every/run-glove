@@ -2,7 +2,7 @@
 import { scenario } from '../fixtures/scenario.mjs'
 // @ts-expect-error Independent CSV assertions shared with the API journey.
 import { csvRows } from '../fixtures/branch-projections.mjs'
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Shared fixture drives the production HTTP Worker and D1.
@@ -137,39 +137,46 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
         }
       })
       await page.goto(`${origin}/app#team`)
+      const changeBranchAccess = async (control: Locator, value: string) => {
+        const completed = page.waitForResponse(response => new URL(response.url()).pathname === '/api/glove/commands' && response.request().postDataJSON()?.type === 'branch.limit')
+        await control.selectOption(value)
+        const response = await completed
+        expect(response.ok()).toBe(true)
+        expect((await response.json()).ok).toBe(true)
+      }
       const limit = page.getByLabel(`Branch access for ${b.dispatcher.name}`, { exact: true })
-      await limit.selectOption(branches[0].id)
+      await changeBranchAccess(limit, branches[0].id)
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(limit).toHaveValue(branches[0].id)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'people') }
       // TEAM-005: the Owner changes the person's main limit and restores all-branch access.
       await page.setViewportSize({ width: 1440, height: 1050 })
-      await limit.selectOption('main')
+      await changeBranchAccess(limit, 'main')
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(limit).toHaveValue('main')
       expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Harbourview Dental'])
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-main') }
       await page.setViewportSize({ width: 1440, height: 1050 })
-      await limit.selectOption('')
+      await changeBranchAccess(limit, '')
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(limit).toHaveValue('')
       expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name).sort()).toEqual(['Harbourview Dental', 'Phoenix School', 'Raleigh School'])
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-restored') }
       await page.setViewportSize({ width: 1440, height: 1050 })
-      await limit.selectOption(branches[0].id)
+      await changeBranchAccess(limit, branches[0].id)
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(limit).toHaveValue(branches[0].id)
       expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Raleigh School'])
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-limited') }
       await page.setViewportSize({ width: 1440, height: 1050 })
       const officeLimit = page.getByLabel(`Branch access for ${b.office.name}`, { exact: true })
-      await officeLimit.selectOption('main')
+      await changeBranchAccess(officeLimit, 'main')
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(officeLimit).toHaveValue('main')
       expect((await b.office.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Harbourview Dental'])
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await officeLimit.scrollIntoViewIfNeeded(); await shot(page, width, 'office-main') }
       await page.setViewportSize({ width: 1440, height: 1050 })
-      await officeLimit.selectOption('')
+      await changeBranchAccess(officeLimit, '')
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(officeLimit).toHaveValue('')
       expect((await b.office.state()).customers.map((row: { name: string }) => row.name).sort()).toEqual(['Harbourview Dental', 'Phoenix School', 'Raleigh School'])
@@ -210,9 +217,20 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('$125.00')
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Phoenix')
       expect(await exportedRows()).toEqual([['group', 'key', 'invoices', 'revenue'], ['month', '2026-11', '1', '125.00'], ['job type', 'Uncategorized', '1', '125.00'], ['branch', 'Raleigh', '1', '125.00'], ['total', '', '1', '125.00']])
-      for (const kind of ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax']) {
-        await page.getByLabel('Report', { exact: true }).selectOption(kind)
+      for (const kind of ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax', 'agreements']) {
+        const loaded = page.waitForResponse(response => {
+          const url = new URL(response.url())
+          return url.pathname === `/api/glove/reports/${kind}.json` && url.searchParams.get('branchId') === branches[0].id && response.ok()
+        })
+        if (kind === 'revenue') {
+          await page.getByLabel('Report branch', { exact: true }).selectOption(branches[1].id)
+          await page.getByLabel('Report branch', { exact: true }).selectOption(branches[0].id)
+        } else await page.getByLabel('Report', { exact: true }).selectOption(kind)
+        const figures = await (await loaded).json()
+        expect(figures.filters.branchId).toBe(branches[0].id)
         await expect(page.getByLabel('Report branch', { exact: true })).toHaveValue(branches[0].id)
+        const csv = new URL((await page.getByRole('link', { name: 'Download CSV', exact: true }).getAttribute('href'))!, origin)
+        expect([csv.pathname, csv.searchParams.get('branchId'), csv.searchParams.get('from'), csv.searchParams.get('to')]).toEqual([`/api/glove/reports/${kind}.csv`, branches[0].id, '2026-01-01', '2027-12-31'])
         for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await page.getByLabel('Report', { exact: true }).scrollIntoViewIfNeeded(); await shot(page, width, kind) }
       }
       await page.setViewportSize({ width: 1440, height: 1050 })
