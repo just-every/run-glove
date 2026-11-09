@@ -5863,6 +5863,10 @@
       "sha256": "aa29b36448aa96808a868e702dd195d24e565c5121b10ef708b1b248329afded",
       "executable": false
     },
+    "tests/browser/commission-download-journey.ts": {
+      "sha256": "939eaa51a2dabd9fe8bf32457d6eea6d213a95f4b3f21ec33517e6851ce53838",
+      "executable": false
+    },
     "tests/browser/companycam.spec.ts": {
       "sha256": "170e03074b2510188f334104c2dd10cd4640588aafb377dada718eda3a1683f5",
       "executable": false
@@ -6039,6 +6043,10 @@
       "sha256": "76e69a832f00df79c6779d1a8b2345d4446507b43e8bf817c4dd038f6c550c31",
       "executable": false
     },
+    "tests/fixtures/commission-payroll-proof.mjs": {
+      "sha256": "f050e80cca38ba088a7e390557ab6e35a0bb76a2f2ef9a67a0982d0ccbc5171c",
+      "executable": false
+    },
     "tests/fixtures/companycam-unit.jpg": {
       "sha256": "5950c69e0ce0ecdbec75848da424266496e41527f1ed495f16405fd8b4cb8ec7",
       "executable": false
@@ -6193,6 +6201,10 @@
     },
     "tests/fixtures/payment-journey.mjs": {
       "sha256": "c25358ac1facd46ce97b61fa6962942d2a4834115279fa5deb8c0f8a0171293e",
+      "executable": false
+    },
+    "tests/fixtures/payroll-commissions.mjs": {
+      "sha256": "30b91f2f37a8735f5c5e6697517dd4c414e295f37efbbc8834396629a8062fc0",
       "executable": false
     },
     "tests/fixtures/portable-maps.mjs": {
