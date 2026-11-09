@@ -285,6 +285,16 @@ async function qualifyServiceTitan(t) {
       ['Source non-taxable filter', '3', '10.00', '30.00', 'FREE'],
     ])
     assert.equal(quote.revisions[0].totals.total, '230.00')
+    assert.deepEqual(quote.revisions[0].lines.map(l => l.sourceId), ['13','34'])
+    const inconsistent = files.map(file => {
+      if (file.name !== 'estimates.json') return file
+      const value = JSON.parse(file.text); value.data[0].items[1].total = 30.01
+      return { ...file, text: JSON.stringify(value) }
+    })
+    const beforeMismatch = product(await h.state())
+    const mismatch = await h.command('import.stage', { ...input, files: inconsistent })
+    assert.match(mismatch.preview.records.find(r => r.sourceKind === 'estimates').rejection, /do not reconcile to their source totals/)
+    assert.deepEqual(product(await h.state()), beforeMismatch, 'inconsistent source prices never become native sale facts')
     const before = await h.state()
     for (const type of ['quote.approve', 'quote.revise', 'quote.markSent', 'quote.accept', 'quote.decline']) await h.command(type, { quoteId: quote.id, version: quote.version, revision: 1 }, { error: 'IMPORTED_QUOTE' })
     await h.command('quote.link', { quoteId: quote.id, version: quote.version }, { error: 'NOT_APPROVED' })
