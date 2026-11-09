@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f201",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f201",
+  "head": "05eb31f2f4ce65e3305a1b40fe4b7e6262a97cb7",
+  "originMainAtCandidate": "592be9edd6258ffb39bed635bb28a1506494ae7d",
+  "publishedProduct": true,
+  "productPushLog": "candidate-push.log",
+  "saveHead": "ff5313c4324af0f977a6a331cf965586fe963387",
+  "pr": null,
+  "localChecks": {
+    "api": 0,
+    "typecheck": 0,
+    "first-party": 0,
+    "source-lock": 0,
+    "inventory": 0
+  },
+  "views": {
+    "write": "node scripts/contract-docs.mjs write",
+    "check": "node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "committed": false
+  },
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock then check",
+    "exit": 0
+  },
+  "migrationLedger": {
+    "command": null,
+    "reason": "No migration added or edited"
+  },
+  "browser": {
+    "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/quote-link-custody.spec.ts",
+    "exit": 0,
+    "testedHead": "ff5313c4324af0f977a6a331cf965586fe963387",
+    "widths": [
+      1440,
+      390
+    ],
+    "screenshots": 24,
+    "unchangedTestAndProductionBytes": "tested-file-hashes.json"
+  },
+  "preservedApiRegressions": {
+    "command": "node --test --test-concurrency=1 tests/api/quote-link-custody.test.mjs tests/api/quote-link-records.test.mjs",
+    "exit": 0,
+    "registrations": 2,
+    "testedHead": "ff5313c4324af0f977a6a331cf965586fe963387"
+  },
+  "workflowRuns": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "05eb31f2f4ce65e3305a1b40fe4b7e6262a97cb7",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42581760562",
+      "id": 42581760562,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "githubCalls": {
+    "used": 2,
+    "budget": 10,
+    "polling": "One baseline discovery and one exact candidate discovery; no dispatch or rerun"
+  },
+  "counts": {
+    "before": {
+      "done": 35,
+      "partial": 199,
+      "missing": 29,
+      "tests": 194
+    },
+    "after": {
+      "done": 35,
+      "partial": 199,
+      "missing": 29,
+      "tests": 195
+    },
+    "cap": 200
+  },
+  "clauseClaim": {
+    "id": "QUOTE-002",
+    "proposed": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "sourceStatus": "PARTIAL",
+    "statusCellsChanged": false
+  },
+  "publicationScan": {
+    "status": "NOT_RUN_IN_CLOUD",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Fleet lander performs full-history scan on exact candidate before landing"
+  },
+  "landing": {
+    "mainEqualsCandidate": false,
+    "verifyGreen": false,
+    "runSite": null,
+    "status": "PENDING_FLEET"
+  },
+  "blockers": [],
+  "timeUtc": "2026-11-09T07:51:59.391158+00:00"
+}

@@ -1,0 +1,61 @@
+{
+  "candidate": "05eb31f2f4ce65e3305a1b40fe4b7e6262a97cb7",
+  "browserTestedHead": "ff5313c4324af0f977a6a331cf965586fe963387",
+  "files": [
+    {
+      "path": "tests/api/quote-approval.test.mjs",
+      "sha256": "3d78ea8ca79b40201b32049e83a6428338bfef2d734359cc05fb8ab377b35d30",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "tests/browser/quote-link-custody.spec.ts",
+      "sha256": "b3f1411d8395c7e1e3d882853c77f66068adafbafc800e7f174ed8c8ac0d461c",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "tests/api/quote-link-custody.test.mjs",
+      "sha256": "af43dee77d13511d8b828d9adfa350394921d15aae3cfa43fd404cf38e3ad6ab",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "tests/api/quote-link-records.test.mjs",
+      "sha256": "56076912a0bb089f22fd6ff89ca61738ff2a9c0fed1b4ba8506d30a11badaa68",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "src/glove/public-quote.ts",
+      "sha256": "10345e2b469ebcbdec451b7b23c6530c76b18b3e1187cdd0e37ad9e74fde245e",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "src/glove/quote-links.ts",
+      "sha256": "c83c1930e6ed17aad8f728548ac7692ea5421bf69d02bb5ec7ba6408730fd103",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "src/glove/quote-signing.ts",
+      "sha256": "d1cf2fb48f68ab3ee673894ca9e41d8c29f23d9a7ebea0556cd1acd4ca9b2029",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "src/ui/quote-signing.tsx",
+      "sha256": "2bf2a009ad8d12a1afa00841dfcd1a007d6c072a021c1a3ef6af740cb4c2ee6c",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "src/ui/customer-quote.tsx",
+      "sha256": "2b9a205ace20162600ed3ee936a9200b26bd04df5e1e5b7d6819e2979389bd3a",
+      "identicalToTestedSave": true
+    },
+    {
+      "path": "src/glove/commands/dispatch.ts",
+      "sha256": "144c2ffbcaaa333134929cc040ccd3c064a61327691c2794d4d3f4515985c222",
+      "identicalToTestedSave": true
+    }
+  ]
+}
