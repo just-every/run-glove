@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 25 | 196 | 16 | 237 |
+| Core | 26 | 195 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 25 | 209 | 29 | 263 |
+| Full target | 26 | 208 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -231,7 +231,7 @@ Core · target · **partial** · From MONEY-001
 
 #### MONEY-004 — Frozen tax evidence and reporting
 
-Core · target · **partial** · From MONEY-001 · Cites BASE-DATA-001, BASE-DATA-003
+Core · target · **done** · From MONEY-001 · Cites BASE-DATA-001, BASE-DATA-003
 
 **Requirement.** Frozen tax evidence and reporting supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#money-001-operating-rules) retain the record formats and calculations. Owning-capability boundaries: QUOTE-007, QUOTE-019 carries discount allocation through this same tax calculation before discounts ship.
 
@@ -244,8 +244,8 @@ Core · target · **partial** · From MONEY-001 · Cites BASE-DATA-001, BASE-DAT
 6. Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 carries collected tax.
 7. The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007/004 carry live posting, matching and provider assertions.
 
-**Evidence.** `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts`
-**Gap.** The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evidence; accepting options/add-ons and preparing/correcting the invoice retains that snapshot.; point 2 — Certificate evidence is private to the customer's full desk readers, including branch limits, stored in original chunks, archived with the customer and retained when replaced; exemption expiry is inclusive in the branch's local date.; point 3 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 carries the customer erasure door and restore-fence assertion before shipping.; point 4 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD exports retain Xero columns.; point 5 — Tax reports use each invoice's first approval local date (inclusive period bounds), grouping the latest approved tax snapshot by branch and jurisdiction.; point 6 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 carries collected tax.; point 7 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007/004 carry live posting, matching and provider assertions. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts`; `tests/api/tax-evidence.test.mjs` (MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart); `tests/api/tax-evidence.test.mjs` (MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences); `tests/api/tax-evidence.test.mjs` (MONEY-004 approved options and add-ons carry frozen tax through revised and corrected invoices and US exports); `tests/api/tax-evidence.test.mjs` (MONEY-004 legacy AUD invoices keep Xero GST line columns after restart); `tests/browser/tax-evidence.spec.ts` (MONEY-004 Reports states approved-invoice tax before and after ordinary payments and QuickBooks stays a download); `tests/portable.mjs` (Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore)
+**Gap.** None.
 
 #### MONEY-005 — Address-based tax lookup
 
