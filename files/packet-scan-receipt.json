@@ -1,0 +1,174 @@
+{
+  "status": "passed",
+  "phase": "final publication",
+  "explicitly_selected_files": [
+    "PLAN.md",
+    "REPORT.md",
+    "candidate-messages.log",
+    "ci-discovery.json",
+    "ci-latest.json",
+    "ci-poll-1.json",
+    "ci-poll-2.json",
+    "ci-poll-3.json",
+    "ci-receipt.json",
+    "ci-watcher.log",
+    "clause-counts.json",
+    "commit.log",
+    "contract-check.log",
+    "contract-generate.log",
+    "dependencies.log",
+    "generation-receipt.json",
+    "github-calls.jsonl",
+    "identity-audit.json",
+    "identity-trailers.log",
+    "packet-scan-receipt.json",
+    "payments-tests-receipt.json",
+    "payments-tests.log",
+    "product-push.log",
+    "product-receipt.json",
+    "source-lock-check.log",
+    "source-lock-generate.log",
+    "typecheck-receipt.json",
+    "typecheck.log"
+  ],
+  "files_scanned": 28,
+  "check": "regular files only; no decrypted-bundle values or credential-shaped token strings; no private held-out gate material",
+  "files": [
+    {
+      "path": "PLAN.md",
+      "bytes": 1940,
+      "sha256": "a682d57518b13dc77f12d7841f744d79abc9dc2852e6454f48406be32999911c"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 5324,
+      "sha256": "094023a5b4e219cec41be660d6b7c11aedecefa536841c42a27795f0d2a52af7"
+    },
+    {
+      "path": "candidate-messages.log",
+      "bytes": 310,
+      "sha256": "58a75503ec0bf1201d07e7e746ed5ee48d8d50b9e40eecabb8a15151e3a5ed21"
+    },
+    {
+      "path": "ci-discovery.json",
+      "bytes": 14692,
+      "sha256": "46e9b3b07db1949ebae81909c1700f73f80e683bbf35337d2b55d7b357669b27"
+    },
+    {
+      "path": "ci-latest.json",
+      "bytes": 216,
+      "sha256": "7d5b9602c9504b1a326074fc31c8d74b20a153c14ee2df51b5cd7e786c94e958"
+    },
+    {
+      "path": "ci-poll-1.json",
+      "bytes": 213,
+      "sha256": "09656e32a724782a281e438646988636e2c5f89e75d76060a6f6933dcdabf478"
+    },
+    {
+      "path": "ci-poll-2.json",
+      "bytes": 213,
+      "sha256": "09656e32a724782a281e438646988636e2c5f89e75d76060a6f6933dcdabf478"
+    },
+    {
+      "path": "ci-poll-3.json",
+      "bytes": 216,
+      "sha256": "71f70c81b9953b34e4b67d78038d9b20b32faa9af696afe6f67949cecb6ecaea"
+    },
+    {
+      "path": "ci-receipt.json",
+      "bytes": 451,
+      "sha256": "6d26558ecc98ce6c92698af7d59ca98542898eeb4e8224a8ee5e0ffcbdb8ac75"
+    },
+    {
+      "path": "ci-watcher.log",
+      "bytes": 847,
+      "sha256": "6dbf70190141b06ddebfa03e2db0cf85c25db947c86667a0029bd99068e98cd3"
+    },
+    {
+      "path": "clause-counts.json",
+      "bytes": 609,
+      "sha256": "1db5898ebd93be16eee186e17bc3e0c2689eb6ca25bd6c1aabd8258022118980"
+    },
+    {
+      "path": "commit.log",
+      "bytes": 95,
+      "sha256": "dea718b50bc4664cd6a4b72f1bb82b50f0f7c6f5cf15fc440a7079a2c43e4ffb"
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "path": "contract-generate.log",
+      "bytes": 28,
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "path": "dependencies.log",
+      "bytes": 3209,
+      "sha256": "8a26f0e74f363e5b1f6f82091fb4cb24f3f5599fddd7bf0f641599962d899197"
+    },
+    {
+      "path": "generation-receipt.json",
+      "bytes": 801,
+      "sha256": "59ba50a96436dd2c28cbf6d7673811f35aafac798a1dba15ec40c3cf21307906"
+    },
+    {
+      "path": "github-calls.jsonl",
+      "bytes": 615,
+      "sha256": "c34b950d44f7bf9f612daac7e0b49cb520e75bf18495a296dcd3eb646155b1dd"
+    },
+    {
+      "path": "identity-audit.json",
+      "bytes": 911,
+      "sha256": "c60e8c95ebd669e1602ff7c625a2284754118162c2911cb15537eb70190be2c5"
+    },
+    {
+      "path": "identity-trailers.log",
+      "bytes": 255,
+      "sha256": "c25a9c829a41ff3b6938f4311bbea40664474a5d0bc965f03084b9b336738113"
+    },
+    {
+      "path": "payments-tests-receipt.json",
+      "bytes": 162,
+      "sha256": "255783da66d445207a91dce20d45b607d02257c7ade15fcfc2147cb78e061077"
+    },
+    {
+      "path": "payments-tests.log",
+      "bytes": 2944,
+      "sha256": "deb742b1d760d6aab5594b84ff78b44a55e8dea6be22806e4409c1e1136bf1fa"
+    },
+    {
+      "path": "product-push.log",
+      "bytes": 918,
+      "sha256": "97f37d62d5783c32f05ce5e986caad30fd9874a4e62666553b91adc3d602deab"
+    },
+    {
+      "path": "product-receipt.json",
+      "bytes": 1139,
+      "sha256": "312aa18c72bafc00c6c7509c6cbcdc6ad173f143427bb822cbc7a77dce634ea7"
+    },
+    {
+      "path": "source-lock-check.log",
+      "bytes": 268315,
+      "sha256": "4809eac3df9a5aad058adf501db753c60694e97113ba7b1af23a000b57a402ac"
+    },
+    {
+      "path": "source-lock-generate.log",
+      "bytes": 268301,
+      "sha256": "b5c6f290df6913f680285898b531356e4f0633c5f3b20c64893090ddac67513d"
+    },
+    {
+      "path": "typecheck-receipt.json",
+      "bytes": 116,
+      "sha256": "74912ced694fa1d75349afdfad10d1a60ac318d3e7012deff36d9831dea40917"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 240,
+      "sha256": "d4fa1fb7e41f2c4736a429d02b29f066afba5765d2fa71d8dac0e38496cb4cbb"
+    }
+  ],
+  "self_hash_omitted": true
+}

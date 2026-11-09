@@ -1,0 +1,27 @@
+{
+  "contract_write": {
+    "command": "node scripts/contract-docs.mjs write --clauses BOOK-015 PAY-021",
+    "exit_code": 0
+  },
+  "contract_check": {
+    "command": "node scripts/contract-docs.mjs check --clauses BOOK-015 PAY-021",
+    "exit_code": 0
+  },
+  "generated_views": {
+    "restored_from": "origin/main",
+    "new_delta_from_main": false
+  },
+  "source_lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit_code": 0
+  },
+  "source_lock_check": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit_code": 0
+  },
+  "notes": [
+    "No merge conflicts. CONTRACT.md and docs/contract/ID-MAP.json match main.",
+    "No candidate migration or migration collision.",
+    "Source lock generated after contract generation and restoring views."
+  ]
+}

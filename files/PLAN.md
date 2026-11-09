@@ -1,0 +1,9 @@
+# sx-glove-c-f222-pc1 plan
+
+1. Refresh the authorized fleet launcher, install decrypted-bundle Git authentication, configure fleet identity, and retain repository hooks.
+2. Clone only just-every/run-glove with --filter=blob:none and no shallow option. Fetch main and cloud/sx-glove-c-f222. Require the candidate to be exactly 44baf40fbacc1e3307877b1aca736bc1c46dc996.
+3. Create cloud/sx-glove-c-f222-pc1 at that published head and merge current origin/main without rebasing or rewriting history. Retain main's newer CONTRACT.md judgments and ID map. Keep generated ACCEPTANCE.md and docs/CLAIMS.md exactly at main. If necessary renumber a colliding candidate migration; do not weaken tests or change claims.
+4. Run the documented contract regeneration and check with affected clauses. Restore generated views to main, regenerate sources.lock.json last, and run its check. Install pinned dependencies, run typecheck and the touched candidate's non-browser tests once. Do not run browser or portable suites locally.
+5. Make one substantive merge commit with explicit fleet author/committer environment and active hooks. Inspect all candidate commits, including side parents, for identity and trailer compliance. Push only cloud/sx-glove-c-f222-pc1 through cloud-push.py once local touched checks pass.
+6. Discover and watch the exact-SHA Verify using credential-file-backed gh api with one watcher, no more than one call per run per 300 seconds, within ten GitHub calls. Inspect any failed job log once per failed job within the same budget. Never use another SHA's success as proof.
+7. Save complete non-secret reports and actual receipts under the task packet. Publish explicitly selected files only through evidence/sx-glove-c-f222-pc1. Return product custody, CI run IDs, clause/count changes and a POST line for lanes/sx/INBOX.md. Mark READY only for exact-SHA Verify success (or solely the prescribed generated-view failure exception).

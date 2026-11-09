@@ -1,0 +1,31 @@
+{
+  "snapshots": {
+    "original": {
+      "ref": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+      "counts": {
+        "done": 41,
+        "partial": 193,
+        "missing": 29
+      },
+      "total": 263,
+      "pay_021": "partial"
+    },
+    "main": {
+      "ref": "0c76685078292ea640a2d9bc3238a51abd7c2b62",
+      "counts": {
+        "done": 42,
+        "partial": 192,
+        "missing": 29
+      },
+      "total": 263,
+      "pay_021": "partial"
+    }
+  },
+  "inherited_main_changes": {
+    "BOOK-015": {
+      "before": "partial",
+      "after": "done"
+    }
+  },
+  "new_candidate_claim_changes": []
+}

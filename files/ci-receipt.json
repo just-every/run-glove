@@ -1,0 +1,15 @@
+{
+  "repository": "just-every/run-glove",
+  "workflow": "Verify",
+  "run_id": 42662160304,
+  "head_sha": "40deb630ae9759db0703ec89b9aa1dc0b51b0864",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42662160304",
+  "github_calls_used": 4,
+  "call_budget": 10,
+  "poll_interval_seconds_minimum": 300,
+  "generated_view_exception_used": false,
+  "failed_jobs": [],
+  "ready": true
+}

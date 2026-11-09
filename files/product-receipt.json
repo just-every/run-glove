@@ -1,0 +1,27 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f222-pc1",
+  "head": "40deb630ae9759db0703ec89b9aa1dc0b51b0864",
+  "parents": [
+    "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "0c76685078292ea640a2d9bc3238a51abd7c2b62"
+  ],
+  "original_candidate": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "merged_main": "0c76685078292ea640a2d9bc3238a51abd7c2b62",
+  "product_push_attempts": 1,
+  "product_push_exit_code": 0,
+  "clean_worktree": true,
+  "new_commit_count": 1,
+  "candidate_commits_not_in_main": [
+    "40deb630ae9759db0703ec89b9aa1dc0b51b0864",
+    "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "6a1b172ef52994689af4a5463eac96e94646b946"
+  ],
+  "product_delta_from_main": "sources.lock.json            |   6 +-\n tests/api/payments.test.mjs  |   2 +\n tests/api/receipt-credit.mjs | 325 +++++++++++++++++++++++++++++++++++++++++++\n 3 files changed, 332 insertions(+), 1 deletion(-)",
+  "pr": null,
+  "custody": "READY",
+  "verify_status": "completed",
+  "verify_conclusion": "success",
+  "verify_run_id": 42662160304,
+  "verify_url": "https://github.com/just-every/run-glove/actions/runs/42662160304"
+}

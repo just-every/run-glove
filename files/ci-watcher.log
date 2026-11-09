@@ -1,0 +1,4 @@
+CI_STATUS {"id": 42662160304, "status": "in_progress", "conclusion": null, "head_sha": "40deb630ae9759db0703ec89b9aa1dc0b51b0864", "html_url": "https://github.com/just-every/run-glove/actions/runs/42662160304"}
+CI_STATUS {"id": 42662160304, "status": "in_progress", "conclusion": null, "head_sha": "40deb630ae9759db0703ec89b9aa1dc0b51b0864", "html_url": "https://github.com/just-every/run-glove/actions/runs/42662160304"}
+CI_STATUS {"id": 42662160304, "status": "in_progress", "conclusion": null, "head_sha": "40deb630ae9759db0703ec89b9aa1dc0b51b0864", "html_url": "https://github.com/just-every/run-glove/actions/runs/42662160304"}
+CI_STATUS {"id": 42662160304, "status": "completed", "conclusion": "success", "head_sha": "40deb630ae9759db0703ec89b9aa1dc0b51b0864", "html_url": "https://github.com/just-every/run-glove/actions/runs/42662160304"}
