@@ -107,5 +107,10 @@
     "builder_status_changes": 0
   },
   "repairs": [],
-  "pr": null
+  "pr": null,
+  "first_evidence_transfer": {
+    "head": "a62b5a73a2e710e87f9f4a5e32c814045cb9f529",
+    "status": "restored and all manifest file hashes verified",
+    "receipt": "first-transfer-verification.json"
+  }
 }

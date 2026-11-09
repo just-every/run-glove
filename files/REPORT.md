@@ -50,3 +50,5 @@ Riders: 1 and 3 fail the whole-workflow bar; 2 and 4–10 pass or are inapplicab
 Counts at initial main: 43 DONE, 191 PARTIAL, 29 MISSING. Counts on the merged-main candidate: 42 DONE, 192 PARTIAL, 29 MISSING. That change came from main's newer judgments, not this builder. Candidate versus its merged main leaves counts unchanged. DATA-001 remains PARTIAL. Plan row affected: DATA-001 only; no cloud plan rewrite.
 
 BLOCKED: The overall exact-SHA Verify failure cannot be reconciled with its successful jobs within the permitted API budget, and the local pinned-portability post-erasure export failed without a safe edition-owned cause. Route the run metadata discrepancy to FV and the native archive error to the runtime owner. No DONE or READY claim is made.
+
+The first evidence publication was fetched at its exact head and all manifest file hashes verified. first-transfer-verification.json and first-transfer-refs.txt preserve that actual transfer receipt. This final evidence update includes those receipts; it changes no product ref.
