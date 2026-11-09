@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
-      "sha256": "d47ba62310f061446410c677140ae21c4eca312a15058e13cd62451ce442ae20",
+      "sha256": "19252421b3d6cd4d7d7aefcaac3741649dd0e9725cac2cb38ed8a8496efd7c6b",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -5864,7 +5864,7 @@
       "executable": false
     },
     "tests/browser/commission-download-journey.ts": {
-      "sha256": "939eaa51a2dabd9fe8bf32457d6eea6d213a95f4b3f21ec33517e6851ce53838",
+      "sha256": "775c8bca76a127a5840ef6433db9f102a1afb7c9e3819d9197c55566b7a29d3a",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {

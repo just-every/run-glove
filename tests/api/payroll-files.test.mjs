@@ -248,7 +248,7 @@ test('COST-007 payroll files qualify provider rows, approved workweeks, privacy 
     await scenario(t, 'TEAM-006 point 3: credited people without approved time and subcontractors never enter any file', async () => {
       const run = await json()
       assert.deepEqual(run.people.map(x => x.technicianId).sort(), [f.priya.id, f.tom.id].sort())
-      assert.deepEqual(run.left, [
+      assert.deepEqual(run.left.sort((a, b) => a.name.localeCompare(b.name)), [
         { technicianId: f.sub.id, name: f.sub.name, reason: '1099 subcontractor: paid through the 1099-NEC totals, not payroll' },
         { technicianId: f.excluded.id, name: f.excluded.name, reason: 'commissions of $60.00 but no approved time in the period' },
       ])
