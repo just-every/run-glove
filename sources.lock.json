@@ -2436,7 +2436,7 @@
       "executable": false
     },
     "src/glove/rules.ts": {
-      "sha256": "718866263c438c7b0b5db5451a24046480c824993fea9445aa280f1c56cb517c",
+      "sha256": "a46800f626695f4bc41bbf612f709cd9c662e436b233c62a2b5483b5c5f7a4b3",
       "executable": false
     },
     "src/glove/sales-tax.ts": {
@@ -5844,7 +5844,7 @@
       "executable": false
     },
     "tests/api/tokens.test.mjs": {
-      "sha256": "d60555e4e6252119287162f3003e57c413c3b48a9974dcdbe3cd8551bf2b2ec0",
+      "sha256": "2529cb4562b757525cf1068cd22a2fe6b962c2c3475b1a649d8078d018117988",
       "executable": false
     },
     "tests/api/travel-assignment.test.mjs": {
