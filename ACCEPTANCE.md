@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 34 | 187 | 16 | 237 |
+| Core | 35 | 186 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 34 | 200 | 29 | 263 |
+| Full target | 35 | 199 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1949,7 +1949,7 @@ Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
 
 #### COST-007 — Provider payroll file shapes
 
-Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
+Core · target · **done** · From COST-002 · Register R-15, R-16, R-17
 
 **Requirement.** Provider payroll file shapes supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cost-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: Inheritance: `TEAM-003, TEAM-006` commissions and spiffs and `PAY-002, PAY-017, PAY-018, PAY-019, PAY-020` technician tips add their amounts to the same payroll files (Gusto's commission and paycheck-tips columns, an ADP RUN earnings code with dollars) for the same approved weeks before either ships.
 
@@ -1960,8 +1960,8 @@ Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
 4. Glove keeps no SSN and writes no SSN column.
 5. QuickBooks Payroll: Intuit publishes no fixed timesheet columns, only that the custom upload takes one entry per line with the employee and a date plus units, the date format and each column's meaning chosen on upload; Glove's date-and-units file (employee display name, MM/DD/YYYY date, pay item Regular, Overtime or Double time, hours) is a file the owner maps on upload, not a confirmed Intuit layout.
 
-**Evidence.** `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs`, `src/glove/api.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The ADP RUN file matches its published import layout for company, pay frequency, period dates, employee, earnings code, hours, dollars, check selection, department and pay-rate code, with the exact formatting in the operating rules.; point 2 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is downloaded inside Gusto, and its Smart Import matches columns on upload); Glove's column names (last name, first name, Gusto employee ID, regular, overtime and double-overtime hours; the first word of the technician's name is the first name) are therefore not confirmed against a Gusto-published layout.; point 3 — The one column Gusto's help names, workweeks, is followed: one row per person and approved workweek, holding that week's date range as the documented refusal beside that week's hours, so Gusto places overtime in the right workweek.; point 4 — Glove keeps no SSN and writes no SSN column.; point 5 — QuickBooks Payroll: Intuit publishes no fixed timesheet columns, only that the custom upload takes one entry per line with the employee and a date plus units, the date format and each column's meaning chosen on upload; Glove's date-and-units file (employee display name, MM/DD/YYYY date, pay item Regular, Overtime or Double time, hours) is a file the owner maps on upload, not a confirmed Intuit layout. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs`, `src/glove/api.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`; `tests/api/payroll-files.test.mjs` (COST-007 payroll files qualify provider rows, approved workweeks, privacy and export authority)
+**Gap.** None.
 
 #### COST-003 — Job expenses and receipts
 
