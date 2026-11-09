@@ -258,12 +258,16 @@ export async function reportsProjection(t) {
     r.job = await h.command('job.create', { quoteId: q.id, equipmentIds: [r.equipment.id] })
     const visits = []
     for (const [person, tech] of [[r.person, r.tech], [r.subPerson, r.sub]]) {
-      let visit = await h.command('visit.book', { jobId: r.job.id, technicianId: tech.id, date: '2026-11-05', start: '09:00', end: '10:00' })
+      const visit = await h.command('visit.book', { jobId: r.job.id, technicianId: tech.id, date: '2026-11-05', start: '09:00', end: '10:00' })
+      visits.push({ person, tech, visit })
+    }
+    for (const item of visits) {
+      const { person, tech } = item
+      let { visit } = item
       if (tech.id === r.sub.id) visit = await h.command('visit.agree', { visitId: visit.id, version: visit.version, amount: '75.00' })
       await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
       if (tech.id === r.tech.id) r.capture = await person.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'refrigerant', equipmentId: r.equipment.id, added: String(i + 1), recovered: '0.5', certification: 'synthetic-glove-certification' })
       await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Completed repair', signoff: { absentReason: 'Customer away' } })
-      visits.push(visit)
     }
     r.invoice = await h.command('invoice.prepare', { jobId: r.job.id })
     await h.command('invoice.approve', { invoiceId: r.invoice.id, version: r.invoice.version, revision: 1 })
