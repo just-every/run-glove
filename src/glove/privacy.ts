@@ -112,7 +112,12 @@ export const privacy: Handler = async (c, type, p, db) => {
         if (kind === 'proposals' && r.payoutId && (scope.matches(r) || payoutIds.has(r.payoutId))) return []
         if (kind === 'payouts' && payoutIds.has(r.id)) return [{ ...scope.redact(r), sourceDetailsErasedAt: c.now, ...(r.reference !== undefined ? { reference: payoutScope.redact(r.reference) } : {}), id: r.id, version: r.version + 1, ...(r.items ? { items: r.items.map((i: Row) => scope.ids.has(i.paymentId) ? { ...scope.redact(i), providerReference: null } : i) } : {}) }]
         if (kind === 'routes' && scope.matches(r)) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, ...(['queued', 'running', 'ready'].includes(r.status) ? { status: 'discarded', reason: 'Customer personal data erased; prepare a new route.' } : {}) }]
-        if (scope.selected.has(`${kind}:${r.id}`)) return keeps[kind] ? [keeps[kind](r)] : []
+        if (scope.selected.has(`${kind}:${r.id}`)) {
+          // Costing still needs the quantity and catalogue association. Retire
+          // the field capture identity and all person, visit and text evidence.
+          if (kind === 'captures' && r.kind === 'material') return [{ id: newId(), version: 1, jobId: r.jobId, kind: 'material', quantity: r.quantity, unit: scope.redact(r.unit), serviceId: r.serviceId ?? null, description: 'Retained material', erasedAt: c.now }]
+          return keeps[kind] ? [keeps[kind](r)] : []
+        }
         return !importedPeers.has(r.id) && scope.matches(r) ? [{ ...scope.redact(r), id: r.id, version: r.version + 1 }] : [r]
       })
     }

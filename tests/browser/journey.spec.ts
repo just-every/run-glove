@@ -1112,10 +1112,10 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
   // @ts-expect-error Production Worker/native sessions/D1 fixture.
   const { installation, business } = await import('../api/harness.mjs')
   for (const width of [1440, 390]) {
-    const h = await installation()
+    const h = await test.step('DATA-001 native privacy installation', () => installation())
     const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
     try {
-      const b = await business(h)
+      const b = await test.step('DATA-001 independent native people and customer', () => business(h))
       const duplicate = await h.command('customer.save', { name: 'Synthetic merged identity', email: 'synthetic-glove-8@example.test' })
       await h.command('customer.merge', { survivorId: b.customer.id, mergedIds: [duplicate.id], versions: { [b.customer.id]: b.customer.version, [duplicate.id]: duplicate.version } })
       const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-26.csv', text: `ID,Name,Email,Address\n${b.customer.id},Harbourview Dental,accounts@harbourview.example,17 Synthetic Road\n,Synthetic Peer,synthetic-glove-27@example.test,18 Synthetic Road\n` }], mapping: { customerId: 'ID', name: 'Name', email: 'Email', siteAddress: 'Address' } })
