@@ -263,7 +263,9 @@ test('MONEY-004 approved options and add-ons carry frozen tax through revised an
     assert.deepEqual(document.Line.map(l => l.SalesItemLineDetail.TaxCodeRef.value), f.exempt ? ['NON', 'NON', 'NON'] : ['TAX', 'NON', 'TAX'])
     assert.equal(h.outbound.attempts, outgoing, 'inspection issues no outbound request, including Intuit')
     const batch = await h.command('invoice.export', {})
-    const records = csv(await h.request('/api/glove/exports/' + batch.id + '.csv').then(r => r.text()))
+    const exportPath = '/api/glove/exports/' + batch.id + '.csv'
+    const exportedCsv = await h.request(exportPath).then(r => r.text())
+    const records = csv(exportedCsv)
     const header = records.shift(), rows = records.map(r => Object.fromEntries(header.map((key, i) => [key, r[i]])))
     assert.deepEqual(rows.map(r => [r['*Description'], r['*Quantity'], r['*UnitAmount'], r['*TaxType'], r.Currency]), [
       ['Valve', '2', '100.00', f.exempt ? 'Tax exempt' : 'City, county', 'USD'],
@@ -282,6 +284,12 @@ test('MONEY-004 approved options and add-ons carry frozen tax through revised an
     await h.restart()
     assert.deepEqual(await latest(h, 'invoices', inv.id), beforeRestart)
     assert.deepEqual((await latest(h, 'quotes', f.q.id)).revisions[0], f.frozen)
+    assert.equal(await h.request(exportPath).then(r => r.text()), exportedCsv, 'the earlier approved export stays byte-identical after correction and restart')
+    const afterRestartRequests = h.outbound.attempts
+    const correctedDocument = await h.request('/api/glove/invoices/' + inv.id + '/quickbooks.json' + query).then(r => r.json())
+    assert.deepEqual([correctedDocument.CurrencyRef, correctedDocument.Line, correctedDocument.TxnTaxDetail], [document.CurrencyRef, document.Line, document.TxnTaxDetail])
+    assert.equal(correctedDocument.DocNumber, inv.number + '-R3')
+    assert.equal(h.outbound.attempts, afterRestartRequests, 'restarted inspection still makes no provider request')
   }
   await trail(h, ['quote.approved', 'quote.accepted', 'invoice.prepared', 'invoice.revised', 'invoice.corrected', 'invoice.exported'])
 })
