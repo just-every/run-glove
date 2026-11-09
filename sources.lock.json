@@ -5940,7 +5940,7 @@
       "executable": false
     },
     "tests/browser/quote-link-custody.spec.ts": {
-      "sha256": "e9140bea7f83bc05ff6bfded563ced87e01caced15ad3755f48c67222ad25b1c",
+      "sha256": "b3f1411d8395c7e1e3d882853c77f66068adafbafc800e7f174ed8c8ac0d461c",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
