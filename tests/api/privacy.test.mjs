@@ -29,7 +29,7 @@ async function emptyArchiveDestination(t) {
   const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch() { return new Response(null, { status: 404 }) } }', compatibilityDate: '2026-09-08', d1Databases: { DB: 'synthetic-glove-empty-archive' } }))
   t.after(() => mf.dispose())
   const db = await mf.getD1Database('DB')
-  for (const file of (await readdir('migrations/core')).filter(f => f.endsWith('.sql')).sort()) await db.batch(unstable_splitSqlQuery(await readFile('migrations/core/' + file, 'utf8')).map(sql => db.prepare(sql)))
+  for (const file of (await readdir('./migrations/core')).filter(f => f.endsWith('.sql')).sort()) await db.batch(unstable_splitSqlQuery(await readFile('./migrations/core/' + file, 'utf8')).map(sql => db.prepare(sql)))
   return { db, service: await createPortability({ db, policy: await editionArchivePolicy(process.cwd()) }) }
 }
 async function restore(service, records, later) {
@@ -192,7 +192,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
 })
   await scenario(t, 'DATA-001 point 4: complete ServiceM8 objects include unmapped fields, exclude peer objects and name mixed-ownership attachment omissions', async t => {
     const h = await installation(); t.after(() => h.close()); await business(h)
-    const root = 'tests/fixtures/servicem8-small-hvac/'
+    const root = './tests/fixtures/servicem8-small-hvac/'
     const kinds = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment']
     const files = await Promise.all(kinds.map(async kind => ({ name: `${kind}.json`, text: await readFile(root + kind + '.json', 'utf8') })))
     const authored = Object.fromEntries(files.map(f => [f.name, JSON.parse(f.text)]))
@@ -200,7 +200,8 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
     const jobId = '3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01', peerJob = '3e4f5a6b-cccc-4c7d-8e9f-0a1b2c3d4e03'
     const sharedName = 'attachments/8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02'
     const companyOriginal = { name: 'attachments/8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03', base64: Buffer.from('Synthetic complete company source original').toString('base64') }
-    files.push({ name: 'jobpayment.json', text: JSON.stringify([{ uuid: '7b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', job_uuid: jobId, amount: '10.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic complete payment source' }, { uuid: '7b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', job_uuid: peerJob, amount: '20.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic peer payment source' }]) })
+    const paymentSources = [{ uuid: '7b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', job_uuid: jobId, amount: '10.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic complete payment source' }, { uuid: '7b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', job_uuid: peerJob, amount: '20.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic peer payment source' }]
+    files.push({ name: 'jobpayment.json', text: JSON.stringify(paymentSources) })
     files.push({ name: sharedName, base64: Buffer.from('Synthetic mixed customer original; must be omitted').toString('base64') })
     files.push(companyOriginal)
     const staged = await h.command('import.stage', { files })
@@ -213,6 +214,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
       'company.json': authored['company.json'].filter(r => r.uuid === companyId),
       'companycontact.json': authored['companycontact.json'].filter(r => r.company_uuid === companyId),
       'job.json': authored['job.json'].filter(r => r.company_uuid === companyId),
+      'jobpayment.json': paymentSources.filter(r => r.job_uuid === jobId),
       'jobmaterial.json': authored['jobmaterial.json'].filter(r => [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.job_uuid)),
       'jobactivity.json': authored['jobactivity.json'].filter(r => [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.job_uuid)),
       'attachment.json': authored['attachment.json'].filter(r => r.related_object === 'company' ? r.related_object_uuid === companyId : [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.related_object_uuid)),
