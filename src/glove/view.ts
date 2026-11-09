@@ -82,7 +82,9 @@ export function financialReadState(s: State, actor: Actor): State {
 }
 
 export function visible(s: State, actor: Actor) {
-  s = { ...s, technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
+  // Anonymous material rows retain costing inputs, not field evidence. Keep
+  // them in financial/export state, never in a live capture or history view.
+  s = { ...s, captures: s.captures.filter(c => !c.erasedAt), technicians: s.technicians.map(({ portrait, ...tech }) => ({ ...tech, ...(tech.operatorId === actor.id && actor.role === 'technician' && !actor.token && !actor.custom && portrait ? { portrait } : {}) })) }
   const businessView = actor.role === 'owner' && !actor.branch ? s.business : s.business.map(({ voice: _voice, sms: _sms, wisetack: _w, payoutFeeSchedule: _f, qbo: _qbo, qboPrevious: _qboPrevious, xeroInspection: _xero, ...b }) => b as Row)
   if (actor.role === 'subcontractor') return subcontracted(s, actor)
   if (actor.role !== 'technician') {

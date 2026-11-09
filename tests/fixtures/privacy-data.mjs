@@ -182,7 +182,7 @@ export async function dataPrivacyQualification(t) {
     for (const kind of ['enquiries', 'visits', 'captures', 'equipment', 'conversations', 'quotes', 'bookingOffers', 'serviceReports']) for (const g of graphs.slice(0, 2)) assert.ok(!erased[kind]?.some(r => [g.enquiry.id, g.visit.id, g.photo.id, g.note.id, g.unit.id, g.conversation.id, g.quote.id, g.booking.id].includes(r.id)))
   })
   await scenario(t, 'DATA-001 point 6: peer histories and anonymous financial dates, classifications, costs and tax totals stay exact while edits and unmerge are refused', async () => {
-    const after = await h.state(), peer = graphs[2]
+    const after = await h.state(), archive = await json('/api/glove/export'), peer = graphs[2]
     assert.deepEqual(await json('/api/glove/reports/tax.json?from=2000-01-01&to=2099-01-01'), taxBefore, 'the public tax report retains exact anonymous classifications and totals')
     for (const [path, bytes] of [[`/api/glove/files/${peer.photo.file.fileId}`, jpeg], [`/api/glove/files/${peer.unit.photos[0].fileId}`, jpeg], [`/api/glove/files/${peer.signVisit.completion.signoff.signature.fileId}`, png], [peer.signedDoor, peer.signedBytes]]) {
       const response = await h.request(path)
@@ -194,7 +194,8 @@ export async function dataPrivacyQualification(t) {
       const oldInvoice = before.invoices.find(r => r.id === g.invoice.id), invoice = after.invoices.find(r => r.id === g.invoice.id)
       const financialCost = cost => ({ ...cost, actual: { ...cost.actual, materialEntries: cost.actual.materialEntries.map(({ captureId, description, ...money }) => money) } })
       assert.deepEqual(financialCost((await json(`/api/glove/jobs/${g.job.id}/cost`)).costing), financialCost(costsBefore.get(g.job.id)), 'the public job costing door retains exact estimate and actual costs')
-      const material = after.captures.filter(r => r.jobId === g.job.id && r.kind === 'material')
+      assert.deepEqual(after.captures.filter(r => r.jobId === g.job.id), [], 'erased field evidence stays absent from live state')
+      const material = archive.captures.filter(r => r.jobId === g.job.id && r.kind === 'material')
       assert.equal(material.length, 1)
       assert.notEqual(material[0].id, g.material.id, 'the personal capture identity is retired')
       assert.deepEqual(Object.keys(material[0]).sort(), ['id', 'version', 'jobId', 'kind', 'quantity', 'unit', 'serviceId', 'description', 'erasedAt'].sort())

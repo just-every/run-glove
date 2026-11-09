@@ -693,6 +693,7 @@ try {
   assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'shared signed original is withdrawn without deleting its peer quote')
   assert.equal((await running.owner.get('/api/glove/state')).quotes.find(q => q.id === peerQuote.id).status, 'accepted')
   assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'DATA-001 erasure withdraws the signed copy')
+  const erasedVersion = (await running.owner.get('/api/glove/state')).version
   await running.close(); running = null
   const latest = join(parent, 'post-erasure.rer')
   await command(destination, ['export', '--output', latest])
@@ -708,9 +709,12 @@ try {
     const { getPlatformProxy } = await import('wrangler')
     const { selectLocalState } = await import('@runeditrun/rer/local/state')
     const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: await selectLocalState(destination) } })
+    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(await selectLocalState(destination), 'v3') }, remoteBindings: false })
     try {
+      // Wrangler's proxy expects the versioned persistence root, matching the
+      // real rer import worker; the canonical state root would open an empty DB.
       const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
+      assert.equal((await db.prepare('SELECT version FROM glove_meta WHERE id=1').first()).version, erasedVersion, 'the checkpoint probe opens the migrated installation database')
       assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
       const service = await createPortability({ db, policy })
       const records = []

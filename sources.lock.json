@@ -1608,7 +1608,7 @@
       "executable": false
     },
     "scripts/installer/local.mjs": {
-      "sha256": "6d79557799a7dac76c14a224943dae7d3f7c3b3174a84f4de88f4a082480be1c",
+      "sha256": "125907271bbea88059303426fb3de612185759fc93436a46ddf9606f1bfd2334",
       "executable": false
     },
     "scripts/installer/seed.mjs": {
@@ -2524,7 +2524,7 @@
       "executable": false
     },
     "src/glove/view.ts": {
-      "sha256": "a482261fba500aca73406f4a49b2e5f73fc73e0df5506412d6a26b0e1a956eed",
+      "sha256": "18e137568aeba7caa008c7a464ae168c621df84d8c24089e8e7c87eabe1e4319",
       "executable": false
     },
     "src/glove/visit-arrival-notice.ts": {
@@ -6220,7 +6220,7 @@
       "executable": false
     },
     "tests/fixtures/privacy-data.mjs": {
-      "sha256": "b657a5dcb22b83de2fd4516e329aa3ea72737adf5e27fea740ec5c4a7d274e4a",
+      "sha256": "417d40116941d1b55ee1ed3bd85e33dd7cd45edb95843a407f30793cc6704d0b",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
@@ -6504,7 +6504,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "7c77aecdf5cccb6656411982c25cde6437bd7cbe9ddb17df2e1c6a8195d8e859",
+      "sha256": "f1444b83f8e35212b60bc3ac93baf9694f2ca87d5c9faa603813f0f94031cbf0",
       "executable": false
     },
     "tests/runtime.mjs": {
