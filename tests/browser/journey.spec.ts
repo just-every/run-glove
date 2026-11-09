@@ -3,6 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
+import { commissionDownloads } from './commission-download-journey'
 
 // The first-release cycle through the real screens: the owner sets up and
 // quotes, the dispatcher books with conflict review, the technician records
@@ -897,11 +898,16 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       }
       await page.route(`${origin}/api/glove/**`, serve)
+      const ready = async (navigate: () => Promise<unknown>) => {
+        const records = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
+        await navigate()
+        await (await records).finished()
+      }
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         as = b.priyaPerson.cookie
-        await page.goto(`${origin}/app`)
-        await page.reload()
+        await ready(() => page.goto(`${origin}/app`))
+        await ready(() => page.reload())
         await expect(page.getByText('No visits booked for you', { exact: true })).toBeVisible()
         await expect(page.getByText('Your sign-in is not linked to a technician yet', { exact: true })).toHaveCount(0)
         const time = page.getByRole('region', { name: 'Time', exact: true })
@@ -910,7 +916,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await shot(page, width, 'first-shift-off-clock')
         await time.getByRole('button', { name: 'Clock in', exact: true }).click()
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
-        await page.reload()
+        await ready(() => page.reload())
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
         expect((await h.request(`/api/glove/timesheets?week=${currentWeek}`, { as }).then((r: Response) => r.json())).timesheets.map((x: any) => [x.technicianId, x.onTheClock])).toEqual([[b.priya.id, true]])
         await shot(page, width, 'first-shift-on-clock')
@@ -919,8 +925,8 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await b.priyaPerson.run('clock.in', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T08:00:00+11:00` })
         await b.priyaPerson.run('clock.out', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T16:00:00+11:00` })
         as = h.owner()
-        await page.goto(`${origin}/app#reports`)
-        await page.reload()
+        await ready(() => page.goto(`${origin}/app#reports`))
+        await ready(() => page.reload())
         const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
         await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
         const row = sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true })
@@ -946,7 +952,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         jobs.push({ job, visit })
       }
       as = b.priyaPerson.cookie
-      await page.goto(`${origin}/app`)
+      await ready(() => page.goto(`${origin}/app`))
       const clock = page.getByRole('region', { name: 'Time', exact: true })
       const timers = page.getByRole('region', { name: 'Timers', exact: true })
       const phoneAt = async (at: string) => page.clock.setFixedTime(new Date(at))
@@ -1042,11 +1048,11 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       expect(await h.state()).toEqual(kept)
       await page.route(`${origin}/api/glove/**`, serve)
       as = h.owner()
-      await page.goto(`${origin}/app#today`)
+      await ready(() => page.goto(`${origin}/app#today`))
       await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
       await proof('time-desk-clock')
       for (const [i, travel, jobMinutes] of [[0, 10, 21], [1, 11, 3]]) {
-        await page.goto(`${origin}/app#jobs/${jobs[i].job.id}`)
+        await ready(() => page.goto(`${origin}/app#jobs/${jobs[i].job.id}`))
         const time = page.getByRole('region', { name: 'Time on this job', exact: true })
         await expect(time.getByText(`Travel ${travel} min · On the job ${jobMinutes} min`, { exact: true })).toBeVisible()
         await proof(`time-job-${i + 1}`)
@@ -1061,6 +1067,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await proof('time-corrected')
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
+  await commissionDownloads(browser)
 })
 
 
