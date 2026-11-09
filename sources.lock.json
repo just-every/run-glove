@@ -144,7 +144,7 @@
       "executable": false
     },
     ".github/workflows/verify.yml": {
-      "sha256": "b0f1540f50531019dfedb9c30645af25ba714a47a813eabe83ba8bc53fcb4a78",
+      "sha256": "1264b36e2ab481a78ca8bcd29fe0f2bb1578f4bdd76f92cb0d198dfb2fcda413",
       "executable": false
     },
     ".gitignore": {
@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "620da3b92107e5e6532b93f98f06488240822efa7385237719394942c420f7d3",
+      "sha256": "4d7b765fcd22bea79f5b861fa47107e1e4a5ba8e86929e3857c561e1711ebe1b",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+      "sha256": "92d3cd1d75ede266900e6462a7804a4ea1c2e05ca27888ab0035d4fd07e6874c",
       "executable": false
     },
     "DEMO.md": {
@@ -1984,7 +1984,7 @@
       "executable": false
     },
     "src/glove/commands/mail.ts": {
-      "sha256": "c33ecfc3910c58482f3a8be30d0fd14e4f89a21079aca6a7996593a2adb623a7",
+      "sha256": "0508746629309e6c77847f9e6384afa8f3cde3dab5ab4668e1a22e04aec019aa",
       "executable": false
     },
     "src/glove/commands/maps.ts": {
@@ -5604,7 +5604,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "1a8f22399ba99b420fb42a3088f88105c952f12007da2dbf8e82912a4f91ec00",
+      "sha256": "7d4b44cac7ec7cb4b9a1877eca94d548ed586505a06fb9971131e6b8b9ee1fc5",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
@@ -5700,7 +5700,7 @@
       "executable": false
     },
     "tests/api/pipeline.test.mjs": {
-      "sha256": "ed2accf0b9e0b77c6adc7e4ff1a628ab7924a33e82068441655577a99a10595a",
+      "sha256": "bec87483b2934b6e9601d085d26481baa289496ad96f0c3e99a61aaab2bbd302",
       "executable": false
     },
     "tests/api/portrait-status-flow.mjs": {
@@ -5912,7 +5912,7 @@
       "executable": false
     },
     "tests/browser/document-print.spec.ts": {
-      "sha256": "631517aa63d9565f64ac081f1b39ee8968b8bbb1934a3cf3cda08b0eb394fed6",
+      "sha256": "8efac1feddf89df300420726dc13ba99b5584c1ba7c345b57abb027bb39fe4cc",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -5944,7 +5944,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "1ac8bf0b8a255d6a462559f906df695359f517c11d7b84c3e711823feaa8e2a6",
+      "sha256": "8d33d7e4289ca559fadad4e8f65b4a8bd378cf77d32a440eb15435717ab0a825",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -6516,7 +6516,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
+      "sha256": "c4e82a4c9029b84412ad10544ce0481a8cb208ba818b74b85e8262c76d9bf7f7",
       "executable": false
     },
     "tests/runtime.mjs": {
