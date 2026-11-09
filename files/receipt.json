@@ -28,6 +28,14 @@
       "command": "node --test --test-concurrency=1 tests/api/email.test.mjs",
       "exit": 1,
       "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5"
+    },
+    {
+      "name": "inventory",
+      "command": "node tests/inventory.mjs",
+      "exit": 0,
+      "total": 200,
+      "limit": 200,
+      "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5"
     }
   ],
   "node": "22.20.0",
@@ -175,15 +183,15 @@
   ],
   "ci": [
     {
-      "conclusion": null,
+      "conclusion": "success",
       "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
       "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234",
       "id": 42630606234,
-      "status": "in_progress",
-      "observed_at": "2026-11-09T14:12:01.503522+00:00"
+      "status": "completed",
+      "observed_at": "2026-11-09T14:22:01.787546+00:00"
     }
   ],
-  "github_calls_used": 9,
+  "github_calls_used": 10,
   "ci_status_observations": [
     {
       "conclusion": null,
@@ -203,12 +211,12 @@
     }
   ],
   "ci_final_observation": {
-    "conclusion": null,
+    "conclusion": "success",
     "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234",
     "id": 42630606234,
-    "status": "in_progress",
-    "observed_at": "2026-11-09T14:12:01.503522+00:00"
+    "status": "completed",
+    "observed_at": "2026-11-09T14:22:01.787546+00:00"
   },
   "local_qualification": "All eight points pass; candidate judgment awaits independent gate and landing.",
   "transport_validation": {
@@ -218,9 +226,9 @@
     "note": "Initial complete packet round-trip validated; final publication will have its own exact evidence head in the terminal EVIDENCE line."
   },
   "riders": {
-    "1": "PENDING",
+    "1": "PASS",
     "2": "PASS",
-    "3": "PENDING",
+    "3": "PASS",
     "4": "PASS",
     "5": "PASS",
     "6": "PASS",
@@ -276,12 +284,12 @@
       "failed_job": 129165996691
     },
     {
-      "conclusion": null,
+      "conclusion": "success",
       "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
       "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234",
       "id": 42630606234,
-      "status": "in_progress",
-      "observed_at": "2026-11-09T14:12:01.503522+00:00"
+      "status": "completed",
+      "observed_at": "2026-11-09T14:22:01.787546+00:00"
     }
   ]
 }

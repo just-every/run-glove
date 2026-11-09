@@ -2,7 +2,7 @@
 
 Candidate fd128dc5f5464f16168ea8cf2539b7301334eef5, branch cloud/sx-glove-c-f216, repository just-every/run-glove. BOOK-015 points 1–8 are locally qualified. Status cells remain untouched; the independent gate owns the proposed PARTIAL to DONE judgment. No BOOK-015 production repair was needed.
 
-Exact-head Verify: {"conclusion": null, "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5", "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234", "id": 42630606234, "observed_at": "2026-11-09T14:12:01.503522+00:00", "status": "in_progress"}. GitHub calls used: 9/10.
+Exact-head Verify: {"conclusion": "success", "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5", "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234", "id": 42630606234, "observed_at": "2026-11-09T14:22:01.787546+00:00", "status": "completed"}. GitHub calls used: 10/10.
 
 ## Plan and scope
 
@@ -49,9 +49,9 @@ The generated documents were restored from origin/main, with no generated-view o
 
 | Rider | Result | Evidence |
 |---|---|---|
-| 1 | PENDING | All eight public-door outcomes above; exact-head Verify supplies the CI bar. |
+| 1 | PASS | All eight public-door outcomes above; exact-head Verify supplies the CI bar. |
 | 2 | PASS | Nonempty seeded records; allowed money and send paths complete, unsafe paths are refused without changes. |
-| 3 | PENDING | Existing push Verify loads both API and browser files; exact-head observation above. |
+| 3 | PASS | Existing push Verify loads both API and browser files; exact-head observation above. |
 | 4 | PASS | Merged API proof is current. Relevant lead browser and production bytes are identical to the passing browser proof; exact-head Verify reruns them. |
 | 5 | PASS | Existing BASE-DATA-004 citation and point 8 audit/export proof. |
 | 6 | PASS | Generator write and check pass; all source judgments and generated documents remain main’s. |
