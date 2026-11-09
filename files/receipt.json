@@ -1,0 +1,162 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f194",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f194",
+  "head": "c82d23129d551a386e0e1af409e1bc5715987115",
+  "base_main": "e9cc0be2f683ff559fc89be0de67de750238dc7a",
+  "source_candidate": "e152db60e194d10da1075020b6813eef7139f55b",
+  "product_status": "pushed",
+  "pr": null,
+  "counts_before": {
+    "done": 33,
+    "partial": 201,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 33,
+    "partial": 201,
+    "missing": 29,
+    "total": 263
+  },
+  "test_budget": {
+    "registrations": 190,
+    "assertion_scripts": 4,
+    "total": 194,
+    "limit": 200
+  },
+  "checks": [
+    {
+      "command": "node --test tests/api/crews.test.mjs",
+      "runtime": "Node 24.19.0",
+      "exit": 0,
+      "passed": 1,
+      "receipt": "api-test.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "node --test tests/api/crews.test.mjs",
+      "runtime": "Node 22.20.0",
+      "exit": 0,
+      "passed": 1,
+      "receipt": "api-node22-test.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/crew-board.spec.ts",
+      "runtime": "owned install, setup and dev; Chromium at /usr/bin/chromium with --no-sandbox",
+      "exit": 0,
+      "passed": 1,
+      "assertion_width": 1440,
+      "proof_widths": [
+        1440,
+        390
+      ],
+      "receipt": "browser-test.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "receipt": "first-party-check.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses DISP-007",
+      "exit": 0,
+      "receipt": "views-write.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "views-check.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "receipt": "lock-write.json",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "receipt": "lock-check.json",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "exit": 0,
+      "receipt": "test-inventory.txt",
+      "source_head": "c82d23129d551a386e0e1af409e1bc5715987115"
+    }
+  ],
+  "protected_files": {
+    "unchanged": true,
+    "files": [
+      "CONTRACT.md",
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md",
+      "tests/api/harness.mjs",
+      "tests/api/subcontract.test.mjs",
+      "tests/browser/journey.spec.ts",
+      "tests/api/arrival-windows.test.mjs",
+      "tests/api/calendar-delivery.test.mjs",
+      "tests/api/route-optimization.test.mjs",
+      "tests/browser/dispatch-board.spec.ts"
+    ]
+  },
+  "identity_audit": {
+    "candidate_commits_including_side_parents": 11,
+    "passed": true,
+    "trailers": 0
+  },
+  "candidate_verify": {
+    "id": 42572989246,
+    "event": "push",
+    "head_sha": "c82d23129d551a386e0e1af409e1bc5715987115",
+    "status": "in_progress",
+    "conclusion": null
+  },
+  "base_verify": {
+    "id": 42571868555,
+    "event": "push",
+    "head_sha": "e9cc0be2f683ff559fc89be0de67de750238dc7a",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "base_run_site": {
+    "id": 42571868655,
+    "event": "push",
+    "head_sha": "e9cc0be2f683ff559fc89be0de67de750238dc7a",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "publication_scan": {
+    "commit": "c82d23129d551a386e0e1af409e1bc5715987115",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "pending fleet exact-tree scan; cloud protocol assigns scanning to the maintained Mac lander"
+  },
+  "landing": {
+    "main_equals_candidate": false,
+    "run_site_for_candidate": null,
+    "status": "pending guarded fleet landing"
+  },
+  "migrations_changed": false,
+  "ledger_check": "not applicable",
+  "policy_defaults_adopted": false,
+  "created_at": "2026-11-09T06:28:40.883610+00:00",
+  "tree_clean_after_all_checks": true,
+  "fixture_edge_changes": false,
+  "runtime_or_dependency_changes": false
+}

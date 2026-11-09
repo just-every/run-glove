@@ -1,0 +1,31 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart
+ok 1 - DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart
+  ---
+  duration_ms: 21601.142514
+  type: 'test'
+  ...
+# point 1: three-day install isolates every signed-in member and totals only completed agreed work
+# PROBE DISP-007 1: state and filing report doors -> exactly three own visits each; completed total 750.25 with all CSV columns
+# point 2: independently enumerated single, crew and subcontractor visits span months and survive Worker restart
+# PROBE DISP-007 2: six bookings on one job across October and November -> eight exact member visits retained after actual restart
+# point 3: Owner alone saves distinct active same-branch crews; later edits leave earlier booking snapshots intact
+# PROBE DISP-007 3: saves refuse excluded actors and invalid rosters unchanged; two and ten commit; booked snapshot survives rename, move and cancellation
+# point 4: one review includes both members and partial acknowledgement or replay creates no extra visit
+# PROBE DISP-007 4: book with two overlaps -> both conflicts; partial ack no writes; full ack exactly two visits; replay unchanged
+# point 5: any open member moves the group after one review; completed and canceled visits and stale attempts stay unchanged
+# PROBE DISP-007 5: moves from both open members follow reviewed times; completed member frozen; technician swap, stale and canceled moves refused unchanged
+# point 6: cancellation acts on all members and each kind of recorded evidence refuses the whole group
+# PROBE DISP-007 6: whole group canceled; arrival, note and photo on one member each refuse cancellation and preserve visits, captures and events
+# point 7: Activity and business export attribute crew saves, bookings, moves and cancellations to real people
+# PROBE DISP-007 7: Activity and export -> actual Owner crew saves and Dispatcher member bookings, moves and cancellations
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23643.517463

@@ -1,0 +1,26 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart (20235.956411ms)
+ℹ point 1: three-day install isolates every signed-in member and totals only completed agreed work
+ℹ PROBE DISP-007 1: state and filing report doors -> exactly three own visits each; completed total 750.25 with all CSV columns
+ℹ point 2: independently enumerated single, crew and subcontractor visits span months and survive Worker restart
+ℹ PROBE DISP-007 2: six bookings on one job across October and November -> eight exact member visits retained after actual restart
+ℹ point 3: Owner alone saves distinct active same-branch crews; later edits leave earlier booking snapshots intact
+ℹ PROBE DISP-007 3: saves refuse excluded actors and invalid rosters unchanged; two and ten commit; booked snapshot survives rename, move and cancellation
+ℹ point 4: one review includes both members and partial acknowledgement or replay creates no extra visit
+ℹ PROBE DISP-007 4: book with two overlaps -> both conflicts; partial ack no writes; full ack exactly two visits; replay unchanged
+ℹ point 5: any open member moves the group after one review; completed and canceled visits and stale attempts stay unchanged
+ℹ PROBE DISP-007 5: moves from both open members follow reviewed times; completed member frozen; technician swap, stale and canceled moves refused unchanged
+ℹ point 6: cancellation acts on all members and each kind of recorded evidence refuses the whole group
+ℹ PROBE DISP-007 6: whole group canceled; arrival, note and photo on one member each refuse cancellation and preserve visits, captures and events
+ℹ point 7: Activity and business export attribute crew saves, bookings, moves and cancellations to real people
+ℹ PROBE DISP-007 7: Activity and export -> actual Owner crew saves and Dispatcher member bookings, moves and cancellations
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22642.941247

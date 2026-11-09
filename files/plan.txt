@@ -1,0 +1,8 @@
+DISP-007 continuation plan
+1. Preserve the qualifying f192 changes at e152db60e194d10da1075020b6813eef7139f55b and rebase this fresh branch onto current main without changing the contract judgments.
+2. Read the focused API and browser journeys and map each acceptance point to a named public-door scenario. Inspect crew snapshots, conflict review, cancellation, filing totals, state isolation, audit attribution and the demonstrated month-filter repair.
+3. Run the focused API journey, the focused browser journey with screens at 1440 and 390, typecheck, first-party check and the test inventory. Repair only a demonstrated defect in the authorized crew paths.
+4. Generate and check contract views, restore main's generated files, regenerate the source lock last and check it. Preserve all other writers and all protected test files.
+5. Audit every candidate commit identity and trailer, push only cloud/sx-glove-c-f194 using the fleet guard, discover exact-SHA Verify with REST within the ten-call budget, and retain exact run IDs and conclusions.
+6. Save actual non-secret reports and receipts outside the product clone and publish them separately on evidence/sx-glove-c-f194. Leave scanning, judgment updates and guarded landing to the fleet.
+No other target is selected: this is a continuation dedicated to finishing DISP-007.

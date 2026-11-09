@@ -1,0 +1,11 @@
+c82d23129d551a386e0e1af409e1bc5715987115 DISP-007 show crew bookings within each phone board viewport
+583b55825d1342d655045b87c60fbf4be96d7f0f DISP-007 qualify all crew outcomes and protect roster edits
+a4b03a782e3450faee8c1a234161da3a8cf863ba DISP-007 keep browser qualification focused on crew controls [skip ci]
+c645bebe918c6ef3e6c4ca3269453fec2f3f655c DISP-007 filter crew month bookings using crew rows [skip ci]
+ec750b6e8389864e8df85cfeb9eaff22be4293ec DISP-007 locate crew controls by their accessible roles [skip ci]
+57091ede3c75d3023062ba2631822e8f2ae0d19f DISP-007 bound browser actions and pin the install clock [skip ci]
+5226a57ad3e258ca08e97e029d44ad1825cd450c DISP-007 read complete paged crew activity [skip ci]
+c66dd0c5a15796b5ac561feef02494042a17a403 DISP-007 replay exact booking after authority withdrawal [skip ci]
+896c45ab884a24a466a282df0e69027975e475c8 DISP-007 retain crew evidence boundaries across erasure and withdrawn authority [skip ci]
+ba0097a6b6151147583d837c75ca2b3fa3da58d7 DISP-007 exercise crew board at desktop and phone widths [skip ci]
+4770104178f6b7073d46f5ad7a0fe1ac09d0b1c7 DISP-007 qualify crew command outcomes [skip ci]

@@ -1,0 +1,53 @@
+{
+  "head": "c82d23129d551a386e0e1af409e1bc5715987115",
+  "files": [
+    {
+      "path": "tests/api/crews.test.mjs",
+      "bytes": 22978,
+      "sha256": "65e60f593271040f82d127bbc17e9d785e8741df6be6d073738a15792a1968d2",
+      "worktree_equals_commit": true
+    },
+    {
+      "path": "tests/browser/crew-board.spec.ts",
+      "bytes": 16378,
+      "sha256": "b4ed06a789dc7e1585c24066a2feaa86da2bb588559e4a35b2d3c649765c1597",
+      "worktree_equals_commit": true
+    },
+    {
+      "path": "src/ui/dispatch.tsx",
+      "bytes": 17682,
+      "sha256": "70883b7688c773ecce7e610171bdc48e6fd88d81eee3030d8a638608e37a1c1a",
+      "worktree_equals_commit": true
+    },
+    {
+      "path": "src/glove/commands/dispatch.ts",
+      "bytes": 34931,
+      "sha256": "144c2ffbcaaa333134929cc040ccd3c064a61327691c2794d4d3f4515985c222",
+      "worktree_equals_commit": true
+    },
+    {
+      "path": "src/glove/subcontract.ts",
+      "bytes": 5725,
+      "sha256": "1999540646363008d3b80da80cf6c1b44a8b2aa61000d281ec5d66045585a650",
+      "worktree_equals_commit": true
+    },
+    {
+      "path": "src/glove/view.ts",
+      "bytes": 14218,
+      "sha256": "a482261fba500aca73406f4a49b2e5f73fc73e0df5506412d6a26b0e1a956eed",
+      "worktree_equals_commit": true
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "bytes": 59127,
+      "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+      "worktree_equals_commit": true
+    },
+    {
+      "path": "tests/fixtures/scenario.mjs",
+      "bytes": 534,
+      "sha256": "96f7b51254a901cdc4961c9faded2baba84ee5b02f1f87864636151438b579ef",
+      "worktree_equals_commit": true
+    }
+  ]
+}

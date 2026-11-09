@@ -1,0 +1,20 @@
+[
+  {
+    "name": "api-1",
+    "browser": false,
+    "hosted": false,
+    "commands": [
+      "pnpm run build",
+      "node --test --test-concurrency=1 'tests/api/agreements.test.mjs' 'tests/api/assessments.test.mjs' 'tests/api/branch-authority.test.mjs' 'tests/api/calendar-delivery.test.mjs' 'tests/api/callbacks.test.mjs' 'tests/api/conversation.test.mjs' 'tests/api/crews.test.mjs' 'tests/api/customer-quotes.test.mjs' 'tests/api/delays.test.mjs' 'tests/api/documents.test.mjs' 'tests/api/due-visit-offers.test.mjs' 'tests/api/email.test.mjs' 'tests/api/expenses.test.mjs' 'tests/api/fixed-monthly-reports.test.mjs' 'tests/api/forms.test.mjs' 'tests/api/instant-payouts.test.mjs' 'tests/api/margins.test.mjs' 'tests/api/money.test.mjs' 'tests/api/movein.test.mjs' 'tests/api/options.test.mjs' 'tests/api/payout-reconciliation.test.mjs' 'tests/api/pipeline.test.mjs' 'tests/api/pricebook.test.mjs' 'tests/api/purchasing.test.mjs' 'tests/api/quickbooks.test.mjs' 'tests/api/quote-link-records.test.mjs' 'tests/api/recurring-billing.test.mjs' 'tests/api/reminders.test.mjs' 'tests/api/route-optimization.test.mjs' 'tests/api/rules.test.mjs' 'tests/api/segments.test.mjs' 'tests/api/service-reports.test.mjs' 'tests/api/ses-sns-custody.test.mjs' 'tests/api/subcontract.test.mjs' 'tests/api/suggest.test.mjs' 'tests/api/time.test.mjs' 'tests/api/travel-assignment.test.mjs'"
+    ]
+  },
+  {
+    "name": "browser-1",
+    "browser": true,
+    "hosted": false,
+    "commands": [
+      "pnpm run build",
+      "node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/arrival-windows.spec.ts' 'tests/browser/crew-board.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/phone-location.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/routing.spec.ts' 'tests/browser/tax-evidence.spec.ts'"
+    ]
+  }
+]
