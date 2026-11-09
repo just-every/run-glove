@@ -1,0 +1,4 @@
+Actual failed-job log excerpts; routine shell/environment metadata excluded from public evidence.
+build	Run node scripts/edition-authoring/cli.mjs check	﻿2026-11-09T11:09:28.1524608Z ##[group]Run node scripts/edition-authoring/cli.mjs check
+build	Run node scripts/edition-authoring/cli.mjs check	2026-11-09T11:09:28.3746536Z Stale lock or source/tool integrity mismatch; run changes to inspect intentional edits before lock
+build	Run node scripts/edition-authoring/cli.mjs check	2026-11-09T11:09:28.3854932Z ##[error]Process completed with exit code 1.

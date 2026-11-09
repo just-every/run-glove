@@ -1,0 +1,11 @@
+{
+  "conclusion": "success",
+  "head_sha": "fbe722edd702638d028db96e1d1cf6bd85c28fec",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42608336503",
+  "status": "completed",
+  "run_id": 42608336503,
+  "repository": "just-every/run-glove",
+  "event": "push",
+  "branch": "cloud/sx-glove-verify-artifact-1",
+  "observed_utc": "2026-11-09T11:36:48.965566+00:00"
+}

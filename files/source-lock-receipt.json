@@ -1,0 +1,32 @@
+{
+  "utc": "2026-11-09T11:20:57.139086+00:00",
+  "checks": [
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "changes"
+      ],
+      "exit_code": 0,
+      "summary": "only the workflow source hash changed"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit_code": 0,
+      "summary": "generated lock"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit_code": 0,
+      "summary": "lock integrity passed"
+    }
+  ]
+}

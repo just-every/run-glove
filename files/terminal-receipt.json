@@ -1,0 +1,26 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-verify-artifact-1",
+  "head": "fbe722edd702638d028db96e1d1cf6bd85c28fec",
+  "product_push": "success",
+  "exact_sha_verify": {
+    "conclusion": "success",
+    "head_sha": "fbe722edd702638d028db96e1d1cf6bd85c28fec",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42608336503",
+    "status": "completed",
+    "run_id": 42608336503,
+    "repository": "just-every/run-glove",
+    "event": "push",
+    "branch": "cloud/sx-glove-verify-artifact-1",
+    "observed_utc": "2026-11-09T11:36:48.965566+00:00"
+  },
+  "github_calls_used": 10,
+  "github_calls_budget": 10,
+  "product_ready": true,
+  "publication_scan": "fleet Mac lander gate; not available in cloud",
+  "landing": "not performed",
+  "evidence_ref": "refs/heads/evidence/sx-glove-verify-artifact-1",
+  "evidence_transport": "separate from product custody; exact EVIDENCE output returned in final message",
+  "clause_changes": [],
+  "utc": "2026-11-09T11:37:38.218260+00:00"
+}

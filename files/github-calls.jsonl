@@ -1,0 +1,10 @@
+{"call": 1, "utc": "2026-11-09T11:09:15Z", "args": ["api", "repos/just-every/run-glove/actions/runs?head_sha=3db2d8b62c577eb8c1d7b4ec4249f2369182f746&per_page=100", "--jq", "{total_count,workflow_runs:[.workflow_runs[]|{id,name,event,status,conclusion,head_sha,head_branch,html_url}]}"]}
+{"call": 2, "utc": "2026-11-09T11:14:16Z", "args": ["api", "repos/just-every/run-glove/actions/runs/42606664317", "--jq", "{status,conclusion,head_sha,html_url}"]}
+{"call": 3, "utc": "2026-11-09T11:19:17Z", "args": ["api", "repos/just-every/run-glove/actions/runs/42606664317", "--jq", "{status,conclusion,head_sha,html_url}"]}
+{"call": 4, "utc": "2026-11-09T11:19:26Z", "args": ["api", "repos/just-every/run-glove/actions/runs/42606664317/jobs?per_page=100&filter=latest", "--jq", "{total_count,jobs:[.jobs[]|{id,name,status,conclusion,steps:[.steps[]|{name,conclusion}]}]}"]}
+{"call": 5, "utc": "2026-11-09T11:19:42Z", "args": ["run", "view", "42606664317", "--repo", "just-every/run-glove", "--job", "129124389382", "--log-failed"]}
+{"call": 6, "utc": "2026-11-09T11:19:46Z", "args": ["run", "view", "42606664317", "--repo", "just-every/run-glove", "--job", "129124490310", "--log-failed"]}
+{"call": 7, "utc": "2026-11-09T11:21:39Z", "args": ["api", "repos/just-every/run-glove/actions/runs?head_sha=fbe722edd702638d028db96e1d1cf6bd85c28fec&per_page=100", "--jq", "{total_count,workflow_runs:[.workflow_runs[]|{id,name,event,status,conclusion,head_sha,head_branch,html_url}]}"]}
+{"call": 8, "utc": "2026-11-09T11:26:42Z", "args": ["api", "repos/just-every/run-glove/actions/runs/42608336503", "--jq", "{status,conclusion,head_sha,html_url}"]}
+{"call": 9, "utc": "2026-11-09T11:31:45Z", "args": ["api", "repos/just-every/run-glove/actions/runs/42608336503", "--jq", "{status,conclusion,head_sha,html_url}"]}
+{"call": 10, "utc": "2026-11-09T11:36:48Z", "args": ["api", "repos/just-every/run-glove/actions/runs/42608336503", "--jq", "{status,conclusion,head_sha,html_url}"]}

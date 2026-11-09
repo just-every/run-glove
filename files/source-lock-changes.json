@@ -1,0 +1,19 @@
+{
+  "files": [
+    {
+      "path": ".github/workflows/verify.yml",
+      "change": "modified",
+      "before": {
+        "sha256": "b0f1540f50531019dfedb9c30645af25ba714a47a813eabe83ba8bc53fcb4a78",
+        "executable": false
+      },
+      "after": {
+        "sha256": "1264b36e2ab481a78ca8bcd29fe0f2bb1578f4bdd76f92cb0d198dfb2fcda413",
+        "executable": false
+      }
+    }
+  ],
+  "metadata": [],
+  "meaning": "Origins are comparison baselines; changing an origin does not assert adoption or local byte equality."
+}
+

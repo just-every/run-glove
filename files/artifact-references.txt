@@ -1,0 +1,6 @@
+./.github/workflows/verify.yml:87:        run: tar -czf "$RUNNER_TEMP/verify-build.tar.gz" dist
+./.github/workflows/verify.yml:90:          name: verify-build-${{ github.run_id }}
+./.github/workflows/verify.yml:91:          path: ${{ runner.temp }}/verify-build.tar.gz
+./.github/workflows/verify.yml:180:          name: verify-build-${{ github.run_id }}
+./.github/workflows/verify.yml:181:          path: ${{ runner.temp }}/verify-build
+./.github/workflows/verify.yml:183:        run: tar -xzf "$RUNNER_TEMP/verify-build/verify-build.tar.gz"

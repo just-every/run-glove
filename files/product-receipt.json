@@ -1,0 +1,53 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-verify-artifact-1",
+  "head": "fbe722edd702638d028db96e1d1cf6bd85c28fec",
+  "origin_main_at_candidate": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "counts": {
+    "files_changed": {
+      "before": 0,
+      "after": 2
+    },
+    "artifact_references": {
+      "before": 7,
+      "after": 7
+    },
+    "attempt_scoped_artifact_names": {
+      "before": 2,
+      "after": 0
+    },
+    "run_scoped_artifact_names": {
+      "before": 0,
+      "after": 2
+    },
+    "upload_overwrite_settings": {
+      "before": 0,
+      "after": 1
+    },
+    "jobs": {
+      "before": 7,
+      "after": 7
+    },
+    "tests_added": 0,
+    "tests_removed": 0,
+    "tests_modified": 0,
+    "clauses_changed": 0,
+    "artifact_matching_lines": {
+      "before": 6,
+      "after": 6
+    }
+  },
+  "diff_numstat": "3\t2\t.github/workflows/verify.yml\n1\t1\tsources.lock.json",
+  "clean_product_checkout": true,
+  "commit_subject": "Fix Verify build artifact reuse across reruns",
+  "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+  "trailers": "",
+  "utc": "2026-11-09T11:22:39.275333+00:00",
+  "initial_head": "3db2d8b62c577eb8c1d7b4ec4249f2369182f746",
+  "commits": [
+    "fbe722edd702638d028db96e1d1cf6bd85c28fec Refresh source lock for Verify artifact fix",
+    "3db2d8b62c577eb8c1d7b4ec4249f2369182f746 Fix Verify build artifact reuse across reruns"
+  ],
+  "source_lock_change": "one generated workflow SHA-256 entry; no other source changes"
+}
