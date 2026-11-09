@@ -1,0 +1,39 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ PAY-023 point 1: only the current signed-in Owner refunds and original methods enforce the exact remaining principal (4108.327178ms)
+✔ PAY-023 point 2: tip-only returns lower technician payroll while principal, collected tax and receivables stay exact (3018.239455ms)
+✔ PAY-023 point 3: a later Stripe dispute reverses only the principal and tip left after a partial refund (3264.098676ms)
+✔ PAY-023 point 4: manual returns stay offline and durable Stripe reservations fence concurrent requests, replay and Worker restart (3520.313778ms)
+✔ PAY-023 point 5: pending, failed and unconfirmed linked records never alter balances or resend after replay, cron and restart (3972.489903ms)
+✖ PAY-023 point 6: refresh only reads a pending retained reference, confirms once and releases failed reservations (3804.26518ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22840.560334
+
+✖ failing tests:
+
+test at tests/api/refunds.test.mjs:207:1
+✖ PAY-023 point 6: refresh only reads a pending retained reference, confirms once and releases failed reservations (3804.26518ms)
+  AssertionError [ERR_ASSERTION]: {"ok":true,"result":{"id":"1d0debb9-8429-4639-826f-80833cb7cc1b","version":4,"createdAt":"2026-11-09T12:00:00.000Z","invoiceId":"24637b33-1d33-494c-adf0-d27bef35ada1","invoiceNumber":"INV-0001","customerId":"82296d99-b059-44f8-9903-efa7610a921e","jobId":"6506520a-30c2-4093-b9ad-18d06a9166e8","branchId":null,"currency":"USD","amount":"157.90","tip":"0.00","technicianIds":["ec43e561-c1de-4eff-96cb-2e2b1103f4cf"],"fee":"0.00","by":{"id":"7f869a9f-718f-4824-8ca7-bd9752043bfc","name":"Olivia Owner","role":"owner"},"kind":"refund","method":"ach","paymentId":"54fef346-4cee-4418-b0e7-ec5c3614f595","financeConnectionId":null,"financeTransactionId":null,"intentId":"synthetic-glove-intent-1","connectionId":"e18d68e0-4bd2-437f-a76b-e7e7c3fbeab0","taxTotalAmount":"207.90","taxBreakdown":[{"branchId":null,"jurisdictionId":"synthetic-glove-tax","jurisdiction":"Sales tax","rate":"10","taxable":"189.00","tax":"18.90"}],"reason":"Customer requested original-method return","status":"failed","confirmedAt":null,"effects":[],"providerReference":"synthetic-glove-refund-2"},"version":39}
+  
+  true !== false
+  
+      at Object.command (file:///home/agent/rer-consolidation/work/sx-glove-c-f175/run-glove/tests/api/harness.mjs:200:32)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async unchanged (file:///home/agent/rer-consolidation/work/sx-glove-c-f175/run-glove/tests/api/refunds.test.mjs:35:3)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f175/run-glove/tests/api/refunds.test.mjs:232:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

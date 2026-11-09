@@ -1,0 +1,58 @@
+{
+  "head": "ea3d39b6771c099c2ade3e6c2693e6ac2ea393cc",
+  "branch": "cloud/sx-glove-c-f175",
+  "at": "2026-11-09T01:11:45.283024+00:00",
+  "node": "22.20.0",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/refunds.test.mjs",
+      "exit": 0,
+      "receipt": "api-receipt.tap",
+      "points": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck-receipt.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "receipt": "first-party-receipt.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "receipt": "views-write-receipt.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "views-check-receipt.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 1,
+      "receipt": "test-inventory.json",
+      "baseline": "main-test-inventory.json"
+    }
+  ],
+  "ledger": "not applicable: no migration change",
+  "contract_status_changed": false,
+  "worktree_clean": true
+}

@@ -1,0 +1,48 @@
+{
+  "head": "ea3d39b6771c099c2ade3e6c2693e6ac2ea393cc",
+  "at": "2026-11-09T01:12:49.727016+00:00",
+  "command": "node tests/browser/run.mjs tests/browser/refunds.spec.ts",
+  "exit": 0,
+  "node": "22.20.0",
+  "chromium": "/usr/bin/chromium",
+  "assertion_width": 1440,
+  "proof_widths": [
+    1440,
+    390
+  ],
+  "receipt": "browser-receipt.log",
+  "screenshots": [
+    {
+      "file": "screenshots/1440-refund-confirmed.png",
+      "sha256": "b22ea3b4c1110fba2321f7c6573981bf5d568b9d00b67f59c7433a31a2a3f82b"
+    },
+    {
+      "file": "screenshots/1440-refund-failed.png",
+      "sha256": "222406d4e343f871b58080a61c09c4c05f113482d732474aabeb3302977dde4b"
+    },
+    {
+      "file": "screenshots/1440-refund-pending.png",
+      "sha256": "14bfc16d18c204615596e3e2f7910b57b7bb7cb7bcc6512c844f2113be9e8e92"
+    },
+    {
+      "file": "screenshots/1440-refund-unknown-after-restart.png",
+      "sha256": "5795a3d71e00aefa037df08dd5fe17a32bf5af0c19f11c1b975dd98b6c2f20e8"
+    },
+    {
+      "file": "screenshots/390-refund-confirmed.png",
+      "sha256": "c07fa37aa8ba2a54a787bcc5fdb700ccc5bfdf1b7c50fd9285bdf88f7faa00e7"
+    },
+    {
+      "file": "screenshots/390-refund-failed.png",
+      "sha256": "f572b55a6c9a99dbd284d482e17751944bc44ecad52b172450761d30f2799ef1"
+    },
+    {
+      "file": "screenshots/390-refund-pending.png",
+      "sha256": "5cda81252608b1a68116d1885d4b820dec8d35a01e71ea726a70d457a4dbfb5c"
+    },
+    {
+      "file": "screenshots/390-refund-unknown-after-restart.png",
+      "sha256": "849a8f22875cdd555878dfaf7da92e5194f01b89a3f0e679a9ef3ebd5dd14e95"
+    }
+  ]
+}
