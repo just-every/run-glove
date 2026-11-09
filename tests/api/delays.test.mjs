@@ -28,7 +28,7 @@ async function delayFixture(t) {
 // under a grant the agent moves a visit itself only inside its arrival window.
 
 test('AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves', async (t) => {
-  await scenario(t, 'AGENT-003 point 5: same technician recovery rounds the expected free instant to the next quarter hour', async t => {
+  await scenario(t, 'AGENT-003 point 5: recovery excludes unavailable technicians and rounds the expected free instant to the next quarter hour', async t => {
     const h = await installation({ at: '2026-10-22T10:20:00.000Z' })
     t.after(() => h.close())
     const b = await business(h, { timezone: 'UTC' })
@@ -65,7 +65,8 @@ test('AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next 
     assert.deepEqual(options.map(o => [o.technicianId, o.start]), [[b.tom.id, '12:00'], [b.priya.id, '12:30']])
     await b.dispatcher.run('visit.cancel', { visitId: blocker.id, version: blocker.version, reason: 'Release slot' })
     options = (await readEligible()).options
-    assert.deepEqual(options.map(o => [o.technicianId, o.start]), [[b.tom.id, '12:00'], [excluded.at(-1).id, '12:00'], [b.priya.id, '12:30']])
+    assert.deepEqual(options.slice(0, -1).map(o => [o.technicianId, o.start]).sort(), [[b.tom.id, '12:00'], [excluded.at(-1).id, '12:00']].sort())
+    assert.deepEqual([options.at(-1).technicianId, options.at(-1).start], [b.priya.id, '12:30'])
     const watch = await h.request('/api/glove/delays?at=2026-10-22T10:20:00.000Z').then(r => r.json())
     const own = watch.risks.find(r => r.visitId === next.id).options.at(-1)
     assert.deepEqual([own.technicianId, own.start, own.end], [b.priya.id, '10:45', '11:45'])
@@ -199,10 +200,13 @@ test('AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next 
     assert.deepEqual([moved.technicianId, moved.local.start, moved.local.end], [b.tom.id, '11:00', '12:00'])
     assert.deepEqual(moved.assignments.at(-1).reviewedConflicts.map(c => c.code), [`overlap:${collision.id}`])
     for (const old of prepared.slice(1)) await refused(old.person === owner ? b.dispatcher : owner, 'proposal.approve', { proposalId: old.proposal.id, version: old.proposal.version }, 'STALE')
+    for (const person of [b.office, b.priyaPerson, sub]) await refused(person, 'proposal.approve', { proposalId: chosen.id, version: chosen.version }, 'FORBIDDEN')
     const fresh = await b.dispatcher.run('proposal.prepare', proposalPayload('13:00'))
     await owner.run('proposal.approve', { proposalId: fresh.id, version: fresh.version })
+    const ownerPrepared = await owner.run('proposal.prepare', proposalPayload('14:00'))
+    await b.dispatcher.run('proposal.approve', { proposalId: ownerPrepared.id, version: ownerPrepared.version })
     const final = await h.state()
-    assert.equal(final.visits.find(v => v.id === visit.id).local.start, '13:00')
+    assert.equal(final.visits.find(v => v.id === visit.id).local.start, '14:00')
     assert.deepEqual(await b.dispatcher.run('proposal.approve', approvalPayload, { commandId: 'synthetic-glove-delay-approve' }), approved)
     assert.deepEqual(await h.state(), final, 'an approval replay cannot move a visit again or undo the later move')
     await h.restart()
@@ -214,7 +218,7 @@ test('AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next 
     await b.dispatcher.run('proposal.approve', approvalPayload, { commandId: 'synthetic-glove-delay-approve', error: 'FORBIDDEN' })
     const activity = await h.request('/api/glove/activity').then(r => r.json())
     const exported = await h.request('/api/glove/export').then(r => r.json())
-    for (const [proposal, preparer, approver] of [[chosen, b.agent, b.dispatcher], [fresh, b.dispatcher, owner]]) {
+    for (const [proposal, preparer, approver] of [[chosen, b.agent, b.dispatcher], [fresh, b.dispatcher, owner], [ownerPrepared, owner, b.dispatcher]]) {
       for (const [kind, person] of [['proposal.prepared', preparer], ['proposal.approved', approver]]) {
         const events = activity.events.filter(e => e.subjectId === proposal.id && e.kind === kind)
         assert.equal(events.length, 1)
