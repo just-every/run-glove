@@ -4824,7 +4824,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -6036,7 +6036,7 @@
       "executable": false
     },
     "tests/fixtures/branch-projections.mjs": {
-      "sha256": "e9f9129dbafe8489f7f4245ac9cdb5d2c8a3aff6cc739621170ac4aa78fcdc7e",
+      "sha256": "1f92ed98d03092c1980a0e6a77d93e1a5e7b5334fc36d86e13aa43b09b71675a",
       "executable": false
     },
     "tests/fixtures/calendar.mjs": {
