@@ -184,8 +184,9 @@ async function signInPersona(browser: Browser, persona: string, width: number, k
   return { context, phone }
 }
 
-for (const width of [1440, 390]) {
-  test(`MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
+test('MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px', async ({ browser }) => {
+  test.setTimeout(480_000)
+  for (const width of [1440, 390]) {
     const entry = process.env.GLOVE_OPEN
     if (!entry) throw new Error('Set GLOVE_OPEN privately to rer dev’s owner-entry URL; this test needs a real local installation.')
     const desk = await browser.newContext({ viewport: { width, height: 1000 } })
@@ -858,8 +859,8 @@ for (const width of [1440, 390]) {
     await shot(page, width, 'activity')
     await checkPropertyHistories(page, width)
     await desk.close()
-  })
-}
+  }
+})
 
 
 test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {

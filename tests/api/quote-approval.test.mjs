@@ -197,6 +197,14 @@ test('QUOTE-002 points 1–8: customer approval binds the chosen work and claime
     const accepted = await quote(q.id)
     assert.equal(accepted.status, 'accepted')
     assert.equal(accepted.revisions.length, 1)
+    assert.deepEqual([accepted.acceptance.revision, accepted.acceptance.choice.optionId, accepted.acceptance.choice.addOnIds], [1, 'option-2', ['addon-1']])
+    if (outcomes[0].ok) {
+      assert.deepEqual([accepted.acceptance.method, accepted.acceptance.customerName], ['phone', 'Staff caller'])
+      assert.equal(accepted.acceptance.signing, undefined, 'the losing customer signature is not retained')
+    } else {
+      assert.deepEqual([accepted.acceptance.method, accepted.acceptance.customerName], ['customer link', 'Mei Lin'])
+      assert.deepEqual(accepted.acceptance.signing.signature, strokes)
+    }
     const trail = await assertTrail(h, ['quote.accepted'])
     assert.equal(trail.activity.filter(e => e.subjectId === q.id && e.kind === 'quote.accepted').length, 1)
     assert.equal(accepted.customerRequests?.filter(x => x.action === 'approve').length ?? 0, accepted.acceptance.method === 'customer link' ? 1 : 0)
