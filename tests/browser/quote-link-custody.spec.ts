@@ -1,3 +1,4 @@
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Request } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
@@ -51,7 +52,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       const workerCalls: { method: string, status: number }[] = []
       // Assets and the customer page come from the real installation. JSON is
       // forwarded to the production Worker with native D1, never fabricated.
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const request = route.request(), url = new URL(request.url())
         expect(url.pathname).toBe('/api/glove/public/quote')
         const response = await h.request(url.pathname + url.search, { as: '', method: request.method(), headers: { authorization: request.headers().authorization ?? '' }, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
@@ -61,7 +62,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
 
       const fragment = `${origin}/quote#token=${issued.token}`
       let received = responseFrom(page, 'GET')
-      await page.goto(fragment)
+      await gotoHarness(page, fragment)
       let response = await received
       expect(response.status()).toBe(200)
       expect((await response.json()).state).toBe('open')
@@ -101,7 +102,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       absent({ state, activity, exported }, tokens, 'state, Activity and business export after the response')
 
       received = responseFrom(page, 'GET')
-      await page.reload()
+      await reloadHarness(page)
       response = await received
       expect(response.status()).toBe(200)
       expect((await response.json()).requests).toEqual([expect.objectContaining({ action: 'changes', message })])
@@ -113,7 +114,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       const revised = await h.command('quote.link', { quoteId: quote.id, version: quote.version })
       tokens.push(revised.token)
       received = responseFrom(page, 'GET')
-      await page.reload()
+      await reloadHarness(page)
       response = await received
       expect(response.status()).toBe(200)
       const superseded = await response.json()
@@ -127,7 +128,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       // Midnight after the printed validity date in the frozen business zone.
       await h.setTime('2030-03-12T14:00:00Z')
       received = responseFrom(page, 'GET')
-      await page.goto(`${origin}/quote#token=${revised.token}`)
+      await gotoHarness(page, `${origin}/quote#token=${revised.token}`)
       response = await received
       expect(response.status()).toBe(200)
       expect((await response.json()).state).toBe('expired')
@@ -142,7 +143,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       expect((await response.json()).updateRequested).toBe(true)
       await expect(page.getByRole('button', { name: 'Updated quote requested', exact: true })).toBeDisabled()
       received = responseFrom(page, 'GET')
-      await page.reload()
+      await reloadHarness(page)
       expect((await (await received).json()).updateRequested).toBe(true)
       await expect(page.getByRole('button', { name: 'Updated quote requested', exact: true })).toBeDisabled()
       await screen(page, width, 'update-requested')
@@ -153,7 +154,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
 
       await h.setTime(revised.expiresAt)
       received = responseFrom(page, 'GET')
-      await page.reload()
+      await reloadHarness(page)
       response = await received
       expect(response.status()).toBe(404)
       await expect(page.getByRole('alert')).toContainText('This quote link is unavailable.')
@@ -180,7 +181,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       const decliningLink = await h.command('quote.link', { quoteId: declining.id, version: declining.version })
       tokens.push(decliningLink.token)
       received = responseFrom(page, 'GET')
-      await page.goto(`${origin}/quote#token=${decliningLink.token}`)
+      await gotoHarness(page, `${origin}/quote#token=${decliningLink.token}`)
       expect((await received).status()).toBe(200)
       await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
       await page.getByLabel('Your capacity (optional)').fill('Practice manager')
@@ -192,9 +193,9 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       const declined = (await h.state()).quotes.find((row: any) => row.id === declining.id)
       expect(declined.declined).toMatchObject({ name: 'Mei Lin', capacity: 'Practice manager', identity: 'CLAIMED', authenticationBasis: 'link handed out by staff, recipient unverified' })
       expect(declined.customerRequests).toHaveLength(1)
-      await h.restart()
+      await restartHarness(h)
       received = responseFrom(page, 'GET')
-      await page.reload()
+      await reloadHarness(page)
       expect((await (await received).json()).decision).toBe('declined')
       await expect(page.getByRole('button', { name: /Request changes|Decline quote|updated quote/ })).toHaveCount(0)
       await screen(page, width, 'declined')
@@ -210,7 +211,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       const previous = await h.command('quote.link', { quoteId: signing.id, version: signing.version })
       tokens.push(previous.token)
       received = responseFrom(page, 'GET')
-      await page.goto(`${origin}/quote#token=${previous.token}`)
+      await gotoHarness(page, `${origin}/quote#token=${previous.token}`)
       expect((await received).status()).toBe(200)
       await page.getByRole('radio', { name: 'Choose Better', exact: true }).check()
       await page.getByRole('checkbox', { name: 'Add Filter', exact: true }).check()
@@ -237,14 +238,14 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       forwarded.on('request', request => { requests.push(capture(request)) })
       const recipient = await forwarded.newPage()
       try {
-        await recipient.route(`${origin}/api/glove/**`, async route => {
+        await harnessRoute(recipient, `${origin}/api/glove/**`, async route => {
           const request = route.request(), url = new URL(request.url())
           expect(url.pathname).toBe('/api/glove/public/quote')
           const response = await h.request(url.pathname, { as: '', method: request.method(), headers: { authorization: request.headers().authorization ?? '' }, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
           await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
         })
         received = responseFrom(recipient, 'GET')
-        await recipient.goto(`${origin}/quote#token=${current.token}`)
+        await gotoHarness(recipient, `${origin}/quote#token=${current.token}`)
         expect((await received).status()).toBe(200)
         expect(await forwarded.cookies()).toEqual([])
         await recipient.getByRole('radio', { name: 'Choose Better', exact: true }).check()
@@ -281,17 +282,17 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
         const job = await h.command('job.create', { quoteId: signing.id })
         expect(job.lines.map((line: any) => line.description)).toEqual(['Better cooling work', 'Washable filter'])
         expect(job.totals.total).toBe('235.00')
-        await h.restart()
+        await restartHarness(h)
         received = responseFrom(recipient, 'GET')
-        await recipient.reload()
+        await reloadHarness(recipient)
         expect((await (await received).json()).decision).toBe('accepted')
         absent({ cookies: await forwarded.cookies(), storage: await recipient.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } })) }, tokens, 'forwarded browser storage')
       } finally {
-        await recipient.unrouteAll({ behavior: 'wait' })
-        await forwarded.close()
+        await unrouteHarness(recipient)
+        await closeHarnessContext(forwarded)
       }
       received = responseFrom(page, 'GET')
-      await page.reload()
+      await reloadHarness(page)
       expect((await (await received).json()).state).toBe('superseded')
       await expect(page.getByRole('status')).toContainText('A newer revision was sent')
       await expect(page.getByRole('button', { name: /Sign and approve|Request changes|Decline quote/ })).toHaveCount(0)
@@ -323,8 +324,8 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       absent({ state: await h.state(), activity: await (await h.request('/api/glove/activity')).json(), exported: await (await h.request('/api/glove/export')).json() }, tokens, 'final state, Activity and business export')
       absent({ cookies: await context.cookies(), storage: await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } })) }, tokens, 'browser cookies and persistent storage')
     } finally {
-      await page.unrouteAll({ behavior: 'wait' })
-      await context.close()
+      await unrouteHarness(page)
+      await closeHarnessContext(context)
       await h.close()
     }
   }
