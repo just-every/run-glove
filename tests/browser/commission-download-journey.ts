@@ -1,7 +1,8 @@
 import { expect, type Browser } from '@playwright/test'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { deskPage, phoneScreen, origin } from './desk-fixture'
+import { phoneScreen, origin } from './desk-fixture'
+import { nativeTransport } from './native-transport'
 
 /** TEAM-006: Owner downloads real attachments from Timesheets at both widths. */
 export async function commissionDownloads(browser: Browser) {
@@ -10,6 +11,7 @@ export async function commissionDownloads(browser: Browser) {
   // @ts-expect-error Native commands and independent commission expectations.
   const { commissionFixture } = await import('../fixtures/payroll-commissions.mjs')
   const h = await commissionInstallation()
+  const transport = await nativeTransport(h, origin)
   try {
     const f = await commissionFixture(h)
     await f.sold('2026-11-04', f.priya, '1234.50', '5%', '61.73')
@@ -37,13 +39,21 @@ export async function commissionDownloads(browser: Browser) {
     }
     const original: Record<string, string> = {}
     for (const width of [1440, 390]) {
-      const { context, page } = await deskPage(browser, h, width)
+      const context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
       try {
+        if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+        try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+        if (new URL(page.url()).pathname === '/setup') {
+          await page.getByRole('checkbox').check()
+          await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+          await page.waitForURL(u => u.pathname === '/app')
+        }
         await page.clock.setFixedTime(new Date('2026-11-23T02:00:00Z'))
-        await page.goto(`${origin}/app#reports`)
+        await page.goto(`${transport.origin}/app#reports`)
+        await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
         const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
         await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
-        await expect(sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true }).getByText('approved', { exact: true })).toBeVisible()
+        await expect(sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true }).getByText('Approved', { exact: true })).toBeVisible()
         const commissions = sheets.getByLabel('Commissions this week', { exact: true })
         await expect(commissions).toContainText('$111.74')
         await expect(commissions).toContainText('$35.01')
@@ -53,7 +63,7 @@ export async function commissionDownloads(browser: Browser) {
           const pending = page.waitForEvent('download')
           await sheets.getByRole('link', { name: label, exact: true }).click()
           const download = await pending
-          expect(await download.failure()).toBeNull()
+          expect(await download.failure(), `${kind} at ${width}`).toBeNull()
           const path = await download.path()
           expect(path).toBeTruthy()
           const text = await readFile(path!, 'utf8')
@@ -70,9 +80,9 @@ export async function commissionDownloads(browser: Browser) {
           }
         }
         await phoneScreen(page, width, 'commission-downloads', sheets.getByRole('link', { name: 'Gusto hours CSV', exact: true }))
-      } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+      } finally { await context.close() }
       // No browser request remains in flight across the actual Worker restart.
-      if (width === 1440) await h.restart()
+      if (width === 1440) { await transport.idle(); await h.restart() }
     }
-  } finally { await h.close() }
+  } finally { try { await transport.close() } finally { await h.close() } }
 }

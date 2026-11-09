@@ -1,6 +1,7 @@
 import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import { nativeTransport } from './native-transport'
 // @ts-expect-error Production Worker, durable D1 and native signed-in people.
 import { installation, business, completedJob } from '../api/harness.mjs'
 
@@ -208,6 +209,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
 async function messageOutcomes(browser: Browser) {
   const h = await installation({ at: '2026-11-09T12:00:00.000Z' })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  let transport: Awaited<ReturnType<typeof nativeTransport>> | undefined
   const address = (name: string) => [name, 'example.test'].join('@')
   try {
     const b = await business(h, { timezone: 'UTC' })
@@ -245,15 +247,11 @@ async function messageOutcomes(browser: Browser) {
       await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
     }
-    await page.route(`${origin}/api/glove/**`, async route => {
-      const req = route.request(), url = new URL(req.url())
-      const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
-      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
-    })
+    transport = await nativeTransport(h, origin, b.office.cookie)
     const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })
     const warning = panel.getByRole('alert')
     async function customerPage() {
-      await page.goto(`${origin}/app#customers`)
+      await page.goto(`${transport!.origin}/app#customers`)
       await page.getByRole('button', { name: customer.name, exact: true }).click()
       await expect(panel).toBeVisible()
     }
@@ -263,7 +261,7 @@ async function messageOutcomes(browser: Browser) {
     await expect(conversation).toContainText(`Delivered to ${customer.email}'s mail server (reported by Postmark)`)
     await expect(conversation).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
     await screens(page, 'address-bounce', panel)
-    await page.goto(`${origin}/app#invoices`)
+    await page.goto(`${transport!.origin}/app#invoices`)
     await page.getByRole('button', { name: invoice.number, exact: true }).click()
     const email = page.getByRole('region', { name: `Email ${invoice.number}`, exact: true })
     await expect(email).toContainText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark)`)
@@ -273,6 +271,8 @@ async function messageOutcomes(browser: Browser) {
     await expect(email).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
     await expect(email).toContainText('Check the address and send again.')
     await screens(page, 'message-failures', email)
+    await page.goto('about:blank')
+    await transport.idle()
     await h.restart()
     await customerPage()
     await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
@@ -299,6 +299,7 @@ async function messageOutcomes(browser: Browser) {
     expect((await h.state()).customers.find((c: { id: string }) => c.id === customer.id).apEmail).toBe(address('synthetic-glove-new-ap'))
   } finally {
     await page.unrouteAll({ behavior: 'wait' })
-    await context.close(); await h.close()
+    await context.close()
+    try { await transport?.close() } finally { await h.close() }
   }
 }
