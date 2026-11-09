@@ -2324,7 +2324,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "20d17576c5f39be6a8aa5c083abeee9b284c3740be25ce049f06341fcacbe34b",
+      "sha256": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
       "executable": false
     },
     "src/glove/progress-invoices.ts": {
@@ -5712,7 +5712,7 @@
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
-      "sha256": "db37d48fec44974ce158afd1f8ec461fdce7fbb5a307287493c697c73bcae546",
+      "sha256": "146d7b478fb2397bf055a1fd9389e613c614472539197fc5e0a44bd8125b62cb",
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
@@ -5932,7 +5932,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "3587282ede26658046e114b027529ecd9b80b5b8790cdd303f6f58a8dc4fd536",
+      "sha256": "3c0f21c5f5119961abc802048e63c33e9c9ef72a46f7f8aaae7c537ec0a4ae83",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -6056,7 +6056,7 @@
       "executable": false
     },
     "tests/fixtures/edition-archive-policy.mjs": {
-      "sha256": "ae363d643591a0b3a418cc9dc61a684552c468c3d53d6e39366ad6d1199b9f95",
+      "sha256": "89bed392f5f20560165c3cf0031623e56eddd9b2e9d1bea8fc8bd9f34cbdf3c4",
       "executable": false
     },
     "tests/fixtures/fieldpulse-movein/comments.json": {
@@ -6212,7 +6212,7 @@
       "executable": false
     },
     "tests/fixtures/privacy-data.mjs": {
-      "sha256": "b2ed9dcfb155208623f840ac8e19b4609657479524b06766fa163b480e3aea37",
+      "sha256": "a7d39ac4067793c4f12c96a171e73944a819a58cd30393231be5d1c6fad7459d",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
