@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -19,8 +19,7 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     catch { throw new Error('Owner entry failed; obtain a fresh entry privately.') }
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
-      await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(u => u.pathname === '/app')
+      await finishHarnessSetup(page)
     }
     const b = await business(h)
     const job = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Morning arrival promise' })

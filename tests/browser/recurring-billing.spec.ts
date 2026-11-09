@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -38,7 +38,7 @@ test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future
       await page.clock.install({ time: new Date('2025-10-01T15:00:00Z') })
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(url => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(url => url.pathname === '/app') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const request = route.request(), url = new URL(request.url())
         const response = await h.request(url.pathname + url.search, { method: request.method(), ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })

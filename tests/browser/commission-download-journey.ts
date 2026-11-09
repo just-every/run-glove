@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, restartHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, restartHarness } from './harness-route'
 import { expect, type Browser } from '@playwright/test'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -46,8 +46,7 @@ export async function commissionDownloads(browser: Browser) {
         try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
         if (new URL(page.url()).pathname === '/setup') {
           await page.getByRole('checkbox').check()
-          await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-          await page.waitForURL(u => u.pathname === '/app')
+          await finishHarnessSetup(page)
         }
         await page.clock.setFixedTime(new Date('2026-11-23T02:00:00Z'))
         const records = page.waitForResponse(r => r.url() === `${transport.origin}/api/glove/state` && r.status() === 200)

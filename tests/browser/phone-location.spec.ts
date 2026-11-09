@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -14,8 +14,7 @@ async function open(browser: any, width: number) {
   await page.waitForURL((url: URL) => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev'))
   if (new URL(page.url()).pathname === '/setup') {
     await page.getByRole('checkbox').check()
-    await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-    await page.waitForURL((url: URL) => url.pathname === '/app')
+    await finishHarnessSetup(page)
   }
   return { context, page }
 }

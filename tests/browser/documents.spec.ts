@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 // @ts-expect-error Deterministic synthetic image originals.
 import { documentPhoto, documentLogo, documentSignature } from '../fixtures/document-images.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
@@ -74,7 +74,7 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     await gotoHarness(page, process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
     await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url()), publicDoor = url.pathname.startsWith('/api/glove/public/')
       const response = await h.request(url.pathname + url.search, { method: req.method(), as: publicDoor ? '' : h.owner(), headers: publicDoor ? { authorization: req.headers().authorization ?? '' } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })

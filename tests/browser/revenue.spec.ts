@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -12,7 +12,7 @@ export async function correctionRevenue(browser: import('@playwright/test').Brow
     const { b, invoice, correctionLines } = await revenueCorrection(h)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
     // Use the established native-session harness for every API request, with no report response fake.
     await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
@@ -115,8 +115,7 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+        await finishHarnessSetup(page)
       }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
@@ -162,8 +161,7 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
-      await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(u => u.pathname === '/app')
+      await finishHarnessSetup(page)
     }
     await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())

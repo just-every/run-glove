@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -16,7 +16,7 @@ test('REPORT-003 owner reads every aging bucket and follows the exact open invoi
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
         const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -66,7 +66,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH retu
     expect((await paymentEvent(h, intent, 'payment_intent.processing')).status).toBe(200)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -153,7 +153,7 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refu
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York', paymentTermsDays: 0 }); await connectPayments(h)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       // Read the brief tomorrow to prove a real past-due invoice without editing storage.
@@ -246,7 +246,7 @@ test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the v
     h.stripePayments.transactions.set(payoutId, { data: tx, has_more: false })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url()), response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })

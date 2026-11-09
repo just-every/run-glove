@@ -112,3 +112,11 @@ export async function reloadHarness(page: Page, ...args: Parameters<Page['reload
   if (!response || response.status() < 400) await initialReadReady(page)
   return response
 }
+
+// Setup's submit action and its resulting document navigation have distinct
+// existing deadlines. Do not charge a cold app document to the action timeout.
+export async function finishHarnessSetup(page: Page, options: Parameters<ReturnType<Page['getByRole']>['click']>[0] = {}) {
+  await page.getByRole('button', { name: 'Finish setup', exact: true }).click({ ...options, noWaitAfter: true })
+  await page.waitForURL(url => url.pathname === '/app')
+  await initialReadReady(page)
+}

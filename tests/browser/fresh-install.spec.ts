@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, reloadHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, reloadHarness } from './harness-route'
 import { test, expect, type Browser, type BrowserContext, type Locator, type Page } from '@playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -61,8 +61,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await owner.waitForURL(url => ['/setup', '/app'].includes(url.pathname) && !url.hash.includes('rer-dev'))
     if (new URL(owner.url()).pathname === '/setup') {
       await owner.getByRole('checkbox').check()
-      await owner.getByRole('button', { name: 'Finish setup', exact: true }).click({ timeout: 60_000 })
-      await owner.waitForURL(url => url.pathname === '/app')
+      await finishHarnessSetup(owner, { timeout: 60_000 })
     }
     const initial = await state(owner)
     expect(initial.business).toEqual([])

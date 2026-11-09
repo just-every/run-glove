@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -80,8 +80,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') {
-      await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(u => u.pathname === '/app')
+      await page.getByRole('checkbox').check(); await finishHarnessSetup(page)
     }
     // The UI uses the real Worker and signed-in desk session. Delay a read only
     // to inspect the ordinary pending state; never fabricate a domain answer.
@@ -287,8 +286,7 @@ async function messageOutcomes(browser: Browser) {
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') {
-      await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(u => u.pathname === '/app')
+      await page.getByRole('checkbox').check(); await finishHarnessSetup(page)
     }
     transport = await nativeTransport(h, origin, b.office.cookie)
     const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })

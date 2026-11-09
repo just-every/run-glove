@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { readFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -51,7 +51,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       if (!process.env.GLOVE_OPEN) throw new Error('A private owner entry from rer dev is required.')
       try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
       catch { throw new Error('Owner entry failed; obtain a fresh entry privately.') }
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
       await productionApi(page, h)
       await gotoHarness(page, `${origin}/app#team`)
       const connect = page.getByRole('heading', { name: 'CompanyCam', exact: true }).locator('..')

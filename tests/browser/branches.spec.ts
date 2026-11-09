@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
 // @ts-expect-error Named scenarios add no test registrations.
 import { scenario } from '../fixtures/scenario.mjs'
 // @ts-expect-error Independent CSV assertions shared with the API journey.
@@ -72,7 +72,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
       // Only the transport is forwarded: all data and role decisions come from production handlers.
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())

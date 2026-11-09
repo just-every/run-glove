@@ -1,4 +1,4 @@
-import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, type HarnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness, type HarnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
@@ -207,8 +207,7 @@ test('MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1
     if (new URL(page.url()).pathname === '/setup') {
       await shot(page, width, 'setup')
       await page.getByRole('checkbox').check()
-      await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(url => url.pathname === '/app')
+      await finishHarnessSetup(page)
     }
     const key = new URLSearchParams(new URL(entry).hash.slice(1)).get('rer-dev')
     await page.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
@@ -885,8 +884,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+        await finishHarnessSetup(page)
       }
       const serve = async (route: HarnessRoute) => {
         const req = route.request(), url = new URL(req.url())
@@ -1086,8 +1084,7 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+        await finishHarnessSetup(page)
       }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
@@ -1125,7 +1122,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
       await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -1194,7 +1191,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
       await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         const reply = (async () => {
           const req = route.request(), url = new URL(req.url())
@@ -1278,8 +1275,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+        await finishHarnessSetup(page)
       }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
