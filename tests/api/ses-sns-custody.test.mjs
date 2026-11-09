@@ -40,12 +40,15 @@ async function snapshot(h) {
   return JSON.stringify(await Promise.all(tables.map(async ({ name }) => [name, (await h.db.prepare(`SELECT * FROM ${name}`).all()).results.map(row => JSON.stringify(row)).sort()])))
 }
 async function refused(f, input, { noFetch = false } = {}) {
-  const before = await snapshot(f.h), fetches = f.h.email.fetches.length
+  const before = await snapshot(f.h), fetches = f.h.email.fetches.length, outbound = f.h.outbound.attempts
   const response = await f.post(input)
   assert.equal(response.status, 401, await response.clone().text())
   assert.equal((await response.json()).error.code, 'MAIL_EVENT')
   assert.equal(await snapshot(f.h), before, 'refusal changes no business data, outcome, receipt, verification time or timeline fact')
-  if (noFetch) assert.equal(f.h.email.fetches.length, fetches, 'refusal makes no certificate or subscription request')
+  if (noFetch) {
+    assert.equal(f.h.email.fetches.length, fetches, 'refusal makes no certificate or subscription request')
+    assert.equal(f.h.outbound.attempts, outbound, 'refusal makes no outbound request, including an unexpected host or protocol')
+  }
 }
 async function accepted(f, input) {
   const response = await f.post(input)
@@ -59,10 +62,10 @@ test('COMM-017 point 1: owner pins reject malformed sources and reconnect withdr
   const f = await fixture(t), { h, now, send, signed } = f
   const m = await send(), payload = outcome(m, iso(now))
   for (const change of [{ region: 'us-east-1.evil' }, { region: 'https://us-east-1' }, { topicArn: pins.topicArn.replace('us-east-1', 'us-west-2') }, { topicArn: 'not-an-arn' }, { configurationSet: 'bad set' }, { configurationSet: ['bad', 'set'].join('/') }]) {
-    const before = await h.state(), requests = h.email.fetches.length
+    const before = await h.state(), requests = h.outbound.attempts
     await h.command('mail.connect', connection({ ...pins, ...change }), { error: 'INPUT' })
     assert.deepEqual(await h.state(), before)
-    assert.equal(h.email.fetches.length, requests)
+    assert.equal(h.outbound.attempts, requests)
   }
   await refused(f, signed(payload, { TopicArn: pins.topicArn + '-other' }), { noFetch: true })
   await refused(f, signed(payload, { SigningCertURL: f.signer.certUrl.replace('us-east-1', 'us-west-2') }), { noFetch: true })
