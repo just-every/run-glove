@@ -1,4 +1,4 @@
-import test from 'node:test'
+import { scenario } from '../fixtures/scenario.mjs'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
@@ -20,7 +20,8 @@ async function photos(h) {
   return { b, job, visit, latest, payload, run, capture }
 }
 
-test('API-008 minimal photo disclosure retains confirmed provider outcomes across replay and Worker restart', async t => {
+export async function companycamExportJourneys(t) {
+await scenario(t, 'API-008 minimal photo disclosure retains confirmed provider outcomes across replay and Worker restart', async t => {
   const h = await installation(); t.after(() => h.close())
   const f = await photos(h), photo = await f.capture('Coil after service', '')
   h.companycam.beforeUpload = async () => {
@@ -61,13 +62,13 @@ test('API-008 minimal photo disclosure retains confirmed provider outcomes acros
   assert.ok(!JSON.stringify(exported).includes('synthetic-glove-801'))
 })
 
-test('API-008 current authority and snapshot guard refuse unsafe sends and concurrent sends reserve one upload', async t => {
+await scenario(t, 'API-008 current authority and snapshot guard refuse unsafe sends and concurrent sends reserve one upload', async t => {
   // Pause scheduling immediately before the real reservation batch; no guard,
   // command result or D1 answer is replaced by this test-only barrier.
   const h = await installation({ workerPlugins: [{ name: 'companycam-reservation-barrier', setup(build) {
     build.onLoad({ filter: /\/companycam\/uploads\.ts$/ }, async args => {
       const source = await readFile(args.path, 'utf8')
-      return { contents: source.replace('const id = newId(), a = authority(c.actor)', "await fetch('https://worker-checkpoint.example.test/qbo-complete')\n  const id = newId(), a = authority(c.actor)"), loader: 'ts', resolveDir: dirname(args.path) }
+      return { contents: source.replace('const id = newId(), a = authority(c.actor)', "await fetch('https://worker-checkpoint.example.test/companycam-reserve')\n  const id = newId(), a = authority(c.actor)"), loader: 'ts', resolveDir: dirname(args.path) }
     })
   } }] }); t.after(() => h.close())
   const f = await photos(h), photo = await f.capture('Authority photo')
@@ -89,7 +90,7 @@ test('API-008 current authority and snapshot guard refuse unsafe sends and concu
     const actor = await h.person(`Synthetic Photo ${change}`, 'dispatcher')
     let arrived, release
     const waiting = new Promise(r => { arrived = r }), resume = new Promise(r => { release = r })
-    h.checkpoints.qboComplete = async () => { arrived(); await resume }
+    h.checkpoints.companycamReserve = async () => { arrived(); await resume }
     const pending = h.request('/api/glove/commands', { method: 'POST', as: actor.cookie, body: { commandId: crypto.randomUUID(), type: 'companycam.send', payload: await f.payload({ captureId: photo.id }) } })
     await waiting
     if (change === 'role') await h.command('role.set', { operatorId: actor.id, role: 'viewer' })
@@ -97,7 +98,7 @@ test('API-008 current authority and snapshot guard refuse unsafe sends and concu
     else await h.command('customer.save', { name: 'Concurrent state change' })
     release(); const response = await pending, body = await response.json()
     assert.equal(body.ok, false, change); assert.equal(posts(h).length, 0); assert.deepEqual(await reservations(h), [])
-    h.checkpoints.qboComplete = null
+    h.checkpoints.companycamReserve = null
   }
   let arrived, release
   const waiting = new Promise(r => { arrived = r }), resume = new Promise(r => { release = r })
@@ -117,9 +118,22 @@ test('API-008 current authority and snapshot guard refuse unsafe sends and concu
   await h.command('token.revoke', { tokenId: allowed.id })
   assert.equal((await tokenCall(allowed.token, 'companycam.send', { captureId: another.id })).error.code, 'AUTH')
   assert.deepEqual(await reservations(h), kept); assert.equal(posts(h).length, n)
+  const sender = await h.person('Synthetic Caption Dispatcher', 'dispatcher')
+  const interrupted = await f.capture('Authority withdrawn before caption')
+  h.companycam.afterUpload = async () => { await h.command('role.set', { operatorId: sender.id, role: 'viewer' }) }
+  const response = await h.request('/api/glove/commands', { method: 'POST', as: sender.cookie, body: { commandId: crypto.randomUUID(), type: 'companycam.send', payload: await f.payload({ captureId: interrupted.id }) } })
+  assert.equal((await response.json()).ok, false, 'withdrawn sender cannot commit the later command outcome')
+  const interruptedRow = (await reservations(h)).find(r => r.capture_id === interrupted.id)
+  assert.equal(interruptedRow.phase, 'unknown'); assert.equal(interruptedRow.caption_state, 'outcome unknown')
+  assert.ok(interruptedRow.remote_id)
+  assert.equal(posts(h).filter(c => c.path === `/photos/${interruptedRow.remote_id}/descriptions`).length, 0, 'authority is rechecked before caption disclosure')
+  h.companycam.afterUpload = null
+  const postCount = posts(h).length
+  assert.equal((await f.run('companycam.send', { captureId: interrupted.id })).phase, 'unknown')
+  assert.equal(posts(h).length, postCount)
 })
 
-test('API-008 unknown uploads and captions never resend; Owner reconciliation verifies original bytes and pull holds uncertain duplicates', async t => {
+await scenario(t, 'API-008 unknown uploads and captions never resend; Owner reconciliation verifies original bytes and pull holds uncertain duplicates', async t => {
   const h = await installation(); t.after(() => h.close())
   const f = await photos(h)
   for (const failure of ['loseUploadResponse', 'refuseCaption', 'loseCaptionResponse']) {
@@ -150,6 +164,13 @@ test('API-008 unknown uploads and captions never resend; Owner reconciliation ve
     assert.equal(pull.errors.length, 1); assert.equal(pull.errors[0].photoId, remoteId)
     assert.match(pull.errors[0].message, /unknown outcome.*Reconcile/)
     assert.deepEqual((await f.latest()).companycam.lastPull, pull)
+    const importedEvent = (await h.state()).events.find(e => e.kind === 'companycam.imported' && e.summary.includes('2 photos'))
+    const importActivity = await h.request('/api/glove/activity').then(r => r.json())
+    const importTimeline = await h.request(`/api/glove/jobs/${f.job.id}/timeline`).then(r => r.json())
+    const importExport = await h.request('/api/glove/export').then(r => r.json())
+    assert.ok(importActivity.events.some(e => e.id === importedEvent.id))
+    assert.ok(importTimeline.events.some(e => e.id === importedEvent.id))
+    assert.deepEqual(JSON.parse(importExport.timeline.find(e => e.id === importedEvent.id).data).imported, ['9001', '9003'])
     for (const [photoId, code] of [['9002', 'COMPANYCAM_PHOTO'], ['9003', 'COMPANYCAM_PHOTO']]) {
       await f.run('companycam.reconcile', { captureId: photo.id, photoId }, { error: code })
       assert.deepEqual(await reservations(h), before)
@@ -168,3 +189,4 @@ test('API-008 unknown uploads and captions never resend; Owner reconciliation ve
     assert.equal(JSON.parse(exported.timeline.find(x => x.id === e.id).data).photoId, remoteId)
   }
 })
+}

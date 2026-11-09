@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import { calendarDate } from '../fixtures/calendar.mjs'
 import { connectMail, receipt, textOf, deliveryIdOf } from '../fixtures/mail-providers.mjs'
 // PLAN-002 maintenance agreements through the command, agreements, dashboard,
@@ -74,7 +75,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   }
   let agreement, ended, tuneJob, tuneEvidence, repairQuote, repairJob
 
-  await t.test('PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term', async () => {
+  await scenario(t, 'PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term', async () => {
     const before = await records()
     for (const who of [dispatcher, office, ...excluded]) await who.run('plan.save', club, { error: 'FORBIDDEN' })
     assert.deepEqual(await records(), before, 'excluded plan writers change no business record')
@@ -96,7 +97,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.equal((await h.request(`/api/glove/sites/${site.id}/history`, { as: person.cookie })).status, 404, 'a technician with no visit there reads no history')
   })
 
-  await t.test('PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits', async () => {
+  await scenario(t, 'PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits', async () => {
     const job = await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Spring tune-up' })
     assert.deepEqual([job.agreementId, job.lines.map(l => [l.description, l.total]), job.totals.total, job.forms.map(f => f.name)], [agreement.id, [['AC tune-up (included in Comfort Club)', '0.00']], '0.00', ['Comfort Club inspection']])
     tuneJob = job
@@ -117,7 +118,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual([dash.agreementsDue.count, dash.agreementsDue.list.map(x => [x.customer, x.plan, x.left])], [1, [['Ellen Brooks', 'Comfort Club', 1]]], 'the agreement counts while its second tune-up is due')
   })
 
-  await t.test('PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue', async () => {
+  await scenario(t, 'PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue', async () => {
     const q = repairQuote = await dispatcher.run('quote.draft', { customerId: ellen.id, siteId: site.id, title: 'Condenser repair', lines: repair })
     const totals = q.revisions[0].totals
     assert.deepEqual([q.revisions[0].options[0].discount, totals.subtotal, totals.discount.amount, totals.discount.nonTaxable, totals.gst, totals.total], [{ kind: 'percent', value: '15', reason: 'Comfort Club member' }, '700.00', '105.00', '105.00', '33.00', '628.00'], 'the dispatcher holds no discount limit, and the member discount is not refused')
@@ -150,7 +151,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual([call.discount?.reason, call.totals.discount?.amount], ['Comfort Club member', '13.35'], 'a member\'s service call takes the discount too')
   })
 
-  await t.test('PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out', async () => {
+  await scenario(t, 'PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out', async () => {
     const period = `from=${start}&to=${today}`
     const r = await read(`/api/glove/reports/agreements.json?${period}`)
     assert.deepEqual([r.sold, r.active, r.churn, r.soldValue, r.byPlan], [1, 1, 0, '228.00', [{ plan: 'Comfort Club', sold: 1 }]])

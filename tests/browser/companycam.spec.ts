@@ -141,8 +141,9 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       const refusedReconciliation = await send(page, next.getByRole('button', { name: 'Reconcile existing photo', exact: true }), false)
       expect(refusedReconciliation.error.code).toBe('COMPANYCAM_PHOTO')
       await expect(next).toContainText('outcome unknown; check CompanyCam')
-      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await panel.scrollIntoViewIfNeeded(); await shot(page, width, 'unknown') }
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await next.evaluate(element => element.scrollIntoView({ block: 'center' })); await shot(page, width, 'unknown') }
       h.companycam.loseUploadResponse = false
+      await page.setViewportSize({ width: 1440, height: 1050 })
       await next.getByLabel('Existing CompanyCam photo ID', { exact: true }).fill(String(h.companycam.nextId))
       await send(page, next.getByRole('button', { name: 'Reconcile existing photo', exact: true }))
       await expect(next).toContainText('confirmed by owner')
@@ -157,7 +158,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       expect(h.companycam.calls.filter((c: any) => c.method === 'POST' && c.path === '/projects/42/photos')).toHaveLength(2)
       expect(s.captures.some((c: any) => c.id === first.id)).toBe(true)
       expect(s.captures.some((c: any) => c.id === second.id)).toBe(true)
-      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await panel.scrollIntoViewIfNeeded(); await shot(page, width, 'confirmed'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true) }
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await next.evaluate(element => element.scrollIntoView({ block: 'center' })); await shot(page, width, 'confirmed'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true) }
       // DATA-002: provider outcomes and older records remain readable in Activity.
       const reference = (await h.state()).events.find((e: any) => e.kind === 'companycam.uploadOutcome' && e.summary.includes('complete'))
       expect(reference.actorName).toBe('CompanyCam')

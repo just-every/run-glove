@@ -45,7 +45,7 @@ globalThis.fetch = async (input, options) => {
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
   const fleet = { calls: [], status: 200, data: [], beforeReply: null, unreachable: false }
   const xero = xeroEdge()
-  const checkpoints = { qboComplete: null }
+  const checkpoints = { qboComplete: null, companycamReserve: null }
   const calendarSync = calendarEdge()
   const companycam = companycamEdge(), quickbooks = quickbooksEdge()
   // Google Maps fake (DISP-002): places the test registers, drives timed from distance, a plain base map.
@@ -74,6 +74,10 @@ globalThis.fetch = async (input, options) => {
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
         outbound.attempts++
+        if (request.url === 'https://worker-checkpoint.example.test/companycam-reserve') {
+          await checkpoints.companycamReserve?.()
+          return new Response(null, { status: 204 })
+        }
         if (request.url === 'https://worker-checkpoint.example.test/qbo-complete') {
           await checkpoints.qboComplete?.()
           return new Response(null, { status: 204 })

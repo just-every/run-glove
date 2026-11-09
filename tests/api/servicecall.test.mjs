@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // BOOK-005 service calls booked without a quote (by the dispatcher or the office), through the command, state,
 // timeline and export doors: a phoned-in request becomes a job with a
 // diagnostic fee, the technician adds approved work on site, and the invoice
@@ -7,6 +8,7 @@ import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, id } from './harness.mjs'
 
 test('BOOK-005 desk creation retains request linkage, exact lines and frozen service checklists and forms under current authority', async t => {
+  await scenario(t, 'BOOK-005 desk creation retains request linkage, exact lines and frozen service checklists and forms under current authority', async t => {
   const at = '2026-10-21T12:00:00.000Z'
   const h = await installation({ at }); t.after(() => h.close())
   const b = await business(h)
@@ -182,8 +184,7 @@ test('BOOK-005 desk creation retains request linkage, exact lines and frozen ser
   assert.ok(anonymous.erasedAt)
   for (const value of ['Private heater request', 'Private heater work', 'Private access instructions']) assert.ok(!JSON.stringify(erased).includes(value))
 })
-
-test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a flat-rate valve and 1.5 hours added on site, invoiced exactly', async (t) => {
+  await scenario(t, 'BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a flat-rate valve and 1.5 hours added on site, invoiced exactly', async (t) => {
   const h = await installation({ at: '2026-10-21T12:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
@@ -263,4 +264,5 @@ test('BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a fl
   assert.equal(approved.revisions[0].approval.id, b.office.id)
   await b.office.run('invoice.export', {})
   assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'invoiced')
+})
 })

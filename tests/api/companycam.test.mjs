@@ -1,4 +1,5 @@
 import test from 'node:test'
+import { companycamExportJourneys } from './companycam-export.test.mjs'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { companycamImportMatrix } from '../fixtures/companycam.mjs'
@@ -115,4 +116,5 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos 
   await h.command('companycam.connect', { key: null })
   await run('companycam.pull', {}, { error: 'COMPANYCAM' })
   await assertTrail(h, ['companycam.configured', 'companycam.linked', 'companycam.imported', 'companycam.uploadOutcome', 'companycam.export', 'companycam.disconnected'])
+  await companycamExportJourneys(t)
 })
