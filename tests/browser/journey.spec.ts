@@ -1059,9 +1059,9 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await expect(row.getByText('Original from the phone: 8:40 AM – 8:50 AM', { exact: true })).toBeVisible()
       await expect(page.getByText('Travel 15 min · On the job 3 min', { exact: true })).toBeVisible()
       await proof('time-corrected')
-      await commissionDownloads(browser)
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
+  await commissionDownloads(browser)
 })
 
 

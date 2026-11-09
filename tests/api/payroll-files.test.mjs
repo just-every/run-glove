@@ -243,7 +243,12 @@ test('COST-007 payroll files qualify provider rows, approved workweeks, privacy 
       })
 
       await scenario(t, 'TEAM-006 point 2: every provider row matches two technicians over three workweeks with both ADP commission codes', async () => {
-        for (const kind of commissionKinds) assertRows(await read(kind), commissionRows()[kind])
+        for (const kind of commissionKinds) {
+          const text = await read(kind), expected = commissionRows()[kind], parsed = rows(text)
+          assert.deepEqual(parsed[0], expected[0], 'the provider header precedes the employee rows')
+          if (kind === 'adp-run') assert.deepEqual(parsed[1], expected[1], 'ADP titles follow its version row')
+          assertRows(text, expected)
+        }
         await h.command('payroll.settings', { adp: { companyCode: 'GLOVE23', payFrequency: 'B', commission: 'SALESOWN' } })
         for (const kind of commissionKinds) assertRows(await read(kind), commissionRows('SALESOWN')[kind])
       })
