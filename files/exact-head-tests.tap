@@ -6,14 +6,14 @@ TAP version 13
 # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
 ok 1 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
   ---
-  duration_ms: 8109.119937
+  duration_ms: 7991.762008
   type: 'test'
   ...
 # Customer email callback rejected
 # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
 ok 2 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
   ---
-  duration_ms: 6749.527649
+  duration_ms: 6877.102086
   type: 'test'
   ...
 # Customer email callback rejected
@@ -48,7 +48,7 @@ ok 2 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COM
 # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
 ok 3 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
   ---
-  duration_ms: 13790.299834
+  duration_ms: 15065.92663
   type: 'test'
   ...
 # Customer email callback rejected
@@ -64,7 +64,7 @@ ok 3 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COM
 # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
 ok 4 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
   ---
-  duration_ms: 6937.139647
+  duration_ms: 6981.704685
   type: 'test'
   ...
 # Customer email callback rejected
@@ -72,7 +72,7 @@ ok 4 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COM
 # Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
 ok 5 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
   ---
-  duration_ms: 3185.979258
+  duration_ms: 3337.435311
   type: 'test'
   ...
 # Customer email callback rejected
@@ -98,56 +98,56 @@ ok 5 - COMM-016 Postmark outcomes retain exact message states and attributable f
 # Subtest: COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
 ok 6 - COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
   ---
-  duration_ms: 10250.759055
+  duration_ms: 10838.893359
   type: 'test'
   ...
 # [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
 # Subtest: COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
 ok 7 - COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
   ---
-  duration_ms: 5213.704266
+  duration_ms: 4796.50308
   type: 'test'
   ...
 # Subtest: COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
 ok 8 - COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
   ---
-  duration_ms: 8975.416454
+  duration_ms: 7183.742883
   type: 'test'
   ...
 # Subtest: COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
 ok 9 - COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
   ---
-  duration_ms: 2936.570703
+  duration_ms: 3035.95557
   type: 'test'
   ...
 # Subtest: COMM-017 point 4: signed configuration and delivery tags bind every SES send
 ok 10 - COMM-017 point 4: signed configuration and delivery tags bind every SES send
   ---
-  duration_ms: 4386.560536
+  duration_ms: 4580.344175
   type: 'test'
   ...
 # Subtest: COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
 ok 11 - COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
   ---
-  duration_ms: 3066.831605
+  duration_ms: 3028.281552
   type: 'test'
   ...
 # Subtest: COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
 ok 12 - COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
   ---
-  duration_ms: 7941.872131
+  duration_ms: 8280.633974
   type: 'test'
   ...
 # Subtest: COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
 ok 13 - COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
   ---
-  duration_ms: 2326.866456
+  duration_ms: 2389.468864
   type: 'test'
   ...
 # Subtest: COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
 ok 14 - COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
   ---
-  duration_ms: 3264.040324
+  duration_ms: 3440.390321
   type: 'test'
   ...
 1..14
@@ -158,4 +158,4 @@ ok 14 - COMM-017 point 8: every SES outcome retains exact state and secret-free 
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 89266.824048
+# duration_ms 89874.974562

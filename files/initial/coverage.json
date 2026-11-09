@@ -1,0 +1,54 @@
+{
+  "head": "997594dfed81b4bdabb561e92d83e20cb245646f",
+  "base": "391f23c6036b67f351e2769e82c45e0526b96abe",
+  "tests": [
+    {
+      "point": 1,
+      "name": "COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 58
+    },
+    {
+      "point": 2,
+      "name": "COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 84
+    },
+    {
+      "point": 3,
+      "name": "COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 129
+    },
+    {
+      "point": 4,
+      "name": "COMM-017 point 4: signed configuration and delivery tags bind every SES send",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 140
+    },
+    {
+      "point": 5,
+      "name": "COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 164
+    },
+    {
+      "point": 6,
+      "name": "COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 185
+    },
+    {
+      "point": 7,
+      "name": "COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 219
+    },
+    {
+      "point": 8,
+      "name": "COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart",
+      "path": "tests/api/ses-sns-custody.test.mjs",
+      "line": 238
+    }
+  ]
+}

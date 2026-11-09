@@ -21,8 +21,8 @@
       "exit": 0,
       "failed": 0,
       "file": "exact-head-tests.tap",
-      "output_bytes": 7730,
-      "output_sha256": "0058dba5799b12e9ead5e82c72ec174c13732d4f00d443256286ca9ef6af9dc8",
+      "output_bytes": 7727,
+      "output_sha256": "da8145bba25daf62720862505a811bfe4f1073cef1ab73404bf3a9a93e1875d3",
       "passed": 14,
       "tests": 14
     },
@@ -31,8 +31,8 @@
       "exit": 0,
       "failed": 0,
       "file": "erasure-regression.tap",
-      "output_bytes": 673,
-      "output_sha256": "5c14901b347cc0bf14d4dc7018f5b053ff9af0b848faa522212ac91147235474",
+      "output_bytes": 674,
+      "output_sha256": "d0b55aaffce64b44cfcb1c7bf33df37f79dd58cf1a3ef5643bb819b73669a71f",
       "passed": 1,
       "tests": 1
     },
@@ -69,14 +69,14 @@
       "exit": 0,
       "file": "lock-write.json",
       "output_bytes": 261367,
-      "output_sha256": "9c1e00aae01d30fd824ed421b89f1ca16aad38f57e592fd7f22726439a9f5005"
+      "output_sha256": "8c66eaad53847cbbdab4c30c3f33c59a4ca07f7cb52df9d0dba3828dd8c6645d"
     },
     {
       "command": "node scripts/edition-authoring/cli.mjs check",
       "exit": 0,
       "file": "exact-head-lock-check.json",
       "output_bytes": 261381,
-      "output_sha256": "270efa01ccfef1a3beb58bbe952efb590859603997347f0dfb20dbea69601abc"
+      "output_sha256": "d31be1bdde2d81f914d4d43dfc8b34649b5f98a619ffa97839b93db22aa6e117"
     }
   ],
   "counts": {
@@ -92,26 +92,31 @@
     }
   },
   "evidence_scope": "explicit non-secret report and receipt files only",
-  "github_api_calls_used": 4,
-  "head": "997594dfed81b4bdabb561e92d83e20cb245646f",
+  "github_api_calls_used": 7,
+  "head": "2fe930341c3c8b77b56feaa866299bd02ef2312b",
   "migration_ledger": "not applicable: no migration edits",
   "policy_default": null,
   "pr": null,
+  "product_commits": [
+    "2fe930341c3c8b77b56feaa866299bd02ef2312b",
+    "997594dfed81b4bdabb561e92d83e20cb245646f"
+  ],
   "product_push": {
     "attempts": 1,
     "exit": 0,
     "file": "product-push.txt",
     "guard": "cloud-push.py",
-    "head": "997594dfed81b4bdabb561e92d83e20cb245646f"
+    "head": "2fe930341c3c8b77b56feaa866299bd02ef2312b"
   },
   "production_repairs": [],
-  "recorded_at": "2026-11-09T00:33:29.248294+00:00",
+  "proof_strengthening": "Unsafe-source refusals check all outbound requests, including an unexpected host or protocol, as well as SNS-edge requests.",
+  "recorded_at": "2026-11-09T00:40:45.173027+00:00",
   "repository": "just-every/run-glove",
   "runtime": "Node 22.20.0",
   "scan": {
     "complete": null,
     "findings": null,
-    "head": "997594dfed81b4bdabb561e92d83e20cb245646f",
+    "head": "2fe930341c3c8b77b56feaa866299bd02ef2312b",
     "historyScanned": null,
     "reason": "not run in cloud; guarded lander owns exact-tree scan"
   },
@@ -120,9 +125,9 @@
   "verify": {
     "conclusion": null,
     "event": "push",
-    "head_sha": "997594dfed81b4bdabb561e92d83e20cb245646f",
-    "html_url": "https://github.com/just-every/run-glove/actions/runs/42540517589",
-    "id": 42540517589,
+    "head_sha": "2fe930341c3c8b77b56feaa866299bd02ef2312b",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42541254395",
+    "id": 42541254395,
     "status": "in_progress"
   }
 }

@@ -1,0 +1,19 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins (4608.923716ms)
+✔ COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache (6459.76719ms)
+✔ COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses (3281.171089ms)
+✔ COMM-017 point 4: signed configuration and delivery tags bind every SES send (5135.422864ms)
+✔ COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses (3291.489381ms)
+✔ COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects (7323.210775ms)
+✔ COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching (2139.145101ms)
+✔ COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart (3265.027573ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 36345.292814

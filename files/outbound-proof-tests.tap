@@ -1,0 +1,59 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
+ok 1 - COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
+  ---
+  duration_ms: 5572.590459
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
+ok 2 - COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
+  ---
+  duration_ms: 7673.924959
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
+ok 3 - COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
+  ---
+  duration_ms: 2983.641809
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 4: signed configuration and delivery tags bind every SES send
+ok 4 - COMM-017 point 4: signed configuration and delivery tags bind every SES send
+  ---
+  duration_ms: 4626.234681
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
+ok 5 - COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
+  ---
+  duration_ms: 3210.620348
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
+ok 6 - COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
+  ---
+  duration_ms: 8436.303571
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
+ok 7 - COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
+  ---
+  duration_ms: 2313.982436
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
+ok 8 - COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
+  ---
+  duration_ms: 4119.252902
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 40342.119312
