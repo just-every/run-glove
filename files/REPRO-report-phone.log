@@ -1,0 +1,45 @@
+Error: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:4991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4991) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/document-print.spec.ts:106:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (26.8s)
+
+
+  1) tests/browser/document-print.spec.ts:106:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    Error: expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "5125550125"
+    Received string:        "Harbour Air & Electrical 14 Harbour St, Balmain NSW 2041 (512) 555-0125 EIN: 51 824 753 556 Insurance: Synthetic Insurer · synthetic-glove-190 · expires Dec 31, 2031 Service report J-1001 · Completed heating inspection Harbourview Dental 14 Harbour St, Balmain NSW 2041 Feb 28, 2030 · Technician: Priya Completed Feb 28, 2030, 10:00 AM (America/Chicago) Work summary Completed inspection with airflow test. Findings Pressure above the recorded range. Inspection results Heating readings Supply pressure 95 psi Out of range · expected 40–80 psi Reading original [URL] Photos Heat exchanger original Materials used Copper fitting × 2 each Customer sign-off Signed by Synthetic Customer Recommendations Pressure regulator Discuss regulator work with the office. Document terms report document terms retained. report final customer footer. Contact Harbour Air & Electrical: 5125550125 [URL]"
+
+       97 |   const parsed = await parsePdf(bytes), text = normalize(parsed.text)
+       98 |   if (token) { expect(bytes!.toString('latin1')).not.toContain(token); expect(text).not.toContain(token) }
+    >  99 |   expect(text).not.toContain('[private value]
+          |                    ^
+      100 |   for (const value of expected) expect(text, `${name} prints ${value}`).toContain(value)
+      101 |   for (const control of hiddenPrintText) expect(text, `${name} excludes response control ${control}`).not.toContain(control)
+      102 |   expect((bytes!.toString('latin1').match(/\/Subtype\s*\/Image\b/g) ?? []).length).toBeGreaterThanOrEqual(name === 'report' ? 4 : name === 'agreement' ? 2 : 3)
+        at buttonPdf (/workspace/glove-f190/tests/browser/document-print.spec.ts:99:20)
+        at /workspace/glove-f190/tests/browser/document-print.spec.ts:174:42
+        at scenario (/workspace/glove-f190/tests/fixtures/scenario.mjs:8:5)
+        at /workspace/glove-f190/tests/browser/document-print.spec.ts:166:5
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f190/packet/browser/document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/document-print.spec.ts:106:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    at command (file:///workspace/glove-f190/tests/browser/runtime.mjs:41:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///tmp/run-glove-browser.mjs:6:18

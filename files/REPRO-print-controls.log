@@ -1,0 +1,47 @@
+Error: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:4504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/document-print.spec.ts:104:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (24.1s)
+
+
+  1) tests/browser/document-print.spec.ts:104:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    Error: open excludes response control Choose Standard service
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "Choose Standard service"
+    Received string:        "Harbour Air & Electrical 14 Harbour St, Balmain NSW 2041 (512) 555-0125 EIN: 51 824 753 556 Insurance: Synthetic Insurer · synthetic-glove-190 · expires Dec 31, 2031 Quote Q-101 Open heating proposal 14 Harbour St, Balmain NSW 2041 Prepared Feb 28, 2030 · Revision 1 · Valid through Mar 31, 2030 (America/Chicago) Choose your work Standard service Choose Standard service Standard service line Inspect the heat exchanger and test airflow. 1 × $200.00 Standard service final line 2 × $5.00 Total including tax: $210.00 11/9/26, 5:39 AMYour quote Dev [URL] Extended service Choose Extended service Extended service line Inspect the heat exchanger and test airflow. 1 × $300.00 Extended service final line 2 × $5.00 Total including tax: $310.00 Optional add-ons Filter pack · $25.00 Add Filter pack Replacement filter line — Inspect the heat exchanger and test airflow. · 1 × $25.00 Retain this proposal for your records. 11/9/26, 5:39 AMYour quote Dev [URL] Terms Schedule work with the office before entry. Open heating proposal original Document terms quote document terms retained. quote final customer footer. Online signing is unavailable pending the owner’s consent disclosure. Contact the business to accept. 11/9/26, 5:39 AMYour quote Dev [URL]"
+
+       95 |   expect(text).not.toContain('[private value]
+       96 |   for (const value of expected) expect(text, `${name} prints ${value}`).toContain(value)
+    >  97 |   for (const control of hiddenPrintText) expect(text, `${name} excludes response control ${control}`).not.toContain(control)
+          |                                                                                                           ^
+       98 |   expect((bytes!.toString('latin1').match(/\/Subtype\s*\/Image\b/g) ?? []).length).toBeGreaterThanOrEqual(name === 'report' ? 4 : name === 'agreement' ? 2 : 3)
+       99 |   const directory = process.env.GLOVE_BROWSER_OUTPUT
+      100 |   if (directory) { await mkdir(directory, { recursive: true }); await writeFile(join(directory, `${width}-${name}.pdf`), bytes!) }
+        at buttonPdf (/workspace/glove-f190/tests/browser/document-print.spec.ts:97:107)
+        at /workspace/glove-f190/tests/browser/document-print.spec.ts:172:42
+        at scenario (/workspace/glove-f190/tests/fixtures/scenario.mjs:8:5)
+        at /workspace/glove-f190/tests/browser/document-print.spec.ts:164:5
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f190/packet/browser/document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/document-print.spec.ts:104:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    at command (file:///workspace/glove-f190/tests/browser/runtime.mjs:41:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///tmp/run-glove-browser.mjs:6:18

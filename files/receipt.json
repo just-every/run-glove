@@ -1,0 +1,129 @@
+{
+  "tag": "sx-glove-c-f190",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f190",
+  "head": "6b38636601214afc0e481643b71f1b2a2f682fdc",
+  "main_at_final_sync": "730d7c415d566fb08cf2acf0086766811bd6aeb5",
+  "product_push": "success",
+  "pr": null,
+  "full_history": true,
+  "checks": [
+    {
+      "command": "node --test tests/api/document-presentation.test.mjs",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "perl -e 'alarm 1200; exec @ARGV' -- node /tmp/run-glove-browser.mjs",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses QUOTE-015",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses QUOTE-015",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "6b38636601214afc0e481643b71f1b2a2f682fdc"
+    }
+  ],
+  "runtime": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "chromium": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)"
+  },
+  "source_lock_sha256": "3baad306740cdb835c3bc81b4db08dfc8b46e9cb53a9de8af5ede3c4e27dc308",
+  "contract_diff": "empty",
+  "protected_files_diff": "empty",
+  "generated_views_committed": false,
+  "api_registrations": {
+    "before": 130,
+    "after": 131
+  },
+  "browser_registrations": {
+    "before": 51,
+    "after": 52
+  },
+  "counts": {
+    "before": {
+      "done": 32,
+      "partial": 202,
+      "missing": 29
+    },
+    "after": {
+      "done": 32,
+      "partial": 202,
+      "missing": 29
+    }
+  },
+  "verify": {
+    "id": 42570243395,
+    "event": "push",
+    "observed_at": "2026-11-09T06:13:36.183122+00:00",
+    "conclusion": "success",
+    "head_sha": "6b38636601214afc0e481643b71f1b2a2f682fdc",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42570243395",
+    "status": "completed"
+  },
+  "scan": {
+    "commit": "6b38636601214afc0e481643b71f1b2a2f682fdc",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Cloud product push delegates publication scanning to the maintained fleet lander."
+  },
+  "landing": "pending fleet scan, exact-SHA Verify and guarded main landing and Run site",
+  "verified_at": "2026-11-09T06:15:09.030208+00:00",
+  "prior_verify": {
+    "id": 42569661909,
+    "head_sha": "1585042055bf52a3f7d1d831f92aa82fbacb3ae5",
+    "status": "in_progress",
+    "observed_at": "2026-11-09T05:57:10Z",
+    "counted": false,
+    "reason": "Superseded by complete-screen proof candidate."
+  },
+  "github_api_calls": 7,
+  "claim": {
+    "clause": "QUOTE-015",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "landing": "pending independent fleet gate"
+  },
+  "identity_audit": {
+    "all_candidate_parents": "passed",
+    "trailers": "absent",
+    "protected_sources_and_judgments": "unchanged"
+  }
+}

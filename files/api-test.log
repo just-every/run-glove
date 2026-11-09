@@ -1,0 +1,21 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: QUOTE-015 document presentation preserves scoped originals, calendar facts and honest states after Worker restart
+ok 1 - QUOTE-015 document presentation preserves scoped originals, calendar facts and honest states after Worker restart
+  ---
+  duration_ms: 10334.631022
+  type: 'test'
+  ...
+# point 1: current desk roles, branches, revisions and scoped original bytes
+# point 2: stored calendar dates, phone inputs, legacy addresses and frozen validity zone
+# point 3: complete printable projections for open, expired, decided, completed and desk documents
+# point 4: unsigned disclosure, refusal and recorded statuses never invent signing or delivery
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 11899.117495
