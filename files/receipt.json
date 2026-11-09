@@ -127,9 +127,10 @@
     "id": 42569137861,
     "event": "push",
     "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
-    "status": "queued",
-    "conclusion": null,
-    "url": "https://github.com/just-every/run-glove/actions/runs/42569137861"
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/just-every/run-glove/actions/runs/42569137861",
+    "observed_at": "2026-11-09T06:01:58.564733+00:00"
   },
   "publication_scan": {
     "commit": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
@@ -173,9 +174,9 @@
     }
   },
   "riders": {
-    "1": "local-pass",
+    "1": "pass-exact-head-Verify-42569137861",
     "2": "pass",
-    "3": "pending-exact-head-verify",
+    "3": "pass-push-Verify-42569137861",
     "4": "pass-exact-head-local-reruns",
     "5": "inspected",
     "6": "pass",
@@ -293,5 +294,17 @@
     "head": "070beccea3b1c3b9a6803eaa3f171d10f40cdec3",
     "verify": 42568667366,
     "reason": "improved screenshot position and displayed technician proof, then merged fresh main"
+  },
+  "github_calls_used": 6,
+  "updated_at": "2026-11-09T06:01:58.564747+00:00",
+  "claim": {
+    "clause": "MOVE-009",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3
+    ],
+    "landing": "pending guarded scan, exact main equality and Run site"
   }
 }

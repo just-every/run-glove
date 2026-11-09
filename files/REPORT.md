@@ -23,10 +23,10 @@ The focused registration is `tests/api/servicetitan-memberships.test.mjs` — �
 
 | Rider | Result and evidence |
 | --- | --- |
-| 1 | Local PASS: R1–R3 perform and inspect every native acceptance outcome. Exact-head Verify is reported in the final receipt. |
+| 1 | PASS: R1–R3 perform and inspect every native acceptance outcome. Push Verify 42569137861 is completed success on the exact final candidate. |
 | 2 | PASS: twelve explicit expected events and four explicit due-list rows; supported operations complete and unsafe import, decline, activation and undo attempts refuse without record changes. No expected event table is derived from the adapter. |
-| 3 | Both registrations are selected by the existing Verify globs in verification.json and scripts/verify-app.mjs. Exact-head run and conclusion are recorded below; no workflow was changed. |
-| 4 | Relevant byte identity and final committed-head test reruns are recorded in receipt.json. |
+| 3 | PASS: both registrations are selected by the existing Verify globs in verification.json and scripts/verify-app.mjs; push Verify 42569137861 completed success on the final candidate. No workflow was changed. |
+| 4 | PASS: final committed-head API and browser reruns and push Verify 42569137861 pass; byte hashes are recorded in receipt.json. |
 | 5 | PASS INSPECTED: MOVE-009 already cites BASE-ROLE-001. No inheritance text changed. |
 | 6 | PASS: contract generator write and check succeed. Status, Gap, Evidence and generated views remain main's judgments for the lander. |
 | 7 | PASS INSPECTED: no acceptance sentence, Status cell, Gap cell, Evidence cell or coverage mapping changed. |
@@ -53,8 +53,14 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; vi
 
 Main advanced while this round ran: AGENT-016 was qualified by another writer. Its contract judgments and source test changes were merged without rewriting the published branch. Final merged-base and candidate judgments are both 32 DONE, 202 PARTIAL, 29 MISSING; this round changes no judgment. The proposed MOVE-009 promotion would yield 33 DONE, 201 PARTIAL, 29 MISSING.
 
-Final candidate: 8b86815b52ade9a2960196cdefaa6fa427a6dc4e. Exact-head push Verify: 42569137861, last observed queued. Preliminary Verify 42568667366 belongs to a superseded candidate and is not evidence for this head. No PR is required by the push workflow.
+Final candidate: 8b86815b52ade9a2960196cdefaa6fa427a6dc4e. Exact-head push Verify: 42569137861, push event, completed success. Preliminary Verify 42568667366 belongs to a superseded candidate and is not evidence for this head. No PR is required by the push workflow.
 
 Exact-head local checks on 8b86815b52ade9a2960196cdefaa6fa427a6dc4e: API registration PASS; real-install ServiceTitan browser registration PASS at 1440 and 390; typecheck PASS; first-party check PASS; inventory 192 of 200; contract write and check PASS; source lock write and check PASS. All owned browser and server processes finished.
 
 Publication scan: commit=8b86815b52ade9a2960196cdefaa6fa427a6dc4e complete=unestablished historyScanned=unestablished findings=unestablished; guarded lander owns this check. Main equality=false by design; no candidate Run site exists before landing. Initial main Verify 42566672074 and Run site 42566672055 were success at c270566732b115a5514cdab4b9f22cbc9f12fe4a, not this candidate.
+
+Final CI: https://github.com/just-every/run-glove/actions/runs/42569137861 — event push, completed success, head 8b86815b52ade9a2960196cdefaa6fa427a6dc4e. No failed assertion, repair round or workflow rerun occurred. All required local checks pass; no blocker remains. Rider 11 awaits the fleet publication scan and guarded landing, and the candidate stays branch-only.
+
+CLAIM MOVE-009 DONE points=1,2,3 tests=tests/api/servicetitan-memberships.test.mjs#MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule; tests/browser/movein.spec.ts#MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390
+
+POST lanes/sx/INBOX.md: sx-glove-c-f189 claims MOVE-009 DONE points=1,2,3; head=8b86815b52ade9a2960196cdefaa6fa427a6dc4e; Verify 42569137861 completed success; contract judgments unchanged at 32 DONE, 202 PARTIAL, 29 MISSING; proposed promotion yields 33 DONE, 201 PARTIAL, 29 MISSING. Full plan, coverage, riders and actual receipts are in the evidence packet. Guarded publication scan, landing and Run site remain fleet duties.
