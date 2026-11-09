@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 40 | 181 | 16 | 237 |
+| Core | 41 | 180 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 40 | 194 | 29 | 263 |
+| Full target | 41 | 193 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1276,7 +1276,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### COMM-010 — Message outcomes and customer warnings
 
-Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Message outcomes and customer warnings supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1290,8 +1290,8 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAI
 7. Each email is in the `COMM-007` stream as an outbound email with its author, recipient and state.
 8. Nothing is retried automatically: the desk sends again, or for a booking link revokes it and makes a new offer.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A message record keeps its kind, subject, recipient, from-address, provider and who sent it, never the body, so a booking link's bearer exists only in the email and the one-time command response.; point 2 — After the command commits, Glove makes one send attempt with the message id as the delivery id.; point 3 — The provider's answer (accepted, refused, rate limited or not confirmed) and every authenticated event the provider posts to the mail callback (delivered, deferred, bounced, complained, failed, rejected) are provider facts on the message's timeline, in Activity and in the business export with the provider's reference; Glove authenticates each callback under the rules below (using Base's verifier for SendGrid/Resend), and Base's durable store keeps each matched event once, and applies an event only to a message Glove sent through that provider to exactly that recipient; authenticated unmatched events return 200 without effect.; point 4 — A message's state is the latest of its facts in Base's order: a final fact (delivered, bounced, complained, failed, rejected) is never replaced by a non-final one, and a later final fact (a complaint after delivery) replaces an earlier one. "Delivered" means the recipient's mail server accepted it, as the provider reported; Glove never claims a person read it.; point 5 — Each failure shows on the message with what to do next.; point 6 — A customer whose latest finished email to an address on their record bounced or was marked as spam carries that warning, with what to do next, until a later email to that address finishes delivered or the address changes.; point 7 — Each email is in the COMM-007 stream as an outbound email with its author, recipient and state.; point 8 — Nothing is retried automatically: the desk sends again, or for a booking link revokes it and makes a new offer. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/message-outcomes.test.mjs` (COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart); `tests/browser/conversation.spec.ts` (COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart)
+**Gap.** None.
 
 #### COMM-011 — Future document-email inheritance
 
