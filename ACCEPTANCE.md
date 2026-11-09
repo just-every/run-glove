@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 32 | 189 | 16 | 237 |
+| Core | 33 | 188 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 32 | 202 | 29 | 263 |
+| Full target | 33 | 201 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -3019,7 +3019,7 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-RO
 
 #### TEAM-005 — Current branch authority
 
-Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AUDIT-001, BASE-ROLE-001
+Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AUDIT-001, BASE-ROLE-001
 
 **Requirement.** Current branch authority supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-002-operating-rules) retain the record formats and calculations.
 
@@ -3030,8 +3030,8 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AU
 4. Scoped people read and change only operational records rooted in their branch; shared business reference data remains readable under their existing role and is read-only for them.
 5. New operational records created by a scoped person belong to their branch.
 
-**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner limits a person to a named branch or the main business branch, or removes that limit.; point 2 — The installation owner retains all-branch access.; point 3 — Limits apply to every current read and command door, including files, Activity, history, reports, business/CSV exports, saved command outcomes and workflow actions under their creator’s live scope; a changed limit is rechecked in the commit guard.; point 4 — Scoped people read and change only operational records rooted in their branch; shared business reference data remains readable under their existing role and is read-only for them.; point 5 — New operational records created by a scoped person belong to their branch. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`; `tests/api/branch-authority.test.mjs` (TEAM-005 current branch authority fences every read, shared write, replay and commit across restart)
+**Gap.** None.
 
 #### TEAM-003 — Technician commissions and bonuses
 
