@@ -5868,7 +5868,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "4ee455bc4aabe4228e88761dc334a16257edad60f99825fc08406fe08aa8b951",
+      "sha256": "53a3a49af322b1cd43474795ef527b7863c7e336d7d5a001238234bb4175bffa",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {

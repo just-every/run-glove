@@ -1,5 +1,7 @@
 // @ts-expect-error Named scenarios add no test registrations.
 import { scenario } from '../fixtures/scenario.mjs'
+// @ts-expect-error Independent CSV assertions shared with the API journey.
+import { csvRows } from '../fixtures/branch-projections.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -7,10 +9,10 @@ import { join } from 'node:path'
 import { installation, business } from '../api/harness.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-async function shot(page: Page, width: number, name: string) {
+async function shot(page: Page, width: number, name: string, fullPage = false) {
   if (!process.env.GLOVE_SCREENSHOTS) return
   await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
-  await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-branches-${name}.png`) })
+  await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-branches-${name}.png`), fullPage })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 }
 
@@ -76,9 +78,9 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await page.route(`${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
         const r = await h.request(u.pathname + u.search, { method: req.method(), ...(as ? { as } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
-        await route.fulfill({ status: r.status, contentType: r.headers.get('content-type') ?? 'application/json', body: Buffer.from(await r.arrayBuffer()) })
+        await route.fulfill({ status: r.status, headers: Object.fromEntries(r.headers), body: Buffer.from(await r.arrayBuffer()) })
       })
-      const steps = { diagnostic: (name: string) => test.info().annotations.push({ type: 'scenario', description: name }) }
+      const steps = { diagnostic: (name: string) => { test.info().annotations.push({ type: 'scenario', description: name }); console.log(name) } }
       await scenario(steps, 'TEAM-004 point 2: Dispatch selects only its branch technicians, booked and waiting work, crews and local times, clearing selected work', async () => {
         await page.goto(`${origin}/app#dispatch`)
         await page.getByLabel('Day', { exact: true }).fill('2026-11-05')
@@ -114,20 +116,24 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
           await branchChoice.selectOption(next.id)
           await expect(page.locator('.visit-panel')).toHaveCount(0)
           await branchChoice.selectOption(root.id)
+          await expect(page.locator('.visit-panel')).toHaveCount(0)
           await page.getByRole('button', { name: 'Book visit', exact: true }).first().click()
           await expect(page.locator('.book-form')).toContainText(`Times are in ${root.timezone}`)
           expect((await page.locator('.book-form').getByLabel('Technician', { exact: true }).locator('option').allTextContents()).sort()).toEqual(['Assign automatically', root.tech.name, `${root.name} Helper`, `Crew ${root.name} Team`].sort())
           await branchChoice.selectOption(next.id)
           await expect(page.locator('.book-form')).toHaveCount(0)
           await branchChoice.selectOption(root.id)
+          await expect(page.locator('.book-form')).toHaveCount(0)
           await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('crews')
           await expect(board.locator('.techrow')).toHaveCount(1)
           await expect(board).toContainText(`Crew ${root.name} Team`)
           await expect(board.getByRole('button', { name: new RegExp(`${root.name} crew work,.*13:00 to 14:00`) })).toHaveCount(1)
           for (const other of boardRoots.filter(x => x.id !== root.id)) await expect(board).not.toContainText(`Crew ${other.name} Team`)
-          await shot(page, 1440, `dispatch-${i}`)
+          await board.getByRole('button', { name: new RegExp(`${root.name} crew work,`) }).scrollIntoViewIfNeeded()
+          await shot(page, 1440, `dispatch-${i}`, true)
           await page.setViewportSize({ width: 390, height: 1050 })
-          await shot(page, 390, `dispatch-${i}`)
+          await board.getByRole('button', { name: new RegExp(`${root.name} crew work,`) }).scrollIntoViewIfNeeded()
+          await shot(page, 390, `dispatch-${i}`, true)
           await page.setViewportSize({ width: 1440, height: 1050 })
           await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('technicians')
         }
@@ -194,12 +200,25 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await expect(tokens.getByText('Revoked', { exact: true })).toBeVisible()
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await tokens.scrollIntoViewIfNeeded(); await shot(page, width, 'token-revoked') }
       await scenario(steps, 'TEAM-004 point 6: Reports branch choice selects each populated root and main at desktop and phone sizes', async () => {
+      const exportedRows = async () => {
+        const href = await page.getByRole('link', { name: 'Download CSV', exact: true }).getAttribute('href')
+        // Native downloads bypass Chromium's route interception. Open the
+        // control's exact URL inside the same authenticated page instead.
+        const response = await page.evaluate(async href => {
+          const result = await fetch(href!, { credentials: 'same-origin' })
+          return { status: result.status, disposition: result.headers.get('content-disposition'), text: await result.text() }
+        }, href)
+        expect(response.status).toBe(200)
+        expect(response.disposition).toContain('attachment;')
+        return csvRows(response.text)
+      }
       await page.goto(`${origin}/app#reports`)
       await page.getByLabel('From', { exact: true }).fill('2026-01-01')
       await page.getByLabel('To', { exact: true }).fill('2027-12-31')
       await page.getByLabel('Report branch', { exact: true }).selectOption(branches[0].id)
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('$125.00')
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Phoenix')
+      expect(await exportedRows()).toEqual([['group', 'key', 'invoices', 'revenue'], ['month', '2026-11', '1', '125.00'], ['job type', 'Uncategorized', '1', '125.00'], ['branch', 'Raleigh', '1', '125.00'], ['total', '', '1', '125.00']])
       for (const kind of ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax', 'agreements']) {
         const loaded = page.waitForResponse(response => {
           const url = new URL(response.url())
@@ -225,6 +244,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('$55.00')
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Raleigh')
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Phoenix')
+      expect(await exportedRows()).toEqual([['group', 'key', 'invoices', 'revenue'], ['month', '2026-11', '1', '55.00'], ['job type', 'Uncategorized', '1', '55.00'], ['branch', 'Main business', '1', '55.00'], ['total', '', '1', '55.00']])
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await shot(page, width, 'reports-main') }
       await page.getByLabel('Report branch', { exact: true }).selectOption('')
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('Raleigh')
@@ -237,6 +257,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await expect(page.locator('.glove-app')).toContainText('Raleigh rooftop inspection')
       await expect(page.locator('.glove-app')).not.toContainText('Phoenix rooftop inspection')
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await shot(page, width, 'limited-jobs') }
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } catch (error) { console.error(error); throw error }
+    finally { if (!page.isClosed()) await page.unrouteAll({ behavior: 'ignoreErrors' }); await context.close() }
   } finally { await h.close() }
 })
