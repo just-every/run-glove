@@ -5556,7 +5556,7 @@
       "executable": false
     },
     "tests/api/crews.test.mjs": {
-      "sha256": "f5b97d2e6d48c1adc957a9562d3e7d290d0cc0001fba5d2ffcdd5aded08273c7",
+      "sha256": "65e60f593271040f82d127bbc17e9d785e8741df6be6d073738a15792a1968d2",
       "executable": false
     },
     "tests/api/csv.test.mjs": {
