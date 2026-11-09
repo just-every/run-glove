@@ -5,11 +5,11 @@ import { connectMail, postmarkCallback, textOf } from '../fixtures/mail-provider
 import { installation, business, completedJob, assertTrail, mailEvents, snsEvents, postEvents } from './harness.mjs'
 
 const mailbox = name => [name, 'example.test'].join('@')
-const start = '2026-11-09T12:00:00.000Z'
 const names = { sendgrid: 'SendGrid', resend: 'Resend', postmark: 'Postmark', ses: 'Amazon SES' }
 const registration = 'COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart'
 
 test(registration, async t => {
+  const start = new Date().toISOString()
   const h = await installation({ at: start, captureLogs: true }); t.after(() => h.close())
   const b = await business(h, { timezone: 'UTC' })
   let customer = await h.command('customer.save', { ...b.customer, kind: 'business', email: mailbox('synthetic-glove-main'), apEmail: mailbox('synthetic-glove-ap') })
@@ -22,7 +22,7 @@ test(registration, async t => {
   const location = await b.office.run('stock.location', { kind: 'warehouse', name: 'Workshop' })
   const createOrder = () => b.office.run('po.save', { supplier: 'Filter supplier', supplierEmail: mailbox('synthetic-glove-supplier'), locationId: location.id, jobId: job.id, lines: [{ serviceId: material.id, quantity: '1' }] })
   const plan = await h.command('plan.save', { name: 'Care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: b.service.id })
-  const agreement = await b.office.run('agreement.sell', { customerId: customer.id, siteId: b.site.id, planId: plan.id, via: 'phone', startDate: '2026-11-09' })
+  const agreement = await b.office.run('agreement.sell', { customerId: customer.id, siteId: b.site.id, planId: plan.id, via: 'phone', startDate: start.slice(0, 10) })
   const replays = [], messages = [], tokens = [], bodies = [], facts = [], secrets = []
   let tick = 0, eventIndex = 0
   const now = () => new Date(Date.parse(start) + tick * 1000).toISOString()
@@ -74,6 +74,10 @@ test(registration, async t => {
       } }
     }
     const signer = snsEvents(edge.connection.sns, { days: 30 })
+    // OpenSSL dates the real certificate at generation; the controlled clock
+    // must reach that instant before signature verification, even on slow hosts.
+    tick = Math.max(tick, Math.ceil((Date.now() - Date.parse(start)) / 1000) + 1)
+    await h.setTime(now())
     h.email.certificates.set(signer.certUrl, signer.cert)
     return { event(message, status, at) {
       const type = { delivered: 'Delivery', bounced: 'Bounce', complained: 'Complaint', deferred: 'DeliveryDelay', failed: 'Bounce', rejected: 'Reject' }[status]
@@ -133,7 +137,7 @@ test(registration, async t => {
         sent.push(message)
       }
       await advance()
-      const payload = { agreementId: agreement.id, index: 0, email: true, slots: [{ technicianId: b.tom.id, date: '2026-11-10', start: '09:00', end: '10:00' }] }
+      const payload = { agreementId: agreement.id, index: 0, email: true, slots: [{ technicianId: b.tom.id, date: new Date(Date.parse(start) + 86400000).toISOString().slice(0, 10), start: '09:00', end: '10:00' }] }
       const commandId = `synthetic-glove-offer-${provider}`, count = h.email.sent.length
       const offer = await b.office.run('agreement.offer', payload, { commandId })
       assert.match(offer.token, /^glb_/)
