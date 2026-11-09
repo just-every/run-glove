@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 37 | 184 | 16 | 237 |
+| Core | 38 | 183 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 37 | 197 | 29 | 263 |
+| Full target | 38 | 196 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -596,15 +596,15 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### BOOK-014 — Lead-source credential custody
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004, BASE-SECRET-001
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004, BASE-SECRET-001
 
 **Requirement.** Lead-source credential custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. A lead becomes a request with its provider as source and its provider lead ID, for the one existing customer whose phone (last ten digits) or email equals the lead's, else for a new customer (and site, when the lead names an address) that `CUST-005` flags if it resembles another.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/lead-matching.test.mjs` (BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart)
+**Gap.** None.
 
 #### BOOK-015 — Lead costs and acknowledgments
 
