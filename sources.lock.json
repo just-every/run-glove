@@ -5660,7 +5660,7 @@
       "executable": false
     },
     "tests/api/message-outcomes.test.mjs": {
-      "sha256": "459fd0694837015ba1dd7fa7f0f802f09cba264650c4ebe446c1a0401be6809c",
+      "sha256": "1908d4e56a65a34de0b5e87caff2780be21f595219054d440301ad68fbfa7faf",
       "executable": false
     },
     "tests/api/money.test.mjs": {
