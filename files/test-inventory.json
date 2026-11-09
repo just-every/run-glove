@@ -1,0 +1,470 @@
+{
+  "exit": 1,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "inventory": {
+    "assertionScripts": [
+      "tests/runtime.mjs",
+      "tests/email-link.mjs",
+      "tests/site.mjs",
+      "tests/portable.mjs"
+    ],
+    "direct": 195,
+    "files": [
+      {
+        "count": 1,
+        "file": "tests/api/agreements.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/arrival-windows.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/assessments.test.mjs"
+      },
+      {
+        "count": 3,
+        "file": "tests/api/booking-offer-history.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/branch-authority.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/branches.test.mjs"
+      },
+      {
+        "count": 5,
+        "file": "tests/api/calendar-sync.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/callbacks.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/companycam.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/conversation.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/costing.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/crews.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/csv.test.mjs"
+      },
+      {
+        "count": 3,
+        "file": "tests/api/customer-quotes.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/customers.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/delays.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/discounts.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/document-presentation.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/documents.test.mjs"
+      },
+      {
+        "count": 2,
+        "file": "tests/api/due-visit-list.test.mjs"
+      },
+      {
+        "count": 4,
+        "file": "tests/api/due-visit-offers.test.mjs"
+      },
+      {
+        "count": 2,
+        "file": "tests/api/eligibility.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/email.test.mjs"
+      },
+      {
+        "count": 2,
+        "file": "tests/api/equipment.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/expenses.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/fixed-monthly-dates.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/fixed-monthly-reports.test.mjs"
+      },
+      {
+        "count": 9,
+        "file": "tests/api/flows.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/forms.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/grants.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/instant-payouts.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/lead-matching.test.mjs"
+      },
+      {
+        "count": 7,
+        "file": "tests/api/live-locations.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/margins.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/merge.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/message-outcomes.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/money.test.mjs"
+      },
+      {
+        "count": 2,
+        "file": "tests/api/morning-brief.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/movein.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/nameplates.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/options.test.mjs"
+      },
+      {
+        "count": 3,
+        "file": "tests/api/payments.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/payout-reconciliation.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/payroll-files.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/payroll.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/pipeline.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/postmark-custody.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/pricebook.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/privacy.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/purchasing.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/push.test.mjs"
+      },
+      {
+        "count": 6,
+        "file": "tests/api/quickbooks.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/quote-link-custody.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/quote-link-records.test.mjs"
+      },
+      {
+        "count": 2,
+        "file": "tests/api/records.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/recurring-billing.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/refunds.test.mjs"
+      },
+      {
+        "count": 6,
+        "file": "tests/api/reminders.test.mjs"
+      },
+      {
+        "count": 2,
+        "file": "tests/api/reports.test.mjs"
+      },
+      {
+        "count": 5,
+        "file": "tests/api/route-optimization.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/routing.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/rules.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/schedule-push.test.mjs"
+      },
+      {
+        "count": 3,
+        "file": "tests/api/security.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/segments.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/series.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/service-reports.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/servicecall.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/servicetitan-memberships.test.mjs"
+      },
+      {
+        "count": 8,
+        "file": "tests/api/ses-sns-custody.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/stock.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/subcontract.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/subcontractor-field.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/suggest.test.mjs"
+      },
+      {
+        "count": 4,
+        "file": "tests/api/tax-evidence.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/time.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/tokens.test.mjs"
+      },
+      {
+        "count": 3,
+        "file": "tests/api/travel-assignment.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/api/xero.test.mjs"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/arrival-windows.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/branches.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/companycam.spec.ts"
+      },
+      {
+        "count": 2,
+        "file": "tests/browser/conversation.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/crew-board.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/custom-roles.spec.ts"
+      },
+      {
+        "count": 6,
+        "file": "tests/browser/customer-quotes.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/discounts.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/dispatch-map.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/document-print.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/documents.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/due-visit-list.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/due-visit-offers.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/due-visits.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/email.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/fresh-install.spec.ts"
+      },
+      {
+        "count": 3,
+        "file": "tests/browser/invoice-batch.spec.ts"
+      },
+      {
+        "count": 7,
+        "file": "tests/browser/journey.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/money.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/morning-brief.spec.ts"
+      },
+      {
+        "count": 3,
+        "file": "tests/browser/movein.spec.ts"
+      },
+      {
+        "count": 2,
+        "file": "tests/browser/phone-location.spec.ts"
+      },
+      {
+        "count": 3,
+        "file": "tests/browser/quickbooks.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/quote-link-custody.spec.ts"
+      },
+      {
+        "count": 4,
+        "file": "tests/browser/receivables.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/recurring-billing.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/refunds.spec.ts"
+      },
+      {
+        "count": 3,
+        "file": "tests/browser/reminders.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/revenue.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/routing.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/rules.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/service-reports.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/subcontractor.spec.ts"
+      },
+      {
+        "count": 1,
+        "file": "tests/browser/tax-evidence.spec.ts"
+      }
+    ],
+    "limit": 200,
+    "registrations": 198,
+    "total": 202
+  }
+}

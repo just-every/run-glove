@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "tests/inventory.mjs"
+  ],
+  "end": "2026-11-09T10:37:41.440115+00:00",
+  "exit": 1,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "log": "inventory.log",
+  "log_sha256": "c170663308e1c49cd96f2120dc69a292fa1e7eecf2e0103c1dec668864e086bc",
+  "start": "2026-11-09T10:37:36.107620+00:00"
+}

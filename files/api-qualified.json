@@ -1,0 +1,9 @@
+{
+  "command": "node --test --test-concurrency=1 tests/api/branches.test.mjs tests/api/branch-authority.test.mjs",
+  "duration_ms": 271776.197453,
+  "exit": 0,
+  "head": "b8aaa956e7cac267c6b7ef898e67b8fb2f2b7e72",
+  "log_sha256": "edcf9e4309c3077ad5550f29d110b15e4d951aea50ac914234586f2aea307505",
+  "tests": 2,
+  "working_tree_scope": "Browser test edits only; API sources and fixtures match this head."
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "end": "2026-11-09T10:37:33.322863+00:00",
+  "exit": 0,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "log": "typecheck.log",
+  "log_sha256": "5f0e785f4f7e2b9f07635f4e22bb0ec70a25d699f6c43e84bf7be84a45099348",
+  "start": "2026-11-09T10:37:08.563105+00:00"
+}

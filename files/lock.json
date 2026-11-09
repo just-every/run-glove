@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "check"
+  ],
+  "end": "2026-11-09T10:40:59.277516+00:00",
+  "exit": 0,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "log": "lock.log",
+  "log_sha256": "d0d6250a4cfa5839dad17aa143f8a1b6bf0bd0aa9f27406780f53d72c11169c6",
+  "start": "2026-11-09T10:40:58.685934+00:00"
+}

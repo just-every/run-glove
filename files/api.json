@@ -1,0 +1,17 @@
+{
+  "command": [
+    "timeout",
+    "600",
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/branches.test.mjs",
+    "tests/api/branch-authority.test.mjs"
+  ],
+  "end": "2026-11-09T10:42:57.247211+00:00",
+  "exit": 0,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "log": "api.log",
+  "log_sha256": "670374a992c0500579de91fe5b0d578d2540fe63fbf07d7c98b1c57d093932c3",
+  "start": "2026-11-09T10:40:59.704063+00:00"
+}

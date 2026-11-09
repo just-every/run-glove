@@ -1,0 +1,11 @@
+{
+  "candidate_added_registrations": 0,
+  "classification": "pre-existing main test inventory excess; no assertions removed",
+  "command": [
+    "node",
+    "tests/inventory.mjs"
+  ],
+  "exit": 1,
+  "head": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "output": "198 registrations (195 direct calls) + 4 assertion scripts = 202/200"
+}

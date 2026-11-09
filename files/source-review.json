@@ -1,0 +1,12 @@
+{
+  "contract_and_generated_views_match_main": true,
+  "files": [
+    "sources.lock.json",
+    "tests/api/branches.test.mjs",
+    "tests/browser/branches.spec.ts",
+    "tests/fixtures/branch-projections.mjs"
+  ],
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "new_email_shaped_strings": 0,
+  "working_tree_clean": true
+}

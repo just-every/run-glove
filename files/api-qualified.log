@@ -1,0 +1,130 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: TEAM-005 current branch authority fences every read, shared write, replay and commit across restart
+ok 1 - TEAM-005 current branch authority fences every read, shared write, replay and commit across restart
+  ---
+  duration_ms: 87320.981809
+  type: 'test'
+  ...
+# TEAM-005 point 1: only the unscoped Owner limits named and main branches and removes limits with exact versions and attributable facts
+# TEAM-005 point 2: the installation owner cannot be limited by either Owner and retains every branch while another Owner is scoped
+# TEAM-005 point 3: independent main and branch records are fenced at every read door and live authority governs replay, rules and the commit guard
+# TEAM-005 point 3: approved payroll and completed contractor work stay scoped in every report format
+# TEAM-005 point 4: shared references remain readable and immutable while cross-branch operational edits answer NOT_FOUND
+# TEAM-005 point 5: scoped operational creations inherit their branch and matching numbers and survive actual Worker restart and replay
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings
+ok 2 - TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings
+  ---
+  duration_ms: 174862.127022
+  type: 'test'
+  ...
+# TEAM-004 point 1: every booking door enforces branch and owner area rules without writes on refusal
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 booking root: Main business
+# TEAM-004 booking root: Raleigh
+# TEAM-004 booking root: Phoenix
+# TEAM-004 point 5: cross-branch customer merges preserve every record and same-branch merges succeed
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 point 4: branch-local midnight boundaries and every revenue CSV row survive Worker restart
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 point 6: every populated current report transport selects exactly one branch or main without writes
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 report seed: Main business
+# TEAM-004 report seed: Raleigh
+# TEAM-004 report seed: Phoenix
+# TEAM-004 report read: Main business revenue.json
+# TEAM-004 report read: Main business revenue.csv
+# TEAM-004 report read: Main business technicians.json
+# TEAM-004 report read: Main business technicians.csv
+# TEAM-004 report read: Main business sources.json
+# TEAM-004 report read: Main business sources.csv
+# TEAM-004 report read: Main business quotes.json
+# TEAM-004 report read: Main business quotes.csv
+# TEAM-004 report read: Main business margins.json
+# TEAM-004 report read: Main business margins.csv
+# TEAM-004 report read: Main business tax.json
+# TEAM-004 report read: Main business tax.csv
+# TEAM-004 report read: Main business agreements.json
+# TEAM-004 report read: Main business agreements.csv
+# TEAM-004 report read: Main business receivables.json
+# TEAM-004 report read: Main business receivables.csv
+# TEAM-004 report read: Main business 1099.json
+# TEAM-004 report read: Main business 1099.csv
+# TEAM-004 report read: Main business payroll.json
+# TEAM-004 report read: Main business payroll-gusto.csv
+# TEAM-004 report read: Main business payroll-adp-run.csv
+# TEAM-004 report read: Main business payroll-quickbooks.csv
+# TEAM-004 report read: Main business costing
+# TEAM-004 report read: Main business warranties
+# TEAM-004 report read: Main business refrigerant
+# TEAM-004 report read: Main business sources
+# TEAM-004 report read: Raleigh revenue.json
+# TEAM-004 report read: Raleigh revenue.csv
+# TEAM-004 report read: Raleigh technicians.json
+# TEAM-004 report read: Raleigh technicians.csv
+# TEAM-004 report read: Raleigh sources.json
+# TEAM-004 report read: Raleigh sources.csv
+# TEAM-004 report read: Raleigh quotes.json
+# TEAM-004 report read: Raleigh quotes.csv
+# TEAM-004 report read: Raleigh margins.json
+# TEAM-004 report read: Raleigh margins.csv
+# TEAM-004 report read: Raleigh tax.json
+# TEAM-004 report read: Raleigh tax.csv
+# TEAM-004 report read: Raleigh agreements.json
+# TEAM-004 report read: Raleigh agreements.csv
+# TEAM-004 report read: Raleigh receivables.json
+# TEAM-004 report read: Raleigh receivables.csv
+# TEAM-004 report read: Raleigh 1099.json
+# TEAM-004 report read: Raleigh 1099.csv
+# TEAM-004 report read: Raleigh payroll.json
+# TEAM-004 report read: Raleigh payroll-gusto.csv
+# TEAM-004 report read: Raleigh payroll-adp-run.csv
+# TEAM-004 report read: Raleigh payroll-quickbooks.csv
+# TEAM-004 report read: Raleigh costing
+# TEAM-004 report read: Raleigh warranties
+# TEAM-004 report read: Raleigh refrigerant
+# TEAM-004 report read: Raleigh sources
+# TEAM-004 report read: Phoenix revenue.json
+# TEAM-004 report read: Phoenix revenue.csv
+# TEAM-004 report read: Phoenix technicians.json
+# TEAM-004 report read: Phoenix technicians.csv
+# TEAM-004 report read: Phoenix sources.json
+# TEAM-004 report read: Phoenix sources.csv
+# TEAM-004 report read: Phoenix quotes.json
+# TEAM-004 report read: Phoenix quotes.csv
+# TEAM-004 report read: Phoenix margins.json
+# TEAM-004 report read: Phoenix margins.csv
+# TEAM-004 report read: Phoenix tax.json
+# TEAM-004 report read: Phoenix tax.csv
+# TEAM-004 report read: Phoenix agreements.json
+# TEAM-004 report read: Phoenix agreements.csv
+# TEAM-004 report read: Phoenix receivables.json
+# TEAM-004 report read: Phoenix receivables.csv
+# TEAM-004 report read: Phoenix 1099.json
+# TEAM-004 report read: Phoenix 1099.csv
+# TEAM-004 report read: Phoenix payroll.json
+# TEAM-004 report read: Phoenix payroll-gusto.csv
+# TEAM-004 report read: Phoenix payroll-adp-run.csv
+# TEAM-004 report read: Phoenix payroll-quickbooks.csv
+# TEAM-004 report read: Phoenix costing
+# TEAM-004 report read: Phoenix warranties
+# TEAM-004 report read: Phoenix refrigerant
+# TEAM-004 report read: Phoenix sources
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 271776.197453

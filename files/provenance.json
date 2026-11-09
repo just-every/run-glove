@@ -1,0 +1,13 @@
+{
+  "candidate": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "contract_diff_from_main": "",
+  "counts": {
+    "done": 41,
+    "missing": 29,
+    "partial": 193
+  },
+  "generated_view_diff_from_main": "",
+  "main_merged": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "shallow": "false",
+  "status_rows": 263
+}

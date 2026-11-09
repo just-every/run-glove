@@ -1,0 +1,178 @@
+{
+  "branch": "cloud/sx-glove-c-f206",
+  "browser_widths": [
+    1440,
+    390
+  ],
+  "claim": "PARTIAL",
+  "clause": "TEAM-004",
+  "contract_judgments_changed": false,
+  "counts": {
+    "done": 41,
+    "missing": 29,
+    "partial": 193
+  },
+  "github_calls": 2,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "held": [
+    "point 3 tax carriers",
+    "point 6 future inheritance carriers"
+  ],
+  "landing": {
+    "main_equals_candidate": false,
+    "run_site_on_candidate": "not run before landing",
+    "status": "branch only"
+  },
+  "local_checks": {
+    "api": {
+      "command": [
+        "timeout",
+        "600",
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/branches.test.mjs",
+        "tests/api/branch-authority.test.mjs"
+      ],
+      "end": "2026-11-09T10:42:57.247211+00:00",
+      "exit": 0,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "api.log",
+      "log_sha256": "670374a992c0500579de91fe5b0d578d2540fe63fbf07d7c98b1c57d093932c3",
+      "start": "2026-11-09T10:40:59.704063+00:00"
+    },
+    "browser": {
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1200; exec @ARGV",
+        "--",
+        "node",
+        "tests/browser/run.mjs",
+        "tests/browser/branches.spec.ts"
+      ],
+      "end": "2026-11-09T10:47:38.804185+00:00",
+      "exit": 0,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "browser.log",
+      "log_sha256": "d25931b9b2e35fcd5da7607eb3f1db9b20f9e0d1e13085266f2bf12354dec19a",
+      "start": "2026-11-09T10:43:28.286125+00:00"
+    },
+    "build": {
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "build"
+      ],
+      "end": "2026-11-09T10:37:06.847829+00:00",
+      "exit": 0,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "build.log",
+      "log_sha256": "720cd4dc579ab3de0152d97a474fd666abfb0a7c36d7e03cca3ab2d1205cdb44",
+      "start": "2026-11-09T10:36:42.627353+00:00"
+    },
+    "first-party": {
+      "command": [
+        "pnpm",
+        "exec",
+        "rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "end": "2026-11-09T10:37:35.987216+00:00",
+      "exit": 0,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "first-party.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "start": "2026-11-09T10:37:33.461114+00:00"
+    },
+    "inventory": {
+      "command": [
+        "node",
+        "tests/inventory.mjs"
+      ],
+      "end": "2026-11-09T10:37:41.440115+00:00",
+      "exit": 1,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "inventory.log",
+      "log_sha256": "c170663308e1c49cd96f2120dc69a292fa1e7eecf2e0103c1dec668864e086bc",
+      "start": "2026-11-09T10:37:36.107620+00:00"
+    },
+    "lock": {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "end": "2026-11-09T10:40:59.277516+00:00",
+      "exit": 0,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "lock.log",
+      "log_sha256": "d0d6250a4cfa5839dad17aa143f8a1b6bf0bd0aa9f27406780f53d72c11169c6",
+      "start": "2026-11-09T10:40:58.685934+00:00"
+    },
+    "typecheck": {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "end": "2026-11-09T10:37:33.322863+00:00",
+      "exit": 0,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "typecheck.log",
+      "log_sha256": "5f0e785f4f7e2b9f07635f4e22bb0ec70a25d699f6c43e84bf7be84a45099348",
+      "start": "2026-11-09T10:37:08.563105+00:00"
+    },
+    "views": {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "end": "2026-11-09T10:40:59.617091+00:00",
+      "exit": 0,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "log": "views.log",
+      "log_sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
+      "start": "2026-11-09T10:40:59.383959+00:00"
+    }
+  },
+  "main_merged": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "migrations_changed": false,
+  "new_test_registrations": 0,
+  "pr": null,
+  "product_pushed": true,
+  "publication_scan": {
+    "commit": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+    "complete": false,
+    "findings": null,
+    "historyScanned": false,
+    "reason": "Not run in cloud under the explicit cloud handoff; guarded Mac lander owns it."
+  },
+  "qualified_native_points": [
+    1,
+    2,
+    4,
+    5,
+    6
+  ],
+  "recorded_at": "2026-11-09T10:50:23.850843+00:00",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "test_inventory": {
+    "candidate": 202,
+    "cap": 200,
+    "disposition": "pre-existing main excess, unchanged by this round",
+    "main": 202
+  },
+  "ui_implementation_changed": false,
+  "verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+    "run_id": 42603950921,
+    "status": "in_progress"
+  }
+}

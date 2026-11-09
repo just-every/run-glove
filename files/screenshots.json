@@ -1,0 +1,116 @@
+{
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "images": [
+    {
+      "bytes": 242789,
+      "path": "screenshots/1440-branches-dispatch-0.png",
+      "sha256": "ebe3e11d5dcc356ccd24734c1cf2df4b5e9fc8e91b2d33ec9b4b7c9aff5505b0"
+    },
+    {
+      "bytes": 233589,
+      "path": "screenshots/1440-branches-dispatch-1.png",
+      "sha256": "638d4ac30542e2dd35a2517cd5df5b78bcf68746ecf41b39dbe4ddc5eecd9bb0"
+    },
+    {
+      "bytes": 242328,
+      "path": "screenshots/1440-branches-dispatch-2.png",
+      "sha256": "43605154a4edad7c8359141c24638ead5b38b3113b95dbd673914a649f5683f5"
+    },
+    {
+      "bytes": 124327,
+      "path": "screenshots/1440-branches-revenue.png",
+      "sha256": "f959c45df2e3650a9130a8b376be7c81ab798dfbcca3345e7b6fd650cbd6f9c6"
+    },
+    {
+      "bytes": 127269,
+      "path": "screenshots/1440-branches-technicians.png",
+      "sha256": "7674d1593187c7155ce455a9621b4c90a6a51e20473adb5b759f2127de12e3b9"
+    },
+    {
+      "bytes": 127754,
+      "path": "screenshots/1440-branches-sources.png",
+      "sha256": "9326e29225f5bc01ac60a47a859e507608c5926d2acc55cc8716d3ae40b1c103"
+    },
+    {
+      "bytes": 128533,
+      "path": "screenshots/1440-branches-quotes.png",
+      "sha256": "099abda42c924527440b9d285ce48a7379ba8c5760b97095fe6f17322fec49b9"
+    },
+    {
+      "bytes": 128114,
+      "path": "screenshots/1440-branches-margins.png",
+      "sha256": "4b8103ae20c3f0d85403ac7131a51e77899322764bcf0b5eef2eff9413a6eaa2"
+    },
+    {
+      "bytes": 128303,
+      "path": "screenshots/1440-branches-tax.png",
+      "sha256": "f4e9a91ae348818e905eda04dbecf8a1b2a8cf22ea8a16e3b094ff832a4ee893"
+    },
+    {
+      "bytes": 122907,
+      "path": "screenshots/1440-branches-reports-main.png",
+      "sha256": "c82a700f7df24c537cea2fb05bac64a16739f1f56ba41c00eecaafb7285e1b3d"
+    },
+    {
+      "bytes": 118764,
+      "path": "screenshots/1440-branches-reports-all-branches.png",
+      "sha256": "be5a459c4853a42894a984f997745ddfbb29e4c72b8169193ab8799133c0e3cd"
+    },
+    {
+      "bytes": 206352,
+      "path": "screenshots/390-branches-dispatch-0.png",
+      "sha256": "d0d9c4462d63952d715a765665c8b69f5ff8e6bedb0633108b7765a3bd4df11d"
+    },
+    {
+      "bytes": 197225,
+      "path": "screenshots/390-branches-dispatch-1.png",
+      "sha256": "98437b3e2a61446c07c23f16a258f07b98a460a08abe79b9163835c695e8a5ce"
+    },
+    {
+      "bytes": 205774,
+      "path": "screenshots/390-branches-dispatch-2.png",
+      "sha256": "7a5d45586be65e1d95e187c95855642673dc6f40c131e12c3f9b013eada4a49c"
+    },
+    {
+      "bytes": 46070,
+      "path": "screenshots/390-branches-revenue.png",
+      "sha256": "e787c21d13ca38a963b20e9955b18545f8f2dcfcb0a48a0468a650e7d4015e9b"
+    },
+    {
+      "bytes": 42069,
+      "path": "screenshots/390-branches-technicians.png",
+      "sha256": "98b7fed997d3f5ff8b8f5f89778d6112db66a3de58c023dcfbdecbbcdc224ca8"
+    },
+    {
+      "bytes": 44224,
+      "path": "screenshots/390-branches-sources.png",
+      "sha256": "d3b35b74e86342b5e28de28e3c2885b011dae0d8deb8d54f6840ec070543848e"
+    },
+    {
+      "bytes": 51582,
+      "path": "screenshots/390-branches-quotes.png",
+      "sha256": "c38b215870d8f19b561de4033c7bdb193ef9cc2caddf193a6998de0011a60da1"
+    },
+    {
+      "bytes": 43791,
+      "path": "screenshots/390-branches-margins.png",
+      "sha256": "d73a087de289125d95e7890fd5009a236538c067490d036e4b68856ee51a92a6"
+    },
+    {
+      "bytes": 52217,
+      "path": "screenshots/390-branches-tax.png",
+      "sha256": "22a4310e291c3c830e2bbd3e2edd519dc335de206042a6c66b8e7540b2a06cac"
+    },
+    {
+      "bytes": 45104,
+      "path": "screenshots/390-branches-reports-main.png",
+      "sha256": "9ebd2362cd6840497b0a499462774dca29a530fafacb7197da828b00cba4369d"
+    },
+    {
+      "bytes": 44004,
+      "path": "screenshots/390-branches-reports-all-branches.png",
+      "sha256": "bb362f5e8070f8df1b4e140f00a8369e182b8514ad3a7f9d36db7ce63d3e68b8"
+    }
+  ],
+  "selection": "Dispatch and report screens only. No integration credential screen selected."
+}
