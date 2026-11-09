@@ -81,6 +81,8 @@ test('QUOTE-015 document presentation preserves scoped originals, calendar facts
       ['reports', f.reportLink.token, report.files],
       ...Object.values(deskDocs).map(d => ['desk', h.owner(), filesOf(d).map(f => f.fileId)]),
     ]
+    const revoked = await f.makeQuote('Revoked presentation proposal')
+    const replacement = await h.command('quote.link', { quoteId: revoked.q.id, version: revoked.q.version })
     const assertOriginalDoors = async () => {
       for (const [scope, token, ids] of groups) for (const id of ids) {
         const path = `/files/${id}`
@@ -94,6 +96,13 @@ test('QUOTE-015 document presentation preserves scoped originals, calendar facts
       assert.equal((await f.read('quote', f.reportLink.token)).status, 404)
       assert.equal((await f.read('reports', f.open.link.token)).status, 404)
       for (const id of report.files) assert.equal((await h.request(`/api/glove/files/${id}`, { as: f.b.tomPerson.cookie })).status, id === report.business.logo.fileId ? 200 : 404, 'the shared business logo remains available to signed-in roles; job originals do not')
+      for (const [scope, id] of [['quote', opened.document.files[0]], ['reports', report.files[0]]]) {
+        assert.equal((await h.request(`/api/glove/public/${scope}`, { as: '' })).status, 404)
+        assert.equal((await h.request(`/api/glove/public/${scope}/files/${id}`, { as: '' })).status, 404)
+      }
+      assert.equal((await f.read('quote', revoked.link.token)).status, 404)
+      assert.equal((await f.read('quote', revoked.link.token, `/files/${revoked.q.documentPhotos[0].file.fileId}`)).status, 404)
+      assert.equal((await (await f.read('quote', replacement.token)).json()).document.title, 'Revoked presentation proposal')
     }
     await assertOriginalDoors()
     const prior = await f.makeQuote('Revision custody proposal')
