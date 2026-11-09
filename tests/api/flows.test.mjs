@@ -25,7 +25,8 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
   after(() => h.close())
   let b, quote, job, visit
 
-  test('01 owner sets up the business, price book, team and roles', async () => {
+  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
+    await scenario(t, '01 owner sets up the business, price book, team and roles', async () => {
     assert.equal((await h.state()).jobs.length, 0, 'a new installation starts empty')
     b = await business(h)
     const s = await h.state()
@@ -35,8 +36,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     await b.dispatcher.run('role.set', { operatorId: b.office.id, role: 'owner' }, { error: 'FORBIDDEN' })
     await h.command('business.save', { name: 'x', timezone: 'Mars/Olympus', version: s.business[0].version }, { error: 'TIMEZONE' })
   })
-
-  test('02 desk records a customer and the sites where work happens', async () => {
+    await scenario(t, '02 desk records a customer and the sites where work happens', async () => {
     const extra = await b.office.run('site.save', { customerId: b.customer.id, address: 'Level 2, 14 Harbour St, Balmain NSW 2041', accessNotes: 'Lift to level 2' })
     const s = await b.dispatcher.state()
     assert.equal(s.sites.filter(x => x.customerId === b.customer.id).length, 2)
@@ -103,8 +103,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
       assert.deepEqual([kept[0].id, kept[0].kind, kept[0].subject_id, kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].at, kept[0].summary], [events[0].id, kind, subjectId, actorId, actorName, actorRole, events[0].at, events[0].summary])
     }
   })
-
-  test('03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
+    await scenario(t, '03 an enquiry becomes a quote whose exact revision a person prices and approves', async t => {
     const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     t.after(() => clock(null))
     const recorder = { id: b.dispatcher.id, name: 'Sam Ortiz', role: 'dispatcher' }
@@ -213,6 +212,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
       assert.deepEqual(Object.fromEntries(Object.keys(data[i]).map(key => [key, detail[key]])), data[i])
     }
     quote = approved
+  })
   })
 
   test('04 recorded sends and customer answers retain exact provenance and freeze accepted revisions', async t => {
@@ -345,7 +345,8 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.deepEqual(await readQuote(quote.id), quote, 'erasure leaves another customer’s accepted work unchanged')
   })
 
-  test('05 the accepted quote becomes a job and a visit booked for a technician in the business timezone', async () => {
+  test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async t => {
+    await scenario(t, '05 the accepted quote becomes a job and a visit booked for a technician in the business timezone', async () => {
     const commandId = randomUUID()
     job = await b.dispatcher.run('job.create', { quoteId: quote.id }, { commandId })
     assert.equal(job.quoteId, quote.id)
@@ -478,8 +479,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     }
     await b.dispatcher.run('visit.book', { jobId: otherJob.id, technicianId: b.tom.id, date: '2026-10-04', start: '02:30', end: '03:00' }, { error: 'TIME' })
   })
-
-  test('06 the technician captures checklist, notes, photos and materials through a connectivity interruption', async () => {
+    await scenario(t, '06 the technician captures checklist, notes, photos and materials through a connectivity interruption', async () => {
     const mine = await b.priyaPerson.state()
     assert.equal(mine.visits.length, 2, 'Priya sees only the visits assigned to her')
     assert.equal(mine.quotes.length, 0)
@@ -508,8 +508,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal((await h.request(`/api/glove/files/${photo.file.fileId}`, { as: b.tomPerson.cookie })).status, 404, 'another technician cannot read it')
     await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:31:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: png } }, { error: 'FILE' })
   })
-
-  test('07 a dispatch change needs conflict review and keeps late evidence for review', async t => {
+    await scenario(t, '07 a dispatch change needs conflict review and keeps late evidence for review', async t => {
     const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     t.after(() => clock(null))
     await clock('2026-10-16T00:00:00.000Z')
@@ -644,8 +643,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
       assert.deepEqual([data.before, data.after, data.reviewedConflicts], [from, to, conflicts])
     }
   })
-
-  test('08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
+    await scenario(t, '08 completion needs arrival, the required checklist and the customer sign-off or why it is missing', async () => {
     await b.tomPerson.run('visit.complete', { visitId: visit.id, deviceTime: '2026-10-15T00:30:00Z', summary: 'Serviced', signoff: { customerName: 'Dr Mei Lin', signature: { mediaType: 'image/png', base64: png } } }, { error: 'NO_ARRIVAL' })
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:31:00Z' })
     await b.tomPerson.run('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T23:32:00Z' }, { error: 'ARRIVED' })
@@ -664,8 +662,6 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal(signature.headers.get('content-type'), 'image/png')
     assert.equal((await h.state()).jobs.find(j => j.id === job.id).status, 'completed')
   })
-
-  test('09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async t => {
     await scenario(t, '09 office prepares the invoice, approves it, exports it once and corrects it with a trail', async t => {
     const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
     t.after(() => clock(null))

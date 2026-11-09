@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "3c8c17b9be96a570bad507902494c9a0e3edc4e51e1b9e278ccc8b27632dfa6b",
+      "sha256": "b9ab1c0813479cb3e41799ffd77d46686b64f0d29a45cb4b43cdb4cb106ef359",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "1ea0208ec14dbb0ae13cb58e457bbc2c47063237e6d43d07a83965069da8bdee",
+      "sha256": "a1a553d2621fce9424a23dfdc6eb1943f29ea6847fd02e7794c11728f519b34a",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "64e55deea9a335cf30cf264eb9aff15f4003cfa610f589c59756a195e712e052",
+      "sha256": "b999902a53f1b58faca6e83deb56084b2dcf5ff8efceb76243f5dce27162cc28",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "40cccdd927dc5af94688178d26d739d20db85cb32229876576e6899734aaff10",
+      "sha256": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -2416,7 +2416,7 @@
       "executable": false
     },
     "src/glove/reports.ts": {
-      "sha256": "72716c1927c9208edc2e46dd9e110f727aea5bc1c56246594261acecea5e121a",
+      "sha256": "6d809ccc24e8169f782696d1f166673d7feae80a86040d5ac77878b3e528b788",
       "executable": false
     },
     "src/glove/request-model-photos.ts": {
@@ -5579,6 +5579,10 @@
       "sha256": "7f3c4805bfd9ef83d969163fdc1b862f95a0458bb5ebcd8fbfcad117032a3270",
       "executable": false
     },
+    "tests/api/due-visit-list.test.mjs": {
+      "sha256": "ae67bc36bcc18c3c150bc8ea70bc92940e2ceb70b4a90379982f0aa063a07c30",
+      "executable": false
+    },
     "tests/api/due-visit-offers.test.mjs": {
       "sha256": "416dd4e7fbcb4feb81f35477e7d2844de232a399be77539dc1e06e69149c7c25",
       "executable": false
@@ -5599,12 +5603,16 @@
       "sha256": "a3700dfbf2be1b8320cdc6a8e0d799bb5b4a5b280abf11888ef740cd4ddd2b95",
       "executable": false
     },
+    "tests/api/fixed-monthly-dates.test.mjs": {
+      "sha256": "3291c0fe188d00821471e9946ef17074b8c11ec2ffd1a07cae09144f775f0709",
+      "executable": false
+    },
     "tests/api/fixed-monthly-reports.test.mjs": {
       "sha256": "10c18eaff559e10a3ad99fee8a351c067a8db8379991b8cf7adaef3b0d313718",
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "3b243529d91b1271ae4b3f46bb845261f8b1996aab6a5203bba9652e8e354743",
+      "sha256": "d3aa39efd2ba05f0ec06e70d16e618bc3a4461581d0d66b6761a6a1652849fb7",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -5779,6 +5787,10 @@
       "sha256": "f7d51e7c4d891e6ae3089c3940c05f51090282ce6fc42d49c6ccd69d2283ca0a",
       "executable": false
     },
+    "tests/api/tax-evidence.test.mjs": {
+      "sha256": "d602006ca633cd614c03c09bc004c1a88683f3530defee4add5781ab33181a81",
+      "executable": false
+    },
     "tests/api/time.test.mjs": {
       "sha256": "04a6e4c5c4fa3a4c14cf92b8cf4bd3c802832d403df32ac73a83e5a3f017a3fe",
       "executable": false
@@ -5849,6 +5861,10 @@
     },
     "tests/browser/documents.spec.ts": {
       "sha256": "571a48e5fe1a36a7c80c649b994d3b55228ddf13389c2767d0e24c972d8831ac",
+      "executable": false
+    },
+    "tests/browser/due-visit-list.spec.ts": {
+      "sha256": "ecdbbeb7211e89cf4c54ac6856f0b2e4e7696d5139b8dbb8932cacd30a3c03dc",
       "executable": false
     },
     "tests/browser/due-visit-offers.spec.ts": {
@@ -5924,7 +5940,7 @@
       "executable": false
     },
     "tests/browser/revenue.spec.ts": {
-      "sha256": "d1a0cd9686e66b87e9b557fc7bc445b2c26ee7b9b7ecf34af64c68005dac7bac",
+      "sha256": "9e4ae271805f2fe0185fb102c450be6dbaeda714a9c4703ecda55eaf410e3e7c",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
@@ -5949,6 +5965,10 @@
     },
     "tests/browser/subcontractor.spec.ts": {
       "sha256": "77856ff5092f714407e1d5f39d7d72038dff5ca2e2d9d3fc70b623ea3af364ae",
+      "executable": false
+    },
+    "tests/browser/tax-evidence.spec.ts": {
+      "sha256": "9e7f73eba84fab128053ca01e4e1e44626d51c26806191dcc5fb6c661a05e530",
       "executable": false
     },
     "tests/browser/visit-status-journey.ts": {
@@ -6376,7 +6396,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "9b69d542b155552d93cb02965df4c6e9dc0bed7b2ef0a844924f51717d073e2d",
+      "sha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
       "executable": false
     },
     "tests/runtime.mjs": {
