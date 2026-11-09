@@ -28,6 +28,9 @@ export async function commissionFixture(h) {
   for (const [tech, person] of [[tom, b.tomPerson], [priya, b.priyaPerson]]) {
     const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-03', start: '08:00', end: '09:00' })
     visits.push(visit)
+  }
+  for (const [i, person] of [b.tomPerson, b.priyaPerson].entries()) {
+    const visit = visits[i]
     await person.run('visit.arrive', { visitId: visit.id, deviceTime: stamp('2026-11-03', '08:00') })
     await person.run('visit.complete', { visitId: visit.id, deviceTime: stamp('2026-11-03', '09:00'), summary: 'Installed', signoff: { absentReason: 'Customer away' } })
   }
