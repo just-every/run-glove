@@ -13,7 +13,7 @@ export const balanceCommands: Handler = async (c, type, p, db) => {
   if (c.actor.token) fail('FORBIDDEN', 'A signed-in person records or refunds money.', null, 403)
   if (type === 'payment.refundRefresh') {
     const row = find(c.s, 'payments', p.refundId); expectVersion(row, p.version)
-    if (row.kind !== 'refund' || !row.providerReference || row.status === 'paid') fail('REFUND_STATE', 'Choose a pending provider refund with a retained reference.')
+    if (row.kind !== 'refund' || !row.providerReference || row.status !== 'pending') fail('REFUND_STATE', 'Choose a pending provider refund with a retained reference.')
     c.refundId = row.id; c.refundRefresh = true
     event(c, { jobId: row.jobId, subjectKind: 'payment', subjectId: row.id, kind: 'refund.refreshRequested', summary: 'Owner requested the current Stripe refund status; no new refund is sent', data: { refundId: row.id } })
     return row
