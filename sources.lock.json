@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
-      "sha256": "43fa3f37dd0f7df49058722bfa401755ff415d987b9bc3a0dda65d12d62dc553",
+      "sha256": "42c6d2f06be6f0b9be8ce9d59c7397bf78ee3aaf2a92353cbf59b1313e687c98",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -6204,7 +6204,7 @@
       "executable": false
     },
     "tests/fixtures/payroll-commissions.mjs": {
-      "sha256": "707b28188bdfaa4884f1abe3ae5497ef9ea5f67386ae96206d171fa380a0e570",
+      "sha256": "57a267863b258b5b2c5675ba4f7a0e39883503b827b12262e93f94eddd1b979c",
       "executable": false
     },
     "tests/fixtures/portable-maps.mjs": {

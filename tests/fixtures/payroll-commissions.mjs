@@ -8,6 +8,7 @@ export const commissionJson = '/api/glove/reports/payroll.json?' + commissionRan
 const stamp = (date, time = '00:05') => `${date}T${time}:00+11:00`
 
 export async function commissionFixture(h) {
+  await h.setTime(stamp('2026-11-02'))
   const b = await business(h)
   const priya = await h.command('technician.save', { ...b.priya, payrollId: '304' })
   const tom = await h.command('technician.save', { ...b.tom, payrollId: '305' })
@@ -22,14 +23,15 @@ export async function commissionFixture(h) {
   }
   // Reverse booking order proves the split remainder belongs to the first by
   // technician name, rather than the first visit or first completion.
-  const q = await sale('2026-11-03', null, '100.01')
+  const q = await sale('2026-11-02', null, '100.01')
   const job = await b.dispatcher.run('job.create', { quoteId: q.id })
   const visits = []
   for (const [tech, person] of [[tom, b.tomPerson], [priya, b.priyaPerson]]) {
     const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-03', start: '08:00', end: '09:00' })
     visits.push(visit)
   }
-  for (const [person, date, end] of [[b.priyaPerson, '2026-11-02', '16:00'], [b.priyaPerson, '2026-11-09', '21:00'], [b.tomPerson, '2026-11-03', '10:00'], [b.tomPerson, '2026-11-10', '11:00']]) {
+  for (const [person, date, end] of [[b.priyaPerson, '2026-11-02', '16:00'], [b.tomPerson, '2026-11-03', '10:00']]) {
+    await h.setTime(stamp(date, end))
     await person.run('clock.in', { deviceTime: stamp(date, '08:00') })
     if (date === '2026-11-03') {
       await person.run('timer.start', { visitId: visits[0].id, kind: 'job', deviceTime: stamp(date, '08:00') })
@@ -42,12 +44,13 @@ export async function commissionFixture(h) {
     await person.run('visit.arrive', { visitId: visit.id, deviceTime: stamp('2026-11-03', '08:00') })
     await person.run('visit.complete', { visitId: visit.id, deviceTime: stamp('2026-11-03', '09:00'), summary: 'Installed', signoff: { absentReason: 'Customer away' } })
   }
-  await h.setTime(stamp('2026-11-23'))
-  for (const tech of [priya, tom]) for (const weekStart of ['2026-11-02', '2026-11-09']) await h.command('timesheet.approve', { technicianId: tech.id, weekStart })
+  await h.setTime(stamp('2026-11-04', '00:00'))
+  for (const tech of [priya, tom]) await h.command('timesheet.approve', { technicianId: tech.id, weekStart: '2026-11-02' })
   const items = []
   const sold = async (date, tech, base, rate, amount) => {
     const quote = await sale(date, tech, base)
     items.push({ technicianId: tech.id, date, kind: 'sold', subjectId: quote.id, label: `${quote.number} sold`, base, rate, amount })
+    return quote
   }
   const finish = async () => {
     // $100.01 / 2 = $50.01 and $50.00; 50% rounds to $25.01 and $25.00.
@@ -55,15 +58,28 @@ export async function commissionFixture(h) {
     const draft = await b.office.run('invoice.prepare', { jobId: job.id })
     const invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
     for (const [tech, base, amount] of [[priya, '50.01', '25.01'], [tom, '50.00', '25.00']]) items.push({ technicianId: tech.id, date: '2026-11-04', kind: 'completed', subjectId: invoice.id, label: `${invoice.number} completed`, base, rate: '50%', amount })
-    await sold('2026-11-08', tom, '200.10', '5%', '10.01')
-    for (const [date, tech, base, amount] of [['2026-11-09', priya, '300.05', '30.01'], ['2026-11-09', tom, '100.10', '10.01'], ['2026-11-16', priya, '400.00', '40.00'], ['2026-11-16', tom, '500.00', '50.00']]) await sold(date, tech, base, '10%', amount)
     const plan = await h.command('plan.save', { name: 'Synthetic Glove Service Plan', price: '228.00', termMonths: 12, includedVisits: 1, visitServiceId: b.service.id, repairDiscountPercent: '0' })
-    for (const [date, tech, amount] of [['2026-11-04', priya, '25.00'], ['2026-11-09', tom, '40.00'], ['2026-11-16', priya, '40.00']]) {
+    const spiff = async (date, tech, amount) => {
       await h.setTime(stamp(date))
       const site = await h.command('site.save', { customerId: b.customer.id, address: `${items.length} Synthetic Glove Road` })
       const agreement = await b.office.run('agreement.sell', { planId: plan.id, customerId: b.customer.id, siteId: site.id, via: 'phone', soldByTechnicianId: tech.id })
       items.push({ technicianId: tech.id, date, kind: 'agreement', subjectId: agreement.id, label: `${plan.name} sold`, base: '228.00', rate: `$${amount}`, amount })
     }
+    await spiff('2026-11-04', priya, '25.00')
+    await sold('2026-11-08', tom, '200.10', '5%', '10.01')
+    await sold('2026-11-09', priya, '300.05', '10%', '30.01')
+    await sold('2026-11-09', tom, '100.10', '10%', '10.01')
+    await spiff('2026-11-09', tom, '40.00')
+    for (const [person, date, end] of [[b.priyaPerson, '2026-11-09', '21:00'], [b.tomPerson, '2026-11-10', '11:00']]) {
+      await h.setTime(stamp(date, end))
+      await person.run('clock.in', { deviceTime: stamp(date, '08:00') })
+      await person.run('clock.out', { deviceTime: stamp(date, end) })
+    }
+    await h.setTime(stamp('2026-11-11'))
+    for (const tech of [priya, tom]) await h.command('timesheet.approve', { technicianId: tech.id, weekStart: '2026-11-09' })
+    await sold('2026-11-16', priya, '400.00', '10%', '40.00')
+    await sold('2026-11-16', tom, '500.00', '10%', '50.00')
+    await spiff('2026-11-16', priya, '40.00')
     await sold('2026-11-16', excluded, '600.00', '10%', '60.00')
     await sold('2026-11-16', sub, '700.00', '10%', '70.00')
     await sale('2026-11-23', priya, '900.00') // Outside the selected period.
