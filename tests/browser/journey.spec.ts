@@ -3,6 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
+import { commissionDownloads } from './commission-download-journey'
 
 // The first-release cycle through the real screens: the owner sets up and
 // quotes, the dispatcher books with conflict review, the technician records
@@ -1058,6 +1059,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await expect(row.getByText('Original from the phone: 8:40 AM – 8:50 AM', { exact: true })).toBeVisible()
       await expect(page.getByText('Travel 15 min · On the job 3 min', { exact: true })).toBeVisible()
       await proof('time-corrected')
+      await commissionDownloads(browser)
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
 })
