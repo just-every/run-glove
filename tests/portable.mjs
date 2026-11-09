@@ -436,7 +436,8 @@ try {
   // DISP-011: ordinary owner commands create a real route, and the actual
   // scheduled entry prepares it. Only Google Maps transport is replaced.
   const routeDay = '2026-11-10', mapsKey = 'synthetic-glove-82'
-  await owner.cmd('maps.connect', { key: mapsKey })
+  const mapsConnectId = randomUUID()
+  await owner.cmd('maps.connect', { key: mapsKey }, mapsConnectId)
   const routeVisits = []
   for (let i = 0; i < 2; i++) {
     const address = `${900 + i} Portable Route Ave, Chicago, IL 60601`
@@ -550,6 +551,25 @@ try {
   assert.deepEqual(restoredRouteVisits, routeVisits, 'DISP-011 import and startup move no appointment')
   assert.deepEqual(after.routes, before.routes, 'DISP-011 all proposal metadata survives real export and import')
   assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false)
+  // DISP-002: actual archive restore retains map history but no Maps authority.
+  const mapBeforeReconnect = await running.owner.get(`/api/glove/map?date=${routeDay}`)
+  const restoredStops = mapBeforeReconnect.technicians.find(t => t.id === tech.id).stops
+  assert.deepEqual(restoredStops.map(s => s.visitId), routeVisits.map(v => v.id))
+  assert.ok(restoredStops.every(s => s.location && Number.isFinite(s.location.lat) && Number.isFinite(s.location.lng)))
+  assert.deepEqual(mapBeforeReconnect.technicians.find(t => t.id === tech.id).legs.map(l => [l.seconds, l.meters]), [[null, null]])
+  const mapsCallsBeforeReplay = (await (await running.request('/__portable/maps')).json()).calls
+  assert.deepEqual(mapsCallsBeforeReplay, [], 'DISP-002 import and startup make no Maps request')
+  await running.owner.cmd('maps.connect', { key: mapsKey }, mapsConnectId)
+  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false, 'DISP-002 archived connect replay cannot reinstall a key')
+  const placeBeforeReconnect = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'site.locate', payload: { siteIds: [restoredStops[0].siteId] } }, running.owner.cookie)
+  assert.equal((await placeBeforeReconnect.json()).error.code, 'MAPS')
+  assert.equal((await running.request(`/api/glove/map.png?date=${routeDay}`, 'GET', undefined, running.owner.cookie)).status, 404)
+  assert.deepEqual((await (await running.request('/__portable/maps')).json()).calls, mapsCallsBeforeReplay)
+  const mapActivity = await running.owner.get('/api/glove/activity')
+  const mapsEvent = mapActivity.events.find(e => e.kind === 'maps.connected' && e.commandId === mapsConnectId)
+  assert.ok(mapsEvent.actorId && mapsEvent.actorName && mapsEvent.at)
+  assert.ok(after.timeline.some(e => e.command_id === mapsConnectId && e.actor_id === mapsEvent.actorId))
+  console.log('DISP-002 actual archive: key absent, coordinates and attributable history retained, old session refused, reconnect required before Maps requests')
   const callsBeforeReconnect = (await (await running.request('/__portable/maps')).json()).calls
   const acceptRestored = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'route.accept', payload: { routeId: route.id, version: route.version, reason: 'Restored proposal' } }, running.owner.cookie)
   assert.equal((await acceptRestored.json()).error.code, 'MAPS', 'DISP-011 restored metadata grants no provider authority')

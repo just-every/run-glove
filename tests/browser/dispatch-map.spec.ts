@@ -2,7 +2,7 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error The shared HTTP installation harness is a JavaScript test fixture.
-import { installation, business } from '../api/harness.mjs'
+import { installation, business, mapBoardFixture } from '../api/harness.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 
@@ -266,6 +266,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
       } finally { await phone.context.close() }
     }
   } finally { await h.close() }
+  await mapQualification(browser)
 })
 
 async function calendarDeliveryReview(browser: any) {
@@ -348,4 +349,95 @@ async function calendarDeliveryReview(browser: any) {
       await expect(calendar.getByRole('region', { name: 'Retained calendar events' })).toContainText(mapping.event_id)
     }
   } finally { await context.close(); await h.close() }
+}
+
+async function mapQualification(browser: any) {
+  const h = await installation({ at: '2026-11-09T23:30:00.000Z' })
+  try {
+    const f = await mapBoardFixture(h)
+    const { context, page } = await signedIn(browser, 1440)
+    try {
+      await page.clock.install({ time: new Date('2026-11-09T23:30:00.000Z') })
+      await productionApi(page, h)
+      await page.goto(`${origin}/app#dispatch`)
+      await page.getByLabel('Day', { exact: true }).fill(f.day)
+      const map = page.getByRole('region', { name: 'Route map' })
+      await expect(map.getByRole('group', { name: `Stops on the map, ${f.day}` }).getByRole('img')).toHaveCount(5)
+      for (const [tech, indices, times] of [[f.technicians[0], [0, 1, 2], ['8:00 AM', '10:00 AM', '1:00 PM']], [f.technicians[1], [3, 4], ['9:00 AM', '12:00 PM']]] as any[]) {
+        const route = map.getByRole('listitem', { name: `${tech.name}'s route`, exact: true })
+        for (const [n, i] of indices.entries()) {
+          const pin = map.getByRole('img', { name: `${tech.name} stop ${n + 1}: ${f.jobs[i].number} at ${times[n]}, ${f.sites[i].address}`, exact: true })
+          await expect(pin).toBeVisible()
+          await expect(pin.locator('text')).toHaveText(String(n + 1))
+        }
+        for (const drive of tech.id === f.technicians[0].id ? ['7 min drive · 1.0 mi', '11 min drive · 3.0 mi'] : ['16 min drive · 5.0 mi']) await expect(route.getByText(drive, { exact: true })).toBeVisible()
+      }
+      await expect.poll(() => map.locator('img[src^="/api/glove/map.png"]').evaluate((img: HTMLImageElement) => img.naturalWidth)).toBe(1280)
+      await map.getByRole('button', { name: 'Draw a service-area zone', exact: true }).click()
+      await map.getByLabel('Zone for', { exact: true }).selectOption(f.technicians[0].id)
+      await map.getByLabel('Zone name', { exact: true }).fill('Clicked service zone')
+      const surface = map.getByRole('group', { name: `Stops on the map, ${f.day}` })
+      const box = (await surface.boundingBox())!
+      for (const [x, y] of [[0.1, 0.1], [0.3, 0.1], [0.2, 0.3]]) await surface.click({ position: { x: box.width * x, y: box.height * y } })
+      await expect(map.getByLabel('Corners', { exact: true })).toHaveValue(/\n.*\n/)
+      await send(page, map.getByRole('button', { name: 'Save zone', exact: true }))
+      await expect(map.locator('polygon.zone title')).toContainText(['Map Ada: Clicked service zone'])
+      const clicked = (await h.state()).technicians.find((t: any) => t.id === f.technicians[0].id)
+      expect(clicked.zones[0].points).toHaveLength(3)
+      await map.getByRole('button', { name: 'Draw a service-area zone', exact: true }).click()
+      await map.getByLabel('Zone for', { exact: true }).selectOption(f.technicians[1].id)
+      await map.getByLabel('Zone name', { exact: true }).fill('Typed service zone')
+      await map.getByLabel('Corners', { exact: true }).fill('41.70, -87.70\n41.90, -87.70\n41.80, -87.50')
+      await send(page, map.getByRole('button', { name: 'Save zone', exact: true }))
+      await expect.poll(async () => (await map.locator('polygon.zone title').allTextContents()).sort()).toEqual(['Map Ada: Clicked service zone', 'Map Bea: Typed service zone'])
+      const typed = (await h.state()).technicians.find((t: any) => t.id === f.technicians[1].id)
+      expect(typed.zones[0].points).toEqual([{ lat: 41.7, lng: -87.7 }, { lat: 41.9, lng: -87.7 }, { lat: 41.8, lng: -87.5 }])
+      const outsideAddress = '401 Outside Street, Chicago, IL 60609'
+      h.maps.places.set(outsideAddress, { lat: 42.1, lng: -87.9 })
+      const outside = await h.command('site.save', { customerId: f.customer.id, address: outsideAddress })
+      const outsideJob = await f.dispatcher.run('job.create', { customerId: f.customer.id, siteId: outside.id, title: 'Outside drawn zone' })
+      const before = (await h.state()).visits
+      const warning = await f.dispatcher.run('visit.book', { jobId: outsideJob.id, technicianId: f.technicians[1].id, date: '2026-11-10', start: '09:00', end: '10:00' }, { error: 'CONFLICT_REVIEW' })
+      expect(warning.details.conflicts.map((c: any) => c.code)).toEqual(['area:60609'])
+      expect((await h.state()).visits).toEqual(before)
+      const unplaced = await h.command('site.save', { customerId: f.customer.id, address: '402 Unplaced Street, Chicago, IL 60610' })
+      const unplacedJob = await f.dispatcher.run('job.create', { customerId: f.customer.id, siteId: unplaced.id, title: 'Unplaced stop' })
+      await f.dispatcher.run('visit.book', { jobId: unplacedJob.id, technicianId: f.technicians[1].id, date: f.day, start: '15:00', end: '16:00', acknowledge: ['area:60610'] })
+      await page.reload()
+      await page.getByLabel('Day', { exact: true }).fill(f.day)
+      await expect(map.getByRole('button', { name: 'Place on the map', exact: true })).toBeVisible()
+      await expect(map.getByText(/402 Unplaced Street.*Google Maps found no place/)).toBeVisible()
+      await expect(surface.getByRole('img')).toHaveCount(5)
+      await map.scrollIntoViewIfNeeded()
+      await shot(page, 1440, 'qualified-board')
+      await page.setViewportSize({ width: 390, height: 1000 })
+      await map.scrollIntoViewIfNeeded()
+      await shot(page, 390, 'qualified-board')
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    } finally { await context.close() }
+    // Each assigned visit's own address, checked on the actual phone view.
+    for (const [personIndex, indices] of [[0, [0, 1, 2]], [1, [3, 4]]] as [number, number[]][]) {
+      const phone = await signedIn(browser, 390)
+      try {
+        await phone.page.clock.install({ time: new Date('2026-11-09T23:30:00.000Z') })
+        await productionApi(phone.page, h, f.people[personIndex].cookie)
+        for (const i of indices) {
+          await phone.page.goto(`${origin}/app?job=${f.jobs[i].id}`)
+          const directions = phone.page.getByRole('group', { name: 'Directions to the site', exact: true })
+          const address = encodeURIComponent(f.sites[i].address)
+          await expect(directions.getByRole('link', { name: 'Apple Maps', exact: true })).toHaveAttribute('href', `https://maps.apple.com/?daddr=${address}&dirflg=d`)
+          await expect(directions.getByRole('link', { name: 'Google Maps', exact: true })).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${address}&travelmode=driving`)
+          await expect(directions.getByRole('link', { name: 'Waze', exact: true })).toHaveAttribute('href', `https://waze.com/ul?q=${address}&navigate=yes`)
+          if (i === 0) {
+            await directions.scrollIntoViewIfNeeded()
+            await shot(phone.page, 390, 'qualified-directions')
+            await phone.page.setViewportSize({ width: 1440, height: 1000 })
+            await directions.scrollIntoViewIfNeeded()
+            await shot(phone.page, 1440, 'qualified-directions')
+            await phone.page.setViewportSize({ width: 390, height: 1000 })
+          }
+        }
+      } finally { await phone.context.close() }
+    }
+  } finally { await h.close() }
 }

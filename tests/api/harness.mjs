@@ -701,3 +701,33 @@ export async function fixedMonthlyReports(h) {
   }
   return { office, field, customer, site, branch, branchCustomer, branchSite, onTime, late, pacific, unapproved, ordinary, perVisit, line, periods, approved, proposed, earlyRefusals }
 }
+
+/** DISP-002: one fixed business-local day with independent provider leg answers. */
+export async function mapBoardFixture(h) {
+  await h.command('business.save', { name: 'Synthetic Glove maps', currency: 'USD', timezone: 'America/Chicago' })
+  const dispatcher = await h.person('Map Dispatcher', 'dispatcher')
+  const people = [await h.person('Map Ada', 'technician'), await h.person('Map Bea', 'technician')]
+  const technicians = []
+  for (const person of people) technicians.push(await h.command('technician.save', { name: person.name, operatorId: person.id }))
+  const customer = await h.command('customer.save', { name: 'Map customer', contact: 'Private contact', phone: '312 555 0142' })
+  await h.command('maps.connect', { key: 'synthetic-glove-173' })
+  const day = '2026-11-09', sites = [], jobs = [], visits = []
+  for (let i = 0; i < 5; i++) {
+    const address = `${101 + i} Map Street, Chicago, IL 60601`
+    h.maps.places.set(address, { lat: 41.8 + i * 0.01, lng: -87.63 })
+    sites.push(await h.command('site.save', { customerId: customer.id, address, accessNotes: 'Private access instructions' }))
+    jobs.push(await dispatcher.run('job.create', { customerId: customer.id, siteId: sites[i].id, title: `Map visit ${i + 1}` }))
+  }
+  // Deliberately insert the last stop first. Numbers must follow local visit time.
+  for (const i of [2, 0, 4, 1, 3]) visits[i] = await dispatcher.run('visit.book', { jobId: jobs[i].id, technicianId: technicians[i < 3 ? 0 : 1].id, date: day, start: ['08:00', '10:00', '13:00', '09:00', '12:00'][i], end: ['09:00', '11:00', '14:00', '10:00', '13:00'][i] })
+  // Literal decimal coordinates avoid depending on binary addition spelling.
+  const leg = (from, to) => {
+    const a = Math.round(from.latitude * 100), b = Math.round(to.latitude * 100)
+    return a === 4180 && b === 4181 ? [420, 1609] : a === 4181 && b === 4182 ? [660, 4828] : a === 4183 && b === 4184 ? [960, 8047] : [1800, 12000]
+  }
+  h.maps.routeAnswer = body => body.origins.flatMap((o, i) => body.destinations.map((d, j) => {
+    const [seconds, meters] = leg(o.waypoint.location.latLng, d.waypoint.location.latLng)
+    return { originIndex: i, destinationIndex: j, status: {}, condition: 'ROUTE_EXISTS', duration: `${seconds}s`, distanceMeters: meters }
+  }))
+  return { dispatcher, people, technicians, customer, day, sites, jobs, visits }
+}

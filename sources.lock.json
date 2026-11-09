@@ -5620,11 +5620,15 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+      "sha256": "f7148168602c47232c6098adb893479499b4ec50b779c9aad4fc48d1c5fe5f73",
       "executable": false
     },
     "tests/api/live-locations.test.mjs": {
       "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
+      "executable": false
+    },
+    "tests/api/map-board.test.mjs": {
+      "sha256": "02ecd699088a3488fd2ce2d6c3ebf0daf65a2fbab20276e4ffd3eccfa0c33684",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5852,7 +5856,7 @@
       "executable": false
     },
     "tests/browser/dispatch-map.spec.ts": {
-      "sha256": "b30e3f9a24279cfd46620e80ce5d32f97ba1aa4577b4bb1da2f72a8cf73e360a",
+      "sha256": "177c44ce558936091f3739ca047baf86d158ec8ceede10e3001f9632dfb742a3",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -6392,7 +6396,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
+      "sha256": "1ac9299e0495544b845eb10fe5b3b1107b6fed3735da80c6b3e3aa7ad0139f78",
       "executable": false
     },
     "tests/runtime.mjs": {
