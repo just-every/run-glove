@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "blob": "922bcdd638a34dd251a6ee7167d5fe6286f9fc28",
+      "bytes": 977,
+      "path": "PLAN.md",
+      "sha256": "b7884cb694e528ac2e483b653aac60a7ff5d63042a324b176402425cf6131ac3"
+    },
+    {
+      "blob": "86a42a7f6a3bd4f3b6844fb1b9a4b8e3cf5da7dd",
+      "bytes": 5071,
+      "path": "REPORT.md",
+      "sha256": "66c00234a8ddac8022a9f70ea52c515f23a016b166027931a1d09910d68b4dfc"
+    },
+    {
+      "blob": "067891bbba7e6c2cbb0225de02bd22e677197eef",
+      "bytes": 557,
+      "path": "candidate-commits.txt",
+      "sha256": "64ae1edd2aa4c5148ea7e4f3c24f225973b00220f8bff20cf0d6be9677f94db5"
+    },
+    {
+      "blob": "ed4cb69b1d1a235fa1b1a21f69fe5f028b30b9c6",
+      "bytes": 2505,
+      "path": "ci-receipt.json",
+      "sha256": "ecd12cdcad796446c2744b3cc1b61d9d51261dafa50ab4c908c16618169e8531"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "contract-check.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    },
+    {
+      "blob": "c01f98b1d75bf372ec37867fd11a0c58770ee2da",
+      "bytes": 7051,
+      "path": "document-print.log",
+      "sha256": "423c1692ee41f4986d6e2e597cd16cf492f6a531cc049dc327f94a71c1d3c177"
+    },
+    {
+      "blob": "156a93dc8c7f0cd8d49d4475424a3c9e91e4c78d",
+      "bytes": 926,
+      "path": "push.log",
+      "sha256": "2b7446d040bf488efad81ae5dce983cd605e7bd4915b523da0fd34f20a906f8c"
+    },
+    {
+      "blob": "9255afc2231e63c221a86c06266ad46a6a301e28",
+      "bytes": 3073,
+      "path": "receipt.json",
+      "sha256": "46540cea8cb65949947b473dd8165453397def30b3518c08353ffb9e99768ee8"
+    },
+    {
+      "blob": "efe89d89a2736fffdd8b24c7d1cf84fc84f2779b",
+      "bytes": 196,
+      "path": "typecheck.log",
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-quote015-cause-1-pc1",
+  "product_head": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+  "ref": "refs/heads/evidence/sx-glove-quote015-cause-1-pc1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-quote015-cause-1-pc1"
+}

@@ -1,0 +1,72 @@
+{
+  "repository": "just-every/run-glove",
+  "head": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+  "calls": [
+    {
+      "number": 1,
+      "at": "2026-11-09T14:59:52.187083+00:00",
+      "endpoint": "repos/just-every/run-glove/actions/runs?head_sha=cd509b28824d721de6800a6ac4d7209fdadfd887&per_page=100",
+      "exit": 0,
+      "response": [
+        {
+          "conclusion": null,
+          "event": "push",
+          "head_branch": "cloud/sx-glove-quote015-cause-1-pc1",
+          "head_sha": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42640087695",
+          "id": 42640087695,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "at": "2026-11-09T15:04:50.861750+00:00",
+      "endpoint": "repos/just-every/run-glove/actions/runs/42640087695",
+      "exit": 0,
+      "response": {
+        "conclusion": null,
+        "head_sha": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42640087695",
+        "status": "in_progress"
+      }
+    },
+    {
+      "number": 3,
+      "at": "2026-11-09T15:09:50.388301+00:00",
+      "endpoint": "repos/just-every/run-glove/actions/runs/42640087695",
+      "exit": 0,
+      "response": {
+        "conclusion": null,
+        "head_sha": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42640087695",
+        "status": "in_progress"
+      }
+    },
+    {
+      "number": 4,
+      "at": "2026-11-09T15:14:50.346213+00:00",
+      "endpoint": "repos/just-every/run-glove/actions/runs/42640087695",
+      "exit": 0,
+      "response": {
+        "conclusion": "success",
+        "head_sha": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42640087695",
+        "status": "completed"
+      }
+    }
+  ],
+  "run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "cloud/sx-glove-quote015-cause-1-pc1",
+    "head_sha": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42640087695",
+    "id": 42640087695,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "outcome": "success",
+  "timing_note": "The at fields record response completion. Requests were spaced at least 300 seconds from invocation start by one monotonic-clock watcher."
+}

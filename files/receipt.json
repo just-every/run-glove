@@ -1,0 +1,101 @@
+{
+  "tag": "sx-glove-quote015-cause-1-pc1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-quote015-cause-1-pc1",
+  "original_head": "625733332a6b3c9ee4fdd979b371d4f5ce5813e8",
+  "merged_main": "e1d25590661c95f7f94041c395aa0c34b7b97e3a",
+  "merge_conflicts": [],
+  "migration_renumbering": false,
+  "clauses": {
+    "QUOTE-015": {
+      "before": "done",
+      "after": "done",
+      "new_claim": false
+    },
+    "COMM-001": {
+      "before": "partial",
+      "after": "done",
+      "reason": "inherited newer main judgment"
+    }
+  },
+  "counts_original": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_main_and_merged": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "total": 263
+  },
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "note": "Node 24.19.0 ran tsc; rer setup and browser journey select pinned Node 22.20.0"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses QUOTE-015",
+      "exit": 0,
+      "result": "Wrote 0 contract documents."
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses QUOTE-015",
+      "exit": 0,
+      "result": "Contract documents are current."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "result": "1606 files; only document-print.spec.ts hash differs from main"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node tests/browser/run.mjs tests/browser/document-print.spec.ts",
+      "exit": 1,
+      "result": "1 failed at document-print.spec.ts:169: .document-identity absent after navigating invoice for 020 7946 0958 ext 7; snapshot Loading document\u2026; restart point not reached",
+      "attempts": 1,
+      "chromium": "/usr/bin/chromium --no-sandbox",
+      "node": "22.20.0"
+    }
+  ],
+  "notes": [
+    "Setup regenerated routeTree whitespace; restored main file before final source-lock regeneration.",
+    "Generated ACCEPTANCE.md and docs/CLAIMS.md restored from main after generator proof.",
+    "No contract, test assertion, or claim edits beyond merge inheritance."
+  ],
+  "locked_file_differences_from_main": [
+    "tests/browser/document-print.spec.ts"
+  ],
+  "head": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+  "push": {
+    "attempts": 1,
+    "status": "success",
+    "product_pushes": 1
+  },
+  "identity_scan": {
+    "candidates": 3,
+    "result": "pass",
+    "side_parents_included": true
+  },
+  "ci": {
+    "run_id": 42640087695,
+    "head_sha": "cd509b28824d721de6800a6ac4d7209fdadfd887",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42640087695",
+    "github_calls": 4
+  },
+  "terminal_product_status": "READY",
+  "blockers": [],
+  "local_browser_failure_retained": true
+}
