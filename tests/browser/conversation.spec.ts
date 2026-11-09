@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Locator } from '@playwright/test'
+import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production Worker, durable D1 and native signed-in people.
@@ -202,9 +202,10 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await page.unrouteAll({ behavior: 'wait' })
     await context.close(); await h.close()
   }
+  await test.step('COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart', () => messageOutcomes(browser))
 })
 
-test('COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart', async ({ browser }) => {
+async function messageOutcomes(browser: Browser) {
   const h = await installation({ at: '2026-11-09T12:00:00.000Z' })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
   const address = (name: string) => [name, 'example.test'].join('@')
@@ -300,4 +301,4 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
     await page.unrouteAll({ behavior: 'wait' })
     await context.close(); await h.close()
   }
-})
+}
