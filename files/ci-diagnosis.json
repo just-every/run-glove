@@ -1,0 +1,51 @@
+{
+  "run_id": 42640480047,
+  "head": "bfb8066c945f939c2baa676e08a03a9b78830014",
+  "jobs": {
+    "plan": "success",
+    "build": "success",
+    "light": "skipped",
+    "shards (browser-3)": "success",
+    "shards (browser-2)": "success",
+    "shards (portable)": "success",
+    "shards (foundation)": "success",
+    "shards (api-1)": "success",
+    "shards (browser-4)": "success",
+    "shards (api-2)": "success",
+    "shards (browser-1)": "failure",
+    "verify": "failure",
+    "full-push-proof": "skipped",
+    "nightly-proof": "skipped"
+  },
+  "primary_failed_job": 129240404968,
+  "primary_failed_shard": "browser-1",
+  "aggregate_failure_job": 129248900645,
+  "archive_command": "gh run view 42640480047 --repo just-every/run-glove --job 129240404968 --log-failed",
+  "archive_status": "retrieved successfully once",
+  "local_reproduction": {
+    "passed": 16,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "primary_error": "route.fulfill: Route is already handled!",
+  "file": "tests/browser/invoice-batch.spec.ts:31",
+  "ci_browser_tests": {
+    "passed": 15,
+    "failed": 1
+  },
+  "local_failed_case": "passed during unchanged full browser-1 reproduction",
+  "classification": "Playwright routing lifecycle race; retry of failed CI jobs scheduled only if full unchanged local shard passes",
+  "product_changes_after_push": [],
+  "product_head_unchanged": true,
+  "product_tree_unchanged": true,
+  "rerun": "single failed-jobs retry request accepted, same head",
+  "latest_attempt": 2,
+  "latest_failure": "Artifact not found for name: verify-build-42640480047-2",
+  "latest_failed_step": "actions/download-artifact",
+  "latest_browser_assertions": "did not run",
+  "latest_archive_command": "gh run view 42640480047 --repo just-every/run-glove --attempt 2 --log-failed",
+  "latest_archive_exit_code": 0,
+  "root_cause": "Failed-jobs rerun expects an attempt-2 build artifact while the successful build job and its attempt-1 artifact were not rerun.",
+  "required_next_action": "Rerun the full Verify workflow on the same SHA so build and shards share the run attempt. Then reassess the original invoice-batch routing race if it recurs.",
+  "github_calls_used": 10
+}

@@ -1,0 +1,122 @@
+DIAGNOSTIC_WAIT seconds=221
+shards (browser-1)	Run this shard	﻿2026-11-09T15:03:06.9080862Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (browser-1)	Run this shard	2026-11-09T15:03:06.9081190Z [36;1mnode scripts/verify-ci.mjs "$SHARD"[0m
+shards (browser-1)	Run this shard	2026-11-09T15:03:06.9099139Z shell: /usr/bin/bash -e {0}
+[configured step environment omitted]
+shards (browser-1)	Run this shard	2026-11-09T15:03:06.9101064Z ##[endgroup]
+shards (browser-1)	Run this shard	2026-11-09T15:03:06.9380652Z > pnpm run verify:app
+shards (browser-1)	Run this shard	2026-11-09T15:03:07.1526426Z 
+shards (browser-1)	Run this shard	2026-11-09T15:03:07.1527429Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser-1)	Run this shard	2026-11-09T15:03:07.1528170Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser-1)	Run this shard	2026-11-09T15:03:07.1528484Z 
+shards (browser-1)	Run this shard	2026-11-09T15:03:07.2331906Z verify:app
+shards (browser-1)	Run this shard	2026-11-09T15:03:07.2627082Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/arrival-windows.spec.ts' 'tests/browser/crew-board.spec.ts' 'tests/browser/dispatch-map.spec.ts' 'tests/browser/due-visit-offers.spec.ts' 'tests/browser/invoice-batch.spec.ts' 'tests/browser/movein.spec.ts' 'tests/browser/receivables.spec.ts' 'tests/browser/revenue.spec.ts' 'tests/browser/subcontractor.spec.ts'
+shards (browser-1)	Run this shard	2026-11-09T15:03:08.0033175Z [verify phase] frozen install: start
+shards (browser-1)	Run this shard	2026-11-09T15:03:14.2436397Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=6242
+shards (browser-1)	Run this shard	2026-11-09T15:03:14.2440631Z [verify phase] rer: start
+shards (browser-1)	Run this shard	2026-11-09T15:03:18.4336504Z [verify phase] rer: exit=0 signal=none elapsed_ms=4187
+shards (browser-1)	Run this shard	2026-11-09T15:03:18.4339956Z [verify phase] site build: start
+shards (browser-1)	Run this shard	2026-11-09T15:03:20.4794902Z [verify phase] site build: exit=0 signal=none elapsed_ms=2047
+shards (browser-1)	Run this shard	2026-11-09T15:03:20.5070404Z [verify phase] native setup: start
+shards (browser-1)	Run this shard	2026-11-09T15:03:56.3319173Z [verify phase] native setup: exit=0 signal=none elapsed_ms=35825
+shards (browser-1)	Run this shard	2026-11-09T15:03:56.3325583Z [verify phase] native dev: start
+shards (browser-1)	Run this shard	2026-11-09T15:04:12.7624719Z [verify phase] browser assertions: start
+shards (browser-1)	Run this shard	2026-11-09T15:04:14.8740310Z [verify progress] Running 16 tests using 1 worker
+shards (browser-1)	Run this shard	2026-11-09T15:04:29.3914089Z [verify progress]   ✓   1 tests/browser/arrival-windows.spec.ts:9:1 › Arrival promises survive desk booking and reload and appear on the assigned technician phone (13.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:04:38.9486021Z [verify progress]   ✓   2 tests/browser/crew-board.spec.ts:45:1 › DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor (9.5s)
+shards (browser-1)	Run this shard	2026-11-09T15:05:19.8835302Z [verify progress]   ✓   3 tests/browser/dispatch-map.spec.ts:43:1 › DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390 (40.9s)
+shards (browser-1)	Run this shard	2026-11-09T15:05:27.5526577Z [verify progress]   ✓   4 tests/browser/due-visit-offers.spec.ts:19:1 › PLAN-010 customer sees only the included visit, chooses remaining open times and contacts the office when none remain (7.7s)
+shards (browser-1)	Run this shard	2026-11-09T15:05:34.8134425Z [verify progress]   ✘   5 tests/browser/invoice-batch.spec.ts:17:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390 (7.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:05:46.6776357Z [verify progress]   ✓   6 tests/browser/invoice-batch.spec.ts:105:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 office stages a long job, sees the remaining contract amount and approves the exact final invoice at 1440 and 390 (10.3s)
+shards (browser-1)	Run this shard	2026-11-09T15:06:06.2542541Z [verify progress]   ✓   7 tests/browser/invoice-batch.spec.ts:159:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390 (19.6s)
+shards (browser-1)	Run this shard	2026-11-09T15:06:44.5747134Z [verify progress]   ✓   8 tests/browser/movein.spec.ts:31:62 › MOVE-004, MOVE-010 fieldpulse, MOVE-001, MOVE-007 Jobber and MOVE-002, MOVE-008 Housecall Pro: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (38.3s)
+shards (browser-1)	Run this shard	2026-11-09T15:06:54.5799301Z [verify progress]   ✓   9 tests/browser/movein.spec.ts:31:62 › MOVE-004, MOVE-010 workiz: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (10.0s)
+shards (browser-1)	Run this shard	2026-11-09T15:07:12.3900854Z [verify progress]   ✓  10 tests/browser/movein.spec.ts:31:62 › MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (17.8s)
+shards (browser-1)	Run this shard	2026-11-09T15:07:17.5206849Z [verify progress]   ✓  11 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (5.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:07:31.3294709Z [verify progress]   ✓  12 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (13.8s)
+shards (browser-1)	Run this shard	2026-11-09T15:07:39.3456141Z [verify progress]   ✓  13 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (8.0s)
+shards (browser-1)	Run this shard	2026-11-09T15:07:55.5460994Z [verify progress]   ✓  14 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (16.2s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:14.5939246Z [verify progress]   ✓  15 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (19.0s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.7521557Z [verify progress]   ✓  16 tests/browser/subcontractor.spec.ts:9:1 › DISP-013 subcontractor phone has current work but no notification control or offline day after reload (6.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8466154Z [verify progress]   1 failed
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8466611Z [verify progress]   15 passed (4.1m)
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8738454Z [verify phase] browser assertions: exit=1 signal=none elapsed_ms=248111
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8749650Z Dev runtime output (last 6000 characters):
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8763561Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8764687Z rer dev: checking the server limit
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8765047Z Checking pinned pnpm
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8765781Z 10.12.4
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8766053Z Applying database migrations
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8766388Z Applying database migrations
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8766590Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8766973Z  ⛅️ wrangler 4.129.1 (update available 4.159.0)
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8767499Z ───────────────────────────────────────────────
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8767892Z Resource location: local 
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8768082Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8768341Z Use --remote if you want to access the remote instance.
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8768614Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8768803Z ✅ No migrations to apply!
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8769172Z Starting your application on this computer
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8769598Z Starting your application on this computer
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8769995Z Using secrets defined in .dev.vars
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8770348Z   ➜  Local:   [URL]
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8770649Z Opening your application
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8771010Z Your application is running locally
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8771349Z Building the run site
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8771697Z {"pages":22,"assets":6,"styles":1}
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8773377Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8774967Z Open your app, already signed in on this computer: [URL]
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8775436Z App address (without sign-in): [URL]
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8775809Z Keep the sign-in link private.
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8776452Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8777574Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8778836Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512151552 bytes.
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8779587Z Details for tools and troubleshooting:
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8779930Z RER_READY [URL]
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8780247Z RER_SIGNED_IN owner@example.test
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8780591Z [private runtime entry]
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8780983Z Running the scheduled trigger locally: */15 * * * *
+shards (browser-1)	Run this shard	2026-11-09T15:08:20.8781263Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.0551675Z [verify phase] native dev: exit=143 signal=none elapsed_ms=264722
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4433188Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4434203Z Running 16 tests using 1 worker
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4434854Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4436148Z   ✓   1 tests/browser/arrival-windows.spec.ts:9:1 › Arrival promises survive desk booking and reload and appear on the assigned technician phone (13.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4437973Z   ✓   2 tests/browser/crew-board.spec.ts:45:1 › DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor (9.5s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4440213Z   ✓   3 tests/browser/dispatch-map.spec.ts:43:1 › DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390 (40.9s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4442469Z   ✓   4 tests/browser/due-visit-offers.spec.ts:19:1 › PLAN-010 customer sees only the included visit, chooses remaining open times and contacts the office when none remain (7.7s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4444840Z   ✘   5 tests/browser/invoice-batch.spec.ts:17:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390 (7.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4447406Z   ✓   6 tests/browser/invoice-batch.spec.ts:105:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 office stages a long job, sees the remaining contract amount and approves the exact final invoice at 1440 and 390 (10.3s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4449937Z   ✓   7 tests/browser/invoice-batch.spec.ts:159:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390 (19.6s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4453062Z   ✓   8 tests/browser/movein.spec.ts:31:62 › MOVE-004, MOVE-010 fieldpulse, MOVE-001, MOVE-007 Jobber and MOVE-002, MOVE-008 Housecall Pro: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (38.3s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4455145Z   ✓   9 tests/browser/movein.spec.ts:31:62 › MOVE-004, MOVE-010 workiz: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (10.0s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4457144Z   ✓  10 tests/browser/movein.spec.ts:31:62 › MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (17.8s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4458868Z   ✓  11 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (5.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4460662Z   ✓  12 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (13.8s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4463163Z   ✓  13 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (8.0s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4465381Z   ✓  14 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (16.2s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4467297Z   ✓  15 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (19.0s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4469169Z   ✓  16 tests/browser/subcontractor.spec.ts:9:1 › DISP-013 subcontractor phone has current work but no notification control or offline day after reload (6.1s)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4470020Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4470192Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4471749Z   1) tests/browser/invoice-batch.spec.ts:17:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4473172Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4473600Z     Error: route.fulfill: Route is already handled!
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4474121Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4474583Z       29 |         const req = route.request(), url = new URL(req.url())
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4476020Z       30 |         const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4477669Z     > 31 |         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4478772Z          |                     ^
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4479208Z       32 |       })
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4479691Z       33 |       await page.goto(`${origin}/app#invoices`)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4480455Z       34 |       const batch = page.getByRole('form', { name: 'Prepare invoices together' })
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4481241Z         at [REDACTED]/tests/browser/invoice-batch.spec.ts:31:21
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4481705Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4482783Z     Error Context: ../../../../../tmp/glove-browser-evidence/results/journeys/invoice-batch-PAY-001-PAY--938ce-r-statement-at-1440-and-390/error-context.md
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4483817Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4484094Z   1 failed
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4485743Z     tests/browser/invoice-batch.spec.ts:17:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4487716Z   15 passed (4.1m)
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.4488034Z 
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.5213397Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-1)	Run this shard	2026-11-09T15:08:21.5419704Z ##[error]Process completed with exit code 1.

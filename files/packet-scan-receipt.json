@@ -1,5 +1,5 @@
 {
-  "selected_regular_files": 40,
+  "selected_regular_files": 49,
   "symlinks": 0,
   "injected_value_matches": 0,
   "credential_pattern_matches": 0,
@@ -8,8 +8,8 @@
   "files": [
     {
       "path": "REPORT.md",
-      "bytes": 4761,
-      "sha256": "205b9793e4ae42c373c00ed37624aa5910db056dc9d2f206a1614915de91779c"
+      "bytes": 8389,
+      "sha256": "ba4e8b586a75d591c8b8b5f4c5099d0273468d892a4234b7e08a203b51c1caa9"
     },
     {
       "path": "PLAN.md",
@@ -163,8 +163,8 @@
     },
     {
       "path": "ci-calls.json",
-      "bytes": 2393,
-      "sha256": "adbc36ad56e534fe1d76b8d7601aee3302e10db2c7207f09e6183c5ba4ad66ad"
+      "bytes": 32941,
+      "sha256": "583af25d5c4633da599c9b2450d3aeef26150d76ee4c04cc040a8d1f0d84f559"
     },
     {
       "path": "proof/1440-customer-privacy-erased.png",
@@ -199,12 +199,57 @@
     {
       "path": "cleanup-receipt.json",
       "bytes": 241,
-      "sha256": "808d518e0a5527ef5678e346ab02cba7d91196523e7c5adfe11df593fda35291"
+      "sha256": "b8f822e27a140a51cbaad2763a66159562441779df089c71b187cd6dbb9c7cd5"
     },
     {
       "path": "ci-receipt.json",
-      "bytes": 291,
-      "sha256": "db77da6a65c15a012965d08d4332d135ddc381d4aa73c6216573f892b761a93f"
+      "bytes": 319,
+      "sha256": "b670a290253435cb9f9cdf23c93ee5fd6e3994f9fccdf37b0bc2f571984e060f"
+    },
+    {
+      "path": "ci-jobs.json",
+      "bytes": 3695,
+      "sha256": "b74d18a294d0a716e71199c102037d3e7fb1f47ddfcbed0ecd9f9b8c5ec65b5b"
+    },
+    {
+      "path": "browser1-failed-job.log",
+      "bytes": 19368,
+      "sha256": "9c2e1c5df1464daba8695e413c5ea683b56d1dac2ec6393704a8121f2529e501"
+    },
+    {
+      "path": "ci-diagnosis.json",
+      "bytes": 2174,
+      "sha256": "03235a75a7eab98083a2ad14c060dca07b4eb1c03e0d3393c010fb0c8c784ade"
+    },
+    {
+      "path": "browser1-repro.log",
+      "bytes": 20604,
+      "sha256": "94dd7ecc203364130d791ab82e4b9c478316b8d1a38bf66a11dd775c44bd9a2d"
+    },
+    {
+      "path": "browser1-repro-receipt.json",
+      "bytes": 375,
+      "sha256": "2742c2cc1646f8e538887d466e3871691aac33ae71bf7dff3eb52872c495dd4f"
+    },
+    {
+      "path": "ci-rerun-receipt.json",
+      "bytes": 388,
+      "sha256": "3816b0efe84b0348e8f06aaf0ffa28139ee9864b8cf6f762a145bf7257cfe7b5"
+    },
+    {
+      "path": "prior-evidence-publication.jsonl",
+      "bytes": 7721,
+      "sha256": "d43b8654f5c83c9dde2f344d5021b10696dca5c8f08346c77aaf57e35da76c46"
+    },
+    {
+      "path": "attempt2-failed-jobs.log",
+      "bytes": 4480,
+      "sha256": "308d3677360bdc838cc18d36037ee61fe467fcba8a25f11c747408414d1fe368"
+    },
+    {
+      "path": "final-status-receipt.json",
+      "bytes": 1127,
+      "sha256": "ba2f018b0fae5703c2d4f8b2c83fe8a861662f24a60c5f303cd2d7fe15de0b8a"
     }
   ]
 }

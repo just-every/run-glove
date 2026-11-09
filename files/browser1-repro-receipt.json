@@ -1,0 +1,14 @@
+{
+  "name": "browser1-repro",
+  "command": [
+    "node",
+    "scripts/verify-ci.mjs",
+    "browser-1"
+  ],
+  "started_at": "2026-11-09T15:28:25.582808+00:00",
+  "finished_at": "2026-11-09T15:34:46.614553+00:00",
+  "elapsed_seconds": 381.03,
+  "exit_code": 0,
+  "log": "browser1-repro.log",
+  "log_sha256": "94dd7ecc203364130d791ab82e4b9c478316b8d1a38bf66a11dd775c44bd9a2d"
+}

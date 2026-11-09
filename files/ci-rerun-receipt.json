@@ -1,0 +1,10 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f205fix1-pc1",
+  "head": "bfb8066c945f939c2baa676e08a03a9b78830014",
+  "run_id": 42640480047,
+  "command": "gh api --method POST repos/just-every/run-glove/actions/runs/42640480047/rerun-failed-jobs",
+  "request_exit_code": 0,
+  "local_reproduction_exit_code": 0,
+  "recorded_at": "2026-11-09T15:36:52.907751+00:00"
+}

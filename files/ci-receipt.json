@@ -3,7 +3,8 @@
   "branch": "cloud/sx-glove-f205fix1-pc1",
   "head": "bfb8066c945f939c2baa676e08a03a9b78830014",
   "run_id": 42640480047,
-  "status": "queued",
-  "conclusion": null,
-  "html_url": "https://github.com/just-every/run-glove/actions/runs/42640480047"
+  "status": "completed",
+  "conclusion": "failure",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42640480047",
+  "run_attempt": 2
 }

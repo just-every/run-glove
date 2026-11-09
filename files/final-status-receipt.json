@@ -1,0 +1,29 @@
+{
+  "status": "BLOCKED",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f205fix1-pc1",
+  "head": "bfb8066c945f939c2baa676e08a03a9b78830014",
+  "tree": "7d99fe1e3f7fd4b7e8e79839d617ed36a330deb3",
+  "ci": {
+    "repository": "just-every/run-glove",
+    "branch": "cloud/sx-glove-f205fix1-pc1",
+    "head": "bfb8066c945f939c2baa676e08a03a9b78830014",
+    "run_id": 42640480047,
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42640480047",
+    "run_attempt": 2
+  },
+  "github_calls_used": 10,
+  "product_pushes": 1,
+  "product_commits_authored": 1,
+  "product_changes_after_push": [],
+  "pr": null,
+  "plan": "PLAN.md",
+  "report": "REPORT.md",
+  "recorded_at": "2026-11-09T15:49:10.974291+00:00",
+  "product_custody": "PUSHED",
+  "readiness": "BLOCKED",
+  "blocker": "Verify attempt 2 cannot find verify-build-42640480047-2; failed-jobs-only rerun did not rerun the successful build.",
+  "required_next_action": "Full Verify workflow rerun on bfb8066c945f939c2baa676e08a03a9b78830014; ten-call builder GitHub budget exhausted."
+}
