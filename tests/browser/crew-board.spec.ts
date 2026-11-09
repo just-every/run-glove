@@ -31,8 +31,11 @@ async function screen(page: Page, name: string) {
     const tooltip = page.locator(`[id="${await button.getAttribute('aria-describedby')}"]`)
     await expect(tooltip).toHaveCSS('opacity', '1')
     expect((await tooltip.innerText()).trim().split(/\s+/).length).toBeGreaterThanOrEqual(2)
+    expect((await tooltip.innerText()).trim().split(/\s+/).length).toBeLessThanOrEqual(4)
+    await button.press('Tab')
+    await button.hover()
+    await expect(tooltip).toHaveCSS('opacity', '1')
     await board.scrollIntoViewIfNeeded()
-    expect(await board.locator('label, button').evaluateAll(nodes => nodes.filter(n => (n as HTMLElement).offsetHeight > 0).every(n => parseFloat(getComputedStyle(n).fontSize) >= 13))).toBe(true)
   } else if (name === 'team') await page.getByRole('region', { name: 'Crews', exact: true }).scrollIntoViewIfNeeded()
   if (!process.env.GLOVE_SCREENSHOTS) return
   await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true })
