@@ -117,6 +117,7 @@ export async function reloadHarness(page: Page, ...args: Parameters<Page['reload
 // existing deadlines. Do not charge a cold app document to the action timeout.
 export async function finishHarnessSetup(page: Page, options: Parameters<ReturnType<Page['getByRole']>['click']>[0] = {}) {
   await page.getByRole('button', { name: 'Finish setup', exact: true }).click({ ...options, noWaitAfter: true })
-  await page.waitForURL(url => url.pathname === '/app')
+  // Keep an explicit setup timeout (the fresh-owner journey supplies 60 s).
+  await page.waitForURL(url => url.pathname === '/app', { timeout: options?.timeout })
   await initialReadReady(page)
 }
