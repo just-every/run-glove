@@ -123,8 +123,10 @@
     "id": 42572989246,
     "event": "push",
     "head_sha": "c82d23129d551a386e0e1af409e1bc5715987115",
-    "status": "in_progress",
-    "conclusion": null
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42572989246",
+    "observed_at": "2026-11-09T06:41:15.043795+00:00"
   },
   "base_verify": {
     "id": 42571868555,
@@ -158,5 +160,35 @@
   "created_at": "2026-11-09T06:28:40.883610+00:00",
   "tree_clean_after_all_checks": true,
   "fixture_edge_changes": false,
-  "runtime_or_dependency_changes": false
+  "runtime_or_dependency_changes": false,
+  "github_api_calls": 5,
+  "last_ci_observed_at": "2026-11-09T06:36:12.901326+00:00",
+  "claim": {
+    "clause": "DISP-007",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "disposition": "ACCEPT ON LANDING; guarded fleet publication scan and landing remain pending"
+  },
+  "riders": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "INSPECTED",
+    "6": "PASS mechanical; judgment retained",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "NOT APPLICABLE",
+    "11": "PENDING GUARDED LANDING"
+  },
+  "closed_at": "2026-11-09T06:42:10.553430+00:00"
 }

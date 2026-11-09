@@ -12,7 +12,7 @@ The source judgments remain 33 DONE, 201 PARTIAL and 29 MISSING, total 263, befo
 
 ## Plan and completed results
 
-The complete initial plan is in plan.txt. Its local execution steps are complete, with evidence transfer and CI completion tracked separately: inspect the existing qualification against all points and RL-8; retain and integrate it with main; run the focused API and browser journeys plus typecheck and first-party checks; generate and check views, restore main's views, regenerate the lock last and check it; audit all eleven candidate commits and push only the named product branch; return the actual non-secret packet separately through the evidence ref. CI and final transfer metadata are recorded below and in receipt.json.
+The complete initial plan is in plan.txt. Its local execution steps are complete, with evidence transfer and CI completion tracked separately: inspect the existing qualification against all points and RL-8; retain and integrate it with main; run the focused API and browser journeys plus typecheck and first-party checks; generate and check views, restore main's views, regenerate the lock last and check it; audit all eleven candidate commits and push only the named product branch; return the actual non-secret packet separately through the evidence ref. CI and final transfer metadata are recorded below and in receipt.json. The initial evidence transfer was fetched back with its exact head and every manifest hash verified; evidence-transfer-check.json records that result.
 
 The initial audit found no remaining unperformed native acceptance outcome in the f192 implementation. Every scenario goes through production Worker routes, native sessions and real migrated D1; the actual Worker restart disposes and recreates the runtime with durable data. The browser uses real built pages and controls backed by those same production Worker routes, not a domain-answer stub. Existing fixture provider edges remain unchanged.
 
@@ -38,9 +38,9 @@ The API registration is tests/api/crews.test.mjs#DISP-007 crews retain multi-day
 
 ## DONE-RIDERS, one row per rider
 
-1. PASS locally, exact-SHA Verify pending: R1–R7 above reach every acceptance outcome through public doors. CI membership is recorded and the eventual run conclusion is below.
+1. PASS on exact-SHA push Verify 42572989246 (success): R1–R7 above reach every acceptance outcome through public doors. CI membership is recorded and the eventual run conclusion is below.
 2. PASS: seeded, nonempty visits and events; hand-computed money; allowed and refused role, conflict, evidence, erasure and replay paths; full-state and export equality on refusal (API lines 36–42, 50–75, 101–246).
-3. PENDING exact-SHA CI: both registrations load in push Verify on this candidate, without an execution flag. Screenshot output is configured by the normal browser runner, not a gate on test execution. See verify-registration.json and CI receipts.
+3. PASS on exact-SHA push Verify 42572989246 (success): both registrations load in push Verify on this candidate, without an execution flag. Screenshot output is configured by the normal browser runner, not a gate on test execution. See verify-registration.json and CI receipts.
 4. PASS: both focused journeys ran on c82d23129d551a386e0e1af409e1bc5715987115; the final fetch and rebase were a no-op, and the full tree remained identical after those runs. API also passed under the workflow's Node 22.20.0 runtime.
 5. INSPECTED: DISP-007 names its complete crew duties and RL-8 in its owning requirement and acceptance. No new Base inheritance was invented. DATA-002 attribution is exercised as the brief requests; other clauses retain their own duties.
 6. PASS mechanically, judgment deferred: generator write reports zero files changed and check passes; main's two generated views were explicitly restored. Contract judgments and all 263 rows are intact and equal main. The lander owns the eventual Evidence and Status changes.
@@ -52,7 +52,7 @@ The API registration is tests/api/crews.test.mjs#DISP-007 crews retain multi-day
 
 ## PRE-READY self-check
 
-1. PASS locally: the named API and browser journeys perform every crew outcome and check observable state. Exact-candidate Verify is tracked below.
+1. PASS locally: the named API and browser journeys perform every crew outcome and check observable state. Exact-candidate Verify 42572989246 is completed success, event push, on the full candidate SHA.
 2. PASS: no existing assertion is weakened; all protected files and contract text remain intact.
 3. PASS: current role, revoked token, erased photo and repeated capture or command paths are exercised through real doors and cannot restore private data or duplicate bookings.
 4. INSPECTED: the changed crew filter reuses existing select controls and typography, with no new configuration surface or icon control. The browser audits tooltips for visible icon-only controls and verifies immediate focus and hover visibility. The 1440 and 390 crew screenshots are included. Existing compact calendar-chip typography and grid styling are unchanged and are not presented as a new polish qualification.
@@ -76,12 +76,20 @@ Local checks: focused API 1 passed on Node 24.19.0; focused API 1 passed on Node
 
 The product push succeeded on its first guarded attempt. remote-head.txt confirms the exact named branch and SHA. Eleven candidate commits, including all parents outside main, passed the allowed independent author and committer identity checks and trailer checks. No product PR is needed or created. No force push or default-branch update was attempted.
 
-Base main Verify 42571868555 (push) and Run site 42571868655 (push) were completed success on e9cc0be2f683ff559fc89be0de67de750238dc7a. These are reported only as base health; they are not proof for the candidate. Candidate Verify 42572989246 (push) runs on c82d23129d551a386e0e1af409e1bc5715987115. Its final status will be appended after the single bounded watcher finishes.
+Base main Verify 42571868555 (push) and Run site 42571868655 (push) were completed success on e9cc0be2f683ff559fc89be0de67de750238dc7a. These are reported only as base health; they are not proof for the candidate. Candidate Verify 42572989246 (push) runs on c82d23129d551a386e0e1af409e1bc5715987115. Its final observed result is completed and success, observed at 2026-11-09T06:41:15Z. The single watcher used five total GitHub API calls including base discovery, candidate discovery and three polls; no dispatch, rerun or PR was used.
 
 Publication scan: commit=c82d23129d551a386e0e1af409e1bc5715987115; complete=UNESTABLISHED; historyScanned=UNESTABLISHED; findings=UNESTABLISHED. The cloud adaptation explicitly assigns the exact-tree full-history publication scan to the maintained Mac lander. The source f192 report's scan result is not reused for this new SHA.
 
 Main equality: false. Candidate Run site: not yet applicable before guarded landing. Product READY or PUSHED custody is separate from evidence publication. Packet files contain actual reports, test output and synthetic crew screenshots, explicitly selected for the separate report-only ref; they contain no credential file, environment dump or held-out gate material. No finished unpushed work remains.
 
-Blockers: none in local product proof. Guarded fleet scanning and landing remain outstanding, and exact-candidate CI is tracked above.
+Blockers: none in local product proof. Guarded fleet scanning and landing remain outstanding, and exact-candidate CI is green as recorded above.
 
 Proof source identity: proof-source-identity.json records SHA-256 hashes and confirms the focused journeys, existing harness, scenario helper and relevant runtime source exactly equal the pushed commit. Screenshots were captured by the focused run before any later edit; the final rebase and lock regeneration changed no byte.
+
+## Final qualification
+
+DISP-007 is qualified DONE, points 1 through 7, with no remaining native gap and no new policy default. DONE-RIDERS 1–4 and 6–9 pass, row 5 is inspected without new inheritance, row 10 is inapplicable and row 11 awaits the guarded fleet's exact-tree scan, judgment, landing and candidate Run site. The PRE-READY checks applicable to this clause pass with that explicitly retained cloud landing boundary.
+
+CLAIM DISP-007 DONE points=1,2,3,4,5,6,7 tests=tests/api/crews.test.mjs#DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart; tests/browser/crew-board.spec.ts#DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor
+
+Exact-candidate Verify: 42572989246, event push, completed success, c82d23129d551a386e0e1af409e1bc5715987115. Main and candidate Run site equality remain pending guarded landing, as required by the cloud adaptation. Product branch custody is READY; evidence publication is report transport only.

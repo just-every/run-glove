@@ -1,10 +1,10 @@
 {
   "files": [
     {
-      "blob": "055b56558fd7372ff0b66cfb4bb8aa0b96fa0bae",
-      "bytes": 15909,
+      "blob": "456a2dfe38acb4bf5a0151d999a139afd5406f92",
+      "bytes": 17387,
       "path": "REPORT.md",
-      "sha256": "201d60b76561c85e6be48747083ff0f2cac5ba8d68a6f14ac1fda1bfae31c823"
+      "sha256": "ce3a00b8dcb2d4ec35cdaf15bac358ca323fb1f5734772d1925a3649d137d873"
     },
     {
       "blob": "2524d69b621d4bbf2bac33be2e63d4789bd37e28",
@@ -31,16 +31,22 @@
       "sha256": "0dc02e746841ab94850cb34a06807525993dbf9a05c792fdbb91a2d232994d4a"
     },
     {
-      "blob": "08fa2cc62f069165e8d328e8c77f19e6fea3ca19",
-      "bytes": 284,
+      "blob": "1d23d7d60583ad303d9c2d909edb4fcc48a6f20b",
+      "bytes": 849,
       "path": "candidate-ci-polls.json",
-      "sha256": "63d28bef212914b2901587e3dc7a54ec02175712aea6617f27dd7e3b15cd37ca"
+      "sha256": "3c7638551b3c8c3e34604a7d3bee458ff7a0fb5a566ab1bc937896c0b4d52abb"
     },
     {
       "blob": "f365d645e5f9351598a599d47e416e53acfb7ec0",
       "bytes": 814,
       "path": "commit-identities.txt",
       "sha256": "8cc855647f4852577dc4816eb9376a4df45619cbbc3a090a2e0227132bf0e310"
+    },
+    {
+      "blob": "dc87bc1ac8290e04fdb7636a2a98649078cae1fa",
+      "bytes": 6414,
+      "path": "evidence-transfer-check.json",
+      "sha256": "27a9bb40ec7e9410dd096a591c4d767c9bd1fa1243acd29e9a0ccc0d221b63a3"
     },
     {
       "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
@@ -97,10 +103,10 @@
       "sha256": "88e50b8f879291995bc7571696924b3808a530009dcb8661b6403913bdf835bc"
     },
     {
-      "blob": "9ab118e24d8e2bb92dca580beebd5ece20f943b6",
-      "bytes": 4721,
+      "blob": "a7d5ad810c79d8be7823976ab3fedf11c7922c01",
+      "bytes": 5520,
       "path": "receipt.json",
-      "sha256": "842577a0ac017df2aa2af3816f7b2e43952cc6bf29f65378ad1959165d369195"
+      "sha256": "cbdff29b8d342cc559b26b9c958639021d2007df06f92cf202be8f5834036b23"
     },
     {
       "blob": "e692eee2cd05621af005cb6fa84f2fc1c556051d",
