@@ -1338,11 +1338,18 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       await shot(page, width, 'yelp-approved-reply')
       const message = emailedState.messages.find((m: any) => m.id === emailed.acknowledgment.messageId)
       const { postmarkCallback } = await import('../fixtures/mail-providers.mjs')
+      const reloadLeadCards = async () => {
+        const loaded = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
+        await page.reload()
+        await loaded
+        await expect(pipeline).toBeVisible({ timeout: 30_000 })
+      }
       for (const [index, outcome] of ['delivered', 'bounced'].entries()) {
         const callback = postmarkCallback({ ...message, receipt: `pm-receipt-${h.email.sent.length}` }, mailConnection.callbackPassword, { at: new Date(Date.now() + index * 1000).toISOString(), id: `synthetic-glove-book015-${outcome}`, ...(outcome === 'bounced' ? { details: { RecordType: 'Bounce', Type: 'HardBounce' } } : {}) })
         const response = await h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/'), ...callback.headers }, body: callback.raw })
         expect(response.status).toBe(200)
-        await page.reload()
+        expect((await h.state()).messageStates[message.id].status).toBe(outcome)
+        await reloadLeadCards()
         await expect(emailedCard).toContainText(outcome === 'delivered' ? 'mail server (reported by Postmark)' : 'Bounced:')
         await expect(emailedCard).toContainText('Glove does not confirm receipt in the Yelp conversation')
         await expect(emailedCard).not.toContainText(/(?:response window satisfied|window met|delivered in Yelp)/i)
@@ -1350,7 +1357,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
         const conversation = await (await h.request(`/api/glove/conversation?customerId=${emailed.customerId}`)).json()
         expect(conversation.entries.find((e: any) => e.id === `email:${message.id}`).delivery).toBe((await h.state()).messageStates[message.id].text)
         await h.restart()
-        await page.reload()
+        await reloadLeadCards()
         await expect(emailedCard).toContainText(outcome === 'delivered' ? 'mail server (reported by Postmark)' : 'Bounced:')
         await expect(emailedCard).toContainText('Glove does not confirm receipt in the Yelp conversation')
         expect((await h.state()).enquiries.find((e: any) => e.id === emailed.id).acknowledgment).toEqual(emailed.acknowledgment)
