@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 35 | 186 | 16 | 237 |
+| Core | 40 | 181 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 35 | 199 | 29 | 263 |
+| Full target | 40 | 194 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -596,15 +596,15 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### BOOK-014 — Lead-source credential custody
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004, BASE-SECRET-001
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004, BASE-SECRET-001
 
 **Requirement.** Lead-source credential custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. A lead becomes a request with its provider as source and its provider lead ID, for the one existing customer whose phone (last ten digits) or email equals the lead's, else for a new customer (and site, when the lead names an address) that `CUST-005` flags if it resembles another.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/lead-matching.test.mjs` (BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart)
+**Gap.** None.
 
 #### BOOK-015 — Lead costs and acknowledgments
 
@@ -627,15 +627,15 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 
 #### BOOK-016 — Explicit lead acknowledgment execution
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Explicit lead acknowledgment execution supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. No acknowledgment is sent automatically.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/pipeline.test.mjs` (BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts)
+**Gap.** None.
 
 #### BOOK-017 — Reserve with Google request intake
 
@@ -890,7 +890,7 @@ Core · target · **partial** · From QUOTE-005
 
 #### QUOTE-015 — Document presentation and print
 
-Core · target · **partial** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROLE-001
+Core · target · **done** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROLE-001
 
 **Requirement.** Document presentation and print supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-005-operating-rules) retain the record formats and calculations.
 
@@ -900,8 +900,8 @@ Core · target · **partial** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROL
 3. Print / Save PDF invokes the browser’s print renderer after removing a bearer fragment, restores the link after printing, includes the whole document and hides response controls.
 4. No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013/006 retain their owner-disclosure gate and COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 inherits the same document and original-file restrictions.
 
-**Evidence.** `tests/browser/documents.spec.ts`, `tests/api/documents.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Existing role, branch, revision and original-file guards apply.; point 2 — Dates use US calendar presentation and ten-digit phones use US punctuation; saved legacy addresses and time zones remain as recorded.; point 3 — Print / Save PDF invokes the browser’s print renderer after removing a bearer fragment, restores the link after printing, includes the whole document and hides response controls.; point 4 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013/006 retain their owner-disclosure gate and COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 inherits the same document and original-file restrictions. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/documents.spec.ts`, `tests/api/documents.test.mjs`; `tests/api/document-presentation.test.mjs` (QUOTE-015 document presentation preserves scoped originals, calendar facts and honest states after Worker restart); `tests/browser/document-print.spec.ts` (QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390)
+**Gap.** None.
 
 #### QUOTE-006 — Field quotes and change orders, offline
 
@@ -1160,7 +1160,7 @@ Core · target · **partial**
 
 #### DISP-007 — Multi-day jobs, crews and subcontractors
 
-Core · target · **partial** · From DISP-007
+Core · target · **done** · From DISP-007
 
 **Requirement.** Multi-day jobs, crews and subcontractors supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations. Recorded decisions: RL-8.
 
@@ -1173,8 +1173,8 @@ Core · target · **partial** · From DISP-007
 6. Canceling cancels them all, and is refused while a member has recorded evidence on theirs.
 7. The dispatch board's Rows choice shows crews instead of technicians in the day, week and month, one chip per crew booking, dragged or moved by keyboard as one.
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture books a three-day install for a two-person crew and a subcontractor, checks each sees only their visits, and checks the subcontractor's total in the 1099 export; a browser journey drags the crew's visit to another day on the DISP-001 week board by crew.; point 2 — A job holds any number of visits over any days.; point 3 — The owner (acting for "admin") names crews of 2 to 10 active technicians or subcontractors; changing a crew changes only later bookings.; point 4 — Booking a crew books one visit per member at the same date and times in one command, after one review of every member's conflicts.; point 5 — Moving any visit of that booking moves every member's visit in it that is not completed or canceled to the same date and times, never to another technician, after one review.; point 6 — Canceling cancels them all, and is refused while a member has recorded evidence on theirs.; point 7 — The dispatch board's Rows choice shows crews instead of technicians in the day, week and month, one chip per crew booking, dragged or moved by keyboard as one. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/crews.test.mjs` (DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart); `tests/browser/crew-board.spec.ts` (DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor)
+**Gap.** None.
 
 #### DISP-013 — Subcontractor field access
 
@@ -1798,7 +1798,7 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001,
 
 #### FIELD-010 — Schedule-change push outcomes
 
-Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **done** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Schedule-change push outcomes supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#field-004-operating-rules) retain the record formats and calculations.
 
@@ -1809,8 +1809,8 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001,
 4. The phone list says "Handed to the push service" (not "delivered", which Glove cannot see), "Not sent: the push service answered HTTP <status>" or "Not sent: the push service could not be reached".
 5. A technician manages the phone’s own subscription; committed visit changes trigger the bounded schedule-notification connector.
 
-**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — After every committed change, whoever or whatever made it (a person, a rule, a recurring series, an agent under the owner's grant, a move-in), each technician with a visit that has not ended and was booked to them, moved (its start or end changed), canceled, or handed to another technician gets one push on each subscribed phone: "New visit on your schedule" (also for the technician who receives a handed-over visit), "Visit moved", "Visit canceled" or "Visit moved off your schedule", or "N changes to your schedule" when one change touches several of their visits.; point 2 — A push carries only that line and, when one visit changed, the job's opaque id; never the customer, site, time or a note.; point 3 — Each push is encrypted for the phone (RFC 8291, aes128gcm) and signed with the VAPID key (RFC 8292: a 12-hour token naming the business email, else the installation address), kept by the push service for at most a day, and sent once, never retried.; point 4 — The phone list says "Handed to the push service" (not "delivered", which Glove cannot see), "Not sent: the push service answered HTTP <status>" or "Not sent: the push service could not be reached".; point 5 — A technician manages the phone’s own subscription; committed visit changes trigger the bounded schedule-notification connector. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/schedule-push.test.mjs` (FIELD-010 points 1–5: every schedule producer sends private once-only phone outcomes with attributable failures and subscription control)
+**Gap.** None.
 
 #### FIELD-005 — Native iOS and Android apps
 

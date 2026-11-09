@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "85958c61986f9a8cdd3a676f82ca7651f2884ccb8394228dcc09aed4266ac994",
+      "sha256": "edd7ce6546b13e4db8dc9f111b4e0512ff44f5449f5154225c6ee13345e82132",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "61f6db87d3fc71beab6c519a677f50ac804c632dd54a2d7f1929ed57f12998cc",
+      "sha256": "9b56f9db1dd431d361c4bc48e608e8973d6a5fad9cd8a6df1ab29bb1c636a81b",
       "executable": false
     },
     "DEMO.md": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+      "sha256": "f1f1a9b4558bdf252a1536d88e1c2649739a4ae707f92bcccf517b2fdb8eec11",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1876,7 +1876,7 @@
       "executable": false
     },
     "src/glove/background.ts": {
-      "sha256": "6b0f1b93d41c2663b6979508683b963e8717d0d1a4bfdf9912bfae17e8f16d99",
+      "sha256": "c0934db92bb62374e1203be9152936bbad3f496939e46456dad2a0e7175cd4c9",
       "executable": false
     },
     "src/glove/balances.ts": {
@@ -1884,7 +1884,7 @@
       "executable": false
     },
     "src/glove/billing-scheduler.ts": {
-      "sha256": "fb0adfecb0f77520dbaf5c88c7a81bf1f2954c06670702547eaf3f3ee3741a73",
+      "sha256": "aae6c2b5419ff3cb323dfd7132c4cf4d7d25c1fb7a0725aee74a68b74aa246d5",
       "executable": false
     },
     "src/glove/booking-offers.ts": {
@@ -2184,7 +2184,7 @@
       "executable": false
     },
     "src/glove/leads.ts": {
-      "sha256": "842d6bbbab46025d316358160dd8bcd92cb9fed0a54d32c0a07b60dfdb530107",
+      "sha256": "a00677b04bf00d8aaf80017f4dccff21ca4969462e817bcf193d5483f81051a9",
       "executable": false
     },
     "src/glove/locations.ts": {
@@ -2348,7 +2348,7 @@
       "executable": false
     },
     "src/glove/push.ts": {
-      "sha256": "4099998ca1498304abfa67c59b172e9cc88c93ca444d8b65014a1ec2ec122532",
+      "sha256": "c7087977f81a5ec9ba59df1667b3ac4fb8611c40c63eff021d087612ff5c1c1d",
       "executable": false
     },
     "src/glove/qbo-invoice.ts": {
@@ -5116,7 +5116,7 @@
       "executable": false
     },
     "src/ui/customer-quote.tsx": {
-      "sha256": "2b9a205ace20162600ed3ee936a9200b26bd04df5e1e5b7d6819e2979389bd3a",
+      "sha256": "dfd8be491d608820e3e60bd4ac367e69fc39e46a4add640be3c9a109473114e3",
       "executable": false
     },
     "src/ui/customer-sms.tsx": {
@@ -5152,7 +5152,7 @@
       "executable": false
     },
     "src/ui/dispatch.tsx": {
-      "sha256": "5050eb3c412c533e965ba9d0f8b43ab2a6998736d14733186fd8ebc38cc7405f",
+      "sha256": "70883b7688c773ecce7e610171bdc48e6fd88d81eee3030d8a638608e37a1c1a",
       "executable": false
     },
     "src/ui/document-email.tsx": {
@@ -5396,7 +5396,7 @@
       "executable": false
     },
     "src/ui/service-report.tsx": {
-      "sha256": "dfab4981ae695694315f8d382b0fb30bc8d6c8165b6a1a0a4a5b39a9bebb1d3c",
+      "sha256": "dddc0635ab899f4896732d3ce8656f58ac4faf2f68d046e9edda49cca3b5a293",
       "executable": false
     },
     "src/ui/sms-inbox.tsx": {
@@ -5555,6 +5555,10 @@
       "sha256": "76fb66ddf27b5e4bd291482d5bb5235a3415278a30dd1f90d52ccd1a61b628bd",
       "executable": false
     },
+    "tests/api/crews.test.mjs": {
+      "sha256": "65e60f593271040f82d127bbc17e9d785e8741df6be6d073738a15792a1968d2",
+      "executable": false
+    },
     "tests/api/csv.test.mjs": {
       "sha256": "73ac1ef231f0963dc7e1b4b7dcc465b7e496dc82bcc8ab1d56ed7b23be2ee981",
       "executable": false
@@ -5577,6 +5581,10 @@
     },
     "tests/api/discounts.test.mjs": {
       "sha256": "e446c8d01c0fea3f9318761c85b7d21f0ff85b5189ea0d0900092d817a3ac7c5",
+      "executable": false
+    },
+    "tests/api/document-presentation.test.mjs": {
+      "sha256": "2683f7d3842f4e5a5eb6a2d90e55df2441d0e1991ef66202889baca9f877bc77",
       "executable": false
     },
     "tests/api/documents.test.mjs": {
@@ -5635,6 +5643,10 @@
       "sha256": "d9063e6a159303adc31f33bd268e3625d35b20be77538783b563d89523063e05",
       "executable": false
     },
+    "tests/api/lead-matching.test.mjs": {
+      "sha256": "baeee8c8dd4cf8649c67a5d66e67c2412d86c8823135cccaba981892bacd406a",
+      "executable": false
+    },
     "tests/api/live-locations.test.mjs": {
       "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
       "executable": false
@@ -5688,7 +5700,7 @@
       "executable": false
     },
     "tests/api/pipeline.test.mjs": {
-      "sha256": "1e44085ecba355744616dbfbafd6cfe2967978d76363b287f978d1263dc58f8b",
+      "sha256": "ed2accf0b9e0b77c6adc7e4ff1a628ab7924a33e82068441655577a99a10595a",
       "executable": false
     },
     "tests/api/portrait-status-flow.mjs": {
@@ -5761,6 +5773,10 @@
     },
     "tests/api/saved-cards-flow.mjs": {
       "sha256": "568725f3ff7ed6bc6b03b55ed86153cce62cb533b19a3de4ec6550f635e525d1",
+      "executable": false
+    },
+    "tests/api/schedule-push.test.mjs": {
+      "sha256": "be114328c3589e648fa11f6a6411cd01b41f935c3f353eb452a8bfbe64c2415a",
       "executable": false
     },
     "tests/api/security.test.mjs": {
@@ -5863,6 +5879,10 @@
       "sha256": "22bfa3d9ef98f6708f27e8e9617d27c08de54c1f6230cef0a99caa547a43d468",
       "executable": false
     },
+    "tests/browser/crew-board.spec.ts": {
+      "sha256": "b4ed06a789dc7e1585c24066a2feaa86da2bb588559e4a35b2d3c649765c1597",
+      "executable": false
+    },
     "tests/browser/custom-roles.spec.ts": {
       "sha256": "f3916b7573267841610d47e274249031c6973c899ce7c4b899268c02741619de",
       "executable": false
@@ -5881,6 +5901,10 @@
     },
     "tests/browser/dispatch-map.spec.ts": {
       "sha256": "b30e3f9a24279cfd46620e80ce5d32f97ba1aa4577b4bb1da2f72a8cf73e360a",
+      "executable": false
+    },
+    "tests/browser/document-print.spec.ts": {
+      "sha256": "631517aa63d9565f64ac081f1b39ee8968b8bbb1934a3cf3cda08b0eb394fed6",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {

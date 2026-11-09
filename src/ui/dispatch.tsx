@@ -162,8 +162,8 @@ export function Dispatch({ s: full, run, date, setDate }: { s: Glove; run: Run; 
             <div className="board-options">
               <BranchChoice s={full} value={branchId} onChange={id => { setBranchId(id); setSelected(null); setBooking(null); setProposed(null); setKeyed(null); setPending(null) }} />
               <label>Color by <select value={colorBy} onChange={e => setColorBy(e.target.value as 'status' | 'type')}><option value="status">Status</option><option value="type">Job type</option></select></label>
-              {(s.crews ?? []).length > 0 && <label>Rows <select value={byCrew ? 'crews' : 'technicians'} onChange={e => { setByCrew(e.target.value === 'crews'); setKeyed(null) }}><option value="technicians">Technicians</option><option value="crews">Crews</option></select></label>}
-              {view === 'month' && <label>Technician <select value={monthTech} onChange={e => setMonthTech(e.target.value)}><option value="">All technicians</option>{technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
+              {(s.crews ?? []).length > 0 && <label>Rows <select value={byCrew ? 'crews' : 'technicians'} onChange={e => { setByCrew(e.target.value === 'crews'); setMonthTech(''); setKeyed(null) }}><option value="technicians">Technicians</option><option value="crews">Crews</option></select></label>}
+              {view === 'month' && <label>{board.rowLabel} <select value={monthTech} onChange={e => setMonthTech(e.target.value)}><option value="">{crewView ? 'All crews' : 'All technicians'}</option>{board.technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
             </div>
             {colorBy === 'type' && <ul className="type-legend" aria-label="Job types">{types.map((t, i) => <li key={t}><span className={`swatch type-${i % 6}`} aria-hidden="true" />{t}</li>)}</ul>}
           </header>

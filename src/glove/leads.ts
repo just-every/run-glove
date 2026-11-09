@@ -55,7 +55,7 @@ function angi(body: any): Lead {
 function yelp(body: any): Lead {
   requireThat(body && typeof body === 'object')
   const p = body.project ?? {}, answers = Array.isArray(p.survey_answers) ? p.survey_answers.map((a: any) => `${str(a.question_text, 200)} ${[].concat(a.answer_text ?? []).map(x => str(x, 200)).join(', ')}`.trim()) : []
-  return { provider: 'yelp', providerLeadId: id(body.id), at: when(body.time_created), name: str(body.user?.display_name, 100) || 'Yelp customer', phone: str(body.phone_number, 40), email: str(body.temporary_email_address, 200), address: zipOf(p.location?.postal_code), zip: zipOf(p.location?.postal_code), reply: { address: str(body.temporary_email_address, 254), expiresAt: when(body.temporary_email_address_expiry) }, description: [[].concat(p.job_names ?? []).map(x => str(x, 200)).join(', '), ...answers, str(p.additional_info, 2000)].filter(Boolean).join('; ') || 'Yelp request', cost: null }
+  return { provider: 'yelp', providerLeadId: id(body.id), at: when(body.time_created), name: str(body.user?.display_name, 100) || 'Yelp customer', phone: str(body.phone_number, 40), email: str(body.temporary_email_address, 200), address: '', zip: zipOf(p.location?.postal_code), reply: { address: str(body.temporary_email_address, 254), expiresAt: when(body.temporary_email_address_expiry) }, description: [[].concat(p.job_names ?? []).map(x => str(x, 200)).join(', '), ...answers, str(p.additional_info, 2000)].filter(Boolean).join('; ') || 'Yelp request', cost: null }
 }
 
 /** One Local Services lead from a Google Ads API search row. */
