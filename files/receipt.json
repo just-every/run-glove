@@ -1,0 +1,228 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f212",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f212",
+  "head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+  "createdAt": "2026-11-09T11:09:49.637858+00:00",
+  "predecessor": "05eb31f2f4ce65e3305a1b40fe4b7e6262a97cb7",
+  "base": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "sourceCountsBefore": {
+    "partial": 193,
+    "done": 41,
+    "missing": 29
+  },
+  "sourceCountsAfter": {
+    "partial": 193,
+    "done": 41,
+    "missing": 29
+  },
+  "statusCellsChanged": false,
+  "testInventory": {
+    "main": 202,
+    "restored": 203,
+    "candidate": 200,
+    "cap": 200
+  },
+  "localChecks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/quote-approval.test.mjs tests/api/quote-link-custody.test.mjs tests/api/quote-link-records.test.mjs",
+      "exit": 1,
+      "log": "api.log",
+      "failure": "unchanged records journey: SocketError other side closed; focused and custody passed"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/quote-approval.test.mjs tests/api/quote-link-records.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "log": "api-final.log"
+    },
+    {
+      "command": "node --test tests/api/quote-approval.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "log": "api-candidate.log",
+      "note": "final focused test bytes equal the candidate; the only later change was source lock regeneration and the commit"
+    },
+    {
+      "command": "pnpm typecheck",
+      "node": "22.20.0",
+      "exit": 0,
+      "log": "typecheck-final.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "exit": 0,
+      "log": "inventory.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs check; restore generated views from origin/main",
+      "exit": 0,
+      "log": "contract-docs-final.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "source-lock-check.json"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "committed-source-lock-check.json",
+      "head": "2c7eeb2d9253373646c42df112497c5179326c5f"
+    },
+    {
+      "command": "detached worktree at published save: node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "published-save-lock.json",
+      "head": "a90d95e90cc1c1c41ec877ed34557f0a38452807"
+    }
+  ],
+  "localBrowser": {
+    "firstFreshOwnedRun": {
+      "exit": 1,
+      "log": "browser.log",
+      "failure": "240000ms timeout after all 24 required screens; error reported during cleanup"
+    },
+    "diagnosticFreshOwnedRun": {
+      "exit": 1,
+      "log": "browser-diagnostic.log",
+      "failure": "cold application listener readiness deadline; no tests started"
+    },
+    "cachedRootRun": {
+      "exit": 1,
+      "log": "browser-local.log",
+      "failure": "application listener readiness deadline; no tests started"
+    },
+    "rerPreview": {
+      "exit": 3,
+      "log": "browser-preview.log",
+      "failure": "setup had not provisioned owner after its readiness failure"
+    },
+    "builtWorkerRun": {
+      "exit": 1,
+      "log": "browser-built.log",
+      "failure": "fetch failed, other side closed after 1440 proof; Miniflare transport"
+    },
+    "finalResult": "passed",
+    "capConsolidationJourneys": {
+      "status": "not_run_locally",
+      "reason": "fresh and cached setup attempts failed the pinned runner listener handshake; exact-SHA Verify is the maintained execution entry point",
+      "assertionPreservation": "assertion-preservation.json"
+    },
+    "builtWorkerRetry": {
+      "exit": 0,
+      "log": "browser-built-retry.log",
+      "head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+      "node": "22.20.0",
+      "chromium": "/usr/bin/chromium",
+      "arguments": [
+        "--no-sandbox"
+      ],
+      "test": "tests/browser/quote-link-custody.spec.ts#QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390",
+      "widths": [
+        1440,
+        390
+      ],
+      "screenshots": 24,
+      "duration": "2.2 minutes",
+      "temporaryDiagnosticEditsPresent": false
+    },
+    "originalScreenshotsRetainedOutsidePacket": "/home/agent/rer-consolidation/work/sx-glove-c-f212/failed-initial-browser-screenshots"
+  },
+  "baselineCi": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42598794500",
+      "id": 42598794500,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "event": "push",
+      "head_sha": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42598794488",
+      "id": 42598794488,
+      "name": "Run demo",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42598794436",
+      "id": 42598794436,
+      "name": "Run site",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42598793971",
+      "id": 42598793971,
+      "name": "Push on main",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42596529778",
+      "id": 42596529778,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "candidateCi": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "2c7eeb2d9253373646c42df112497c5179326c5f",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42606061238",
+      "id": 42606061238,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "ghCalls": 4,
+  "publicationScan": {
+    "commit": "2c7eeb2d9253373646c42df112497c5179326c5f",
+    "status": "not_run_in_cloud",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "owner": "guarded fleet lander"
+  },
+  "mainEquality": false,
+  "runSiteOnCandidate": null,
+  "migrationLedger": {
+    "applicable": false,
+    "reason": "no migration changed"
+  },
+  "blockers": [],
+  "remoteCustody": {
+    "refs/heads/cloud/sx-glove-c-f212": "2c7eeb2d9253373646c42df112497c5179326c5f",
+    "refs/heads/main": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361"
+  },
+  "temporaryCopyLockCheck": {
+    "exit": 1,
+    "reason": "temporary directory had no Git metadata; not a product freshness result",
+    "log": "save-lock-diagnostic.log",
+    "publishedSaveVerifiedSeparately": "published-save-lock.json"
+  },
+  "candidateCiStatus": {
+    "conclusion": null,
+    "head_sha": "2c7eeb2d9253373646c42df112497c5179326c5f",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42606061238",
+    "status": "in_progress"
+  }
+}

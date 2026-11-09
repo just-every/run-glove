@@ -1,0 +1,42 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority
+ok 1 - QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority
+  ---
+  duration_ms: 34062.203811
+  type: 'test'
+  ...
+# point 1: described price-book choices, revision, drawn approval, exact cents and stale refusal survive restart
+# point 2: day 31 refuses approval and one update reopens the request with one office notice
+# point 3: revision bearer delegates only its own read, choice, changes, update, decline and signed approval
+# point 4: Agent, Technician, integration and signed-out issuance fail; reissue leaves one live link
+# point 5: every customer response exposes only its revision and service site without private cost or notes
+# point 6: accepted provider email and staff handout retain honest unverified authentication bases
+# point 7: withdrawn role and wrong branch refuse decisions without writes and jobs require accepted approved current work
+# point 8: staff and customer race to one frozen decision; either replay is inert across actual Worker restart
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: QUOTE-012 quote-link records preserve provider truth, customer documents and live authority
+ok 2 - QUOTE-012 quote-link records preserve provider truth, customer documents and live authority
+  ---
+  duration_ms: 108374.977477
+  type: 'test'
+  ...
+# point 3: outside sharing and each provider send answer retain the actual mail outcome
+# point 4: every recorded customer response follows confirming provider facts and never asserts verified identity
+# point 1: permitted people issue and revoke; excluded roles and tokens change nothing
+# point 2: independently expected customer document is frozen with its canonical digest
+# point 5: revision-only same-origin JSON responses accept changes, claimed decline and one update
+# point 6: changes and updates survive in every office surface and reopen the originating request
+# point 7: customer decline and each staff decision have one winner and leave a read-only revision
+# point 8: role, branch, revocation and expiry changes at the commit boundary refuse without writes
+# points 1 through 8: real Worker restart and replay retain facts without bearers or repeated sends
+# inherited privacy and replay: erasure closes the old public link without resurrecting customer data
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 147692.062297

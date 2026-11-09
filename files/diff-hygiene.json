@@ -1,0 +1,21 @@
+{
+  "files": [
+    "sources.lock.json",
+    "tests/api/quote-approval.test.mjs",
+    "tests/browser/journey.spec.ts",
+    "tests/browser/movein.spec.ts",
+    "tests/browser/quote-link-custody.spec.ts"
+  ],
+  "reviewItems": [
+    {
+      "file": "tests/api/quote-approval.test.mjs",
+      "kind": "review slash token",
+      "value": "assert/strict"
+    },
+    {
+      "file": "tests/browser/quote-link-custody.spec.ts",
+      "kind": "review slash token",
+      "value": "application/json"
+    }
+  ]
+}

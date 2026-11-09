@@ -1,0 +1,38 @@
+Actual built production Worker serves the anonymous quote page. JSON uses the real isolated Worker and D1 through the existing test route forwarding.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:6045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:6045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6045) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/quote-link-custody.spec.ts:34:1 › QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390 (48.4s)
+
+
+  1) tests/browser/quote-link-custody.spec.ts:34:1 › QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390 
+
+    TypeError: fetch failed
+        at Object.processResponse (/home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at /home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at /home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at async MessagePort.<anonymous> ([worker eval]:32:22)
+    [cause]: Error: other side closed
+        at TLSSocket.onHttpSocketEnd (/home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+
+    Error Context: ../built-browser-results/quote-link-custody-QUOTE-0-7b724--and-expiry-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/quote-link-custody.spec.ts:34:1 › QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390 
+

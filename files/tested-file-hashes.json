@@ -1,0 +1,95 @@
+{
+  "head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+  "files": [
+    {
+      "path": "tests/api/quote-approval.test.mjs",
+      "sha256": "852c5a4106f0d6dba71351f895cab35d4990749be718d954177960a2c3f137af",
+      "equalsCandidate": true,
+      "equalsMain": false
+    },
+    {
+      "path": "tests/browser/quote-link-custody.spec.ts",
+      "sha256": "b3f1411d8395c7e1e3d882853c77f66068adafbafc800e7f174ed8c8ac0d461c",
+      "equalsCandidate": true,
+      "equalsMain": false
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "sha256": "cecc5f999d35842aa507e816bd70557c9a90100e83ddd9d07fdf058b8fd1a719",
+      "equalsCandidate": true,
+      "equalsMain": false
+    },
+    {
+      "path": "tests/browser/movein.spec.ts",
+      "sha256": "d9fb4703ea54011fe41940073ca50ab483ef862c274f84297725551e3eb7740e",
+      "equalsCandidate": true,
+      "equalsMain": false
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "tests/api/quote-link-custody.test.mjs",
+      "sha256": "af43dee77d13511d8b828d9adfa350394921d15aae3cfa43fd404cf38e3ad6ab",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "tests/api/quote-link-records.test.mjs",
+      "sha256": "56076912a0bb089f22fd6ff89ca61738ff2a9c0fed1b4ba8506d30a11badaa68",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "tests/api/customer-quotes.test.mjs",
+      "sha256": "6f3f6fd003bea888ba3aa214fdeb49890a5896e9dc8bf1fa1810fcee15dff7e5",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "tests/browser/customer-quotes.spec.ts",
+      "sha256": "0338447295b93d3ffe42455ddca8890beb23d750f9024d257264927168322dd3",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "src/glove/public-quote.ts",
+      "sha256": "10345e2b469ebcbdec451b7b23c6530c76b18b3e1187cdd0e37ad9e74fde245e",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "src/glove/quote-links.ts",
+      "sha256": "c83c1930e6ed17aad8f728548ac7692ea5421bf69d02bb5ec7ba6408730fd103",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "src/glove/quote-signing.ts",
+      "sha256": "d1cf2fb48f68ab3ee673894ca9e41d8c29f23d9a7ebea0556cd1acd4ca9b2029",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "src/glove/commands/dispatch.ts",
+      "sha256": "144c2ffbcaaa333134929cc040ccd3c064a61327691c2794d4d3f4515985c222",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "src/ui/quote-signing.tsx",
+      "sha256": "2bf2a009ad8d12a1afa00841dfcd1a007d6c072a021c1a3ef6af740cb4c2ee6c",
+      "equalsCandidate": true,
+      "equalsMain": true
+    },
+    {
+      "path": "src/ui/customer-quote.tsx",
+      "sha256": "dfd8be491d608820e3e60bd4ac367e69fc39e46a4add640be3c9a109473114e3",
+      "equalsCandidate": true,
+      "equalsMain": true
+    }
+  ]
+}

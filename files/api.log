@@ -1,0 +1,58 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority (68887.982773ms)
+ℹ point 1: described price-book choices, revision, drawn approval, exact cents and stale refusal survive restart
+ℹ point 2: day 31 refuses approval and one update reopens the request with one office notice
+ℹ point 3: revision bearer delegates only its own read, choice, changes, update, decline and signed approval
+ℹ point 4: Agent, Technician, integration and signed-out issuance fail; reissue leaves one live link
+ℹ point 5: every customer response exposes only its revision and service site without private cost or notes
+ℹ point 6: accepted provider email and staff handout retain honest unverified authentication bases
+ℹ point 7: withdrawn role and wrong branch refuse decisions without writes and jobs require accepted approved current work
+ℹ point 8: staff and customer race to one frozen decision; either replay is inert across actual Worker restart
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart (103236.389773ms)
+ℹ QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart
+ℹ QUOTE-009 superseded links disclose no document and refuse every customer action across restart
+ℹ QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant
+ℹ QUOTE-009 owner validity boundaries and default changes affect only later revisions
+ℹ QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window
+ℹ QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ QUOTE-012 quote-link records preserve provider truth, customer documents and live authority (90767.396322ms)
+ℹ point 3: outside sharing and each provider send answer retain the actual mail outcome
+ℹ point 4: every recorded customer response follows confirming provider facts and never asserts verified identity
+ℹ point 1: permitted people issue and revoke; excluded roles and tokens change nothing
+ℹ point 2: independently expected customer document is frozen with its canonical digest
+ℹ point 5: revision-only same-origin JSON responses accept changes, claimed decline and one update
+ℹ point 6: changes and updates survive in every office surface and reopen the originating request
+ℹ point 7: customer decline and each staff decision have one winner and leave a read-only revision
+ℹ point 8: role, branch, revocation and expiry changes at the commit boundary refuse without writes
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 272331.118503
+
+✖ failing tests:
+
+test at tests/api/quote-link-records.test.mjs:67:1
+✖ QUOTE-012 quote-link records preserve provider truth, customer documents and live authority (90767.396322ms)
+  TypeError: fetch failed
+      at Object.processResponse (/home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+      at /home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+      at /home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+      at async MessagePort.<anonymous> ([worker eval]:32:22) {
+    [cause]: SocketError: other side closed
+        at TLSSocket.onHttpSocketEnd (/home/agent/rer-consolidation/work/sx-glove-c-f212/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+        at TLSSocket.emit (node:events:521:24)
+        at endReadableNT (node:internal/streams/readable:1736:12)
+        at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+  }

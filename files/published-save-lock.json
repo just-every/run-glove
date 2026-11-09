@@ -1,0 +1,7 @@
+{
+  "head": "a90d95e90cc1c1c41ec877ed34557f0a38452807",
+  "command": "node scripts/edition-authoring/cli.mjs check",
+  "exit": 0,
+  "ok": true,
+  "method": "detached Git worktree of the published save"
+}

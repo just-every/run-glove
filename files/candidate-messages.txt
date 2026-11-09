@@ -1,0 +1,12 @@
+2c7eeb2d9253373646c42df112497c5179326c5f
+Bind the approved job to the exact customer-selected price-book items
+
+a90d95e90cc1c1c41ec877ed34557f0a38452807
+Preserve exact decision evidence and test coverage within cap [skip ci]
+
+79b36289a889b689424aa7b2906b4284168a232c
+Replay focused quote approval proof onto current main [skip ci]
+
+f26e4c940e9e69a58c37cf6092b3b7bd58aee4b3
+Qualify customer quote approval through focused public journeys [skip ci]
+

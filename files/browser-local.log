@@ -1,0 +1,76 @@
+Resuming the existing owned setup with its cached dependencies and listener build.
+                    18.81 kB │ gzip:   4.37 kB
+dist/server/assets/router-C7Z-2Mek.js                         46.64 kB │ gzip:  11.81 kB
+dist/server/assets/Match-DL6S_0SJ.js                         145.43 kB │ gzip:  36.64 kB
+dist/server/assets/app-DYKVWZ60.js                           946.53 kB │ gzip: 175.59 kB
+dist/server/index.js                                       3,166.60 kB │ gzip: 791.91 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/modules/import-kit/src/d1/undo-snapshot.ts is dynamically imported by src/modules/import-kit/src/d1/apply.ts but also statically imported by src/modules/import-kit/src/d1/preserved-preview.ts, src/modules/import-kit/src/d1/preserved-reverse.ts, dynamic import will not move module into another chunk.
+
+✓ built in 8.51s
+[PLUGIN_TIMINGS] Plugin hooks ran for 7.0s of this 8.5s build (83%).
+The slowest hooks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+  - vite-plugin-cloudflare:additional-modules resolveId (41%, 3.5s, 2 calls)
+  - tanstack-start-core::server-fn:ssr transform (36%, 3.1s, 15 calls)
+  - tanstack-start-core:import-protection-transform-cache transform (18%, 1.5s, 892 calls)
+These rows add up to more than the total. Callbacks can overlap, so the same time counts for more than one row.
+1 hook is listed without a time. Its calls overlapped, so the time inside one call includes work from other calls. To find its cost, profile the build with `node --cpu-prof`:
+  - tanstack-start-core:import-protection resolveId (3514 calls)
+See [URL] for more details.
+
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Starting your application on this computer (waiting for the bound internal listener): Still starting (30 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (32 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (34 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (35 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (36 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (37 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (38 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (39 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (40 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (41 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (42 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (43 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (44 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (45 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (46 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (48 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (49 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (50 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (51 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (52 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (53 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (54 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (55 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (56 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (58 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (59 s)
+Application listened on port 32807, 44901, 45343; readiness failed for GET [REDACTED]/health through expected internal port 30980. Check application health and the runtime target's port binding.
+Starting your application on this computer (waiting for the bound internal listener): readiness deadline exceeded (exit none, signal none). Last health: Waiting for the application listener handshake.
+Installation stopped while starting the application. Ask your agent to check the edition's operating command for that step, correct the cause, then select Start again. Your setup answers are saved; you may need to supply credentials again.
+Command: /home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node
+Last output (up to 40 lines):
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Log: [REDACTED]/.seed/installer/install.log
+Application listened on port 32807, 44901, 45343; readiness failed for GET [REDACTED]/health through expected internal port 30980. Check application health and the runtime target's port binding.
+setup: failed (exit 1)
+

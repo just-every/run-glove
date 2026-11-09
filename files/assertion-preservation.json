@@ -1,0 +1,14 @@
+[
+  {
+    "file": "tests/browser/journey.spec.ts",
+    "before": 211,
+    "after": 211,
+    "identical": true
+  },
+  {
+    "file": "tests/browser/movein.spec.ts",
+    "before": 128,
+    "after": 128,
+    "identical": true
+  }
+]

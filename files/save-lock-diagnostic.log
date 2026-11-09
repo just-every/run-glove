@@ -1,0 +1,4 @@
+Command failed: git -C /tmp/glove-head-lock-jpgimjv2 ls-files -z
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+

@@ -1,0 +1,131 @@
+{
+  "head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+  "run": "browser-built-retry.log",
+  "exit": 0,
+  "widths": [
+    1440,
+    390
+  ],
+  "images": [
+    {
+      "path": "screenshots/1440-quote-custody-approval-changes.png",
+      "bytes": 150523,
+      "sha256": "e2bd70c66a7a09e038942c74be6243f09a64ec75b4d294a1a521c77e8b6b406f"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-approval-choice.png",
+      "bytes": 216888,
+      "sha256": "532ab97426819daba2a25f13f31956fee8ff29d512ee56961d1142a26088fcf5"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-approval-drawn.png",
+      "bytes": 237126,
+      "sha256": "fe0524465dcb171bcf3484f51151f0cca85af891fcee8405453392eb7111018e"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-approval-signed.png",
+      "bytes": 115035,
+      "sha256": "a3ce5b0c795a27bf2ecdaa438b9d60604d5e6b0865e0e73c99a01670debc50e1"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-approval-stale-refused.png",
+      "bytes": 16038,
+      "sha256": "00fb39e4cbfb0ad872167257cc46520e978e0ac27fa49981827e2bdfad5ce0c5"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-declined.png",
+      "bytes": 67501,
+      "sha256": "0f0dce8cc97213ffb2b2a131b543ffe844c006e6f1bfa148b3cd8100388ef3ea"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-expired.png",
+      "bytes": 88158,
+      "sha256": "5a7fbc5f463be63712210a49b3b73c7b844ca130a9c871f64b8e71dde315d9ac"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-open.png",
+      "bytes": 102610,
+      "sha256": "3f9a87212f3720313c5a9542a5376971e5c1be33cf95d11975b4d76b5c54425d"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-response.png",
+      "bytes": 110419,
+      "sha256": "e1e036c96addf9561f946ccc09064ce1167f95f8482ff5ced186ed8a9e951c9e"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-superseded.png",
+      "bytes": 16038,
+      "sha256": "00fb39e4cbfb0ad872167257cc46520e978e0ac27fa49981827e2bdfad5ce0c5"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-unavailable.png",
+      "bytes": 17023,
+      "sha256": "e628d4ce15fb8ee9a3ae512f716544d1b5a9372690ede4009b703a71761d2629"
+    },
+    {
+      "path": "screenshots/1440-quote-custody-update-requested.png",
+      "bytes": 87649,
+      "sha256": "ccaeb7c244b780c68d89a85f1478d17f14ef17ccfdc04ee84847c19a5fdc3ab9"
+    },
+    {
+      "path": "screenshots/390-quote-custody-approval-changes.png",
+      "bytes": 133818,
+      "sha256": "e24e5689de11f152bb6e4cf6917280837268ef913b95ea853d958be18b59d809"
+    },
+    {
+      "path": "screenshots/390-quote-custody-approval-choice.png",
+      "bytes": 193566,
+      "sha256": "7b535e6beaf15fe3b39197ef2cf9ea13a7d95c67cfe7c941c11471aa830cfdd9"
+    },
+    {
+      "path": "screenshots/390-quote-custody-approval-drawn.png",
+      "bytes": 208870,
+      "sha256": "4b0317130de13138759eb0a3e6da94ee1ce4ebd83ee9ed3d87575e0477d2970b"
+    },
+    {
+      "path": "screenshots/390-quote-custody-approval-signed.png",
+      "bytes": 104042,
+      "sha256": "1e35b09ee13302a4f2ee36097e2b6ffa5c41c9e4635fa14b5d15e5bea2f87f06"
+    },
+    {
+      "path": "screenshots/390-quote-custody-approval-stale-refused.png",
+      "bytes": 11720,
+      "sha256": "6f397939a5e5ae1a9ec8e315c40e0d626282aa3277c73803c51152ad3df51845"
+    },
+    {
+      "path": "screenshots/390-quote-custody-declined.png",
+      "bytes": 58967,
+      "sha256": "a660de5e83074210572c9bd7234d5d948f9ce4eae693718ac2a6b2c9b1249103"
+    },
+    {
+      "path": "screenshots/390-quote-custody-expired.png",
+      "bytes": 77710,
+      "sha256": "69af0fe0f1d033c03b1552b2f560ee480d38fa6e40a8c5f000fa7692acfaed61"
+    },
+    {
+      "path": "screenshots/390-quote-custody-open.png",
+      "bytes": 90982,
+      "sha256": "39805f5ca9b5d1eadd387303a52fcdae4135229b549e311fd88e93328ff96ad7"
+    },
+    {
+      "path": "screenshots/390-quote-custody-response.png",
+      "bytes": 98489,
+      "sha256": "d38713b4612c0cba3c3ab09e53cd8143fa0a0d70ac941c02a4b31950409950f7"
+    },
+    {
+      "path": "screenshots/390-quote-custody-superseded.png",
+      "bytes": 11720,
+      "sha256": "6f397939a5e5ae1a9ec8e315c40e0d626282aa3277c73803c51152ad3df51845"
+    },
+    {
+      "path": "screenshots/390-quote-custody-unavailable.png",
+      "bytes": 12722,
+      "sha256": "b8c8673501a0b23ec8a74665b8055762bf05406a68c7daf8067a241e1365e494"
+    },
+    {
+      "path": "screenshots/390-quote-custody-update-requested.png",
+      "bytes": 77373,
+      "sha256": "d86d15cd33bf0e4b60c728ffc627a67d1fcb1c57999faf23f5c8c69faa658ee8"
+    }
+  ]
+}
