@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 24 | 197 | 16 | 237 |
+| Core | 25 | 196 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 24 | 210 | 29 | 263 |
+| Full target | 25 | 209 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1025,7 +1025,7 @@ Core · target · **partial** · Cites BASE-ACCESSIBILITY-001
 
 #### DISP-002 — Map board and travel time
 
-Core · target · **partial** · From DISP-002 · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-SECRET-001
+Core · target · **done** · From DISP-002 · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-SECRET-001
 
 **Requirement.** Map board and travel time supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-002-operating-rules) retain the record formats and calculations.
 
@@ -1038,8 +1038,8 @@ Core · target · **partial** · From DISP-002 · Cites BASE-AUDIT-001, BASE-DAT
 6. The owner draws a technician's zones on the map (technician zones action: up to 20 named polygons of 3 to 100 corners, by clicking corners or typing them).
 7. A technician's service area is their ZIP codes and drawn zones together: with zones drawn, a site whose ZIP is not listed and which is not inside any zone (a site not on the map is inside none) falls under the owner's area rule, warned for review or refused, exactly as `DISP-004`'s ZIP rule.
 
-**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture opens the map board with a fixture day, sees pins and drive times (provider fake), and the technician's phone offers a directions link with the site's address; a flow test draws a zone for a technician and checks a booking at a site outside it gets the area warning.; point 2 — Only the owner connects Google Maps Platform with their own key, kept as an installation secret (never in state, Activity, a command result, the business export, the installation archive or a log; a restored installation needs it entered again).; point 3 — While it is connected, saving a site with a new or changed address places it with Google's Geocoding API (the street address only goes to Google) and keeps its latitude and longitude on the site, or says Google found no such place; the desk places listed sites again with site locate action.; point 4 — The day board shows a route map over the board (the day map, desk roles only): Google's base map (Static Maps API, asked for by center and zoom only) under Glove's own numbered pins for each technician's stops in order, the legs between consecutive stops with the drive time and distance from Google's Routes API (driving, traffic-unaware; only the stops' coordinates go to Google), and the zones drawn for each technician; a stop whose site is not on the map is listed with **Place on the map**.; point 5 — On the technician's phone each visit offers directions to the site's address in Apple Maps, Google Maps or Waze.; point 6 — The owner draws a technician's zones on the map (technician zones action: up to 20 named polygons of 3 to 100 corners, by clicking corners or typing them).; point 7 — A technician's service area is their ZIP codes and drawn zones together: with zones drawn, a site whose ZIP is not listed and which is not inside any zone (a site not on the map is inside none) falls under the owner's area rule, warned for review or refused, exactly as DISP-004's ZIP rule. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/maps.ts`, `src/glove/commands/maps.ts`, `src/ui/dispatch-map.tsx`, `tests/api/eligibility.test.mjs`, `tests/browser/dispatch-map.spec.ts`; `tests/api/map-board.test.mjs` (DISP-002 map board qualification through desk, Owner and booking doors); `tests/browser/dispatch-map.spec.ts` (DISP-002, DISP-010, DISP-015 the map board shows the day's pins and drive times, the owner draws a zone, and the technician's phone hands directions to their navigation app, at 1440 and 390); `tests/portable.mjs` (DISP-002 actual archive)
+**Gap.** None.
 
 #### DISP-010 — Travel-aware automatic assignment
 
