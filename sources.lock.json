@@ -5580,7 +5580,7 @@
       "executable": false
     },
     "tests/api/due-visit-list.test.mjs": {
-      "sha256": "b5f15b01d58efba5bf37e4ce01f5584ac79d282f295d87560b6d590470f2d265",
+      "sha256": "ae67bc36bcc18c3c150bc8ea70bc92940e2ceb70b4a90379982f0aa063a07c30",
       "executable": false
     },
     "tests/api/due-visit-offers.test.mjs": {
