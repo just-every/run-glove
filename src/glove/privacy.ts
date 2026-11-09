@@ -109,9 +109,15 @@ export const privacy: Handler = async (c, type, p, db) => {
     for (const kind of collections) {
       if (kind === 'exports' || kind === 'privacyRequests') continue
       c.s[kind] = c.s[kind].flatMap(r => {
-        if (kind === 'imports' && (scope.matches(r) || preview.sharedOriginals.some(a => a.jobId === r.jobId))) {
-          const retired = preview.retiredBatches.some(b => b.jobId === r.jobId)
-          return [{ id: r.id, jobId: r.jobId, version: r.version + 1, status: retired ? 'privacy-withdrawn' : r.status, system: r.system, createdAt: r.createdAt, label: retired ? 'Source and Undo withdrawn for customer privacy' : 'Shared original withdrawn; peer Undo remains available', privacyOmissions: preview.sharedOriginals.filter(a => a.jobId === r.jobId).map(a => ({ name: scope.redact(a.name), sha256: a.sha256, peerIds: a.peerIds })) }]
+        // A batch part-way through its first commit has no job id yet, only its operation key.
+        const ofBatch = (b: { jobId: string; operationKey: string }) => b.jobId === r.jobId || b.operationKey === `glove-movein:${r.id}`
+        if (kind === 'imports' && (scope.matches(r) || preview.sharedOriginals.some(ofBatch) || preview.retiredBatches.some(ofBatch))) {
+          const retired = preview.retiredBatches.some(ofBatch)
+          const privacyOmissions = preview.sharedOriginals.filter(ofBatch).map(a => ({ name: scope.redact(a.name), sha256: a.sha256, peerIds: a.peerIds }))
+          // A batch that keeps Undo and resume keeps its reviewed fingerprint, mapping and
+          // counts with only the subject's values redacted; a retired batch keeps nothing else.
+          if (!retired) return [{ ...scope.redact(r), id: r.id, jobId: r.jobId, version: r.version + 1, label: privacyOmissions.length ? 'Shared original withdrawn; peer Undo remains available' : 'Customer data erased from this batch; peer Undo remains available', privacyOmissions }]
+          return [{ id: r.id, jobId: r.jobId, version: r.version + 1, status: 'privacy-withdrawn', system: r.system, createdAt: r.createdAt, label: 'Source and Undo withdrawn for customer privacy', privacyOmissions }]
         }
         const sharedSignedCopy = kind === 'quotes' && preview.sharedSignedCopies.find(q => q.quoteId === r.id)
         if (sharedSignedCopy) return [withdrawSignedQuote(r, scope, sharedSignedCopy, c.now)]

@@ -5,23 +5,45 @@ import { canonicalJson, sha256, type ImportPlan } from '../modules/import-kit/sr
 import { formatCsv, parseCsv } from './csv-format'
 import type { privacyScope } from './privacy'
 
+/** The ServiceM8 companies that own each retained source record, followed only
+ * through typed provider relationships (job to company, payment to job,
+ * attachment to company, job or payment, and the attachment a payment names),
+ * never arbitrary UUID mentions. */
+export function servicem8Owners(plan: ImportPlan) {
+  const live = plan.entries.filter(e => !e.erased && e.source.namespace === 'servicem8')
+  const jobOwner = new Map<string, string>()
+  for (const e of live) if (e.source.kind === 'job') jobOwner.set(e.source.sourceId, (e.source.payload as any).company_uuid)
+  const paymentOwner = new Map<string, string>(), namedBy = new Map<string, Set<string>>()
+  for (const e of live) if (e.source.kind === 'jobpayment') {
+    const p = e.source.payload as any, company = jobOwner.get(p.job_uuid)
+    if (!company) continue
+    paymentOwner.set(e.source.sourceId, company)
+    if (typeof p.attachment_uuid === 'string' && p.attachment_uuid) namedBy.set(p.attachment_uuid, new Set([...namedBy.get(p.attachment_uuid) ?? [], company]))
+  }
+  return (e: ImportPlan['entries'][number]): string[] => {
+    if (e.erased || e.source.namespace !== 'servicem8') return []
+    const p = e.source.payload as any
+    const one = (company: string | undefined) => company ? [company] : []
+    switch (e.source.kind) {
+      case 'company': return [e.source.sourceId]
+      case 'companycontact': case 'job': return one(p.company_uuid)
+      case 'jobpayment': case 'jobmaterial': case 'jobactivity': return one(jobOwner.get(p.job_uuid))
+      case 'attachment': return [...new Set([...one(p.related_object === 'company' ? p.related_object_uuid : p.related_object === 'job' ? jobOwner.get(p.related_object_uuid) : p.related_object === 'jobpayment' ? paymentOwner.get(p.related_object_uuid) : undefined), ...namedBy.get(e.source.sourceId) ?? []])]
+      default: return []
+    }
+  }
+}
+
 /** Source ownership survives a rejected mapping. Follow only typed provider
  * relationships, never arbitrary UUID mentions or another provider's IDs. */
 export function customerPlanEntries(plan: ImportPlan, scope: ReturnType<typeof privacyScope>) {
   const companies = new Set(scope.records.customers.filter(c => c.source?.system === 'ServiceM8').map(c => c.source.id))
-  const jobs = new Set(plan.entries.filter(e => !e.erased && e.source.namespace === 'servicem8' && e.source.kind === 'job' && companies.has((e.source.payload as any).company_uuid)).map(e => e.source.sourceId))
-  const payments = plan.entries.filter(e => !e.erased && e.source.namespace === 'servicem8' && e.source.kind === 'jobpayment' && jobs.has((e.source.payload as any).job_uuid))
-  const paymentIds = new Set(payments.map(e => e.source.sourceId)), attachmentIds = new Set(payments.map(e => (e.source.payload as any).attachment_uuid).filter(Boolean))
+  const owners = servicem8Owners(plan)
   return plan.entries.filter(e => {
     if (e.erased) return false
     if (e.effects.some(effect => scope.ids.has(effect.targetId))) return true
     if (e.source.namespace !== 'servicem8') return scope.matches(e.source.payload)
-    const p = e.source.payload as any
-    return e.source.kind === 'company' && companies.has(e.source.sourceId)
-      || e.source.kind === 'companycontact' && companies.has(p.company_uuid)
-      || e.source.kind === 'job' && jobs.has(e.source.sourceId)
-      || ['jobpayment', 'jobmaterial', 'jobactivity'].includes(e.source.kind) && jobs.has(p.job_uuid)
-      || e.source.kind === 'attachment' && (attachmentIds.has(e.source.sourceId) || p.related_object === 'company' && companies.has(p.related_object_uuid) || p.related_object === 'job' && jobs.has(p.related_object_uuid) || p.related_object === 'jobpayment' && paymentIds.has(p.related_object_uuid))
+    return owners(e).some(company => companies.has(company))
   })
 }
 
@@ -101,7 +123,16 @@ export async function customerImportData(db: D1Database, scope: ReturnType<typeo
     const batch = JSON.parse(row.data)
     for (const lost of batch.privacyOmissions ?? []) if (lost.peerIds.some((id: string) => scope.customers.has(id))) omissions.push({ jobId: batch.jobId, artifact: lost.name, sourceSha256: lost.sha256, reason: 'The byte-exact shared source was withdrawn for customer privacy; only per-record data remains.' })
   }
-  return { affected, custody, originals, omissions }
+  // The kit renames a withdrawn artifact in its own custody; the batch's recorded real name and the
+  // kit's name carry the same source digest, so each withdrawn file is named once, by its real name.
+  const named = new Set(omissions.filter(o => o.artifact && !String(o.artifact).startsWith('erased-artifact:')).map(o => `${o.jobId}:${o.sourceSha256}`))
+  const seen = new Set<string>()
+  const distinct = omissions.filter(o => {
+    if (String(o.artifact ?? '').startsWith('erased-artifact:') && named.has(`${o.jobId}:${o.sourceSha256}`)) return false
+    const key = canonicalJson([o.jobId, o.artifact ?? null, o.sourceSha256 ?? null, o.sourceIdentity ?? null])
+    return seen.has(key) ? false : (seen.add(key), true)
+  })
+  return { affected, custody, originals, omissions: distinct }
 }
 
 /** The product erases its owned rows in the guarded native batch; the kit

@@ -1,5 +1,7 @@
 import { scenario } from '../fixtures/scenario.mjs'
 import { dataPrivacyQualification } from '../fixtures/privacy-data.mjs'
+import * as sharedPreview from '../fixtures/shared-import-preview.mjs'
+import * as sharedEffects from '../fixtures/shared-import-effects.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, completedJob, id } from './harness.mjs'
@@ -41,6 +43,15 @@ async function restore(service, records, later) {
 
 test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
   await scenario(t, 'DATA-001 points 1–7: native privacy qualification through the production Worker', dataPrivacyQualification)
+  await scenario(t, 'DATA-006 point 1: one CSV row maps a customer and site while one CSV file and one ServiceM8 attachment hold several people\'s source data', sharedPreview.point1)
+  await scenario(t, 'DATA-006 point 2: erasure without the confirmation or fingerprint, an earlier customer version and a fingerprint from before the next edit are refused and nothing is erased', sharedPreview.point2)
+  await scenario(t, 'DATA-006 point 3: a merged subject across two CSV batches beside a peer-only batch has an exact bound preview and previews change no record', sharedPreview.point3Csv)
+  await scenario(t, 'DATA-006 point 3: the ServiceM8 preview names every withdrawn file, the shared attachment and its peers on the typed relationships', sharedPreview.point3ServiceM8)
+  await scenario(t, 'DATA-006 point 4: erasure commits only with the confirmation and the current fingerprint, and a fingerprint from before a peer commit or undo is refused', sharedPreview.point4)
+  await scenario(t, 'DATA-006 point 5: the subject becomes a zero-effect tombstone, a part-way 500-row batch resumes without recreating the subject and each peer Undo removes only its own peers', sharedEffects.point5)
+  await scenario(t, 'DATA-006 point 6: a batch is retired and labelled withdrawn only for an untombstonable record, an exact header value or reused sources', sharedEffects.point6)
+  await scenario(t, 'DATA-006 point 7: a withdrawn shared artifact keeps no chunk or bytes and no subject value remains in any import-kit table', sharedEffects.point7)
+  await scenario(t, 'DATA-006 point 8: peers keep their source payloads, their exports name the withdrawn file with its SHA-256, untouched peers see none, and restart changes nothing', sharedEffects.point8)
   await scenario(t, 'DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)

@@ -1,4 +1,4 @@
-import { customerPlanEntries, sourceAttachmentNames } from './privacy-imports'
+import { customerPlanEntries, servicem8Owners, sourceAttachmentNames } from './privacy-imports'
 import { sharedSignedQuotes } from './privacy-signed-quotes'
 import { Buffer } from 'node:buffer'
 import { loadPlans } from '../modules/import-kit/src/d1/plans'
@@ -24,18 +24,23 @@ export async function erasurePreview(db: D1Database, s: State, scope: ReturnType
     else if (Array.isArray(v)) v.forEach(x => discover(x, [...path, '*']))
     else if (v && typeof v === 'object') for (const [key, value] of Object.entries(v)) discover(value, [...path, key])
   }
-  const sharedOriginals: { jobId: string; name: string; peers: number; peerIds: string[]; sha256: string }[] = []
+  // A peer owns a source record by its mapped customer effect or by the typed provider relationship that already scopes the export.
+  const serviceM8Customers = new Map(s.customers.filter(c => c.source?.system === 'ServiceM8').map(c => [c.source.id, c.id]))
+  const sharedOriginals: { jobId: string; operationKey: string; name: string; peers: number; peerIds: string[]; sha256: string }[] = []
   const peers = new Set<string>()
   for (const row of rows) {
     const plan = plans.get(row.id)!
+    // The kit withdraws every artifact that holds a record it tombstones, so the preview names those too.
+    const tombstoned = new Set(customerPlanEntries(plan, scope).filter(e => e.effects.every(f => scope.ids.has(f.targetId))).map(e => e.source.artifactHash))
     for (const entry of plan.entries) { discover(entry.source.payload); for (const effect of entry.effects) discover(effect.value) }
     for (const artifact of plan.source.artifacts) {
       if (artifact.original?.status !== 'available') continue
-      const affected = sourceOriginalHashes.includes(artifact.sha256) || retiring.jobs.includes(row.id) || plan.entries.some(e => !e.erased && e.source.artifactHash === artifact.sha256 && e.effects.some(f => scope.ids.has(f.targetId))) || scope.matches(artifact.name) || scope.matches(Buffer.from(artifact.original.base64, 'base64').toString('utf8'))
+      const affected = sourceOriginalHashes.includes(artifact.sha256) || tombstoned.has(artifact.sha256) || retiring.jobs.includes(row.id) || plan.entries.some(e => !e.erased && e.source.artifactHash === artifact.sha256 && e.effects.some(f => scope.ids.has(f.targetId))) || scope.matches(artifact.name) || scope.matches(Buffer.from(artifact.original.base64, 'base64').toString('utf8'))
       if (!affected) continue
-      const affectedPeers = new Set(plan.entries.filter(e => !e.erased && e.source.artifactHash === artifact.sha256).flatMap(e => e.effects.filter(f => f.targetKind === 'customers' && !scope.customers.has(f.targetId)).map(f => f.targetId)))
+      const owners = servicem8Owners(plan)
+      const affectedPeers = new Set(plan.entries.filter(e => !e.erased && (e.source.artifactHash === artifact.sha256 || sourceAttachmentNames([e]).has(artifact.name))).flatMap(e => [...e.effects.filter(f => f.targetKind === 'customers').map(f => f.targetId), ...owners(e).map(company => serviceM8Customers.get(company))].filter((id): id is string => !!id && !scope.customers.has(id))))
       for (const id of affectedPeers) peers.add(id)
-      sharedOriginals.push({ jobId: row.id, name: artifact.name, sha256: artifact.sha256, peers: affectedPeers.size, peerIds: [...affectedPeers].sort() })
+      sharedOriginals.push({ jobId: row.id, operationKey: row.operation_key, name: artifact.name, sha256: artifact.sha256, peers: affectedPeers.size, peerIds: [...affectedPeers].sort() })
     }
   }
   for (const table of ['ik_provenance', 'ik_d1_history']) for (const row of (await db.prepare(`SELECT record_json FROM ${table}`).all<any>()).results) discover(JSON.parse(row.record_json).before?.value)
