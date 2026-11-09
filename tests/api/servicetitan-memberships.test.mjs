@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { readFile, readdir } from 'node:fs/promises'
 import { installation, assertTrail } from './harness.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
+import { serviceTitanQualification } from '../fixtures/movein.mjs'
 
 const fixture = 'tests/fixtures/servicetitan-movein/memberships/'
 const source = row => row.source?.system === 'ServiceTitan'
@@ -56,6 +57,7 @@ async function noBillingEffects(h) {
 }
 
 test('MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule', async t => {
+  await qualifyServiceTitan(t)
   const h = await installation(); t.after(() => h.close())
   const committer = await h.person('Casey Commit', 'owner')
   const dispatcher = await h.person('Dana Dispatch', 'dispatcher')
@@ -224,3 +226,186 @@ test('MOVE-009 memberships retain event entitlements and source terms until a pe
     assert.ok(!JSON.stringify(afterErasure).includes('Synthetic ongoing member'))
   })
 })
+
+const product = ({ version, actor, events, imports, ...state }) => state
+async function qualifyServiceTitan(t) {
+  const h = await installation(); t.after(() => h.close())
+  const office = await h.person('ServiceTitan Reviewer', 'office')
+  await h.setTime('2026-11-09T12:00:00.000Z')
+  await h.command('business.save', { name: 'ServiceTitan qualification', currency: 'USD', timezone: 'America/Chicago' })
+  await h.command('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-703', fromEmail: ['synthetic-glove-office', 'example.test'].join('@') })
+  const files = await serviceTitanQualification()
+  const input = { format: 'servicetitan', files, balanceAsOf: '2026-10-22', label: 'ServiceTitan reviewed history' }
+  const stageId = randomUUID(), commitId = randomUUID(), undoId = randomUUID()
+  const outbound = h.outbound.attempts, initial = product(await h.state())
+  const commit = (b, opts = {}) => h.command('import.commit', { batchId: b.id, version: b.version, fingerprint: b.preview.fingerprint }, opts)
+  let staged, batch, state, invoice, quote
+  const imported = kind => state[kind].filter(source)
+  const byId = (kind, id) => imported(kind).find(r => r.source.id === id)
+  const noEffects = async () => {
+    const s = await exportBusiness(h)
+    assert.equal(h.outbound.attempts, outbound, 'no URL fetch, mail, SMS, calendar or provider write')
+    assert.deepEqual(s.payments, [])
+    assert.deepEqual(s.approvals, [])
+    assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_payment_attempts').first()).n, 0)
+    assert.deepEqual(h.stripePayments.calls, [])
+    assert.deepEqual(h.email.sent, [])
+    assert.ok(s.invoices.every(i => i.revisions.every(r => r.approval === null && r.export === null)))
+    assert.ok(s.jobs.every(j => !j.series && !j.autopay))
+    assert.ok(s.visits.every(v => v.source), 'only exported assignments, no series occurrence')
+  }
+
+  await scenario(t, 'MOVE-003 point 1: documented V2 files preview without effects and require the exact reviewed fingerprint', async () => {
+    await office.run('import.stage', input, { error: 'FORBIDDEN' })
+    staged = await h.command('import.stage', input, { commandId: stageId })
+    assert.deepEqual(product(await h.state()), initial)
+    assert.equal(staged.preview.records.length,37)
+    assert.equal(staged.preview.rejections.length,3)
+    const previewed = await h.state()
+    await office.run('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }, { error: 'FORBIDDEN' })
+    await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: 'synthetic-glove-unreviewed' }, { error: 'IMPORT_REVIEW' })
+    assert.deepEqual(await h.state(), previewed)
+    await noEffects()
+  })
+
+  await scenario(t, 'MOVE-003 point 2: owner commits source history; imported estimates refuse every customer action and native decisions require a new quote', async () => {
+    batch = await commit(staged, { commandId: commitId })
+    assert.deepEqual(batch.preview, staged.preview)
+    state = await h.state(); quote = byId('quotes', '12')
+    assert.equal(quote.status, 'imported')
+    assert.equal(quote.importedReadOnly, true)
+    assert.equal(quote.importedStatus, 'Sold')
+    assert.deepEqual(quote.importedSourceStatus, { value: 1, name: 'Sold' })
+    assert.equal(quote.revisions[0].approval, null)
+    assert.equal(quote.acceptance, null)
+    assert.deepEqual(quote.sent, [])
+    assert.equal(quote.revisions[0].notes, 'Source estimate summary')
+    assert.deepEqual(quote.revisions[0].lines.map(l => [l.description, l.quantity, l.unitPrice, l.total, l.tax]), [
+      ['Furnace service', '2', '100.00', '200.00', 'TAXABLE'],
+      ['Source non-taxable filter', '3', '10.00', '30.00', 'FREE'],
+    ])
+    assert.equal(quote.revisions[0].totals.total, '230.00')
+    const before = await h.state()
+    for (const type of ['quote.approve', 'quote.revise', 'quote.markSent', 'quote.accept', 'quote.decline']) await h.command(type, { quoteId: quote.id, version: quote.version, revision: 1 }, { error: 'IMPORTED_QUOTE' })
+    await h.command('quote.link', { quoteId: quote.id, version: quote.version }, { error: 'NOT_APPROVED' })
+    await h.command('email.send', { kind: 'quote', id: quote.id, version: quote.version }, { error: 'NOT_APPROVED' })
+    await h.command('document.photo', { kind: 'quote', id: quote.id, version: quote.version }, { error: 'IMPORTED_QUOTE' })
+    await h.command('job.create', { quoteId: quote.id }, { error: 'NOT_ACCEPTED' })
+    assert.deepEqual(await h.state(), before, 'refusals cannot approve, disclose or mutate source history')
+    const native = await installation()
+    try {
+      await native.command('business.save', { name: 'Native decisions', currency: 'USD', timezone: 'America/Chicago' })
+      const b = await native.command('import.stage', input); const committed = await native.command('import.commit', { batchId: b.id, version: b.version, fingerprint: b.preview.fingerprint })
+      const s = await native.state(), q = s.quotes.find(source)
+      const draft = await native.command('quote.draft', { customerId: q.customerId, siteId: q.siteId, title: 'New native decision', lines: [{ description: 'New inspection', quantity: '1', unitPrice: '125.00', tax: 'FREE' }] })
+      const approved = await native.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+      await native.command('quote.accept', { quoteId: draft.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Synthetic customer' })
+      const job = await native.command('job.create', { quoteId: draft.id })
+      assert.equal(job.quoteId, draft.id)
+      assert.equal((await native.state()).quotes.find(x => x.id === q.id).acceptance, null)
+      const beforeUndo = await native.state()
+      await native.command('import.undo', { batchId: committed.id, version: committed.version, reason: 'Must retain new native work' }, { error: 'IMPORT_DEPENDENTS' })
+      assert.deepEqual(await native.state(), beforeUndo)
+    } finally { await native.close() }
+  })
+
+  await scenario(t, 'MOVE-003 point 3: independently enumerated identities, contacts, assignments, timed notes, exact attachment bytes and warranties remain linked', async () => {
+    for (const [kind, ids] of Object.entries({ customers: ['1','21'], sites: ['4','26'], technicians: ['10','30'], services: ['6','31'], jobs: ['7','19','27'], quotes: ['12'], invoices: ['14'], equipment: ['5'], agreements: ['18'] })) assert.deepEqual(imported(kind).map(r => r.source.id).sort(), ids.slice().sort(), kind)
+    for (const [kind, ids] of Object.entries({ customers: ['1','21'], contacts: ['2','3','22','23','24','25'], locations: ['4','26','33'], technicians: ['10','30'], services: ['6'], materials: ['31'], leads: ['11'], jobs: ['7','27','32'], appointments: ['8','28'], 'appointment-assignments': ['9','29'], estimates: ['12'], invoices: ['14'], equipment: ['5'], 'membership-types': ['16'], 'invoice-templates': ['17','23'], memberships: ['18'], 'recurring-services': ['19'], 'recurring-service-events': ['20','21','22'] })) assert.deepEqual(staged.preview.records.filter(r => r.sourceKind === kind).map(r => r.sourceId).sort(), ids.slice().sort(), `review ${kind}`)
+    const customer = byId('customers', '21')
+    assert.deepEqual(customer.contacts.map(c => [c.sourceId, c.name, c.email, c.phone, c.role]), [
+      ['22','Billing channel',['synthetic-glove-21','example.test'].join('@'),'',''],
+      ['23','Second email memo',['synthetic-glove-22','example.test'].join('@'),'',''],
+      ['24','Daytime channel','','3125550321',''],
+      ['25','Mobile channel','','3125550322',''],
+    ])
+    assert.deepEqual(byId('customers', '1').contacts.map(c => [c.sourceId,c.name]), [['2','Accounts payable'],['3','Office']])
+    assert.equal(byId('sites', '26').customerId, customer.id)
+    assert.equal(byId('sites', '26').address, '90 Synthetic Avenue, Chicago, IL, 60602, USA')
+    const lead = state.enquiries.find(e => e.importSource?.id === '11')
+    assert.ok(lead)
+    assert.equal(lead.customerId, byId('customers','1').id); assert.equal(lead.siteId, byId('sites','4').id)
+    assert.equal(lead.description, 'Synthetic replacement request')
+    assert.equal(quote.customerId, byId('customers','1').id); assert.equal(quote.siteId, byId('sites','4').id)
+    assert.equal(byId('jobs','27').customerId, customer.id); assert.equal(byId('jobs','27').status, 'archived')
+    assert.equal(byId('jobs','27').importedStatus, 'Completed')
+    assert.equal(byId('jobs','27').completedAt, '2026-09-30T15:00:00Z')
+    assert.deepEqual(imported('visits').map(v => [v.source.id, v.source.childId, v.jobId, v.technicianId, v.startAt, v.endAt]).sort(), [
+      ['8','8:10',byId('jobs','7').id,byId('technicians','10').id,'2026-10-23T14:00:00.000Z','2026-10-23T15:00:00.000Z'],
+      ['8','8:30',byId('jobs','7').id,byId('technicians','30').id,'2026-10-23T14:00:00.000Z','2026-10-23T15:00:00.000Z'],
+    ].sort())
+    assert.deepEqual(imported('services').map(s => [s.source.kind,s.source.id,s.unitPrice,s.unitCost,s.tax]).sort(), [['materials','31','10.00','3.00','FREE'],['services','6','100.00','30.00','TAXABLE']])
+    const note = imported('captures').find(c => c.kind === 'note')
+    assert.deepEqual([note.jobId,note.text,note.deviceTime,note.receivedAt,note.importedAuthorId], [byId('jobs','7').id,'Synthetic source job note','2026-10-01T10:00:00Z',null,'10'])
+    const equipment = byId('equipment','5')
+    assert.deepEqual([equipment.customerId,equipment.siteId,equipment.serial,equipment.installedOn,equipment.manufacturerWarrantyUntil,equipment.laborWarrantyUntil], [byId('customers','1').id,byId('sites','4').id,'synthetic-glove-serial','2025-01-01','2028-01-01','2027-01-01'])
+    const attachment = imported('captures').find(c => c.name === 'synthetic-glove-attachment.txt')
+    assert.equal(attachment.jobId, byId('jobs','7').id); assert.equal(attachment.bytes.status,'retained')
+    for (const file of files) {
+      const summary = batch.fileSummary.find(s => s.name === file.name)
+      const door = `/api/glove/imports/${batch.id}/files/${summary.sha256}`
+      const response = await h.request(door)
+      assert.equal(response.status,200)
+      assert.deepEqual(Buffer.from(await response.arrayBuffer()),Buffer.from(file.text ?? file.base64,file.text === undefined ? 'base64':'utf8'),file.name)
+      assert.equal((await h.request(door,{as:office.cookie})).status,403)
+      assert.equal((await h.request(door,{as:''})).status,401)
+    }
+    await noEffects()
+  })
+
+  await scenario(t, 'MOVE-003 point 4: dated remaining balances cannot be approved, exported or reported as new sales', async () => {
+    invoice = byId('invoices','14')
+    assert.equal(invoice.status,'imported')
+    assert.deepEqual(invoice.openingBalance,{amount:'76.50',sourceTotal:'216.50',asOf:'2026-10-22',notForPosting:true})
+    const before = await h.state()
+    await h.command('invoice.approve',{invoiceId:invoice.id,version:invoice.version,revision:1},{error:'IMPORTED_INVOICE'})
+    await h.command('invoice.export',{}, { error: 'NOTHING_TO_EXPORT' })
+    assert.deepEqual(product(await h.state()),product(before))
+    const report = await read(h,'/api/glove/reports/revenue.json?from=2026-01-01&to=2026-12-31')
+    assert.deepEqual(report.total,{invoices:0,revenue:'0.00'})
+    const tax = await read(h,'/api/glove/reports/tax.json?from=2026-01-01&to=2026-12-31')
+    assert.deepEqual(tax.jurisdictions,[])
+    const aging = await read(h,'/api/glove/reports/receivables.json?asOf=2026-10-22')
+    assert.ok(JSON.stringify(aging).includes('76.50'))
+    assert.ok(!JSON.stringify(aging).includes('216.50'))
+  })
+
+  await scenario(t, 'MOVE-003 point 5: stage, commit, replay, actual Worker restart and guarded undo cause no outbound or billing effects', async () => {
+    const before = product(await h.state())
+    await noEffects(); await h.restart()
+    assert.deepEqual(product(await h.state()),before)
+    assert.deepEqual(await h.command('import.stage',input,{commandId:stageId}),staged)
+    assert.deepEqual(await commit(staged,{commandId:commitId}),batch)
+    const repeated = await h.command('import.stage',input)
+    assert.equal(repeated.preview.alreadyMovedIn,37, 'all source decisions, including rejections, are journaled once')
+    await commit(repeated)
+    assert.deepEqual(product(await h.state()),before)
+    await noEffects()
+    const preUndo = await h.state()
+    await office.run('import.undo',{batchId:batch.id,version:batch.version,reason:'No authority'},{error:'FORBIDDEN'})
+    assert.deepEqual(await h.state(),preUndo)
+    const undone = await h.command('import.undo',{batchId:batch.id,version:batch.version,reason:'Reviewed wrong source snapshot'},{commandId:undoId})
+    assert.equal(undone.status,'undone')
+    assert.deepEqual(product(await h.state()),initial)
+    assert.deepEqual(await h.command('import.undo',{batchId:batch.id,version:batch.version,reason:'Reviewed wrong source snapshot'},{commandId:undoId}),undone)
+    await h.restart(); await noEffects()
+    assert.deepEqual(product(await h.state()),initial)
+    const trail = await assertTrail(h,['import.previewed','import.committed','import.undone'])
+    for (const [kind,id] of [['import.previewed',stageId],['import.committed',commitId],['import.undone',undoId]]) assert.equal(trail.activity.filter(e=>e.kind===kind && e.commandId===id).length,1)
+  })
+
+  await scenario(t, 'MOVE-003 point 6: unknown fields, missing bytes, an unassigned appointment and rejected parents are named with exact source retained', async () => {
+    assert.match(staged.preview.unmappedFields.customers.join(' '),/syntheticGloveUnknown/)
+    assert.deepEqual(staged.preview.missingAttachments.map(a=>a.name),['synthetic-glove-missing.pdf'])
+    for (const [kind,id,reason] of [['appointments','28',/no exported active technician assignment/],['locations','33',/customers 999/],['jobs','32',/rejected/]]) {
+      const record=staged.preview.records.find(r=>r.sourceKind===kind && r.sourceId===id)
+      assert.equal(record.status,'rejected'); assert.match(record.rejection,reason)
+    }
+    for (const name of ['customers.json','appointments.json','locations.json','jobs.json','job-attachments-7.json']) {
+      const file=files.find(f=>f.name===name), summary=batch.fileSummary.find(f=>f.name===name)
+      const response=await h.request(`/api/glove/imports/${batch.id}/files/${summary.sha256}`)
+      assert.equal(response.status,200); assert.equal(await response.text(),file.text,'source retained after undo')
+    }
+    await noEffects()
+  })
+}

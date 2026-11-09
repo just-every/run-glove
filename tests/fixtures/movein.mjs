@@ -11,3 +11,17 @@ export async function exportedFixture(system) {
   return files
 }
 
+
+/** Documented V2 variations for the focused ServiceTitan owner journey. */
+export async function serviceTitanQualification() {
+  const { readdir } = await import('node:fs/promises')
+  const files = await exportedFixture('servicetitan')
+  const root = 'tests/fixtures/servicetitan-movein/qualification/'
+  for (const name of (await readdir(root)).filter(n => n.endsWith('.json'))) {
+    const file = { name, text: await readFile(root + name, 'utf8') }
+    const index = files.findIndex(f => f.name === name)
+    if (index < 0) files.push(file)
+    else files[index] = file
+  }
+  return files
+}

@@ -1,0 +1,34 @@
+{
+  "data": [
+    {
+      "id": 7,
+      "jobNumber": "101",
+      "customerId": 1,
+      "locationId": 4,
+      "jobStatus": "Scheduled",
+      "summary": "Synthetic furnace inspection",
+      "createdOn": "2026-10-01T10:00:00Z",
+      "appointmentCount": 1,
+      "firstAppointmentId": 8,
+      "lastAppointmentId": 8
+    },
+    {
+      "id": 27,
+      "jobNumber": "102",
+      "customerId": 21,
+      "locationId": 26,
+      "jobStatus": "Completed",
+      "summary": "Closed source inspection",
+      "completedOn": "2026-09-30T15:00:00Z"
+    },
+    {
+      "id": 32,
+      "jobNumber": "103",
+      "customerId": 21,
+      "locationId": 33,
+      "jobStatus": "Scheduled",
+      "summary": "Rejected parent job"
+    }
+  ],
+  "hasMore": false
+}

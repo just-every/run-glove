@@ -2280,7 +2280,7 @@
       "executable": false
     },
     "src/glove/movein/servicetitan.ts": {
-      "sha256": "9769cd48c360c8fea115f00d896d79cf529e4f87a37dfaccdab791b35fd035a7",
+      "sha256": "0139b47eed4f432539a0423422e0871dafcf1a7b939c623296707daa129a6b6b",
       "executable": false
     },
     "src/glove/movein/workiz.ts": {
@@ -5792,7 +5792,7 @@
       "executable": false
     },
     "tests/api/servicetitan-memberships.test.mjs": {
-      "sha256": "aae09b4d19fc13737ff8c9bfbc87ddbdfbd5bb02feeee1a09a18f0d52c9ef19e",
+      "sha256": "2eb85334283167e2ed61b97e925d50177ca7e173bb22f8aebd5a02a23bf71697",
       "executable": false
     },
     "tests/api/ses-sns-custody.test.mjs": {
@@ -5940,7 +5940,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "35c0dce3dcabc6346bf55e9e96817d5587a52ace658b239e6a03124e17c5803e",
+      "sha256": "7b4a40ae92624b1247218660ecf7ac5aa4818ac0aab6d15631bca91aa7025586",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
@@ -6188,7 +6188,7 @@
       "executable": false
     },
     "tests/fixtures/movein.mjs": {
-      "sha256": "600f0034958ebaae4d4bdd559528c2c9cbf678991a1bde6516faa4c0c0d39b45",
+      "sha256": "5d39e86faa5dcbd82237fe8a0fef88d843db30f91578b09f4e9c9d55bcb9e494",
       "executable": false
     },
     "tests/fixtures/payment-journey.mjs": {
@@ -6393,6 +6393,42 @@
     },
     "tests/fixtures/servicetitan-movein/memberships/technicians.json": {
       "sha256": "5e36a058eb3e7597b71e678945517407315d47752f42e01acc4d145f40f7772f",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/appointment-assignments.json": {
+      "sha256": "e63ea2d8fb51e3bf84e1652e59ef588fd30318badefd3aca86bedab467b5040d",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/appointments.json": {
+      "sha256": "76d0832ba1cc8774dd960f388a330123aaa4c1e0ec320830f5fb1682ece93450",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/contacts.json": {
+      "sha256": "173d35041f00e7b55f0b2a22c3bb9236de1136b592c35d2fe94cddf8f491a5ea",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/customers.json": {
+      "sha256": "cc97f125212433a50e2694eb8d8bccb755b31420d0e430bfefdb41359eaa8b7e",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/estimates.json": {
+      "sha256": "6dbeeec82196d90437aafbe911590dc2658f7332c93f265f8855d85aca009c40",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/job-attachments-7.json": {
+      "sha256": "ed9775665b60be56d7374fd0bcaa141cd9b04031fdee0028259aad04cffe6375",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/jobs.json": {
+      "sha256": "716ff6c948d64b5b596dac6d0db2c9d4e049fbe5e7ade3388fd08608f3c5b31d",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/locations.json": {
+      "sha256": "f9272417ec0496379f49f1bb67fa40aebe9aa7ed8b07f6e9b918a16fb18e739c",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/qualification/technicians.json": {
+      "sha256": "eb88d6e612d821d05cacc9d1742d259ab3741be1ac4dcf88b9ec308cc67dbc17",
       "executable": false
     },
     "tests/fixtures/servicetitan-movein/README.md": {

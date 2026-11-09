@@ -1,0 +1,41 @@
+{
+  "data": [
+    {
+      "id": 12,
+      "jobId": 7,
+      "name": "Synthetic furnace proposal",
+      "items": [
+        {
+          "id": 13,
+          "sku": {
+            "id": 6,
+            "displayName": "Furnace service",
+            "type": "Service"
+          },
+          "description": "Furnace service",
+          "qty": 2,
+          "unitRate": 100,
+          "total": 200
+        },
+        {
+          "id": 34,
+          "sku": {
+            "id": 31,
+            "displayName": "Synthetic replacement filter",
+            "type": "Material"
+          },
+          "description": "Source non-taxable filter",
+          "qty": 3,
+          "unitRate": 10,
+          "total": 30
+        }
+      ],
+      "status": {
+        "value": 1,
+        "name": "Sold"
+      },
+      "summary": "Source estimate summary"
+    }
+  ],
+  "hasMore": false
+}

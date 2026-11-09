@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "id": 10,
+      "name": "Synthetic Technician",
+      "email": "st-tech\u0040example.test",
+      "phoneNumber": "3125550301",
+      "active": true
+    },
+    {
+      "id": 30,
+      "name": "Second source technician",
+      "active": true,
+      "phoneNumber": "3125550330"
+    }
+  ],
+  "hasMore": false
+}

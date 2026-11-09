@@ -1,0 +1,47 @@
+{
+  "data": [
+    {
+      "id": 2,
+      "customerId": 1,
+      "type": "Email",
+      "value": "st\u0040example.test",
+      "memo": "Accounts payable"
+    },
+    {
+      "id": 3,
+      "customerId": 1,
+      "type": "Phone",
+      "value": "3125550300",
+      "memo": "Office"
+    },
+    {
+      "id": 22,
+      "customerId": 21,
+      "type": "Email",
+      "value": "synthetic-glove-21\u0040example.test",
+      "memo": "Billing channel"
+    },
+    {
+      "id": 23,
+      "customerId": 21,
+      "type": "Email",
+      "value": "synthetic-glove-22\u0040example.test",
+      "memo": "Second email memo"
+    },
+    {
+      "id": 24,
+      "customerId": 21,
+      "type": "Phone",
+      "value": "3125550321",
+      "memo": "Daytime channel"
+    },
+    {
+      "id": 25,
+      "customerId": 21,
+      "type": "MobilePhone",
+      "value": "3125550322",
+      "memo": "Mobile channel"
+    }
+  ],
+  "hasMore": false
+}

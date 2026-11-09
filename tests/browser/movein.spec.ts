@@ -4,7 +4,7 @@ import { join } from 'node:path'
 // @ts-expect-error Shared production Worker, native sessions and D1 harness.
 import { installation, business } from '../api/harness.mjs'
 // @ts-expect-error Synthetic provider exports shared with the HTTP journeys.
-import { exportedFixture } from '../fixtures/movein.mjs'
+import { exportedFixture, serviceTitanQualification } from '../fixtures/movein.mjs'
 // @ts-expect-error Shared documented-shape ServiceM8 fixture.
 import { serviceM8Balances } from '../fixtures/servicem8-balances.mjs'
 
@@ -145,6 +145,56 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       expect((await h.state()).invoices.some((i: any) => i.id === invoice.id)).toBe(false)
       await committed.scrollIntoViewIfNeeded(); await shot(page, system, width, 'undone')
       if (system === 'servicetitan') {
+        await test.step('MOVE-003: review every source exception, commit read-only history and undo the reviewed snapshot', async () => {
+          const files = await serviceTitanQualification(), label = `ServiceTitan complete review ${width}`
+          await page.getByLabel('Export files', { exact: true }).setInputFiles(files.map((f: any) => ({ name: f.text === undefined ? f.name.slice(12) : f.name, mimeType: f.text === undefined ? 'text/plain' : 'application/json', buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
+          await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(label)
+          const reviewed = await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+          const batch = page.getByRole('region', { name: label, exact: true })
+          const records = batch.getByRole('list', { name: 'Source record review', exact: true })
+          if (width === 1440) {
+            await expect(records.getByRole('listitem').filter({ hasText: 'appointments 28' })).toContainText('Appointment has no exported active technician assignment')
+            await expect(records.getByRole('listitem').filter({ hasText: 'locations 33' })).toContainText('customers 999')
+            await expect(records.getByRole('listitem').filter({ hasText: 'jobs 32' })).toContainText('rejected')
+            await expect(batch).toContainText('synthetic-glove-missing.pdf')
+          }
+          await batch.getByText('ServiceTitan fields Glove does not use', { exact: true }).click()
+          if (width === 1440) await expect(batch).toContainText('syntheticGloveUnknown')
+          await batch.getByText('Original files and checksums', { exact: true }).click()
+          if (width === 1440) await expect(batch).toContainText(reviewed.fileSummary.find((f: any) => f.name === 'estimates.json').sha256)
+          await batch.scrollIntoViewIfNeeded(); await shot(page, system, width, 'complete-review', batch)
+          await send(page, batch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+          if (width === 1440) await expect(batch).toContainText('Committed')
+          const current = await h.state(), quote = current.quotes.find((q: any) => q.source?.system === 'ServiceTitan')
+          await page.goto(`${origin}/app#quotes`)
+          await page.getByRole('button', { name: 'ST-Q-12 · Synthetic furnace proposal', exact: true }).click()
+          if (width === 1440) {
+            await expect(page.locator('.page')).toContainText('source status: Sold')
+            await expect(page.locator('.page')).toContainText('Source non-taxable filter')
+            await expect(page.locator('.page')).toContainText('Prepare a new quote for new work or a new customer decision')
+            await expect(page.getByRole('button', { name: /^Approve revision/ })).toHaveCount(0)
+            await expect(page.getByRole('button', { name: 'Revise price', exact: true })).toHaveCount(0)
+            expect(quote.importedReadOnly).toBe(true)
+          }
+          await page.getByRole('heading', { name: 'ST-Q-12 · Synthetic furnace proposal', exact: true }).scrollIntoViewIfNeeded()
+          await shot(page, system, width, 'source-estimate')
+          const second = current.customers.find((c: any) => c.source?.system === 'ServiceTitan' && c.source.id === '21')
+          await page.goto(`${origin}/app#customers/${second.id}`)
+          if (width === 1440) {
+            await expect(page.getByLabel('Other contacts', { exact: true })).toHaveValue(/Second email memo/)
+            await expect(page.getByLabel('Other contacts', { exact: true })).toHaveValue(/3125550322/)
+          }
+          await shot(page, system, width, 'source-contacts')
+          await page.goto(`${origin}/app#move-in`)
+          const committed = page.getByRole('region', { name: label, exact: true })
+          await committed.getByLabel('Why undo this move-in', { exact: true }).fill('Reviewed source exceptions')
+          await send(page, committed.getByRole('button', { name: 'Undo move-in', exact: true }))
+          if (width === 1440) {
+            await expect(committed).toContainText('Undone')
+            expect((await h.state()).quotes.some((q: any) => q.id === quote.id)).toBe(false)
+          }
+          await committed.scrollIntoViewIfNeeded(); await shot(page, system, width, 'complete-undone', committed)
+        })
         await test.step('MOVE-009: read fixed and ongoing source terms, then explicitly activate monthly and weekly proposals', async () => {
           const root = 'tests/fixtures/servicetitan-movein/memberships/'
           const membershipFiles = await Promise.all((await readdir(root)).filter(name => name.endsWith('.json')).map(async name => ({ name, mimeType: 'application/json', buffer: await readFile(root + name) })))

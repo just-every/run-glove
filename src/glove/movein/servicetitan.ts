@@ -70,7 +70,7 @@ export function servicetitanMapping(bundle: SourceBundle, batch: { timezone: str
         const status = str(o.jobStatus).toLowerCase()
         if (!['scheduled', 'inprogress', 'in progress', 'hold', 'completed', 'canceled', 'cancelled'].includes(status)) fail('IMPORT_STATUS', 'This ServiceTitan job status needs an explicit mapping.', null, 400)
         const invoice = records('invoices').find(i => str(i.job?.id) === r.sourceId)
-        add('jobs', o.id, { ...jobFields(`ST-${str(o.jobNumber) || o.id}`, str(o.summary) || 'ServiceTitan job', status === 'completed' ? 'completed' : ['canceled','cancelled'].includes(status) ? 'cancelled' : 'open', invoice ? pricing(list(invoice.items), invoice.total, invoice.salesTax) : priced([])), description: str(o.summary), completedAt: str(o.completedOn) || null }, { customerId: ['customers', str(o.customerId)], siteId: ['sites', str(o.locationId)] })
+        add('jobs', o.id, { ...jobFields(`ST-${str(o.jobNumber) || o.id}`, str(o.summary) || 'ServiceTitan job', status === 'completed' ? 'archived' : ['canceled','cancelled'].includes(status) ? 'cancelled' : 'open', invoice ? pricing(list(invoice.items), invoice.total, invoice.salesTax) : priced([])), description: str(o.summary), importedStatus: str(o.jobStatus), completedAt: str(o.completedOn) || null }, { customerId: ['customers', str(o.customerId)], siteId: ['sites', str(o.locationId)] })
         break
       }
       case 'appointments': {
@@ -85,10 +85,16 @@ export function servicetitanMapping(bundle: SourceBundle, batch: { timezone: str
         if (!get('appointments', o.appointmentId) || !get('technicians', o.technicianId)) fail('IMPORT_PARENT', 'Appointment assignment needs its appointment and technician.', null, 400)
         break
       case 'estimates': {
-        use('jobId', 'name', 'summary', 'items')
+        use('jobId', 'name', 'summary', 'items', 'status')
         const job = get('jobs', o.jobId)
         if (!job) fail('IMPORT_PARENT', 'An estimate needs its job to identify customer and location.', null, 400)
-        add('quotes', o.id, { ...quoteFields(`ST-Q-${o.id}`, str(o.name), priced(list(o.items).map(i => ({ description: str(i.description), quantity: str(i.qty), unitPrice: amount(i.unitRate), tax: 'TAXABLE' })))), notes: str(o.summary) }, { customerId: ['customers', str(job.customerId)], siteId: ['sites', str(job.locationId)] })
+        const items = list(o.items), pricing = priced(items.map(i => {
+          const sku = i.sku?.type === 'Material' ? get('materials', i.sku.id) : i.sku?.type === 'Service' ? get('services', i.sku.id) : get('services', i.sku?.id) ?? get('materials', i.sku?.id)
+          return { description: str(i.description), quantity: str(i.qty), unitPrice: amount(i.unitRate), tax: sku?.taxable === false ? 'FREE' : 'TAXABLE' }
+        }))
+        if (pricing.lines.some((line, i) => items[i].total !== undefined && line.total !== amount(items[i].total))) fail('IMPORT_QUOTE', 'Estimate lines do not reconcile to their source totals.', null, 400)
+        pricing.lines.forEach((line, i) => Object.assign(line, { sourceId: str(items[i].id) }))
+        add('quotes', o.id, { ...quoteFields(`ST-Q-${o.id}`, str(o.name), pricing), status: 'imported', importedReadOnly: true, importedStatus: str(o.status?.name), importedSourceStatus: o.status ?? null, notes: str(o.summary) }, { customerId: ['customers', str(job.customerId)], siteId: ['sites', str(job.locationId)] })
         break
       }
       case 'invoices':

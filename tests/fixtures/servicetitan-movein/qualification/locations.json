@@ -1,0 +1,40 @@
+{
+  "data": [
+    {
+      "id": 4,
+      "customerId": 1,
+      "active": true,
+      "name": "Service location",
+      "address": {
+        "street": "70 Synthetic Ave",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60601",
+        "country": "USA"
+      }
+    },
+    {
+      "id": 26,
+      "customerId": 21,
+      "active": true,
+      "name": "Second service location",
+      "address": {
+        "street": "90 Synthetic Avenue",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60602",
+        "country": "USA"
+      }
+    },
+    {
+      "id": 33,
+      "customerId": 999,
+      "active": true,
+      "name": "Missing parent location",
+      "address": {
+        "street": "100 Synthetic Avenue"
+      }
+    }
+  ],
+  "hasMore": false
+}

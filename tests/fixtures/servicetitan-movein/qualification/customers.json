@@ -1,0 +1,34 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "active": true,
+      "name": "Synthetic ServiceTitan Customer",
+      "type": "Commercial",
+      "address": {
+        "street": "60 Synthetic St",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60601",
+        "country": "USA"
+      },
+      "doNotMail": true,
+      "doNotService": false
+    },
+    {
+      "id": 21,
+      "active": true,
+      "name": "Synthetic second ServiceTitan customer",
+      "type": "Residential",
+      "address": {
+        "street": "80 Synthetic Street",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60602",
+        "country": "USA"
+      },
+      "syntheticGloveUnknown": "Keep this exact source value"
+    }
+  ],
+  "hasMore": false
+}
