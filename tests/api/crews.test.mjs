@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { parseCsv } from '../../src/glove/csv-format.ts'
-import { installation, business, assertTrail } from './harness.mjs'
+import { installation, business } from './harness.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
 
 test('DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart', async t => {
@@ -245,7 +245,13 @@ test('DISP-007 crews retain multi-day work, authority, atomic review and evidenc
   })
 
   await scenario(t, 'point 7: Activity and business export attribute crew saves, bookings, moves and cancellations to real people', async () => {
-    const { activity, exported } = await assertTrail(h, ['crew.saved', 'visit.booked', 'visit.changed', 'visit.cancelled'])
+    const activity = [], exported = await read('/api/glove/export')
+    let next = null
+    do {
+      const page = await read(`/api/glove/activity${next ? `?before=${next}` : ''}`)
+      activity.push(...page.events)
+      next = page.next
+    } while (next)
     for (const { commandId, kind, person, subjectIds } of trail) {
       const events = activity.filter(e => e.commandId === commandId && e.kind === kind)
       assert.deepEqual(events.map(e => e.subjectId).sort(), subjectIds.sort())
