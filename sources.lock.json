@@ -2384,7 +2384,7 @@
       "executable": false
     },
     "src/glove/quote-links.ts": {
-      "sha256": "c83c1930e6ed17aad8f728548ac7692ea5421bf69d02bb5ec7ba6408730fd103",
+      "sha256": "ac4a02fa69dcb6497d313be70850e12576eff60d99415de2bfea4680852e1792",
       "executable": false
     },
     "src/glove/quote-signing.ts": {
@@ -5740,7 +5740,7 @@
       "executable": false
     },
     "tests/api/quote-link-custody.test.mjs": {
-      "sha256": "af43dee77d13511d8b828d9adfa350394921d15aae3cfa43fd404cf38e3ad6ab",
+      "sha256": "e2a6447fb11817c86e8d42774530153b11d66148ae576a0621292996f3f35813",
       "executable": false
     },
     "tests/api/quote-link-records.test.mjs": {
