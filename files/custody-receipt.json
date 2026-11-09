@@ -14,5 +14,7 @@
     "complete": null,
     "historyScanned": null,
     "findings": null
-  }
+  },
+  "verifyStatus": "completed",
+  "verifyConclusion": "success"
 }

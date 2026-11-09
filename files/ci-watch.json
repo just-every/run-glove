@@ -1,15 +1,15 @@
 {
-  "checkedAt": "2026-11-09T01:07:06.291545+00:00",
-  "githubCalls": 5,
+  "checkedAt": "2026-11-09T01:24:40.582131+00:00",
+  "githubCalls": 8,
   "runs": [
     {
-      "conclusion": null,
+      "conclusion": "success",
       "event": "push",
       "head_sha": "ae4ea8ac017b7e2a7a271c25bb5867817767c06c",
       "html_url": "https://github.com/just-every/run-glove/actions/runs/42543733718",
       "id": 42543733718,
       "name": "Verify",
-      "status": "in_progress"
+      "status": "completed"
     }
   ]
 }

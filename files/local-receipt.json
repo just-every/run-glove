@@ -90,7 +90,6 @@
     }
   ],
   "pending": [
-    "exact-SHA Verify",
     "fleet publication scan",
     "guarded landing and Run site"
   ],
@@ -138,7 +137,7 @@
     {
       "path": "portable-receipt.json",
       "bytes": 362,
-      "sha256": "2475e1d5067d78d91c831e0b2f1eb2b2e8f3fc7521d194ad8cec216ffaa70335"
+      "sha256": "d16799dadb38849b0c43ce0d5d8740c4b0ff951de5ad3af7d00004de4b6bd81e"
     },
     {
       "path": "typecheck.log",
@@ -157,8 +156,8 @@
     },
     {
       "path": "tree-receipt.json",
-      "bytes": 1011,
-      "sha256": "22b6e47c238220d6bf3b6059bdb738caafaeab440e67ca0ecf34e29f994d1755"
+      "bytes": 1102,
+      "sha256": "202bbb0a0bcac0c510003cea43892bb78ea180d84b1a208e7c72b3fbf8cd0880"
     },
     {
       "path": "mechanical-receipt.json",
@@ -169,7 +168,34 @@
       "path": "test-inventory.json",
       "bytes": 7647,
       "sha256": "79e2fe38232ffe9ec64a06aaff11f445d606428df91de42f03f205cde43df316"
+    },
+    {
+      "path": "ci-watch.json",
+      "bytes": 382,
+      "sha256": "96a57418933da526515c806fbb7859671030e15edaf1461e20c6c76385c4b983"
+    },
+    {
+      "path": "candidate-ci-status.json",
+      "bytes": 178,
+      "sha256": "f310918ec4131c12df66d7cfba2a1d6cb64f82bb24aec7813cfb1c4c3f52bedc"
+    },
+    {
+      "path": "latest-main-ci.json",
+      "bytes": 1145,
+      "sha256": "67f570269dd9ba99a651fc5d2dc64559ceaf1161657cf356b4017fb8c65f0657"
+    },
+    {
+      "path": "custody-receipt.json",
+      "bytes": 585,
+      "sha256": "314d0149bb299f0b980c1f76a09be67166c94a8b0442b8abefb2ed42bb922903"
     }
   ],
-  "relevantProofUnchangedSinceBrowserAndArchiveStart": "Production source, browser proof, portable proof and their imported helpers are unchanged; the merged main reorganizes other API test registrations and adds the inventory tool."
+  "relevantProofUnchangedSinceBrowserAndArchiveStart": "Production source, browser proof, portable proof and their imported helpers are unchanged; the merged main reorganizes other API test registrations and adds the inventory tool.",
+  "verify": {
+    "id": 42543733718,
+    "conclusion": "success",
+    "head_sha": "ae4ea8ac017b7e2a7a271c25bb5867817767c06c",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42543733718",
+    "status": "completed"
+  }
 }
