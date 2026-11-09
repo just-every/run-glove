@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 30 | 191 | 16 | 237 |
+| Core | 32 | 189 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 30 | 204 | 29 | 263 |
+| Full target | 32 | 202 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -2379,7 +2379,7 @@ Core · target · **partial** · From PAY-007 · Cites BASE-DATA-003
 
 #### PAY-026 — Instant payout preview and execution
 
-Core · target · **partial** · From PAY-007 · Cites BASE-SECRET-001
+Core · target · **done** · From PAY-007 · Cites BASE-SECRET-001
 
 **Requirement.** Instant payout preview and execution supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2391,8 +2391,8 @@ Core · target · **partial** · From PAY-007 · Cites BASE-SECRET-001
 5. Sources cannot be allocated to another payout.
 6. Reconciliation checks the actual payout debit, source allocation and actual fee against the confirmed preview; a difference stays unmatched.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — For Instant Payouts, the owner records their account-specific fee schedule (basis points and minimum, labelled owner-recorded and not verified by Glove); a preview checks an existing Stripe debit card's instant eligibility and funds, computes the half-up fee, and requires selected source net to equal the proposed bank amount plus that fee.; point 2 — The owner explicitly confirms both displayed amounts within ten minutes; source availability, current connection, schedule, eligibility and funds are checked again.; point 3 — A durable reservation and Stripe idempotency key precede one request.; point 4 — Replay never resends an unknown outcome.; point 5 — Sources cannot be allocated to another payout.; point 6 — Reconciliation checks the actual payout debit, source allocation and actual fee against the confirmed preview; a difference stays unmatched. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/instant-payouts.test.mjs` (PAY-026 Owner Instant Payout qualification, reservation and reconciliation)
+**Gap.** None.
 
 #### PAY-008 — Saved payment methods and autopay with consent
 
@@ -3794,7 +3794,7 @@ Core · push-further · **done** · From AGENT-008
 
 #### AGENT-016 — Brief delivery and financial sections
 
-Core · push-further · **partial** · From AGENT-008
+Core · push-further · **done** · From AGENT-008
 
 **Requirement.** Brief delivery and financial sections supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#agent-008-operating-rules) retain the record formats and calculations.
 
@@ -3804,8 +3804,8 @@ Core · push-further · **partial** · From AGENT-008
 3. PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links, asserted in its named flow.
 4. PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis.
 
-**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 emails it to the owner once per business-local date only when the owner turns that on (mail morning action, off by default), with the delivery outcome asserted in its flow, and nothing is pushed.; point 2 — The brief lists overdue invoices with their invoice links and proposed collection action under PAY-004, PAY-021, PAY-022, PAY-023’s balance rules.; point 3 — PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links, asserted in its named flow.; point 4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`; `tests/api/morning-brief.test.mjs` (AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades)
+**Gap.** None.
 
 #### AGENT-009 — Agent policy and scoped authority
 

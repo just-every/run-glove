@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "4567bf5dcca38b0155dc53ca699d86b759c448afe18d49f2a6f39cc518582612",
+      "sha256": "22a8ac19603341cf9e7eb55f02a500298b0d3598bcb094fe9b6ea5aec4c77d29",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "d3b46929ddaa783e465676db00299fe26359bade1447c3de06675abb2b710c40",
+      "sha256": "80eea20a0282e4db1d5b2548c7db5586b2ccbadaf8a7fa3e4285b976d8ad92af",
       "executable": false
     },
     "DEMO.md": {
@@ -2176,7 +2176,7 @@
       "executable": false
     },
     "src/glove/instant-payouts.ts": {
-      "sha256": "6f87ce792907b9bb17dac550c6c6582c28d386ae1b003cb25cdb5474b8e7f6b4",
+      "sha256": "988d50126f1b04981f4cc5076c2cfaa3208c7460899cf9bda2c4e7f1368e8262",
       "executable": false
     },
     "src/glove/intake.ts": {
@@ -2292,7 +2292,7 @@
       "executable": false
     },
     "src/glove/payouts.ts": {
-      "sha256": "8b80d6b785bc05d11e805b1ac115684950b7c5377026bcd64d816da94e69cbc1",
+      "sha256": "134fa5ca755069c73518a56e1c55be5911e3370b33dafb92fbcf31cff4ce6620",
       "executable": false
     },
     "src/glove/payroll.ts": {
@@ -5631,6 +5631,10 @@
       "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
       "executable": false
     },
+    "tests/api/instant-payouts.test.mjs": {
+      "sha256": "d9063e6a159303adc31f33bd268e3625d35b20be77538783b563d89523063e05",
+      "executable": false
+    },
     "tests/api/live-locations.test.mjs": {
       "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
       "executable": false
@@ -5648,7 +5652,7 @@
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "7cd6b3eef404a030ae6c525b00b8fb301a58f0779abe34a1a03d10829a3da34d",
+      "sha256": "bc83660e4c127a2e4fed3614ad6249184f525f4d07ddcbcd1cad911b742c6eca",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
@@ -5932,7 +5936,7 @@
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
-      "sha256": "3a5d7c4eabda17add7c33e60355a8b8726450658f508c7c892fd07a7430b3d6c",
+      "sha256": "90055957324e14a7ef3b804be476e099fda30d92b82833df4347fc35ace48f00",
       "executable": false
     },
     "tests/browser/recurring-billing.spec.ts": {
@@ -6336,7 +6340,7 @@
       "executable": false
     },
     "tests/fixtures/stripe-payments.mjs": {
-      "sha256": "2e2a0ef56af30a25c987023b6d9bae3eabbb3d193eddd6416d0f86da001348e7",
+      "sha256": "5ca6179db7f231fce541007e6d9ebd3baf5703cbc099998fe8ee70c2e5450d02",
       "executable": false
     },
     "tests/fixtures/twilio.mjs": {
