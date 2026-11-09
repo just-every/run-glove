@@ -1,0 +1,101 @@
+{
+  "conclusion": "failure",
+  "head_sha": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42557723301",
+  "status": "completed",
+  "id": 42557723301,
+  "name": "Verify",
+  "event": "push",
+  "observedAt": 1794196569.5558305,
+  "jobs": [
+    {
+      "id": 128967075188,
+      "name": "plan",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967106127,
+      "name": "build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967107469,
+      "name": "light",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 128967235309,
+      "name": "shards (foundation)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967235317,
+      "name": "shards (api-2)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967235342,
+      "name": "shards (api-1)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967235344,
+      "name": "shards (portable)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967235375,
+      "name": "shards (browser-2)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967235383,
+      "name": "shards (browser-1)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967235394,
+      "name": "shards (browser-4)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 128967235415,
+      "name": "shards (browser-3)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 128970378754,
+      "name": "verify",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 128970379872,
+      "name": "nightly-proof",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 128970379942,
+      "name": "full-push-proof",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "failing_test": "tests/browser/revenue.spec.ts:100:1 REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390",
+  "failure": "Error: route.fulfill: Route is already handled! at tests/browser/revenue.spec.ts:170:19",
+  "job": 128967235415,
+  "failed_log_command": "gh run view 42557723301 --repo just-every/run-glove --job 128967235415 --log-failed",
+  "failed_log_exit": 0
+}

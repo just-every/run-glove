@@ -1,0 +1,31 @@
+{
+  "name": "VERIFY-REPRO",
+  "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+  "command": [
+    "perl",
+    "-e",
+    "alarm 1800; exec @ARGV",
+    "--",
+    "node",
+    "scripts/verify-ci.mjs",
+    "browser-3"
+  ],
+  "started_at": "2026-11-09T03:57:55.610020+00:00",
+  "finished_at": "2026-11-09T04:05:08.651596+00:00",
+  "exit": 0,
+  "log": "VERIFY-REPRO.log",
+  "log_sha256": "3d98bbf9aa5437d3b6077f0116726ff19372ce4629895b2047d745d1b02bfd34",
+  "sources": {
+    "src/glove/maps.ts": "df4eb5b3d8f4b92dac0698bdbde910c020ec5a6b05098d4ae2d9bc4dca562912",
+    "src/glove/commands/maps.ts": "08786694cb9c389d0c47a08f81abc368939f3936905dd3811053d91f7c26a0be",
+    "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+    "src/glove/api.ts": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+    "src/ui/dispatch-map.tsx": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+    "src/ui/technician.tsx": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb",
+    "tests/api/harness.mjs": "f7148168602c47232c6098adb893479499b4ec50b779c9aad4fc48d1c5fe5f73",
+    "tests/api/map-board.test.mjs": "5b6ee7762aa999a93afda351d9d4a0aced36769c5c51d1c6834254fdbe20f4fa",
+    "tests/browser/dispatch-map.spec.ts": "177c44ce558936091f3739ca047baf86d158ec8ceede10e3001f9632dfb742a3",
+    "tests/portable.mjs": "1ac9299e0495544b845eb10fe5b3b1107b6fed3735da80c6b3e3aa7ad0139f78",
+    "tests/fixtures/maps.mjs": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66"
+  }
+}

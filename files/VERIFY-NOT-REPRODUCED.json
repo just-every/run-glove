@@ -1,0 +1,33 @@
+{
+  "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+  "job": 128967235415,
+  "command": "CI=true GLOVE_VERIFY_SHARD=browser-3 SHARD=browser-3 GLOVE_CI_PREBUILT=1 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 node scripts/verify-ci.mjs browser-3",
+  "node": "22.20.0",
+  "test": "tests/browser/revenue.spec.ts:100:1 REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390",
+  "exit": 0,
+  "failure": "CI only: Error: route.fulfill: Route is already handled! at tests/browser/revenue.spec.ts:170:19",
+  "reproduced": false,
+  "localResult": "15 passed",
+  "repairRounds": 0,
+  "browserExecutable": "/usr/bin/chromium",
+  "browserVersion": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+  "reproductionEnvironment": "Same dedicated cloud VM for candidate and main; Node 22.20.0 and CI shard flags, with the cloud-mandated system Chromium instead of the hosted runner browser cache.",
+  "taskGithubReadCalls": 9,
+  "mainComparison": {
+    "head": "eb1178dde4b08016c116445860c5f6bb36e56710",
+    "exit": 1,
+    "result": "13 passed, 2 failed; the CI-failing revenue journey passed",
+    "failures": [
+      {
+        "test": "tests/browser/companycam.spec.ts:36:1",
+        "assertion": "tests/browser/companycam.spec.ts:151",
+        "failure": "Historical Activity item expected count 0, received 1"
+      },
+      {
+        "test": "tests/browser/invoice-batch.spec.ts:159:1",
+        "assertion": "tests/browser/invoice-batch.spec.ts:187",
+        "failure": "Offline shell cache expected true, received false; predicate timeout 5000ms"
+      }
+    ]
+  }
+}

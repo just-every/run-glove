@@ -1,0 +1,140 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /tmp/sx-glove-main-repro
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/companycam.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/due-visit-offers.spec.ts' 'tests/browser/invoice-batch.spec.ts' 'tests/browser/movein.spec.ts' 'tests/browser/receivables.spec.ts' 'tests/browser/revenue.spec.ts' 'tests/browser/subcontractor.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=12127
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=6725
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=2970
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=62872
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 15 tests using 1 worker
+[verify progress]   ✘   1 tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 (1.6m)
+[verify progress]   ✓   2 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (22.0s)
+[verify progress]   ✓   3 tests/browser/due-visit-offers.spec.ts:19:1 › PLAN-010 customer sees only the included visit, chooses remaining open times and contacts the office when none remain (9.2s)
+[verify progress]   ✓   4 tests/browser/invoice-batch.spec.ts:17:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the office prepares three selected completed jobs together, sees a refused item and reviews each draft and downloads a customer statement at 1440 and 390 (17.6s)
+[verify progress]   ✓   5 tests/browser/invoice-batch.spec.ts:105:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 office stages a long job, sees the remaining contract amount and approves the exact final invoice at 1440 and 390 (13.8s)
+[verify progress]   ✘   6 tests/browser/invoice-batch.spec.ts:159:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390 (21.1s)
+[verify progress]   ✓   7 tests/browser/movein.spec.ts:31:62 › MOVE-004, MOVE-010 fieldpulse, MOVE-001, MOVE-007 Jobber and MOVE-002, MOVE-008 Housecall Pro: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (1.1m)
+[verify progress]   ✓   8 tests/browser/movein.spec.ts:31:62 › MOVE-004, MOVE-010 workiz: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (14.7s)
+[verify progress]   ✓   9 tests/browser/movein.spec.ts:31:62 › MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (17.2s)
+[verify progress]   ✓  10 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (6.7s)
+[verify progress]   ✓  11 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (19.2s)
+[verify progress]   ✓  12 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (11.4s)
+[verify progress]   ✓  13 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (13.6s)
+[verify progress]   ✓  14 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (28.6s)
+[verify progress]   ✓  15 tests/browser/subcontractor.spec.ts:9:1 › DISP-013 subcontractor phone has current work but no notification control or offline day after reload (7.3s)
+[verify progress]   2 failed
+[verify progress]   13 passed (6.5m)
+[verify phase] browser assertions: exit=1 signal=none elapsed_ms=388373
+Dev runtime output (last 6000 characters):
+s may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:02 AM [vite] (client) [console.error] Encountered two children with the same key, `workiz-sites-ad25506c5c8fcd0e6be46bef1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:09 AM [vite] (client) [console.error] Encountered two children with the same key, `workiz-sites-ad25506c5c8fcd0e6be46bef1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:10 AM [vite] (client) [console.error] Encountered two children with the same key, `workiz-sites-ad25506c5c8fcd0e6be46bef1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:17 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:17 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:26 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:26 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:46 AM [vite] (client) [console.error] Encountered two children with the same key, `d24879c2-a97e-4703-9a3d-ddfac567d89d1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:46 AM [vite] (client) [console.error] Encountered two children with the same key, `3ddf46f1-4fc0-4d84-8a03-bd292aa4cbad1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:46 AM [vite] (client) [console.error] Encountered two children with the same key, `d24879c2-a97e-4703-9a3d-ddfac567d89d1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:46 AM [vite] (client) [console.error] Encountered two children with the same key, `3ddf46f1-4fc0-4d84-8a03-bd292aa4cbad1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:46 AM [vite] (client) [console.error] Encountered two children with the same key, `3ddf46f1-4fc0-4d84-8a03-bd292aa4cbad1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:53 AM [vite] (client) [console.error] Encountered two children with the same key, `d24879c2-a97e-4703-9a3d-ddfac567d89d1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:53 AM [vite] (client) [console.error] Encountered two children with the same key, `3ddf46f1-4fc0-4d84-8a03-bd292aa4cbad1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:53 AM [vite] (client) [console.error] Encountered two children with the same key, `d24879c2-a97e-4703-9a3d-ddfac567d89d1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:53 AM [vite] (client) [console.error] Encountered two children with the same key, `3ddf46f1-4fc0-4d84-8a03-bd292aa4cbad1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+4:12:53 AM [vite] (client) [console.error] Encountered two children with the same key, `3ddf46f1-4fc0-4d84-8a03-bd292aa4cbad1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+[verify phase] native dev: exit=143 signal=none elapsed_ms=420186
+how where the warning was created)
+  ✓  10 tests/browser/receivables.spec.ts:10:1 › REPORT-003 owner reads every aging bucket and follows the exact open invoice at 1440 and 390 (6.7s)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 tests/browser/receivables.spec.ts:51:1 › PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH return update the existing aging and collected-tax screens at 1440 and 390 (19.2s)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 tests/browser/receivables.spec.ts:149:1 › PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390 (11.4s)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/browser/receivables.spec.ts:234:1 › PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390 (13.6s)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  14 tests/browser/revenue.spec.ts:100:1 › REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390 (28.6s)
+(node:17185) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 tests/browser/subcontractor.spec.ts:9:1 › DISP-013 subcontractor phone has current work but no notification control or offline day after reload (7.3s)
+
+
+  1) tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.timeline-list > li').filter({ hasText: 'CompanyCam photo upload: complete; caption confirmed' })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('.timeline-list > li').filter({ hasText: 'CompanyCam photo upload: complete; caption confirmed' }) with timeout 5000ms
+      - waiting for locator('.timeline-list > li').filter({ hasText: 'CompanyCam photo upload: complete; caption confirmed' })
+        2 × locator resolved to 1 element
+          - unexpected value "1"
+
+
+      149 |       await page.goto(`${origin}/app#activity`)
+      150 |       const historical = page.locator('.timeline-list > li').filter({ hasText: reference.summary })
+    > 151 |       await expect(historical).toHaveCount(0)
+          |                                ^
+      152 |       await page.getByRole('button', { name: 'Load earlier activity', exact: true }).click()
+      153 |       await expect(historical).toHaveCount(1)
+      154 |       await expect(historical).toContainText('CompanyCam (provider)')
+        at [REDACTED]/tests/browser/companycam.spec.ts:151:32
+
+    Error Context: ../glove-browser-evidence/results/journeys/companycam-DATA-002-DATA-0-b023d-onciliation-at-1440-and-390/error-context.md
+
+  2) tests/browser/invoice-batch.spec.ts:159:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      185 |       const request = page.getByRole('button', { name: 'Request invoice draft', exact: true })
+      186 |       await expect(request).toBeEnabled()
+    > 187 |       await expect.poll(() => page.evaluate(async () => !!(await (await caches.open('glove-shell-v1')).match('/app')))).toBe(true)
+          |                                                                                                                         ^
+      188 |       disconnected = true
+      189 |       await context.setOffline(true)
+      190 |       await request.click()
+        at [REDACTED]/tests/browser/invoice-batch.spec.ts:187:121
+
+    Error Context: ../glove-browser-evidence/results/journeys/invoice-batch-PAY-001-PAY--98393--and-reload-at-1440-and-390/error-context.md
+
+  2 failed
+    tests/browser/companycam.spec.ts:36:1 › DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking, photos both ways once and uncertain-upload reconciliation at 1440 and 390 
+    tests/browser/invoice-batch.spec.ts:159:1 › PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner allows a technician to queue one invoice draft offline and present its approved revision after reconnect and reload at 1440 and 390 
+  13 passed (6.5m)
+
+ ELIFECYCLE  Command failed with exit code 1.

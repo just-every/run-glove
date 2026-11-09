@@ -6,14 +6,14 @@
   "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
   "integratedMain": "eb1178dde4b08016c116445860c5f6bb36e56710",
   "verify": {
-    "conclusion": null,
+    "conclusion": "failure",
     "head_sha": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42557723301",
-    "status": "in_progress",
+    "status": "completed",
     "id": 42557723301,
     "name": "Verify",
     "event": "push",
-    "observedAt": 1794196268.482761
+    "observedAt": 1794196569.5558305
   },
   "sourceCounts": {
     "partial": 205,
@@ -153,6 +153,36 @@
       }
     },
     {
+      "name": "MAIN-REPRO",
+      "head": "eb1178dde4b08016c116445860c5f6bb36e56710",
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1800; exec @ARGV",
+        "--",
+        "node",
+        "scripts/verify-ci.mjs",
+        "browser-3"
+      ],
+      "started_at": "2026-11-09T04:05:28.240878+00:00",
+      "finished_at": "2026-11-09T04:13:55.775854+00:00",
+      "exit": 1,
+      "log": "MAIN-REPRO.log",
+      "log_sha256": "f533ec1e52a52a84ce0b9abaf73e2c8e9f1d9fe654d293b1ce8e22875b92df9a",
+      "sources": {
+        "src/glove/maps.ts": "df4eb5b3d8f4b92dac0698bdbde910c020ec5a6b05098d4ae2d9bc4dca562912",
+        "src/glove/commands/maps.ts": "08786694cb9c389d0c47a08f81abc368939f3936905dd3811053d91f7c26a0be",
+        "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+        "src/glove/api.ts": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+        "src/ui/dispatch-map.tsx": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+        "src/ui/technician.tsx": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb",
+        "tests/api/harness.mjs": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+        "tests/browser/dispatch-map.spec.ts": "b30e3f9a24279cfd46620e80ce5d32f97ba1aa4577b4bb1da2f72a8cf73e360a",
+        "tests/portable.mjs": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
+        "tests/fixtures/maps.mjs": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66"
+      }
+    },
+    {
       "candidate": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
       "commands": [
         {
@@ -245,6 +275,185 @@
         "tests/portable.mjs": "1ac9299e0495544b845eb10fe5b3b1107b6fed3735da80c6b3e3aa7ad0139f78",
         "tests/fixtures/maps.mjs": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66"
       }
+    },
+    {
+      "name": "VERIFY-REPRO",
+      "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1800; exec @ARGV",
+        "--",
+        "node",
+        "scripts/verify-ci.mjs",
+        "browser-3"
+      ],
+      "started_at": "2026-11-09T03:57:55.610020+00:00",
+      "finished_at": "2026-11-09T04:05:08.651596+00:00",
+      "exit": 0,
+      "log": "VERIFY-REPRO.log",
+      "log_sha256": "3d98bbf9aa5437d3b6077f0116726ff19372ce4629895b2047d745d1b02bfd34",
+      "sources": {
+        "src/glove/maps.ts": "df4eb5b3d8f4b92dac0698bdbde910c020ec5a6b05098d4ae2d9bc4dca562912",
+        "src/glove/commands/maps.ts": "08786694cb9c389d0c47a08f81abc368939f3936905dd3811053d91f7c26a0be",
+        "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+        "src/glove/api.ts": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+        "src/ui/dispatch-map.tsx": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+        "src/ui/technician.tsx": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb",
+        "tests/api/harness.mjs": "f7148168602c47232c6098adb893479499b4ec50b779c9aad4fc48d1c5fe5f73",
+        "tests/api/map-board.test.mjs": "5b6ee7762aa999a93afda351d9d4a0aced36769c5c51d1c6834254fdbe20f4fa",
+        "tests/browser/dispatch-map.spec.ts": "177c44ce558936091f3739ca047baf86d158ec8ceede10e3001f9632dfb742a3",
+        "tests/portable.mjs": "1ac9299e0495544b845eb10fe5b3b1107b6fed3735da80c6b3e3aa7ad0139f78",
+        "tests/fixtures/maps.mjs": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66"
+      }
     }
-  ]
+  ],
+  "claim": "PARTIAL",
+  "pointsProven": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "terminal": "BLOCKED",
+  "blocker": "Exact-SHA Verify revenue error did not reproduce; mandatory no-guess repair stop",
+  "verifyFailure": {
+    "conclusion": "failure",
+    "head_sha": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42557723301",
+    "status": "completed",
+    "id": 42557723301,
+    "name": "Verify",
+    "event": "push",
+    "observedAt": 1794196569.5558305,
+    "jobs": [
+      {
+        "id": 128967075188,
+        "name": "plan",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967106127,
+        "name": "build",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967107469,
+        "name": "light",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 128967235309,
+        "name": "shards (foundation)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967235317,
+        "name": "shards (api-2)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967235342,
+        "name": "shards (api-1)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967235344,
+        "name": "shards (portable)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967235375,
+        "name": "shards (browser-2)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967235383,
+        "name": "shards (browser-1)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967235394,
+        "name": "shards (browser-4)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 128967235415,
+        "name": "shards (browser-3)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 128970378754,
+        "name": "verify",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 128970379872,
+        "name": "nightly-proof",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 128970379942,
+        "name": "full-push-proof",
+        "status": "completed",
+        "conclusion": "skipped"
+      }
+    ],
+    "failing_test": "tests/browser/revenue.spec.ts:100:1 REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390",
+    "failure": "Error: route.fulfill: Route is already handled! at tests/browser/revenue.spec.ts:170:19",
+    "job": 128967235415,
+    "failed_log_command": "gh run view 42557723301 --repo just-every/run-glove --job 128967235415 --log-failed",
+    "failed_log_exit": 0
+  },
+  "reproduction": {
+    "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+    "job": 128967235415,
+    "command": "CI=true GLOVE_VERIFY_SHARD=browser-3 SHARD=browser-3 GLOVE_CI_PREBUILT=1 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 node scripts/verify-ci.mjs browser-3",
+    "node": "22.20.0",
+    "test": "tests/browser/revenue.spec.ts:100:1 REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390",
+    "exit": 0,
+    "failure": "CI only: Error: route.fulfill: Route is already handled! at tests/browser/revenue.spec.ts:170:19",
+    "reproduced": false,
+    "localResult": "15 passed",
+    "repairRounds": 0,
+    "browserExecutable": "/usr/bin/chromium",
+    "browserVersion": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+    "reproductionEnvironment": "Same dedicated cloud VM for candidate and main; Node 22.20.0 and CI shard flags, with the cloud-mandated system Chromium instead of the hosted runner browser cache.",
+    "taskGithubReadCalls": 9,
+    "mainComparison": {
+      "head": "eb1178dde4b08016c116445860c5f6bb36e56710",
+      "exit": 1,
+      "result": "13 passed, 2 failed; the CI-failing revenue journey passed",
+      "failures": [
+        {
+          "test": "tests/browser/companycam.spec.ts:36:1",
+          "assertion": "tests/browser/companycam.spec.ts:151",
+          "failure": "Historical Activity item expected count 0, received 1"
+        },
+        {
+          "test": "tests/browser/invoice-batch.spec.ts:159:1",
+          "assertion": "tests/browser/invoice-batch.spec.ts:187",
+          "failure": "Offline shell cache expected true, received false; predicate timeout 5000ms"
+        }
+      ]
+    }
+  },
+  "repairRounds": 0,
+  "workflowReruns": 0
 }
