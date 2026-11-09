@@ -5712,7 +5712,7 @@
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
-      "sha256": "f6eb4d471f05a8c19d27647f9bc85866bd4e0b495a0649f436287512378e69ca",
+      "sha256": "db37d48fec44974ce158afd1f8ec461fdce7fbb5a307287493c697c73bcae546",
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
@@ -5932,7 +5932,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "84c64a24bf83db451305b55f7f63418d782b6c39874d43091a7446e28f1dc95d",
+      "sha256": "3587282ede26658046e114b027529ecd9b80b5b8790cdd303f6f58a8dc4fd536",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -6053,6 +6053,10 @@
     },
     "tests/fixtures/document-images.mjs": {
       "sha256": "39f0a34dc33a885ed94fd6c3cdb75ecda5f51f159f1fe6effc0a7f1a89547059",
+      "executable": false
+    },
+    "tests/fixtures/edition-archive-policy.mjs": {
+      "sha256": "ae363d643591a0b3a418cc9dc61a684552c468c3d53d6e39366ad6d1199b9f95",
       "executable": false
     },
     "tests/fixtures/fieldpulse-movein/comments.json": {
@@ -6205,6 +6209,10 @@
     },
     "tests/fixtures/portable-stripe.mjs": {
       "sha256": "b9b9fc089e37a949b70cbe72aa8704193b4acf6590e8f0fd07f427fc1f9be37c",
+      "executable": false
+    },
+    "tests/fixtures/privacy-data.mjs": {
+      "sha256": "b2ed9dcfb155208623f840ac8e19b4609657479524b06766fa163b480e3aea37",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
@@ -6488,7 +6496,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
+      "sha256": "90e60845e23685dea4ef6c565c3df2b9afeac579f8b367eda7edc4c23bf4db41",
       "executable": false
     },
     "tests/runtime.mjs": {

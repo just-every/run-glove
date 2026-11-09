@@ -1125,6 +1125,9 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await page.goto(`${origin}/app#customers/${b.customer.id}`)
       await page.reload()
       const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
+      await test.step('DATA-001 point 8: the owner sees how the latest backup prevents restoration of erased data', async () => {
+        await expect(privacy.getByText(/Keep the latest backup as the erasure journal when restoring older backups/)).toBeVisible()
+      })
       await expect(privacy.getByRole('button', { name: 'Erase customer personal data' })).toBeDisabled()
       const downloading = page.waitForEvent('download')
       await send(page, privacy.getByRole('button', { name: 'Export customer data' }))
@@ -1148,6 +1151,11 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await expect(privacy.getByRole('status')).toHaveText('Personal data erased. Anonymous invoices and tax totals remain.')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      await test.step('DATA-001 point 8: export and erasure outcomes remain additive after the destructive action', async () => {
+        await page.reload()
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      })
       await expect(page.getByRole('heading', { name: 'Harbourview Dental', exact: true })).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await shot(page, width, 'customer-privacy-erased')
