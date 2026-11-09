@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // Move-in undo is destructive, so it gets its own proof: it never removes a
 // record that later Glove work depends on, and never overwrites a later edit.
 import test from 'node:test'
@@ -48,6 +49,7 @@ const recordProjection = records => records.map(({ reasons, ...r }) => r)
 const businessRecords = ({ version, actor, events, imports, ...state }) => state
 
 test('ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone', async t => {
+  await scenario(t, 'ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const input = await files(), before = await h.state()
   await b.office.run('import.stage', { files: input }, { error: 'FORBIDDEN' })
@@ -183,14 +185,7 @@ test('ServiceM8 every source record is reviewed, fingerprinted, retained through
     assert.equal(exported.customers.find(c => c.id === customer.id).name, 'Balmain Bakehouse amended by owner')
   }
 })
-
-async function moveIn(h) {
-  const staged = await h.command('import.stage', { files: await files() })
-  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
-}
-
-
-test('ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo', async t => {
+  await scenario(t, 'ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo', async t => {
   const h = await installation(); t.after(() => h.close()); await business(h)
   const files = await serviceM8Balances()
   const staged = await h.command('import.stage', { files, balanceAsOf: '2026-10-22' })
@@ -264,8 +259,18 @@ test('ServiceM8 opening balances retain payment custody, reject mismatches, and 
   const remaining = JSON.parse((await rejected.command('privacy.export', { customerId: peer.id, version: peer.version })).download)
   assert.ok(JSON.stringify(remaining).includes('Synthetic peer payment note'))
 })
+})
+
+async function moveIn(h) {
+  const staged = await h.command('import.stage', { files: await files() })
+  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+}
+
+
+
 
 test('MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
+  await scenario(t, 'MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('jobber'), before = await h.state()
   await b.office.run('import.stage', { format: 'jobber', files }, { error: 'FORBIDDEN' })
@@ -484,8 +489,7 @@ test('MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain 
   assert.deepEqual(field.invoices, [])
   assert.deepEqual(field.enquiries, [])
 })
-
-test('an undo that takes several passes holds its records until it finishes', async (t) => {
+  await scenario(t, 'an undo that takes several passes holds its records until it finishes', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -519,6 +523,9 @@ test('an undo that takes several passes holds its records until it finishes', as
   assert.ok(s.customers.some(c => c.name === 'Walk-in customer'), 'unrelated desk work carried on')
   assert.equal(s.imports.find(i => i.id === staged.id).status, 'undone')
 })
+})
+
+
 
 // MOVE-004: the adapter is exercised through the same production command and
 // read doors as an owner, including the destructive journal path.
@@ -565,7 +572,9 @@ async function openingInvoiceLinks(t, system, expectedNumber, expectedTotal) {
   assert.equal(exported.invoices.find(r => r.id === invoice.id).importedInvoiceNumber, expectedNumber)
 }
 
-for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003, MOVE-009' : 'MOVE-004, MOVE-010'} ${system}: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work`, async t => {
+test('Imported provider exports retain records and refuse unsafe undo for every supported source', async t => {
+  for (const system of ['fieldpulse', 'workiz', 'servicetitan']) {
+    await scenario(t, `${system === 'servicetitan' ? 'MOVE-003, MOVE-009' : 'MOVE-004, MOVE-010'} ${system}: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work`, async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), files = await exportedFixture(system), snapshot = '2026-10-22'
   if (system !== 'fieldpulse') await openingInvoiceLinks(t, system, '901', '216.50')
@@ -670,6 +679,41 @@ for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system ==
   for (const kind of ['sites','services','technicians','jobs','visits','quotes','invoices','captures','equipment','agreements']) assert.equal(undone[kind].length, before[kind].length, `${kind} reversed`)
   assert.ok(undone.customers.some(c => c.id === native.id), 'native work survives undo')
 })
+  }
+  for (const system of ['fieldpulse', 'workiz', 'servicetitan']) {
+    await scenario(t, `${system === 'servicetitan' ? 'MOVE-003, MOVE-009' : 'MOVE-004, MOVE-010'} ${system}: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo`, async t => {
+  const h = await installation(); t.after(() => h.close()); await business(h)
+  const files = await exportedFixture(system)
+  const orphan = await h.command('import.stage', { format: system, files: files.filter(f => f.name !== (system === 'workiz' ? 'clients.json' : 'customers.json')) })
+  assert.ok(orphan.preview.rejections.some(r => r.kind === 'jobs'), 'a missing customer refuses the job')
+  assert.ok(orphan.preview.rejections.some(r => r.kind === 'invoices'), 'and its dependent invoice')
+  const raw = structuredClone(files), item = raw.find(f => f.name === (system === 'servicetitan' ? 'services.json' : 'items.json')), body = JSON.parse(item.text), first = (body.data ?? body.response)[0]
+  first[system === 'fieldpulse' ? 'default_unit_price' : 'price'] = 'not an amount'
+  item.text = JSON.stringify(body)
+  const invalid = await h.command('import.stage', { format: system, files: raw })
+  assert.ok(invalid.preview.rejections.some(r => r.kind === (system === 'servicetitan' ? 'services' : 'items') && /amount/.test(r.reason)))
+  assert.equal((await h.state()).imports.length, 2, 'invalid source rows remain reviewable, without product writes')
+  if (system === 'workiz') {
+    const unsupported = structuredClone(files), priceBook = unsupported.find(f => f.name === 'items.json'), sourceItems = JSON.parse(priceBook.text)
+    sourceItems.data[0].type = 'warranty'; priceBook.text = JSON.stringify(sourceItems)
+    const typeReview = await h.command('import.stage', { format: system, files: unsupported })
+    assert.ok(typeReview.preview.rejections.some(r => r.kind === 'items' && /exact native mapping/.test(r.reason)), 'a documented Workiz warranty item is not silently changed into a stock product')
+  }
+  const cancelledFiles = structuredClone(files), jobFile = cancelledFiles.find(f => f.name === 'jobs.json'), sourceJobs = JSON.parse(jobFile.text), sourceJob = (sourceJobs.data ?? sourceJobs.response)[0]
+  sourceJob[system === 'servicetitan' ? 'jobStatus' : 'status'] = system === 'servicetitan' ? 'Canceled' : system === 'fieldpulse' ? 5 : 'Canceled'
+  if (system === 'servicetitan') { const appointment = cancelledFiles.find(f => f.name === 'appointments.json'), value = JSON.parse(appointment.text); value.data[0].status = 'Canceled'; appointment.text = JSON.stringify(value) }
+  jobFile.text = JSON.stringify(sourceJobs)
+  const staged = await h.command('import.stage', { format: system, files: cancelledFiles })
+  const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  const cancelledVisit = (await h.state()).visits.find(v => v.source?.system?.toLowerCase() === system && v.status === 'cancelled')
+  assert.ok(cancelledVisit); assert.match(cancelledVisit.cancelled.reason, /Canceled in/)
+  const customer = (await h.state()).customers.find(c => c.source?.system?.toLowerCase() === system)
+  await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Synthetic corrected customer' })
+  await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Keep the native correction' }, { error: 'NATIVE_EDIT_CONFLICT' })
+  assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Synthetic corrected customer')
+})
+  }
+})
 
 test('MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
@@ -713,39 +757,10 @@ test('MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requi
   assert.equal(moved.importedRecurrence.proposal.coveredThrough, '2027-01-05', 'the late source exception is January 5 in the business timezone')
 })
 
-for (const system of ['fieldpulse', 'workiz', 'servicetitan']) test(`${system === 'servicetitan' ? 'MOVE-003, MOVE-009' : 'MOVE-004, MOVE-010'} ${system}: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo`, async t => {
-  const h = await installation(); t.after(() => h.close()); await business(h)
-  const files = await exportedFixture(system)
-  const orphan = await h.command('import.stage', { format: system, files: files.filter(f => f.name !== (system === 'workiz' ? 'clients.json' : 'customers.json')) })
-  assert.ok(orphan.preview.rejections.some(r => r.kind === 'jobs'), 'a missing customer refuses the job')
-  assert.ok(orphan.preview.rejections.some(r => r.kind === 'invoices'), 'and its dependent invoice')
-  const raw = structuredClone(files), item = raw.find(f => f.name === (system === 'servicetitan' ? 'services.json' : 'items.json')), body = JSON.parse(item.text), first = (body.data ?? body.response)[0]
-  first[system === 'fieldpulse' ? 'default_unit_price' : 'price'] = 'not an amount'
-  item.text = JSON.stringify(body)
-  const invalid = await h.command('import.stage', { format: system, files: raw })
-  assert.ok(invalid.preview.rejections.some(r => r.kind === (system === 'servicetitan' ? 'services' : 'items') && /amount/.test(r.reason)))
-  assert.equal((await h.state()).imports.length, 2, 'invalid source rows remain reviewable, without product writes')
-  if (system === 'workiz') {
-    const unsupported = structuredClone(files), priceBook = unsupported.find(f => f.name === 'items.json'), sourceItems = JSON.parse(priceBook.text)
-    sourceItems.data[0].type = 'warranty'; priceBook.text = JSON.stringify(sourceItems)
-    const typeReview = await h.command('import.stage', { format: system, files: unsupported })
-    assert.ok(typeReview.preview.rejections.some(r => r.kind === 'items' && /exact native mapping/.test(r.reason)), 'a documented Workiz warranty item is not silently changed into a stock product')
-  }
-  const cancelledFiles = structuredClone(files), jobFile = cancelledFiles.find(f => f.name === 'jobs.json'), sourceJobs = JSON.parse(jobFile.text), sourceJob = (sourceJobs.data ?? sourceJobs.response)[0]
-  sourceJob[system === 'servicetitan' ? 'jobStatus' : 'status'] = system === 'servicetitan' ? 'Canceled' : system === 'fieldpulse' ? 5 : 'Canceled'
-  if (system === 'servicetitan') { const appointment = cancelledFiles.find(f => f.name === 'appointments.json'), value = JSON.parse(appointment.text); value.data[0].status = 'Canceled'; appointment.text = JSON.stringify(value) }
-  jobFile.text = JSON.stringify(sourceJobs)
-  const staged = await h.command('import.stage', { format: system, files: cancelledFiles })
-  const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
-  const cancelledVisit = (await h.state()).visits.find(v => v.source?.system?.toLowerCase() === system && v.status === 'cancelled')
-  assert.ok(cancelledVisit); assert.match(cancelledVisit.cancelled.reason, /Canceled in/)
-  const customer = (await h.state()).customers.find(c => c.source?.system?.toLowerCase() === system)
-  await h.command('customer.save', { id: customer.id, version: customer.version, name: 'Synthetic corrected customer' })
-  await h.command('import.undo', { batchId: batch.id, version: batch.version, reason: 'Keep the native correction' }, { error: 'NATIVE_EDIT_CONFLICT' })
-  assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Synthetic corrected customer')
-})
+
 
 test('MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site', async t => {
+  await scenario(t, 'MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('servicetitan')
   const change = (name, edit) => { const f = files.find(f => f.name === name), value = JSON.parse(f.text); edit(value.data); f.text = JSON.stringify(value) }
@@ -783,9 +798,7 @@ test('MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity
   const booked = updated.visits.find(v => v.agreementId === agreement.id && v.index === second.index)
   assert.equal(booked.booked, true); assert.equal(booked.siteId, second.siteId)
 })
-
-
-test('MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named', async t => {
+  await scenario(t, 'MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('servicetitan'), source = files.find(f => f.name === 'recurring-services.json'), rows = JSON.parse(source.text)
   rows.data[0].to = '2028-12-31T00:00:00Z'; source.text = JSON.stringify(rows)
@@ -810,6 +823,10 @@ test('MOVE-003, MOVE-009 source recurrence activates only after explicit review,
   const preview = await h.command('import.stage', { format: 'servicetitan', files: unknown })
   assert.ok(preview.preview.unmappedFields['recurring-services'].some(f => f.includes('no exact native rule')))
 })
+})
+
+
+
 
 test('MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)

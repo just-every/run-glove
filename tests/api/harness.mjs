@@ -62,7 +62,7 @@ globalThis.fetch = async (input, options) => {
   // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
   const pushes = { sent: [], status: {} }
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
-  const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
+  const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [], snsReply: null }
   const outbound = { attempts: 0 }
   const logs = []
   class CapturedLog extends Log { log(message) { logs.push(message) } }
@@ -139,8 +139,12 @@ globalThis.fetch = async (input, options) => {
         }
         if (request.url.startsWith('https://sns.')) {
           email.fetches.push(request.url)
+          const confirmation = new URL(request.url).searchParams.get('Action') === 'ConfirmSubscription'
+          if (confirmation) email.subscriptions.push(request.url)
+          const reply = await email.snsReply?.(request)
+          if (reply) return reply
           if (email.certificates.has(request.url)) return new Response(email.certificates.get(request.url))
-          if (new URL(request.url).searchParams.get('Action') === 'ConfirmSubscription') { email.subscriptions.push(request.url); return new Response('<ConfirmSubscriptionResponse/>') }
+          if (confirmation) return new Response('<ConfirmSubscriptionResponse/>')
           return new Response('Not found', { status: 404 })
         }
         if (request.url === 'https://api.postmarkapp.com/email') {

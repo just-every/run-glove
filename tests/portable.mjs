@@ -309,6 +309,16 @@ try {
   certCustomer = await owner.cmd('customer.save', { ...certCustomer, taxExemption: { certificateNumber: 'PORTABLE-SCHOOL', expires: '2099-12-31' } })
   const certificateBytes = Buffer.from('%PDF-1.7\nPrivate exemption certificate\n%%EOF')
   certCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: certificateBytes.toString('base64') } })
+  // MONEY-004: an additive multi-chunk replacement keeps both customer originals.
+  const chunkedCertificateBytes = Buffer.alloc(512 * 1024 + 71, 66)
+  chunkedCertificateBytes.write('%PDF-1.7\nChunked school evidence\n')
+  chunkedCertificateBytes.write('\n%%EOF', chunkedCertificateBytes.length - 6)
+  const chunkedCertificateCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: chunkedCertificateBytes.toString('base64') } })
+  const chunkedCertificate = chunkedCertificateCustomer.taxExemption.certificate
+  assert.equal(chunkedCertificate.sha256, createHash('sha256').update(chunkedCertificateBytes).digest('hex'))
+  const sourceChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, owner.cookie)
+  assert.equal(sourceChunkedCertificate.status, 200)
+  assert.deepEqual(Buffer.from(await sourceChunkedCertificate.arrayBuffer()), chunkedCertificateBytes)
   await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' })
   await priya.cmd('visit.complete', { visitId: visit.id, deviceTime: '2026-10-14T23:30:00Z', summary: 'Cleaned filters', findings: 'Coil clean', recommendations: [{ title: 'Annual tune-up' }], signoff: { absentReason: 'Customer away' } })
   const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
@@ -656,6 +666,11 @@ try {
   const restoredCertificate = await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)
   assert.equal(restoredCertificate.status, 200, 'MONEY-001 private certificate remains readable after restore')
   assert.deepEqual(Buffer.from(await restoredCertificate.arrayBuffer()), certificateBytes, 'MONEY-001 original certificate bytes restored')
+  const restoredChunkedCustomer = after.customers.find(c => c.id === customer.id)
+  assert.deepEqual(restoredChunkedCustomer.taxExemption.certificate, chunkedCertificate, 'MONEY-004 replacement remains attached to the restored customer')
+  const restoredChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, running.owner.cookie)
+  assert.equal(restoredChunkedCertificate.status, 200)
+  assert.deepEqual(Buffer.from(await restoredChunkedCertificate.arrayBuffer()), chunkedCertificateBytes, 'MONEY-004 all original chunks survive real export and import')
   // The restored installation keeps working, including undo of the restored move-in journal.
   await running.owner.cmd('customer.save', { name: 'After restore' })
   const restored = (await running.owner.get('/api/glove/state')).imports.find(i => i.id === batch.id)

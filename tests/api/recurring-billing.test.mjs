@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // PLAN-005 uses the production HTTP Worker, native sessions and D1. The only
 // simulated time is the existing test Worker's boundary clock.
 import test from 'node:test'
@@ -30,48 +31,10 @@ async function fixture(h, at) {
   return { customer, site, tech, techPerson, office, dispatcher, agent, material, job, repeat, complete }
 }
 
-test('PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await fixture(h, '2025-01-01T16:00:00Z')
-  let perVisit = await b.job('Per-visit PM'), fixed = await b.job('Quarterly PM billed monthly')
-  perVisit = await b.repeat(perVisit, { mode: 'per-visit' })
-  fixed = await b.repeat(fixed, { mode: 'fixed-monthly', lines: [line('240.00')] }, { date: '2025-01-15', rule: { unit: 'month', interval: 3 }, start: '13:00', end: '14:00' })
-  await b.dispatcher.run('series.billing', { jobId: perVisit.id, version: perVisit.version, from: '2025-01-01', billing: { mode: 'per-visit' }, reason: 'Price authority refused' }, { error: 'FORBIDDEN' })
-  const visits = []
-  visits.push(await b.complete(perVisit, '2025-01-01', '1'))
-  await clock(h, '2025-02-01T05:59:00Z')
-  await h.scheduled('2025-02-01T05:59:00Z')
-  await clock(h, '2025-02-05T16:00:00Z'); visits.push(await b.complete(perVisit, '2025-02-05', '2'))
-  await clock(h, '2025-02-12T16:00:00Z'); visits.push(await b.complete(perVisit, '2025-02-12', '3'))
-  const skipped = (await h.state()).visits.find(v => v.jobId === perVisit.id && v.local.date === '2025-02-19')
-  await b.dispatcher.run('visit.cancel', { visitId: skipped.id, version: skipped.version, reason: 'Customer away' })
-  await clock(h, '2025-03-01T05:59:00Z'); await b.office.run('series.billingRun', {})
-  await clock(h, '2025-04-01T04:59:00Z')
-  await Promise.all([h.scheduled('2025-04-01T04:59:00Z'), h.scheduled('2025-04-01T04:59:00Z')])
-  const commandId = randomUUID(), first = await b.office.run('series.billingRun', {}, { commandId })
-  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), first)
-  const s = await h.state(), each = s.invoices.filter(i => i.jobId === perVisit.id), monthly = s.invoices.filter(i => i.jobId === fixed.id)
-  assert.equal(each.length, 3); assert.equal(monthly.length, 3)
-  assert.deepEqual(visits.map(v => each.find(i => i.recurring.visitId === v.id).revisions[0].totals.total), ['57.00', '64.00', '71.00'])
-  assert.ok(!each.some(i => i.recurring.visitId === skipped.id))
-  assert.deepEqual(monthly.map(i => [i.recurring.proposedIssuedOn, i.revisions[0].totals.total]), [['2025-01-31', '240.00'], ['2025-02-28', '240.00'], ['2025-03-31', '240.00']])
-  assert.equal(new Set(s.invoices.map(i => i.recurring.key)).size, 6)
-  assert.ok(s.invoices.every(i => i.status === 'draft' && !i.revisions[0].approval && !i.dates))
-  assert.equal((await h.request('/api/glove/reports/revenue.json?from=2025-01-01&to=2025-03-31').then(r => r.json())).total.revenue, '0.00')
-  assert.deepEqual((await h.request('/api/glove/reports/receivables.json?asOf=2025-03-31').then(r => r.json())).totals, [])
-  await h.command('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
-  await h.command('invoice.prepare', { jobId: perVisit.id }, { error: 'RECURRING_BILLING' })
-  assert.equal(h.email.sent.length, 0)
-  assert.ok(!(await b.techPerson.state()).jobs.find(j => j.id === perVisit.id).series.billing)
-  assert.equal((await h.request('/api/glove/recurring-billing', { as: b.techPerson.cookie })).status, 403)
-  await assertTrail(h, ['series.billingChanged', 'invoice.prepared', 'series.billingRun'])
-  const branch = await h.command('branch.save', { name: 'North branch', prefix: 'NTH', timezone: 'America/Chicago', zips: [] })
-  await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
-  await b.office.run('invoice.approve', { invoiceId: monthly[0].id, version: monthly[0].version, revision: 1 }, { error: 'NOT_FOUND' })
-  assert.deepEqual((await h.request('/api/glove/recurring-billing', { as: b.office.cookie }).then(r => r.json())).missed, [])
-})
+
 
 test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
+  await scenario(t, 'PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
   const h = await installation({ at: '2026-01-01T18:00:00Z' }); t.after(() => h.close())
   const b = await fixture(h, '2025-09-30T15:00:00Z')
   const office = { id: b.office.id, name: 'Riley Office', role: 'office' }
@@ -215,8 +178,47 @@ test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, l
   assert.equal(h.twilio.calls.length, 0)
 
 })
-
-test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence', async t => {
+  await scenario(t, 'PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await fixture(h, '2025-01-01T16:00:00Z')
+  let perVisit = await b.job('Per-visit PM'), fixed = await b.job('Quarterly PM billed monthly')
+  perVisit = await b.repeat(perVisit, { mode: 'per-visit' })
+  fixed = await b.repeat(fixed, { mode: 'fixed-monthly', lines: [line('240.00')] }, { date: '2025-01-15', rule: { unit: 'month', interval: 3 }, start: '13:00', end: '14:00' })
+  await b.dispatcher.run('series.billing', { jobId: perVisit.id, version: perVisit.version, from: '2025-01-01', billing: { mode: 'per-visit' }, reason: 'Price authority refused' }, { error: 'FORBIDDEN' })
+  const visits = []
+  visits.push(await b.complete(perVisit, '2025-01-01', '1'))
+  await clock(h, '2025-02-01T05:59:00Z')
+  await h.scheduled('2025-02-01T05:59:00Z')
+  await clock(h, '2025-02-05T16:00:00Z'); visits.push(await b.complete(perVisit, '2025-02-05', '2'))
+  await clock(h, '2025-02-12T16:00:00Z'); visits.push(await b.complete(perVisit, '2025-02-12', '3'))
+  const skipped = (await h.state()).visits.find(v => v.jobId === perVisit.id && v.local.date === '2025-02-19')
+  await b.dispatcher.run('visit.cancel', { visitId: skipped.id, version: skipped.version, reason: 'Customer away' })
+  await clock(h, '2025-03-01T05:59:00Z'); await b.office.run('series.billingRun', {})
+  await clock(h, '2025-04-01T04:59:00Z')
+  await Promise.all([h.scheduled('2025-04-01T04:59:00Z'), h.scheduled('2025-04-01T04:59:00Z')])
+  const commandId = randomUUID(), first = await b.office.run('series.billingRun', {}, { commandId })
+  assert.deepEqual(await b.office.run('series.billingRun', {}, { commandId }), first)
+  const s = await h.state(), each = s.invoices.filter(i => i.jobId === perVisit.id), monthly = s.invoices.filter(i => i.jobId === fixed.id)
+  assert.equal(each.length, 3); assert.equal(monthly.length, 3)
+  assert.deepEqual(visits.map(v => each.find(i => i.recurring.visitId === v.id).revisions[0].totals.total), ['57.00', '64.00', '71.00'])
+  assert.ok(!each.some(i => i.recurring.visitId === skipped.id))
+  assert.deepEqual(monthly.map(i => [i.recurring.proposedIssuedOn, i.revisions[0].totals.total]), [['2025-01-31', '240.00'], ['2025-02-28', '240.00'], ['2025-03-31', '240.00']])
+  assert.equal(new Set(s.invoices.map(i => i.recurring.key)).size, 6)
+  assert.ok(s.invoices.every(i => i.status === 'draft' && !i.revisions[0].approval && !i.dates))
+  assert.equal((await h.request('/api/glove/reports/revenue.json?from=2025-01-01&to=2025-03-31').then(r => r.json())).total.revenue, '0.00')
+  assert.deepEqual((await h.request('/api/glove/reports/receivables.json?asOf=2025-03-31').then(r => r.json())).totals, [])
+  await h.command('invoice.export', {}, { error: 'NOTHING_TO_EXPORT' })
+  await h.command('invoice.prepare', { jobId: perVisit.id }, { error: 'RECURRING_BILLING' })
+  assert.equal(h.email.sent.length, 0)
+  assert.ok(!(await b.techPerson.state()).jobs.find(j => j.id === perVisit.id).series.billing)
+  assert.equal((await h.request('/api/glove/recurring-billing', { as: b.techPerson.cookie })).status, 403)
+  await assertTrail(h, ['series.billingChanged', 'invoice.prepared', 'series.billingRun'])
+  const branch = await h.command('branch.save', { name: 'North branch', prefix: 'NTH', timezone: 'America/Chicago', zips: [] })
+  await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
+  await b.office.run('invoice.approve', { invoiceId: monthly[0].id, version: monthly[0].version, revision: 1 }, { error: 'NOT_FOUND' })
+  assert.deepEqual((await h.request('/api/glove/recurring-billing', { as: b.office.cookie }).then(r => r.json())).missed, [])
+})
+  await scenario(t, 'PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await fixture(h, '2025-01-01T16:00:00Z')
   let fixed = await b.job('Fixed after visit'), closed = await b.job('Invoice on close'), reminder = await b.job('Office billing reminder'), unpriced = await b.job('Unpriced material')
@@ -256,6 +258,9 @@ test('PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit aut
   assert.equal(h.email.sent.length, 0)
   await assertTrail(h, ['series.billingReminder', 'series.billingMissed', 'invoice.autoApproved'])
 })
+})
+
+
 
 test('PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
   const { connectPayments, paymentEvent } = await import('../fixtures/payment-journey.mjs')
