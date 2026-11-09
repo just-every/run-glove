@@ -58,6 +58,39 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(limit).toHaveValue(branches[0].id)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'people') }
+      // TEAM-005: the Owner changes the person's main limit and restores all-branch access.
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await limit.selectOption('main')
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      await expect(limit).toHaveValue('main')
+      expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Harbourview Dental'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-main') }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await limit.selectOption('')
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      await expect(limit).toHaveValue('')
+      expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name).sort()).toEqual(['Harbourview Dental', 'Phoenix School', 'Raleigh School'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-restored') }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await limit.selectOption(branches[0].id)
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      await expect(limit).toHaveValue(branches[0].id)
+      expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Raleigh School'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-limited') }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      const officeLimit = page.getByLabel(`Branch access for ${b.office.name}`, { exact: true })
+      await officeLimit.selectOption('main')
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      await expect(officeLimit).toHaveValue('main')
+      expect((await b.office.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Harbourview Dental'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await officeLimit.scrollIntoViewIfNeeded(); await shot(page, width, 'office-main') }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await officeLimit.selectOption('')
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      await expect(officeLimit).toHaveValue('')
+      expect((await b.office.state()).customers.map((row: { name: string }) => row.name).sort()).toEqual(['Harbourview Dental', 'Phoenix School', 'Raleigh School'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await officeLimit.scrollIntoViewIfNeeded(); await shot(page, width, 'office-restored') }
+      await page.setViewportSize({ width: 1440, height: 1050 })
       // API-002: the owner issues a Viewer token for Raleigh, sees it once, and revokes it.
       const tokens = page.locator('section.panel').filter({ has: page.getByRole('heading', { name: 'Integration tokens', exact: true }) })
       await tokens.getByLabel('Name', { exact: true }).fill('Raleigh board')

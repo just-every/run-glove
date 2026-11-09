@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 31 | 190 | 16 | 237 |
+| Core | 33 | 188 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 31 | 203 | 29 | 263 |
+| Full target | 33 | 201 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -3019,7 +3019,7 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-RO
 
 #### TEAM-005 — Current branch authority
 
-Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AUDIT-001, BASE-ROLE-001
+Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AUDIT-001, BASE-ROLE-001
 
 **Requirement.** Current branch authority supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-002-operating-rules) retain the record formats and calculations.
 
@@ -3030,8 +3030,8 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AU
 4. Scoped people read and change only operational records rooted in their branch; shared business reference data remains readable under their existing role and is read-only for them.
 5. New operational records created by a scoped person belong to their branch.
 
-**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner limits a person to a named branch or the main business branch, or removes that limit.; point 2 — The installation owner retains all-branch access.; point 3 — Limits apply to every current read and command door, including files, Activity, history, reports, business/CSV exports, saved command outcomes and workflow actions under their creator’s live scope; a changed limit is rechecked in the commit guard.; point 4 — Scoped people read and change only operational records rooted in their branch; shared business reference data remains readable under their existing role and is read-only for them.; point 5 — New operational records created by a scoped person belong to their branch. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`; `tests/api/branch-authority.test.mjs` (TEAM-005 current branch authority fences every read, shared write, replay and commit across restart)
+**Gap.** None.
 
 #### TEAM-003 — Technician commissions and bonuses
 
@@ -3794,7 +3794,7 @@ Core · push-further · **done** · From AGENT-008
 
 #### AGENT-016 — Brief delivery and financial sections
 
-Core · push-further · **partial** · From AGENT-008
+Core · push-further · **done** · From AGENT-008
 
 **Requirement.** Brief delivery and financial sections supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#agent-008-operating-rules) retain the record formats and calculations.
 
@@ -3804,8 +3804,8 @@ Core · push-further · **partial** · From AGENT-008
 3. PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links, asserted in its named flow.
 4. PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis.
 
-**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 emails it to the owner once per business-local date only when the owner turns that on (mail morning action, off by default), with the delivery outcome asserted in its flow, and nothing is pushed.; point 2 — The brief lists overdue invoices with their invoice links and proposed collection action under PAY-004, PAY-021, PAY-022, PAY-023’s balance rules.; point 3 — PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links, asserted in its named flow.; point 4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`; `tests/api/morning-brief.test.mjs` (AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades)
+**Gap.** None.
 
 #### AGENT-009 — Agent policy and scoped authority
 

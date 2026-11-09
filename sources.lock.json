@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "be12b7307966f2eb99ed150d5838288556b961eda521f57531272b0643862ee3",
+      "sha256": "5a1e382da7eb7858a4c423ff99468fa15244dbb8ed6bede9b939e4062360a9ab",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "58cd6a5917f1213dd5e1eee0419a5d25149a2da5537b55bba2a9ee8061ce722e",
+      "sha256": "ae75a8c172fb5737c8967b1127d8b9538375843f6be11d9cda4e48cdea55f8b7",
       "executable": false
     },
     "DEMO.md": {
@@ -5523,6 +5523,10 @@
       "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2",
       "executable": false
     },
+    "tests/api/branch-authority.test.mjs": {
+      "sha256": "6a9b3f5efafcc162398c3b7a0cdc29f3463bdaec940efea9fabcde4931eb25c9",
+      "executable": false
+    },
     "tests/api/branches.test.mjs": {
       "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
       "executable": false
@@ -5648,7 +5652,7 @@
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "7cd6b3eef404a030ae6c525b00b8fb301a58f0779abe34a1a03d10829a3da34d",
+      "sha256": "bc83660e4c127a2e4fed3614ad6249184f525f4d07ddcbcd1cad911b742c6eca",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
@@ -5840,7 +5844,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "221296d1d3f0fbeecf4f285c132c00b6fa9477e3c1d61d289f45839e03f20667",
+      "sha256": "aa29b36448aa96808a868e702dd195d24e565c5121b10ef708b1b248329afded",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
