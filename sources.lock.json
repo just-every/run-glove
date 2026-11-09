@@ -5912,7 +5912,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "077a2eaace6171d94de7e2f95a20038b636ba0994420b10fbcd86522eda94134",
+      "sha256": "35c0dce3dcabc6346bf55e9e96817d5587a52ace658b239e6a03124e17c5803e",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
