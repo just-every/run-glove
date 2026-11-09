@@ -1,0 +1,17 @@
+
+Running 1 test using 1 worker
+
+(node:5216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (1.1m)
+
+  1 passed (1.2m)
+
+Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /home/agent/rer-consolidation/work/sx-glove-c-f208/packet/screenshots
