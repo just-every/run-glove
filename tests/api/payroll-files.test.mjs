@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
+import { commissionInstallation } from '../fixtures/payroll-installation.mjs'
 import { commissionFixture, commissionKinds, commissionRange, commissionFile, commissionJson, commissionRows, commissionSummary } from '../fixtures/payroll-commissions.mjs'
 
 // Independently read CSV cells, including display names with commas and quotes.
@@ -208,7 +209,7 @@ test('COST-007 payroll files qualify provider rows, approved workweeks, privacy 
     }
   })
   {
-    const h = await installation({ at: '2026-11-23T02:00:00Z' })
+    const h = await commissionInstallation()
     try {
       const f = await commissionFixture(h)
       const read = async kind => {

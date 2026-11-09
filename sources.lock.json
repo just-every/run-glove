@@ -5692,7 +5692,7 @@
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
-      "sha256": "42c6d2f06be6f0b9be8ce9d59c7397bf78ee3aaf2a92353cbf59b1313e687c98",
+      "sha256": "101593c78f72b681037c05efe5f0dc0b1440ed320a8f1014cd72c8ad1101952f",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -5872,7 +5872,7 @@
       "executable": false
     },
     "tests/browser/commission-download-journey.ts": {
-      "sha256": "775c8bca76a127a5840ef6433db9f102a1afb7c9e3819d9197c55566b7a29d3a",
+      "sha256": "bdccf4a8171f9b035d58f829ea77bb37c732b1467e78d8e1374ca6d4c7715833",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
@@ -6212,7 +6212,11 @@
       "executable": false
     },
     "tests/fixtures/payroll-commissions.mjs": {
-      "sha256": "57a267863b258b5b2c5675ba4f7a0e39883503b827b12262e93f94eddd1b979c",
+      "sha256": "848ee12beab1a4fcf0824404e7e022543b81a302dfd65e67131cd4b85acde93f",
+      "executable": false
+    },
+    "tests/fixtures/payroll-installation.mjs": {
+      "sha256": "3f477d308a9209a82a6eb02b8e6d4b18f9d65bb3fef08bb98dd44446a381abd7",
       "executable": false
     },
     "tests/fixtures/portable-maps.mjs": {

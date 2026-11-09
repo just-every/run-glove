@@ -6,10 +6,10 @@ import { deskPage, phoneScreen, origin } from './desk-fixture'
 /** TEAM-006: Owner downloads real attachments from Timesheets at both widths. */
 export async function commissionDownloads(browser: Browser) {
   // @ts-expect-error Native Worker fixture with persistent D1 and signed-in people.
-  const { installation } = await import('../api/harness.mjs')
+  const { commissionInstallation } = await import('../fixtures/payroll-installation.mjs')
   // @ts-expect-error Native commands and independent commission expectations.
   const { commissionFixture } = await import('../fixtures/payroll-commissions.mjs')
-  const h = await installation({ at: '2026-11-23T02:00:00Z' })
+  const h = await commissionInstallation()
   try {
     const f = await commissionFixture(h)
     await f.sold('2026-11-04', f.priya, '1234.50', '5%', '61.73')
