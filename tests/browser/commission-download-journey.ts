@@ -43,7 +43,7 @@ export async function commissionDownloads(browser: Browser) {
         await page.goto(`${origin}/app#reports`)
         const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
         await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
-        await expect(sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true })).toContainText('approved')
+        await expect(sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true }).getByText('approved', { exact: true })).toBeVisible()
         const commissions = sheets.getByLabel('Commissions this week', { exact: true })
         await expect(commissions).toContainText('$111.74')
         await expect(commissions).toContainText('$35.01')
