@@ -3,8 +3,8 @@
   "tag": "sx-glove-c-f171",
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f171",
-  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
-  "main": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+  "head": "ae4ea8ac017b7e2a7a271c25bb5867817767c06c",
+  "main": "a81e93dc401029a20f3bf38570b4b2fefd637246",
   "recordedAt": "2026-11-09T00:55:03.941005+00:00",
   "checks": [
     {
@@ -20,13 +20,13 @@
       "exit": 0,
       "passed": 4,
       "log": "final-tax-api.log",
-      "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+      "head": "ae4ea8ac017b7e2a7a271c25bb5867817767c06c",
       "receipt": "final-tax-api-receipt.json"
     },
     {
       "command": "node --test --test-concurrency=1 tests/api/money.test.mjs tests/api/fixed-monthly-reports.test.mjs",
       "exit": 0,
-      "passed": 3,
+      "passed": 2,
       "log": "retained-money-api.log"
     },
     {
@@ -101,14 +101,19 @@
       "sha256": "bcdf8a049e500e635f1904dd62e271c84f2ce5468b009777c46f95c57465898b"
     },
     {
-      "path": "tax-api.log",
-      "bytes": 721,
-      "sha256": "a2817c845f48fafa6436e0c841ef73da61ad3eae696f51d1f410e83263208c7c"
+      "path": "final-tax-api.log",
+      "bytes": 722,
+      "sha256": "1a338a62e7f056ba1f60051bf178bd26ceb8b8762aede9ce7955942477d4b744"
+    },
+    {
+      "path": "final-tax-api-receipt.json",
+      "bytes": 226,
+      "sha256": "4f89223ddbe13569c16e5180b37f2b06730eaa690aa556b37d6b5935fd993705"
     },
     {
       "path": "retained-money-api.log",
-      "bytes": 974,
-      "sha256": "07c98dfca4b8065846433c31e941d2cee9c30d000300247e7715d6c847f03f13"
+      "bytes": 1168,
+      "sha256": "7ae887272e2b711bc994a81ca12de2ef96fc6b07c62a710d0ffc8db9f79dfbc3"
     },
     {
       "path": "stripe-api.log",
@@ -119,6 +124,21 @@
       "path": "browser.log",
       "bytes": 1253,
       "sha256": "154aed17e0cb1ea606ce2f30485014d9084eeb464dd7556647cc00fe680a541f"
+    },
+    {
+      "path": "retained-stripe-browser.log",
+      "bytes": 1085,
+      "sha256": "4c8d3e85f7f70e407623ec818244122d4d7a0aec0c9543c7dd55d4a6a21d3f86"
+    },
+    {
+      "path": "portable.log",
+      "bytes": 1843,
+      "sha256": "10e9ea1c26c55db3127bcffb5d8b73af8a20e57cf0ddd3d500727d85d078deb2"
+    },
+    {
+      "path": "portable-receipt.json",
+      "bytes": 362,
+      "sha256": "2475e1d5067d78d91c831e0b2f1eb2b2e8f3fc7521d194ad8cec216ffaa70335"
     },
     {
       "path": "typecheck.log",
@@ -136,35 +156,20 @@
       "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
     },
     {
-      "path": "retained-stripe-browser.log",
-      "bytes": 1085,
-      "sha256": "4c8d3e85f7f70e407623ec818244122d4d7a0aec0c9543c7dd55d4a6a21d3f86"
-    },
-    {
-      "path": "final-tax-api.log",
-      "bytes": 721,
-      "sha256": "6aa8b0d09b5041b58fc6228a70138633ca4c9a478b8c068b99dbeb5943e884e4"
-    },
-    {
-      "path": "final-tax-api-receipt.json",
-      "bytes": 226,
-      "sha256": "a18eb2df55044b71fcf241d159721a1d7610c5d976d5e783a5eba4e4b702febe"
-    },
-    {
       "path": "tree-receipt.json",
       "bytes": 1011,
       "sha256": "22b6e47c238220d6bf3b6059bdb738caafaeab440e67ca0ecf34e29f994d1755"
     },
     {
       "path": "mechanical-receipt.json",
-      "bytes": 409,
-      "sha256": "ad27559b8078d923662136de3146cbac4fed387f85329e6608f381f3621c3bc3"
+      "bytes": 775,
+      "sha256": "254b933b1d6d209323cd378cd2516a47158046645590dcef138e27989e72314c"
     },
     {
-      "path": "portable.log",
-      "bytes": 1843,
-      "sha256": "10e9ea1c26c55db3127bcffb5d8b73af8a20e57cf0ddd3d500727d85d078deb2"
+      "path": "test-inventory.json",
+      "bytes": 7647,
+      "sha256": "79e2fe38232ffe9ec64a06aaff11f445d606428df91de42f03f205cde43df316"
     }
   ],
-  "relevantProofUnchangedSinceBrowserAndArchiveStart": "sources.lock.json\ntests/api/tax-evidence.test.mjs"
+  "relevantProofUnchangedSinceBrowserAndArchiveStart": "Production source, browser proof, portable proof and their imported helpers are unchanged; the merged main reorganizes other API test registrations and adds the inventory tool."
 }

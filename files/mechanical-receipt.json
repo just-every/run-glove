@@ -1,14 +1,35 @@
 {
-  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
-  "at": "2026-11-09T00:56:43.991875+00:00",
+  "head": "ae4ea8ac017b7e2a7a271c25bb5867817767c06c",
+  "at": "2026-11-09T01:07:06.253109+00:00",
   "checks": [
+    {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "log": "first-party.log"
+    },
     {
       "command": [
         "node",
         "scripts/contract-docs.mjs",
         "check"
       ],
-      "exit": 0
+      "exit": 0,
+      "log": null
     },
     {
       "command": [
@@ -16,7 +37,8 @@
         "scripts/edition-authoring/cli.mjs",
         "check"
       ],
-      "exit": 0
+      "exit": 0,
+      "log": null
     }
   ],
   "migrationsChanged": false

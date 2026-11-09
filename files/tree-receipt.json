@@ -1,5 +1,6 @@
 {
-  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "head": "ae4ea8ac017b7e2a7a271c25bb5867817767c06c",
+  "main": "a81e93dc401029a20f3bf38570b4b2fefd637246",
   "contractDiffEmpty": true,
   "preservedFiles": [
     "tests/api/money.test.mjs",
@@ -10,12 +11,12 @@
     "src/glove/avatax.ts",
     "src/glove/commands/tax-lookup.ts"
   ],
-  "newEmailShapedLiterals": 0,
-  "sourceLockSha256": "8f48a6ea9e4a492786f0bee3df37f378b1510db05dec019545d3194e77371f1f",
+  "sourceLockSha256": "50bc58173a8a0a206cde92e622ee9c4efdec190f0fe2770612503318257d5720",
+  "browserAndPortableRelevantSourcesUnchangedSinceSavedHead": true,
   "sources": {
     "src/glove/api.ts": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
     "src/glove/reports.ts": "6d809ccc24e8169f782696d1f166673d7feae80a86040d5ac77878b3e528b788",
-    "tests/api/tax-evidence.test.mjs": "6b9bcb1d779cb77bb29b80735d793e90872635e5ab9dafff126741729eab1246",
+    "tests/api/tax-evidence.test.mjs": "d602006ca633cd614c03c09bc004c1a88683f3530defee4add5781ab33181a81",
     "tests/browser/tax-evidence.spec.ts": "9e7f73eba84fab128053ca01e4e1e44626d51c26806191dcc5fb6c661a05e530",
     "tests/portable.mjs": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae"
   }

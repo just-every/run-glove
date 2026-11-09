@@ -1,5 +1,5 @@
 {
-  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "head": "ae4ea8ac017b7e2a7a271c25bb5867817767c06c",
   "command": "node tests/portable.mjs",
   "exit": 0,
   "completedAt": "2026-11-09T00:59:54.223259+00:00",
