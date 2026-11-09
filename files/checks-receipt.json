@@ -1,0 +1,67 @@
+{
+  "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+  "checks": [
+    {
+      "name": "api-tests",
+      "command": [
+        "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+        "--test",
+        "tests/api/delays.test.mjs"
+      ],
+      "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+      "started": "2026-11-09T12:16:12.439701+00:00",
+      "exit": 0,
+      "log": "api-tests.txt"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+      "started": "2026-11-09T12:17:19.831827+00:00",
+      "exit": 0,
+      "log": "typecheck.txt"
+    },
+    {
+      "name": "contract-check",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+      "started": "2026-11-09T12:17:21.018741+00:00",
+      "exit": 0,
+      "log": "contract-check.txt"
+    },
+    {
+      "name": "lock-check",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+      "started": "2026-11-09T12:17:21.365741+00:00",
+      "exit": 0,
+      "log": "lock-check.txt"
+    },
+    {
+      "name": "first-party",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+      "started": "2026-11-09T12:17:28.404789+00:00",
+      "exit": 0,
+      "log": "first-party.txt"
+    }
+  ]
+}

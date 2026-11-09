@@ -1,0 +1,45 @@
+{
+  "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+  "commits": [
+    {
+      "sha": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+      "author_valid": true,
+      "committer_valid": true,
+      "trailers": []
+    },
+    {
+      "sha": "401d4eb8599a3a9077f8fe255ebb212948d18256",
+      "author_valid": true,
+      "committer_valid": true,
+      "trailers": []
+    }
+  ],
+  "protected_files_unchanged": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    ".github/workflows/verify.yml",
+    "tests/api/harness.mjs",
+    "src/glove/locations.ts",
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
+  "clean_product_checkout": true,
+  "remote_refs": [
+    "de5204c75fb27b054cf13fbf9ae72f107e8ef28c\trefs/heads/cloud/sx-glove-c-f219",
+    "fcfafa4d17d1ff83fcd75fd89b929a29780397f8\trefs/heads/main"
+  ],
+  "test_inventory": {
+    "exit": 1,
+    "before": 202,
+    "after": 202,
+    "cap": 200,
+    "new_registration_count": 0,
+    "reason": "Existing excess explicitly named in the brief; no cap change"
+  },
+  "source_hashes": {
+    "src/glove/delays.ts": "fec6418266d608540e05eb22f5e261b267713d69ddf6d42391c5ad5e2fbfe32d",
+    "tests/api/delays.test.mjs": "512fd8e78c5824edde41e268c1f8723d6c850971346ee12564c67c2d3ebaff81",
+    "sources.lock.json": "79efd2185c4bbd28c59721965874d5be2d6a16d14adea962b226082d301f5155"
+  }
+}

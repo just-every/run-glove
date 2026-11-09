@@ -1,0 +1,14 @@
+{
+  "conclusion": null,
+  "head_sha": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42615509897",
+  "status": "in_progress",
+  "id": 42615509897,
+  "name": "Verify",
+  "event": "push",
+  "gh_calls": 3,
+  "observed_at": "2026-11-09T12:21:35.313714+00:00",
+  "minimum_poll_interval_seconds": 300,
+  "dispatched": false,
+  "rerun": false
+}

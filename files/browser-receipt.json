@@ -1,0 +1,33 @@
+{
+  "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+  "at": "2026-10-22T10:20:00.000Z",
+  "status": "passed",
+  "mode": "Production GloveApp built with esbuild; real fixture Worker routes and native dispatcher session; no provider data stub or new browser registration. Standard rer setup hit a listener readiness timeout.",
+  "screens": [
+    {
+      "width": 1440,
+      "file": "dispatch-delay-1440.png",
+      "text": "At risk now\nJ-1002\nPriya N. is still on J-1001, 20 min past its booked end; expected free about 10:40.\n\nTom B. is free at the same time.\n\nPriya N. later, inside the arrival window.",
+      "overflow": false,
+      "smallText": []
+    },
+    {
+      "width": 390,
+      "file": "dispatch-delay-390.png",
+      "text": "At risk now\nJ-1002\nPriya N. is still on J-1001, 20 min past its booked end; expected free about 10:40.\n\nTom B. is free at the same time.\n\nPriya N. later, inside the arrival window.",
+      "overflow": false,
+      "smallText": []
+    }
+  ],
+  "iconControls": [
+    {
+      "label": "Previous day",
+      "tooltip": "_r_0_"
+    },
+    {
+      "label": "Next day",
+      "tooltip": "_r_1_"
+    }
+  ],
+  "errors": []
+}

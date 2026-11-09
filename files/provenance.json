@@ -1,0 +1,70 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f219",
+  "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+  "base": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "pr": null,
+  "counts_before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29
+  },
+  "registrations_before": 202,
+  "registrations_after": 202,
+  "cap": 200,
+  "new_registrations": 0,
+  "scenarios": {
+    "5": {
+      "line": 31,
+      "name": "AGENT-003 point 5: recovery excludes unavailable technicians and rounds the expected free instant to the next quarter hour"
+    },
+    "2": {
+      "line": 74,
+      "name": "AGENT-003 point 2: desk and Agent reads are branch scoped and field roles are refused without writes"
+    },
+    "3": {
+      "line": 106,
+      "name": "AGENT-003 point 3: timers and arrivals use the overrun floor and exclude ineligible later visits at fixed instants"
+    },
+    "4": {
+      "line": 144,
+      "name": "AGENT-003 point 4: draft sent and partly received orders flag the visit until every ordered part arrives"
+    },
+    "6": {
+      "line": 168,
+      "name": "AGENT-003 point 6: fixed proposals enforce current roles independent approval conflict review stale refusal and replay"
+    },
+    "7": {
+      "line": 233,
+      "name": "AGENT-003 point 7: same-time and in-window moves retain promises while outside and other-day moves drop them"
+    }
+  },
+  "publication_scan": {
+    "commit": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "status": "Deferred to guarded Mac lander; no cloud scan claimed"
+  },
+  "build": {
+    "command": "npx -y @runeditrun/rer build",
+    "exit": 0,
+    "head_at_run": "401d4eb8599a3a9077f8fe255ebb212948d18256",
+    "production_diff_to_candidate": ""
+  },
+  "mechanical": {
+    "views_write": "node scripts/contract-docs.mjs write --clauses AGENT-003",
+    "views_check": "node scripts/contract-docs.mjs check",
+    "views_exit": 0,
+    "lock_write": "node scripts/edition-authoring/cli.mjs lock",
+    "lock_check": "node scripts/edition-authoring/cli.mjs check",
+    "lock_exit": 0,
+    "ledger": "none; no migration changed",
+    "ledger_exit": 0
+  }
+}
