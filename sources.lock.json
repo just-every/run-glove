@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
-      "sha256": "58b52626a020c75dcc7918ac7c06e67fe0791099fdef75524ef7a0c20d5819a7",
+      "sha256": "1e8fb29876d721bf6e4af8af490fcff591372b6dd8e67971f886a66b1166d66f",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -5928,7 +5928,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "84c64a24bf83db451305b55f7f63418d782b6c39874d43091a7446e28f1dc95d",
+      "sha256": "81920b26eff8e6d65eebc2cddbead21f215ee31d34b155b5dcac3f42810e7d14",
       "executable": false
     },
     "tests/browser/money.spec.ts": {

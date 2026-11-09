@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
+import { commissionPayrollProof } from '../fixtures/commission-payroll-proof.mjs'
 
 // Independently read CSV cells, including display names with commas and quotes.
 function rows(text) {
@@ -206,4 +207,6 @@ test('COST-007 payroll files qualify provider rows, approved workweeks, privacy 
       assert.equal(await readFile(h, kind, { as: b.office.cookie }), originals[kind], 'Office download survives actual Worker restart byte for byte')
     }
   })
+  await commissionPayrollProof(t, assertRows)
+
 })
