@@ -88,3 +88,7 @@ Evidence return
 The explicit packet contains this report, actual test logs, the original failed reproduction, product push result and the actual receipt. It contains no credentials, environment dump, private held-out material or symlink. It is published only to evidence/sx-glove-c-f197. Product commits and evidence custody are separate.
 
 Recorded branch CI: push Verify 42581126681, exact candidate b73ef129faba4fb90d2a84962f00490b7d2d76c9, in progress at the latest allowed poll. Main baseline Verify 42577457957 and Run site 42577457916 completed successfully. No workflow was dispatched or rerun.
+
+Evidence save 8af4e85276e5ff379c1afefceb49a1381fb687f5 was fetched into isolated Git storage and all manifest file hashes, blob IDs, modes and product provenance passed validation. The final terminal EVIDENCE line identifies the final report revision.
+
+Final handoff: exact-SHA push Verify 42581126681 remains in progress at 2026-11-09T07:54:56.998639+00:00. Four GitHub calls used, with at least 300 seconds between this run's polls. No failing CI assertion was observed, no repair round was launched and no workflow was dispatched or rerun. Rider 3 remains pending the fleet's exact-SHA check; rider 11 remains pending guarded landing. READY names the pushed branch and passing local proof under the cloud handoff instruction; it does not assert green CI, completed scanning or landing. Product remote head was checked with ls-remote and exactly matches the candidate.

@@ -6,7 +6,8 @@
   "product_push": {
     "status": "success",
     "attempts": 1,
-    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f197"
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f197",
+    "remote_head_verified": "b73ef129faba4fb90d2a84962f00490b7d2d76c9"
   },
   "pr": null,
   "checks": [
@@ -120,7 +121,7 @@
     "status": "in_progress",
     "conclusion": null,
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42581126681",
-    "observed_at": "2026-11-09T07:49:18Z"
+    "observed_at": "2026-11-09T07:54:56.998639+00:00"
   },
   "publication_scan": {
     "head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9",
@@ -145,5 +146,14 @@
     "tests/api/lead-matching.test.mjs": "baeee8c8dd4cf8649c67a5d66e67c2412d86c8823135cccaba981892bacd406a",
     "sources.lock.json": "8613bfb1fb02594354529b48acaff3fb9b543c830bbb63878f2d62f3825e50a2"
   },
-  "github_calls_used": 3
+  "github_calls_used": 4,
+  "evidence_save_verified": {
+    "status": "restored",
+    "head": "8af4e85276e5ff379c1afefceb49a1381fb687f5",
+    "product_head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9",
+    "product_branch": "cloud/sx-glove-c-f197",
+    "manifest_sha256": "8cc9e4ac1d96cc59dc8cba95801dface7159f7e2a74458a6da6879ff96529760"
+  },
+  "worktree_clean": true,
+  "handoff": "READY for guarded fleet landing under the cloud handoff contract; local checks pass, exact-SHA Verify remains in progress. This is not a claim of CI success or landing."
 }
