@@ -5908,7 +5908,7 @@
       "executable": false
     },
     "tests/browser/document-print.spec.ts": {
-      "sha256": "528f11d528ee222b58778504c031713be7b8b9bbc46130fe3631188ffcc46571",
+      "sha256": "b4b0619b16532ed25b10b0103bdc3e2aaa7e9c629af7974c60219e14b245949f",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {

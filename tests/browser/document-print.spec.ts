@@ -192,6 +192,9 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
     await scenario(steps, 'point 4: unsigned quote and recorded desk facts remain honest after actual Worker restart', async () => {
       for (const kind of ['open', 'invoice', 'agreement']) {
         await page.goto(urls[kind]); await expect(page.locator('.printable-document')).toBeVisible()
+        // Visibility precedes original-image fetches. Finish them before the
+        // real Worker restart closes its connections.
+        await loadedOriginals(page)
         await expect(page.getByRole('region', { name: 'Signed approval', exact: true })).toHaveCount(0)
         await expect(page.getByRole('button', { name: 'Sign and approve selected work' })).toHaveCount(0)
         const text = allTexts[`1440-${kind}`]
