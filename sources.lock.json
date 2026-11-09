@@ -5616,7 +5616,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "01a55648da59d36280f1bbc57baaf031800c5ed2a66973ebf0e9ef431d84fb1b",
+      "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
       "executable": false
     },
     "tests/api/live-locations.test.mjs": {
@@ -5745,6 +5745,10 @@
     },
     "tests/api/servicecall.test.mjs": {
       "sha256": "51dcbabd1c2b58ea96fc830efae9055b764920f83200d8d8b38b1bd7d93d4282",
+      "executable": false
+    },
+    "tests/api/ses-sns-custody.test.mjs": {
+      "sha256": "9ea2e3575aeed5188aaac11db7c69e7d09d8d953afb2221db075ef43970a272e",
       "executable": false
     },
     "tests/api/sms-inbox-flow.mjs": {
