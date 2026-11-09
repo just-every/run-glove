@@ -627,15 +627,15 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 
 #### BOOK-016 — Explicit lead acknowledgment execution
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Explicit lead acknowledgment execution supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. No acknowledgment is sent automatically.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/pipeline.test.mjs` (BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts)
+**Gap.** None.
 
 #### BOOK-017 — Reserve with Google request intake
 
