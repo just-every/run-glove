@@ -1,0 +1,31 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart (89379.344116ms)
+ℹ point 6: independent address warnings survive other-address delivery, refusal and failed attempts until same-address delivery or an address change
+ℹ points 1 and 2: SendGrid sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: SendGrid authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: SendGrid failures retain exact user text, next steps and attributable provider references
+ℹ point 7: SendGrid messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 2: Resend sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: Resend authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: Resend failures retain exact user text, next steps and attributable provider references
+ℹ point 7: Resend messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 2: Postmark sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: Postmark authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: Postmark failures retain exact user text, next steps and attributable provider references
+ℹ point 7: Postmark messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 2: Amazon SES sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: Amazon SES failures retain exact user text, next steps and attributable provider references
+ℹ point 7: Amazon SES messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 3: state, saved command outcomes, message timelines, Activity, export and captured Worker logs retain provider facts but no email bodies, credentials or bearer
+ℹ point 8: repeated scheduled passes, command replay and actual Worker restart retain identical facts and never resend any message
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 92507.193358

@@ -1,0 +1,6 @@
+ sources.lock.json                   |  10 +-
+ src/glove/mail.ts                   |  15 +-
+ tests/api/email.test.mjs            |   5 +
+ tests/api/message-outcomes.test.mjs | 319 ++++++++++++++++++++++++++++++++++++
+ tests/browser/conversation.spec.ts  | 103 +++++++++++-
+ 5 files changed, 445 insertions(+), 7 deletions(-)

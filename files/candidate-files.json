@@ -1,0 +1,25 @@
+{
+  "head": "edff42d711ef67d828990af9a77c8f3196954e52",
+  "files": {
+    "src/glove/mail.ts": {
+      "bytes": 11677,
+      "sha256": "3714b491261ba1216e0641c27e1f920553cfdcb4f293b2da85c60a0f83346c4e"
+    },
+    "tests/api/message-outcomes.test.mjs": {
+      "bytes": 23614,
+      "sha256": "42fe9e3276bc454fc00d0369646f6e7e27c0f6f3d490a4ed97240e359874edf2"
+    },
+    "tests/api/email.test.mjs": {
+      "bytes": 54849,
+      "sha256": "3ff24937ce4ee2f4f4f8738624013e63cb8e2f8c6e706f7940fd3eab539b5ea5"
+    },
+    "tests/browser/conversation.spec.ts": {
+      "bytes": 21654,
+      "sha256": "22bfa3d9ef98f6708f27e8e9617d27c08de54c1f6230cef0a99caa547a43d468"
+    },
+    "sources.lock.json": {
+      "bytes": 266671,
+      "sha256": "ed6be3bcc7ce461d0d99d5f72e2106a194ea5e0ec19974f341173567714bc24f"
+    }
+  }
+}

@@ -1,0 +1,53 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✖ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay (94045.802682ms)
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+ℹ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98227.480773
+
+✖ failing tests:
+
+test at tests/api/email.test.mjs:19:1
+✖ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay (94045.802682ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + {
+  +   at: '2026-11-09T07:46:30.147Z',
+  +   messageId: 'bdc336ed-bb79-42d9-9bd6-19297d8b610e',
+  +   next: 'Check the address with the customer, correct it on their record and send again.',
+  +   status: 'bounced',
+  +   text: 'Bounced: payables@example.test did not accept it (reported by Postmark)',
+  +   to: 'payables@example.test'
+  + }
+  - undefined
+  
+      at providerDocuments (file:///home/agent/rer-consolidation/work/sx-glove-c-f200/run-glove/tests/api/email.test.mjs:568:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///home/agent/rer-consolidation/work/sx-glove-c-f200/run-glove/tests/api/email.test.mjs:261:3
+      at async scenario (file:///home/agent/rer-consolidation/work/sx-glove-c-f200/run-glove/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f200/run-glove/tests/api/email.test.mjs:149:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { messageId: 'bdc336ed-bb79-42d9-9bd6-19297d8b610e', to: 'payables@example.test', status: 'bounced', at: '2026-11-09T07:46:30.147Z', text: 'Bounced: payables@example.test did not accept it (reported by Postmark)', next: 'Check the address with the customer, correct it on their record and send again.' },
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

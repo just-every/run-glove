@@ -1,0 +1,37 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart (16169.13905ms)
+ℹ point 6: a delivered main-address email does not clear the accounts-payable bounce
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18503.912137
+
+✖ failing tests:
+
+test at tests/api/message-outcomes.test.mjs:10:1
+✖ COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart (16169.13905ms)
+  AssertionError [ERR_ASSERTION]: delivery to another on-record address must not clear the bounce
+  + actual - expected
+  
+  + undefined
+  - '9b23182c-47b1-4e3e-85bb-cca8d1d41b02'
+  
+      at file:///home/agent/rer-consolidation/work/sx-glove-c-f200/run-glove/tests/api/message-outcomes.test.mjs:36:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async scenario (file:///home/agent/rer-consolidation/work/sx-glove-c-f200/run-glove/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f200/run-glove/tests/api/message-outcomes.test.mjs:32:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: '9b23182c-47b1-4e3e-85bb-cca8d1d41b02',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
