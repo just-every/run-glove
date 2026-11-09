@@ -5732,7 +5732,7 @@
       "executable": false
     },
     "tests/api/quote-approval.test.mjs": {
-      "sha256": "37f9175768559928f0d1222a06cf6da59eddb03fd37b6d11f13663ce487eb86d",
+      "sha256": "852c5a4106f0d6dba71351f895cab35d4990749be718d954177960a2c3f137af",
       "executable": false
     },
     "tests/api/quote-link-custody.test.mjs": {

@@ -63,6 +63,7 @@ test('QUOTE-002 points 1–8: customer approval binds the chosen work and claime
     assert.equal(signed.signed.chosenDocumentHash, kept.chosenDocumentHash)
     const job = await b.dispatcher.run('job.create', { quoteId: q.id })
     assert.deepEqual(job.lines.map(l => [l.description, l.quantity, l.unitPrice, l.total]), [['Better inspection', '2', '101.23', '202.46'], ['Washable filter', '3', '13.34', '40.02']])
+    assert.deepEqual(job.lines.map(l => l.serviceId), [items[1].id, items[3].id], 'the job retains exactly the chosen price-book items')
     assert.deepEqual([job.totals.subtotal, job.totals.gst, job.totals.total, job.quoteRevision], ['242.48', '0.00', '242.48', 2])
     const before = await exported(); await h.restart()
     assert.deepEqual(await exported(), before)
