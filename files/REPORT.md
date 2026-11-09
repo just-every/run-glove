@@ -66,10 +66,10 @@ The first customer browser command captured 24 actual screenshots, including all
 
 | Rider | Result and evidence |
 | --- | --- |
-| 1 | All eight native outcomes are reached by the named focused public-door journey and customer browser additions. Exact candidate Verify result is recorded in the terminal receipt. |
+| 1 | PASS: all eight native outcomes reached by the named focused API journey and customer browser additions on the exact candidate; push Verify 42606061238 completed successfully. |
 | 2 | PASS: independently expected money totals, populated unrelated records, permitted real decisions and unsafe refusals with unchanged export; focused points 1 and 3–8. |
-| 3 | The focused file is selected by the existing API glob and the existing custody browser by the maintained browser runner in push Verify. Exact candidate event, run and conclusion are recorded separately; pending is never called green. |
-| 4 | Relevant final production and test bytes and actual run provenance are bound in receipt.json. No earlier candidate's workflow result is substituted. Any local diagnostic-only byte difference is stated. |
+| 3 | PASS: push Verify 42606061238 is completed and success on 2c7eeb2d9253373646c42df112497c5179326c5f. The focused API, custody browser and both budget-only browser adjustments are selected exactly once by the maintained CI partitions; ci-coverage.json names them. |
+| 4 | PASS: exact candidate Verify is green and the complete customer browser retry passes on that candidate with final unmodified source. Relevant file hashes are bound in tested-file-hashes.json; no earlier SHA or diagnostic source is substituted. |
 | 5 | PASS: the receiving clause already cites its five Base duties in CONTRACT.md line 674 and names revision, role, site and choice obligations. No inherited-duty wording was invented or narrowed. |
 | 6 | Generator write and check pass; generated views are restored whole from origin/main and never committed. Status, Gap, Evidence, summary counts and judged provenance remain lander-owned. |
 | 7 | PASS: acceptance points, rulings and coverage obligations are unchanged. |
@@ -102,4 +102,16 @@ The two budget-only browser consolidations were not executed locally because the
 
 The failed temporary staging-copy check used a directory without Git metadata and therefore failed on git ls-files. A real detached Git worktree of the published save a90d95e90cc1c1c41ec877ed34557f0a38452807 passes the documented source-lock check; published-save-lock.json records that actual result. The final committed candidate also passes in its real checkout. No published history was rewritten.
 
-Exact-SHA CI observation: push Verify 42606061238 is in progress at the fourth GitHub call. No workflow was dispatched or rerun. The source lock, contract generator, first-party check, typecheck, focused API and complete customer browser proof pass locally. Rider 3 remains pending until the exact workflow completes; no green result is inferred.
+Historical CI observation: push Verify 42606061238 was in progress at the fourth GitHub call. The fifth call observed completed and success on the exact candidate. No workflow was dispatched or rerun.
+
+## Final claim and custody
+
+Final head: `2c7eeb2d9253373646c42df112497c5179326c5f`. Branch: cloud/sx-glove-c-f212. Branch push Verify [42606061238](https://github.com/just-every/run-glove/actions/runs/42606061238) is completed and success on exactly this head. Five task REST calls were used; one watcher, at least 300 seconds between observations of the candidate run. No PR, dispatch, failed-job rerun or Verify repair was needed.
+
+QUOTE-002 is claimed DONE for points 1–8, with riders 1–10 passing and rider 11 ACCEPT ON LANDING. There is no unproved native acceptance point, new policy default or product blocker. The source Status remains PARTIAL until the independent gate and lander apply the judgment. Source counts remain 41 DONE, 193 PARTIAL, 29 MISSING before and after; only the QUOTE-002 plan row is proposed for change.
+
+The first report snapshot was published and fully fetched through the report transport: 67 selected files restored, every manifest hash verified, evidence head 134db6bc79e6376fbbd827b19d0726fd0886ede8, product head matching this candidate. The supplied fetch implementation initially failed because its temporary directory lacked Git initialization. The task-side helper now initializes a bare repository before fetching; transport-fix.patch and both failure and success receipts are included. No fleet repository or deployed Mac helper was changed; the final fv POST flags this executable protocol correction. The final publication includes this terminal report, receipts and the complete relevant non-secret packet and is identified by the terminal EVIDENCE line.
+
+Publication scan state for this commit: complete=false; historyScanned=unestablished; findings=unestablished; status=not_run_in_cloud. Main equality=false. Exact candidate Verify=success, run=42606061238, event=push. Run site on the candidate is not claimed. These remain the guarded lander's publication and landing gates; no product ref other than the named cloud branch was pushed.
+
+CLAIM QUOTE-002 DONE points=1,2,3,4,5,6,7,8 tests=tests/api/quote-approval.test.mjs#QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority; tests/browser/quote-link-custody.spec.ts#QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390; tests/api/quote-link-records.test.mjs#QUOTE-012 quote-link records preserve provider truth, customer documents and live authority

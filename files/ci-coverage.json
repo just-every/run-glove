@@ -1,0 +1,32 @@
+{
+  "head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+  "run": 42606061238,
+  "event": "push",
+  "conclusion": "success",
+  "rows": [
+    {
+      "path": "tests/api/quote-approval.test.mjs",
+      "shards": [
+        "api-2"
+      ]
+    },
+    {
+      "path": "tests/browser/quote-link-custody.spec.ts",
+      "shards": [
+        "browser-4"
+      ]
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "shards": [
+        "browser-2"
+      ]
+    },
+    {
+      "path": "tests/browser/movein.spec.ts",
+      "shards": [
+        "browser-1"
+      ]
+    }
+  ]
+}

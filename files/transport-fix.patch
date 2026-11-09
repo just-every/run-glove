@@ -1,0 +1,10 @@
+--- cloud_evidence.py
++++ cloud_evidence.py
+@@ -107,6 +107,7 @@
+         lane = Path(root) / 'work' / tag
+         lane.mkdir(parents=True, exist_ok=True)
+         with tempfile.TemporaryDirectory(prefix='.evidence-fetch-', dir=lane) as temp:
++            git(temp, 'init', '--bare', '--quiet')
+             advertised = output(temp, 'ls-remote', '--refs', remote, ref)
+             if not advertised:
+                 return dict(row, status='missing', reason='evidence ref absent')

@@ -81,6 +81,12 @@
       "exit": 0,
       "log": "published-save-lock.json",
       "head": "a90d95e90cc1c1c41ec877ed34557f0a38452807"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check after final browser proof",
+      "exit": 0,
+      "log": "final-source-lock-check.json",
+      "head": "2c7eeb2d9253373646c42df112497c5179326c5f"
     }
   ],
   "localBrowser": {
@@ -184,16 +190,16 @@
   ],
   "candidateCi": [
     {
-      "conclusion": null,
-      "event": "push",
-      "head_sha": "2c7eeb2d9253373646c42df112497c5179326c5f",
-      "html_url": "https://github.com/just-every/run-glove/actions/runs/42606061238",
       "id": 42606061238,
       "name": "Verify",
-      "status": "in_progress"
+      "event": "push",
+      "conclusion": "success",
+      "head_sha": "2c7eeb2d9253373646c42df112497c5179326c5f",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42606061238",
+      "status": "completed"
     }
   ],
-  "ghCalls": 4,
+  "ghCalls": 5,
   "publicationScan": {
     "commit": "2c7eeb2d9253373646c42df112497c5179326c5f",
     "status": "not_run_in_cloud",
@@ -220,9 +226,92 @@
     "publishedSaveVerifiedSeparately": "published-save-lock.json"
   },
   "candidateCiStatus": {
-    "conclusion": null,
+    "conclusion": "success",
     "head_sha": "2c7eeb2d9253373646c42df112497c5179326c5f",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42606061238",
-    "status": "in_progress"
-  }
+    "status": "completed"
+  },
+  "claim": {
+    "clause": "QUOTE-002",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "judgment": "native outcomes proven; accept on guarded landing"
+  },
+  "riders": [
+    {
+      "row": 1,
+      "result": "PASS"
+    },
+    {
+      "row": 2,
+      "result": "PASS"
+    },
+    {
+      "row": 3,
+      "result": "PASS"
+    },
+    {
+      "row": 4,
+      "result": "PASS"
+    },
+    {
+      "row": 5,
+      "result": "PASS"
+    },
+    {
+      "row": 6,
+      "result": "PASS"
+    },
+    {
+      "row": 7,
+      "result": "PASS"
+    },
+    {
+      "row": 8,
+      "result": "PASS"
+    },
+    {
+      "row": 9,
+      "result": "PASS"
+    },
+    {
+      "row": 10,
+      "result": "PASS"
+    },
+    {
+      "row": 11,
+      "result": "PENDING_GUARDED_LANDER"
+    }
+  ],
+  "ciCoverage": "ci-coverage.json",
+  "productPushStatus": "accepted; remote branch matches candidate",
+  "evidenceFirstSnapshot": {
+    "head": "134db6bc79e6376fbbd827b19d0726fd0886ede8",
+    "status": "published_and_roundtrip_verified",
+    "files": 67,
+    "manifest_sha256": "e2826c77e8d132e45ee1a56b20a49dcd2bfeed562bf9f1678122112b4f46a431",
+    "receipt": "evidence-roundtrip.json"
+  },
+  "transportHelperRepair": {
+    "scope": "task-side helper outside product",
+    "error": "Git fetch exit=128 because the provided temporary fetch directory was not initialized",
+    "repair": "initialize the temporary bare Git repository before fetch",
+    "patch": "transport-fix.patch",
+    "fleetImplementationChanged": false
+  },
+  "limitations": [
+    "Human screen-reader review and VPAT not run; external field proof R-1 and R-2 remain unchanged",
+    "Mail provider is faked only at the network edge; no live delivery or verified identity claimed",
+    "Publication scan, main landing and exact landed Run site remain guarded fleet duties",
+    "Budget-only browser consolidation cases were not executed locally because rer setup hit its listener handshake limit; exact-SHA Verify is green and their maintained partitions include every case"
+  ]
 }
