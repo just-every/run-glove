@@ -16,6 +16,7 @@ import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash, createHmac } from 'node:crypto'
 import { createServer } from 'node:http'
 import { createReadStream } from 'node:fs'
+import { Readable } from 'node:stream'
 import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
@@ -701,7 +702,17 @@ try {
   const laterCheckpoint = JSON.parse(latestBytes.toString('utf8').split('\n')[0])
   assert.equal(laterCheckpoint.sourceIdentity, olderCheckpoint.sourceIdentity)
   assert.ok(laterCheckpoint.epoch > olderCheckpoint.epoch, 'DATA-001 point 7: the real edition archive carries the committed redaction checkpoint')
-  for (const value of ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
+  const erasedValues = ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']
+  for (const value of erasedValues) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
+  {
+    const { readArchive } = await import('@runeditrun/rer/modules/portability')
+    const cells = []
+    for await (const record of readArchive(Readable.toWeb(createReadStream(latest)))) if (record.kind === 'part') for (const item of record.items) if (item.kind === 'row') {
+      for (const value of Object.values(item.row)) cells.push(value && typeof value === 'object' && typeof value.blob === 'string' ? Buffer.from(value.blob, 'base64').toString('utf8') : typeof value === 'string' ? value : JSON.stringify(value))
+    }
+    const decoded = cells.join('\n')
+    for (const value of erasedValues) assert.ok(!decoded.includes(value), 'DATA-001 point 7: decoded original chunks and archived records contain no erased personal values')
+  }
   // Keep a destination with the newer checkpoint. Its own fence must refuse
   // the old archive even when no external journal was supplied.
   {
@@ -717,7 +728,7 @@ try {
       assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
       const service = await createPortability({ db, policy })
       const records = []
-      for await (const record of readArchive(createReadStream(archive))) records.push(record)
+      for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
       const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
       const attempt = await service.imports.create(records[0], 'owner')
       try {
