@@ -483,6 +483,7 @@ try {
   const archive = join(parent, 'installation.rer')
   await command(source, ['export', '--output', archive])
   const archiveBytes = await readFile(archive)
+  assert.ok(!archiveBytes.includes(Buffer.from('synthetic-glove-52')), 'COMM-001 point 3: the actual archive excludes the Postmark API key')
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
