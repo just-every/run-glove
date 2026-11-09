@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 39 | 182 | 16 | 237 |
+| Core | 40 | 181 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 39 | 195 | 29 | 263 |
+| Full target | 40 | 194 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1798,7 +1798,7 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001,
 
 #### FIELD-010 — Schedule-change push outcomes
 
-Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **done** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Schedule-change push outcomes supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#field-004-operating-rules) retain the record formats and calculations.
 
@@ -1809,8 +1809,8 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001,
 4. The phone list says "Handed to the push service" (not "delivered", which Glove cannot see), "Not sent: the push service answered HTTP <status>" or "Not sent: the push service could not be reached".
 5. A technician manages the phone’s own subscription; committed visit changes trigger the bounded schedule-notification connector.
 
-**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — After every committed change, whoever or whatever made it (a person, a rule, a recurring series, an agent under the owner's grant, a move-in), each technician with a visit that has not ended and was booked to them, moved (its start or end changed), canceled, or handed to another technician gets one push on each subscribed phone: "New visit on your schedule" (also for the technician who receives a handed-over visit), "Visit moved", "Visit canceled" or "Visit moved off your schedule", or "N changes to your schedule" when one change touches several of their visits.; point 2 — A push carries only that line and, when one visit changed, the job's opaque id; never the customer, site, time or a note.; point 3 — Each push is encrypted for the phone (RFC 8291, aes128gcm) and signed with the VAPID key (RFC 8292: a 12-hour token naming the business email, else the installation address), kept by the push service for at most a day, and sent once, never retried.; point 4 — The phone list says "Handed to the push service" (not "delivered", which Glove cannot see), "Not sent: the push service answered HTTP <status>" or "Not sent: the push service could not be reached".; point 5 — A technician manages the phone’s own subscription; committed visit changes trigger the bounded schedule-notification connector. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/schedule-push.test.mjs` (FIELD-010 points 1–5: every schedule producer sends private once-only phone outcomes with attributable failures and subscription control)
+**Gap.** None.
 
 #### FIELD-005 — Native iOS and Android apps
 

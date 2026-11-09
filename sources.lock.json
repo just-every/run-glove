@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "7bb787d214732333604592525cbec8e45d28351f56b1d17954012b1e5392ddce",
+      "sha256": "edd7ce6546b13e4db8dc9f111b4e0512ff44f5449f5154225c6ee13345e82132",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "f20a5223ab71458e13021778808a4ad93c11825beda7a2b1304a2bc9ce2169ca",
+      "sha256": "9b56f9db1dd431d361c4bc48e608e8973d6a5fad9cd8a6df1ab29bb1c636a81b",
       "executable": false
     },
     "DEMO.md": {
@@ -1864,7 +1864,7 @@
       "executable": false
     },
     "src/glove/api.ts": {
-      "sha256": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+      "sha256": "f1f1a9b4558bdf252a1536d88e1c2649739a4ae707f92bcccf517b2fdb8eec11",
       "executable": false
     },
     "src/glove/autopay.ts": {
@@ -1876,7 +1876,7 @@
       "executable": false
     },
     "src/glove/background.ts": {
-      "sha256": "6b0f1b93d41c2663b6979508683b963e8717d0d1a4bfdf9912bfae17e8f16d99",
+      "sha256": "c0934db92bb62374e1203be9152936bbad3f496939e46456dad2a0e7175cd4c9",
       "executable": false
     },
     "src/glove/balances.ts": {
@@ -1884,7 +1884,7 @@
       "executable": false
     },
     "src/glove/billing-scheduler.ts": {
-      "sha256": "fb0adfecb0f77520dbaf5c88c7a81bf1f2954c06670702547eaf3f3ee3741a73",
+      "sha256": "aae6c2b5419ff3cb323dfd7132c4cf4d7d25c1fb7a0725aee74a68b74aa246d5",
       "executable": false
     },
     "src/glove/booking-offers.ts": {
@@ -2348,7 +2348,7 @@
       "executable": false
     },
     "src/glove/push.ts": {
-      "sha256": "4099998ca1498304abfa67c59b172e9cc88c93ca444d8b65014a1ec2ec122532",
+      "sha256": "c7087977f81a5ec9ba59df1667b3ac4fb8611c40c63eff021d087612ff5c1c1d",
       "executable": false
     },
     "src/glove/qbo-invoice.ts": {
@@ -5769,6 +5769,10 @@
     },
     "tests/api/saved-cards-flow.mjs": {
       "sha256": "568725f3ff7ed6bc6b03b55ed86153cce62cb533b19a3de4ec6550f635e525d1",
+      "executable": false
+    },
+    "tests/api/schedule-push.test.mjs": {
+      "sha256": "be114328c3589e648fa11f6a6411cd01b41f935c3f353eb452a8bfbe64c2415a",
       "executable": false
     },
     "tests/api/security.test.mjs": {
