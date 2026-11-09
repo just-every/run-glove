@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
@@ -41,7 +42,8 @@ async function same(h, expected) {
   assert.deepEqual(tile.list.map(v => v.id).sort(), expected.map(v => v.id).sort())
 }
 
-test('PLAN-004 point 1: forty due visits retain the exact remainder after thirty bookings, eight emailed offers, two declines and Worker restart', async t => {
+test("PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters", async t => {
+  await scenario(t, 'PLAN-004 point 1: forty due visits retain the exact remainder after thirty bookings, eight emailed offers, two declines and Worker restart', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await setup(h), expected = [], members = [], trail = []
   const remember = (commandId, kind, subjectId, actor) => trail.push({ commandId, kind, subjectId, actor })
@@ -108,8 +110,7 @@ test('PLAN-004 point 1: forty due visits retain the exact remainder after thirty
     assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.command_id], [event.actorId, event.actorName, event.actorRole, commandId])
   }
 })
-
-test('PLAN-004 point 2: every due entry retains its agreement, ordinal, clamped calendar date, customer, site, ZIP, job and booking state', async t => {
+  await scenario(t, 'PLAN-004 point 2: every due entry retains its agreement, ordinal, clamped calendar date, customer, site, ZIP, job and booking state', async t => {
   const h = await installation({ at: '2026-05-02T12:00:00Z' }); t.after(() => h.close())
   const b = await setup(h, { termMonths: 5, includedVisits: 3 }), m = await member(h, b.plan, 31, '2026-01-31')
   const a = await b.office.run('agreement.sell', m.sale)
@@ -122,8 +123,7 @@ test('PLAN-004 point 2: every due entry retains its agreement, ordinal, clamped 
   Object.assign(expected[1], { booked: true, visitId: visit.id }); await same(h, expected)
   await h.restart(); await same(h, expected)
 })
-
-test('PLAN-004 point 3: local today differs from UTC and date bounds and ZIP filters are exact and inclusive', async t => {
+  await scenario(t, 'PLAN-004 point 3: local today differs from UTC and date bounds and ZIP filters are exact and inclusive', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await setup(h), expected = []
   for (const [n, date, zip] of [[1, '2026-11-04', '78704'], [2, '2026-11-05', '78704'], [3, '2026-11-06', '78704'], [4, '2026-11-05', '78705']]) {
@@ -141,8 +141,10 @@ test('PLAN-004 point 3: local today differs from UTC and date bounds and ZIP fil
   for (const query of ['through=2026-02-30', 'from=2026-02-31', 'through=2026-13-01', 'from=2026-11-06&through=2026-11-05']) assert.equal((await h.request(`/api/glove/due-visits?${query}`)).status, 400)
   assert.deepEqual(await read(h, '/api/glove/export'), before, 'reads and rejected dates change no record')
 })
+})
 
-test('PLAN-004 point 4: completing the later entitlement first removes only that visit and attributes the worker completion', async t => {
+test("PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade", async t => {
+  await scenario(t, 'PLAN-004 point 4: completing the later entitlement first removes only that visit and attributes the worker completion', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await setup(h), m = await member(h, b.plan, 1), a = await b.office.run('agreement.sell', m.sale)
   const expected = [row(m, a, 0, '2026-04-30'), row(m, a, 1, '2026-10-30')]
@@ -164,8 +166,7 @@ test('PLAN-004 point 4: completing the later entitlement first removes only that
   assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role], [b.worker.id, b.worker.name, 'technician'])
   await h.restart(); await same(h, expected.slice(0, 1))
 })
-
-test('PLAN-004 point 5: booking, cancellation, actual term expiry and agreement end retain outstanding work', async t => {
+  await scenario(t, 'PLAN-004 point 5: booking, cancellation, actual term expiry and agreement end retain outstanding work', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await setup(h), m = await member(h, b.plan, 1, '2025-11-06'), a = await b.office.run('agreement.sell', m.sale)
   const expected = [row(m, a, 0, '2025-11-06'), row(m, a, 1, '2026-05-06')]
@@ -178,8 +179,7 @@ test('PLAN-004 point 5: booking, cancellation, actual term expiry and agreement 
   await h.command('agreement.end', { agreementId: a.id, version: a.version, reason: 'Owner records term end' }); await same(h, expected)
   await h.restart(); await same(h, expected)
 })
-
-test('PLAN-004 point 6: a Worker upgrade maps older stored jobs to first unclaimed ordinals while new jobs keep their chosen ordinal', async t => {
+  await scenario(t, 'PLAN-004 point 6: a Worker upgrade maps older stored jobs to first unclaimed ordinals while new jobs keep their chosen ordinal', async t => {
   let legacy = true
   const dispatch = await readFile('src/glove/commands/dispatch.ts', 'utf8')
   const ordinal = '...(agreement ? { agreementVisitIndex: agreementIndex } : {})'
@@ -200,8 +200,7 @@ test('PLAN-004 point 6: a Worker upgrade maps older stored jobs to first unclaim
   expected[2].jobId = third.id
   await same(h, expected); await h.restart(); await same(h, expected)
 })
-
-test('PLAN-004 point 7: a cancelled job is rebooked without duplication and due reads enforce desk branch authority without writes', async t => {
+  await scenario(t, 'PLAN-004 point 7: a cancelled job is rebooked without duplication and due reads enforce desk branch authority without writes', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await setup(h), m = await member(h, b.plan, 1), a = await b.office.run('agreement.sell', m.sale)
   const expected = [row(m, a, 0, '2026-04-30'), row(m, a, 1, '2026-10-30')]
@@ -238,4 +237,5 @@ test('PLAN-004 point 7: a cancelled job is rebooked without duplication and due 
   const remaining = await due(h)
   assert.ok(!remaining.some(v => v.agreementId === a.id))
   assert.ok(!JSON.stringify(remaining).includes(m.customer.name) && !JSON.stringify(remaining).includes(m.site.address))
+})
 })
