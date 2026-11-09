@@ -15,7 +15,7 @@ const plates = {
 }
 
 test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms', async (t) => {
-  const h = await installation()
+  const h = await installation({ captureLogs: true })
   t.after(() => h.close())
   const b = await business(h)
   h.models.answer = body => {
@@ -32,6 +32,24 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
   await b.priyaPerson.run('nameplate.read', { visitId: visit.id, equipmentId: condenser.id, photo: { mediaType: 'image/jpeg', base64: plates.trane.photo } }, { error: 'MODEL' })
   await b.office.run('model.connect', { url: 'https://models.example.test/v1', model: 'vision-test', key: 'synthetic-glove-111' }, { error: 'FORBIDDEN' })
   await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'vision-test', key: 'synthetic-glove-111' })
+  await scenario(t, 'FIELD-006 point 2: provider redirects are refused without forwarding the photo or saving a reading', async () => {
+    for (const status of [307, 308, 301, 302, 303]) {
+      for (const location of ['https://outside.example.test/capture', 'http://outside.example.test/capture', 'https://models.example.test/elsewhere']) {
+        h.models.reply = () => new Response(null, { status, headers: { location } })
+        const before = await h.state(), attempts = h.outbound.attempts, calls = h.models.calls.length
+        const refused = await b.priyaPerson.run('nameplate.read', { visitId: visit.id, equipmentId: condenser.id, photo: { mediaType: 'image/jpeg', base64: plates.trane.photo } }, { error: 'MODEL' })
+        assert.equal(h.outbound.attempts - attempts, 1, `HTTP ${status} must not forward to ${location}`)
+        assert.equal(h.models.calls.length - calls, 1, 'no provider retry')
+        assert.deepEqual(refused.details, { status })
+        const after = await h.state()
+        assert.deepEqual(after.equipment, before.equipment)
+        assert.deepEqual(after.nameplates, before.nameplates)
+        assert.deepEqual((await h.db.prepare('SELECT id FROM glove_files').all()).results, [], 'failed model request saves no photo')
+      }
+    }
+    h.models.reply = null
+    h.models.calls.length = 0
+  })
   const manual = await b.office.run('manual.save', { make: 'Trane', model: 'XR14', title: 'Trane XR14 installer guide', url: 'https://manuals.example.test/trane-xr14.pdf' })
   await b.office.run('manual.save', { make: ' trane ', model: 'xr14', title: 'Again', url: 'https://manuals.example.test/x.pdf' }, { error: 'DUPLICATE' })
 

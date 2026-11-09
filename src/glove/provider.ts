@@ -25,7 +25,7 @@ export async function askModel(c: Context, db: D1Database, b: Row, feature: stri
   await beforeSend?.()
   let res: Response
   try {
-    res = await fetch(`${settings.url}/chat/completions`, { method: 'POST', redirect: beforeSend ? 'manual' : 'follow', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ model: settings.model, messages, store: false, response_format: { type: 'json_schema', json_schema: { name: feature, strict: true, schema } } }) })
+    res = await fetch(`${settings.url}/chat/completions`, { method: 'POST', redirect: 'manual', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' }, body: JSON.stringify({ model: settings.model, messages, store: false, response_format: { type: 'json_schema', json_schema: { name: feature, strict: true, schema } } }) })
   } catch {
     await providerEvent(db, { id: `${c.commandId}:model:${feature}`, at: c.now, commandId: c.commandId, provider: 'Model provider', subjectKind: 'business', subjectId: b.id, kind: 'model.outcome', summary: `${feature}: model provider outcome not confirmed`, data: { feature, model: settings.model, status: 0 } }).run()
     return fail('MODEL', 'The model provider could not be reached.', { status: 0 }, 502)

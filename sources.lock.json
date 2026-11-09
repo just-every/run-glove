@@ -2332,7 +2332,7 @@
       "executable": false
     },
     "src/glove/provider.ts": {
-      "sha256": "c170ddbd81f6897a836b583df96179899fc22ea9226ae26369419b24cc6584f4",
+      "sha256": "b9f3893e4f864e4617f57102ee4ee5012ca5294cd4b3c53310aa112bde74309a",
       "executable": false
     },
     "src/glove/public-booking.ts": {
@@ -5648,7 +5648,7 @@
       "executable": false
     },
     "tests/api/nameplates.test.mjs": {
-      "sha256": "b2d620c2902125bb08e5612c4843bfac1254f5f5877c0b18541f982164d3178d",
+      "sha256": "94b7be0cb3e20a8e21fbdb20f84f6b056679c51bd7c431f4b96fd556c29562c5",
       "executable": false
     },
     "tests/api/options.test.mjs": {
