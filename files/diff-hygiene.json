@@ -1,0 +1,11 @@
+{
+  "new_email_shaped_literals": [],
+  "new_test_registrations": 0,
+  "removed_test_lines": 0,
+  "packet_symlinks": [],
+  "transport_mime_tokens": [
+    "application/json",
+    "application/json"
+  ],
+  "transport_mime_explanation": "The only slash-shaped additions are the standard content type required by the existing JSON HTTP commands; no prose repository reference was introduced."
+}

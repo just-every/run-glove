@@ -1,0 +1,38 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Subtest: BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+ok 1 - BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+  ---
+  duration_ms: 59808.15699
+  type: 'test'
+  ...
+# BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+# DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost
+# BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts
+# BOOK-016: overdue clock, repeated cron, replay and actual Worker restart
+# BOOK-016: every excluded actor is refused without queuing
+# BOOK-016: desk attestation sends nothing and the explicit Owner command commits before one masked-address send
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 63561.324818

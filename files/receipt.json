@@ -1,0 +1,140 @@
+{
+  "head": "28ee60a01451bb1f7e1025a31a0daa68b5e29a7e",
+  "tree": "5c146021af24de3361af12e7c99c93b563412412",
+  "main_observed": "592be9edd6258ffb39bed635bb28a1506494ae7d",
+  "main_equal": false,
+  "merge_base": "592be9edd6258ffb39bed635bb28a1506494ae7d",
+  "branch": "cloud/sx-glove-c-f198",
+  "repository": "just-every/run-glove",
+  "diff_files": [
+    "sources.lock.json",
+    "tests/api/pipeline.test.mjs"
+  ],
+  "original_pipeline_bytes_preserved": true,
+  "existing_registrations": 1,
+  "candidate_registrations": 1,
+  "harness_unchanged": true,
+  "mail_fixture_unchanged": true,
+  "contract_unchanged": true,
+  "generated_views_unchanged": true,
+  "test_sha256": "ed2accf0b9e0b77c6adc7e4ff1a628ab7924a33e82068441655577a99a10595a",
+  "source_lock_sha256": "540c67f7357a7156c8b8160991d11be1d109a257b6d24c6dc57f08fd87eb52fd",
+  "worktree_clean": true,
+  "candidate_identities_and_trailers": "Run Edit Run fleet <fleet@runeditrun.com>\nRun Edit Run fleet <fleet@runeditrun.com>",
+  "publication_scan": {
+    "commit": "28ee60a01451bb1f7e1025a31a0daa68b5e29a7e",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "NOT RUN: guarded Mac lander owns full-history scan"
+  },
+  "source_counts_before": {
+    "done": 35,
+    "partial": 199,
+    "missing": 29,
+    "total": 263
+  },
+  "source_counts_after": {
+    "done": 35,
+    "partial": 199,
+    "missing": 29,
+    "total": 263
+  },
+  "clause_claim": {
+    "id": "BOOK-016",
+    "status": "DONE",
+    "points": [
+      1
+    ],
+    "stored_status": "partial"
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/pipeline.test.mjs",
+      "exit": 0,
+      "log": "pipeline.log",
+      "registrations": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "log": "views-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "views-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "lock.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "lock-check.log"
+    }
+  ],
+  "runtime": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "worker_clock": "2026-11-09T12:00:00.000Z",
+    "overdue_clock": "2026-11-09T14:00:00.000Z",
+    "later_clock": "2026-11-09T15:00:00.000Z"
+  },
+  "provider_proof": "Network edge only; no live delivery, live lead account or Yelp conversation receipt claimed",
+  "github_calls_used": 6,
+  "pinned_runtime_checks": {
+    "node": "22.20.0",
+    "head": "28ee60a01451bb1f7e1025a31a0daa68b5e29a7e",
+    "pipeline": {
+      "command": "node --test --test-concurrency=1 tests/api/pipeline.test.mjs",
+      "exit": 0,
+      "log": "pipeline-node22.log"
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck-node22.log"
+    }
+  },
+  "verify": {
+    "run_id": 42580812715,
+    "event": "push",
+    "head_sha": "28ee60a01451bb1f7e1025a31a0daa68b5e29a7e",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/just-every/run-glove/actions/runs/42580812715",
+    "shard": "api-1",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42580812715",
+    "observed_at": "2026-11-09T07:59:00.404890+00:00"
+  },
+  "ci_observation_note": "Discovery at approximately 07:40:43Z; one early status observation at 07:43:56Z was made before the required 300-second interval. No additional call will occur until 07:48:57Z; the sole watcher thereafter enforces 301 seconds.",
+  "done_riders": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PENDING: guarded landing, complete scan, main equality and candidate Run site"
+  },
+  "product_custody": "PUSHED; exact-head Verify success; ready for the independent guarded landing"
+}
