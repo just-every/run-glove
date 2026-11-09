@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 15 | 206 | 16 | 237 |
+| Core | 16 | 205 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 15 | 219 | 29 | 263 |
+| Full target | 16 | 218 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1783,7 +1783,7 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001 
 
 #### FIELD-009 — Phone push subscriptions
 
-Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-DATA-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **done** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-DATA-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Phone push subscriptions supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#field-004-operating-rules) retain the record formats and calculations.
 
@@ -1793,8 +1793,8 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001,
 3. A subscription (the push service address and the phone's keys) belongs to that person, that device and that signed-in session; only that person reads it back, as their list of phones (a label, the last outcome and when, never the address or keys); and it is deleted when they remove it, sign out on that phone, the session is ended elsewhere or expires, they stop being an active Technician (a role change or deactivation), the push service no longer knows it (HTTP 404 or 410), or the owner turns notifications off.
 4. It is never in records, exports or the archive, so a restored installation needs fresh subscriptions.
 
-**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner turns phone notifications on under More → Team: Glove makes a VAPID key pair whose private key is an owner-only installation secret (never in records, state, exports, logs or the archive); turning them on again replaces the key, and turning them off deletes the key and every subscription.; point 2 — A Technician turns notifications on for each phone.; point 3 — A subscription (the push service address and the phone's keys) belongs to that person, that device and that signed-in session; only that person reads it back, as their list of phones (a label, the last outcome and when, never the address or keys); and it is deleted when they remove it, sign out on that phone, the session is ended elsewhere or expires, they stop being an active Technician (a role change or deactivation), the push service no longer knows it (HTTP 404 or 410), or the owner turns notifications off.; point 4 — It is never in records, exports or the archive, so a restored installation needs fresh subscriptions. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/push-subscriptions.test.mjs` (FIELD-009 owner key custody and two-session Technician phone ownership); `tests/api/push-subscriptions.test.mjs` (FIELD-009 every subscription-removal trigger independently stops further pushes and preserves unaffected phones after restart); `tests/browser/push-settings.spec.ts` (FIELD-009 owner enables phone notifications and a Technician controls two session-bound phones at 1440 and 390); `tests/portable.mjs` (FIELD-009 real archive)
+**Gap.** None.
 
 #### FIELD-010 — Schedule-change push outcomes
 
