@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 23 | 198 | 16 | 237 |
+| Core | 24 | 197 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 23 | 211 | 29 | 263 |
+| Full target | 24 | 210 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1057,7 +1057,7 @@ Core · target · **done** · From DISP-002
 
 #### DISP-003 — Route optimization
 
-Core · target · **partial** · From DISP-003
+Core · target · **done** · From DISP-003
 
 **Requirement.** Route optimization supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-003-operating-rules) retain the record formats and calculations.
 
@@ -1071,8 +1071,8 @@ Core · target · **partial** · From DISP-003
 7. The board shows the proposal and time saved.
 8. The comparison measures driving between visits, with no depot legs; the bounded improvement search does not claim a global optimum.
 
-**Evidence.** `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture optimizes a fixture day of 12 visits for 3 technicians (routing provider fake), checks no arrival window or skill is broken and the drive time falls, and checks nothing moves until accepted.; point 2 — A signed-in owner or dispatcher requests a day or one technician with route optimize action; the existing 15-minute Worker cron claims one durable job per pass.; point 3 — A job covers 2–20 visits and up to 8 assigned technicians.; point 4 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second abort, then performs at most 1,200 appointment exchanges within twenty seconds.; point 5 — It retains appointment duration and arrival windows, validates skills, working availability, service areas, overlaps and driving time against the whole proposed schedule, and keeps crews and visits with field evidence fixed.; point 6 — It saves the original and proposed slots and driving comparison; no visit moves in the background.; point 7 — The board shows the proposal and time saved.; point 8 — The comparison measures driving between visits, with no depot legs; the bounded improvement search does not claim a global optimum. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`; `tests/api/route-optimization.test.mjs` (DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive driving and survives replay and Worker restart without moving visits); `tests/api/route-optimization.test.mjs` (DISP-003 point 2: live person authority fences day and technician requests, one cron claim, revocation and expired leases); `tests/api/route-optimization.test.mjs` (DISP-003 point 3: visit and assigned-technician limits accept their endpoints and refuse excess without queuing or moving work); `tests/api/route-optimization.test.mjs` (DISP-003 point 4: coordinate-only Routes requests abort a delayed provider and retain a bounded exchange count); `tests/api/route-optimization.test.mjs` (DISP-003 point 5: whole proposed schedules preserve eligibility, duration and fixed crew and field-evidence placements); `tests/browser/routing.spec.ts` (DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390)
+**Gap.** None.
 
 #### DISP-011 — Apply or discard a route proposal
 
