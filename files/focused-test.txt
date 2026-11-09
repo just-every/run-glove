@@ -1,0 +1,22 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: FIELD-010 points 1–5: every schedule producer sends private once-only phone outcomes with attributable failures and subscription control
+ok 1 - FIELD-010 points 1–5: every schedule producer sends private once-only phone outcomes with attributable failures and subscription control
+  ---
+  duration_ms: 24532.855274
+  type: 'test'
+  ...
+# point 1 and point 2: dispatcher, crew, rule, series, granted agent and public choice send only the independently expected private lines
+# point 1: later move-in and undo notify the already linked technician
+# point 1 and point 3: scheduled billed series extend the horizon once across repeated passes and Worker restart
+# point 3 and point 4: one encrypted attempt records 201, 500, unreachable, 404 and 410 without retry or collateral phone removal
+# point 3 and point 5: origin fallback, own phone controls, current authority and erasure cannot revive a notification
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 26568.9001

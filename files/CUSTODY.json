@@ -1,0 +1,49 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f199",
+  "head": "ecff63d68bbc2b4bd27462745b3de96a7f19f9d9",
+  "push_command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f199",
+  "push_exit": 0,
+  "push_status": "PUSH_OK branch=cloud/sx-glove-c-f199",
+  "remote_head": "ecff63d68bbc2b4bd27462745b3de96a7f19f9d9",
+  "base_main": "592be9edd6258ffb39bed635bb28a1506494ae7d",
+  "main_equal_candidate": false,
+  "contract_diff": "",
+  "generated_views_diff": "",
+  "regression_exit": 0,
+  "typecheck_exit": 0,
+  "build_exit": 0,
+  "tests_before": 194,
+  "tests_after": 195,
+  "clause_counts_before": {
+    "done": 35,
+    "partial": 199,
+    "missing": 29
+  },
+  "clause_counts_after": {
+    "done": 35,
+    "partial": 199,
+    "missing": 29
+  },
+  "publication_scan": {
+    "commit": "ecff63d68bbc2b4bd27462745b3de96a7f19f9d9",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Cloud adaptation delegates exact-tree full-history scan to guarded lander"
+  },
+  "base_ci": [
+    {
+      "id": 42577457957,
+      "name": "Verify",
+      "head": "592be9edd6258ffb39bed635bb28a1506494ae7d",
+      "conclusion": "success"
+    },
+    {
+      "id": 42577457916,
+      "name": "Run site",
+      "head": "592be9edd6258ffb39bed635bb28a1506494ae7d",
+      "conclusion": "success"
+    }
+  ]
+}

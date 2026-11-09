@@ -1,0 +1,16 @@
+{
+  "head": "ecff63d68bbc2b4bd27462745b3de96a7f19f9d9",
+  "github_calls": 3,
+  "observations": [
+    {
+      "id": 42581830646,
+      "name": "Verify",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "ecff63d68bbc2b4bd27462745b3de96a7f19f9d9",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42581830646",
+      "event": "push",
+      "observed_at": "2026-11-09T07:51:17.591790+00:00"
+    }
+  ]
+}

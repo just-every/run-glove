@@ -1,0 +1,32 @@
+{
+  "head": "ecff63d68bbc2b4bd27462745b3de96a7f19f9d9",
+  "shallow": "false",
+  "commits": 831,
+  "files": [
+    {
+      "path": "src/glove/api.ts",
+      "sha256": "f1f1a9b4558bdf252a1536d88e1c2649739a4ae707f92bcccf517b2fdb8eec11"
+    },
+    {
+      "path": "src/glove/background.ts",
+      "sha256": "c0934db92bb62374e1203be9152936bbad3f496939e46456dad2a0e7175cd4c9"
+    },
+    {
+      "path": "src/glove/billing-scheduler.ts",
+      "sha256": "aae6c2b5419ff3cb323dfd7132c4cf4d7d25c1fb7a0725aee74a68b74aa246d5"
+    },
+    {
+      "path": "src/glove/push.ts",
+      "sha256": "c7087977f81a5ec9ba59df1667b3ac4fb8611c40c63eff021d087612ff5c1c1d"
+    },
+    {
+      "path": "tests/api/schedule-push.test.mjs",
+      "sha256": "be114328c3589e648fa11f6a6411cd01b41f935c3f353eb452a8bfbe64c2415a"
+    },
+    {
+      "path": "sources.lock.json",
+      "sha256": "952d86a068cdbdfce1aa77c005ed6d670f4210a59ff2630e47b9416827a801f5"
+    }
+  ],
+  "hook": true
+}

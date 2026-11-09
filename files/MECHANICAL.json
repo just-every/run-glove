@@ -1,0 +1,121 @@
+{
+  "at": "2026-11-09T07:49:48.485141+00:00",
+  "checks": [
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "--clauses",
+        "FIELD-010"
+      ],
+      "exit": 0,
+      "stdout_sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Wrote 0 contract documents.\n"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "Contract documents are current.\n"
+    },
+    {
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "command": [
+        "git",
+        "add",
+        "tests/api/schedule-push.test.mjs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0,
+      "stdout_sha256": "4c2a422a9f67c03db84448bb51a938592044e242d456edc055b30d250aa19af7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": {
+        "schemaVersion": 1,
+        "edition": "just-every/run-glove",
+        "manifest": "50125c8f2015fca29b140c32568a049f5480b6b98b2f1c5c2a8b0a10228e4811"
+      }
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "43a71f523a7648eab1994247d0105f6ee8b94d4959b62be434e7f05f8cf3d5b3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": {
+        "ok": true,
+        "edition": "just-every/run-glove",
+        "manifest": "50125c8f2015fca29b140c32568a049f5480b6b98b2f1c5c2a8b0a10228e4811"
+      }
+    },
+    {
+      "command": [
+        "node",
+        "tests/inventory.mjs"
+      ],
+      "exit": 0,
+      "stdout_sha256": "6a271c2b81c3c77fa91c72849185a439fc5e8b1242cc330dd1c27548653fa365",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": "191 registrations (188 direct calls) + 4 assertion scripts = 195/200\n"
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/rer-reap.py",
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    }
+  ]
+}

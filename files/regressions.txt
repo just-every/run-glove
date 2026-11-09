@@ -1,0 +1,56 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: Imported provider exports retain records and refuse unsafe undo for every supported source
+ok 1 - Imported provider exports retain records and refuse unsafe undo for every supported source
+  ---
+  duration_ms: 174175.46599
+  type: 'test'
+  ...
+# ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone
+# ServiceM8 opening balances retain payment custody, reject mismatches, and preserve native edits on undo
+# MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work
+# an undo that takes several passes holds its records until it finishes
+# Imported provider exports retain records and refuse unsafe undo for every supported source
+# MOVE-004, MOVE-010 fieldpulse: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+# MOVE-004, MOVE-010 workiz: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+# MOVE-003, MOVE-009 servicetitan: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work
+# MOVE-004, MOVE-010 fieldpulse: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+# MOVE-004, MOVE-010 workiz: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+# MOVE-003, MOVE-009 servicetitan: missing parents and invalid amounts are explained in preview; a native edit prevents destructive undo
+# MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions
+# MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site
+# MOVE-003, MOVE-009 source recurrence activates only after explicit review, never replays exported events, and unsupported rules are named
+# MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id
+ok 2 - API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id
+  ---
+  duration_ms: 9660.591368
+  type: 'test'
+  ...
+# FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server
+# FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones
+# FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician's phone, signed with the VAPID key and encrypted for that phone
+# FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted
+# FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone's subscription, and nothing more is sent to it
+# FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone's subscription and the key
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+ok 3 - PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+  ---
+  duration_ms: 26505.828469
+  type: 'test'
+  ...
+# PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+# PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay
+# PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence
+# PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 219775.207664

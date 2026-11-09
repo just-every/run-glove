@@ -1,0 +1,19 @@
+{
+  "head": "ecff63d68bbc2b4bd27462745b3de96a7f19f9d9",
+  "branch": "cloud/sx-glove-c-f199",
+  "at": "2026-11-09T07:52:18.471282+00:00",
+  "runtime": "v22.20.0",
+  "checks": [
+    {
+      "command": "node --test tests/api/schedule-push.test.mjs",
+      "exit": 0,
+      "attempt": 2
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true
+    }
+  ],
+  "first_attempt": "first-attempt-receipt.json"
+}
