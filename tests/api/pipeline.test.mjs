@@ -249,6 +249,287 @@ test('BOOK-003 requests from four sources move through the pipeline into the con
   await assertTrail(h, ['lead.connected', 'lead.received', 'rule.ran', 'lead.read', 'enquiry.acknowledged', 'enquiry.cost', 'lead.disconnected', 'enquiry.replyApproved', 'email.queued', 'email.accepted'])
 })
 
+  // Recorded provider formats enter the real receiver; only their times and synthetic identities are fixed.
+  const proofAt = '2026-11-09T12:00:00.000Z'
+  async function leadProof(t) {
+    const h = await installation({ at: proofAt })
+    t.after(() => h.close())
+    const b = await business(h)
+    const connections = {}, secrets = []
+    const connect = async (provider, options = {}) => {
+      const result = await h.command('lead.connect', { provider, ...(provider === 'yelp' ? { apiKey: 'synthetic-glove-book015-key' } : {}), ...(provider === 'google' ? { customerId: '1234567890', developerToken: 'synthetic-glove-book015-developer', clientId: 'synthetic-glove-book015-client', clientSecret: 'synthetic-glove-book015-client-secret', refreshToken: 'synthetic-glove-book015-refresh' } : {}), ...options })
+      connections[provider] = result
+      if (result.password) secrets.push(result.password)
+      return result
+    }
+    const post = async (provider, body) => {
+      const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/${provider}`, { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/'), authorization: `Basic ${Buffer.from(`glove:${connections[provider].password}`).toString('base64')}` }, body: JSON.stringify(body) })
+      assert.equal(response.status, 200, await response.clone().text())
+    }
+    const receive = async (provider, id, options = {}) => {
+      if (!connections[provider]) await connect(provider)
+      if (provider === 'google') {
+        const payload = recorded.google(id)
+        payload.localServicesLead.creationDateTime = '2026-11-09 12:00:00'
+        h.leads.google.push(payload)
+        await b.dispatcher.run('lead.pull', { provider })
+      } else if (provider === 'yelp') {
+        h.leads.yelp.set(id, { ...recorded.yelpLead(id), time_created: proofAt, last_event_time: proofAt, temporary_email_address: ['synthetic-glove-book015-' + id, 'example.test'].join('@'), temporary_email_address_expiry: '2026-11-16T12:00:00.000Z', ...options })
+        const notice = recorded.yelpNotice(id)
+        notice.time = proofAt; notice.data.updates[0].interaction_time = proofAt
+        await post(provider, notice)
+      } else if (provider === 'thumbtack') {
+        const payload = recorded.thumbtack(id)
+        payload.data.createTimestamp = proofAt
+        await post(provider, payload)
+      } else if (provider === 'angi') {
+        await post(provider, { ...recorded.angi(), leadOid: id, createDate: proofAt })
+      } else {
+        await post(provider, recorded.reserveGoogle(id))
+      }
+      const row = (await h.state()).enquiries.find(e => e.lead?.providerLeadId === id)
+      assert.ok(row, `received ${provider} lead`)
+      return row
+    }
+    const unchanged = async run => {
+      const before = await h.state(), sent = h.email.sent.length
+      await run()
+      assert.deepEqual(await h.state(), before, 'refusal changes no business record or Activity')
+      assert.equal(h.email.sent.length, sent, 'refusal makes no provider request')
+    }
+    const reply = e => ({ enquiryId: e.id, version: e.version, confirm: true })
+    const conversation = async e => {
+      const response = await h.request(`/api/glove/conversation?customerId=${e.customerId}`)
+      assert.equal(response.status, 200)
+      return response.json()
+    }
+    return { h, b, connect, receive, unchanged, reply, conversation, secrets }
+  }
+
+  await scenario(t, 'BOOK-015 point 1: provider costs survive rules, current authority controls costs and audited corrections refuse invalid or stale amounts', async t => {
+    const { h, b, receive, unchanged } = await leadProof(t)
+    const rule = (person, source, amount) => person('rule.save', { name: `${source} lead cost`, trigger: 'enquiry.created', condition: { source }, action: { kind: 'leadCost', amount } })
+    const thumbRule = await rule(h.command, 'thumbtack', '99.00')
+    const angiRule = await rule(b.office.run, 'angi', '42.00')
+    const thumb = await receive('thumbtack', 'synthetic-glove-book015-thumb')
+    assert.deepEqual([thumb.leadCost.amount, thumb.leadCost.by], ['35.50', 'provider'])
+    const angi = await receive('angi', 'synthetic-glove-book015-angi')
+    assert.deepEqual([angi.leadCost.amount, angi.leadCost.by, angi.leadCost.ruleId], ['42.00', 'rule', angiRule.id])
+    let state = await h.state()
+    const kept = state.ruleRuns.find(r => r.ruleId === thumbRule.id && r.trigger.subjectId === thumb.id)
+    assert.deepEqual([kept.outcome, kept.detail], ['refused', 'the request already has a lead cost of $35.50 (from the provider)'])
+    const role = await h.command('role.save', { name: 'Costless desk', permissions: ['enquiry.create'] })
+    const custom = await h.person('Costless Custom', `custom:${role.id}`)
+    for (const person of [b.dispatcher, b.priyaPerson, custom]) await unchanged(() => person.run('enquiry.cost', { enquiryId: thumb.id, version: thumb.version, amount: '10.00' }, { error: 'FORBIDDEN' }))
+    for (const person of [{ name: 'Olivia Owner', run: h.command }, b.office]) {
+      let current = (await h.state()).enquiries.find(e => e.id === thumb.id)
+      const first = await person.run('enquiry.cost', { enquiryId: current.id, version: current.version, amount: '31.25' })
+      const corrected = await person.run('enquiry.cost', { enquiryId: first.id, version: first.version, amount: '28.75' })
+      assert.deepEqual([corrected.leadCost.amount, corrected.leadCost.by, corrected.leadCost.person.name], ['28.75', 'person', person.name])
+      const event = (await h.state()).events.find(e => e.kind === 'enquiry.cost' && e.summary.includes('set the lead cost to $28.75') && e.actorName === person.name)
+      assert.match(event.summary, /set the lead cost to \$28\.75 \(was \$31\.25\)/)
+      assert.equal(event.actorName, person.name)
+      for (const amount of ['0.00', '-1.00', 'bad', '1.001']) await unchanged(() => person.run('enquiry.cost', { enquiryId: corrected.id, version: corrected.version, amount }, { error: amount === '0.00' ? 'INPUT' : 'MONEY' }))
+      await unchanged(() => person.run('enquiry.cost', { enquiryId: corrected.id, version: first.version, amount: '12.00' }, { error: 'STALE' }))
+    }
+    await h.command('role.set', { operatorId: b.office.id, role: 'dispatcher' })
+    const revoked = await receive('angi', 'synthetic-glove-book015-revoked')
+    assert.equal(revoked.leadCost, undefined)
+    state = await h.state()
+    const denied = state.ruleRuns.find(r => r.ruleId === angiRule.id && r.trigger.subjectId === revoked.id)
+    assert.equal(denied.outcome, 'not allowed')
+    assert.match(denied.detail, /cannot enquiry.cost/)
+    assert.equal(state.enquiries.find(e => e.id === angi.id).leadCost.amount, '42.00', 'later commands never reapply the creation rule to an older request')
+    await assertTrail(h, ['enquiry.cost', 'rule.ran'])
+  })
+
+  await scenario(t, 'BOOK-015 point 2: each source retains its approved text and receipt-based deadline with honest early and late desk records', async t => {
+    const { h, b, connect, receive } = await leadProof(t)
+    const settings = [['thumbtack', 5, 'Thumbtack: we received your repair request.'], ['angi', 15, 'Angi: the office will review your request.'], ['google', 60, 'Google: thanks for your service request.'], ['yelp', 90, 'Yelp: we will be in touch about your repair.'], ['reserve-google', 1440, 'Reserve: the desk will review your requested time.']]
+    const rows = []
+    for (const [provider, minutes, text] of settings) {
+      await connect(provider, { respondWithinMinutes: minutes, acknowledgment: text })
+      const e = await receive(provider, `synthetic-glove-book015-${provider}`)
+      assert.deepEqual([e.acknowledgment.status, e.acknowledgment.text, e.lead.receivedAt, e.acknowledgment.dueBy], ['queued', text, proofAt, new Date(Date.parse(proofAt) + minutes * 60_000).toISOString()])
+      rows.push(e)
+    }
+    assert.equal(h.email.sent.length, 0)
+    assert.deepEqual((await h.state()).messages, [])
+    await h.setTime('2026-11-09T12:04:59.000Z')
+    const early = await b.office.run('enquiry.acknowledged', { enquiryId: rows[0].id, version: rows[0].version, how: 'Replied in Thumbtack' })
+    await h.setTime('2026-11-09T12:15:01.000Z')
+    const late = await b.dispatcher.run('enquiry.acknowledged', { enquiryId: rows[1].id, version: rows[1].version, how: 'Called the Angi customer' })
+    const events = (await h.state()).events.filter(e => e.kind === 'enquiry.acknowledged')
+    const earlyEvent = events.find(e => e.subjectId === early.id), lateEvent = events.find(e => e.subjectId === late.id)
+    const exported = await (await h.request('/api/glove/export')).json()
+    const fact = id => JSON.parse(exported.timeline.find(e => e.kind === 'enquiry.acknowledged' && e.subject_id === id).data)
+    assert.deepEqual([fact(early.id).onTime, fact(late.id).onTime], [true, false])
+    assert.doesNotMatch(earlyEvent.summary, /response window/)
+    assert.match(lateEvent.summary, /after its response window/)
+    assert.equal(early.acknowledgment.dueBy, rows[0].acknowledgment.dueBy)
+    assert.equal(late.acknowledgment.dueBy, rows[1].acknowledgment.dueBy)
+    assert.equal(h.email.sent.length, 0)
+    await h.restart()
+    const restarted = await h.state()
+    for (const e of [early, late, ...rows.slice(2)]) assert.deepEqual(restarted.enquiries.find(row => row.id === e.id).acknowledgment, e.acknowledgment)
+    await assertTrail(h, ['enquiry.acknowledged'])
+  })
+
+  await scenario(t, 'BOOK-015 point 3: an external-send attestation names the person and method without inventing provider delivery or deadline compliance', async t => {
+    const { h, b, receive, unchanged } = await leadProof(t)
+    const e = await receive('thumbtack', 'synthetic-glove-book015-attestation')
+    const sent = await b.office.run('enquiry.acknowledged', { enquiryId: e.id, version: e.version, how: 'Replied in the Thumbtack conversation' })
+    assert.deepEqual(sent.acknowledgment, { ...e.acknowledgment, status: 'sent', sentAt: proofAt, by: { id: b.office.id, name: b.office.name, role: 'office' }, how: 'Replied in the Thumbtack conversation' })
+    const activity = (await (await h.request('/api/glove/activity')).json()).events.find(e => e.kind === 'enquiry.acknowledged')
+    assert.equal(activity.actorId, b.office.id)
+    assert.match(activity.summary, /Olu Office recorded the Thumbtack acknowledgment as sent outside Glove/)
+    const exported = await (await h.request('/api/glove/export')).json()
+    assert.equal(JSON.parse(exported.timeline.find(row => row.id === activity.id).data).onTime, true)
+    assert.doesNotMatch(activity.summary, /delivered|confirmed|met .*window|within .*window/i)
+    assert.deepEqual((await h.state()).messageStates, {})
+    await unchanged(() => b.office.run('enquiry.acknowledged', { enquiryId: sent.id, version: sent.version, how: 'Send again' }, { error: 'ACKNOWLEDGMENT' }))
+    await h.restart()
+    assert.deepEqual((await h.state()).enquiries.find(row => row.id === e.id).acknowledgment, sent.acknowledgment)
+    assert.equal(h.email.sent.length, 0)
+    await assertTrail(h, ['enquiry.acknowledged'])
+  })
+
+  await scenario(t, 'BOOK-015 point 4: connecting a source defaults to sixty minutes, accepts both boundaries and refuses fractional or out-of-range windows unchanged', async t => {
+    const { h, connect, unchanged } = await leadProof(t)
+    for (const minutes of [undefined, 5, 1440]) {
+      await connect('thumbtack', minutes === undefined ? {} : { respondWithinMinutes: minutes })
+      assert.equal((await h.state()).business[0].leads.thumbtack.respondWithinMinutes, minutes ?? 60)
+    }
+    for (const minutes of [4, 1441, 7.5]) await unchanged(() => h.command('lead.connect', { provider: 'thumbtack', respondWithinMinutes: minutes }, { error: 'INPUT' }))
+  })
+
+  await scenario(t, 'BOOK-015 point 5: only an explicit current unscoped Owner can approve a Yelp email and every excluded actor queues nothing', async t => {
+    const { h, b, receive, unchanged, reply } = await leadProof(t)
+    await connectMail(h, 'postmark')
+    const e = await receive('yelp', 'synthetic-glove-book015-authority')
+    const role = await h.command('role.save', { name: 'Reply desk', permissions: ['enquiry.acknowledged'] })
+    const custom = await h.person('Reply Custom', `custom:${role.id}`), scoped = await h.person('Reply Scoped Owner', 'owner')
+    await h.command('branch.limit', { operatorId: scoped.id, branchId: 'main' })
+    for (const person of [b.office, b.dispatcher, b.priyaPerson, custom, scoped]) await unchanged(() => person.run('enquiry.reply', reply(e), { error: 'FORBIDDEN' }))
+    const token = await h.command('token.issue', { name: 'Lead reply integration', role: 'office' })
+    const tokenState = await h.mf.dispatchFetch(`${h.origin}/api/glove/state`, { headers: { authorization: `Bearer ${token.token}` } })
+    assert.equal(tokenState.status, 200)
+    const attempt = async (id, expected) => {
+      const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/commands`, { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/'), authorization: `Bearer ${token.token}` }, body: JSON.stringify({ commandId: id, type: 'enquiry.reply', payload: reply(e) }) })
+      assert.deepEqual([response.status, (await response.json()).error.code], expected)
+    }
+    await unchanged(() => attempt('synthetic-glove-book015-token', [403, 'FORBIDDEN']))
+    await h.command('token.revoke', { tokenId: token.id })
+    await unchanged(() => attempt('synthetic-glove-book015-revoked-token', [401, 'AUTH']))
+    await unchanged(async () => {
+      const response = await h.request('/api/glove/commands', { method: 'POST', as: '', body: { commandId: 'synthetic-glove-book015-signedout', type: 'enquiry.reply', payload: reply(e) } })
+      assert.deepEqual([response.status, (await response.json()).error.code], [401, 'AUTH'])
+    })
+    await unchanged(() => h.command('enquiry.reply', { ...reply(e), confirm: false }, { error: 'CONSENT' }))
+    const thumb = await receive('thumbtack', 'synthetic-glove-book015-nonyelp')
+    await unchanged(() => h.command('enquiry.reply', reply(thumb), { error: 'LEADS' }))
+    const sent = await h.command('enquiry.reply', reply(e))
+    assert.equal(sent.acknowledgment.status, 'emailQueued')
+    assert.equal(sent.acknowledgment.by.name, 'Olivia Owner')
+    assert.equal((await h.state()).messages.length, 1)
+    assert.equal(h.email.sent.length, 1)
+  })
+
+  await scenario(t, 'BOOK-015 point 6: explicit email uses only the unexpired lead destination despite customer edits and refuses expiry or disconnected mail', async t => {
+    const { h, receive, unchanged, reply } = await leadProof(t)
+    const e = await receive('yelp', 'synthetic-glove-book015-destination')
+    const customer = (await h.state()).customers.find(c => c.id === e.customerId)
+    await h.command('customer.save', { id: customer.id, version: customer.version, name: customer.name, email: ['synthetic-glove-book015-edited', 'example.test'].join('@') })
+    await unchanged(() => h.command('enquiry.reply', reply(e), { error: 'MAIL' }))
+    await connectMail(h, 'postmark')
+    const expired = await receive('yelp', 'synthetic-glove-book015-expired', { temporary_email_address_expiry: proofAt })
+    await unchanged(() => h.command('enquiry.reply', reply(expired), { error: 'LEAD_REPLY' }))
+    const sent = await h.command('enquiry.reply', reply(e))
+    assert.deepEqual([h.email.sent[0].to, h.email.sent[0].body.TextBody], [e.lead.reply.address, e.acknowledgment.text])
+    assert.equal((await h.state()).messages.find(m => m.id === sent.acknowledgment.messageId).to, e.lead.reply.address)
+    await h.command('mail.connect', { provider: null })
+    const fresh = await receive('yelp', 'synthetic-glove-book015-disconnected')
+    await unchanged(() => h.command('enquiry.reply', reply(fresh), { error: 'MAIL' }))
+  })
+
+  await scenario(t, 'BOOK-015 point 7: one durable message precedes the provider call and success or an uncertain server failure never resends across replay, cron or Worker restart', async t => {
+    const { h, receive, reply } = await leadProof(t)
+    await connectMail(h, 'postmark')
+    for (const status of [200, 503]) {
+      const e = await receive('yelp', `synthetic-glove-book015-once-${status}`), commandId = `synthetic-glove-book015-send-${status}`
+      h.email.status[e.lead.reply.address] = status
+      let observed = false
+      h.email.beforeRespond = async () => {
+        const state = await h.state(), ack = state.enquiries.find(row => row.id === e.id).acknowledgment
+        assert.equal(ack.status, 'emailQueued')
+        assert.equal(state.messages.filter(m => m.subjectId === e.id).length, 1)
+        assert.equal(state.messages.find(m => m.subjectId === e.id).id, ack.messageId)
+        assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_commands WHERE id=?').bind(commandId).first()).n, 1)
+        assert.ok(state.events.some(event => event.kind === 'email.queued' && event.commandId === commandId && event.subjectId === ack.messageId))
+        observed = true
+      }
+      const sent = await h.command('enquiry.reply', reply(e), { commandId })
+      h.email.beforeRespond = null
+      assert.equal(observed, true)
+      const before = h.email.sent.length
+      await h.command('enquiry.reply', reply(e), { commandId })
+      await h.command('enquiry.reply', reply(sent), { error: 'ACKNOWLEDGMENT' })
+      for (let i = 0; i < 2; i++) await h.scheduled(proofAt)
+      await h.restart()
+      await h.command('enquiry.reply', reply(e), { commandId })
+      await h.command('enquiry.reply', reply(sent), { error: 'ACKNOWLEDGMENT' })
+      for (let i = 0; i < 2; i++) await h.scheduled(proofAt)
+      const state = await h.state(), messageId = sent.acknowledgment.messageId
+      assert.equal(h.email.sent.length, before)
+      assert.equal(state.messages.filter(m => m.subjectId === e.id).length, 1)
+      assert.equal(state.events.filter(event => event.kind === 'email.queued' && event.subjectId === messageId).length, 1)
+      assert.equal(state.messageStates[messageId].status, status === 200 ? 'accepted' : 'uncertain')
+      if (status === 503) assert.match(state.messageStates[messageId].text, /Outcome unknown: Postmark did not confirm it/)
+    }
+    assert.equal(h.email.sent.length, 2)
+    await assertTrail(h, ['enquiry.replyApproved', 'email.queued', 'email.accepted', 'email.uncertain'])
+  })
+
+  await scenario(t, 'BOOK-015 point 8: authenticated delivery and bounce facts update only email provider state in the request and conversation and survive Worker restart without secrets', async t => {
+    const { h, receive, reply, conversation, secrets } = await leadProof(t)
+    const mail = await connectMail(h, 'postmark')
+    const e = await receive('yelp', 'synthetic-glove-book015-outcomes')
+    const sent = await h.command('enquiry.reply', reply(e)), messageId = sent.acknowledgment.messageId
+    const message = (await h.state()).messages.find(m => m.id === messageId)
+    const m = { ...message, receipt: `pm-receipt-${h.email.sent.length}` }
+    const before = await h.state()
+    let latest
+    for (const [outcome, at] of [['delivered', '2026-11-09T12:01:00.000Z'], ['bounced', '2026-11-09T12:02:00.000Z']]) {
+      const callback = mail.callback(m, outcome, at)
+      const path = '/api/glove/mail/events'
+      const unsigned = await h.mf.dispatchFetch(h.origin + path, { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/') }, body: callback.raw })
+      assert.equal(unsigned.status, 401)
+      const response = await h.mf.dispatchFetch(h.origin + path, { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/'), ...callback.headers }, body: callback.raw })
+      assert.equal(response.status, 200, await response.clone().text())
+      latest = await h.state()
+      assert.deepEqual(latest.enquiries, before.enquiries, 'provider events do not rewrite the acknowledgment or deadline')
+      assert.deepEqual(latest.messages, before.messages)
+      assert.equal(latest.messageStates[messageId].status, outcome)
+      assert.match(latest.messageStates[messageId].text, outcome === 'delivered' ? /mail server \(reported by Postmark\)/ : /Bounced: .*reported by Postmark/)
+      const entry = (await conversation(e)).entries.find(entry => entry.id === `email:${messageId}`)
+      assert.deepEqual([entry.kind, entry.direction, entry.author], ['Yelp acknowledgment emailed', 'outbound', 'Olivia Owner'])
+      assert.equal(entry.delivery, latest.messageStates[messageId].text)
+      assert.doesNotMatch(entry.delivery, /Yelp.*(?:received|delivered)|met .*window|within .*window/i)
+      const conversationBefore = await conversation(e)
+      await h.restart()
+      assert.deepEqual((await h.state()).messageStates[messageId], latest.messageStates[messageId])
+      assert.deepEqual(await conversation(e), conversationBefore)
+      assert.equal(h.email.sent.length, 1)
+    }
+    const { activity, exported } = await assertTrail(h, ['enquiry.replyApproved', 'email.queued', 'email.accepted', 'email.delivered', 'email.bounced'])
+    assert.deepEqual(exported.enquiries.find(row => row.id === e.id).acknowledgment, sent.acknowledgment)
+    assert.ok(activity.filter(event => ['email.delivered', 'email.bounced'].includes(event.kind)).every(event => event.actorRole === 'provider'))
+    for (const secret of [...secrets, mail.secret, 'synthetic-glove-book015-key']) {
+      for (const document of [latest, activity, exported]) assert.ok(!JSON.stringify(document).includes(secret), 'no source password or provider key in public records')
+      for (const table of ['glove_records', 'glove_events', 'glove_commands']) assert.ok(!JSON.stringify((await h.db.prepare(`SELECT * FROM ${table}`).all()).results).includes(secret), 'no credential in durable business records')
+    }
+  })
+
   await scenario(t, 'BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts', async t => {
     const at = '2026-11-09T12:00:00.000Z', overdue = '2026-11-09T14:00:00.000Z'
     const h = await installation({ at })
