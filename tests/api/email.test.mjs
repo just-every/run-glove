@@ -1,4 +1,5 @@
 import { scenario } from '../fixtures/scenario.mjs'
+import { messageOutcomes } from './message-outcomes.test.mjs'
 // COMM-001 customer email through the owner's provider (fakes only at the
 // provider edge): the owner connects SendGrid, the desk emails an approved
 // quote, an approved invoice (to the accounts-payable address) and a purchase
@@ -479,6 +480,7 @@ test('COMM-016 Postmark outcomes retain exact message states and attributable fa
   await h.command('mail.connect', { provider: null })
   assert.equal((await postEvents(h, subscribe)).status, 404)
 })
+  await messageOutcomes(t)
 })
 
 // Inspect durable identities as evidence; mutations and assertions enter via
