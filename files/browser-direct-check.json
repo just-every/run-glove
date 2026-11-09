@@ -1,0 +1,12 @@
+{
+  "exit": 1,
+  "selection": "BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve",
+  "note": "Unchanged browser test, real Vite app, native owner bootstrap and key-gated dev identity; direct runtime allows dependency scan beyond CLI readiness deadline",
+  "widths_planned": [
+    1440,
+    390
+  ],
+  "widths_completed": [],
+  "screenshots_produced": 0,
+  "failure_stage": "Private owner entry before intake assertions"
+}

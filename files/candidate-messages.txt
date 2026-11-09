@@ -1,0 +1,12 @@
+0dd59ff3efa59e86d002578f7f7f9cb5c50a8bce
+Merge current main into Reserve intake qualification for fresh Verify
+
+61fae338ea45bf8fab68fa1b60b1d1c63aaa39c5
+Wait for hydrated intake reads before checking browser receipts
+
+a1363930c00e9d3ba4e2234ae810db10aa050e28
+Prove malformed Booking refusal and first-record custody under concurrent delivery
+
+f19be339bd9e289cfe2b2d3496993bb2ad01d99d
+Qualify Reserve booking intake through authenticated public doors [skip ci]
+

@@ -1,0 +1,4 @@
+{
+  "exit": 0,
+  "purpose": "Complete Vite dependency cache and health warmup without product or test changes"
+}

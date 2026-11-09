@@ -1,0 +1,52 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Subtest: BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart
+ok 1 - BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart
+  ---
+  duration_ms: 85119.752077
+  type: 'test'
+  ...
+# A ZIP-only Yelp lead never invents a service address
+# All five providers use unambiguous live identity and preserve the decision through every read door
+# BOOK-017 point 1: the authenticated Booking door admits one request and refuses wrong, absent and disconnected credentials without writes
+# BOOK-017 point 2: only a signed-in unscoped Owner issues a relay credential and intake makes no Google server or notification claim
+# BOOK-017 point 3: exact source facts survive a real Worker restart without a visit, job, calendar write, reply, message or push
+# BOOK-017 point 4: neither admitted status invents a lead cost from slot or user fields
+# BOOK-017 point 5: cancellations and unsupported statuses refuse all writes and changed-slot updates retain the first record
+# BOOK-017 point 6: retry, concurrent deliveries and restart replay land one request and one receipt fact per booking identity
+# BOOK-017 point 7: a slot five days ahead keeps creation and acknowledgment deadline at Glove receipt
+# BOOK-017 point 8: Activity and business export attribute intake to the Reserve feed and exclude the door password
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 89607.856071

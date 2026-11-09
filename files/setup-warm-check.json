@@ -1,0 +1,4 @@
+{
+  "exit": 1,
+  "purpose": "Complete native setup after Vite cache and health warmup"
+}

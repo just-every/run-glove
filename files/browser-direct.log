@@ -1,0 +1,39 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Using secrets defined in .dev.vars
+REAL_LOCAL_RUNTIME_HEALTH_200
+NATIVE_OWNER_READY
+
+Running 1 test using 1 worker
+
+(node:4067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4067) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/journey.spec.ts:1240:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (4.0m)
+
+
+  1) tests/browser/journey.spec.ts:1240:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: Private owner entry failed.
+
+      1264 |       await business(h)
+      1265 |       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    > 1266 |       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+           |                                                                                                                                                                         ^
+      1267 |       if (new URL(page.url()).pathname === '/setup') {
+      1268 |         await page.getByRole('checkbox').check()
+      1269 |         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+        at /home/agent/rer-consolidation/work/sx-glove-c-f214-pc1/run-glove/tests/browser/journey.spec.ts:1266:169
+
+    Error Context: ../packet/browser/results/direct/journey-BOOK-004-BOOK-014--1edde-attestation-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/journey.spec.ts:1240:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 
+

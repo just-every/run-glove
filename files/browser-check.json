@@ -1,0 +1,12 @@
+{
+  "browser": 1,
+  "selection": "BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve",
+  "chromium": "/usr/bin/chromium",
+  "widths_planned": [
+    1440,
+    390
+  ],
+  "widths_completed": [],
+  "screenshots_produced": 0,
+  "failure_stage": "Owned installation setup before Playwright"
+}

@@ -1,0 +1,16 @@
+CI_DISCOVERY attempt=1 exact-SHA push Verify not yet listed
+Traceback (most recent call last):
+  File "/tmp/fleet-watch-ci.py", line 28, in <module>
+    data=json.loads(result.stdout)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Unterminated string starting at: line 1 column 7188 (char 7187)
+CI_OBSERVATION {"id": 42648331674, "name": "Verify", "status": "in_progress", "conclusion": null, "head_sha": "0dd59ff3efa59e86d002578f7f7f9cb5c50a8bce", "html_url": "https://github.com/just-every/run-glove/actions/runs/42648331674"}

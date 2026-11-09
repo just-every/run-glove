@@ -1,0 +1,7 @@
+Heavy job admitted: Glove build:workflow [23402ec9642d]
+Checking pinned pnpm
+10.12.4
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Run site written to dist/site (22 pages, 96 files): [REDACTED]/dist/site
+build: complete (exit 0)

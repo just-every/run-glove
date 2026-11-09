@@ -1,0 +1,7 @@
+{
+  "text_files_scanned": 43,
+  "files_sanitized": [],
+  "secret_values_retained": false,
+  "symlinks_selected": false,
+  "scope": "Explicit report, receipts, test logs and synthetic browser screenshots only; no environment dumps, private inputs or held-out gate material"
+}

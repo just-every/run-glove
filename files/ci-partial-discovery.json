@@ -1,0 +1,12 @@
+{
+  "note": "Original run-list JSON was truncated by URL sanitization; fields recovered for the next timed exact-run request, not accepted as green proof",
+  "fields": {
+    "id": 42648331674,
+    "name": "Verify",
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "0dd59ff3efa59e86d002578f7f7f9cb5c50a8bce",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42648331674",
+    "event": "push"
+  }
+}
