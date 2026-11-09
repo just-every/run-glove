@@ -215,7 +215,31 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
       await expect(invoice).toContainText(`Approved after period end on ${x.approvedOn}; payment terms start on that approval date.`)
       await expect(invoice).toContainText(`Issued ${x.issuedOn} · Due ${x.dueOn} · 14 days`)
       await expect(invoice).toContainText('approved by Riley Reports')
-      expect(await invoice.locator('button,a').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim()).length)).toBe(0)
+      await invoice.getByLabel('QuickBooks customer ID', { exact: true }).fill('1')
+      await invoice.getByLabel('QuickBooks sales item ID', { exact: true }).fill('2')
+      await invoice.getByLabel('QuickBooks tax code ID', { exact: true }).fill('3')
+      const payloadLink = invoice.getByRole('link', { name: 'Download QuickBooks inspection payload', exact: true })
+      await expect(payloadLink).toHaveAttribute('download', '')
+      const href = await payloadLink.getAttribute('href')
+      const payload = await page.evaluate(async href => {
+        const response = await fetch(href!, { credentials: 'same-origin' })
+        return { status: response.status, document: await response.json() }
+      }, href)
+      expect(payload.status).toBe(200)
+      expect([payload.document.TxnDate, payload.document.DueDate]).toEqual([x.issuedOn, x.dueOn])
+      for (const control of await invoice.locator('button,a').all()) {
+        if (!(await control.isVisible())) continue
+        await expect(control).toHaveAccessibleName(/\S/)
+        if (!(await control.textContent())?.trim()) {
+          const description = await control.getAttribute('aria-describedby')
+          expect(description).toBeTruthy()
+          const tooltip = page.locator(`[id="${description}"]`)
+          await control.hover()
+          await expect(tooltip).toBeVisible()
+          await control.focus()
+          await expect(tooltip).toBeVisible()
+        }
+      }
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1050 })
         await invoice.scrollIntoViewIfNeeded()
