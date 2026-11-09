@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import { installation } from './harness.mjs'
-import { connectMail } from '../fixtures/mail-providers.mjs'
+import { connectMail, textOf } from '../fixtures/mail-providers.mjs'
 
 const at = '2026-11-06T00:30:00.000Z'
 const read = async (h, path, as) => {
@@ -75,6 +75,7 @@ test("PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact 
     remember(commandId, 'agreement.offer.created', offer.id, b.office)
     assert.equal(h.email.sent.at(-1).to, members.find(m => m.a.id === v.agreementId).customer.email)
     assert.equal(offer.emailed.to, h.email.sent.at(-1).to)
+    assert.ok(textOf(h.email.sent.at(-1)).includes('/book#token=' + offer.token), 'each email contains the actual issued booking link')
     v.jobId = offer.jobId
     const beforeReplay = await read(h, '/api/glove/export')
     await b.office.run('agreement.offer', payload, { commandId })
