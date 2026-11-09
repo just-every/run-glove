@@ -95,3 +95,5 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 - Packet contains actual non-secret report, receipts, logs and ten explicitly selected branch-control screenshots. Token-display screenshots, private settings, runtime entries, environment files and credentials excluded. Evidence only on refs/heads/evidence/sx-glove-c-f187, conveying no product acceptance or landing authority.
 
 Blockers: none for native qualification. CI, scanning and landing remain independent gates. No DEFAULT or GAP adopted for these five native points. Other clause and provider holds remain unchanged.
+
+Initial evidence readback succeeded: ref head b782ba9d9f0d8e0243ec75d9ef93ac314338c1ef, 46 explicitly selected files, manifest and all file hashes verified. This final packet update includes that actual transfer receipt; evidence remains separate from product readiness.

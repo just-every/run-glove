@@ -269,5 +269,10 @@
   "main_equals_candidate": false,
   "pr": null,
   "blockers": [],
-  "product_ref": "985bb3d085b99ac8925c828f330e83d1ed5999ce\trefs/heads/cloud/sx-glove-c-f187"
+  "product_ref": "985bb3d085b99ac8925c828f330e83d1ed5999ce\trefs/heads/cloud/sx-glove-c-f187",
+  "initial_evidence_return": {
+    "head": "b782ba9d9f0d8e0243ec75d9ef93ac314338c1ef",
+    "status": "restored",
+    "verified_files": 46
+  }
 }
