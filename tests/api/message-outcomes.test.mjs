@@ -124,7 +124,8 @@ test(registration, async t => {
       }
       for (const [kind, record, to] of [['quote', quote, customer.email], ['invoice', invoice, customer.apEmail], ['purchaseOrder', po, po.supplierEmail]]) {
         const message = await send(kind, record), call = h.email.sent.at(-1)
-        assert.equal(message.to, to)
+        assert.deepEqual([message.kind, message.to, message.subject], [kind, to, `${{ quote: 'Quote', invoice: 'Invoice', purchaseOrder: 'Purchase order' }[kind]} ${record.number} from Harbour Air & Electrical`])
+        assert.ok(textOfProvider(call).includes(record.number), 'the provider receives the chosen document content')
         assert.equal(deliveryId(call), message.id)
         assert.equal(call.provider, provider)
         const count = h.email.sent.length, replay = replays.at(-1)
@@ -141,6 +142,7 @@ test(registration, async t => {
       assert.equal(h.email.sent.length, count + 1)
       const call = h.email.sent.at(-1), message = (await h.state()).messages.find(m => m.id === offer.emailed.messageId)
       assert.equal(deliveryId(call), message.id)
+      assert.deepEqual([message.kind, message.to, message.subject], ['bookingLink', customer.email, `Choose a time for your ${b.service.name} visit`])
       assert.ok(textOfProvider(call).includes(offer.token), 'bearer appears in the actual email')
       bodies.push(textOfProvider(call))
       message.receipt = `${{ sendgrid: 'sg', resend: 're', postmark: 'pm', ses: 'ses' }[provider]}-receipt-${h.email.sent.length}`

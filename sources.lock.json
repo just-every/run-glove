@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "85958c61986f9a8cdd3a676f82ca7651f2884ccb8394228dcc09aed4266ac994",
+      "sha256": "1c0c39e13c29b6eba191f21dd8dec0048e9a95b188de5679e6b14afd6990ee04",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "61f6db87d3fc71beab6c519a677f50ac804c632dd54a2d7f1929ed57f12998cc",
+      "sha256": "ff779100a5f5599345d8cb6aec3dfc9d50c4db9cd8e6293387936f7704af1f24",
       "executable": false
     },
     "DEMO.md": {
@@ -5152,7 +5152,7 @@
       "executable": false
     },
     "src/ui/dispatch.tsx": {
-      "sha256": "5050eb3c412c533e965ba9d0f8b43ab2a6998736d14733186fd8ebc38cc7405f",
+      "sha256": "70883b7688c773ecce7e610171bdc48e6fd88d81eee3030d8a638608e37a1c1a",
       "executable": false
     },
     "src/ui/document-email.tsx": {
@@ -5555,6 +5555,10 @@
       "sha256": "76fb66ddf27b5e4bd291482d5bb5235a3415278a30dd1f90d52ccd1a61b628bd",
       "executable": false
     },
+    "tests/api/crews.test.mjs": {
+      "sha256": "65e60f593271040f82d127bbc17e9d785e8741df6be6d073738a15792a1968d2",
+      "executable": false
+    },
     "tests/api/csv.test.mjs": {
       "sha256": "73ac1ef231f0963dc7e1b4b7dcc465b7e496dc82bcc8ab1d56ed7b23be2ee981",
       "executable": false
@@ -5648,7 +5652,7 @@
       "executable": false
     },
     "tests/api/message-outcomes.test.mjs": {
-      "sha256": "459fd0694837015ba1dd7fa7f0f802f09cba264650c4ebe446c1a0401be6809c",
+      "sha256": "42fe9e3276bc454fc00d0369646f6e7e27c0f6f3d490a4ed97240e359874edf2",
       "executable": false
     },
     "tests/api/money.test.mjs": {
@@ -5861,6 +5865,10 @@
     },
     "tests/browser/conversation.spec.ts": {
       "sha256": "22bfa3d9ef98f6708f27e8e9617d27c08de54c1f6230cef0a99caa547a43d468",
+      "executable": false
+    },
+    "tests/browser/crew-board.spec.ts": {
+      "sha256": "b4ed06a789dc7e1585c24066a2feaa86da2bb588559e4a35b2d3c649765c1597",
       "executable": false
     },
     "tests/browser/custom-roles.spec.ts": {
