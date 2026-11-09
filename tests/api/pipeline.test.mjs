@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // BOOK-003: requests carry their source and move through the pipeline; the
 // office reads the aging board and conversion and revenue by source through
 // the report door.
@@ -271,6 +272,7 @@ async function durable(h) {
 }
 
 test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure', async t => {
+  await scenario(t, 'BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure', async t => {
   const h = await installation()
   t.after(() => h.close())
   await setup(h)
@@ -336,8 +338,7 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website reque
   assert.ok(!external.includes(input.description))
   assert.ok(!external.includes(png))
 })
-
-test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission', async t => {
+  await scenario(t, 'BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission', async t => {
   const h = await installation()
   t.after(() => h.close())
   await setup(h)
@@ -381,11 +382,7 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, cons
   assert.equal((await h.request(endpoint, { as: '' })).status, 404)
   assert.equal((await h.db.prepare("SELECT count(*) AS n FROM glove_provider_keys WHERE provider='turnstile'").first()).n, 0)
 })
-
-// Photo sharing is independent of ordinary office-contact consent.
-import { requestPhotoFixtures, sentinel as photoMetadata } from '../fixtures/request-photos.mjs'
-
-test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls', async t => {
+  await scenario(t, 'BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls', async t => {
   const h = await installation(); t.after(() => h.close())
   await setup(h)
   await h.command('service.save', { code: 'synthetic-glove-71', name: 'Coil inspection', unitPrice: '125.00', tax: 'FREE' })
@@ -484,3 +481,9 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner en
   assert.ok(exported.timeline.some(e => e.kind === 'intake.photoUseAuthorized'))
   assert.equal(exported.timeline.filter(e => e.kind === 'intake.photosWithdrawn').length, 3)
 })
+})
+
+
+
+// Photo sharing is independent of ordinary office-contact consent.
+import { requestPhotoFixtures, sentinel as photoMetadata } from '../fixtures/request-photos.mjs'
