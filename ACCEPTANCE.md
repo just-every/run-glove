@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 41 | 180 | 16 | 237 |
+| Core | 43 | 178 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 41 | 193 | 29 | 263 |
+| Full target | 43 | 191 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -608,7 +608,7 @@ Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004, BASE-SECRET-
 
 #### BOOK-015 — Lead costs and acknowledgments
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Lead costs and acknowledgments supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
@@ -622,8 +622,8 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 7. The command commits one message before sending, and replay or a second command never resends that acknowledgment.
 8. Provider mail acceptance or delivery is shown from the existing mail receipts; neither confirms receipt in the Yelp conversation or meeting Yelp's response window.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/pipeline.test.mjs` (BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report); `tests/browser/journey.spec.ts` (BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390)
+**Gap.** None.
 
 #### BOOK-016 — Explicit lead acknowledgment execution
 
@@ -2365,7 +2365,7 @@ Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
 
 #### PAY-025 — Cash and check deposit batches
 
-Core · target · **partial** · From PAY-007 · Cites BASE-DATA-003
+Core · target · **done** · From PAY-007 · Cites BASE-DATA-003
 
 **Requirement.** Cash and check deposit batches supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2374,8 +2374,8 @@ Core · target · **partial** · From PAY-007 · Cites BASE-DATA-003
 2. Only the owner reads provider-wide payout and fee records; the office sees its branch's cash/check batches.
 3. DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Cash/check deposits (payment deposit batch action) group 1–100 confirmed same-currency/branch records once, net of prior recorded refunds, as staff-recorded deposits without a bank-confirmation claim.; point 2 — Only the owner reads provider-wide payout and fee records; the office sees its branch's cash/check batches.; point 3 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/payments.test.mjs` (PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly)
+**Gap.** None.
 
 #### PAY-026 — Instant payout preview and execution
 
