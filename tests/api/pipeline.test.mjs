@@ -7,7 +7,8 @@ import assert from 'node:assert/strict'
 import { installation, business, assertTrail } from './harness.mjs'
 import { recorded } from '../fixtures/leads.mjs'
 
-test('BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report', async (t) => {
+test('BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report', async t => {
+  await scenario(t, 'BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -68,7 +69,7 @@ test('BOOK-003 requests from four sources move through the pipeline into the con
   for (const kind of ['enquiry.created', 'enquiry.contacted', 'enquiry.won', 'enquiry.lost']) assert.ok(s.events.some(e => e.kind === kind), `timeline has ${kind}`)
 })
 
-test('DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost', async (t) => {
+  await scenario(t, 'DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -247,31 +248,6 @@ test('DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOO
   await assertTrail(h, ['lead.connected', 'lead.received', 'rule.ran', 'lead.read', 'enquiry.acknowledged', 'enquiry.cost', 'lead.disconnected', 'enquiry.replyApproved', 'email.queued', 'email.accepted'])
 })
 
-// Consented website intake and its private request originals (BOOK-001).
-import { randomUUID } from 'node:crypto'
-
-const endpoint = '/api/glove/public/intake'
-const embed = 'https://synthetic-glove-1.example.test'
-const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII='
-let nextToken = 100
-const request = () => ({ submissionId: randomUUID(), turnstileToken: `synthetic-glove-${nextToken++}`, consent: true, name: 'synthetic-glove-3', phone: '(212) 555-0101', email: 'synthetic-glove-3@example.test', address: '4 synthetic-glove-4, New York NY 10001', service: 'synthetic-glove-5', description: 'synthetic-glove-6', preferredTimes: 'synthetic-glove-7', source: 'synthetic-glove-8', photos: [{ mediaType: 'image/png', base64: png, caption: 'synthetic-glove-9' }, { mediaType: 'image/png', base64: png, caption: 'synthetic-glove-10' }] })
-const send = (h, body, origin = embed) => h.request(endpoint, { method: 'POST', as: '', headers: { origin }, body })
-const challenge = (hostname = new URL(embed).hostname) => ({ success: true, action: 'glove-request', hostname, challenge_ts: new Date().toISOString() })
-async function configure(h, extra = {}) {
-  const b = (await h.state()).business[0]
-  return h.command('intake.configure', { version: b.version, enabled: true, siteKey: 'synthetic-glove-11', secret: 'synthetic-glove-12', allowedOrigins: [embed], ...extra })
-}
-async function setup(h) {
-  await h.command('business.save', { name: 'synthetic-glove-13', timezone: 'America/New_York', currency: 'USD' })
-}
-async function durable(h) {
-  const state = await h.state()
-  const tables = {}
-  for (const table of ['glove_files', 'glove_events', 'glove_commands']) tables[table] = (await h.db.prepare(`SELECT count(*) AS n FROM ${table}`).first()).n
-  return { state, tables }
-}
-
-test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure', async t => {
   await scenario(t, 'BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure', async t => {
   const h = await installation()
   t.after(() => h.close())
@@ -483,7 +459,29 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website reque
 })
 })
 
+// Consented website intake and its private request originals (BOOK-001).
+import { randomUUID } from 'node:crypto'
 
+const endpoint = '/api/glove/public/intake'
+const embed = 'https://synthetic-glove-1.example.test'
+const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD1sAAAAASUVORK5CYII='
+let nextToken = 100
+const request = () => ({ submissionId: randomUUID(), turnstileToken: `synthetic-glove-${nextToken++}`, consent: true, name: 'synthetic-glove-3', phone: '(212) 555-0101', email: 'synthetic-glove-3@example.test', address: '4 synthetic-glove-4, New York NY 10001', service: 'synthetic-glove-5', description: 'synthetic-glove-6', preferredTimes: 'synthetic-glove-7', source: 'synthetic-glove-8', photos: [{ mediaType: 'image/png', base64: png, caption: 'synthetic-glove-9' }, { mediaType: 'image/png', base64: png, caption: 'synthetic-glove-10' }] })
+const send = (h, body, origin = embed) => h.request(endpoint, { method: 'POST', as: '', headers: { origin }, body })
+const challenge = (hostname = new URL(embed).hostname) => ({ success: true, action: 'glove-request', hostname, challenge_ts: new Date().toISOString() })
+async function configure(h, extra = {}) {
+  const b = (await h.state()).business[0]
+  return h.command('intake.configure', { version: b.version, enabled: true, siteKey: 'synthetic-glove-11', secret: 'synthetic-glove-12', allowedOrigins: [embed], ...extra })
+}
+async function setup(h) {
+  await h.command('business.save', { name: 'synthetic-glove-13', timezone: 'America/New_York', currency: 'USD' })
+}
+async function durable(h) {
+  const state = await h.state()
+  const tables = {}
+  for (const table of ['glove_files', 'glove_events', 'glove_commands']) tables[table] = (await h.db.prepare(`SELECT count(*) AS n FROM ${table}`).first()).n
+  return { state, tables }
+}
 
 // Photo sharing is independent of ordinary office-contact consent.
 import { requestPhotoFixtures, sentinel as photoMetadata } from '../fixtures/request-photos.mjs'

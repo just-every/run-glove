@@ -48,7 +48,7 @@ const expectedRecords = [
 const recordProjection = records => records.map(({ reasons, ...r }) => r)
 const businessRecords = ({ version, actor, events, imports, ...state }) => state
 
-test('ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone', async t => {
+test('Imported provider exports retain records and refuse unsafe undo for every supported source', async t => {
   await scenario(t, 'ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const input = await files(), before = await h.state()
@@ -259,17 +259,7 @@ test('ServiceM8 every source record is reviewed, fingerprinted, retained through
   const remaining = JSON.parse((await rejected.command('privacy.export', { customerId: peer.id, version: peer.version })).download)
   assert.ok(JSON.stringify(remaining).includes('Synthetic peer payment note'))
 })
-})
 
-async function moveIn(h) {
-  const staged = await h.command('import.stage', { files: await files() })
-  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
-}
-
-
-
-
-test('MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
   await scenario(t, 'MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('jobber'), before = await h.state()
@@ -382,7 +372,6 @@ test('MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain 
   const absentOwner = changedNotes('clients', c => { c.notes.nodes = []; c.noteAttachments.nodes = [] })
   const absentReview = await stage(absentOwner)
   assert.ok(absentReview.preview.rejections.some(r => r.kind === 'jobs' && /exported clients owner/.test(r.reason)), 'an inherited note cannot be reassigned to a job when its source owner is missing')
-
 
   assert.deepEqual(imported('visits').map(v => [v.startAt, v.status]).sort(), [['2026-10-23T14:00:00.000Z','booked'],['2026-11-23T14:00:00.000Z','completed']])
   for (const visit of imported('visits')) { assert.equal(visit.jobId, imported('jobs')[0].id); assert.equal(visit.technicianId, imported('technicians')[0].id) }
@@ -523,56 +512,8 @@ test('MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain 
   assert.ok(s.customers.some(c => c.name === 'Walk-in customer'), 'unrelated desk work carried on')
   assert.equal(s.imports.find(i => i.id === staged.id).status, 'undone')
 })
-})
 
-
-
-// MOVE-004: the adapter is exercised through the same production command and
-// read doors as an owner, including the destructive journal path.
-import { exportedFixture } from '../fixtures/movein.mjs'
-
-// Exercise the existing accounting review after moving in a complete saved export.
-// Original document numbers identify history; display prefixes must not break linking.
-async function openingInvoiceLinks(t, system, expectedNumber, expectedTotal) {
-  const h = await installation({ at: '2026-10-22T12:00:00Z' }); t.after(() => h.close())
-  await h.command('business.save', { name: 'Synthetic Glove', currency: 'USD', timezone: 'UTC' })
-  const staged = await h.command('import.stage', { format: system, files: await exportedFixture(system), balanceAsOf: '2026-10-22' })
-  assert.deepEqual(staged.preview.rejections, [])
-  await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
-  const state = await h.state(), invoice = state.invoices[0], customer = state.customers[0]
-  assert.equal(state.invoices.length, 1)
-  assert.equal(invoice.importedInvoiceNumber, expectedNumber)
-  assert.equal(invoice.openingBalance.amount, '76.50')
-  assert.equal(invoice.openingBalance.sourceTotal, expectedTotal)
-  assert.notEqual(invoice.number, expectedNumber, 'Glove keeps its readable source prefix separately')
-  h.quickbooks.record('customer', { Id: '1', SyncToken: '0', Active: true, DisplayName: customer.name, PrimaryEmailAddr: { Address: customer.email }, PrimaryPhone: { FreeFormNumber: customer.phone } })
-  for (const [i, item] of state.services.entries()) h.quickbooks.record('item', { Id: String(20 + i), SyncToken: '0', Active: true, Name: item.name, Sku: item.code, Type: 'Service', IncomeAccountRef: { value: '30' } })
-  const original = { Id: '501', SyncToken: '0', DocNumber: expectedNumber, CustomerRef: { value: '1' }, TotalAmt: Number(expectedTotal), Balance: 76.50, CurrencyRef: { value: 'USD' } }
-  h.quickbooks.record('invoice', original)
-  // Same number with the wrong total must not be treated as the opening invoice.
-  h.quickbooks.record('invoice', { ...original, Id: '502', TotalAmt: 76.50 })
-  await h.command('qbo.connect', { realmId: '123', key: 'synthetic-glove-905', mode: 'sandbox' })
-  const review = JSON.parse((await h.command('qbo.discover', {})).review)
-  const proposal = review.proposals.filter(p => p.kind === 'invoice')
-  assert.deepEqual(proposal.map(p => [p.id, p.group, p.rule, p.candidates]), [[invoice.id, 'matched', 'number-customer-total', ['501']]])
-  assert.deepEqual(proposal[0].nameClashes, ['502'])
-  await h.command('qbo.confirmLinks', { confirm: true }, { error: 'QBO_REVIEW' })
-  await h.command('qbo.map', { kind: 'customer', id: customer.id, remoteId: '1' })
-  for (const [i, item] of state.services.entries()) await h.command('qbo.map', { kind: 'service', id: item.id, remoteId: String(20 + i) })
-  await h.command('qbo.map', { kind: 'invoice', id: invoice.id, remoteId: '502' }, { error: 'QBO_MAPPING' })
-  await h.command('qbo.map', { kind: 'invoice', id: invoice.id, remoteId: '501' })
-  await h.command('qbo.confirmLinks', { confirm: true })
-  for (let attempt = 0; attempt < 2; attempt++) await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { error: 'NOT_APPROVED' })
-  assert.equal(h.quickbooks.calls.filter(c => c.body).length, 0, 'discovery, confirmed linkage and replay never post opening history')
-  assert.deepEqual([...h.quickbooks.records.values()].filter(r => r.DocNumber).map(r => [r.Id, r.DocNumber, r.TotalAmt, r.Balance]), [['501', expectedNumber, Number(expectedTotal), 76.50], ['502', expectedNumber, 76.50, 76.50]])
-  const linked = (await h.state()).invoices[0]
-  assert.equal(linked.qboSync.remoteId, '501')
-  assert.equal(linked.openingBalance.amount, '76.50')
-  const exported = await (await h.request('/api/glove/export')).json()
-  assert.equal(exported.invoices.find(r => r.id === invoice.id).importedInvoiceNumber, expectedNumber)
-}
-
-test('Imported provider exports retain records and refuse unsafe undo for every supported source', async t => {
+  await scenario(t, 'Imported provider exports retain records and refuse unsafe undo for every supported source', async t => {
   for (const system of ['fieldpulse', 'workiz', 'servicetitan']) {
     await scenario(t, `${system === 'servicetitan' ? 'MOVE-003, MOVE-009' : 'MOVE-004, MOVE-010'} ${system}: saved exports preview, preserve source records, prices, balances, visits, notes and attachment bytes, repeat once, and undo without touching native work`, async t => {
   const h = await installation(); t.after(() => h.close())
@@ -715,7 +656,7 @@ test('Imported provider exports retain records and refuse unsafe undo for every 
   }
 })
 
-test('MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions', async t => {
+  await scenario(t, 'MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('fieldpulse')
   const stage = input => h.command('import.stage', { format: 'fieldpulse', files: input })
@@ -757,9 +698,6 @@ test('MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requi
   assert.equal(moved.importedRecurrence.proposal.coveredThrough, '2027-01-05', 'the late source exception is January 5 in the business timezone')
 })
 
-
-
-test('MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site', async t => {
   await scenario(t, 'MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('servicetitan')
@@ -823,12 +761,8 @@ test('MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity
   const preview = await h.command('import.stage', { format: 'servicetitan', files: unknown })
   assert.ok(preview.preview.unmappedFields['recurring-services'].some(f => f.includes('no exact native rule')))
 })
-})
 
-
-
-
-test('MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work', async t => {
+  await scenario(t, 'MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work', async t => {
   const h = await installation(); t.after(() => h.close()); const b = await business(h)
   const files = await exportedFixture('housecallpro'), before = await h.state(), beforeMail = h.email.sent.length
   await openingInvoiceLinks(t, 'housecallpro', '1001', '206.50')
@@ -915,3 +849,54 @@ test('MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances 
   await h.command('import.undo', { batchId: applied.id, version: applied.version, reason: 'Keep native edit' }, { error: 'NATIVE_EDIT_CONFLICT' })
   assert.equal((await h.state()).customers.find(c => c.id === customer.id).name, 'Synthetic edited customer')
 })
+})
+
+async function moveIn(h) {
+  const staged = await h.command('import.stage', { files: await files() })
+  return h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+}
+
+// MOVE-004: the adapter is exercised through the same production command and
+// read doors as an owner, including the destructive journal path.
+import { exportedFixture } from '../fixtures/movein.mjs'
+
+// Exercise the existing accounting review after moving in a complete saved export.
+// Original document numbers identify history; display prefixes must not break linking.
+async function openingInvoiceLinks(t, system, expectedNumber, expectedTotal) {
+  const h = await installation({ at: '2026-10-22T12:00:00Z' }); t.after(() => h.close())
+  await h.command('business.save', { name: 'Synthetic Glove', currency: 'USD', timezone: 'UTC' })
+  const staged = await h.command('import.stage', { format: system, files: await exportedFixture(system), balanceAsOf: '2026-10-22' })
+  assert.deepEqual(staged.preview.rejections, [])
+  await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  const state = await h.state(), invoice = state.invoices[0], customer = state.customers[0]
+  assert.equal(state.invoices.length, 1)
+  assert.equal(invoice.importedInvoiceNumber, expectedNumber)
+  assert.equal(invoice.openingBalance.amount, '76.50')
+  assert.equal(invoice.openingBalance.sourceTotal, expectedTotal)
+  assert.notEqual(invoice.number, expectedNumber, 'Glove keeps its readable source prefix separately')
+  h.quickbooks.record('customer', { Id: '1', SyncToken: '0', Active: true, DisplayName: customer.name, PrimaryEmailAddr: { Address: customer.email }, PrimaryPhone: { FreeFormNumber: customer.phone } })
+  for (const [i, item] of state.services.entries()) h.quickbooks.record('item', { Id: String(20 + i), SyncToken: '0', Active: true, Name: item.name, Sku: item.code, Type: 'Service', IncomeAccountRef: { value: '30' } })
+  const original = { Id: '501', SyncToken: '0', DocNumber: expectedNumber, CustomerRef: { value: '1' }, TotalAmt: Number(expectedTotal), Balance: 76.50, CurrencyRef: { value: 'USD' } }
+  h.quickbooks.record('invoice', original)
+  // Same number with the wrong total must not be treated as the opening invoice.
+  h.quickbooks.record('invoice', { ...original, Id: '502', TotalAmt: 76.50 })
+  await h.command('qbo.connect', { realmId: '123', key: 'synthetic-glove-905', mode: 'sandbox' })
+  const review = JSON.parse((await h.command('qbo.discover', {})).review)
+  const proposal = review.proposals.filter(p => p.kind === 'invoice')
+  assert.deepEqual(proposal.map(p => [p.id, p.group, p.rule, p.candidates]), [[invoice.id, 'matched', 'number-customer-total', ['501']]])
+  assert.deepEqual(proposal[0].nameClashes, ['502'])
+  await h.command('qbo.confirmLinks', { confirm: true }, { error: 'QBO_REVIEW' })
+  await h.command('qbo.map', { kind: 'customer', id: customer.id, remoteId: '1' })
+  for (const [i, item] of state.services.entries()) await h.command('qbo.map', { kind: 'service', id: item.id, remoteId: String(20 + i) })
+  await h.command('qbo.map', { kind: 'invoice', id: invoice.id, remoteId: '502' }, { error: 'QBO_MAPPING' })
+  await h.command('qbo.map', { kind: 'invoice', id: invoice.id, remoteId: '501' })
+  await h.command('qbo.confirmLinks', { confirm: true })
+  for (let attempt = 0; attempt < 2; attempt++) await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }, { error: 'NOT_APPROVED' })
+  assert.equal(h.quickbooks.calls.filter(c => c.body).length, 0, 'discovery, confirmed linkage and replay never post opening history')
+  assert.deepEqual([...h.quickbooks.records.values()].filter(r => r.DocNumber).map(r => [r.Id, r.DocNumber, r.TotalAmt, r.Balance]), [['501', expectedNumber, Number(expectedTotal), 76.50], ['502', expectedNumber, 76.50, 76.50]])
+  const linked = (await h.state()).invoices[0]
+  assert.equal(linked.qboSync.remoteId, '501')
+  assert.equal(linked.openingBalance.amount, '76.50')
+  const exported = await (await h.request('/api/glove/export')).json()
+  assert.equal(exported.invoices.find(r => r.id === invoice.id).importedInvoiceNumber, expectedNumber)
+}

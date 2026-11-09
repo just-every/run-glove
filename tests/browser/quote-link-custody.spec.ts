@@ -161,6 +161,44 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       await expect(page.getByRole('button', { name: /Request changes|updated quote|Decline quote/ })).toHaveCount(0)
       await screen(page, width, 'unavailable')
 
+      // QUOTE-012: the office reads both actual customer responses through
+      // each durable business door, rather than only an empty projection.
+      await h.setTime('2030-03-12T14:00:00Z')
+      const history = await (await h.request(`/api/glove/sites/${site.id}/history`)).json()
+      expect(history.entries).toEqual(expect.arrayContaining([
+        expect.objectContaining({ kind: 'quote response', label: expect.stringContaining(message) }),
+        expect.objectContaining({ kind: 'quote response', label: expect.stringContaining('Mei Lin (claimed) update') }),
+      ]))
+      const conversation = await (await h.request(`/api/glove/conversation?customerId=${customer.id}`)).json()
+      for (const kind of ['quote changes requested', 'updated quote requested']) expect(conversation.entries).toEqual(expect.arrayContaining([expect.objectContaining({ kind, direction: 'inbound', channel: 'customer link', author: 'Mei Lin (claimed)' })]))
+
+      // A customer can also decline with claimed capacity through the built
+      // page. Reload preserves the single decision and removes action controls.
+      await h.setTime('2030-03-12T02:00:00Z')
+      let declining = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Alternative condenser service', lines })
+      declining = await h.command('quote.approve', { quoteId: declining.id, version: declining.version, revision: 1 })
+      const decliningLink = await h.command('quote.link', { quoteId: declining.id, version: declining.version })
+      tokens.push(decliningLink.token)
+      received = responseFrom(page, 'GET')
+      await page.goto(`${origin}/quote#token=${decliningLink.token}`)
+      expect((await received).status()).toBe(200)
+      await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
+      await page.getByLabel('Your capacity (optional)').fill('Practice manager')
+      received = responseFrom(page, 'POST')
+      await page.getByRole('button', { name: 'Decline quote', exact: true }).click()
+      expect((await received).status()).toBe(200)
+      await expect(page.getByRole('status').filter({ hasText: 'This revision is declined and is read-only.' })).toBeVisible()
+      await expect(page.getByRole('button', { name: /Request changes|Decline quote|updated quote/ })).toHaveCount(0)
+      const declined = (await h.state()).quotes.find((row: any) => row.id === declining.id)
+      expect(declined.declined).toMatchObject({ name: 'Mei Lin', capacity: 'Practice manager', identity: 'CLAIMED', authenticationBasis: 'link handed out by staff, recipient unverified' })
+      expect(declined.customerRequests).toHaveLength(1)
+      await h.restart()
+      received = responseFrom(page, 'GET')
+      await page.reload()
+      expect((await (await received).json()).decision).toBe('declined')
+      await expect(page.getByRole('button', { name: /Request changes|Decline quote|updated quote/ })).toHaveCount(0)
+      await screen(page, width, 'declined')
+
       await h.setTime('2030-03-12T14:00:00Z')
       const outgoing = await Promise.all(requests)
       expect(outgoing.some(request => request.navigation && new URL(request.url).pathname === '/quote')).toBe(true)

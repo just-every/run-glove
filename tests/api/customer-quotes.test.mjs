@@ -12,7 +12,6 @@ import { installation, business, assertTrail, mailEvents, postEvents } from './h
 // QUOTE-002 uses the actual HTTP Worker, native sessions and D1. Only the mail
 // provider edge is fake. Signing stays closed while owner consent is absent.
 
-
 test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy', async t => {
   await scenario(t, 'QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy', async t => {
   for (const provider of ['sendgrid', 'postmark', 'ses']) {
@@ -299,9 +298,84 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
   assert.equal((await (await post(answer)).json()).decision, final.status)
   assert.deepEqual((await h.state()).quotes.find(x => x.id === q.id), final)
 })
+
+  await scenario(t, 'QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
+  await connectPayments(h)
+  await h.command('service.deposit', { serviceId: b.service.id, version: b.service.version, deposit: { kind: 'percent', value: '25' } })
+  let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Deposit job', lines: [{ description: 'Repair', serviceId: b.service.id, quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
+  assert.deepEqual(q.revisions[0].deposit, { kind: 'percent', value: '25' })
+  await b.office.run('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } }, { error: 'FORBIDDEN' })
+  q = await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } })
+  q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+  await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: null }, { error: 'QUOTE_STATE' })
+  await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' }, { error: 'DEPOSIT_GATE' })
+  const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
+  const publicRequest = body => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
+  assert.equal((await (await publicRequest({ action: 'approve' })).json()).error.code, 'CONSENT_GATE')
+  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-50 owner-entered signing disclosure', accept: true })
+  const choice = { optionId: 'option-1', addOnIds: [] }
+  const selected = await (await publicRequest({ action: 'choose', choice })).json()
+  assert.deepEqual(selected.document.deposit, { kind: 'amount', value: '500.00' })
+  assert.equal((await publicRequest({ action: 'approve', choice, name: 'Mei Lin', capacity: 'Owner', documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } })).status, 200)
+  q = (await h.state()).quotes.find(x => x.id === q.id)
+  const job = await h.command('job.create', { quoteId: q.id })
+  q = (await h.state()).quotes.find(x => x.id === q.id)
+  await b.office.run('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' }, { error: 'FORBIDDEN' })
+  const network = h.stripePayments.calls.length
+  assert.equal((await h.request('/api/glove/commands', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body: { commandId: randomUUID(), type: 'payment.depositCheckout', payload: { quoteId: q.id, version: q.version, method: 'card' } } })).status, 401)
+  assert.equal((await publicRequest({ action: 'checkout' })).status, 400)
+  assert.equal(h.stripePayments.calls.length, network, 'customer quote bearer has no payment authority')
+  const deposit = await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' })
+  assert.equal(deposit.amount, '500.00'); assert.equal(deposit.jobId, job.id); assert.equal(deposit.invoiceId, null)
+  assert.equal(deposit.chosenDocumentHash, q.acceptance.signing.chosenDocumentHash)
+  const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+  Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-deposit-charge', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 1500 } } })
+  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
+  assert.equal((await h.state()).payments.find(p => p.id === deposit.id).status, 'paid')
+  const visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-26', start: '10:00', end: '12:00' })
+  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+  for (const item of job.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: visit.id, kind: 'checklist', itemId: item.id, result: 'done', deviceTime: visit.startAt })
+  await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
+  const draft = await b.office.run('invoice.prepare', { jobId: job.id })
+  const inv = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === inv.id).due, '1350.00')
+  const held = (await h.state()).payments.find(p => p.id === deposit.id)
+  assert.equal(held.invoiceId, inv.id)
+  const refund = await h.command('payment.refund', { invoiceId: inv.id, version: inv.version, paymentId: held.id, paymentVersion: held.version, amount: '50.00', reason: 'Part deposit returned' })
+  assert.equal(refund.method, 'card'); assert.equal(refund.paymentId, deposit.id); assert.equal(refund.status, 'paid')
+  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === inv.id).due, '1400.00')
+  await assertTrail(h, ['deposit.serviceConfigured', 'deposit.quoteConfigured', 'deposit.requested', 'deposit.allocated', 'refund.paid'])
 })
-
-
+  await scenario(t, 'QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD', timezone: 'America/New_York' }); await connectPayments(h)
+  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-70 owner disclosure', accept: true })
+  let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Refund before invoice', lines: [{ description: 'Repair', quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
+  q = await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } })
+  q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+  const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
+  const post = body => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
+  const choice = { optionId: 'option-1', addOnIds: [] }, selected = await (await post({ action: 'choose', choice })).json()
+  assert.equal((await post({ action: 'approve', choice, name: 'Mei Lin', capacity: 'Owner', documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } })).status, 200)
+  const job = await h.command('job.create', { quoteId: q.id }); q = (await h.state()).quotes.find(x => x.id === q.id)
+  const deposit = await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' })
+  const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+  Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-held-deposit', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 1500 } } })
+  await paymentEvent(h, pi, 'payment_intent.succeeded')
+  const original = (await h.state()).payments.find(p => p.id === deposit.id)
+  const refund = await h.command('payment.refund', { version: job.version, paymentId: original.id, paymentVersion: original.version, amount: '50.00', reason: 'Refund before final invoice' })
+  assert.equal(refund.status, 'paid'); assert.equal(refund.invoiceId, null)
+  const visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-29', start: '10:00', end: '12:00' })
+  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }); await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
+  const draft = await b.office.run('invoice.prepare', { jobId: job.id }), invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+  assert.equal((await h.state()).payments.find(p => p.id === refund.id).invoiceId, invoice.id)
+  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === invoice.id).due, '1400.00')
+  assert.equal((await (await h.request('/api/glove/reports/receivables.json?asOf=2099-01-01')).json()).totals[0].total, '1400.00')
+  await assertTrail(h, ['deposit.allocated', 'refund.allocated'])
+})
+})
 
 // Valid synthetic PNG originals use uncompressed pixels so two ordinary
 // attachments exercise multiple stored chunks without private storage seeding.
@@ -415,10 +489,12 @@ async function signedQuoteOriginals(t) {
     t.diagnostic(`${signature.kind}: ${manifest.size} bytes in ${manifest.chunks} chunks; ${images.length} embedded originals and the submitted signature match exactly`)
     copies.push({ id: q.id, token: link.token, manifest, bytes, rows })
   }
+  // Consume each fetch body before the next Miniflare request starts.
   const verifyCopies = async () => {
     for (const copy of copies) {
       assert.deepEqual((await h.state()).quotes.find(row => row.id === copy.id).acceptance.signing.signedCopy, copy.manifest)
-      for (const response of [await publicCopy(copy.token), await h.request(`/api/glove/quotes/${copy.id}/signed`)]) {
+      for (const readCopy of [() => publicCopy(copy.token), () => h.request(`/api/glove/quotes/${copy.id}/signed`)]) {
+      const response = await readCopy()
         assert.equal(response.status, 200)
         const bytes = Buffer.from(await response.arrayBuffer())
         assert.equal(hash(bytes), copy.manifest.sha256)
@@ -450,7 +526,8 @@ async function signedQuoteOriginals(t) {
   await h.corruptSignedQuoteChunk(damaged.id, 1, 0)
   assert.deepEqual(await stored(damaged.id), damaged.rows.map((row, i) => i === 0 ? { ...row, bytes: altered } : row))
   assert.deepEqual((await h.state()).quotes.find(row => row.id === damaged.id).acceptance.signing.signedCopy, damaged.manifest)
-  for (const response of [await publicCopy(damaged.token), await h.request(`/api/glove/quotes/${damaged.id}/signed`)]) {
+  for (const readCopy of [() => publicCopy(damaged.token), () => h.request(`/api/glove/quotes/${damaged.id}/signed`)]) {
+      const response = await readCopy()
     assert.equal(response.status, 500)
     assert.equal((await response.json()).error.code, 'SIGNED_COPY')
   }
@@ -458,85 +535,6 @@ async function signedQuoteOriginals(t) {
   assert.deepEqual(Buffer.from(await (await publicCopy(copies[1].token)).arrayBuffer()), copies[1].bytes, 'the other signed copy is unaffected')
   t.diagnostic('Both read doors retain exact manifests and bytes after two Worker restarts and later edits; unauthorized reads and the single damaged chunk are refused')
 }
-
-test('QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
-  await scenario(t, 'QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
-  await connectPayments(h)
-  await h.command('service.deposit', { serviceId: b.service.id, version: b.service.version, deposit: { kind: 'percent', value: '25' } })
-  let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Deposit job', lines: [{ description: 'Repair', serviceId: b.service.id, quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
-  assert.deepEqual(q.revisions[0].deposit, { kind: 'percent', value: '25' })
-  await b.office.run('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } }, { error: 'FORBIDDEN' })
-  q = await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } })
-  q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
-  await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: null }, { error: 'QUOTE_STATE' })
-  await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' }, { error: 'DEPOSIT_GATE' })
-  const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
-  const publicRequest = body => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
-  assert.equal((await (await publicRequest({ action: 'approve' })).json()).error.code, 'CONSENT_GATE')
-  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-50 owner-entered signing disclosure', accept: true })
-  const choice = { optionId: 'option-1', addOnIds: [] }
-  const selected = await (await publicRequest({ action: 'choose', choice })).json()
-  assert.deepEqual(selected.document.deposit, { kind: 'amount', value: '500.00' })
-  assert.equal((await publicRequest({ action: 'approve', choice, name: 'Mei Lin', capacity: 'Owner', documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } })).status, 200)
-  q = (await h.state()).quotes.find(x => x.id === q.id)
-  const job = await h.command('job.create', { quoteId: q.id })
-  q = (await h.state()).quotes.find(x => x.id === q.id)
-  await b.office.run('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' }, { error: 'FORBIDDEN' })
-  const network = h.stripePayments.calls.length
-  assert.equal((await h.request('/api/glove/commands', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body: { commandId: randomUUID(), type: 'payment.depositCheckout', payload: { quoteId: q.id, version: q.version, method: 'card' } } })).status, 401)
-  assert.equal((await publicRequest({ action: 'checkout' })).status, 400)
-  assert.equal(h.stripePayments.calls.length, network, 'customer quote bearer has no payment authority')
-  const deposit = await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' })
-  assert.equal(deposit.amount, '500.00'); assert.equal(deposit.jobId, job.id); assert.equal(deposit.invoiceId, null)
-  assert.equal(deposit.chosenDocumentHash, q.acceptance.signing.chosenDocumentHash)
-  const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
-  Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-deposit-charge', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 1500 } } })
-  assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded')).status, 200)
-  assert.equal((await h.state()).payments.find(p => p.id === deposit.id).status, 'paid')
-  const visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-26', start: '10:00', end: '12:00' })
-  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
-  for (const item of job.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: visit.id, kind: 'checklist', itemId: item.id, result: 'done', deviceTime: visit.startAt })
-  await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
-  const draft = await b.office.run('invoice.prepare', { jobId: job.id })
-  const inv = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
-  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === inv.id).due, '1350.00')
-  const held = (await h.state()).payments.find(p => p.id === deposit.id)
-  assert.equal(held.invoiceId, inv.id)
-  const refund = await h.command('payment.refund', { invoiceId: inv.id, version: inv.version, paymentId: held.id, paymentVersion: held.version, amount: '50.00', reason: 'Part deposit returned' })
-  assert.equal(refund.method, 'card'); assert.equal(refund.paymentId, deposit.id); assert.equal(refund.status, 'paid')
-  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === inv.id).due, '1400.00')
-  await assertTrail(h, ['deposit.serviceConfigured', 'deposit.quoteConfigured', 'deposit.requested', 'deposit.allocated', 'refund.paid'])
-})
-  await scenario(t, 'QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await business(h, { currency: 'USD', timezone: 'America/New_York' }); await connectPayments(h)
-  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-70 owner disclosure', accept: true })
-  let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Refund before invoice', lines: [{ description: 'Repair', quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
-  q = await h.command('quote.deposit', { quoteId: q.id, version: q.version, deposit: { kind: 'amount', value: '500.00' } })
-  q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
-  const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
-  const post = body => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
-  const choice = { optionId: 'option-1', addOnIds: [] }, selected = await (await post({ action: 'choose', choice })).json()
-  assert.equal((await post({ action: 'approve', choice, name: 'Mei Lin', capacity: 'Owner', documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { ...selected.disclosure, affirmed: true }, signature: { kind: 'typed', text: 'Mei Lin' } })).status, 200)
-  const job = await h.command('job.create', { quoteId: q.id }); q = (await h.state()).quotes.find(x => x.id === q.id)
-  const deposit = await h.command('payment.depositCheckout', { quoteId: q.id, version: q.version, method: 'card' })
-  const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
-  Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-held-deposit', created: Math.floor(Date.now() / 1000), status: 'succeeded', balance_transaction: { fee: 1500 } } })
-  await paymentEvent(h, pi, 'payment_intent.succeeded')
-  const original = (await h.state()).payments.find(p => p.id === deposit.id)
-  const refund = await h.command('payment.refund', { version: job.version, paymentId: original.id, paymentVersion: original.version, amount: '50.00', reason: 'Refund before final invoice' })
-  assert.equal(refund.status, 'paid'); assert.equal(refund.invoiceId, null)
-  const visit = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-10-29', start: '10:00', end: '12:00' })
-  await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt }); await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
-  const draft = await b.office.run('invoice.prepare', { jobId: job.id }), invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
-  assert.equal((await h.state()).payments.find(p => p.id === refund.id).invoiceId, invoice.id)
-  assert.equal((await (await h.request('/api/glove/balances')).json()).invoices.find(i => i.id === invoice.id).due, '1400.00')
-  assert.equal((await (await h.request('/api/glove/reports/receivables.json?asOf=2099-01-01')).json()).totals[0].total, '1400.00')
-  await assertTrail(h, ['deposit.allocated', 'refund.allocated'])
-})
-})
 
 test('PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate', async t => {
   const h = await installation(); t.after(() => h.close())
@@ -608,8 +606,6 @@ test('PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wi
   assert.equal(anonymous.amount, '9800.00'); assert.ok(anonymous.erasedAt)
   assert.doesNotMatch(JSON.stringify(await h.state()), /synthetic-glove-financing-1|synthetic-glove-finance-refund-/)
 })
-
-
 
 test('COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations', async t => {
   const { paidInvoice } = await import('../fixtures/payment-journey.mjs')

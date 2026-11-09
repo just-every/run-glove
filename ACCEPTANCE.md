@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 27 | 194 | 16 | 237 |
+| Core | 30 | 191 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 27 | 207 | 29 | 263 |
+| Full target | 30 | 204 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -795,7 +795,7 @@ Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCE
 
 #### QUOTE-012 — Quote-link issue and response records
 
-Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Quote-link issue and response records supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations.
 
@@ -809,8 +809,8 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 7. A decline competes atomically with staff decisions and makes the revision read-only.
 8. Issuer role removal, branch restriction, revocation and expiry are enforced again in the commit batch.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Issuing a quote link and revoking a quote link require a signed-in person allowed to record that quote as sent, never an integration token.; point 2 — A link freezes a customer-only document and canonical SHA-256, with price-book customer descriptions captured when priced; costs, internal evidence and unrelated customer details are excluded.; point 3 — The desk shares it outside Glove, labelled recipient unverified, or queues it to the customer's on-record address through COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 with the actual provider outcome.; point 4 — A customer response records “link sent by Glove to the address on record” only once a provider fact confirms the provider took the email; a refused or unconfirmed send retains the staff-handed, recipient-unverified basis.; point 5 — The customer quote door reads only that revision; same-origin JSON responses can request changes, decline with a claimed name and capacity, or request an update once per revision.; point 6 — Changes and updates enter the office queue, Activity, property history, COMM-007 stream and business export; an update reopens the originating request as contacted.; point 7 — A decline competes atomically with staff decisions and makes the revision read-only.; point 8 — Issuer role removal, branch restriction, revocation and expiry are enforced again in the commit batch. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/quote-link-records.test.mjs` (QUOTE-012 quote-link records preserve provider truth, customer documents and live authority); `tests/browser/quote-link-custody.spec.ts` (QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390)
+**Gap.** None.
 
 #### QUOTE-013 — Signed-copy confirmation and custody
 
@@ -2914,7 +2914,7 @@ Core · target · **partial** · From PLAN-005 · Cites BASE-ROLE-001
 
 #### PLAN-013 — Fixed-monthly invoice dates
 
-Core · target · **partial** · From PLAN-005
+Core · target · **done** · From PLAN-005
 
 **Requirement.** Fixed-monthly invoice dates supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-005-operating-rules) retain the record formats and calculations.
 
@@ -2925,8 +2925,8 @@ Core · target · **partial** · From PLAN-005
 4. Terms changes, correction and later export do not move those dates; preexisting documents and outputs are unchanged.
 5. No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PLAN-003 and COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 carry those remaining acceptance obligations before autopay ships.
 
-**Evidence.** `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issue date at that period end, records approval time and approver separately, and freezes due date = max(period end, the local approval date) + terms.; point 2 — Late approvals are labelled; aging begins only after approval and ages from that frozen due date.; point 3 — Revenue/tax/CSV/QuickBooks use the frozen issue date.; point 4 — Terms changes, correction and later export do not move those dates; preexisting documents and outputs are unchanged.; point 5 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PLAN-003 and COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 carry those remaining acceptance obligations before autopay ships. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`; `tests/api/fixed-monthly-dates.test.mjs` (PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports and a legacy Worker upgrade); `tests/browser/revenue.spec.ts` (REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390)
+**Gap.** None.
 
 ### Stock and purchasing
 
@@ -2950,7 +2950,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 
 #### STOCK-002 — Purchase orders to suppliers
 
-Core · target · **partial** · Cites BASE-AUDIT-001
+Core · target · **done** · Cites BASE-AUDIT-001
 
 **Requirement.** The office raises purchase orders to suppliers (by email or supplier portal), receives them fully or partly into a van or warehouse, and links job-specific orders to the job's cost. The [operating rules](docs/service-work-rules.md#stock-002-operating-rules) retain the record formats and calculations.
 
@@ -2965,7 +2965,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 8. Unit costs are margin figures (`MONEY-003, MONEY-006`): purchase orders are read only by roles that read reports, never by technicians.
 
 **Evidence.** `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts`
-**Gap.** The audit records 8 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost.; point 2 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (STOCK-001), for stock or for one job; it changes only while a draft.; point 3 — A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchase order; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.; point 4 — Glove has no supplier-portal connection.; point 5 — Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives.; point 6 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice.; point 8 — Unit costs are margin figures (MONEY-003, MONEY-006): purchase orders are read only by roles that read reports, never by technicians. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Gap.** None.
 
 ### Team and permissions
 

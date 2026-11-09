@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // QUOTE-001 good, better and best options and add-ons through the command,
 // state and dashboard doors: the customer's recorded choice is exactly what the
 // job carries, and a template takes today's price-book prices unless it fixes
@@ -6,7 +7,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business } from './harness.mjs'
 
-test('QUOTE-001 three options and two add-ons: the job carries exactly the chosen option and add-on; a template carries the raised price', async (t) => {
+test('QUOTE-001 three options and two add-ons: the job carries exactly the chosen option and add-on; a template carries the raised price', async t => {
+  await scenario(t, 'QUOTE-001 three options and two add-ons: the job carries exactly the chosen option and add-on; a template carries the raised price', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -53,7 +55,7 @@ test('QUOTE-001 three options and two add-ons: the job carries exactly the chose
   assert.deepEqual((await b.priyaPerson.state()).templates, [], 'technicians do not read templates')
 })
 
-test('QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately', async (t) => {
+  await scenario(t, 'QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -204,4 +206,5 @@ test('QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018 owner-bound field pricing draft
   assert.equal((await read(replacement)).status, 403, 'a relinked sign-in needs its own fresh owner grant')
   assert.equal((await read()).status, 403, 'the prior sign-in loses access after relinking')
 
+})
 })
