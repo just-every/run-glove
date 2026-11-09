@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 33 | 188 | 16 | 237 |
+| Core | 34 | 187 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 33 | 201 | 29 | 263 |
+| Full target | 34 | 200 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -3217,7 +3217,7 @@ Core · target · **partial** · From MOVE-003 · Register R-20
 
 #### MOVE-009 — Imported memberships and recurrence proposals
 
-Core · target · **partial** · From MOVE-003 · Cites BASE-ROLE-001 · Register R-20
+Core · target · **done** · From MOVE-003 · Cites BASE-ROLE-001 · Register R-20
 
 **Requirement.** Imported memberships and recurrence proposals supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-003-operating-rules) retain the record formats and calculations.
 
@@ -3226,8 +3226,8 @@ Core · target · **partial** · From MOVE-003 · Cites BASE-ROLE-001 · Registe
 2. Its source billing template is labelled separately from charge permission, and unavailable member benefits are named.
 3. Monthly rules with one day and weekly rules with one weekday matching their anchor map to inactive native proposals; a person explicitly chooses a technician and times before activating a mapped rule strictly after exported events, with its original end date.
 
-**Evidence.** `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — One source membership remains one agreement, including ongoing or multiple-location terms; each source recurring-service event keeps its own site, template SKUs, quantities, exact due date and completed or source-closed state.; point 2 — Its source billing template is labelled separately from charge permission, and unavailable member benefits are named.; point 3 — Monthly rules with one day and weekly rules with one weekday matching their anchor map to inactive native proposals; a person explicitly chooses a technician and times before activating a mapped rule strictly after exported events, with its original end date. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs`; `tests/api/servicetitan-memberships.test.mjs` (MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule); `tests/browser/movein.spec.ts` (MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390)
+**Gap.** None.
 
 #### MOVE-004 — Move in from the recurring-report source system and the additional job source system
 
