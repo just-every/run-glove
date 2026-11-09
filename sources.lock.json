@@ -6032,7 +6032,7 @@
       "executable": false
     },
     "tests/fixtures/branch-projections.mjs": {
-      "sha256": "760df1d4f670681f7ac8a1f94815293fe266580fa4d49aa61ba15c141d6063dc",
+      "sha256": "e9f9129dbafe8489f7f4245ac9cdb5d2c8a3aff6cc739621170ac4aa78fcdc7e",
       "executable": false
     },
     "tests/fixtures/calendar.mjs": {

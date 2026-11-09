@@ -79,7 +79,7 @@ export async function bookingProjection(t) {
     const ownCrew = await h.command('crew.save', { name: `${r.name} local crew`, memberIds: [r.tech.id, r.second.id] })
     const group = await h.command('visit.book', { jobId: automatic.id, crewId: ownCrew.id, ...slot, date: '2026-11-11' })
     assert.deepEqual(group.visits.map(v => v.technicianId).sort(), [r.tech.id, r.second.id].sort())
-    const serviceJob = await job(r, `${r.name} public service booking`, [{ serviceId: service.id, quantity: '1' }])
+    const serviceJob = await job(r, `${r.name} public service booking`, [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '20.00', tax: 'FREE' }])
     const serviceLink = await h.command('booking.offer', { jobId: serviceJob.id, slots: [{ date: '2026-11-12', start: '15:00', end: '16:00', window: { start: '15:00', end: '16:00' } }] })
     const beforeRead = await h.state()
     const publicView = await h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${serviceLink.token}` } })
@@ -188,7 +188,7 @@ export function csvRows(text) {
 }
 
 export async function revenueProjection(t) {
-  const { h, roots, job } = await projectionFixture(t)
+  const { h, roots, job } = await projectionFixture(t, '2026-11-03T12:00:00.000Z')
   const boundaries = [
     ['2026-11-04T12:59:59.999Z', '2026-11-04T13:00:00.000Z', '2026-11-06T12:59:59.999Z', '2026-11-06T13:00:00.000Z'],
     ['2026-11-05T04:59:59.999Z', '2026-11-05T05:00:00.000Z', '2026-11-07T04:59:59.999Z', '2026-11-07T05:00:00.000Z'],
@@ -201,12 +201,17 @@ export async function revenueProjection(t) {
     await r.person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Completed', signoff: { absentReason: 'Customer away' } })
     const invoice = await h.command('invoice.prepare', { jobId: work.id })
     await h.setTime(boundaries[i][n])
-    await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+    const approved = await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+    if (n === 1) {
+      await h.setTime('2026-11-08T12:00:00.000Z')
+      const revised = await h.command('invoice.revise', { invoiceId: invoice.id, version: approved.version, reason: 'Person approved updated work after the period', lines: [{ description: 'Revised inspection', quantity: '1', unitPrice: '19.00', tax: 'FREE' }] })
+      await h.command('invoice.approve', { invoiceId: revised.id, version: revised.version, revision: 2 })
+    }
   }
   const expected = [
-    ['main', 'Main business', 2, '24.00'],
-    [roots[2].id, 'Phoenix', 2, '24.00'],
-    [roots[1].id, 'Raleigh', 2, '24.00'],
+    ['main', 'Main business', 2, '32.00'],
+    [roots[2].id, 'Phoenix', 2, '32.00'],
+    [roots[1].id, 'Raleigh', 2, '32.00'],
   ]
   const check = async () => {
     const snapshots = []
@@ -219,7 +224,7 @@ export async function revenueProjection(t) {
       }
       const json = await request('json'), csv = await request('csv')
       const branches = root ? expected.filter(row => row[0] === root.id) : expected
-      const count = root ? 2 : 6, total = root ? '24.00' : '72.00'
+      const count = root ? 2 : 6, total = root ? '32.00' : '96.00'
       assert.deepEqual(json.byBranch.map(r => [r.branchId, r.branch, r.invoices, r.revenue]), branches)
       assert.deepEqual(json.total, { invoices: count, revenue: total })
       assert.deepEqual(json.byMonth, [{ month: '2026-11', invoices: count, revenue: total }])
