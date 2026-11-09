@@ -1,0 +1,105 @@
+{
+  "initial_touched_tests": {
+    "exit": 0,
+    "tests": 38,
+    "passed": 38,
+    "log": "initial-touched-tests.tap",
+    "main": "a81e93dc401029a20f3bf38570b4b2fefd637246"
+  },
+  "final_step_tests": {
+    "exit": 0,
+    "tests": 2,
+    "passed": 2,
+    "log": "final-step-tests.tap",
+    "note": "Arrival/import wrappers before main integration"
+  },
+  "customer_quote_retry": {
+    "exit": 0,
+    "tests": 3,
+    "passed": 3,
+    "log": "customer-quotes-diagnostic.tap",
+    "note": "Unchanged integrated source; retry of failing customer-quote file"
+  },
+  "typecheck": {
+    "command": "pnpm run typecheck",
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  "contract_write": {
+    "command": "node scripts/contract-docs.mjs write",
+    "exit": 0,
+    "log": "contract-write.log",
+    "views_restored_from_origin_main": true
+  },
+  "contract_check": {
+    "command": "node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "log": "contract-check.log"
+  },
+  "source_lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0,
+    "log": "lock-write.json"
+  },
+  "source_lock_check": {
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "log": "lock-check.json"
+  },
+  "inventory_initial": {
+    "command": "node tests/inventory.mjs --json",
+    "exit": 1,
+    "total": 203,
+    "limit": 200,
+    "log": "inventory-before.json",
+    "expected_over_limit": true
+  },
+  "inventory_integrated_main": {
+    "command": "node tests/inventory.mjs --json --limit 185",
+    "exit": 1,
+    "total": 213,
+    "limit": 185,
+    "log": "inventory-main-integrated.json",
+    "expected_over_limit": true
+  },
+  "integrated_touched_tests": {
+    "exit": 1,
+    "tests": 42,
+    "passed": 41,
+    "failed": 1,
+    "log": "touched-tests.tap",
+    "failure": "TypeError: Body is unusable: Body has already been read at signedQuoteOriginals/verifyCopies",
+    "resolution": "Customer quote file passed unchanged once; then both two-door response loops were sequenced to consume each body before the next Miniflare request, retaining every assertion. Final changed-file rerun is separate."
+  },
+  "customer_quote_final": {
+    "exit": 0,
+    "tests": 3,
+    "passed": 3,
+    "log": "customer-quotes-final.tap",
+    "note": "Sequential response consumption; every assertion unchanged"
+  },
+  "refund_main_touched_tests": {
+    "command": "node --test --test-concurrency=1 --test-reporter=tap tests/api/assessments.test.mjs tests/api/payments.test.mjs",
+    "exit": 0,
+    "tests": 4,
+    "passed": 4,
+    "log": "refund-main-touched-tests.tap",
+    "main": "553a489af1a4f789d0b0b38acf7aa5330c0c9236"
+  },
+  "candidate_inventory": {
+    "command": "node tests/inventory.mjs --limit 185",
+    "exit": 0,
+    "total": 185,
+    "log": "final-inventory.txt",
+    "immediately_before_product_push": true
+  },
+  "product_push": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-suite-cap-2",
+    "guard_result": "PUSH_OK",
+    "outer_command_observed_exit": 1,
+    "log": "push-receipt.txt",
+    "remote_ref_verified": true,
+    "head": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+    "note": "Guard reported successful new branch; independent git ls-remote confirmed exact product SHA despite outer shell command exit 1."
+  }
+}

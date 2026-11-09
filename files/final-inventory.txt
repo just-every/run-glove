@@ -1,0 +1,1 @@
+181 registrations (178 direct calls) + 4 assertion scripts = 185/185

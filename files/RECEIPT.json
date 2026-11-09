@@ -1,0 +1,1454 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-suite-cap-2",
+  "repository": "just-every/run-glove",
+  "product_branch": "cloud/sx-glove-suite-cap-2",
+  "product_head": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+  "main_integrated": "553a489af1a4f789d0b0b38acf7aa5330c0c9236",
+  "initial_main": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+  "changed_files": [
+    "sources.lock.json",
+    "tests/api/agreements.test.mjs",
+    "tests/api/arrival-windows.test.mjs",
+    "tests/api/assessments.test.mjs",
+    "tests/api/customer-quotes.test.mjs",
+    "tests/api/email.test.mjs",
+    "tests/api/equipment.test.mjs",
+    "tests/api/flows.test.mjs",
+    "tests/api/movein.test.mjs",
+    "tests/api/options.test.mjs",
+    "tests/api/payments.test.mjs",
+    "tests/api/payroll.test.mjs",
+    "tests/api/pipeline.test.mjs",
+    "tests/api/quickbooks.test.mjs",
+    "tests/api/recurring-billing.test.mjs",
+    "tests/api/security.test.mjs",
+    "tests/api/subcontract.test.mjs"
+  ],
+  "clause_changes": [],
+  "new_cases": 0,
+  "pr_url": null,
+  "inventory_initial": {
+    "direct": 196,
+    "registrations": 199,
+    "assertionScripts": [
+      "tests/runtime.mjs",
+      "tests/email-link.mjs",
+      "tests/site.mjs",
+      "tests/portable.mjs"
+    ],
+    "total": 203,
+    "limit": 200,
+    "files": [
+      {
+        "file": "tests/api/agreements.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/arrival-windows.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/assessments.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/booking-offer-history.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/branches.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/calendar-sync.test.mjs",
+        "count": 5
+      },
+      {
+        "file": "tests/api/callbacks.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/companycam.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/conversation.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/costing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/csv.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/customer-quotes.test.mjs",
+        "count": 4
+      },
+      {
+        "file": "tests/api/customers.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/delays.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/discounts.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/documents.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/due-visit-offers.test.mjs",
+        "count": 4
+      },
+      {
+        "file": "tests/api/eligibility.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/email.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/equipment.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/expenses.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/fixed-monthly-reports.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/flows.test.mjs",
+        "count": 17
+      },
+      {
+        "file": "tests/api/forms.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/grants.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/live-locations.test.mjs",
+        "count": 7
+      },
+      {
+        "file": "tests/api/margins.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/merge.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/money.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/morning-brief.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/movein.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/nameplates.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/options.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/payments.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/payout-reconciliation.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/payroll.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/pipeline.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/postmark-custody.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/pricebook.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/privacy.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/purchasing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/push.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/quickbooks.test.mjs",
+        "count": 8
+      },
+      {
+        "file": "tests/api/quote-link-custody.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/records.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/recurring-billing.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/reminders.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/reports.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/route-optimization.test.mjs",
+        "count": 5
+      },
+      {
+        "file": "tests/api/routing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/rules.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/security.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/segments.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/series.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/service-reports.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/servicecall.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/stock.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/subcontract.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/subcontractor-field.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/suggest.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/time.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/tokens.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/travel-assignment.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/xero.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/arrival-windows.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/branches.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/companycam.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/conversation.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/custom-roles.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/customer-quotes.spec.ts",
+        "count": 6
+      },
+      {
+        "file": "tests/browser/discounts.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/dispatch-map.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/documents.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/due-visit-offers.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/due-visits.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/email.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/fresh-install.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/invoice-batch.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/journey.spec.ts",
+        "count": 7
+      },
+      {
+        "file": "tests/browser/money.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/morning-brief.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/movein.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/phone-location.spec.ts",
+        "count": 2
+      },
+      {
+        "file": "tests/browser/quickbooks.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/quote-link-custody.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/receivables.spec.ts",
+        "count": 4
+      },
+      {
+        "file": "tests/browser/recurring-billing.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/reminders.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/revenue.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/routing.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/rules.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/service-reports.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/subcontractor.spec.ts",
+        "count": 1
+      }
+    ]
+  },
+  "inventory_main_integrated": {
+    "direct": 206,
+    "registrations": 209,
+    "assertionScripts": [
+      "tests/runtime.mjs",
+      "tests/email-link.mjs",
+      "tests/site.mjs",
+      "tests/portable.mjs"
+    ],
+    "total": 213,
+    "limit": 185,
+    "files": [
+      {
+        "file": "tests/api/agreements.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/arrival-windows.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/assessments.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/booking-offer-history.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/branches.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/calendar-sync.test.mjs",
+        "count": 5
+      },
+      {
+        "file": "tests/api/callbacks.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/companycam.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/conversation.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/costing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/csv.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/customer-quotes.test.mjs",
+        "count": 4
+      },
+      {
+        "file": "tests/api/customers.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/delays.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/discounts.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/documents.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/due-visit-offers.test.mjs",
+        "count": 4
+      },
+      {
+        "file": "tests/api/eligibility.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/email.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/equipment.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/expenses.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/fixed-monthly-reports.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/flows.test.mjs",
+        "count": 17
+      },
+      {
+        "file": "tests/api/forms.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/grants.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/live-locations.test.mjs",
+        "count": 7
+      },
+      {
+        "file": "tests/api/margins.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/merge.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/money.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/morning-brief.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/movein.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/nameplates.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/options.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/payments.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/payout-reconciliation.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/payroll.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/pipeline.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/postmark-custody.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/pricebook.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/privacy.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/purchasing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/push.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/quickbooks.test.mjs",
+        "count": 8
+      },
+      {
+        "file": "tests/api/quote-link-custody.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/records.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/recurring-billing.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/refunds.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/reminders.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/reports.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/route-optimization.test.mjs",
+        "count": 5
+      },
+      {
+        "file": "tests/api/routing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/rules.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/security.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/segments.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/series.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/service-reports.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/servicecall.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/ses-sns-custody.test.mjs",
+        "count": 8
+      },
+      {
+        "file": "tests/api/stock.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/subcontract.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/subcontractor-field.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/suggest.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/time.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/tokens.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/travel-assignment.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/xero.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/arrival-windows.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/branches.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/companycam.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/conversation.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/custom-roles.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/customer-quotes.spec.ts",
+        "count": 6
+      },
+      {
+        "file": "tests/browser/discounts.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/dispatch-map.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/documents.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/due-visit-offers.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/due-visits.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/email.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/fresh-install.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/invoice-batch.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/journey.spec.ts",
+        "count": 7
+      },
+      {
+        "file": "tests/browser/money.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/morning-brief.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/movein.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/phone-location.spec.ts",
+        "count": 2
+      },
+      {
+        "file": "tests/browser/quickbooks.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/quote-link-custody.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/receivables.spec.ts",
+        "count": 4
+      },
+      {
+        "file": "tests/browser/recurring-billing.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/refunds.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/reminders.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/revenue.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/routing.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/rules.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/service-reports.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/subcontractor.spec.ts",
+        "count": 1
+      }
+    ]
+  },
+  "inventory_candidate": {
+    "direct": 178,
+    "registrations": 181,
+    "assertionScripts": [
+      "tests/runtime.mjs",
+      "tests/email-link.mjs",
+      "tests/site.mjs",
+      "tests/portable.mjs"
+    ],
+    "total": 185,
+    "limit": 185,
+    "files": [
+      {
+        "file": "tests/api/agreements.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/arrival-windows.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/assessments.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/booking-offer-history.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/branches.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/calendar-sync.test.mjs",
+        "count": 5
+      },
+      {
+        "file": "tests/api/callbacks.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/companycam.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/conversation.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/costing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/csv.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/customer-quotes.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/customers.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/delays.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/discounts.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/documents.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/due-visit-offers.test.mjs",
+        "count": 4
+      },
+      {
+        "file": "tests/api/eligibility.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/email.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/equipment.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/expenses.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/fixed-monthly-reports.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/flows.test.mjs",
+        "count": 15
+      },
+      {
+        "file": "tests/api/forms.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/grants.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/live-locations.test.mjs",
+        "count": 7
+      },
+      {
+        "file": "tests/api/margins.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/merge.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/money.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/morning-brief.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/movein.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/nameplates.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/options.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/payments.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/payout-reconciliation.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/payroll.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/pipeline.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/postmark-custody.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/pricebook.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/privacy.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/purchasing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/push.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/quickbooks.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/quote-link-custody.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/records.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/recurring-billing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/refunds.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/reminders.test.mjs",
+        "count": 6
+      },
+      {
+        "file": "tests/api/reports.test.mjs",
+        "count": 2
+      },
+      {
+        "file": "tests/api/route-optimization.test.mjs",
+        "count": 5
+      },
+      {
+        "file": "tests/api/routing.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/rules.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/security.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/segments.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/series.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/service-reports.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/servicecall.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/ses-sns-custody.test.mjs",
+        "count": 8
+      },
+      {
+        "file": "tests/api/stock.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/subcontract.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/subcontractor-field.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/suggest.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/time.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/tokens.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/api/travel-assignment.test.mjs",
+        "count": 3
+      },
+      {
+        "file": "tests/api/xero.test.mjs",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/arrival-windows.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/branches.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/companycam.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/conversation.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/custom-roles.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/customer-quotes.spec.ts",
+        "count": 6
+      },
+      {
+        "file": "tests/browser/discounts.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/dispatch-map.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/documents.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/due-visit-offers.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/due-visits.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/email.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/fresh-install.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/invoice-batch.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/journey.spec.ts",
+        "count": 7
+      },
+      {
+        "file": "tests/browser/money.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/morning-brief.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/movein.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/phone-location.spec.ts",
+        "count": 2
+      },
+      {
+        "file": "tests/browser/quickbooks.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/quote-link-custody.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/receivables.spec.ts",
+        "count": 4
+      },
+      {
+        "file": "tests/browser/recurring-billing.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/refunds.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/reminders.spec.ts",
+        "count": 3
+      },
+      {
+        "file": "tests/browser/revenue.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/routing.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/rules.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/service-reports.spec.ts",
+        "count": 1
+      },
+      {
+        "file": "tests/browser/subcontractor.spec.ts",
+        "count": 1
+      }
+    ]
+  },
+  "assertion_expressions": 2708,
+  "refusal_expectations": 477,
+  "assertion_equivalence": true,
+  "ci": {
+    "id": 42548981081,
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42548981081",
+    "name": "Verify",
+    "event": "push",
+    "github_calls": 2
+  },
+  "command_results": {
+    "initial_touched_tests": {
+      "exit": 0,
+      "tests": 38,
+      "passed": 38,
+      "log": "initial-touched-tests.tap",
+      "main": "a81e93dc401029a20f3bf38570b4b2fefd637246"
+    },
+    "final_step_tests": {
+      "exit": 0,
+      "tests": 2,
+      "passed": 2,
+      "log": "final-step-tests.tap",
+      "note": "Arrival/import wrappers before main integration"
+    },
+    "customer_quote_retry": {
+      "exit": 0,
+      "tests": 3,
+      "passed": 3,
+      "log": "customer-quotes-diagnostic.tap",
+      "note": "Unchanged integrated source; retry of failing customer-quote file"
+    },
+    "typecheck": {
+      "command": "pnpm run typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    "contract_write": {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "log": "contract-write.log",
+      "views_restored_from_origin_main": true
+    },
+    "contract_check": {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    "source_lock": {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "lock-write.json"
+    },
+    "source_lock_check": {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "lock-check.json"
+    },
+    "inventory_initial": {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 1,
+      "total": 203,
+      "limit": 200,
+      "log": "inventory-before.json",
+      "expected_over_limit": true
+    },
+    "inventory_integrated_main": {
+      "command": "node tests/inventory.mjs --json --limit 185",
+      "exit": 1,
+      "total": 213,
+      "limit": 185,
+      "log": "inventory-main-integrated.json",
+      "expected_over_limit": true
+    },
+    "integrated_touched_tests": {
+      "exit": 1,
+      "tests": 42,
+      "passed": 41,
+      "failed": 1,
+      "log": "touched-tests.tap",
+      "failure": "TypeError: Body is unusable: Body has already been read at signedQuoteOriginals/verifyCopies",
+      "resolution": "Customer quote file passed unchanged once; then both two-door response loops were sequenced to consume each body before the next Miniflare request, retaining every assertion. Final changed-file rerun is separate."
+    },
+    "customer_quote_final": {
+      "exit": 0,
+      "tests": 3,
+      "passed": 3,
+      "log": "customer-quotes-final.tap",
+      "note": "Sequential response consumption; every assertion unchanged"
+    },
+    "refund_main_touched_tests": {
+      "command": "node --test --test-concurrency=1 --test-reporter=tap tests/api/assessments.test.mjs tests/api/payments.test.mjs",
+      "exit": 0,
+      "tests": 4,
+      "passed": 4,
+      "log": "refund-main-touched-tests.tap",
+      "main": "553a489af1a4f789d0b0b38acf7aa5330c0c9236"
+    },
+    "candidate_inventory": {
+      "command": "node tests/inventory.mjs --limit 185",
+      "exit": 0,
+      "total": 185,
+      "log": "final-inventory.txt",
+      "immediately_before_product_push": true
+    },
+    "product_push": {
+      "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-suite-cap-2",
+      "guard_result": "PUSH_OK",
+      "outer_command_observed_exit": 1,
+      "log": "push-receipt.txt",
+      "remote_ref_verified": true,
+      "head": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+      "note": "Guard reported successful new branch; independent git ls-remote confirmed exact product SHA despite outer shell command exit 1."
+    }
+  },
+  "updated_utc": "2026-11-09T02:12:28Z",
+  "packet_files": {
+    "contract-write.log": {
+      "bytes": 28,
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    "REPORT.md": {
+      "bytes": 9270,
+      "sha256": "b6627d4402abc206428e269e84e831b2791511fc75057fb0aa13a12f2015835b"
+    },
+    "refund-main-touched-tests.tap": {
+      "bytes": 3280,
+      "sha256": "dfb14c56a2f053a21b19150cee9438e4026dab80e6ace76d376152c70ee1d30f"
+    },
+    "initial-touched-tests.tap": {
+      "bytes": 18785,
+      "sha256": "b2acb25de04629d1deb2b15de939737cbe699cd45c7d87c858510623b36269fa"
+    },
+    "contract-check.log": {
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    "ci-discovery.json": {
+      "bytes": 15152,
+      "sha256": "436af9de0daa598465609f0841fc939a312876cd8d3758acb1f7a115c9951481"
+    },
+    "inventory-before.json": {
+      "bytes": 7486,
+      "sha256": "85f2047f56c298c24bbbfc08a4b2463562689944bcec305022a695a91b765430"
+    },
+    "assertion-table.md": {
+      "bytes": 1111,
+      "sha256": "79efb1a4625a0e1431bfcc2a8a1a08fb81d6ca95ec4be07b05400b266b464e5a"
+    },
+    "inventory-main-integrated.json": {
+      "bytes": 7719,
+      "sha256": "e152ec20a94dfdf391e7e603471b5c6ac298d0c839e297fda0e8c4b784994473"
+    },
+    "remote-product-ref.txt": {
+      "bytes": 79,
+      "sha256": "9355b2a28bf831287a6708a297f305211d7db526d911dc535f2f7429f0555e34"
+    },
+    "consolidations.json": {
+      "bytes": 13592,
+      "sha256": "34e35fd384cb8a427e6c75e98f741da1b39ee7f4d852a579621d86e2879372b4"
+    },
+    "final-inventory.txt": {
+      "bytes": 69,
+      "sha256": "289f9812c7a0f77aa79f2701684ecc1340b2dd3efb8ee697af73522d524022cd"
+    },
+    "ci-receipt.json": {
+      "bytes": 273,
+      "sha256": "d9c511bc4217c695327131420ed7858971bb20bb3881a12ae7e09b9c5e51abde"
+    },
+    "lock-write.json": {
+      "bytes": 262285,
+      "sha256": "e08785368aa44d61ec794f6d54c6a44a18f99f7f0a448b610920af4192e1315f"
+    },
+    "github-calls.json": {
+      "bytes": 301,
+      "sha256": "0c3219302e41b883a2c88adcc0c9ffdf704fdb70ffa381e4ec3b3632ae5d4581"
+    },
+    "assertion-audit.mjs": {
+      "bytes": 3197,
+      "sha256": "70b09cd13c7280bf65b063529a21022bb92a07292e8cce8e51b086422024e7bd"
+    },
+    "customer-quotes-diagnostic.tap": {
+      "bytes": 3227,
+      "sha256": "c2230046e4100f0c7028eee85115512ae44e639aedbe362c7f29920aaf9383b0"
+    },
+    "lock-check.json": {
+      "bytes": 262299,
+      "sha256": "c6b3e6c07f362751389e68472e3db31a934b01631042a2123d99b1725098be48"
+    },
+    "push-receipt.txt": {
+      "bytes": 894,
+      "sha256": "1cc2ee8d1f5790f81d2525ed2ae5a9cee6f3f59bc01b3eb73cd0014df3f78160"
+    },
+    "identity-trailers.txt": {
+      "bytes": 85,
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    "ci-run.json": {
+      "bytes": 192,
+      "sha256": "fa16b87401da55607a4e29f26966804b64e62976c863f92997ee1bb338e94c7c"
+    },
+    "inventory-after.json": {
+      "bytes": 7719,
+      "sha256": "0e37520efcf120925b28e3f579602bef87407456df65f9942a44708676129475"
+    },
+    "assertion-preservation.json": {
+      "bytes": 10142,
+      "sha256": "1d67bad2338abe735982d38c97b283d6c6c73e1b7d0a58f99ec9dc28ed966e39"
+    },
+    "PLAN.md": {
+      "bytes": 3322,
+      "sha256": "723a1867fe2f26f55f77ce7d8d9df01e1a347082f4b871a32d26f1a470d86078"
+    },
+    "touched-tests.tap": {
+      "bytes": 27446,
+      "sha256": "d5573f09ec403434f5ea0615a5b9db164145d79c61fe7a09e205d34ef6a446cd"
+    },
+    "final-step-tests.tap": {
+      "bytes": 3293,
+      "sha256": "6bfac10de48c4fafeee83c5a76d756b682cc0d6911023633f283d9dd4a7ef005"
+    },
+    "command-results.json": {
+      "bytes": 3308,
+      "sha256": "a19c3560fe748af285bb666bab1240f0341b2b4740504b0f414145725e854b0c"
+    },
+    "candidate-messages.txt": {
+      "bytes": 560,
+      "sha256": "5c10b38ed3cd54df16b9d07350e3f1d078287ebf3700ca736ffba3f184e6aa3c"
+    },
+    "typecheck.log": {
+      "bytes": 196,
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    },
+    "customer-quotes-final.tap": {
+      "bytes": 3226,
+      "sha256": "69019597530aee2e779e0f1f3f2920ba6ab742f17b5cadc3d839d9749fed98a4"
+    }
+  }
+}

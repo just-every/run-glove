@@ -1,0 +1,237 @@
+{
+  "base": "553a489af1a4f789d0b0b38acf7aa5330c0c9236",
+  "rows": [
+    {
+      "file": "tests/api/movein.test.mjs",
+      "assertionsBefore": 350,
+      "assertionsAfter": 350,
+      "refusalsBefore": 36,
+      "refusalsAfter": 36,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [],
+      "assertionsSha256": "4fc358ec4d131303d43075d477cfc32dd50b4a28edfe90f34ce7200d3cb25264",
+      "refusalsSha256": "6a0a753371d5e140617e0d432dbb0fb153d7fa8231fb0e28c4a1731d14abb275"
+    },
+    {
+      "file": "tests/api/payments.test.mjs",
+      "assertionsBefore": 180,
+      "assertionsAfter": 180,
+      "refusalsBefore": 27,
+      "refusalsAfter": 27,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [],
+      "assertionsSha256": "7da8ed716af3b4d9ee78b48ca793cb713b459bf4bdc16eb5828158baeacb6f08",
+      "refusalsSha256": "1234da9ae5cb9ad6ac214fb60999f44ec94faf55f8eaf4a13e29a70c19b7ac3d"
+    },
+    {
+      "file": "tests/api/security.test.mjs",
+      "assertionsBefore": 40,
+      "assertionsAfter": 40,
+      "refusalsBefore": 17,
+      "refusalsAfter": 17,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [],
+      "assertionsSha256": "edffe9f9ff24798a274ad12bbf9585f0770b7b2e92c1648561c38ee496f1cac2",
+      "refusalsSha256": "2a2a3c01ea7320f023470782578dd9c9e06a223a995cdcd3e4fbaf2ab1e2cd9b"
+    },
+    {
+      "file": "tests/api/equipment.test.mjs",
+      "assertionsBefore": 25,
+      "assertionsAfter": 25,
+      "refusalsBefore": 6,
+      "refusalsAfter": 6,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total"
+      ],
+      "assertionsSha256": "c2ac5a770f2e1b4006387102148d109136eab39ce9f46e1b1fb2d3b03864a257",
+      "refusalsSha256": "2572e020b20fc61dfccdb786b56480ee7a0f0c8e13115cd600051ceafee846b8"
+    },
+    {
+      "file": "tests/api/arrival-windows.test.mjs",
+      "assertionsBefore": 66,
+      "assertionsAfter": 66,
+      "refusalsBefore": 1,
+      "refusalsAfter": 1,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [],
+      "assertionsSha256": "9546d0f0e1915ba52d825a280ec24c86e41772c461f62f2c9b6ebb49e1c80410",
+      "refusalsSha256": "73fedad2ca865aef389a66741653de3e944b619e5cc44ad8a24999ba1d53f6ac"
+    },
+    {
+      "file": "tests/api/agreements.test.mjs",
+      "assertionsBefore": 252,
+      "assertionsAfter": 252,
+      "refusalsBefore": 37,
+      "refusalsAfter": 37,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented"
+      ],
+      "assertionsSha256": "23647e6b981152a948e338bbcbf94503ce6d86c75bc42dd4620f86e4e61fea2b",
+      "refusalsSha256": "8eb09852a78d7c175ded2d82abc140cb647fbee906c9faabdb2cd1b7660ec845"
+    },
+    {
+      "file": "tests/api/quickbooks.test.mjs",
+      "assertionsBefore": 340,
+      "assertionsAfter": 340,
+      "refusalsBefore": 105,
+      "refusalsAfter": 105,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history",
+        "QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates",
+        "QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send",
+        "QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge",
+        "QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload"
+      ],
+      "assertionsSha256": "5e68fa5860381c2b2c06036e38b3e9f0a15b3b7f4c19465d6917810ab5427d73",
+      "refusalsSha256": "4105a4c9acb7fd2eb0746d5aa875305ca037a9caeeee6ae22cbefb4798571be9"
+    },
+    {
+      "file": "tests/api/flows.test.mjs",
+      "assertionsBefore": 416,
+      "assertionsAfter": 416,
+      "refusalsBefore": 98,
+      "refusalsAfter": 98,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "03 an enquiry becomes a quote whose exact revision a person prices and approves",
+        "04 recorded sends and customer answers retain exact provenance and freeze accepted revisions",
+        "09 office prepares the invoice, approves it, exports it once and corrects it with a trail"
+      ],
+      "assertionsSha256": "526a19eee3f57720f54aed353461a0329f59c04c4b9c04e2703a0ac7c6f27d2d",
+      "refusalsSha256": "3889cf49a0e66187617d3cd9a0f9953bab7c8b44757a4d518ef9567f54761925"
+    },
+    {
+      "file": "tests/api/pipeline.test.mjs",
+      "assertionsBefore": 171,
+      "assertionsAfter": 171,
+      "refusalsBefore": 34,
+      "refusalsAfter": 34,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report"
+      ],
+      "assertionsSha256": "4a2bdb41bfbacd9f14c4d5b3994fa6c4e28f805e17adac426a1c5dfbba106d10",
+      "refusalsSha256": "0cc082370b833a028829715925cec3c013610559c9b7177ae667d2e63ec3708a"
+    },
+    {
+      "file": "tests/api/subcontract.test.mjs",
+      "assertionsBefore": 84,
+      "assertionsAfter": 84,
+      "refusalsBefore": 21,
+      "refusalsAfter": 21,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year"
+      ],
+      "assertionsSha256": "92e0dc3aff8d4fb5222679b12a928bf5ee124cd2f87695730ab4915a6a5f4f33",
+      "refusalsSha256": "0bd34e29ef65f6973cf16b5cb594d12c9c91ddf0861ca67df7c0d85bc65a5889"
+    },
+    {
+      "file": "tests/api/payroll.test.mjs",
+      "assertionsBefore": 30,
+      "assertionsAfter": 30,
+      "refusalsBefore": 9,
+      "refusalsAfter": 9,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [],
+      "assertionsSha256": "0db8d9b74bb68dd3adaafcaddb928befd281074461e7baeb48bd7beebf0b7e91",
+      "refusalsSha256": "9d510907bb008880129c328429020e0a1904ad6fc1930455c3187e27dad183d4"
+    },
+    {
+      "file": "tests/api/options.test.mjs",
+      "assertionsBefore": 61,
+      "assertionsAfter": 61,
+      "refusalsBefore": 23,
+      "refusalsAfter": 23,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [],
+      "assertionsSha256": "b7a4517271ff8fa3f9a24100200e5dc12113db932eccc52ba6c708a0d278e822",
+      "refusalsSha256": "2e940fbfa2cd8faa119a39f531591c2e3ce1681679028e1dd6fb8ac6f1443e99"
+    },
+    {
+      "file": "tests/api/email.test.mjs",
+      "assertionsBefore": 181,
+      "assertionsAfter": 181,
+      "refusalsBefore": 16,
+      "refusalsAfter": 16,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay"
+      ],
+      "assertionsSha256": "ba5d44965891efc0f3e2a2a9e55eeb54ef0d9e166f3a35cb7286975089b3d31d",
+      "refusalsSha256": "34d0cbcce11c1839817236b79a049ca4b950dadb26266d685b75bdac34ff45e2"
+    },
+    {
+      "file": "tests/api/customer-quotes.test.mjs",
+      "assertionsBefore": 293,
+      "assertionsAfter": 293,
+      "refusalsBefore": 22,
+      "refusalsAfter": 22,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy"
+      ],
+      "assertionsSha256": "ede860a9e4dfef6b18c5d3462e69eacffd8e67844bec4e98f7f27e2a43c4101c",
+      "refusalsSha256": "eb2f10171aa8c58bb0ca783ef7c642fd54c41d5847f3b4c1b5beb5bef4cd5494"
+    },
+    {
+      "file": "tests/api/recurring-billing.test.mjs",
+      "assertionsBefore": 158,
+      "assertionsAfter": 158,
+      "refusalsBefore": 16,
+      "refusalsAfter": 16,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [
+        "PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks"
+      ],
+      "assertionsSha256": "9930073192fd82d11619863df850ab720a87d59baba6ba87ed3db9e953161a8b",
+      "refusalsSha256": "38de3db7c784164dd8bde0b3235472dea49a0455e69cbf2cf1b9214d7bb74270"
+    },
+    {
+      "file": "tests/api/assessments.test.mjs",
+      "assertionsBefore": 61,
+      "assertionsAfter": 61,
+      "refusalsBefore": 9,
+      "refusalsAfter": 9,
+      "expressionsUnchanged": true,
+      "refusalsUnchanged": true,
+      "citedNamesKept": true,
+      "citedRegistrations": [],
+      "assertionsSha256": "46654d10bd6edbb3828379a458d3469d5e4f6e8860d713b7721ea90ba5da8f1b",
+      "refusalsSha256": "a0e873ceb81ab477df8648df73e1cf91de2b25bd88855103aa52b1910df63ffd"
+    }
+  ]
+}

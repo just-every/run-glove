@@ -1,0 +1,15 @@
+Credential fingerprint metadata omitted from this public receipt.
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+PUSH attempt=1/5 command=git push --porcelain origin HEAD:refs/heads/cloud/sx-glove-suite-cap-2
+fleet Git: removed 0 credential-bearing GitHub URL rewrite sections
+To https://github.com/just-every/run-glove.git
+*	HEAD:refs/heads/cloud/sx-glove-suite-cap-2	[new branch]
+Done
+remote: 
+remote: Create a pull request for 'cloud/sx-glove-suite-cap-2' on GitHub by visiting:        
+remote:      https://github.com/just-every/run-glove/pull/new/cloud/sx-glove-suite-cap-2        
+remote: 
+remote: GitHub found 30 vulnerabilities on just-every/run-glove's default branch (14 high, 14 moderate, 2 low). To find out more, visit:        
+remote:      https://github.com/just-every/run-glove/security/dependabot        
+remote: 
+PUSH_OK branch=cloud/sx-glove-suite-cap-2

@@ -1,0 +1,228 @@
+[
+  {
+    "file": "tests/api/movein.test.mjs",
+    "before": 6,
+    "after": 1,
+    "registration": "Imported provider exports retain records and refuse unsafe undo for every supported source",
+    "steps": [
+      "ServiceM8 every source record is reviewed, fingerprinted, retained through restart, repeated without effects and safely undone",
+      "MOVE-001, MOVE-007 Jobber saved responses and product CSV preview, retain recurring visits, repeat without duplicates and undo while keeping native work",
+      "Imported provider exports retain records and refuse unsafe undo for every supported source",
+      "MOVE-004, MOVE-010 FieldPulse recurring report retains one schedule, requires explicit activation after all exported work, and names unsupported definitions",
+      "MOVE-003, MOVE-009 an ongoing multi-location membership keeps one identity and offers each outstanding source event only at its own site",
+      "MOVE-002, MOVE-008 Housecall Pro saved responses preview prices, balances and recurring visits, repeat unchanged and undo without removing native work"
+    ]
+  },
+  {
+    "file": "tests/api/payments.test.mjs",
+    "before": 3,
+    "after": 1,
+    "registration": "PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes",
+    "steps": [
+      "PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes",
+      "PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout",
+      "PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects"
+    ]
+  },
+  {
+    "file": "tests/api/security.test.mjs",
+    "before": 3,
+    "after": 1,
+    "registration": "Current built-in and custom roles fence every command and read door, including role withdrawal and unknown commands",
+    "steps": [
+      "each role, built-in or custom, is refused exactly the commands it does not hold",
+      "inherited command names receive the same safe refusal as an unknown name",
+      "PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request"
+    ]
+  },
+  {
+    "file": "tests/api/security.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "Command session and identity custody refuses signed-out, revoked, cross-origin and cross-person replay requests",
+    "steps": [
+      "signed-out, revoked and cross-origin requests change nothing",
+      "a command identity replays its outcome only for the same person and content"
+    ]
+  },
+  {
+    "file": "tests/api/equipment.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "CUST-002 equipment saved during a condenser visit retains service history, photos and warranty state",
+    "steps": [
+      "CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser",
+      "CUST-002 the condenser's service history and warranty state, the phone's records and the expiring-warranty report"
+    ]
+  },
+  {
+    "file": "tests/api/arrival-windows.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "Arrival windows and automatic assignment preserve boundaries, eligibility and refusal state",
+    "steps": [
+      "Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes",
+      "Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name"
+    ]
+  },
+  {
+    "file": "tests/api/agreements.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "Due entitlements retain exact projections and current-authority booking offers through delivery, choice, revocation and restart",
+    "steps": [
+      "Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart",
+      "PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work"
+    ]
+  },
+  {
+    "file": "tests/api/quickbooks.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send",
+    "steps": [
+      "QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send",
+      "QuickBooks company discovery proposes imported customer, item and original invoice links without a write or a partial company review"
+    ]
+  },
+  {
+    "file": "tests/api/quickbooks.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "Xero reviewed customer and property invoice links retain exact identities through guarded writes, refusal repair and uncertain sends",
+    "steps": [
+      "Xero complete company reads and reviewed existing links preserve two property invoice identities without writes or restored authority",
+      "Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts"
+    ]
+  },
+  {
+    "file": "tests/api/flows.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation",
+    "steps": [
+      "PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation",
+      "PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail"
+    ]
+  },
+  {
+    "file": "tests/api/pipeline.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report",
+    "steps": [
+      "BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report",
+      "DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost"
+    ]
+  },
+  {
+    "file": "tests/api/subcontract.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year",
+    "steps": [
+      "API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor's 1099 total is kept",
+      "DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year"
+    ]
+  },
+  {
+    "file": "tests/api/agreements.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented",
+    "steps": [
+      "PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented",
+      "Due entitlements retain exact projections and current-authority booking offers through delivery, choice, revocation and restart"
+    ]
+  },
+  {
+    "file": "tests/api/payroll.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor",
+    "steps": [
+      "COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor",
+      "TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files"
+    ]
+  },
+  {
+    "file": "tests/api/options.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "QUOTE-001 three options and two add-ons: the job carries exactly the chosen option and add-on; a template carries the raised price",
+    "steps": [
+      "QUOTE-001 three options and two add-ons: the job carries exactly the chosen option and add-on; a template carries the raised price",
+      "QUOTE-006, QUOTE-016, QUOTE-017, QUOTE-018 owner-bound field pricing drafts two options from an assigned assessment, retains evidence once, and withdraws access immediately"
+    ]
+  },
+  {
+    "file": "tests/api/email.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay",
+    "steps": [
+      "COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome",
+      "COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay"
+    ]
+  },
+  {
+    "file": "tests/api/customer-quotes.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy",
+    "steps": [
+      "QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy",
+      "QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card"
+    ]
+  },
+  {
+    "file": "tests/api/recurring-billing.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks",
+    "steps": [
+      "PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks",
+      "PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change"
+    ]
+  },
+  {
+    "file": "tests/api/pipeline.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report",
+    "steps": [
+      "BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report",
+      "BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure"
+    ]
+  },
+  {
+    "file": "tests/api/flows.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "09 office prepares the invoice, approves it, exports it once and corrects it with a trail",
+    "steps": [
+      "09 office prepares the invoice, approves it, exports it once and corrects it with a trail",
+      "PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation"
+    ]
+  },
+  {
+    "file": "tests/api/assessments.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "BOOK-006 assessment booking freezes selected forms and technician completion stays assessed after restart",
+    "steps": [
+      "BOOK-006 assessment booking freezes selected forms and technician completion stays assessed after restart",
+      "DISP-006 visits, service calls and assessments carry an arrival window separate from the planned time"
+    ]
+  },
+  {
+    "file": "tests/api/payments.test.mjs",
+    "before": 2,
+    "after": 1,
+    "registration": "PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes",
+    "steps": [
+      "PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes",
+      "PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact"
+    ]
+  }
+]

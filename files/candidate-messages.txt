@@ -1,0 +1,7 @@
+commit a9626806a7691019bf0a82bdb979d59b7aa0ce5a
+Consolidate related API journeys to keep the inventory at 185
+
+Retain all 2708 assertion expressions, 477 explicit refusal expectations and contract-cited registration names. Reduce integrated main from 209 registrations plus four scripts to 181 plus four, including all ten newly landed SES/SNS and refund registrations.
+
+Use named steps for related cases and consume signed-copy response bodies before fetching the next door. Regenerate the source lock without changing contract judgments or generated views.
+
