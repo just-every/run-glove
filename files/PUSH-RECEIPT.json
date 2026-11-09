@@ -1,0 +1,34 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "branch": "cloud/sx-glove-c-f224",
+  "remote_head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "observed_at": "2026-11-09T18:17:28.842425+00:00",
+  "guard": "PUSH_OK",
+  "identity_and_trailers": "all candidate commits inspected, including side parents",
+  "commits": [
+    {
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    },
+    {
+      "head": "45e48a4bc06c4148efbd49d8b2455ced9bfeb1fd",
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    },
+    {
+      "head": "119fdf70117bf388b27284402dfdc985791f1c44",
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    }
+  ]
+}

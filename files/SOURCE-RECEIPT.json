@@ -1,0 +1,39 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "base": "9e90f81f6380137303cb03616e7955a0e4642218",
+  "branch": "cloud/sx-glove-c-f224",
+  "files": [
+    {
+      "path": "tests/api/email.test.mjs",
+      "sha256": "8dc1b1efebd279c7ef2f69540741be67e03531fb333fc358e5a9fb88d5e96545"
+    },
+    {
+      "path": "tests/portable.mjs",
+      "sha256": "075903b36d5cb3320cd6bbe3bc3d2036572a8e664cbbfb6bd82fcf1fc8bb09d8"
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "79dd49bc5f48a62a4bb2d0c263c790d78dfc661da9831f3f089f0b66478364b6"
+    },
+    {
+      "path": "tests/fixtures/mail-providers.mjs",
+      "sha256": "701bccc738479fb28be47416a247b1af8d2b1325f2804c41a3bd847e61b777c3"
+    },
+    {
+      "path": "tests/browser/email.spec.ts",
+      "sha256": "029b3cda68bcf68aa4ba07100a848016abcff2ec57646135eb2dcc4d944062dd"
+    },
+    {
+      "path": "src/glove/commands/mail.ts",
+      "sha256": "0508746629309e6c77847f9e6384afa8f3cde3dab5ab4668e1a22e04aec019aa"
+    },
+    {
+      "path": "src/glove/mail.ts",
+      "sha256": "3714b491261ba1216e0641c27e1f920553cfdcb4f293b2da85c60a0f83346c4e"
+    },
+    {
+      "path": "src/glove/mail-send.ts",
+      "sha256": "d8264ccba48f0b5c8afdd50bcf3f8b560249d3c1c6a9aecc8782f9cab419326f"
+    }
+  ]
+}

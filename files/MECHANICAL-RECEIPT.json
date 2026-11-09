@@ -1,0 +1,49 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "checks": [
+    {
+      "check": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+      "log_sha256": "5ed8d4fd4a4287dd5651d85acd5c8a30ffea47a0950320fe4eeacd52ad28c804"
+    },
+    {
+      "check": "first-party",
+      "command": "pnpm run check --profile first-party",
+      "exit": 0,
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+      "log_sha256": "c874de9051c63a480531459c4c38282d29dd31ec74d39fdd5b5d85396b668687"
+    },
+    {
+      "check": "views-write",
+      "command": "node scripts/contract-docs.mjs write --clauses COMM-001",
+      "exit": 0,
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+      "log_sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "check": "views-check",
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+      "log_sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "check": "lock",
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+      "log_sha256": "fc9870bb786afb28fbb8cac01b4dc5905951997472e510c4cc5a4a17c1e9fbf4"
+    },
+    {
+      "check": "lock-check",
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+      "log_sha256": "91305b8470f095238061ffc9a58f3e3e65fce329501792b118d76ced7fd16ee7"
+    }
+  ],
+  "generated_views": "restored whole from origin/main",
+  "ledger": "not applicable; no migration"
+}

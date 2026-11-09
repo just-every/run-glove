@@ -1,0 +1,13 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "command": "existing email browser registration against owned rer dev",
+  "start": "2026-11-09T18:00:56.517Z",
+  "finish": "2026-11-09T18:01:06.663Z",
+  "result": "failed",
+  "widths": [
+    1440,
+    390
+  ],
+  "executable": "/usr/bin/chromium",
+  "cleanup": "owned server stopped in finally"
+}

@@ -1,0 +1,8 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "command": "cloud_run npx -y @runeditrun/rer build",
+  "exit": 0,
+  "log_sha256": "7db8be0499e3db87b045becbfa2dd5259001a0f8b4b398b89af251810a0abacf",
+  "after_proof_lock_check_exit": 0,
+  "worktree": "clean after restoring generated route tree"
+}

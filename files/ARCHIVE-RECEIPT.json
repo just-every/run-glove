@@ -1,0 +1,17 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "command": "node /tmp/glove-archive-proof.mjs; native owner mail.connect then rer export",
+  "start": "2026-11-09T18:14:23.743Z",
+  "finish": "2026-11-09T18:16:14.766Z",
+  "result": "passed",
+  "proof": {
+    "bytes": 156381,
+    "sha256": "778c022723191bac92a462b777e5f31f2053751212e5e5880065d0696b1a3ce4",
+    "populatedBusiness": true,
+    "apiKeyAbsent": true,
+    "callbackPasswordAbsent": true,
+    "callbackHashAbsent": true,
+    "credentialTablesAbsent": true
+  },
+  "cleanup": "owned server stopped; private scratch archive removed"
+}

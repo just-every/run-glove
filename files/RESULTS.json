@@ -1,0 +1,105 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f224",
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "claim": {
+    "clause": "COMM-001",
+    "native_points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "proposed_status": "DONE",
+    "source_status": "PARTIAL",
+    "landing_judgment": "fleet gate"
+  },
+  "local": {
+    "combined_email": {
+      "exit": 0,
+      "registrations": 1,
+      "duration_ms": 432849.892216
+    },
+    "browser": {
+      "exit": 0,
+      "registrations": 1,
+      "widths": [
+        1440,
+        390
+      ],
+      "screenshots": 54
+    },
+    "native_archive": {
+      "exit": 0,
+      "bytes": 156381
+    },
+    "production_build": {
+      "exit": 0
+    },
+    "typecheck": {
+      "exit": 0
+    },
+    "first_party": {
+      "exit": 0
+    },
+    "contract_generation_and_check": {
+      "exit": 0,
+      "views": "restored from main"
+    },
+    "source_lock": {
+      "exit": 0
+    },
+    "full_portable_attempts": {
+      "exits": [
+        1,
+        1
+      ],
+      "failure": "unrelated cold calendar setup listener handshake deadline; target archive proof passed through native owner and real export"
+    }
+  },
+  "ci": {
+    "conclusion": null,
+    "head_sha": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42671242437",
+    "status": "in_progress"
+  },
+  "github_rest_calls": 5,
+  "pr": null,
+  "source_counts": {
+    "before_upstream_merge": {
+      "done": 43,
+      "partial": 191,
+      "missing": 29
+    },
+    "merged_main_and_candidate": {
+      "done": 42,
+      "partial": 192,
+      "missing": 29
+    },
+    "builder_judgment_changes": 0,
+    "status_rows": 263
+  },
+  "publication_scan": {
+    "commit": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "fleet lander duty"
+  },
+  "riders": {
+    "1": "PASS native outcomes",
+    "2": "PASS dangerous paths both ways",
+    "3": "pending exact-head Verify",
+    "4": "PASS exact-head API, browser and native archive",
+    "5": "INSPECTED existing six Base citations",
+    "6": "PASS mechanical; source judgments preserved",
+    "7": "INSPECTED no acceptance change or assertion weakening",
+    "8": "PASS authority refusals unchanged",
+    "9": "PASS field-proof boundary, no live-provider claim",
+    "10": "not applicable, no default",
+    "11": "pending fleet scanning, landing and Run site"
+  }
+}

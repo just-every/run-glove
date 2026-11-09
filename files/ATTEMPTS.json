@@ -1,0 +1,37 @@
+[
+  {
+    "name": "email-baseline",
+    "command": "node --test --test-concurrency=1 tests/api/email.test.mjs",
+    "exit": 1,
+    "note": "VM Node 24; existing callback rejection allowance received 401 rather than 429",
+    "original_log_sha256": "bba30db669fdd599416b63268c07ff5324c0d8b63e330e92d2f2df1cb637cf9d"
+  },
+  {
+    "name": "email-first-save",
+    "command": "node --test --test-concurrency=1 tests/api/email.test.mjs",
+    "exit": 0,
+    "note": "Pinned Node 22; first saved target proof plus all existing mail scenarios",
+    "original_log_sha256": "c3e36a3a3c8dbd433c0476202250f24529dafc6d5e39454e166775c801cee4ca"
+  },
+  {
+    "name": "portable-first-attempt",
+    "command": "timeout 1200 node tests/portable.mjs",
+    "exit": 1,
+    "note": "Cold setup listener handshake deadline before behavioral assertions",
+    "original_log_sha256": "64ba43e51e4d56b91d56c672f94a2f14e0250d4ef6b69b6dac42d40d6d093058"
+  },
+  {
+    "name": "browser-first-attempt",
+    "command": "timeout 1800 node tests/browser/run.mjs tests/browser/email.spec.ts",
+    "exit": 1,
+    "note": "Cold setup listener handshake deadline before behavioral assertions",
+    "original_log_sha256": "bee1b5d798b2fcf17baf16ddbfaff6bd27a2de008dae245b541393a75fee8a74"
+  },
+  {
+    "name": "portable-second-startup",
+    "command": "timeout 1200 node tests/portable.mjs",
+    "exit": 1,
+    "note": "Same unrelated calendar setup listener deadline while the API was active; no product or assertion changed",
+    "original_log_sha256": "6f0d3230fb92605a38258bbdbba84eabee725b187bef09a1ac14d720c182b842"
+  }
+]

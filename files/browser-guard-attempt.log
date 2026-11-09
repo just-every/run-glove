@@ -1,0 +1,5 @@
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+A local process holds this checkout: PID 4084 (node). Stop it with kill -TERM 4084, then retry. Use rer dev --stop or rer preview --stop for a registered server.
+dev: failed (exit 4)
+

@@ -1,0 +1,18 @@
+{
+  "head": "760a4e508216f4ba93caaa25e59ac0637b27a48e",
+  "command": "timeout 1200 node --test --test-concurrency=1 tests/api/email.test.mjs",
+  "node": "22.20.0",
+  "exit": 0,
+  "duration_ms": 432849.892216,
+  "registrations": 1,
+  "points": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "log_sha256": "22fd3fe055592b3dc24306403db5eb887ea8f74121c3cae38c22287388c8de64"
+}
