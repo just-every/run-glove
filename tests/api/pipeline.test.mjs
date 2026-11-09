@@ -6,6 +6,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, assertTrail } from './harness.mjs'
 import { recorded } from '../fixtures/leads.mjs'
+import { connectMail } from '../fixtures/mail-providers.mjs'
 
 test('BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report', async t => {
   await scenario(t, 'BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report', async (t) => {
@@ -247,6 +248,173 @@ test('BOOK-003 requests from four sources move through the pipeline into the con
   assert.equal((await post('angi', recorded.angi(), angi.password)).status, 404)
   await assertTrail(h, ['lead.connected', 'lead.received', 'rule.ran', 'lead.read', 'enquiry.acknowledged', 'enquiry.cost', 'lead.disconnected', 'enquiry.replyApproved', 'email.queued', 'email.accepted'])
 })
+
+  await scenario(t, 'BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts', async t => {
+    const at = '2026-11-09T12:00:00.000Z', overdue = '2026-11-09T14:00:00.000Z'
+    const h = await installation({ at })
+    t.after(() => h.close())
+    const b = await business(h)
+    const owner = (await h.state()).actor
+    const customRole = await h.command('role.save', { name: 'Acknowledgment desk', permissions: ['enquiry.acknowledged'] })
+    const custom = await h.person('Acknowledgment Custom', `custom:${customRole.id}`)
+    const scopedOwner = await h.person('Acknowledgment Scoped Owner', 'owner')
+    await h.command('branch.limit', { operatorId: scopedOwner.id, branchId: 'main' })
+    const token = await h.command('token.issue', { name: 'Acknowledgment integration', role: 'office' })
+    await connectMail(h, 'postmark')
+    const emailBefore = h.email.sent.length
+    const connections = {}
+    for (const provider of ['thumbtack', 'angi', 'yelp', 'reserve-google']) {
+      connections[provider] = await h.command('lead.connect', { provider, ...(provider === 'yelp' ? { apiKey: 'synthetic-glove-book016-1' } : {}) })
+    }
+    await h.command('lead.connect', { provider: 'google', customerId: '1234567890', developerToken: 'synthetic-glove-book016-2', clientId: 'synthetic-glove-book016-3', clientSecret: 'synthetic-glove-book016-4', refreshToken: 'synthetic-glove-book016-5' })
+    const notify = await h.command('rule.save', { name: 'BOOK-016 internal acknowledgment notice', trigger: 'enquiry.created', action: { kind: 'notify', to: 'office', message: 'A person must review this lead.' } })
+    const cost = await h.command('rule.save', { name: 'BOOK-016 internal lead cost', trigger: 'enquiry.created', action: { kind: 'leadCost', amount: '19.25' } })
+    const post = (provider, body) => h.mf.dispatchFetch(`${h.origin}/api/glove/leads/${provider}`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Basic ${Buffer.from(`glove:${connections[provider].password}`).toString('base64')}` }, body: JSON.stringify(body) })
+    // Keep the existing recorded provider formats, with times fixed at the runtime boundary.
+    const thumbtack = recorded.thumbtack('synthetic-glove-book016-6')
+    thumbtack.data.createTimestamp = at
+    const angi = { ...recorded.angi(), createDate: at }
+    const yelpId = 'synthetic-glove-book016-7', maskedAddress = ['synthetic-glove-book016-relay', 'example.test'].join('@')
+    h.leads.yelp.set(yelpId, { ...recorded.yelpLead(yelpId), time_created: at, last_event_time: at, temporary_email_address: maskedAddress, temporary_email_address_expiry: '2026-11-16T12:00:00.000Z' })
+    const yelp = recorded.yelpNotice(yelpId)
+    yelp.time = at
+    yelp.data.updates[0].interaction_time = at
+    const reserve = recorded.reserveGoogle('synthetic-glove-book016-8')
+    reserve.slot.start_sec = String(Date.parse('2026-11-10T12:00:00.000Z') / 1000)
+    for (const [provider, payload] of [['thumbtack', thumbtack], ['angi', angi], ['yelp', yelp], ['reserve-google', reserve]]) {
+      const response = await post(provider, payload)
+      assert.equal(response.status, 200, await response.clone().text())
+    }
+    const google = id => {
+      const row = recorded.google(id)
+      row.localServicesLead.creationDateTime = '2026-11-09 12:00:00'
+      return row
+    }
+    h.leads.google.push(google('synthetic-glove-book016-9'))
+    const pullId = 'synthetic-glove-book016-pull'
+    assert.equal((await b.dispatcher.run('lead.pull', { provider: 'google' }, { commandId: pullId })).landed.length, 1)
+    h.leads.google.push(google('synthetic-glove-book016-10'))
+    await h.scheduled(at)
+    const initial = await h.state(), leads = initial.enquiries.filter(e => e.lead)
+    assert.deepEqual(leads.map(e => e.source).sort(), ['angi', 'google', 'google', 'reserve-google', 'thumbtack', 'yelp'])
+    const queued = new Map(leads.map(e => [e.id, e.acknowledgment]))
+    const officeNotices = (await b.office.state()).notices
+    for (const lead of leads) {
+      assert.equal(lead.acknowledgment.status, 'queued')
+      assert.equal(lead.acknowledgment.dueBy, '2026-11-09T13:00:00.000Z')
+      const noticeRun = initial.ruleRuns.find(r => r.ruleId === notify.id && r.trigger.subjectId === lead.id)
+      assert.equal(noticeRun?.outcome, 'done')
+      assert.equal(noticeRun.createdBy.id, owner.id)
+      assert.ok(officeNotices.some(n => n.id === noticeRun.noticeId && n.subjectId === lead.id && n.to.includes('office')))
+      const costRun = initial.ruleRuns.find(r => r.ruleId === cost.id && r.trigger.subjectId === lead.id)
+      assert.equal(costRun?.outcome, lead.source === 'thumbtack' ? 'refused' : 'done')
+      assert.equal(costRun.createdBy.id, owner.id)
+      assert.equal(lead.leadCost.amount, lead.source === 'thumbtack' ? '35.50' : '19.25')
+    }
+    const noAutomaticSend = async () => {
+      const state = await h.state()
+      assert.equal(h.email.sent.length, emailBefore, 'BOOK-016: no provider email request')
+      assert.deepEqual(state.messages, [], 'BOOK-016: no message row')
+      assert.deepEqual(state.events.filter(e => e.kind.startsWith('email.')), [], 'BOOK-016: no email fact')
+      for (const [id, acknowledgment] of queued) assert.deepEqual(state.enquiries.find(e => e.id === id).acknowledgment, acknowledgment, 'BOOK-016: queued state and original deadline survive')
+    }
+    await noAutomaticSend()
+    t.diagnostic('BOOK-016: overdue clock, repeated cron, replay and actual Worker restart')
+    await h.setTime(overdue)
+    for (let i = 0; i < 2; i++) { await h.scheduled(overdue); await noAutomaticSend() }
+    await b.dispatcher.run('lead.pull', { provider: 'google' }, { commandId: pullId })
+    for (const [provider, payload] of [['thumbtack', thumbtack], ['angi', angi], ['yelp', yelp], ['reserve-google', reserve]]) assert.equal((await post(provider, payload)).status, 200)
+    await noAutomaticSend()
+    await h.restart()
+    await noAutomaticSend()
+    await h.scheduled(overdue)
+    await b.dispatcher.run('lead.pull', { provider: 'google' }, { commandId: pullId })
+    assert.equal((await h.state()).enquiries.length, leads.length, 'BOOK-016: source and command replay create no additional request')
+    await noAutomaticSend()
+
+    t.diagnostic('BOOK-016: every excluded actor is refused without queuing')
+    const yelpRequest = leads.find(e => e.source === 'yelp')
+    const payload = { enquiryId: yelpRequest.id, version: yelpRequest.version, confirm: true }
+    for (const person of [b.office, b.dispatcher, b.agent, b.priyaPerson, custom, scopedOwner]) {
+      await person.run('enquiry.reply', payload, { error: 'FORBIDDEN' })
+      await noAutomaticSend()
+    }
+    const tokenReply = async commandId => {
+      const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/commands`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token.token}` }, body: JSON.stringify({ commandId, type: 'enquiry.reply', payload }) })
+      return [response.status, (await response.json()).error.code]
+    }
+    assert.deepEqual(await tokenReply('synthetic-glove-book016-token'), [403, 'FORBIDDEN'])
+    await noAutomaticSend()
+    await h.command('token.revoke', { tokenId: token.id })
+    assert.deepEqual(await tokenReply('synthetic-glove-book016-revoked'), [401, 'AUTH'])
+    await noAutomaticSend()
+    await h.command('enquiry.reply', { ...payload, confirm: false }, { error: 'CONSENT' })
+    await noAutomaticSend()
+
+    t.diagnostic('BOOK-016: desk attestation sends nothing and the explicit Owner command commits before one masked-address send')
+    const thumb = leads.find(e => e.source === 'thumbtack')
+    const attestationId = 'synthetic-glove-book016-attestation'
+    const attestationPayload = { enquiryId: thumb.id, version: thumb.version, how: 'Replied in Thumbtack outside Glove' }
+    const attested = await b.office.run('enquiry.acknowledged', attestationPayload, { commandId: attestationId })
+    assert.deepEqual(attested.acknowledgment, { ...queued.get(thumb.id), status: 'sent', sentAt: overdue, by: { id: b.office.id, name: b.office.name, role: 'office' }, how: attestationPayload.how })
+    queued.set(thumb.id, attested.acknowledgment)
+    await b.office.run('enquiry.acknowledged', attestationPayload, { commandId: attestationId })
+    await noAutomaticSend()
+    const customer = (await h.state()).customers.find(c => c.id === yelpRequest.customerId)
+    await h.command('customer.save', { id: customer.id, version: customer.version, name: customer.name, email: ['synthetic-glove-book016-changed', 'example.test'].join('@') })
+    const replyId = 'synthetic-glove-book016-reply'
+    let committedBeforeSend = false
+    h.email.beforeRespond = async () => {
+      const committed = await h.state(), request = committed.enquiries.find(e => e.id === yelpRequest.id)
+      assert.equal(request.acknowledgment.status, 'emailQueued')
+      assert.equal(committed.messages.length, 1)
+      assert.equal(committed.messages[0].id, request.acknowledgment.messageId)
+      assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_commands WHERE id=?').bind(replyId).first()).n, 1, 'BOOK-016: command is durable before the provider answers')
+      assert.ok(committed.events.some(e => e.kind === 'email.queued' && e.commandId === replyId))
+      committedBeforeSend = true
+    }
+    const reply = await h.command('enquiry.reply', payload, { commandId: replyId })
+    h.email.beforeRespond = null
+    assert.equal(committedBeforeSend, true)
+    assert.equal(h.email.sent.length, emailBefore + 1)
+    assert.deepEqual([h.email.sent.at(-1).to, h.email.sent.at(-1).body.TextBody], [maskedAddress, yelpRequest.acknowledgment.text])
+    assert.equal(reply.acknowledgment.dueBy, queued.get(yelpRequest.id).dueBy)
+    assert.deepEqual(reply.acknowledgment.by, { id: owner.id, name: owner.name, role: 'owner' })
+    queued.set(yelpRequest.id, reply.acknowledgment)
+    await h.command('enquiry.reply', payload, { commandId: replyId })
+    await h.command('enquiry.reply', { ...payload, version: reply.version }, { error: 'ACKNOWLEDGMENT' })
+    await h.restart()
+    await h.command('enquiry.reply', payload, { commandId: replyId })
+    await b.office.run('enquiry.acknowledged', attestationPayload, { commandId: attestationId })
+    await h.setTime('2026-11-09T15:00:00.000Z')
+    for (let i = 0; i < 2; i++) await h.scheduled('2026-11-09T15:00:00.000Z')
+    const final = await h.state()
+    assert.equal(h.email.sent.length, emailBefore + 1, 'BOOK-016: replay, restart and later passes never resend')
+    assert.deepEqual(final.messages.map(m => [m.id, m.kind, m.subjectId, m.to, m.by.id]), [[reply.acknowledgment.messageId, 'leadReply', yelpRequest.id, maskedAddress, owner.id]])
+    assert.deepEqual(final.events.filter(e => e.kind.startsWith('email.')).map(e => [e.kind, e.subjectId]).sort(), [['email.accepted', reply.acknowledgment.messageId], ['email.queued', reply.acknowledgment.messageId]])
+    for (const [id, acknowledgment] of queued) assert.deepEqual(final.enquiries.find(e => e.id === id).acknowledgment, acknowledgment)
+    assert.equal(final.messageStates[reply.acknowledgment.messageId].status, 'accepted')
+    const activity = []
+    let before = null
+    do {
+      const response = await h.request(`/api/glove/activity${before ? `?before=${before}` : ''}`)
+      assert.equal(response.status, 200)
+      const page = await response.json()
+      activity.push(...page.events)
+      before = page.next
+    } while (before)
+    const exported = await (await h.request('/api/glove/export')).json()
+    for (const [id, acknowledgment] of queued) assert.deepEqual(exported.enquiries.find(e => e.id === id).acknowledgment, acknowledgment)
+    for (const [id, kind, person, commandId] of [[thumb.id, 'enquiry.acknowledged', b.office, attestationId], [yelpRequest.id, 'enquiry.replyApproved', owner, replyId]]) {
+      const events = activity.filter(e => e.subjectId === id && e.kind === kind)
+      assert.equal(events.length, 1)
+      assert.deepEqual([events[0].actorId, events[0].actorName, events[0].commandId], [person.id, person.name, commandId])
+      assert.ok(activity.some(e => e.commandId === commandId && e.actorId === person.id && e.recordChanges.some(r => r.kind === 'enquiries' && r.id === id && r.fields.includes('acknowledgment'))))
+      const retained = exported.timeline.filter(e => e.subject_id === id && e.kind === kind)
+      assert.equal(retained.length, 1)
+      assert.deepEqual([retained[0].actor_id, retained[0].actor_name, retained[0].command_id], [person.id, person.name, commandId])
+    }
+  })
 
   await scenario(t, 'BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure', async t => {
   const h = await installation()
