@@ -147,6 +147,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       if (system === 'servicetitan') {
         await test.step('MOVE-003: review every source exception, commit read-only history and undo the reviewed snapshot', async () => {
           const files = await serviceTitanQualification(), label = `ServiceTitan complete review ${width}`
+          await page.getByLabel('Move-in source', { exact: true }).selectOption('servicetitan')
           await page.getByLabel('Export files', { exact: true }).setInputFiles(files.map((f: any) => ({ name: f.text === undefined ? f.name.slice(12) : f.name, mimeType: f.text === undefined ? 'text/plain' : 'application/json', buffer: Buffer.from(f.text ?? f.base64, f.text === undefined ? 'base64' : 'utf8') })))
           await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(label)
           const reviewed = await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
