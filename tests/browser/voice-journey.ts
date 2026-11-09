@@ -1,3 +1,4 @@
+import { closeHarnessContext, gotoHarness, unrouteHarness } from './harness-route'
 import { expect, type Browser } from '@playwright/test'
 // @ts-expect-error Production HTTP and provider-edge fixtures.
 import { voiceFlow } from '../api/voice-flow.mjs'
@@ -10,7 +11,7 @@ export async function voiceBrowser(browser: Browser) {
       for (const [label, cookie] of [['owner', undefined], ['office', b.office.cookie]] as const) {
         const { context, page } = await deskPage(browser, h, 1440, cookie)
         try {
-          await page.goto(`${origin}/app#customers`)
+          await gotoHarness(page, `${origin}/app#customers`)
           await page.getByRole('button', { name: b.customer.name, exact: true }).click()
           const conversation = page.getByRole('region', { name: 'Customer conversation', exact: true })
           if (label === 'owner') {
@@ -27,7 +28,7 @@ export async function voiceBrowser(browser: Browser) {
             await page.setViewportSize({ width, height: 1050 })
             await phoneScreen(page, width, `voice-${label}`, conversation)
           }
-        } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+        } finally { await unrouteHarness(page); await closeHarnessContext(context) }
       }
     })
   } finally { for (const close of cleanup.reverse()) await close() }

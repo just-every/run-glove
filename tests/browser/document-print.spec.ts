@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import assert from 'node:assert/strict'
 import { mkdir, writeFile } from 'node:fs/promises'
@@ -139,37 +140,37 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
   }
   try {
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    await page.goto(process.env.GLOVE_OPEN)
+    await gotoHarness(page, process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await context.route(`${origin}/api/glove/**`, async route => {
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const request = route.request(), url = new URL(request.url()), publicDoor = url.pathname.startsWith('/api/glove/public/')
       const response = await h.request(url.pathname + url.search, { method: request.method(), as: publicDoor ? '' : h.owner(), headers: publicDoor ? { authorization: request.headers().authorization ?? '' } : {}, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
     await page.setViewportSize({ width: 1440, height: 1000 })
     await scenario(steps, 'point 1: customer and desk built pages use their actual scoped document doors', async () => {
-      await page.goto(urls.open)
+      await gotoHarness(page, urls.open)
       await expect(page.getByRole('heading', { name: 'Open heating proposal', exact: true })).toBeVisible()
       const wrong = await page.evaluate(async token => (await fetch('/api/glove/public/reports', { headers: { authorization: `Bearer ${token}` } })).status, f.open.link.token)
       expect(wrong).toBe(404)
-      await page.goto(urls.report)
+      await gotoHarness(page, urls.report)
       await expect(page.getByRole('article', { name: 'Service report', exact: true })).toBeVisible()
-      for (const kind of ['invoice', 'agreement']) { await page.goto(urls[kind]); await expect(page.getByRole('article', { name: `${kind} document`, exact: true })).toBeVisible() }
+      for (const kind of ['invoice', 'agreement']) { await gotoHarness(page, urls[kind]); await expect(page.getByRole('article', { name: `${kind} document`, exact: true })).toBeVisible() }
     })
     await scenario(steps, 'point 2: independent US date and phone expectations preserve legacy address and frozen zone', async () => {
       for (const kind of Object.keys(urls)) {
-        await page.goto(urls[kind]); await expect(page.locator('.printable-document')).toBeVisible()
+        await gotoHarness(page, urls[kind]); await expect(page.locator('.printable-document')).toBeVisible()
         const content = normalize(await page.locator('.printable-document').innerText())
         for (const value of expected[kind]) expect(content, `${kind} shows ${value}`).toContain(value)
       }
       for (const [phone, shown] of [['+1 212 555 0199', '(212) 555-0199'], ['020 7946 0958 ext 7', '020 7946 0958 ext 7']]) {
         await h.command('business.save', { ...(await h.state()).business[0], logo: undefined, phone, timezone: 'Australia/Sydney' })
-        await page.goto(urls.invoice)
+        await gotoHarness(page, urls.invoice)
         await expect(page.locator('.document-identity')).toContainText(shown)
         await buttonPdf(page, [shown, legacyAddress, 'Due Mar 14, 2030'], 'invoice', 1440)
       }
-      await page.goto(urls.open)
+      await gotoHarness(page, urls.open)
       await expect(page.locator('.printable-document')).toContainText('America/Chicago')
       await expect(page.locator('.document-identity')).toContainText('(512) 555-0125')
       await h.command('business.save', { ...(await h.state()).business[0], logo: undefined, phone: '5125550125' })
@@ -178,7 +179,7 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         for (const [kind, url] of Object.entries(urls)) {
-          await page.goto(url); await expect(page.locator('.printable-document')).toBeVisible()
+          await gotoHarness(page, url); await expect(page.locator('.printable-document')).toBeVisible()
           if (kind === 'open') { await page.getByRole('radio', { name: 'Choose Extended service', exact: true }).check(); await page.getByRole('checkbox', { name: 'Add Filter pack', exact: true }).check() }
           if (width === 1440) expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
           await loadedOriginals(page)
@@ -189,7 +190,7 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
     })
     await scenario(steps, 'point 4: unsigned quote and recorded desk facts remain honest after actual Worker restart', async () => {
       for (const kind of ['open', 'invoice', 'agreement']) {
-        await page.goto(urls[kind]); await expect(page.locator('.printable-document')).toBeVisible()
+        await gotoHarness(page, urls[kind]); await expect(page.locator('.printable-document')).toBeVisible()
         // Visibility precedes original-image fetches. Finish them before the
         // real Worker restart closes its connections.
         await loadedOriginals(page)
@@ -198,13 +199,13 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
         const text = allTexts[`1440-${kind}`]
         expect(text).not.toMatch(/\b(?:Signed by|Sent to|Delivered to|Confirmation copy queued)\b/i)
       }
-      await h.restart()
+      await restartHarness(h)
       await page.setViewportSize({ width: 1440, height: 1000 })
       for (const [kind, url] of Object.entries(urls)) {
-        await page.goto(url); await expect(page.locator('.printable-document')).toBeVisible()
+        await gotoHarness(page, url); await expect(page.locator('.printable-document')).toBeVisible()
         expect(await buttonPdf(page, expected[kind], kind, 1440)).toBe(allTexts[`1440-${kind}`])
       }
       expect(h.email.sent).toHaveLength(0)
     })
-  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
 })
