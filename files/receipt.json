@@ -1,0 +1,164 @@
+{
+  "tag": "sx-glove-c-f180",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f180",
+  "head": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+  "integrated_main": "63bfd0d1a155d7be44561e579d643f895fabded3",
+  "status": "PARTIAL",
+  "qualified_points": [
+    1,
+    2,
+    3,
+    4,
+    6
+  ],
+  "held_points": [
+    5
+  ],
+  "counts": {
+    "done": 28,
+    "partial": 206,
+    "missing": 29,
+    "total": 263
+  },
+  "product_files": [
+    "sources.lock.json",
+    "src/glove/provider.ts",
+    "tests/api/nameplates.test.mjs"
+  ],
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/nameplates.test.mjs tests/api/suggest.test.mjs tests/api/callbacks.test.mjs",
+      "exit": 0,
+      "passed": 3,
+      "failed": 0,
+      "head": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+      "log": "qualification-tests.txt"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+      "log": "typecheck-final.txt"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+      "log": "rer-check.txt"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses FIELD-006 and check",
+      "exit": 0,
+      "log": "mechanical.txt"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock and check",
+      "exit": 0,
+      "log": "mechanical.txt"
+    },
+    {
+      "command": "cloud_run timeout 1200 node /tmp/glove-nameplate-archive-probe.mjs",
+      "exit": 0,
+      "head": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+      "log": "archive-probe.json"
+    }
+  ],
+  "publication_scan": {
+    "commit": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "deferred to fleet lander"
+  },
+  "ci": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42555585167",
+      "id": 42555585167,
+      "name": "Verify",
+      "run_attempt": 1,
+      "status": "in_progress"
+    }
+  ],
+  "main_ci": [
+    {
+      "conclusion": "skipped",
+      "event": "push",
+      "head_sha": "63bfd0d1a155d7be44561e579d643f895fabded3",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42554943380",
+      "id": 42554943380,
+      "name": "Run demo",
+      "run_attempt": 1,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "63bfd0d1a155d7be44561e579d643f895fabded3",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42554943349",
+      "id": 42554943349,
+      "name": "Verify",
+      "run_attempt": 1,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "63bfd0d1a155d7be44561e579d643f895fabded3",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42554943436",
+      "id": 42554943436,
+      "name": "Run site",
+      "run_attempt": 1,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "63bfd0d1a155d7be44561e579d643f895fabded3",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42554943243",
+      "id": 42554943243,
+      "name": "Push on main",
+      "run_attempt": 1,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "63bfd0d1a155d7be44561e579d643f895fabded3",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42553468889",
+      "id": 42553468889,
+      "name": "Verify",
+      "run_attempt": 1,
+      "status": "completed"
+    }
+  ],
+  "github_calls": 3,
+  "pr": null,
+  "generated_views_committed": false,
+  "own_contract_changes": false,
+  "browsers": "not applicable: no UI changes",
+  "recorded_at": "2026-11-09T03:23:26.867313+00:00",
+  "archive_probe": {
+    "head": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+    "command": "temporary public-command and real rer export probe",
+    "exit": 0,
+    "modelConnectionCreated": true,
+    "stateActivityExportExcludeKey": true,
+    "archiveBytes": 156237,
+    "archiveSha256": "1da40d713294d4c75431230272ffacc6c9bdc8021be5cd5fb9042245d275b98c",
+    "archiveExcludesProviderKeyTable": true,
+    "archiveExcludesSyntheticKey": true,
+    "scriptSha256": "8d4eed8665d0f4a9c68abe6f57ff2842075ac761379eb2fc4c83e7a40b7ccb63"
+  },
+  "source_lock_checked_after_archive_probe": true,
+  "product_remote_verified": true,
+  "pending_gates": [
+    "candidate Verify completion",
+    "fleet publication scan",
+    "guarded main landing",
+    "Run site after landing"
+  ]
+}

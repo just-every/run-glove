@@ -1,0 +1,12 @@
+{
+  "head": "a37903a072ea433f4077fd89c988663ce7e1fe8c",
+  "command": "temporary public-command and real rer export probe",
+  "exit": 0,
+  "modelConnectionCreated": true,
+  "stateActivityExportExcludeKey": true,
+  "archiveBytes": 156237,
+  "archiveSha256": "1da40d713294d4c75431230272ffacc6c9bdc8021be5cd5fb9042245d275b98c",
+  "archiveExcludesProviderKeyTable": true,
+  "archiveExcludesSyntheticKey": true,
+  "scriptSha256": "8d4eed8665d0f4a9c68abe6f57ff2842075ac761379eb2fc4c83e7a40b7ccb63"
+}
