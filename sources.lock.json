@@ -5524,7 +5524,7 @@
       "executable": false
     },
     "tests/api/branch-authority.test.mjs": {
-      "sha256": "cbc954a21e11d18863192b462e822e25ee4174c281a6aa63cd440b5590c57860",
+      "sha256": "90ba87226e3e3f5d8425574dbb8d7665dab5b5e82e1a107fa76a65beb3022ad7",
       "executable": false
     },
     "tests/api/branches.test.mjs": {
