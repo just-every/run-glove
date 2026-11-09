@@ -51,8 +51,10 @@ export const quoteLinks: Handler = async (c, type, p) => {
   const emailTo = p.email === true ? (connection(c.s), address(customer.email, 'customer email')) : null
   for (const old of c.s.quoteLinks.filter(l => l.quoteId === q.id && l.revision === r.n && !l.revokedAt)) bump(c.s, 'quoteLinks', old, { revokedAt: c.now })
   const token = 'glq_' + btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-  const winning = q.acceptance?.signing && c.s.quoteLinks.find(l => l.id === q.acceptance.signing.linkId)
-  const document = winning ? structuredClone(winning.document) : quoteDocument(c, q, r)
+  // A decided quote keeps the document its decision was made on: the link the decision came through, else the revision's last link.
+  const decided = ['accepted', 'declined'].includes(q.status), through = q.acceptance?.signing?.linkId ?? q.acceptance?.linkId ?? q.declined?.linkId
+  const frozen = decided ? c.s.quoteLinks.find(l => l.id === through && l.quoteId === q.id) ?? c.s.quoteLinks.filter(l => l.quoteId === q.id && l.revision === r.n).at(-1) : undefined
+  const document = frozen ? structuredClone(frozen.document) : quoteDocument(c, q, r)
   const row = put(c.s, 'quoteLinks', { id: newId(), version: 1, createdAt: c.now, quoteId: q.id, customerId: q.customerId, siteId: q.siteId, revision: r.n, issuedBy: { id: c.actor.id, name: c.actor.name, role: c.actor.role }, document, documentHash: sha256(canonicalJson(document)), expiresAt: r.linkExpiresAt, revokedAt: null, authenticationBasis: 'link handed out by staff, recipient unverified' })
   c.sql.push({ sql: 'INSERT INTO glove_quote_secrets(link_id,hash) VALUES(?,?)', params: [row.id, quoteHash(token)] })
   c.reveal = { token }
