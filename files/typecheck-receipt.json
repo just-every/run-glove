@@ -1,0 +1,13 @@
+{
+  "name": "typecheck",
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "exit": 0,
+  "started": "2026-11-09T14:43:48.097Z",
+  "finished": "2026-11-09T14:44:58.531Z",
+  "elapsedSeconds": 70.434,
+  "log": "typecheck.log",
+  "node": "v24.19.0"
+}

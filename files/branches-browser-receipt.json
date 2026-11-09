@@ -1,0 +1,14 @@
+{
+  "name": "branches-browser",
+  "command": [
+    "node",
+    "tests/browser/run.mjs",
+    "tests/browser/branches.spec.ts"
+  ],
+  "exit": 0,
+  "started": "2026-11-09T14:54:44.969Z",
+  "finished": "2026-11-09T15:00:09.338Z",
+  "elapsedSeconds": 324.369,
+  "log": "branches-browser.log",
+  "node": "v22.20.0"
+}

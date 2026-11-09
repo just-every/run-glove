@@ -1,0 +1,26 @@
+{
+  "name": "vite-local-proxy-diagnostic",
+  "command": [
+    "timeout",
+    "-k",
+    "10",
+    "-s",
+    "INT",
+    "60",
+    "env",
+    "HTTP_PROXY=",
+    "HTTPS_PROXY=",
+    "ALL_PROXY=",
+    "http_proxy=",
+    "https_proxy=",
+    "all_proxy=",
+    "node",
+    "/tmp/glove-profile-vite.mjs"
+  ],
+  "exit": 124,
+  "started": "2026-11-09T14:51:45.628Z",
+  "finished": "2026-11-09T14:52:46.166Z",
+  "elapsedSeconds": 60.538,
+  "log": "vite-local-proxy-diagnostic.log",
+  "node": "v22.20.0"
+}

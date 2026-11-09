@@ -1,0 +1,6 @@
+{"workflow_runs":[{"conclusion":null,"head_sha":"2d5dc9f08bc0479d2fcf975cb0747de1d60470b8","html_url":"https://github.com/just-every/run-glove/actions/runs/42640389256","id":42640389256,"name":"Verify","status":"in_progress"}]}
+
+VERIFY run=42640389256 head=2d5dc9f08bc0479d2fcf975cb0747de1d60470b8 status=in_progress conclusion=None
+{"conclusion":null,"head_sha":"2d5dc9f08bc0479d2fcf975cb0747de1d60470b8","html_url":"https://github.com/just-every/run-glove/actions/runs/42640389256","id":42640389256,"name":"Verify","status":"in_progress"}
+
+VERIFY run=42640389256 head=2d5dc9f08bc0479d2fcf975cb0747de1d60470b8 status=in_progress conclusion=None

@@ -1,0 +1,10 @@
+{
+  "lock_command": "node scripts/edition-authoring/cli.mjs lock",
+  "lock_exit": 0,
+  "check_command": "node scripts/edition-authoring/cli.mjs check",
+  "check_exit": 0,
+  "contract_command": "node scripts/contract-docs.mjs write --clauses COMM-001",
+  "contract_write_exit": 0,
+  "contract_check_exit": 0,
+  "generated_views_restored_to": "origin/main"
+}

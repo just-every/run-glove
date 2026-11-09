@@ -1,0 +1,17 @@
+{
+  "name": "vite-startup-diagnostic",
+  "command": [
+    "timeout",
+    "-s",
+    "INT",
+    "80",
+    "node",
+    "/tmp/glove-profile-vite.mjs"
+  ],
+  "exit": 124,
+  "started": "2026-11-09T14:49:24.694Z",
+  "finished": "2026-11-09T14:50:44.868Z",
+  "elapsedSeconds": 80.174,
+  "log": "vite-startup-diagnostic.log",
+  "node": "v22.20.0"
+}

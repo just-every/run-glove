@@ -1,0 +1,44 @@
+{
+  "refs": {
+    "candidate": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+    "main": "e1d25590661c95f7f94041c395aa0c34b7b97e3a"
+  },
+  "counts": {
+    "candidate": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29,
+      "total": 263
+    },
+    "main": {
+      "done": 42,
+      "partial": 192,
+      "missing": 29,
+      "total": 263
+    },
+    "merged": {
+      "done": 42,
+      "partial": 192,
+      "missing": 29,
+      "total": 263
+    }
+  },
+  "clauseStatusChanges": [
+    {
+      "clause": "COMM-001",
+      "before": "partial",
+      "after": "done",
+      "source": "origin/main"
+    }
+  ],
+  "TEAM004": {
+    "candidate": "partial",
+    "main": "partial",
+    "merged": "partial"
+  },
+  "mainContractAndViewsPreserved": true,
+  "candidateTouchedTestsPreserved": true,
+  "mergeConflicts": [],
+  "migrationCollision": false,
+  "addedClaims": []
+}

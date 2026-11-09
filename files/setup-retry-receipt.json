@@ -1,0 +1,18 @@
+{
+  "name": "setup-retry",
+  "command": [
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "setup",
+    "--owner-email",
+    "fleet@runeditrun.com",
+    "--non-interactive"
+  ],
+  "exit": 1,
+  "started": "2026-11-09T14:46:19.106Z",
+  "finished": "2026-11-09T14:47:48.211Z",
+  "elapsedSeconds": 89.105,
+  "log": "setup-retry.log",
+  "node": "v22.20.0"
+}

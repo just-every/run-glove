@@ -1,0 +1,18 @@
+{
+  "name": "setup-after-optimize",
+  "command": [
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "setup",
+    "--owner-email",
+    "fleet@runeditrun.com",
+    "--non-interactive"
+  ],
+  "exit": 1,
+  "started": "2026-11-09T14:48:40.055Z",
+  "finished": "2026-11-09T14:50:14.469Z",
+  "elapsedSeconds": 94.414,
+  "log": "setup-after-optimize.log",
+  "node": "v22.20.0"
+}

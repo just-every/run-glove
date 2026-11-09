@@ -1,0 +1,23 @@
+{
+  "name": "setup-local-network",
+  "command": [
+    "env",
+    "HTTP_PROXY=",
+    "HTTPS_PROXY=",
+    "ALL_PROXY=",
+    "http_proxy=",
+    "https_proxy=",
+    "all_proxy=",
+    "node_modules/.bin/rer",
+    "setup",
+    "--owner-email",
+    "fleet@runeditrun.com",
+    "--non-interactive"
+  ],
+  "exit": 0,
+  "started": "2026-11-09T14:53:09.780Z",
+  "finished": "2026-11-09T14:54:15.015Z",
+  "elapsedSeconds": 65.25,
+  "log": "setup-local-network.log",
+  "node": "v22.20.0"
+}

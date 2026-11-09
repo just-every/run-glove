@@ -1,0 +1,15 @@
+{
+  "name": "branches-api",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/branches.test.mjs"
+  ],
+  "exit": 0,
+  "started": "2026-11-09T14:43:49.601Z",
+  "finished": "2026-11-09T14:46:24.559Z",
+  "elapsedSeconds": 154.958,
+  "log": "branches-api.log",
+  "node": "v24.19.0"
+}

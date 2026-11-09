@@ -1,0 +1,43 @@
+{
+  "source_screenshots": 42,
+  "selected_inspected_frames": [
+    {
+      "source": "1440-branches-dispatch-0.png",
+      "file": "dispatch-1440.png",
+      "bytes": 233367,
+      "sha256": "90d86b647766cc008d0f1ab5892c68265aa97b0af18b78dbc3ee77d419ddb2f4",
+      "width": 1440,
+      "height": 1632,
+      "visual_inspection": "No runtime entry, credential, token control or browser address bar visible; synthetic fixture records only"
+    },
+    {
+      "source": "390-branches-dispatch-0.png",
+      "file": "dispatch-390.png",
+      "bytes": 197132,
+      "sha256": "c1393e75b7f0b71fa376c10747aa2f373dd2c47b019ffe77cc2fb65fad0fc207",
+      "width": 390,
+      "height": 2877,
+      "visual_inspection": "No runtime entry, credential, token control or browser address bar visible; synthetic fixture records only"
+    },
+    {
+      "source": "1440-branches-reports-all-branches.png",
+      "file": "reports-1440.png",
+      "bytes": 118462,
+      "sha256": "05cc40e3f0f66d31e89983c6640e5eac8691f553dd0a8b3e062ca1fd98c296d1",
+      "width": 1440,
+      "height": 1050,
+      "visual_inspection": "No runtime entry, credential, token control or browser address bar visible; synthetic fixture records only"
+    },
+    {
+      "source": "390-branches-reports-all-branches.png",
+      "file": "reports-390.png",
+      "bytes": 43998,
+      "sha256": "e41708f75d40bd403a3005c1891f24119d84f25a843231be81febd4f5b696ce2",
+      "width": 390,
+      "height": 1050,
+      "visual_inspection": "No runtime entry, credential, token control or browser address bar visible; synthetic fixture records only"
+    }
+  ],
+  "unselected_capability_frames_excluded": true,
+  "assertions_unchanged": true
+}
