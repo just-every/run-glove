@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 26 | 195 | 16 | 237 |
+| Core | 27 | 194 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 26 | 208 | 29 | 263 |
+| Full target | 27 | 207 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -2781,7 +2781,7 @@ Core · target · **missing**
 
 #### PLAN-004 — Due-visit scheduling until done or declined
 
-Core · target · **partial** · From PLAN-004
+Core · target · **done** · From PLAN-004
 
 **Requirement.** Due-visit scheduling until done or declined supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations. Recorded decisions: RL-19. Owning-capability boundaries: AGENT-008, AGENT-016 inheritance: the morning brief lists agreements with visits due, with their agreement link and a proposed action, asserted in the AGENT-008, AGENT-016 flow.
 
@@ -2794,8 +2794,8 @@ Core · target · **partial** · From PLAN-004
 6. New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.
 7. An existing job is retained when its booking is cancelled, so the desk can rebook it.
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder, and the REPORT-001 agreements-due tile the same number of due visits.; point 2 — The due-visit list lists each included visit separately, identified by agreement and zero-based ordinal, with its PLAN-002 due date, customer, site, ZIP, linked job and booking state.; point 3 — Through defaults to the business's local today; optional from and through bounds include both ends; area matches the site's exact ZIP.; point 4 — Completion removes only that entitlement, even if visits finish out of order.; point 5 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstanding work.; point 6 — New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.; point 7 — An existing job is retained when its booking is cancelled, so the desk can rebook it. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`; `tests/api/due-visit-list.test.mjs` (PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters); `tests/api/due-visit-list.test.mjs` (PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade); `tests/browser/due-visit-list.spec.ts` (PLAN-004 Office filters individual due visits and books through desk controls while outstanding work stays listed)
+**Gap.** None.
 
 #### PLAN-007 — Due work in the owner brief
 
