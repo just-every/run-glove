@@ -1,0 +1,120 @@
+   100	  await scenario(t, 'DATA-001 point 2: every excluded caller is refused export and erasure without changing any record', async () => {
+   101	    const role = await h.command('role.save', { name: 'Synthetic privacy helper', permissions: ['customer.save'] })
+   102	    const custom = await h.person('Synthetic privacy helper', `custom:${role.id}`)
+   103	    const scoped = await h.person('Synthetic limited owner', 'owner')
+   104	    await h.command('branch.limit', { operatorId: scoped.id, branchId: 'main' })
+   105	    const token = await h.command('token.issue', { name: 'Synthetic privacy integration', role: 'dispatcher' })
+   106	    assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${token.token}` } })).status, 200)
+   107	    const snapshot = await tables(h), customer = await current('customers', b.customer.id)
+   108	    for (const who of [b.office, b.dispatcher, b.priyaPerson, b.agent, custom, scoped, { cookie: '' }, { cookie: '', token: token.token }]) for (const type of ['privacy.export', 'privacy.erase']) {
+   109	      const response = await h.request('/api/glove/commands', { method: 'POST', as: who.cookie, ...(who.token ? { headers: { authorization: `Bearer ${who.token}` } } : {}), body: { commandId: id(), type, payload: { customerId: customer.id, version: customer.version, confirm: 'ERASE' } } })
+   110	      assert.equal(response.status, who.cookie || who.token ? 403 : 401)
+   111	      assert.deepEqual(await tables(h), snapshot, 'refused privacy command changes no stored record')
+   112	    }
+   113	  })
+   114	  await scenario(t, 'DATA-001 point 3: either merged identity previews and exports the complete group and every receipt names both IDs', async () => {
+   115	    const ids = [b.customer.id, graphs[1].customer.id].sort()
+   116	    for (const customerId of ids) {
+   117	      const customer = await current('customers', customerId)
+   118	      const preview = await h.command('privacy.preview', { customerId, version: customer.version })
+   119	      assert.deepEqual(preview.customerIds.sort(), ids)
+   120	      exportPayload = { customerId, version: customer.version }; exportId = id()
+   121	      exportEvents = (await h.db.prepare('SELECT * FROM glove_events ORDER BY sequence').all()).results
+   122	      const result = await h.command('privacy.export', exportPayload, { commandId: exportId })
+   123	      assert.deepEqual(result.customerIds, ids)
+   124	      download = JSON.parse(result.download)
+   125	      assert.deepEqual(download.customerIds, ids)
+   126	      for (const g of graphs.slice(0, 2)) for (const [kind, record] of [['sites', g.site], ['enquiries', g.enquiry], ['quotes', g.quote], ['jobs', g.job], ['visits', g.visit], ['captures', g.note], ['captures', g.material], ['equipment', g.unit], ['invoices', g.invoice], ['payments', g.payment], ['payments', g.refund], ['messages', g.message], ['conversations', g.conversation]]) assert.ok(download.records[kind].some(r => r.id === record.id), `group export includes ${kind} from both identities`)
+   127	    }
+   128	  })
+   129	  await scenario(t, 'DATA-001 point 4: full timeline and byte-exact originals are shown once and excluded from replay, Activity, stored outcomes and Worker logs', async () => {
+   130	    for (const [fileId, bytes] of originals) {
+   131	      const response = await h.request(`/api/glove/files/${fileId}`)
+   132	      assert.equal(response.status, 200)
+   133	      assert.equal(Buffer.from(await response.arrayBuffer()).toString('base64'), bytes)
+   134	      assert.equal(download.files.find(f => f.id === fileId).bytes, bytes)
+   135	    }
+   136	    for (const g of graphs.slice(0, 2)) assert.equal(download.files.find(f => f.id === `${g.quote.id}:signed`).bytes, g.signedBytes)
+   137	    const events = exportEvents
+   138	    for (const g of graphs.slice(0, 2)) {
+   139	      const related = [g.customer, g.site, g.enquiry, g.job, g.visit, g.photo, g.note, g.unit, g.conversation, g.invoice, g.payment, g.refund, g.message, g.expense, g.pending, g.booking, g.quote, g.link, g.signJob, g.signVisit].map(r => r.id)
+   140	      related.push(g.job.quoteId)
+   141	      const expected = events.filter(e => related.some(key => JSON.stringify(e).includes(key)))
+   142	      assert.ok(expected.length > 10)
+   143	      for (const event of expected) assert.deepEqual(download.timeline.find(e => e.id === event.id), event, 'complete related timeline is exported')
+   144	    }
+   145	    assert.ok(!JSON.stringify(download).includes(graphs[2].customer.name))
+   146	    const replay = await h.command('privacy.export', exportPayload, { commandId: exportId })
+   147	    assert.equal(replay.download, undefined)
+   148	    for (const value of [JSON.stringify(download), jpeg, pdf, graphs[0].signedBytes]) for (const content of [JSON.stringify((await tables(h)).glove_commands), JSON.stringify(await json('/api/glove/activity')), JSON.stringify(h.logs)]) assert.ok(!content.includes(value), 'download is absent from saved outcomes, Activity and logs')
+   149	  })
+   150	  await scenario(t, 'DATA-001 point 5: erasure removes operational content, originals, certificates, credentials and personal event and command copies through every existing storage door', async () => {
+   151	    before = await h.state()
+   152	    taxBefore = await json('/api/glove/reports/tax.json?from=2000-01-01&to=2099-01-01')
+   153	    assert.ok(taxBefore.jurisdictions.some(j => Number(j.tax) > 0), 'tax retention is checked with nonzero tax evidence')
+   154	    for (const g of graphs.slice(0, 2)) {
+   155	      const cost = (await json(`/api/glove/jobs/${g.job.id}/cost`)).costing
+   156	      assert.equal(cost.estimate.cost, '45.00')
+   157	      assert.equal(cost.actual.materials, '22.00')
+   158	      assert.equal(cost.actual.cost, '34.00')
+   159	      costsBefore.set(g.job.id, cost)
+   160	    }
+   161	    const customer = await current('customers', b.customer.id)
+   162	    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+   163	    // An actual in-progress snapshot must be invalidated with the erasure.
+   164	    const { createPortability } = await import('@runeditrun/rer/modules/portability')
+   165	    const service = await createPortability({ db: h.db, policy: { product: 'field-service-glove' } })
+   166	    transfer = await service.exports.create('owner')
+   167	    await service.exports.advance(transfer, { maxParts: 1 })
+   168	    epoch = await h.db.prepare('SELECT epoch FROM rer_portability_state WHERE id=1').first()
+   169	    receipt = await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+   170	    assert.equal(receipt.outcome, 'complete')
+   171	    assert.deepEqual(receipt.customerIds, [b.customer.id, graphs[1].customer.id].sort())
+   172	    for (const [fileId] of originals) assert.equal((await h.request(`/api/glove/files/${fileId}`)).status, 404)
+   173	    for (const g of graphs.slice(0, 2)) {
+   174	      assert.equal((await h.request(g.signedDoor)).status, 404)
+   175	      for (const [path, token] of [['quote', g.link.token], ['booking', g.booking.token]]) assert.equal((await h.request(`/api/glove/public/${path}`, { as: '', headers: { authorization: `Bearer ${token}` } })).status, 404)
+   176	      await b.priyaPerson.run('visit.capture', g.notePayload, { commandId: g.noteCommandId, error: 'ERASED' })
+   177	      await b.priyaPerson.run('visit.capture', { visitId: g.visit.id, deviceTime: g.visit.startAt, kind: 'material', serviceId: g.material.serviceId, quantity: '2', description: g.material.description }, { commandId: g.material.id, error: 'ERASED' })
+   178	    }
+   179	    const stores = await tables(h), content = [JSON.stringify(stores), storedText(stores), JSON.stringify(await json('/api/glove/activity')), JSON.stringify(await json('/api/glove/export')), JSON.stringify(h.logs)]
+   180	    for (const value of secrets.filter(Boolean)) for (const text of content) assert.ok(!text.includes(value), `erased identifier absent from every table, Activity, export and captured logs: ${value}`)
+   181	    const erased = await h.state()
+   182	    for (const kind of ['enquiries', 'visits', 'captures', 'equipment', 'conversations', 'quotes', 'bookingOffers', 'serviceReports']) for (const g of graphs.slice(0, 2)) assert.ok(!erased[kind]?.some(r => [g.enquiry.id, g.visit.id, g.photo.id, g.note.id, g.unit.id, g.conversation.id, g.quote.id, g.booking.id].includes(r.id)))
+   183	  })
+   184	  await scenario(t, 'DATA-001 point 6: peer histories and anonymous financial dates, classifications, costs and tax totals stay exact while edits and unmerge are refused', async () => {
+   185	    const after = await h.state(), peer = graphs[2]
+   186	    assert.deepEqual(await json('/api/glove/reports/tax.json?from=2000-01-01&to=2099-01-01'), taxBefore, 'the public tax report retains exact anonymous classifications and totals')
+   187	    for (const [path, bytes] of [[`/api/glove/files/${peer.photo.file.fileId}`, jpeg], [`/api/glove/files/${peer.unit.photos[0].fileId}`, jpeg], [`/api/glove/files/${peer.signVisit.completion.signoff.signature.fileId}`, png], [peer.signedDoor, peer.signedBytes]]) {
+   188	      const response = await h.request(path)
+   189	      assert.equal(response.status, 200, 'the independent peer retains every original file door')
+   190	      assert.equal(Buffer.from(await response.arrayBuffer()).toString('base64'), bytes, 'the peer original remains byte-exact after erasure')
+   191	    }
+   192	    for (const kind of ['customers', 'sites', 'jobs', 'visits', 'captures', 'equipment', 'quotes', 'invoices', 'payments', 'expenses', 'conversations']) for (const row of before[kind].filter(r => r.id === peer.customer.id || r.customerId === peer.customer.id || r.siteId === peer.site.id || [peer.job.id, peer.signJob.id, peer.pending.id].includes(r.jobId))) assert.deepEqual(after[kind].find(r => r.id === row.id), row, `peer ${kind} stays unchanged`)
+   193	    for (const g of graphs.slice(0, 2)) {
+   194	      const oldInvoice = before.invoices.find(r => r.id === g.invoice.id), invoice = after.invoices.find(r => r.id === g.invoice.id)
+   195	      const financialCost = cost => ({ ...cost, actual: { ...cost.actual, materialEntries: cost.actual.materialEntries.map(({ captureId, description, ...money }) => money) } })
+   196	      assert.deepEqual(financialCost((await json(`/api/glove/jobs/${g.job.id}/cost`)).costing), financialCost(costsBefore.get(g.job.id)), 'the public job costing door retains exact estimate and actual costs')
+   197	      assert.deepEqual(after.captures.filter(r => r.jobId === g.job.id), [], 'no operational capture remains after erasure')
+   198	      assert.ok(!JSON.stringify(after.jobs.find(r => r.id === g.job.id)).includes(g.material.id), 'anonymous financial job data excludes the original capture identity')
+   199	      for (const key of ['number', 'createdAt', 'status', 'dates', 'issuedAt', 'dueAt']) assert.deepEqual(invoice[key], oldInvoice[key])
+   200	      assert.deepEqual(invoice.revisions.map(r => r.totals), oldInvoice.revisions.map(r => r.totals))
+   201	      assert.deepEqual(after.jobs.find(r => r.id === g.job.id).totals, before.jobs.find(r => r.id === g.job.id).totals)
+   202	      for (const p of [g.payment, g.refund]) for (const key of ['amount', 'kind', 'method', 'confirmedAt', 'effects', 'taxBreakdown']) assert.deepEqual(after.payments.find(r => r.id === p.id)[key], before.payments.find(r => r.id === p.id)[key])
+   203	      assert.equal(after.expenses.find(r => r.id === g.expense.id).amount, '12.00')
+   204	      assert.equal(after.customers.find(r => r.id === g.customer.id).name, 'Erased customer')
+   205	      assert.equal(after.sites.find(r => r.id === g.site.id).address, 'Erased address')
+   206	      for (const [type, payload] of [['customer.save', { ...g.customer, name: 'Resurrected' }], ['site.save', { ...g.site, address: 'Resurrected' }], ['quote.draft', { customerId: g.customer.id, siteId: g.site.id, title: 'Resurrected' }], ['invoice.prepare', { jobId: g.job.id }], ['invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }], ['booking.offer', { jobId: g.pending.id, slots: [] }]]) await h.command(type, payload, { error: 'ERASED' })
+   207	    }
+   208	    for (const g of graphs.slice(0, 2)) await h.command('quote.link', { quoteId: g.quote.id, version: g.quote.version }, { error: 'NOT_FOUND' })
+   209	    await h.command('privacy.export', exportPayload, { commandId: exportId, error: 'ERASED' })
+   210	    await h.command('customer.unmerge', { mergeId: merged.id, version: merged.version }, { error: 'NOT_FOUND' })
+   211	    assert.deepEqual(await h.state(), after, 'all attempts leave anonymous and peer records unchanged')
+   212	  })
+   213	  await scenario(t, 'DATA-001 point 7: the same erasure advances the Base redaction epoch and invalidates the pending archive transfer', async () => {
+   214	    assert.equal((await h.db.prepare('SELECT epoch FROM rer_portability_state WHERE id=1').first()).epoch, epoch.epoch + 1)
+   215	    assert.ok((await h.db.prepare('SELECT count(*) AS n FROM rer_portability_journal').first()).n > 0)
+   216	    assert.equal((await h.db.prepare('SELECT count(*) AS n FROM rer_portability_jobs').first()).n, 0)
+   217	    assert.equal((await h.db.prepare('SELECT count(*) AS n FROM rer_portability_parts').first()).n, 0)
+   218	  })
+   219	}

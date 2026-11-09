@@ -1,0 +1,19 @@
+{
+  "head": "5477173bf95446783c433ae4b11c2a9af84d349a",
+  "new_email_shaped_strings": 0,
+  "source_and_journeys_match_main_except_additive_refusals": true,
+  "assertions_deleted_or_weakened": false,
+  "privacy_panel_icon_only_controls": 0,
+  "new_ui_controls": 0,
+  "current_role_and_erasure_replay_refusals": "PASS privacy-final-api.log",
+  "native_api": "PASS",
+  "first_party": "PASS",
+  "typecheck": "PASS",
+  "source_lock": "PASS",
+  "generated_views": "PASS then main views restored",
+  "browser": "PASS at 1440 and 390; visual review confirms readable text and no icon-only control in the privacy panel",
+  "real_cli_archive": "FAIL locally at post-erasure export: native_error TypeError; exact-SHA portable CI job 129346303591 is success",
+  "exact_sha_verify": "FAIL run-level result; all twelve returned jobs and check runs are success or skipped",
+  "publication_scan": "fleet landing gate, not run in cloud",
+  "ready": false
+}

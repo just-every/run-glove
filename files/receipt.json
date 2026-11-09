@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f225",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f225",
+  "head": "5477173bf95446783c433ae4b11c2a9af84d349a",
+  "merged_main": "9e90f81f6380137303cb03616e7955a0e4642218",
+  "privacy_api": {
+    "command": "node --test --test-concurrency=1 tests/api/privacy.test.mjs",
+    "node": "22.20.0",
+    "exit": 0,
+    "log": "privacy-final-api.log"
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  "first_party": {
+    "command": "npx -y @runeditrun/rer check --profile first-party",
+    "exit": 0,
+    "log": "first-party.log"
+  },
+  "inventory": {
+    "registrations": 200,
+    "cap": 200,
+    "added": 0
+  },
+  "cli_archive": {
+    "status": "local retry failed during post-erasure export",
+    "log": "portable.log",
+    "completed_phase": "source archive imported, byte-exact originals and records checked, fresh links issued and customer erased; the post-erasure export failed before local later-journal and offline-limit CLI assertions",
+    "exit": 1,
+    "failure": "native_error: TypeError from the pinned portability worker while building the post-erasure archive",
+    "retry_log": "portable-retry.log",
+    "source_line": "tests/portable.mjs:700"
+  },
+  "browser": {
+    "status": "passed",
+    "log": "browser-retry.log",
+    "first_attempt": "native runtime startup handshake timeout before privacy assertions",
+    "exit": 0,
+    "widths": [
+      1440,
+      390
+    ],
+    "screenshots": [
+      "screenshots/1440-customer-privacy-erased.png",
+      "screenshots/1440-customer-privacy-export.png",
+      "screenshots/1440-customer-privacy-preview-panel.png",
+      "screenshots/1440-customer-privacy-preview.png",
+      "screenshots/390-customer-privacy-erased.png",
+      "screenshots/390-customer-privacy-export.png",
+      "screenshots/390-customer-privacy-preview-panel.png",
+      "screenshots/390-customer-privacy-preview.png"
+    ]
+  },
+  "verify": {
+    "id": 42670626495,
+    "event": "push",
+    "head": "5477173bf95446783c433ae4b11c2a9af84d349a",
+    "status": "completed",
+    "conclusion": "failure",
+    "job_receipt": "candidate-ci-jobs.jsonl",
+    "failed_jobs": [],
+    "check_suite_id": 115571194559,
+    "run_attempt": 1,
+    "all_returned_jobs": "success or skipped",
+    "returned_job_count": 12,
+    "portable_job": 129346303591,
+    "portable_job_conclusion": "success",
+    "verify_job": 129350015929,
+    "verify_job_conclusion": "success",
+    "warning": "The only retrieved shard annotation is Node 20 action deprecation; it is a warning, not a failing assertion."
+  },
+  "publication_scan": {
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "guarded fleet lander owns cloud candidate scanning"
+  },
+  "product_push": {
+    "exit": 0,
+    "log": "candidate-push.log"
+  },
+  "github_api_calls": 10,
+  "claim": {
+    "clause": "DATA-001",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "reason": "Overall exact-SHA Verify reports failure despite all returned jobs and checks being successful or skipped; local post-erasure CLI export also failed with native_error TypeError. No permission exists to alter the pinned helper or CI workflow."
+  },
+  "counts": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "status_rows": 263,
+    "builder_status_changes": 0
+  },
+  "repairs": [],
+  "pr": null
+}

@@ -1,0 +1,74 @@
+DISP-008 real archive passed: both provider credentials, pending work and mappings absent; import, startup, replay and restart silent; explicit reconnection required
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: portraits.sql, 0050_location_delegates.sql, 0051_review_email_preferences.sql, 0052_quickbooks_sync.sql, 0053_xero_inspection.sql, 0054_xero_sync.sql, 0055_company_action_policy.sql, 0056_agent_door.sql, 0057_business_settings.sql, 0058_business_people.sql
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+6:06:33 PM [vite] (ssr) [optimizer] scanning dependencies...
+Starting your application on this computer (waiting for the bound internal listener): Still starting (30 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (31 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (32 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (33 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (34 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (35 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (36 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (37 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (38 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (39 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (40 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (41 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (42 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (43 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (44 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (45 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (46 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (47 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (48 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (49 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (50 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (51 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (52 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (53 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (54 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (55 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (56 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (57 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (58 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (59 s)
+  ➜  Local:   http://127.0.0.1:36751/
+Application listened on port 36751, 41991, 40593, 45193; readiness failed for GET [REDACTED]/health through expected internal port 26239. Check application health and the runtime target's port binding.
+Starting your application on this computer (waiting for the bound internal listener): readiness deadline exceeded (exit none, signal none). Last health: Waiting for the application listener handshake.
+Installation stopped while starting the application. Ask your agent to check the edition's operating command for that step, correct the cause, then select Start again. Your setup answers are saved; you may need to supply credentials again.
+Command: /home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node
+Last output (up to 40 lines):
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+6:06:33 PM [vite] (ssr) [optimizer] scanning dependencies...
+  ➜  Local:   http://127.0.0.1:36751/
+Log: [REDACTED]/.seed/installer/install.log
+Application listened on port 36751, 41991, 40593, 45193; readiness failed for GET [REDACTED]/health through expected internal port 26239. Check application health and the runtime target's port binding.
+setup: failed (exit 1)
+
+
+1 !== 0
+
+    at command (file:///home/agent/rer-consolidation/work/sx-glove-c-f225/run-glove/tests/portable.mjs:139:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async devInstallation (file:///home/agent/rer-consolidation/work/sx-glove-c-f225/run-glove/tests/dev-installation.mjs:10:7)
+    at async file:///home/agent/rer-consolidation/work/sx-glove-c-f225/run-glove/tests/portable.mjs:287:13 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

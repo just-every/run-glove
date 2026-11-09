@@ -1,0 +1,83 @@
+   699	  const latest = join(parent, 'post-erasure.rer')
+   700	  await command(destination, ['export', '--output', latest])
+   701	  const olderBytes = await readFile(archive), latestBytes = await readFile(latest)
+   702	  const olderCheckpoint = JSON.parse(olderBytes.toString('utf8').split('\n')[0])
+   703	  const laterCheckpoint = JSON.parse(latestBytes.toString('utf8').split('\n')[0])
+   704	  assert.equal(laterCheckpoint.sourceIdentity, olderCheckpoint.sourceIdentity)
+   705	  assert.ok(laterCheckpoint.epoch > olderCheckpoint.epoch, 'DATA-001 point 7: the real edition archive carries the committed redaction checkpoint')
+   706	  const erasedValues = ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']
+   707	  for (const value of erasedValues) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
+   708	  {
+   709	    const { readArchive } = await import('@runeditrun/rer/modules/portability')
+   710	    const cells = []
+   711	    for await (const record of readArchive(Readable.toWeb(createReadStream(latest)))) if (record.kind === 'part') for (const item of record.items) if (item.kind === 'row') {
+   712	      for (const value of Object.values(item.row)) cells.push(value && typeof value === 'object' && typeof value.blob === 'string' ? Buffer.from(value.blob, 'base64').toString('utf8') : typeof value === 'string' ? value : JSON.stringify(value))
+   713	    }
+   714	    const decoded = cells.join('\n')
+   715	    for (const value of erasedValues) assert.ok(!decoded.includes(value), 'DATA-001 point 7: decoded original chunks and archived records contain no erased personal values')
+   716	  }
+   717	  // Keep a destination with the newer checkpoint. Its own fence must refuse
+   718	  // the old archive even when no external journal was supplied.
+   719	  {
+   720	    const { getPlatformProxy } = await import('wrangler')
+   721	    const { selectLocalState } = await import('@runeditrun/rer/local/state')
+   722	    const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
+   723	    // Wrangler's API takes the versioned directory; its CLI takes the parent.
+   724	    const state = await selectLocalState(destination)
+   725	    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(state, 'v3') }, remoteBindings: false })
+   726	    try {
+   727	      const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
+   728	      assert.deepEqual(await db.prepare('SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first(), { source_identity: laterCheckpoint.sourceIdentity, epoch: laterCheckpoint.epoch }, 'DATA-001 point 7: the fence probe opens the installation holding the actual newer checkpoint')
+   729	      assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
+   730	      const service = await createPortability({ db, policy })
+   731	      const records = []
+   732	      for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
+   733	      const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
+   734	      const attempt = await service.imports.create(records[0], 'owner')
+   735	      try {
+   736	        for (const [i, part] of records.filter(r => r.kind === 'part').entries()) await service.imports.uploadPart(attempt, i, part)
+   737	        await assert.rejects(service.imports.finalize(attempt, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash }), /erasure_epoch/, 'DATA-001 point 7: the destination checkpoint independently refuses the old archive without a supplied journal')
+   738	      } finally { await service.imports.abort(attempt) }
+   739	      assert.deepEqual((await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results, stored, 'the refused archive changes no anonymous or peer records')
+   740	    } finally { await proxy.dispose() }
+   741	  }
+   742	  const offlineTarget = await copy('offline-older-backup')
+   743	  await command(offlineTarget, ['import', '--input', archive, '--yes'])
+   744	  running = await install(offlineTarget)
+   745	  const offline = await running.owner.get('/api/glove/export')
+   746	  assert.equal(offline.customers.find(c => c.id === customer.id).name, 'Harbourview Dental', 'DATA-001 point 8: a fresh offline destination with only the older archive cannot discover the later erasure')
+   747	  assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 200, 'DATA-001 point 8: the old archive still contains the original, demonstrating the documented limit')
+   748	  await running.close(); running = null
+   749	  const olderTarget = await copy('older-backup')
+   750	  await cp(latest, join(olderTarget, 'post-erasure.rer'))
+   751	  await assert.rejects(command(olderTarget, ['import', '--input', archive, '--journal', 'post-erasure.rer', '--yes']), /erasure_epoch/, 'DATA-001 older backup cannot resurrect erased personal data with the trusted later journal')
+   752	  await command(olderTarget, ['import', '--input', latest, '--yes'])
+   753	  running = await install(olderTarget)
+   754	  const anonymous = await running.owner.get('/api/glove/export')
+   755	  assert.equal(anonymous.customers.find(c => c.id === customer.id).name, 'Erased customer')
+   756	  assert.deepEqual(anonymous.routes, erasedRoutes, 'DISP-011 restored erasure metadata never resurrects erased visit references')
+   757	  for (const original of routeVisits) assert.ok(!JSON.stringify(anonymous.routes).includes(original.id))
+   758	  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false, 'DISP-011 another restore still requires explicit Maps reconnection')
+   759	  console.log('DISP-011 real archive passed: exact proposal metadata and appointments retained, Maps reconnection required, stale acceptance refused, erasure and later journal fence visit references')
+   760	  const laterErasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
+   761	  assert.equal(laterErasedPreview.status, 404, 'COMM-006 later erasure fence prevents reconstruction after restore')
+   762	  const peerPreview = await running.owner.cmd('customer.hubPreview', { customerId: peerCustomer.id })
+   763	  assert.equal(peerPreview.customer.name, peerCustomer.name)
+   764	  assert.doesNotMatch(JSON.stringify(peerPreview), /Harbourview Dental|Customer-facing restored inspection|Permitted restored model/)
+   765	
+   766	  assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
+   767	  assert.equal((await running.owner.get(`/api/glove/jobs/${job.id}/cost`)).costing.actual.materials, '14.00', 'DATA-001 point 7: real anonymous archive restore retains material costs without personal capture evidence')
+   768	  assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
+   769	  assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
+   770	  assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'erased signed-copy bytes stay erased across backup/restore')
+   771	  assert.equal(anonymous.customers.find(c => c.id === peerCustomer.id).name, peerCustomer.name)
+   772	  assert.equal(anonymous.quotes.find(q => q.id === peerQuote.id).acceptance.signing.signedCopy, null)
+   773	  assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'peer signed-original withdrawal survives rer restore')
+   774	  assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
+   775	  assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
+   776	  console.log('DATA-001 points 7 and 8 real rer import passed: later journal and destination checkpoint refuse the old archive; a fresh offline destination without that journal restores it; the new archive retains anonymous totals and no erased originals')
+   777	  await running.close(); running = null
+   778	  // PAY-008: the real archive retains permission versions, never execution authority.
+   779	  const paySource = await copy('payment-source'), payDestination = await copy('payment-destination')
+   780	  running = await install(paySource)
+   781	  const payOwner = running.owner

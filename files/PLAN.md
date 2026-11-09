@@ -1,0 +1,8 @@
+# DATA-001 continuation plan
+
+1. Refresh fleet credentials and install Git identity, credential and commit guards. Clone full history and replay the unfinished predecessor 7296b84ca02cda60b41642ccae13f8bfcfd998a8 onto current main, keeping main judgments and all other writers' tests.
+2. Read the clause, operating rules, existing privacy registration, native fixture, real archive journey and browser privacy journey. Map each of points 1–8 to nonempty supported and refused public-door outcomes; preserve the existing registration budget and harness.
+3. Run the touched privacy API registration and typecheck, then the full real CLI archive journey and focused owner privacy browser journey, showing 1440 and 390 screens. Repair only demonstrated defects in the allowed edition source; retain every existing assertion.
+4. Regenerate contract views to prove the source generates, restore both views from main, regenerate the source lock last and check it. Run first-party validation and inventory. Inspect all candidate identities, trailers and changed publication prose.
+5. Push saves through the product guard as progress is made. Merge updated main before the final candidate, regenerate the lock and recheck. Push the final named branch, discover and watch exact-SHA Verify through REST within the ten-call budget and 300-second cadence. Never change main.
+6. Write actual public-safe proof, per-point results and all eleven rider results into this packet. Publish only explicitly selected reports and receipts to the evidence ref. Report clause claim, count and plan-row effects honestly; leave publication scanning, status judgment and landing to the fleet.

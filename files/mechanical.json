@@ -1,0 +1,18 @@
+{
+  "product_head": "5477173bf95446783c433ae4b11c2a9af84d349a",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock && node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "views": {
+    "command": "node scripts/contract-docs.mjs write --clauses DATA-001 && node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "generated_views_restored_from_main": true
+  },
+  "ledger": {
+    "command": "none; no migration changed",
+    "exit": 0
+  },
+  "contract_diff_from_main": "",
+  "inventory": "196 registrations (193 direct calls) + 4 assertion scripts = 200/200"
+}

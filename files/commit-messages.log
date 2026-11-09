@@ -1,0 +1,20 @@
+5477173 Merge current main into privacy erasure qualification
+
+3794427 Assert erased invoice approval, link issuance and export replay refusals [skip ci]
+
+3bcec74 Recover merge-only anonymous job costing and capture erasure [skip ci]
+
+04b4b9d Prove erased values stay absent from decoded installation archives
+
+4417761 test: open the real erasure checkpoint for archive fences [skip ci]
+
+e3c937d test: await privacy data before reload assertions [skip ci]
+
+f0d0134 test: recover privacy archive and peer preservation proof [skip ci]
+
+9680163 fix: fence shared import originals in privacy exports [skip ci]
+
+d22994b fix: retain anonymous material costs during erasure [skip ci]
+
+808103d test: qualify privacy export and erasure [skip ci]
+

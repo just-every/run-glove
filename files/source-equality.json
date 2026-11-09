@@ -1,0 +1,35 @@
+{
+  "head": "5477173bf95446783c433ae4b11c2a9af84d349a",
+  "main": "9e90f81f6380137303cb03616e7955a0e4642218",
+  "proof": [
+    {
+      "path": "src/glove/privacy.ts",
+      "equal_main": true
+    },
+    {
+      "path": "src/glove/costing.ts",
+      "equal_main": true
+    },
+    {
+      "path": "src/glove/privacy-imports.ts",
+      "equal_main": true
+    },
+    {
+      "path": "tests/api/privacy.test.mjs",
+      "equal_main": true
+    },
+    {
+      "path": "tests/browser/journey.spec.ts",
+      "equal_main": true
+    },
+    {
+      "path": "tests/portable.mjs",
+      "equal_main": true
+    },
+    {
+      "path": "tests/fixtures/edition-archive-policy.mjs",
+      "equal_main": true
+    }
+  ],
+  "additional_behavior": "Three public-door refusal assertions in tests/fixtures/privacy-data.mjs; no other test or source difference from current main."
+}
