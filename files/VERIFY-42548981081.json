@@ -1,0 +1,9 @@
+{
+  "conclusion": "success",
+  "event": "push",
+  "headBranch": "cloud/sx-glove-suite-cap-2",
+  "headSha": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+  "status": "completed",
+  "url": "https://github.com/just-every/run-glove/actions/runs/42548981081",
+  "workflowName": "Verify"
+}

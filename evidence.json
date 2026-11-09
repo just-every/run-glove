@@ -1,0 +1,58 @@
+{
+  "files": [
+    {
+      "blob": "55bfeff023c4ae17dc59e12f86f446b1960e6b53",
+      "bytes": 85,
+      "path": "CANDIDATE-IDENTITIES.txt",
+      "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
+    },
+    {
+      "blob": "0c5f46e7647d6ae649f6cdcbcc510a6a141bae95",
+      "bytes": 553,
+      "path": "CANDIDATE-MESSAGES.txt",
+      "sha256": "2f00c1045e5cfbb463c8968cdc5cc070cbda63a65e1011c01d02c1633b4c8942"
+    },
+    {
+      "blob": "92eae4fbe5c94f424a547ae31622c6e5bca9cc60",
+      "bytes": 1633,
+      "path": "PLAN.md",
+      "sha256": "757738fd3c8f6192c589d4a945776d4f13d7372b45ebe4f1121430f1315e9164"
+    },
+    {
+      "blob": "374a2150504864ff83b1d61c4514b69bfbac03e1",
+      "bytes": 2142,
+      "path": "PRODUCT-RECEIPT.json",
+      "sha256": "578016e2ce017dced7193862c03927200137e6aaacc92230225bf37e00497cf6"
+    },
+    {
+      "blob": "59848a52876a6406cc834598471d445dbd61abda",
+      "bytes": 958,
+      "path": "PUSH-RECEIPT.txt",
+      "sha256": "f459d55cdc558ae92990ae52c4598808b8588c665b4fd702bd7417efae1252db"
+    },
+    {
+      "blob": "85db56493f8ea27d77e7ff9fe8797d070ee79901",
+      "bytes": 165,
+      "path": "REMOTE-REFS.txt",
+      "sha256": "50b6e43a5c1e0a61fae9e67c4d9daa52533eff90b7f28ba6db6ca563bd628da9"
+    },
+    {
+      "blob": "4283ee5728214753e50c251ab395d2d6fe1b690c",
+      "bytes": 4123,
+      "path": "REPORT.md",
+      "sha256": "ade5d38392148b9cb6dd648781e92cbd47aa6618d2d05ed8130b769960f3a5b9"
+    },
+    {
+      "blob": "82bb61e417affa7fa95c186cbfd0509532a61861",
+      "bytes": 282,
+      "path": "VERIFY-42548981081.json",
+      "sha256": "f0cc44010a21811ff76dc634bb1072c4a7d32e0eaf3480818307b335bf30a1cb"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-suite-cap-2-push-1",
+  "product_head": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+  "ref": "refs/heads/evidence/sx-glove-suite-cap-2-push-1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-suite-cap-2-push-1"
+}
