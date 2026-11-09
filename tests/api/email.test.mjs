@@ -841,9 +841,10 @@ async function customerEmailPoints(t) {
     const plan = await h.command('plan.save', { name: 'Transactional care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: b.service.id })
     const agreement = await b.office.run('agreement.sell', { customerId: customer.id, siteId: b.site.id, planId: plan.id, via: 'phone', startDate: '2026-11-01' })
     const date = new Date(instant + 86400000).toISOString().slice(0, 10)
-    const offer = await b.office.run('agreement.offer', { agreementId: agreement.id, index: 0, email: true, to: address('outsider'), slots: [{ technicianId: b.tom.id, date, start: '09:00', end: '10:00' }] })
+    const offer = await b.office.run('agreement.offer', { agreementId: agreement.id, index: 0, email: true, to: address('outsider'), subject: 'Synthetic unrelated booking note', text: 'Synthetic unrelated booking note', html: '<p>Synthetic unrelated booking note</p>', slots: [{ technicianId: b.tom.id, date, start: '09:00', end: '10:00' }] })
     assert.equal(h.email.sent.at(-1).to, customer.email)
     assert.ok(providerText(h.email.sent.at(-1)).includes(offer.token))
+    assert.ok(!JSON.stringify(h.email.sent.at(-1).body).includes('Synthetic unrelated booking note'), 'booking email carries its own link text only')
     secrets.push(offer.token)
     bodies.push(providerText(h.email.sent.at(-1)))
   })
@@ -853,12 +854,19 @@ async function customerEmailPoints(t) {
     const unapproved = 'Synthetic unrelated private customer notes'
     for (const provider of Object.keys(providers)) {
       await connect(provider)
-      const message = await send(owner, 'quote', quote, { to: address('outsider'), subject: unapproved, text: unapproved, html: `<p>${unapproved}</p>` })
-      const request = h.email.sent.at(-1), content = JSON.stringify(request.body)
-      assert.equal(message.to, customer.email, 'a document email cannot redirect the customer document')
-      assert.ok(!content.includes(unapproved), 'arbitrary subject, text and HTML cannot replace or supplement the approved document')
-      assert.match(providerText(request), /Callback authentication[\s\S]*Service × 1 at \$189\.00/)
-      assert.doesNotMatch(content, /unsubscribe|marketing|promotion|special offer|newsletter/i)
+      const po = await order()
+      for (const [kind, record, to, document] of [
+        ['quote', quote, customer.email, /Callback authentication[\s\S]*Service × 1 at \$189\.00/],
+        ['invoice', invoice, customer.apEmail, /Split system service × 1 at \$189\.00/],
+        ['purchaseOrder', po, po.supplierEmail, /Replacement filter × 1 each/],
+      ]) {
+        const message = await send(owner, kind, record, { subject: unapproved, text: unapproved, html: `<p>${unapproved}</p>`, ...(kind !== 'purchaseOrder' ? { to: address('outsider') } : {}) })
+        const request = h.email.sent.at(-1), content = JSON.stringify(request.body)
+        assert.equal(message.to, to, 'the document email uses its own recorded recipient')
+        assert.ok(!content.includes(unapproved), 'arbitrary subject, text and HTML cannot replace or supplement the approved document')
+        assert.match(providerText(request), document)
+        assert.doesNotMatch(content, /unsubscribe|marketing|promotion|special offer|newsletter/i)
+      }
     }
     for (const body of bodies) assert.doesNotMatch(body, /unsubscribe|marketing|promotion|special offer|newsletter/i)
     for (const kind of ['marketing', 'newsletter', 'receipt', 'bookingLink']) await refuse(owner, 'email.send', { kind, id: quote.id, version: (await current('quote', quote)).version }, 'INPUT')
