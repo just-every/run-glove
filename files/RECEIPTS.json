@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f220",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f220",
+  "head": "6a1b172ef52994689af4a5463eac96e94646b946",
+  "base": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "observed_at": "2026-11-09T12:29:50.838430+00:00",
+  "node": "22.20.0",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/payments.test.mjs",
+      "exit": 0,
+      "result": "passed 3 registrations",
+      "receipt": "payments-candidate.tap"
+    },
+    {
+      "command": "node /tmp/glove-pay021-probe.mjs",
+      "exit": 0,
+      "result": "all seven named public-door steps passed after the last test edit",
+      "receipt": "pay021-probe.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "receipt": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write then node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "views.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "receipt": "views-candidate.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock then node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "receipt": "lock-final.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "receipt": "lock-candidate.log"
+    },
+    {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 1,
+      "result": "202 of 200, unchanged from supplied and observed main inventory; no new registration",
+      "receipt": "inventory.json"
+    }
+  ],
+  "steps": [
+    {
+      "point": 1,
+      "name": "PAY-021 point 1: exact installment boundaries and current Owner-only TEST Checkout refuse unsafe amounts without a request",
+      "path": "tests/api/receipt-credit.mjs",
+      "line": 147
+    },
+    {
+      "point": 2,
+      "name": "PAY-021 point 2: Owner and Office cash and check references remain attributable staff records and unauthorized or unapproved receipts change nothing",
+      "path": "tests/api/receipt-credit.mjs",
+      "line": 158
+    },
+    {
+      "point": 3,
+      "name": "PAY-021 point 3: a check exceeding the remaining balance retains exactly the excess on its source invoice",
+      "path": "tests/api/receipt-credit.mjs",
+      "line": 174
+    },
+    {
+      "point": 4,
+      "name": "PAY-021 point 4: explicit credit allocations enforce customer, currency, branch, source and target limits with no money movement",
+      "path": "tests/api/receipt-credit.mjs",
+      "line": 182
+    },
+    {
+      "point": 5,
+      "name": "PAY-021 point 5: only the Owner records a reasoned non-cash credit",
+      "path": "tests/api/receipt-credit.mjs",
+      "line": 200
+    },
+    {
+      "point": 6,
+      "name": "PAY-021 point 6: every invoice, customer, aging bucket and CSV cell, Today tile and linked overdue item matches the independent cent ledger after every allowed and refused step",
+      "path": "tests/api/receipt-credit.mjs",
+      "line": 211
+    },
+    {
+      "point": 7,
+      "name": "PAY-021 point 7: Stripe revenue and technician tips exclude staff receipts and allocations, with identical restart, replay, Activity and business export",
+      "path": "tests/api/receipt-credit.mjs",
+      "line": 218
+    }
+  ],
+  "source_sha256": {
+    "tests/api/payments.test.mjs": "9bcf2207d51a6fc255728c9e4552b585974bdf34434ede972ce84d7084501da2",
+    "tests/api/receipt-credit.mjs": "5b23dc2fea3c870f3f100af245c8e950e61ee77982bca2fb65e8e4dbbaf71584",
+    "sources.lock.json": "bb6f614f4b0669ee57ef58f6b6442da38f8e62596d9aea385d1d7eb8c461e136"
+  },
+  "verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "6a1b172ef52994689af4a5463eac96e94646b946",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42616745495",
+    "id": 42616745495,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "main_ci": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42611312355",
+      "id": 42611312355,
+      "name": "Run site",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "event": "push",
+      "head_sha": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42611312361",
+      "id": 42611312361,
+      "name": "Run demo",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42611312391",
+      "id": 42611312391,
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42611311505",
+      "id": 42611311505,
+      "name": "Push on main",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42603950921",
+      "id": 42603950921,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "github_api_calls": 3,
+  "counts_before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "test_inventory": {
+    "before": 202,
+    "after": 202,
+    "cap": 200
+  },
+  "publication_scan": {
+    "commit": "6a1b172ef52994689af4a5463eac96e94646b946",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "NOT_RUN_CLOUD_LANDER_OWNS"
+  },
+  "main_equals_candidate": false,
+  "pr": null
+}
