@@ -1,6 +1,6 @@
 # sx-glove-c-f178 — TEAM-005
 
-CLAIM TEAM-005 DONE points=1,2,3,4,5 tests=tests/api/branch-authority.test.mjs#TEAM-005 current branch authority fences every read, shared write, replay and commit across restart; tests/browser/branches.spec.ts#TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390
+CLAIM TEAM-005 DONE points=1,2,3,4,5 tests=tests/api/branch-authority.test.mjs#TEAM-005 current branch authority fences every read, shared write, replay and commit across restart
 
 Product candidate: `cloud/sx-glove-c-f178`, `7015b4f7e38507905ab1f5ffddd9659e517f1a18`. Product push succeeded through the fleet guard. No PR is required: Verify starts on branch push. Exact-SHA Verify 42557042792 is in_progress; its conclusion is not yet established. This is local qualification and an ACCEPT ON LANDING handoff, not a claim that main was changed or that publication passed.
 
@@ -82,7 +82,7 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 ## Product, CI and publication custody
 
 - Exact product SHA: `7015b4f7e38507905ab1f5ffddd9659e517f1a18`. Branch: `cloud/sx-glove-c-f178`. PR: none.
-- Verify push event: 42557042792, in_progress, conclusion unestablished. URL: https://github.com/just-every/run-glove/actions/runs/42557042792. GitHub calls used so far: 2, including original-main discovery. No run was polled more than once within 300 seconds.
+- Verify push event: 42557042792, in_progress, conclusion unestablished. URL: https://github.com/just-every/run-glove/actions/runs/42557042792. GitHub calls used so far: 3, including original-main discovery. No run was polled more than once within 300 seconds.
 - Original main Verify: 42553012374 and 42551609747 succeeded at 5db23a8cc2ac1655066c946e68db4b917268f157. Original main Run site: 42553012415 succeeded at that SHA. These are baseline observations, not candidate proof.
 - Main equality: false; merged main is `63bfd0d1a155d7be44561e579d643f895fabded3`. Candidate Run site: unestablished because it runs only after guarded landing.
 - Exact-SHA scan result: commit=7015b4f7e38507905ab1f5ffddd9659e517f1a18, complete=UNESTABLISHED, historyScanned=UNESTABLISHED, findings=UNESTABLISHED. Cloud-side scanning is not required by the adaptation; the lander must obtain COMPLETE with zero findings before landing.
@@ -92,3 +92,5 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 Complete actual receipts and logs accompany this report. Only the six branch-control screenshots named in RECEIPT.json are selected for evidence; token-display screenshots and private runtime settings are excluded. Evidence is published only to `refs/heads/evidence/sx-glove-c-f178`. Evidence publication signals neither acceptance nor landing.
 
 Blockers: none for this native qualification. CI, publication scanning, judgment and landing are pending independent gates. The inherited 215-test inventory remains an explicit follow-up with no increase from this round.
+
+Final CI observation: exact-SHA Verify 42557042792 remains in progress, with no conclusion. The second run observation was more than 300 seconds after discovery. Initial evidence publication was fetched back successfully: its manifest and all 34 selected files verified; the final evidence update also carries this later CI receipt.

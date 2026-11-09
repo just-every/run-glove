@@ -243,5 +243,7 @@
     "seconds": 1.345,
     "log": "inventory.log",
     "sha256": "0a2e80daabaefafdaa7ef845c309b9210ea8de76acc6893188c2da217593153a"
-  }
+  },
+  "githubCalls": 3,
+  "latestCiObservedAt": "2026-11-09T03:42:08.408848+00:00"
 }
