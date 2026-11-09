@@ -141,6 +141,12 @@ test('MONEY-004 private chunked certificates retain replaced originals, local ex
   await h.command('branch.limit', { operatorId: same.id, branchId: west.id })
   await h.command('branch.limit', { operatorId: other.id, branchId: east.id })
   const team = await crew(h, west.id, 'Certificate Technician'), sub = await h.person('Certificate Subcontractor', 'subcontractor')
+  const subcontractor = await h.command('technician.save', { name: 'Certificate Subcontractor', operatorId: sub.id, branchId: west.id, subcontractor: { payeeName: 'Certificate Subcontractor', tinLast4: '0163' } })
+  const assignedJob = await h.command('job.create', { customerId: customer.id, siteId: p.site.id, title: 'Certificate customer field visit', lines: [line()] })
+  for (const [technicianId, start, end] of [[team.technician.id, '09:00', '10:00'], [subcontractor.id, '11:00', '12:00']]) {
+    await h.command('visit.book', { jobId: assignedJob.id, technicianId, date: '2026-10-30', start, end })
+  }
+  for (const person of [team.person, sub]) assert.ok((await person.state()).customers.some(c => c.id === customer.id), 'assigned field readers can see this customer before the private-file refusal')
   const token = await h.command('token.issue', { name: 'Certificate integration', role: 'office', branchId: west.id })
   const path = '/api/glove/files/' + original.fileId
   for (const as of [h.owner(), same.cookie]) {
