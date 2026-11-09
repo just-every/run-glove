@@ -1,0 +1,27 @@
+{
+  "name": "PORTABLE",
+  "headAtLaunch": "f869667dcba97290319428b335d68955ccaa759c",
+  "candidate": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+  "exit": 0,
+  "command": "cloud_run perl -e 'alarm 1800; exec @ARGV' -- node tests/portable.mjs",
+  "finishedAt": "2026-11-09T03:48:39.653471+00:00",
+  "timeoutSeconds": 1800,
+  "result": "Full real installation export and import command passed, including Maps custody and later erasure journals",
+  "log": "PORTABLE.log",
+  "logSha256": "7817f74f240a5fc73455bfd1fa833dffc6546eb543cdb6431834a1d2fed43915",
+  "unchangedRelevantSourceProof": {
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "f869667dcba97290319428b335d68955ccaa759c",
+      "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "--",
+      "src",
+      "tests/portable.mjs",
+      "tests/fixtures"
+    ],
+    "exit": 0,
+    "output": ""
+  }
+}

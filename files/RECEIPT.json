@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f183",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f183",
+  "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+  "integratedMain": "eb1178dde4b08016c116445860c5f6bb36e56710",
+  "verify": {
+    "conclusion": null,
+    "head_sha": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42557723301",
+    "status": "in_progress",
+    "id": 42557723301,
+    "name": "Verify",
+    "event": "push",
+    "observedAt": 1794196268.482761
+  },
+  "sourceCounts": {
+    "partial": 205,
+    "done": 29,
+    "missing": 29
+  },
+  "inventory": {
+    "registrations": 213,
+    "direct": 210,
+    "assertionScripts": [
+      "tests/runtime.mjs",
+      "tests/email-link.mjs",
+      "tests/site.mjs",
+      "tests/portable.mjs"
+    ],
+    "total": 217,
+    "limit": 200
+  },
+  "productionChanges": false,
+  "contractEqualsMain": true,
+  "generatedViewsEqualMain": true,
+  "publicationScan": {
+    "commit": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "custodian": "fleet lander"
+  },
+  "runSite": {
+    "status": "pending landing"
+  },
+  "fullHistory": true,
+  "localReceipts": [
+    {
+      "name": "API",
+      "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/map-board.test.mjs"
+      ],
+      "started_at": "2026-11-09T03:39:03.823081+00:00",
+      "finished_at": "2026-11-09T03:39:31.570501+00:00",
+      "exit": 0,
+      "log": "API.log",
+      "log_sha256": "ac16dc035970f687c8c0a09a4bddd118e9a2c8900daf21ef137d7b85c0cf51f8",
+      "sources": {
+        "src/glove/maps.ts": "df4eb5b3d8f4b92dac0698bdbde910c020ec5a6b05098d4ae2d9bc4dca562912",
+        "src/glove/commands/maps.ts": "08786694cb9c389d0c47a08f81abc368939f3936905dd3811053d91f7c26a0be",
+        "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+        "src/glove/api.ts": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+        "src/ui/dispatch-map.tsx": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+        "src/ui/technician.tsx": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb",
+        "tests/api/harness.mjs": "f7148168602c47232c6098adb893479499b4ec50b779c9aad4fc48d1c5fe5f73",
+        "tests/api/map-board.test.mjs": "5b6ee7762aa999a93afda351d9d4a0aced36769c5c51d1c6834254fdbe20f4fa",
+        "tests/browser/dispatch-map.spec.ts": "177c44ce558936091f3739ca047baf86d158ec8ceede10e3001f9632dfb742a3",
+        "tests/portable.mjs": "1ac9299e0495544b845eb10fe5b3b1107b6fed3735da80c6b3e3aa7ad0139f78",
+        "tests/fixtures/maps.mjs": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66"
+      }
+    },
+    {
+      "name": "BROWSER",
+      "headAtLaunch": "f869667dcba97290319428b335d68955ccaa759c",
+      "candidate": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "exit": 0,
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/dispatch-map.spec.ts",
+      "result": "1 passed; screenshots at 1440 and 390",
+      "unchangedRelevantSourceProof": {
+        "command": [
+          "git",
+          "diff",
+          "--exit-code",
+          "f869667dcba97290319428b335d68955ccaa759c",
+          "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+          "--",
+          "src",
+          "tests/browser/dispatch-map.spec.ts",
+          "tests/api/harness.mjs",
+          "tests/portable.mjs",
+          "tests/fixtures"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      "screenshots": [
+        {
+          "file": "1440-dispatch-map-qualified-board.png",
+          "bytes": 171862,
+          "sha256": "c17828926d1e31ddc6d9f48632adab45e2230e195952e7aa990eb30d123f7ba1"
+        },
+        {
+          "file": "1440-dispatch-map-qualified-directions.png",
+          "bytes": 74968,
+          "sha256": "a303e6f523754e8034ea05d9049b79e6a0eefa8d071c5e9806c3781fd9a9b838"
+        },
+        {
+          "file": "390-dispatch-map-qualified-board.png",
+          "bytes": 82062,
+          "sha256": "19b4643f49904796244fab6a885efe42b5c7da31491b11abafe8ec58d78e6e63"
+        },
+        {
+          "file": "390-dispatch-map-qualified-directions.png",
+          "bytes": 63220,
+          "sha256": "81b787c38e071682a8128e84bee3d854035a8a904c4c15d8d4f1671ffa6b57cb"
+        }
+      ]
+    },
+    {
+      "name": "FIRST-PARTY",
+      "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "started_at": "2026-11-09T03:40:12.842742+00:00",
+      "finished_at": "2026-11-09T03:40:14.785837+00:00",
+      "exit": 0,
+      "log": "FIRST-PARTY.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sources": {
+        "src/glove/maps.ts": "df4eb5b3d8f4b92dac0698bdbde910c020ec5a6b05098d4ae2d9bc4dca562912",
+        "src/glove/commands/maps.ts": "08786694cb9c389d0c47a08f81abc368939f3936905dd3811053d91f7c26a0be",
+        "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+        "src/glove/api.ts": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+        "src/ui/dispatch-map.tsx": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+        "src/ui/technician.tsx": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb",
+        "tests/api/harness.mjs": "f7148168602c47232c6098adb893479499b4ec50b779c9aad4fc48d1c5fe5f73",
+        "tests/api/map-board.test.mjs": "5b6ee7762aa999a93afda351d9d4a0aced36769c5c51d1c6834254fdbe20f4fa",
+        "tests/browser/dispatch-map.spec.ts": "177c44ce558936091f3739ca047baf86d158ec8ceede10e3001f9632dfb742a3",
+        "tests/portable.mjs": "1ac9299e0495544b845eb10fe5b3b1107b6fed3735da80c6b3e3aa7ad0139f78",
+        "tests/fixtures/maps.mjs": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66"
+      }
+    },
+    {
+      "candidate": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "commands": [
+        {
+          "command": "node scripts/contract-docs.mjs write",
+          "exit": 0
+        },
+        {
+          "command": "node scripts/contract-docs.mjs check",
+          "exit": 0
+        },
+        {
+          "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+          "exit": 0
+        },
+        {
+          "command": "node scripts/edition-authoring/cli.mjs lock",
+          "exit": 0
+        },
+        {
+          "command": "node scripts/edition-authoring/cli.mjs check",
+          "exit": 0
+        }
+      ],
+      "contractEqualsIntegratedMain": true,
+      "generatedViewsEqualIntegratedMain": true,
+      "ledger": "not applicable; no migration changed"
+    },
+    {
+      "name": "PORTABLE",
+      "headAtLaunch": "f869667dcba97290319428b335d68955ccaa759c",
+      "candidate": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "exit": 0,
+      "command": "cloud_run perl -e 'alarm 1800; exec @ARGV' -- node tests/portable.mjs",
+      "finishedAt": "2026-11-09T03:48:39.653471+00:00",
+      "timeoutSeconds": 1800,
+      "result": "Full real installation export and import command passed, including Maps custody and later erasure journals",
+      "log": "PORTABLE.log",
+      "logSha256": "7817f74f240a5fc73455bfd1fa833dffc6546eb543cdb6431834a1d2fed43915",
+      "unchangedRelevantSourceProof": {
+        "command": [
+          "git",
+          "diff",
+          "--exit-code",
+          "f869667dcba97290319428b335d68955ccaa759c",
+          "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+          "--",
+          "src",
+          "tests/portable.mjs",
+          "tests/fixtures"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    },
+    {
+      "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "branch": "cloud/sx-glove-c-f183",
+      "pushCommand": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f183",
+      "pushExit": 0,
+      "remoteVerification": {
+        "command": "git ls-remote --heads origin cloud/sx-glove-c-f183",
+        "exit": 0,
+        "output": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4\trefs/heads/cloud/sx-glove-c-f183\n"
+      },
+      "verifiedAt": "2026-11-09T03:45:50.341836+00:00",
+      "defaultBranchPushed": false
+    },
+    {
+      "name": "TYPECHECK",
+      "head": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "started_at": "2026-11-09T03:40:12.092462+00:00",
+      "finished_at": "2026-11-09T03:40:12.728408+00:00",
+      "exit": 0,
+      "log": "TYPECHECK.log",
+      "log_sha256": "8eda19f80cfc82631a25ed97361a8c7995ae79b5ce2b0af711ec95c2f7a73546",
+      "sources": {
+        "src/glove/maps.ts": "df4eb5b3d8f4b92dac0698bdbde910c020ec5a6b05098d4ae2d9bc4dca562912",
+        "src/glove/commands/maps.ts": "08786694cb9c389d0c47a08f81abc368939f3936905dd3811053d91f7c26a0be",
+        "src/glove/eligibility.ts": "0476e7ec06930703d2077018b023eb1e866c74da93f2faf168f8786b2606924c",
+        "src/glove/api.ts": "90641f7094213e9cff9c446e1a2cf7a6e17086eb4eaf5ace71c60e693fa5ce0b",
+        "src/ui/dispatch-map.tsx": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+        "src/ui/technician.tsx": "a1c715c7fe58ce825ff068c1c5ca66923c7e8971e1321d135a6e2119ce49bfbb",
+        "tests/api/harness.mjs": "f7148168602c47232c6098adb893479499b4ec50b779c9aad4fc48d1c5fe5f73",
+        "tests/api/map-board.test.mjs": "5b6ee7762aa999a93afda351d9d4a0aced36769c5c51d1c6834254fdbe20f4fa",
+        "tests/browser/dispatch-map.spec.ts": "177c44ce558936091f3739ca047baf86d158ec8ceede10e3001f9632dfb742a3",
+        "tests/portable.mjs": "1ac9299e0495544b845eb10fe5b3b1107b6fed3735da80c6b3e3aa7ad0139f78",
+        "tests/fixtures/maps.mjs": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66"
+      }
+    }
+  ]
+}

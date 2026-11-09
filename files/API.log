@@ -1,0 +1,17 @@
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DISP-002 map board qualification through desk, Owner and booking doors (26362.767627ms)
+ℹ DISP-002 day map orders five stops and exact legs, restricts desk reads and sends minimal provider data after restart
+ℹ DISP-002 Maps key custody allows only the current unscoped signed-in Owner and disconnect survives replay
+ℹ DISP-002 site placement sends only the changed street address, saves no-place honestly and retries listed unplaced sites
+ℹ DISP-002 zone editing accepts boundary polygons and refuses invalid shapes or non-Owner writes unchanged
+ℹ DISP-002 ZIP codes and drawn zones jointly allow bookings while outside and unplaced sites follow the Owner area rule
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 27665.643636

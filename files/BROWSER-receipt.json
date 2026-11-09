@@ -1,0 +1,47 @@
+{
+  "name": "BROWSER",
+  "headAtLaunch": "f869667dcba97290319428b335d68955ccaa759c",
+  "candidate": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+  "exit": 0,
+  "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium cloud_run perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/dispatch-map.spec.ts",
+  "result": "1 passed; screenshots at 1440 and 390",
+  "unchangedRelevantSourceProof": {
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "f869667dcba97290319428b335d68955ccaa759c",
+      "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+      "--",
+      "src",
+      "tests/browser/dispatch-map.spec.ts",
+      "tests/api/harness.mjs",
+      "tests/portable.mjs",
+      "tests/fixtures"
+    ],
+    "exit": 0,
+    "output": ""
+  },
+  "screenshots": [
+    {
+      "file": "1440-dispatch-map-qualified-board.png",
+      "bytes": 171862,
+      "sha256": "c17828926d1e31ddc6d9f48632adab45e2230e195952e7aa990eb30d123f7ba1"
+    },
+    {
+      "file": "1440-dispatch-map-qualified-directions.png",
+      "bytes": 74968,
+      "sha256": "a303e6f523754e8034ea05d9049b79e6a0eefa8d071c5e9806c3781fd9a9b838"
+    },
+    {
+      "file": "390-dispatch-map-qualified-board.png",
+      "bytes": 82062,
+      "sha256": "19b4643f49904796244fab6a885efe42b5c7da31491b11abafe8ec58d78e6e63"
+    },
+    {
+      "file": "390-dispatch-map-qualified-directions.png",
+      "bytes": 63220,
+      "sha256": "81b787c38e071682a8128e84bee3d854035a8a904c4c15d8d4f1671ffa6b57cb"
+    }
+  ]
+}

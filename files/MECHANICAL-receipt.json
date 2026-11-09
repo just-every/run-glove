@@ -1,0 +1,28 @@
+{
+  "candidate": "65a9c12400ac9806af73dbf53da64ddcdaeaf1a4",
+  "commands": [
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "contractEqualsIntegratedMain": true,
+  "generatedViewsEqualIntegratedMain": true,
+  "ledger": "not applicable; no migration changed"
+}
