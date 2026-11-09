@@ -1,0 +1,94 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f181",
+  "head": "7d7cc6feabd4946e044a27f41239590bce884c8e",
+  "save": "3d8aaa3d51578a4f8b5e7734adf89c630207637d",
+  "proof_files": [
+    {
+      "path": "src/glove/instant-payouts.ts",
+      "sha256": "988d50126f1b04981f4cc5076c2cfaa3208c7460899cf9bda2c4e7f1368e8262",
+      "identical_to_save": true
+    },
+    {
+      "path": "src/glove/payouts.ts",
+      "sha256": "134fa5ca755069c73518a56e1c55be5911e3370b33dafb92fbcf31cff4ce6620",
+      "identical_to_save": true
+    },
+    {
+      "path": "tests/api/instant-payouts.test.mjs",
+      "sha256": "d9063e6a159303adc31f33bd268e3625d35b20be77538783b563d89523063e05",
+      "identical_to_save": true
+    },
+    {
+      "path": "tests/browser/receivables.spec.ts",
+      "sha256": "90055957324e14a7ef3b804be476e099fda30d92b82833df4347fc35ace48f00",
+      "identical_to_save": true
+    },
+    {
+      "path": "tests/fixtures/stripe-payments.mjs",
+      "sha256": "5ca6179db7f231fce541007e6d9ebd3baf5703cbc099998fe8ee70c2e5450d02",
+      "identical_to_save": true
+    }
+  ],
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/instant-payouts.test.mjs",
+      "exit": 0,
+      "head": "7d7cc6feabd4946e044a27f41239590bce884c8e",
+      "log": "api.log"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/instant-payouts.test.mjs tests/api/payout-reconciliation.test.mjs tests/api/payments.test.mjs",
+      "exit": 0,
+      "tests": 8,
+      "log": "regression.log",
+      "same_product_bytes": true
+    },
+    {
+      "command": "timeout 1200 node /tmp/glove-browser-proof.mjs with the existing PAY-007, PAY-025, PAY-026 owner journey selected",
+      "exit": 0,
+      "tests": 1,
+      "widths": [
+        1440,
+        390
+      ],
+      "log": "browser.log",
+      "same_product_bytes": true
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log",
+      "same_product_bytes": true
+    }
+  ],
+  "mechanical_receipt": "mechanical-receipt.json",
+  "inventory": {
+    "main": 215,
+    "candidate": 216,
+    "cap": 200,
+    "exit": 1
+  },
+  "ci": {
+    "run_id": 42556690576,
+    "event": "push",
+    "head_sha": "7d7cc6feabd4946e044a27f41239590bce884c8e",
+    "observed_status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42556690576",
+    "status": "in_progress"
+  },
+  "publication_scan": {
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "custody": "guarded Mac lander"
+  },
+  "product_push": {
+    "published": true,
+    "ref": "refs/heads/cloud/sx-glove-c-f181",
+    "head": "7d7cc6feabd4946e044a27f41239590bce884c8e"
+  },
+  "pr": null
+}

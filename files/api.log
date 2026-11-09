@@ -1,0 +1,18 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (32825.135679ms)
+ℹ PAY-026 point 1: Owner pricing, independent cent boundaries and unsafe previews
+ℹ PAY-026 point 2: explicit amounts and exact clock expiry recheck every mutable prerequisite
+ℹ PAY-026 point 3: durable reservation and retained key precede one concurrent request
+ℹ PAY-026 point 4: lost and unreachable answers remain reserved through replay, cron and Worker restart
+ℹ PAY-026 point 5: confirmed sources cannot enter another preview, confirmation or manual allocation
+ℹ PAY-026 point 6: actual debit, original allocation and fee must match the confirmed preview on every inspection
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34557.046057

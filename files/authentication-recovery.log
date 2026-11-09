@@ -1,0 +1,3 @@
+Initial repository metadata request: HTTP 401 Bad credentials.
+API recovery attempt=2/5 refresh_exit=0 setup_exit=0 exit=0
+{"default_branch":"main","full_name":"just-every/run-glove","permissions":{"admin":true,"maintain":true,"pull":true,"push":true,"triage":true}}

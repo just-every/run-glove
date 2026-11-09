@@ -1,0 +1,38 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (14376.30601ms)
+ℹ PAY-026 point 1: Owner pricing, independent cent boundaries and unsafe previews
+ℹ PAY-026 point 2: explicit amounts and exact clock expiry recheck every mutable prerequisite
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15497.087682
+
+✖ failing tests:
+
+test at tests/api/instant-payouts.test.mjs:68:1
+✖ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (14376.30601ms)
+  AssertionError [ERR_ASSERTION]: {"ok":true,"result":{"id":"423ffbf7-dc6a-4efa-9eb6-e6a5abefe4a2","version":3,"kind":"instantRequest","createdAt":"2026-11-09T12:00:00.000Z","expiresAt":"2026-11-09T12:10:00.000Z","connectionId":"68509911-4a77-45f3-9953-3a36ec4b7c0c","currency":"USD","sourcePaymentIds":["e66aa86a-9285-4906-b850-0b8b40782801"],"sourceNet":"100.00","sourceBasis":"Owner-reviewed books allocation; Stripe does not attribute source payments to manual payouts","amount":"100.00","expectedFee":"0.00","destination":"synthetic-glove-debit-1","feeSource":"Owner-recorded Stripe account fee schedule; not verified by Glove","feePolicyHash":"b3f0bf8fa0752e493db7fa0973bca480483e4b7f402ed9476f0d18c48ae48f8e","status":"paid","idempotencyKey":"glove-payout-423ffbf7-dc6a-4efa-9eb6-e6a5abefe4a2","confirmedAmount":"100.00","confirmedSourcePaymentIds":["e66aa86a-9285-4906-b850-0b8b40782801"],"confirmedBy":{"id":"3909195d-54f4-411e-a44f-01d90ffa16bc","name":"Olivia Owner"},"confirmedAt":"2026-11-09T12:00:00.000Z","providerId":"synthetic-glove-instant-2"},"version":74}
+  
+  true !== false
+  
+      at Object.command (file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/api/harness.mjs:204:32)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Object.refuse (file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/api/instant-payouts.test.mjs:37:19)
+      at async file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/api/instant-payouts.test.mjs:149:3
+      at async scenario (file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/api/instant-payouts.test.mjs:116:1)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,89 @@
+{
+  "head": "7d7cc6feabd4946e044a27f41239590bce884c8e",
+  "checks": [
+    {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "log": "typecheck.log",
+      "log_sha256": "077fa5a0fde40a76477724c291df7952a9f553da93656e2247d09c665458cb6d"
+    },
+    {
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "log": "first-party.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write"
+      ],
+      "exit": 0,
+      "log": "views-write.log",
+      "log_sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "log": "views-check.log",
+      "log_sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "command": [
+        "git",
+        "checkout",
+        "origin/main",
+        "--",
+        "ACCEPTANCE.md",
+        "docs/CLAIMS.md"
+      ],
+      "exit": 0,
+      "log": "views-restore.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit": 0,
+      "log": "lock-write.log",
+      "log_sha256": "fe147acd4361081052fb87f7442cc87a2a911c00387cbe63be92705a1f884b68"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "log": "lock-check.log",
+      "log_sha256": "4256f08e02c789c3dce71457e4228280836a51f12f430462a7560eb98799de0c"
+    },
+    {
+      "command": [
+        "node",
+        "tests/inventory.mjs"
+      ],
+      "exit": 1,
+      "log": "inventory.log",
+      "log_sha256": "6de500bf96dcfc95bbf9451ca8f1729e4ab799f4126b09dd7199a978fef27f0d"
+    }
+  ]
+}

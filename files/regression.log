@@ -1,0 +1,42 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (39033.171613ms)
+ℹ PAY-026 point 1: Owner pricing, independent cent boundaries and unsafe previews
+ℹ PAY-026 point 2: explicit amounts and exact clock expiry recheck every mutable prerequisite
+ℹ PAY-026 point 3: durable reservation and retained key precede one concurrent request
+ℹ PAY-026 point 4: lost and unreachable answers remain reserved through replay, cron and Worker restart
+ℹ PAY-026 point 5: confirmed sources cannot enter another preview, confirmation or manual allocation
+ℹ PAY-026 point 6: actual debit, original allocation and fee must match the confirmed preview on every inspection
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes (4906.036081ms)
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout (4675.359234ms)
+✔ PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects (4014.651953ms)
+✔ PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact (10994.401883ms)
+ℹ PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+ℹ PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly�✔ PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate (25862.168516ms)
+ℹ PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed
+ℹ PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority
+ℹ PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact
+✔ FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation (4024.772479ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+�✔ PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay (45664.963118ms)
+ℹ PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay
+ℹ PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts
+ℹ PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts
+ℹ PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomplete pages, duplicates, inconsistent rows and wrong sources refuse safely
+ℹ PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile
+ℹ PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout
+ℹ PAY-007 point 7: a manual payout has no Stripe source attribution before owner review
+ℹ PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 143526.823584

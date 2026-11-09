@@ -1,0 +1,40 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (30826.95097ms)
+ℹ PAY-026 point 1: Owner pricing, independent cent boundaries and unsafe previews
+ℹ PAY-026 point 2: explicit amounts and exact clock expiry recheck every mutable prerequisite
+ℹ PAY-026 point 3: durable reservation and retained key precede one concurrent request
+ℹ PAY-026 point 4: lost and unreachable answers remain reserved through replay, cron and Worker restart
+ℹ PAY-026 point 5: confirmed sources cannot enter another preview, confirmation or manual allocation
+ℹ PAY-026 point 6: actual debit, original allocation and fee must match the confirmed preview on every inspection
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32183.643809
+
+✖ failing tests:
+
+test at tests/api/instant-payouts.test.mjs:68:1
+✖ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (30826.95097ms)
+  AssertionError [ERR_ASSERTION]: repeated inspection cannot replace the confirmed bank amount with provider drift
+  
+  true !== false
+  
+      at file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/api/instant-payouts.test.mjs:229:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async scenario (file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f181/run-glove/tests/api/instant-payouts.test.mjs:216:1)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

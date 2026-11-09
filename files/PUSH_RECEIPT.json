@@ -1,0 +1,22 @@
+{
+  "repository": "just-every/run-glove",
+  "product_ref": "refs/heads/cloud/sx-glove-c-f181",
+  "head": "7d7cc6feabd4946e044a27f41239590bce884c8e",
+  "remote_head_verified": true,
+  "observed_main": "eb1178dde4b08016c116445860c5f6bb36e56710",
+  "save_push": {
+    "head": "3d8aaa3d51578a4f8b5e7734adf89c630207637d",
+    "attempts": 5,
+    "authentication_rejections": 4,
+    "git_http_status": "unknown (not supplied by Git)",
+    "result": "success"
+  },
+  "candidate_push": {
+    "head": "7d7cc6feabd4946e044a27f41239590bce884c8e",
+    "attempts": 1,
+    "result": "success"
+  },
+  "all_candidate_authors_and_committers": "Run Edit Run fleet",
+  "candidate_emails": "fleet@runeditrun.com",
+  "coauthor_trailers": []
+}
