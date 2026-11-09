@@ -22,7 +22,7 @@ test('DISP-007 crews retain multi-day work, authority, atomic review and evidenc
     }
     const result = await (person ? person.run(type, payload, { commandId }) : h.command(type, payload, { commandId }))
     subjectIds ??= result.visits?.map(v => v.id) ?? [result.id]
-    trail.push({ commandId, kind, person: person ?? owner, subjectIds })
+    trail.push({ commandId, kind, person: person ?? owner, subjectIds, payload })
     return { commandId, result, payload, type, person }
   }
   const job = title => b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title, lines: [{ description: 'Install labor', quantity: '1', unitPrice: '100.00' }] })
@@ -260,7 +260,7 @@ test('DISP-007 crews retain multi-day work, authority, atomic review and evidenc
     }
     const prior = trail.find(entry => entry.kind === 'visit.booked')
     await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
-    await unchanged(() => b.dispatcher.run('visit.book', { jobId: install.id, crewId: crew.id, date: '2026-12-10', start: '08:00', end: '09:00' }, { commandId: prior.commandId, error: 'FORBIDDEN' }))
+    await unchanged(() => b.dispatcher.run('visit.book', prior.payload, { commandId: prior.commandId, error: 'FORBIDDEN' }))
     t.diagnostic('PROBE DISP-007 7: Activity and export -> actual Owner crew saves and Dispatcher member bookings, moves and cancellations')
   })
 })
