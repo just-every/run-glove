@@ -5703,6 +5703,10 @@
       "sha256": "af43dee77d13511d8b828d9adfa350394921d15aae3cfa43fd404cf38e3ad6ab",
       "executable": false
     },
+    "tests/api/quote-link-records.test.mjs": {
+      "sha256": "206da89f07aa7f3d99d46dd43092d262b39952b872b422402358b67375d82df0",
+      "executable": false
+    },
     "tests/api/records.test.mjs": {
       "sha256": "05e6ce40f7155a7b1adfdc1b3bb89ae4b98c9dc7326f66197509f7d820793b11",
       "executable": false
@@ -5916,7 +5920,7 @@
       "executable": false
     },
     "tests/browser/quote-link-custody.spec.ts": {
-      "sha256": "704a986f09d06336e4296ba48b2040d339171ca67ba43e7cf8f09aba444af86b",
+      "sha256": "e598c55ab33bf99d2a20ad88029c08871f153990d4379ac64453961f00651127",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
