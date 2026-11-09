@@ -1,6 +1,7 @@
 // Authority is enforced by every command handler and read door, not by the
 // screens: each role is sent every command directly over HTTP.
 import test, { after, describe } from 'node:test'
+import { scenario } from '../fixtures/scenario.mjs'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, business, completedJob, acceptedQuote } from './harness.mjs'
@@ -47,40 +48,39 @@ describe('API-001 every command and read door checks the current session and rol
   const people = { owner: { run: h.command, cookie: h.owner() }, dispatcher: b.dispatcher, technician: b.priyaPerson, office: b.office, agent: b.agent, viewer, csr: csrPerson }
   const holders = (type) => [...allowed[type], ...(csr.includes(type) ? ['csr'] : [])]
 
-  test('each role, built-in or custom, is refused exactly the commands it does not hold', async () => {
+  test('each role, built-in or custom, is refused exactly the commands it does not hold', async t => {
     for (const type of Object.keys(allowed)) for (const [role, person] of Object.entries(people)) {
       const res = await h.request('/api/glove/commands', { method: 'POST', as: person.cookie, body: { commandId: randomUUID(), type, payload: {} } })
       const body = await res.json()
       if (holders(type).includes(role)) assert.notEqual(body.error?.code, 'FORBIDDEN', `${role} may send ${type}`)
       else { assert.equal(res.status, 403, `${role} must not send ${type}`); assert.equal(body.error.code, 'FORBIDDEN') }
     }
-  })
-
-  test('inherited command names receive the same safe refusal as an unknown name', async () => {
-    const send = type => h.request('/api/glove/commands', {
-      method: 'POST', as: b.dispatcher.cookie,
-      body: { commandId: randomUUID(), type, payload: {} },
+    await scenario(t, 'inherited command names receive the same safe refusal as an unknown name', async () => {
+      const send = type => h.request('/api/glove/commands', {
+        method: 'POST', as: b.dispatcher.cookie,
+        body: { commandId: randomUUID(), type, payload: {} },
+      })
+      for (const type of ['unregistered.command', 'constructor', '__proto__', 'hasOwnProperty']) {
+        const res = await send(type)
+        const raw = await res.text()
+        // Assert only booleans and status codes so failures never print a body.
+        assert.equal(res.status, 400, `${type} is an unknown command`)
+        let body
+        try { body = JSON.parse(raw) } catch { assert.fail('Command refusal must be JSON') }
+        assert.equal(JSON.stringify(body) === JSON.stringify({
+          ok: false, error: { code: 'COMMAND', message: 'Unknown command type.', details: { type } },
+        }), true, 'Unknown commands return only the fixed refusal and submitted type')
+        assert.equal(/SESSION_SECRET|SETUP_TOKEN|MAIL_API_KEY|test-only-key|AUTH_ORIGIN|OWNER_EMAIL/.test(raw), false, 'Command refusals contain no runtime bindings')
+      }
+      const name = 'Registered command after inherited names'
+      const res = await h.request('/api/glove/commands', {
+        method: 'POST', as: b.dispatcher.cookie,
+        body: { commandId: randomUUID(), type: 'customer.save', payload: { name } },
+      })
+      assert.equal(res.status, 200, 'A registered command still works')
+      const body = await res.json()
+      assert.equal(body.ok === true && body.result?.name === name, true, 'The registered handler saves the customer')
     })
-    for (const type of ['unregistered.command', 'constructor', '__proto__', 'hasOwnProperty']) {
-      const res = await send(type)
-      const raw = await res.text()
-      // Assert only booleans and status codes so failures never print a body.
-      assert.equal(res.status, 400, `${type} is an unknown command`)
-      let body
-      try { body = JSON.parse(raw) } catch { assert.fail('Command refusal must be JSON') }
-      assert.equal(JSON.stringify(body) === JSON.stringify({
-        ok: false, error: { code: 'COMMAND', message: 'Unknown command type.', details: { type } },
-      }), true, 'Unknown commands return only the fixed refusal and submitted type')
-      assert.equal(/SESSION_SECRET|SETUP_TOKEN|MAIL_API_KEY|test-only-key|AUTH_ORIGIN|OWNER_EMAIL/.test(raw), false, 'Command refusals contain no runtime bindings')
-    }
-    const name = 'Registered command after inherited names'
-    const res = await h.request('/api/glove/commands', {
-      method: 'POST', as: b.dispatcher.cookie,
-      body: { commandId: randomUUID(), type: 'customer.save', payload: { name } },
-    })
-    assert.equal(res.status, 200, 'A registered command still works')
-    const body = await res.json()
-    assert.equal(body.ok === true && body.result?.name === name, true, 'The registered handler saves the customer')
   })
 
   test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {

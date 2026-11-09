@@ -24,7 +24,7 @@ async function refused(h, who, type, payload, error = 'FORBIDDEN', opts = {}) {
 
 // One public-door authority journey, with each acceptance point named separately.
 // The checkpoint delays execution only: production reads, handlers and SQL guards remain intact.
-test('TEAM-005 current branch authority fences every read, shared write, replay and commit across restart', async t => {
+test('TEAM-005 current branch authority fences every read, shared write, replay and commit across restart', { timeout: 120_000 }, async t => {
   const source = await readFile('src/glove/api.ts', 'utf8')
   const checkpoint = 'try { committed = await commit(env.DB, c, before, type, digest, result) }'
   assert.ok(source.includes(checkpoint))
@@ -46,6 +46,7 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
   const west = await h.command('branch.save', { name: 'West', prefix: 'WES', timezone: 'UTC', zips: ['85001'] })
   const service = await h.command('service.save', { code: 'INSPECT', name: 'Shared inspection', unitPrice: '31.00', tax: 'FREE', category: 'Inspection' })
   const plan = await h.command('plan.save', { name: 'Shared annual care', price: '120.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id })
+  const exportDesk = await h.person('Scoped Export Office', 'office')
   const roots = []
   for (const [branch, name, price, zip, prefix, leadSource] of [[null, 'Main', '31.00', '60601', '', 'phone'], [east.id, 'East', '47.00', '27601', 'EAS-', 'website'], [west.id, 'West', '83.00', '85001', 'WES-', 'referral']]) {
     const person = await h.person(`${name} Field`, 'technician')
@@ -64,9 +65,11 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
     await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: `${name} inspection complete`, signoff: { absentReason: 'Customer away' } })
     const draft = await h.command('invoice.prepare', { jobId: job.id })
     const invoice = await h.command('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+    await h.command('branch.limit', { operatorId: exportDesk.id, branchId: branch ?? 'main' })
+    const exportFile = await exportDesk.run('invoice.export', {})
     const conversation = await h.command('conversation.log', { customerId: customer.id, jobId: job.id, kind: 'note', text: `${name} private desk note` })
     const agreement = await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: plan.id, startDate: '2026-01-01', via: 'phone' })
-    roots.push({ branch, name, price, prefix, leadSource, person, tech, customer, site, enquiry, quote, job, visit, invoice, equipment, conversation, agreement })
+    roots.push({ branch, name, price, prefix, leadSource, person, tech, customer, site, enquiry, quote, job, visit, invoice, equipment, conversation, agreement, exportFile })
   }
 
   await scenario(t, 'TEAM-005 point 1: only the unscoped Owner limits named and main branches and removes limits with exact versions and attributable facts', async () => {
@@ -100,6 +103,11 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
       assert.equal(data.limited, change.branchId !== null)
     }
     await h.command('token.revoke', { tokenId: issued.id })
+    const afterRevoke = await exported(h)
+    const revoked = await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${issued.token}` } })
+    assert.equal(revoked.status, 401)
+    assert.equal((await revoked.json()).error.code, 'AUTH')
+    assert.deepEqual(await exported(h), afterRevoke)
   })
 
   await scenario(t, 'TEAM-005 point 2: the installation owner cannot be limited by either Owner and retains every branch while another Owner is scoped', async () => {
@@ -117,7 +125,7 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
     await h.command('branch.limit', { operatorId: dispatcher.id, branchId: east.id })
     await h.command('branch.limit', { operatorId: office.id, branchId: 'main' })
     const cases = [[null, roots], [dispatcher, [roots[1]]], [office, [roots[0]]], [second, [roots[1]]]]
-    const mappings = { customers: 'customer', sites: 'site', enquiries: 'enquiry', quotes: 'quote', jobs: 'job', visits: 'visit', invoices: 'invoice', technicians: 'tech', equipment: 'equipment', agreements: 'agreement', conversations: 'conversation' }
+    const mappings = { customers: 'customer', sites: 'site', enquiries: 'enquiry', quotes: 'quote', jobs: 'job', visits: 'visit', invoices: 'invoice', technicians: 'tech', equipment: 'equipment', agreements: 'agreement', conversations: 'conversation', exports: 'exportFile' }
     for (const [who, expected] of cases) {
       const selected = new Set(expected), hidden = roots.filter(root => !selected.has(root))
       const view = await (who ? who.state() : h.state())
@@ -143,6 +151,13 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
           [`/customers/${root.customer.id}/duplicates`, result => assert.ok(JSON.stringify(result).includes(root.customer.id))],
           [`/documents/invoice/${root.invoice.id}`, result => assert.ok(JSON.stringify(result).includes(root.invoice.number))],
         ]
+        const statement = `/customers/${root.customer.id}/statement.json?asOf=2026-11-05`
+        doors.push([statement, result => { assert.deepEqual(ids(result.invoices), [root.invoice.id]); assert.equal(result.totals[0].due, root.price) }])
+        for (const door of [`/customers/${root.customer.id}/statement.csv?asOf=2026-11-05`, ...(!who || who !== dispatcher ? [`/exports/${root.exportFile.id}.csv`] : [])]) {
+          const response = await h.request('/api/glove' + door, who ? { as: who.cookie } : {})
+          assert.equal(response.status, selected.has(root) ? 200 : 404, door)
+          if (selected.has(root)) { const csv = await response.text(); assert.ok(csv.includes(root.invoice.number)); assert.ok(csv.includes(root.price)); noHidden(csv, door) }
+        }
         if (!who || who === dispatcher || who === second) doors.push([`/jobs/${root.job.id}/companycam`, result => assert.deepEqual(result.uploads, [])])
         for (const [door, check] of doors) {
           const response = await h.request('/api/glove' + door, who ? { as: who.cookie } : {})
@@ -195,6 +210,11 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
         const result = await read(h, door, who); noHidden(result, door)
         assert.ok(JSON.stringify(result).includes(expected.reduce((n, r) => n + Number(r.price), 0).toFixed(2)), `${door} contains its independently summed scoped amount`)
       }
+      const agingCsv = await h.request('/api/glove/reports/receivables.csv?asOf=2026-11-05', who ? { as: who.cookie } : {})
+      assert.equal(agingCsv.status, 200)
+      const agingText = await agingCsv.text()
+      for (const root of roots) assert.equal(agingText.includes(root.customer.name), selected.has(root))
+      for (const root of expected) assert.ok(agingText.includes(root.price))
       if (who === dispatcher) {
         for (const door of ['/export', '/customers.csv']) assert.equal((await h.request('/api/glove' + door, { as: who.cookie })).status, 403)
       } else {
@@ -239,7 +259,7 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
     let inflight
     try {
       inflight = dispatcher.run('customer.save', { name: 'Must never commit under old authority' }, { commandId: 'synthetic-glove-authority-race', error: 'AUTH' })
-      await reached
+      await Promise.race([reached, inflight.then(() => { throw new Error('The command did not reach its commit checkpoint') })])
       await h.command('branch.limit', { operatorId: dispatcher.id, branchId: west.id })
       const changed = await exported(h)
       release()
@@ -248,6 +268,8 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
       assert.equal(await h.db.prepare('SELECT COUNT(*) AS n FROM glove_commands WHERE id=?').bind('synthetic-glove-authority-race').first('n'), 0, 'the refused commit saved no replay outcome')
     } finally { release(); h.checkpoints.qboComplete = null; if (inflight) await inflight }
   })
+
+  await payrollDoors(t)
 
   await scenario(t, 'TEAM-005 point 4: shared references remain readable and immutable while cross-branch operational edits answer NOT_FOUND', async () => {
     const form = await h.command('form.save', { name: 'Shared form', questions: [{ id: 'checked', label: 'Checked', type: 'yesno' }] })
@@ -282,6 +304,10 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
         ['quote.revise', { quoteId: hidden.quote.id, version: hidden.quote.version, lines: [line('1.00')] }],
         ['visit.cancel', { visitId: hidden.visit.id, version: hidden.visit.version, reason: 'Hidden cancel' }],
         ['equipment.save', { ...hidden.equipment, type: 'Hidden unit' }],
+        ['invoice.revise', { invoiceId: hidden.invoice.id, version: hidden.invoice.version, lines: [line('1.00')] }],
+        ['job.create', { customerId: hidden.customer.id, siteId: hidden.site.id, title: 'Hidden job', lines: [line('1.00')] }],
+        ['conversation.log', { customerId: hidden.customer.id, kind: 'note', text: 'Hidden note' }],
+        ['agreement.end', { agreementId: hidden.agreement.id, version: hidden.agreement.version, reason: 'Hidden end' }],
       ]) await refused(h, who, type, payload, 'NOT_FOUND')
     }
   })
@@ -309,7 +335,7 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
     const after = await h.state()
     assert.deepEqual(after.branches.find(b => b.id === west.id).counters, before.branches.find(b => b.id === west.id).counters)
     assert.deepEqual(after.branches.find(b => b.id === east.id).counters, { job: 1002, quote: 102, invoice: 1, export: 0, po: 0 })
-    assert.deepEqual(after.business[0].counters, { job: 1002, quote: 102, invoice: 1, export: 0, po: 0 })
+    assert.deepEqual(after.business[0].counters, { job: 1002, quote: 102, invoice: 1, export: 3, po: 0 })
     const archive = await exported(h)
     await h.restart()
     assert.deepEqual(await h.state(), after)
@@ -320,3 +346,60 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
     }
   })
 })
+
+// Payroll and contractor reports have their own export doors and populated data.
+async function payrollDoors(t) {
+  await scenario(t, 'TEAM-005 point 3: approved payroll and completed contractor work stay scoped in every report format', async step => {
+    const h = await installation({ at }); step.after(() => h.close())
+    await h.command('business.save', { name: 'Branch report service', currency: 'AUD', timezone: 'UTC' })
+    await h.command('payroll.settings', { adp: { companyCode: 'SYN', payFrequency: 'W' } })
+    const east = await h.command('branch.save', { name: 'East', prefix: 'EAS', timezone: 'UTC', zips: [] })
+    const west = await h.command('branch.save', { name: 'West', prefix: 'WES', timezone: 'UTC', zips: [] })
+    const rows = []
+    for (const [branchId, label, hours, amount, payrollId] of [[null, 'Main', '1.00', '61.00', '101'], [east.id, 'East', '2.00', '79.00', '202'], [west.id, 'West', '3.00', '97.00', '303']]) {
+      const employee = await h.person(`${label} Employee`, 'technician')
+      const tech = await h.command('technician.save', { name: employee.name, operatorId: employee.id, branchId, payrollId })
+      await employee.run('clock.in', { deviceTime: '2026-11-05T06:00:00.000Z' })
+      await employee.run('clock.out', { deviceTime: `2026-11-05T0${6 + Number(hours)}:00:00.000Z` })
+      await h.command('timesheet.approve', { technicianId: tech.id, weekStart: '2026-11-02' })
+      const person = await h.person(`${label} Contractor`, 'subcontractor')
+      const contractor = await h.command('technician.save', { name: person.name, operatorId: person.id, branchId, subcontractor: { payeeName: `${label} Trade`, tinLast4: '1234' } })
+      const customer = await h.command('customer.save', { name: `${label} payroll customer` })
+      const site = await h.command('site.save', { customerId: customer.id, address: `10 ${label} Road`, branchId })
+      const job = await h.command('job.create', { customerId: customer.id, siteId: site.id, title: `${label} contractor work`, lines: [line(amount)] })
+      const visit = await h.command('visit.book', { jobId: job.id, technicianId: contractor.id, date: '2026-11-05', start: '10:00', end: '11:00' })
+      await h.command('visit.agree', { visitId: visit.id, version: visit.version, amount })
+      await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+      await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Contract work complete', signoff: { absentReason: 'Customer away' } })
+      rows.push({ branchId, employee, tech, contractor, hours, amount, payrollId, label })
+    }
+    const branchOffice = await h.person('Branch Payroll Office', 'office'), mainOffice = await h.person('Main Payroll Office', 'office')
+    const dispatcher = await h.person('Payroll Dispatcher', 'dispatcher')
+    await h.command('branch.limit', { operatorId: branchOffice.id, branchId: east.id })
+    await h.command('branch.limit', { operatorId: mainOffice.id, branchId: 'main' })
+    await h.command('branch.limit', { operatorId: dispatcher.id, branchId: east.id })
+    const before = await exported(h)
+    for (const [who, expected] of [[null, rows], [branchOffice, [rows[1]]], [mainOffice, [rows[0]]]]) {
+      const sheet = await read(h, '/timesheets?week=2026-11-02', who)
+      assert.deepEqual(sheet.timesheets.filter(s => s.hours.worked !== '0.00').map(s => [s.technicianId, s.hours.worked]).sort(), expected.map(r => [r.tech.id, r.hours]).sort())
+      const payroll = await read(h, '/reports/payroll.json?from=2026-11-02&to=2026-11-08', who)
+      assert.deepEqual(payroll.people.map(p => [p.technicianId, p.hours.regular]).sort(), expected.map(r => [r.tech.id, r.hours]).sort())
+      const nec = await read(h, '/reports/1099.json?year=2026', who)
+      assert.deepEqual(nec.rows.map(r => [r.technicianId, r.total, r.visits]).sort(), expected.map(r => [r.contractor.id, r.amount, 1]).sort())
+      for (const format of ['gusto', 'adp-run', 'quickbooks']) {
+        const response = await h.request(`/api/glove/reports/payroll-${format}.csv?from=2026-11-02&to=2026-11-08`, who ? { as: who.cookie } : {})
+        assert.equal(response.status, 200)
+        const csv = await response.text()
+        for (const row of rows) assert.equal(csv.includes(format === 'adp-run' ? `,${row.payrollId},` : format === 'gusto' ? `Employee,${row.label}` : row.employee.name), expected.includes(row), `${format} contains only its branch's approved employee`)
+        for (const row of expected) assert.ok(csv.includes(row.hours), `${format} contains the independently expected hours`)
+      }
+      const response = await h.request('/api/glove/reports/1099.csv?year=2026', who ? { as: who.cookie } : {})
+      assert.equal(response.status, 200)
+      const csv = await response.text()
+      for (const row of rows) assert.equal(csv.includes(`${row.label} Trade`), expected.includes(row))
+      for (const row of expected) assert.ok(csv.includes(row.amount))
+    }
+    for (const door of ['/reports/payroll.json?from=2026-11-02&to=2026-11-08', '/reports/payroll-gusto.csv?from=2026-11-02&to=2026-11-08', '/reports/payroll-adp-run.csv?from=2026-11-02&to=2026-11-08', '/reports/payroll-quickbooks.csv?from=2026-11-02&to=2026-11-08', '/reports/1099.json?year=2026', '/reports/1099.csv?year=2026']) assert.equal((await h.request('/api/glove' + door, { as: dispatcher.cookie })).status, 403)
+    assert.deepEqual(await exported(h), before, 'report reads have no record or financial effect')
+  })
+}
