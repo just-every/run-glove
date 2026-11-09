@@ -4,7 +4,7 @@ Repository: just-every/run-glove. Branch: cloud/sx-glove-c-f181.
 Candidate: 7d7cc6feabd4946e044a27f41239590bce884c8e.
 Saved product commit: 3d8aaa3d51578a4f8b5e7734adf89c630207637d.
 PR: none required or created. The repository starts Verify on branch pushes.
-Verify: push run 42556690576, exact candidate SHA; in progress at the first permitted five-minute observation. No conclusion has been inferred from another SHA.
+Verify: push run 42556690576, exact candidate SHA; in progress at both permitted observations, separated by at least 300 seconds. No conclusion has been inferred from another SHA.
 
 All six native acceptance outcomes now have public-door proof. This report does not claim live Stripe money movement, a real debit-card payout, bank confirmation, provider activation, agent payout authority, publication scanning or landing. The fee schedule remains Owner-recorded and unverified by Glove. Existing PAY-002, R-11, agent, provider, policy and accepted runtime-pin holds remain unchanged. No new policy default was adopted.
 
@@ -83,3 +83,11 @@ Product publication and evidence transfer are separate. Evidence files are selec
 Latest remote readback at packet preparation: product ref equals 7d7cc6feabd4946e044a27f41239590bce884c8e; observed main=eb1178dde4b08016c116445860c5f6bb36e56710. PUSH_RECEIPT.json records this separate custody check.
 
 At the first permitted CI observation, Verify 42556690576 remained in progress on the exact candidate. A single watcher observes again no sooner than 300 seconds after that query.
+
+## Final cloud handoff
+
+CLAIM PAY-026 DONE points=1,2,3,4,5,6 tests=tests/api/instant-payouts.test.mjs#PAY-026 Owner Instant Payout qualification, reservation and reconciliation; tests/browser/receivables.spec.ts#PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390
+
+The claim qualifies all six native outcomes with passing local proof. It is submitted under the cloud handoff rule: exact-SHA Verify remains in progress, and the guarded lander independently requires its success, a complete publication scan and landing conditions before any source status flip or count. Riders 1 and 2 pass locally; 3 awaits the exact-SHA run; 4, 5, 6, 7, 8 and 9 pass; 10 is inapplicable; 11 awaits guarded landing. The test inventory exception remains disclosed and is not silently waived.
+
+No account or policy blocker remains. Transient authentication recovered within the bounded retry sequence. There is no known reproduced product failure. Main drift after the candidate push is recorded in PUSH_RECEIPT.json and remains the guarded lander's integration duty. The candidate checkout is clean, and all product work is published. The full packet is transferred on the separate evidence ref; its exact head is reported in the terminal message. The product clone is removed only after this transfer succeeds.
