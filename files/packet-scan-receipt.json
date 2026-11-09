@@ -1,13 +1,14 @@
 {
-  "timestamp": "2026-11-09T15:08:16.810560+00:00",
+  "timestamp": "2026-11-09T15:18:29.670043+00:00",
   "status": "passed",
-  "explicit_regular_files": 44,
+  "explicit_regular_files": 50,
   "selected_names": [
     "REPORT.md",
     "PLAN.md",
     "merge-receipt.json",
     "clause-receipt.json",
     "product-receipt.json",
+    "initial-evidence-return-receipt.json",
     "candidate-clause-status.txt",
     "main-clause-status.txt",
     "contract-write.log",
@@ -47,6 +48,11 @@
     "dispatch-390.png",
     "reports-1440.png",
     "reports-390.png",
+    "evidence-identity-receipt.json",
+    "initial-evidence-publish.log",
+    "initial-evidence-publish.json",
+    "dependencies-install.log",
+    "dependencies-install-receipt.json",
     "packet-scan-receipt.json"
   ],
   "excluded": [
@@ -66,8 +72,8 @@
   "files": [
     {
       "file": "REPORT.md",
-      "bytes": 5160,
-      "sha256": "1d7b2ba913d01aedb31c967068586a5771b99f3e279864c923b39a4137720510"
+      "bytes": 5597,
+      "sha256": "d01c74e50710586180d29d96b342f9ecd04f421c55cc484f9afd437274dd7d76"
     },
     {
       "file": "PLAN.md",
@@ -86,8 +92,13 @@
     },
     {
       "file": "product-receipt.json",
-      "bytes": 750,
-      "sha256": "a6353b01549ada1a475187c6c50964e8319891ce704bce21c0e5d64bb529efbc"
+      "bytes": 1166,
+      "sha256": "c650b68ad0b99acc921be6cba27d25049ed5da627844b6f1d3de0a406a236583"
+    },
+    {
+      "file": "initial-evidence-return-receipt.json",
+      "bytes": 8556,
+      "sha256": "88a4a0c3008092c7c4cbe2fddaf7f261191c9f3428e03dc75d0fa3bdf9192420"
     },
     {
       "file": "candidate-clause-status.txt",
@@ -246,18 +257,18 @@
     },
     {
       "file": "ci-receipt.json",
-      "bytes": 233,
-      "sha256": "8c01368889dd73789bc3c1d6de9326a70aa160ef28e13edf8f58c372bc521f36"
+      "bytes": 236,
+      "sha256": "dc206418275e314045de6d4705770bc244ccb61208361c5986d41c330a8d88dc"
     },
     {
       "file": "github-api-receipt.jsonl",
-      "bytes": 1012,
-      "sha256": "8a6828be9f6365a65943d133990ea631cbfe16fc11114c33eb116cfc41cedcbf"
+      "bytes": 1919,
+      "sha256": "bef0ec149a660254dfccab67c7dbea952297b6d551c6b35d77c02ff355d141e3"
     },
     {
       "file": "ci-watch.log",
-      "bytes": 646,
-      "sha256": "bf63bbd411df66a5a29df5e09104e098b1e0f6494df52c6b622e20aad00d5b88"
+      "bytes": 1276,
+      "sha256": "1085e2f9c622ceccfb606e3897bb85b8a8d31f924e06777bdf6d3abf3156be9c"
     },
     {
       "file": "browser-proof-receipt.json",
@@ -283,6 +294,31 @@
       "file": "reports-390.png",
       "bytes": 43998,
       "sha256": "e41708f75d40bd403a3005c1891f24119d84f25a843231be81febd4f5b696ce2"
+    },
+    {
+      "file": "evidence-identity-receipt.json",
+      "bytes": 547,
+      "sha256": "f45ca92cb955b39ebbe25f0f6a23afae4c2733ce90cd9d0d4856bf1fd6a0de79"
+    },
+    {
+      "file": "initial-evidence-publish.log",
+      "bytes": 8348,
+      "sha256": "4be440af406ceb24280e92e33ff497cee015aefe2f7d15021d3c6223bb874f49"
+    },
+    {
+      "file": "initial-evidence-publish.json",
+      "bytes": 9767,
+      "sha256": "fb833c0e168c8a97a2e7c08156d3f6083ab2a4f3d1e142a02af09ee7f5d3631b"
+    },
+    {
+      "file": "dependencies-install.log",
+      "bytes": 3488,
+      "sha256": "cfbb52d045078a24e0fd2a7409cbce27bffa69e062cf9c8ce18b21be7cb08cc1"
+    },
+    {
+      "file": "dependencies-install-receipt.json",
+      "bytes": 201,
+      "sha256": "d0cb8b7c0f6e9143383d5cdf13f5783dfee9aef81a49bab2f208631e82e104a5"
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "command": "cloud_run pnpm install --frozen-lockfile",
+  "exit": 0,
+  "pnpm": "10.12.4",
+  "node": "24.19.0",
+  "result": "Done in 35.4s using pnpm v10.12.4",
+  "log": "dependencies-install.log"
+}

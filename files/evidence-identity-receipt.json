@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "prior_evidence_head": "ddeea7b2cec04fb41cb941ae6fe8082b9f8dfc9a",
+  "all_prior_evidence_commits": [
+    {
+      "head": "ddeea7b2cec04fb41cb941ae6fe8082b9f8dfc9a",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": []
+    }
+  ],
+  "new_report_identity": "Explicit fleet environment in the provided cloud_evidence.py entrypoint; fixed report message without trailers"
+}

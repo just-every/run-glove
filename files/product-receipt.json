@@ -12,5 +12,18 @@
   "push": "success",
   "product_push_attempts": 1,
   "pr": null,
-  "source_lock_sha256": "1a862c2bc8268fcfe2a5c6796a31cff627e8cb963a8b5d1912bcabcba50593dc"
+  "source_lock_sha256": "1a862c2bc8268fcfe2a5c6796a31cff627e8cb963a8b5d1912bcabcba50593dc",
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "2d5dc9f08bc0479d2fcf975cb0747de1d60470b8",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42640389256",
+    "id": 42640389256,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "github_calls": 4,
+  "builder_status": "READY",
+  "blockers": [],
+  "publication_scan": "Mac lander only; not run in cloud",
+  "landing": "not performed"
 }
