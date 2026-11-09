@@ -25,6 +25,8 @@ scenarios keep their own installation and run their registered cleanup before
 the next scenario starts. Ordered journeys that already share an installation
 keep that shared setup, their original order, and their original test cleanup.
 
-Keep cited test names as registrations. Fold related edge cases into those
-tests, preserving all assertions, refusal expectations and provider cases.
+Keep cited test names visible as registrations or named behavior steps. Fold
+related edge cases into sibling flows, preserving all assertions, refusal
+expectations and provider cases. New live-location cases retain their original
+bodies and cleanup within the existing API location flow and one browser flow.
 Do not combine unrelated behaviors solely to reduce the inventory.

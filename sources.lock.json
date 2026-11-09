@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "a6c45fa868af404be7112db893721075ac6bc2e3d078868c08e511cf2ae2589b",
+      "sha256": "dc4b6970dffe7a764ffa819959f9241bd9ef959bfe9e9644358bd9087ac01b74",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "eaf196681729806c7454a6c6928dae9ef68e6542fe94e8bf8cd39968ac32e973",
+      "sha256": "cdf75862fc1d921b2adcdcaeac9e9e11c3af84f3e0e97960583503533eb763db",
       "executable": false
     },
     "DEMO.md": {
@@ -220,7 +220,7 @@
       "executable": false
     },
     "docs/CLAIMS.md": {
-      "sha256": "909636d04877838d5ba04b3551c2f4051c8d2a531b7280272c0d1318c75d9764",
+      "sha256": "64e55deea9a335cf30cf264eb9aff15f4003cfa610f589c59756a195e712e052",
       "executable": false
     },
     "docs/contract/COVERAGE.json": {
@@ -2188,7 +2188,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "a93b23a44f3fb4d1904806d94807c990cefb7967ea9fefe575a58c2e7671419e",
+      "sha256": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -5584,7 +5584,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "6eb003f1e8327a8fbbbf6ac9e37a322efed47a75cba1e29f704c11b3eabf161f",
+      "sha256": "9fae36cfab08909594872c3d31fa5b84677b6712f005e7a5408ef0be78889461",
       "executable": false
     },
     "tests/api/email.test.mjs": {
@@ -5616,7 +5616,11 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "bd623284ad250eaecadab15ccf5ab90ac967ff55e1576e7553317729e10c5e91",
+      "sha256": "01a55648da59d36280f1bbc57baaf031800c5ed2a66973ebf0e9ef431d84fb1b",
+      "executable": false
+    },
+    "tests/api/live-locations.test.mjs": {
+      "sha256": "5a9b4f08f47f61e47742bf486ccf67930461d79587b32cdbd1600d19b136c57f",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5873,6 +5877,10 @@
     },
     "tests/browser/phone-desk.ts": {
       "sha256": "b76d403b5674cc8f080e2a35084a03f6f9713f1b17a2a3a0e5178fb596193830",
+      "executable": false
+    },
+    "tests/browser/phone-location.spec.ts": {
+      "sha256": "fc793b126b06f51e660937fac06edaee115fa91f1cf67a66f8beee34b6eb483f",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -6340,7 +6348,7 @@
       "executable": false
     },
     "tests/INVENTORY.md": {
-      "sha256": "375e976c248f450cbedcb32dffcdc4580383c0f17c76aa9e641312b839172b78",
+      "sha256": "2696b1cfbf47546a7978a08e865d972138116b5671950aa836e461932a873af4",
       "executable": false
     },
     "tests/inventory.mjs": {
@@ -6352,7 +6360,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "3b506f1fd78267155bc31a19c22dd319d20707be5870d809b4163b9b53107c8e",
+      "sha256": "9b69d542b155552d93cb02965df4c6e9dc0bed7b2ef0a844924f51717d073e2d",
       "executable": false
     },
     "tests/runtime.mjs": {

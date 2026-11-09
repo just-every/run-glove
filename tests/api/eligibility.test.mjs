@@ -1,3 +1,4 @@
+import { liveLocationQualification } from './live-locations.test.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import { calendarDelivery } from './calendar-delivery.test.mjs'
@@ -145,6 +146,7 @@ test('DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician\'s ca
 })
 
 test('DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow', async (t) => {
+  await scenario(t, 'DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow', async t => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -408,4 +410,6 @@ test('DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow', 
   assert.equal(revoked.status, 401, 'A revoked sign-in cannot submit a position')
   assert.equal((await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n, 0)
 
+  })
+  await liveLocationQualification(t)
 })

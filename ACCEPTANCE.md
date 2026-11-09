@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 22 | 199 | 16 | 237 |
+| Core | 23 | 198 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 212 | 29 | 263 |
+| Full target | 23 | 211 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1103,7 +1103,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-SECRE
 
 #### DISP-005 — Live technician location and ETA
 
-Core · target · **partial** · From DISP-005 · Cites BASE-ROLE-001
+Core · target · **done** · From DISP-005 · Cites BASE-ROLE-001
 
 **Requirement.** Live technician location and ETA supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-005-operating-rules) retain the record formats and calculations. Recorded decisions: RL-6.
 
@@ -1117,8 +1117,8 @@ Core · target · **partial** · From DISP-005 · Cites BASE-ROLE-001
 7. The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal.
 8. Consent changes and generic capture outcomes are audited without coordinates.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/portable.mjs`, `tests/browser/dispatch-map.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture posts phone locations and a fleet-provider feed (fake), checks positions and ETAs on the board, and checks no location is recorded after clock-out.; point 2 — Location sharing starts off.; point 3 — Only the technician's current person session can record or withdraw their explicit consent; the phone requests browser permission and captures only while visible, online, clocked in and running a travel or job timer on its current assigned visit.; point 4 — Locations never enter the offline outbox.; point 5 — The owner can explicitly connect one Samsara vehicle per technician and request its current GPS snapshot from the fixed documented host; that read requires the same consent, shift and visit checks.; point 6 — Coordinates captured before the shift or timer, more than two minutes ago, in the future beyond ten seconds, or after assignment, consent or sign-in withdrawal are refused.; point 7 — The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal.; point 8 — Consent changes and generic capture outcomes are audited without coordinates. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/portable.mjs`, `tests/browser/dispatch-map.spec.ts`; `tests/api/live-locations.test.mjs` (DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart); `tests/api/live-locations.test.mjs` (DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position); `tests/api/live-locations.test.mjs` (DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing); `tests/api/live-locations.test.mjs` (DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers); `tests/api/live-locations.test.mjs` (DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix); `tests/api/live-locations.test.mjs` (DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions); `tests/api/live-locations.test.mjs` (DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export); `tests/browser/phone-location.spec.ts` (DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440); `tests/browser/phone-location.spec.ts` (DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390)
+**Gap.** None.
 
 #### DISP-012 — Position disclosure and delay estimate
 

@@ -29,7 +29,11 @@ function capture(c: Context, tech: Row, source: string, p: any) {
 export const locations: Handler = async (c, type, p, db) => {
   if (!type.startsWith('location.')) return
   if (c.actor.token || c.actor.custom) fail('FORBIDDEN', 'Location requires a person using a built-in role.', null, 403)
-  const own = () => c.s.technicians.find(t => t.operatorId === c.actor.id) ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician.', null, 403)
+  const own = () => {
+    const tech = c.s.technicians.find(t => t.operatorId === c.actor.id) ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician.', null, 403)
+    if (p.technicianId !== undefined && p.technicianId !== tech.id) fail('FORBIDDEN', 'Only your own technician location can be changed.', null, 403)
+    return tech
+  }
   if (type === 'location.consent') {
     const tech = own()
     if (typeof p.enabled !== 'boolean') fail('INPUT', 'Choose whether to share location.', null, 400)
