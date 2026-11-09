@@ -1,0 +1,55 @@
+{
+  "repository": "just-every/run-glove",
+  "candidate": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "main": "2bc9b77dcadaaad1d9d0b3c4d247b2b9cbecd5ae",
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exit_code": 0,
+      "log": "dependency-install.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses COMM-001 BOOK-015",
+      "exit_code": 0,
+      "log": "contract-generate.log",
+      "changed_views": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit_code": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit_code": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit_code": 0,
+      "log": "typecheck.log",
+      "runtime": "Node 24.19.0; pnpm 10.12.4; supplied shim retained the newer VM Node"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit_code": 0,
+      "log": "source-lock-generate.json"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit_code": 0,
+      "log": "source-lock-check.json"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/privacy.test.mjs",
+      "exit_code": 0,
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "duration_ms": 347749.824355,
+      "log": "privacy-api.log"
+    }
+  ],
+  "browser_local": "not run, as instructed",
+  "portable_local": "not run, as instructed",
+  "privacy_api": "passed"
+}

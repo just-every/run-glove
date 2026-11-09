@@ -1,0 +1,40 @@
+{
+  "repository": "just-every/run-glove",
+  "head_sha": "89d15c29679e5ddaba3b7520ce6339ee45790df7",
+  "calls": [
+    {
+      "number": 1,
+      "at": "2026-11-09T16:31:54.062392+00:00",
+      "unix": 1794241914.0624104,
+      "endpoint": "repos/just-every/run-glove/actions/runs?head_sha=89d15c29679e5ddaba3b7520ce6339ee45790df7&per_page=100",
+      "exit_code": 0
+    },
+    {
+      "number": 2,
+      "at": "2026-11-09T16:36:54.124509+00:00",
+      "unix": 1794242214.124655,
+      "endpoint": "repos/just-every/run-glove/actions/runs/42655660701",
+      "exit_code": 0
+    },
+    {
+      "number": 3,
+      "at": "2026-11-09T16:41:54.125888+00:00",
+      "unix": 1794242514.125966,
+      "endpoint": "repos/just-every/run-glove/actions/runs/42655660701",
+      "exit_code": 0
+    },
+    {
+      "number": 4,
+      "at": "2026-11-09T16:46:54.347517+00:00",
+      "unix": 1794242814.3476808,
+      "endpoint": "repos/just-every/run-glove/actions/runs/42655660701",
+      "exit_code": 0
+    }
+  ],
+  "budget": 10,
+  "run_id": 42655660701,
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42655660701",
+  "status": "completed",
+  "conclusion": "success",
+  "result": "success"
+}

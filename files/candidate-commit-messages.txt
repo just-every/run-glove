@@ -1,0 +1,30 @@
+89d15c29679e5ddaba3b7520ce6339ee45790df7
+Merge current main into privacy qualification continuation
+
+7296b84ca02cda60b41642ccae13f8bfcfd998a8
+Retain anonymous material costs on jobs and erase all field captures
+
+c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3
+Keep the privacy candidate lock aligned with canonical generated routes
+
+908f7e89eb0d651a5910a25d42a366865b665c1c
+Prove erased values stay absent from decoded installation archives
+
+17ede02d325847afced8993d9e5eb04ce8cc1103
+test: open the real erasure checkpoint for archive fences [skip ci]
+
+6f73d3c067b9a7ec2c8edcb73d44548eae3a6a76
+test: await privacy data before reload assertions [skip ci]
+
+e9052a69e5b1c0c512a2a28eb387824c49348802
+test: recover privacy archive and peer preservation proof [skip ci]
+
+583fa7b64c39da5f237450bdb8c05248ae786dc0
+fix: fence shared import originals in privacy exports [skip ci]
+
+8c65aae664049ccf0b96c72a2607fa82ac6d41ec
+fix: retain anonymous material costs during erasure [skip ci]
+
+554115bfbe0e57a8c9ae9d829c863ca2e3dff39c
+test: qualify privacy export and erasure [skip ci]
+

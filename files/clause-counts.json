@@ -1,0 +1,18 @@
+{
+  "before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "after": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "total": 263
+  },
+  "changes": {
+    "DATA-001": "partial -> partial (unchanged claim and acceptance)",
+    "BOOK-015": "partial -> done, inherited from main only"
+  }
+}

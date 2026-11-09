@@ -1,0 +1,27 @@
+{
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-c-f221-pc2",
+  "branch": "cloud/sx-glove-c-f221-pc2",
+  "head": "89d15c29679e5ddaba3b7520ce6339ee45790df7",
+  "parents": [
+    "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+    "2bc9b77dcadaaad1d9d0b3c4d247b2b9cbecd5ae"
+  ],
+  "product_push": "success",
+  "attempts": 1,
+  "pr_url": null,
+  "working_tree_clean": true,
+  "status": "READY",
+  "advertised_remote_ref": "refs/heads/cloud/sx-glove-c-f221-pc2",
+  "advertised_remote_head": "89d15c29679e5ddaba3b7520ce6339ee45790df7",
+  "ci": {
+    "run_id": 42655660701,
+    "head_sha": "89d15c29679e5ddaba3b7520ce6339ee45790df7",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42655660701",
+    "api_calls": 4,
+    "minimum_poll_interval_seconds": 300
+  },
+  "blockers": []
+}

@@ -1,0 +1,5 @@
+CI_RUN id=42655660701 head=89d15c29679e5ddaba3b7520ce6339ee45790df7 status=in_progress conclusion=None url=https://github.com/just-every/run-glove/actions/runs/42655660701
+CI_STATUS calls=2 status=in_progress conclusion=None
+CI_STATUS calls=3 status=in_progress conclusion=None
+CI_STATUS calls=4 status=completed conclusion=success
+CI_RESULT {"repository": "just-every/run-glove", "head_sha": "89d15c29679e5ddaba3b7520ce6339ee45790df7", "budget": 10, "run_id": 42655660701, "html_url": "https://github.com/just-every/run-glove/actions/runs/42655660701", "status": "completed", "conclusion": "success", "result": "success"}
