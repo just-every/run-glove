@@ -2388,7 +2388,7 @@
       "executable": false
     },
     "src/glove/quote-signing.ts": {
-      "sha256": "d1cf2fb48f68ab3ee673894ca9e41d8c29f23d9a7ebea0556cd1acd4ca9b2029",
+      "sha256": "da64c880ef15e846fc6bf962e83201222dcaa8f98adcec7cfc93706c71268bcf",
       "executable": false
     },
     "src/glove/quote-validity.ts": {
@@ -5116,7 +5116,7 @@
       "executable": false
     },
     "src/ui/customer-quote.tsx": {
-      "sha256": "dfd8be491d608820e3e60bd4ac367e69fc39e46a4add640be3c9a109473114e3",
+      "sha256": "3fc4ccc7edb209edd9721f3cfba4a76edc765b3d4587e0eae4651d8346e1f192",
       "executable": false
     },
     "src/ui/customer-sms.tsx": {
@@ -5336,7 +5336,7 @@
       "executable": false
     },
     "src/ui/quote-links.tsx": {
-      "sha256": "6dc2625199ea9ae7dd8501a77ca114c40160779fc6a58963bc267ecd7dbdbacb",
+      "sha256": "d8919843865f140f684db780bd0c53450cec8e01743838a7124ea4aaf95800f2",
       "executable": false
     },
     "src/ui/quote-signing.tsx": {
@@ -5684,7 +5684,7 @@
       "executable": false
     },
     "tests/api/payments.test.mjs": {
-      "sha256": "9bcf2207d51a6fc255728c9e4552b585974bdf34434ede972ce84d7084501da2",
+      "sha256": "79251b9711e8f656bf4adbdcc21a30ab04a7e009d79e47c88155ba7bf8818510",
       "executable": false
     },
     "tests/api/payout-reconciliation.test.mjs": {
@@ -5740,11 +5740,11 @@
       "executable": false
     },
     "tests/api/quote-link-records.test.mjs": {
-      "sha256": "56076912a0bb089f22fd6ff89ca61738ff2a9c0fed1b4ba8506d30a11badaa68",
+      "sha256": "034a05d1d3549f91d5092031c83c597df7b4593db3953c4229467b84367fe100",
       "executable": false
     },
     "tests/api/receipt-credit.mjs": {
-      "sha256": "5b23dc2fea3c870f3f100af245c8e950e61ee77982bca2fb65e8e4dbbaf71584",
+      "sha256": "59c98f534d7465fb78f2d4edf1de88f5368331b1ebdacc5ff05081e15c11f740",
       "executable": false
     },
     "tests/api/records.test.mjs": {
