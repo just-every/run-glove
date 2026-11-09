@@ -1,0 +1,64 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ DISP-009 current-shift grants retain attributable custody and fence every delegated position read (19133.889466ms)
+ℹ point 1: exact named grants, withdrawal, Activity, export, refusals, replay and Worker restart
+ℹ point 2: only granted fresh phone and fleet positions, exact Maps ETAs, per-technician audits, stale and missing estimates
+ℹ point 2: staff revocation ends positions and further audit
+ℹ point 2: clock-out ends positions and further audit
+ℹ point 2: consent withdrawal ends positions and further audit
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20711.264296
+
+✖ failing tests:
+
+test at tests/api/position-view-grants.test.mjs:45:1
+✖ DISP-009 current-shift grants retain attributable custody and fence every delegated position read (19133.889466ms)
+  AssertionError [ERR_ASSERTION]: ended authority produces no further delegated read audit
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      {
+        actor_id: 'f2993070-4d9e-40ff-b7de-97ab189cfc38',
+        actor_name: 'Sam Ortiz',
+        actor_role: 'dispatcher',
+  ...
+      },
+  +   {
+  +     actor_id: 'f2993070-4d9e-40ff-b7de-97ab189cfc38',
+  +     actor_name: 'Sam Ortiz',
+  +     actor_role: 'dispatcher',
+  +     at: '2026-11-09T08:00:00.000Z',
+  +     command_id: 'b192dcc9-cf98-439d-a09d-3ce8984d0c98',
+  +     data: '{"shiftId":"75f59cf5-9b08-4714-892e-4424caf2d0b5","date":"2026-11-09"}',
+  +     id: '3459454f-6f00-4875-88f3-48c4d8f73e21',
+  +     job_id: null,
+  +     kind: 'location.viewed',
+  +     sequence: 34,
+  +     subject_id: '9dfef16d-0ec2-49f6-b388-7e36093717e1',
+  +     subject_kind: 'technician',
+  +     summary: 'Delegated shift position view'
+  +   }
+    ]
+  
+      at Object.ended (file:///home/agent/rer-consolidation/work/sx-glove-c-f188/run-glove/tests/api/position-view-grants.test.mjs:39:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///home/agent/rer-consolidation/work/sx-glove-c-f188/run-glove/tests/api/position-view-grants.test.mjs:208:7
+      at async scenario (file:///home/agent/rer-consolidation/work/sx-glove-c-f188/run-glove/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-c-f188/run-glove/tests/api/position-view-grants.test.mjs:173:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { id: '2fc45f79-313c-4c53-8fb2-e92fa5479c38', sequence: 32, at: '2026-11-09T08:00:00.000Z', actor_id: 'f2993070-4d9e-40ff-b7de-97ab189cfc38', actor_name: 'Sam Ortiz', actor_role: 'dispatcher', command_id: 'ec96cdcd-f527-4636-96c5-6a075b541513', job_id: null, subject_kind: 'technician', subject_id: '9dfef16d-0ec2-49f6-b388-7e36093717e1', kind: 'location.viewed', summary: 'Delegated shift position view', data: '{"shiftId":"75f59cf5-9b08-4714-892e-4424caf2d0b5","date":"2026-11-09"}' }, { id: '3459454f-6f00-4875-88f3-48c4d8f73e21', sequence: 34, at: '2026-11-09T08:00:00.000Z', actor_id: 'f2993070-4d9e-40ff-b7de-97ab189cfc38', actor_name: 'Sam Ortiz', actor_role: 'dispatcher', command_id: 'b192dcc9-cf98-439d-a09d-3ce8984d0c98', job_id: null, subject_kind: 'technician', subject_id: '9dfef16d-0ec2-49f6-b388-7e36093717e1', kind: 'location.viewed', summary: 'Delegated shift position view', data: '{"shiftId":"75f59cf5-9b08-4714-892e-4424caf2d0b5","date":"2026-11-09"}' } ],
+    expected: [ { id: '2fc45f79-313c-4c53-8fb2-e92fa5479c38', sequence: 32, at: '2026-11-09T08:00:00.000Z', actor_id: 'f2993070-4d9e-40ff-b7de-97ab189cfc38', actor_name: 'Sam Ortiz', actor_role: 'dispatcher', command_id: 'ec96cdcd-f527-4636-96c5-6a075b541513', job_id: null, subject_kind: 'technician', subject_id: '9dfef16d-0ec2-49f6-b388-7e36093717e1', kind: 'location.viewed', summary: 'Delegated shift position view', data: '{"shiftId":"75f59cf5-9b08-4714-892e-4424caf2d0b5","date":"2026-11-09"}' } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

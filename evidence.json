@@ -1,0 +1,178 @@
+{
+  "files": [
+    {
+      "blob": "64283a859769a192c45fa6a19325b32773f897bb",
+      "bytes": 15663,
+      "path": "REPORT.md",
+      "sha256": "76163165918c5f279ba737920dc87fd483e2ee68e9940a384d5d2b8cf9e55a9f"
+    },
+    {
+      "blob": "53b41823e827220f3649f65b14bffd3e144489c9",
+      "bytes": 1173,
+      "path": "api.log",
+      "sha256": "d13c302558c73ead723eb995b922082cd297a8c176158b8d7fe78dd7b42d453f"
+    },
+    {
+      "blob": "64c742603f5e8fd77d314f091b3b878f66488a1f",
+      "bytes": 1640,
+      "path": "browser.log",
+      "sha256": "f996b63eb609f5308e85805b73c0164bcc1dbe7086476cceebd2589c8ac9e025"
+    },
+    {
+      "blob": "5548887571ac973e2a3771f90f4415475649f56b",
+      "bytes": 4236,
+      "path": "checks.json",
+      "sha256": "a17ee1c89c007d95268c26f16762f1de67b533d3201850e4dbe34109ffa6308f"
+    },
+    {
+      "blob": "fa0e5b25b23020ecc4ebf586327c4b2f23abce6c",
+      "bytes": 322,
+      "path": "ci-save.json",
+      "sha256": "f36d9d853214dec9e52e8adc98dddbe79c2cb7ee80eb4e91230fc12f0e7b9a18"
+    },
+    {
+      "blob": "65cd61d72608fcd4ac94e3fc76e3c984bc599c2d",
+      "bytes": 325,
+      "path": "ci.json",
+      "sha256": "3eb91d440e47c638bae45f1b912534d9842c2c406f6620e4a933cc629eec562e"
+    },
+    {
+      "blob": "32b8547c571f874babb89eb6356f5755cbd14a05",
+      "bytes": 4270,
+      "path": "consent-before.log",
+      "sha256": "1c7f44ca91818e0d6e77274a705a6fa57e9367f35516093a250dbd0fc3a30059"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "e09313f32303a54a846e580ecce23bf2f3d1ddba",
+      "bytes": 263597,
+      "path": "lock-check.log",
+      "sha256": "b8667ed2d330eb52f254d8796daf726ad6d741c31bca697ccc2ac1a57b115beb"
+    },
+    {
+      "blob": "955a5f8552b329867830e2666797658cf302465b",
+      "bytes": 1494,
+      "path": "pause-before.log",
+      "sha256": "ce740e4facb304a1787809666e61a068ebdfbba678c72955cd7cd264f1cf6927"
+    },
+    {
+      "blob": "337eea6de8deca0dfe9b03e54c4436c03885a2e0",
+      "bytes": 1843,
+      "path": "portable.log",
+      "sha256": "10e9ea1c26c55db3127bcffb5d8b73af8a20e57cf0ddd3d500727d85d078deb2"
+    },
+    {
+      "blob": "31483551ba32b6f8f07336601d1e19cd8663f4b1",
+      "bytes": 3241,
+      "path": "refined-api-regression.log",
+      "sha256": "8068da564e4a685074c57ea5767ea8a452f0a2cc2382f61a15ca8606f136b087"
+    },
+    {
+      "blob": "8a7f78e1e06f952be7e4638e92d1940581e15881",
+      "bytes": 2182,
+      "path": "regression.log",
+      "sha256": "bf3441bde8dc147b436ca8b07bd8aea4bf0e9b9bcc217dda775613dcd1f720c7"
+    },
+    {
+      "blob": "b1ca76ec2fc0cc7f10aa41d735d01ef9d9cad6f8",
+      "bytes": 2483,
+      "path": "screenshots.json",
+      "sha256": "78f9211c0dc0e33c420e29343e3d89e5f341d53f4b3ae60d98f7ef3684814105"
+    },
+    {
+      "blob": "1ee55795fbbdf2905b4df62a0a78cd40b437dd48",
+      "bytes": 165110,
+      "path": "screenshots/1440-phone-location-owner-board.png",
+      "sha256": "f3e9f972144120d4f7b8cabf1ba149f10d9713aed6d40d23dbf4ccb9c167358a"
+    },
+    {
+      "blob": "e0e729659af01975641ef901f35bb7ac70d91273",
+      "bytes": 113512,
+      "path": "screenshots/1440-phone-location-sharing-active.png",
+      "sha256": "6cb25fb5209260e8faaa5fd68d1c84593d5a961f7eaa3364653540faea8ff781"
+    },
+    {
+      "blob": "ac690ec750a1d1b230ef03016a990ec02be8fec2",
+      "bytes": 113042,
+      "path": "screenshots/1440-phone-location-sharing-off.png",
+      "sha256": "ead054ddc1c99d07913efdeb85d43d4e9e012da3ebd7717e474f0e5a3d502f81"
+    },
+    {
+      "blob": "e3923505db11bea862a64ec0bb5ecd6356faa735",
+      "bytes": 108196,
+      "path": "screenshots/1440-phone-location-view-clocked-out.png",
+      "sha256": "079ccb2fcc26236b0bc00003aa14b9bb9c96e49181df434309a53cfdb8256549"
+    },
+    {
+      "blob": "0b15b56f9a6009831bc323956dee57aee89283d8",
+      "bytes": 108719,
+      "path": "screenshots/1440-phone-location-view-revoked.png",
+      "sha256": "9323100e1a3ce516f9184535e3af1d327e58eb414bc05fb6c5fb6fac2efa87ad"
+    },
+    {
+      "blob": "9541e9e628f4c8fb026c5f9ae6d30653e56a3a9c",
+      "bytes": 72915,
+      "path": "screenshots/390-phone-location-owner-board.png",
+      "sha256": "9308891b71878e3e4e3368cd8ca9086a863aaf2c3a3d64c92472f5f2fec0f536"
+    },
+    {
+      "blob": "ba369f3d58a125106a066e189decb11081142bcd",
+      "bytes": 86094,
+      "path": "screenshots/390-phone-location-sharing-active.png",
+      "sha256": "7224f2b65f3220ccad8a184956c5dc2682af3567e593999cdbad3d4a75368786"
+    },
+    {
+      "blob": "ac87d5f8ceecede79afd89b2c19b8d60e068412e",
+      "bytes": 80578,
+      "path": "screenshots/390-phone-location-sharing-off.png",
+      "sha256": "7ce964c1791d09f355321182656e1b8ef5ad5db999a97a73030526f5d4c15c06"
+    },
+    {
+      "blob": "9ffa891ca717c29259847e26bfe5d710cb8f0634",
+      "bytes": 81861,
+      "path": "screenshots/390-phone-location-view-clocked-out.png",
+      "sha256": "3f12a2ced41cc707d0e75c4b86c5fbc0e6a53c2e97eaaf8000b71a072209bd76"
+    },
+    {
+      "blob": "26b4b5134d6d45740353331f98e6c2467ed1d0de",
+      "bytes": 80566,
+      "path": "screenshots/390-phone-location-view-revoked.png",
+      "sha256": "d1d5ad938b00f0fdacb904760be51d3efe0adb5f6f41a2d169ed47133bd76cd0"
+    },
+    {
+      "blob": "9763e947fa15353f87f607568faa64f98957167d",
+      "bytes": 2756,
+      "path": "source-continuity.json",
+      "sha256": "28fc1d835f03c1ca92a10dc39d624e076a01af999abe840f7e5dc485032366d2"
+    },
+    {
+      "blob": "8a3935dbb9956187cda047eb453b31b2a8117f0e",
+      "bytes": 236,
+      "path": "typecheck.log",
+      "sha256": "41218ed5e060e82aa942e4b6b18bd3fe18b2983390f1c71244fabcfad5160e4e"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "58dd21c218846e90dd798f1845377f7422e45cac",
+      "bytes": 28,
+      "path": "views-write.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f188",
+  "product_head": "0f6d64c297054bee1dc3821e6603eef2345beb2c",
+  "ref": "refs/heads/evidence/sx-glove-c-f188",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f188"
+}

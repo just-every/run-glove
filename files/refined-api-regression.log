@@ -1,0 +1,40 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review (26976.589118ms)
+ℹ DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review
+ℹ DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician
+✔ DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow (5019.876407ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart (5163.322849ms)
+✔ DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position (3986.703667ms)
+✔ DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing (4777.10408ms)
+✔ DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers (5485.298002ms)
+✔ DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix (4305.685484ms)
+✔ DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions (4119.552753ms)
+✔ DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export (3908.072795ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-009 current-shift grants retain attributable custody and fence every delegated position read (38695.173395ms)
+ℹ point 1: exact named grants, withdrawal, Activity, export, refusals, replay and Worker restart
+ℹ point 2: only granted fresh phone and fleet positions, exact Maps ETAs, per-technician audits, stale and missing estimates
+ℹ point 2: staff revocation ends positions and further audit
+ℹ point 2: clock-out ends positions and further audit
+ℹ point 2: consent withdrawal ends positions and further audit
+ℹ point 2: new shift ends positions and further audit
+ℹ point 2: recipient role ends positions and further audit
+ℹ point 2: recipient deactivation ends positions and further audit
+ℹ point 2: recipient branch ends positions and further audit
+ℹ point 2: granting Owner deactivation ends positions and further audit
+ℹ point 2: granting Owner branch ends positions and further audit
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 107049.246794

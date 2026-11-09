@@ -1,0 +1,74 @@
+{
+  "head": "0f6d64c297054bee1dc3821e6603eef2345beb2c",
+  "published_save": "3bee370eeda64bfc42003e1680c30ab64c8dc732",
+  "files": [
+    {
+      "path": "src/glove/locations.ts",
+      "sha256": "79b7aebd94ccd568d82c740427db5900c24cf3e392fdb80029ffd1c315fa42c3",
+      "matches_published_save": false,
+      "matches_main": false
+    },
+    {
+      "path": "tests/browser/phone-location.spec.ts",
+      "sha256": "979f8dbe9dbce87aec30c6070add9c52ba3cab905f5bd15c53dd5f3b4768bd8e",
+      "matches_published_save": true,
+      "matches_main": false
+    },
+    {
+      "path": "tests/portable.mjs",
+      "sha256": "7cb213e8d0f23e37c3a142629b928d1d1e87062c9f892a75fdf554f7f6ede549",
+      "matches_published_save": true,
+      "matches_main": false
+    },
+    {
+      "path": "tests/api/harness.mjs",
+      "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+      "matches_published_save": true,
+      "matches_main": true
+    },
+    {
+      "path": "tests/fixtures/maps.mjs",
+      "sha256": "0d99d748b4cb00fd6dbf6388f0918ac228a221a79ba2613fbddce6c92a285c66",
+      "matches_published_save": true,
+      "matches_main": true
+    },
+    {
+      "path": "tests/api/eligibility.test.mjs",
+      "sha256": "6eb003f1e8327a8fbbbf6ac9e37a322efed47a75cba1e29f704c11b3eabf161f",
+      "matches_published_save": true,
+      "matches_main": true
+    },
+    {
+      "path": "tests/api/live-locations.test.mjs",
+      "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
+      "matches_published_save": true,
+      "matches_main": true
+    },
+    {
+      "path": "tests/browser/dispatch-map.spec.ts",
+      "sha256": "b30e3f9a24279cfd46620e80ce5d32f97ba1aa4577b4bb1da2f72a8cf73e360a",
+      "matches_published_save": true,
+      "matches_main": true
+    },
+    {
+      "path": "src/ui/dispatch-map.tsx",
+      "sha256": "aa9c65c8f4980e36107b588f963ade465f0b21425ecd1ac663f6ba7049cc8646",
+      "matches_published_save": true,
+      "matches_main": true
+    },
+    {
+      "path": "src/ui/phone-location.tsx",
+      "sha256": "66aaaf1f40433ca841db870bcb54e935a6b53980317b587617b1e71e065c43e0",
+      "matches_published_save": true,
+      "matches_main": true
+    },
+    {
+      "path": "CONTRACT.md",
+      "sha256": "80eea20a0282e4db1d5b2548c7db5586b2ccbadaf8a7fa3e4285b976d8ad92af",
+      "matches_published_save": false,
+      "matches_main": true
+    }
+  ],
+  "merged_main": "730d7c415d566fb08cf2acf0086766811bd6aeb5",
+  "later_production_change": "Only delegatedPositions audit eligibility changed: current explicit technician consent is required. This function is not called by the phone location-status and capture doors, owner map path, or archive export and restore doors exercised by the retained journeys."
+}

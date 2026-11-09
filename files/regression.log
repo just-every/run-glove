@@ -1,0 +1,25 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review (35035.33751ms)
+ℹ DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review
+ℹ DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician
+✔ DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow (8566.423606ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart (6870.606216ms)
+✔ DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position (5999.593944ms)
+✔ DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing (7769.867677ms)
+✔ DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers (6778.948519ms)
+✔ DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix (5881.656075ms)
+✔ DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions (7315.186843ms)
+✔ DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export (7658.387487ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 94696.110216

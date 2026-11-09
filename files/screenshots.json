@@ -1,0 +1,73 @@
+{
+  "head": "0f6d64c297054bee1dc3821e6603eef2345beb2c",
+  "source_head": "3bee370eeda64bfc42003e1680c30ab64c8dc732",
+  "source_continuity": "source-continuity.json",
+  "inspected": [
+    "screenshots/390-phone-location-sharing-active.png",
+    "screenshots/1440-phone-location-sharing-active.png",
+    "screenshots/390-phone-location-view-revoked.png",
+    "screenshots/1440-phone-location-view-clocked-out.png"
+  ],
+  "files": [
+    {
+      "path": "screenshots/1440-phone-location-owner-board.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "f3e9f972144120d4f7b8cabf1ba149f10d9713aed6d40d23dbf4ccb9c167358a"
+    },
+    {
+      "path": "screenshots/1440-phone-location-sharing-active.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "6cb25fb5209260e8faaa5fd68d1c84593d5a961f7eaa3364653540faea8ff781"
+    },
+    {
+      "path": "screenshots/1440-phone-location-sharing-off.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "ead054ddc1c99d07913efdeb85d43d4e9e012da3ebd7717e474f0e5a3d502f81"
+    },
+    {
+      "path": "screenshots/1440-phone-location-view-clocked-out.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "079ccb2fcc26236b0bc00003aa14b9bb9c96e49181df434309a53cfdb8256549"
+    },
+    {
+      "path": "screenshots/1440-phone-location-view-revoked.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "9323100e1a3ce516f9184535e3af1d327e58eb414bc05fb6c5fb6fac2efa87ad"
+    },
+    {
+      "path": "screenshots/390-phone-location-owner-board.png",
+      "width": 390,
+      "height": 1000,
+      "sha256": "9308891b71878e3e4e3368cd8ca9086a863aaf2c3a3d64c92472f5f2fec0f536"
+    },
+    {
+      "path": "screenshots/390-phone-location-sharing-active.png",
+      "width": 390,
+      "height": 1000,
+      "sha256": "7224f2b65f3220ccad8a184956c5dc2682af3567e593999cdbad3d4a75368786"
+    },
+    {
+      "path": "screenshots/390-phone-location-sharing-off.png",
+      "width": 390,
+      "height": 1000,
+      "sha256": "7ce964c1791d09f355321182656e1b8ef5ad5db999a97a73030526f5d4c15c06"
+    },
+    {
+      "path": "screenshots/390-phone-location-view-clocked-out.png",
+      "width": 390,
+      "height": 1000,
+      "sha256": "3f12a2ced41cc707d0e75c4b86c5fbc0e6a53c2e97eaaf8000b71a072209bd76"
+    },
+    {
+      "path": "screenshots/390-phone-location-view-revoked.png",
+      "width": 390,
+      "height": 1000,
+      "sha256": "d1d5ad938b00f0fdacb904760be51d3efe0adb5f6f41a2d169ed47133bd76cd0"
+    }
+  ]
+}
