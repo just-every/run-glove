@@ -1,0 +1,37 @@
+[
+  {
+    "check": "views_write",
+    "command": "node scripts/contract-docs.mjs write --clauses AGENT-016",
+    "exit": 0
+  },
+  {
+    "check": "views_check",
+    "command": "node scripts/contract-docs.mjs check --clauses AGENT-016",
+    "exit": 0
+  },
+  {
+    "check": "views_restore",
+    "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+    "exit": 0
+  },
+  {
+    "check": "lock",
+    "command": "node scripts/edition-authoring/cli.mjs lock",
+    "exit": 0
+  },
+  {
+    "check": "lock_check",
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  {
+    "check": "diff_check",
+    "command": "git diff --check",
+    "exit": 0
+  },
+  {
+    "check": "migration_ledger",
+    "command": "none; no migration changes",
+    "exit": 0
+  }
+]

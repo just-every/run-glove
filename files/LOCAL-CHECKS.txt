@@ -1,0 +1,8 @@
+Baseline inherited journey before continuation: 2 passing registrations, 0 failures; 41002 ms.
+After point 1 extension: 3 passing registrations, 0 failures; 56489 ms.
+Command: node --test --test-concurrency=1 tests/api/morning-brief.test.mjs tests/api/fixed-monthly-reports.test.mjs
+Typecheck: pnpm typecheck, exit 0.
+First-party check: npx -y @runeditrun/rer check --profile first-party, exit 0.
+Contract views: node scripts/contract-docs.mjs write --clauses AGENT-016, exit 0; check --clauses AGENT-016, exit 0. Generated 0 changed documents; restored both views from origin/main.
+Lock: node scripts/edition-authoring/cli.mjs lock and check, both exit 0.
+Inventory: 217 total, cap 200; existing main has 216. The brief expressly retains AGENT-008 and requires the additional AGENT-016 registration carried from f182. This continuation adds no further registrations, removes no assertions and edits no other test file. No cap raise requested or guard weakened.

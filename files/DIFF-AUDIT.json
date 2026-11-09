@@ -1,0 +1,12 @@
+{
+  "head": "72ce1fcb59291a920c7d75746dd02c8e69f9531f",
+  "changed_files": [
+    "sources.lock.json",
+    "tests/api/morning-brief.test.mjs"
+  ],
+  "AGENT_008_body_preserved_exactly": true,
+  "AGENT_008_body_sha256": "d37919838be403b362a81b1caa88fe6f7e2f1496c8b45f6ed3c09c39e6bcc153",
+  "contract_judgments_and_views_unchanged": true,
+  "worktree_clean": true,
+  "packet_symlinks": false
+}

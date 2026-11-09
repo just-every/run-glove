@@ -1,0 +1,192 @@
+{
+  "tag": "sx-glove-c-f185",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f185",
+  "product_head": "72ce1fcb59291a920c7d75746dd02c8e69f9531f",
+  "origin_main": "eb1178dde4b08016c116445860c5f6bb36e56710",
+  "main_equals_candidate": false,
+  "pr": null,
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/morning-brief.test.mjs",
+      "exit": 0,
+      "passed": 2,
+      "failed": 0,
+      "duration_ms": 46395.93885,
+      "code_bytes_unchanged_at_candidate": true
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/morning-brief.test.mjs tests/api/fixed-monthly-reports.test.mjs",
+      "exit": 0,
+      "passed": 3,
+      "failed": 0,
+      "duration_ms": 56489.440691,
+      "note": "before the additional erasure assertions; relevant report and product code unchanged"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/morning-brief.spec.ts",
+      "exit": 0,
+      "passed": 1,
+      "widths": [
+        1440,
+        390
+      ],
+      "source_head": "aa4dce399557554b2b2e4914b251f8d46edc5bda",
+      "relevant_paths_unchanged_to_candidate": true
+    }
+  ],
+  "ci": {
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_sha": "72ce1fcb59291a920c7d75746dd02c8e69f9531f",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42559001651",
+        "id": 42559001651,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ]
+  },
+  "scan": {
+    "commit": "72ce1fcb59291a920c7d75746dd02c8e69f9531f",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "deferred to guarded Mac lander; scanner unavailable in cloud"
+  },
+  "counts_before": {
+    "done": 29,
+    "partial": 205,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 29,
+    "partial": 205,
+    "missing": 29
+  },
+  "judgment_changes": [],
+  "claimed_points": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "inventory": {
+    "main": 216,
+    "candidate": 217,
+    "cap": 200,
+    "continuation_delta": 0,
+    "inherited_registration_delta": 1
+  },
+  "evidence_files": [
+    {
+      "path": "API-FINAL.txt",
+      "bytes": 2627,
+      "sha256": "396af45e907ecc7652b136e832f8b93874351872c3fbd3bb18c143099e0f4226"
+    },
+    {
+      "path": "API-WITH-REPORTS.txt",
+      "bytes": 2671,
+      "sha256": "c10a0e2c95b017e04c7cc0cd5c786017435797bdcde72d5cba92ba1caf468924"
+    },
+    {
+      "path": "BROWSER.txt",
+      "bytes": 1199,
+      "sha256": "c6e764d657a349efef732e6494b0839df97f4bf71769a33421a1c92d481e75b5"
+    },
+    {
+      "path": "CANDIDATE-CI.json",
+      "bytes": 243,
+      "sha256": "0336efe3eb4911728c669cfcebeb5dc61dc5d08c09217fe359c01eff486524df"
+    },
+    {
+      "path": "CI-DISCOVERY.json",
+      "bytes": 169,
+      "sha256": "6468abd0698a3ed8d624ee38dbee6cc005cf05f8de28305fd22114aa24669d45"
+    },
+    {
+      "path": "LOCAL-CHECKS.txt",
+      "bytes": 962,
+      "sha256": "20353e9afffc99676d9951c95a3dfd686a2bcdfd43b858f4eb4bde1d1d343672"
+    },
+    {
+      "path": "MAIN-CI.json",
+      "bytes": 1143,
+      "sha256": "6c841e80ea4ac774e9ed801fe9214325da366417f7d1ddc0111bf85c2b139a97"
+    },
+    {
+      "path": "MECHANICAL.json",
+      "bytes": 788,
+      "sha256": "393564c57623401243c211d04572e8a4ee65bd353b281fe66366614b3c1b263a"
+    },
+    {
+      "path": "PLAN.txt",
+      "bytes": 1102,
+      "sha256": "ca9f7cc32bd162b278de9459c4dfea3a412e503605759d0989389b0f4869ed08"
+    },
+    {
+      "path": "TYPECHECK.txt",
+      "bytes": 236,
+      "sha256": "08c4db4a3205711e172f8fbcebba724c9b70b910bbd2e2b830913a3b8d3695a2"
+    },
+    {
+      "path": "screenshots/1440-brief-dispatch.png",
+      "bytes": 178744,
+      "sha256": "54fd5cc7f297801a350cf678b496db7de29d6e08d7dd0207646a7c85227d44a5"
+    },
+    {
+      "path": "screenshots/1440-brief-invoices.png",
+      "bytes": 136275,
+      "sha256": "e60fe6aa71619b63fcf9b9d82fc124ac4aa94d4f4310e2bdcf76785e04b39195"
+    },
+    {
+      "path": "screenshots/1440-brief-jobs.png",
+      "bytes": 126234,
+      "sha256": "f730388376caac8e05dfaa932cc13d76e35893816af613dea17465bc7e468171"
+    },
+    {
+      "path": "screenshots/1440-brief-quotes.png",
+      "bytes": 139776,
+      "sha256": "48b89060c0cbf9371e1ee1febfca1f0a02211207ddf0d11ebfce1afcafa1000e"
+    },
+    {
+      "path": "screenshots/1440-brief-today.png",
+      "bytes": 224549,
+      "sha256": "8ac8cace995d4d059b36195cc8d1141f055611efad328b58501b9d04e1d0f751"
+    },
+    {
+      "path": "screenshots/390-brief-dispatch.png",
+      "bytes": 74716,
+      "sha256": "99a95b37bb09a63b53e3dd620632c382eea1e2c93f37e4f46997ae7847347ad4"
+    },
+    {
+      "path": "screenshots/390-brief-invoices.png",
+      "bytes": 68203,
+      "sha256": "a0248b1e757f76e798ebc80973df3832a72ba390810f20203506e87b2e7d18a2"
+    },
+    {
+      "path": "screenshots/390-brief-jobs.png",
+      "bytes": 55023,
+      "sha256": "47356e2cc8ff7494cd5243c88890a4ec4ebc94f8d1e435c413106bc9dbbb0747"
+    },
+    {
+      "path": "screenshots/390-brief-quotes.png",
+      "bytes": 73302,
+      "sha256": "d8ea6b5a1d22c3296a463ff03a55cc867b617f082ffa4656f8d832d05749ac43"
+    },
+    {
+      "path": "screenshots/390-brief-today.png",
+      "bytes": 197682,
+      "sha256": "8c9250651987d7d05d3ba82a33310a5fe70f65ece1b327f73425910a9cf15412"
+    }
+  ]
+}

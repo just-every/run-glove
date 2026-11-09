@@ -1,0 +1,6 @@
+AGENT-016 continuation plan
+1. Preserve the prior financial and agreement public-door journey and AGENT-008 registration; rebase the unpublished continuation onto current main.
+2. Close point 1 using the existing Owner mail command and real cron handler, with only the mail network edge faked: off by default, role refusal, explicit opt-in, date-bound once-only delivery, authenticated provider outcome, restart, disable and no push. Keep read purity assertions at pinned Chicago dates.
+3. Re-run the touched API file and typecheck. Run the preserved fixed-monthly reporting journey for inherited frozen report and export dates. Run the existing Today brief browser journey at 1440 and 390 without changing its source.
+4. Generate and check contract views, restore them from main, regenerate and check source lock last, run first-party check, inspect complete candidate identities and trailers.
+5. Push only the named cloud branch, discover exact-SHA Verify, retain honest status and publish the actual non-secret evidence packet separately. Status judgments and all landing gates remain fleet duties.
