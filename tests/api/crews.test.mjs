@@ -45,11 +45,11 @@ test('DISP-007 crews retain multi-day work, authority, atomic review and evidenc
     await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
     return person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Install stage finished', signoff: { absentReason: 'Customer away' }, jobComplete: false })
   }
-  let crew, install
+  let crew
 
   await scenario(t, 'point 1: three-day install isolates every signed-in member and totals only completed agreed work', async () => {
     crew = (await run(null, 'crew.save', { name: 'Install team', memberIds: [b.priya.id, b.tom.id] }, 'crew.saved')).result
-    install = await job('Three-day heat pump install')
+    const install = await job('Three-day heat pump install')
     const days = ['2026-11-02', '2026-11-03', '2026-11-04'], groups = [], subs = []
     for (const date of days) {
       groups.push((await book(install.id, { crewId: crew.id }, date)).result)
@@ -130,7 +130,10 @@ test('DISP-007 crews retain multi-day work, authority, atomic review and evidenc
       [{ name: 'Cross branch', memberIds: [b.priya.id, foreign.id] }, 'BRANCH'],
       [{ name: 'INSTALL TEAM', memberIds: [b.tom.id, sid.id] }, 'DUPLICATE'],
       [{ ...ten, version: ten.version - 1, name: 'Stale team' }, 'STALE'],
-    ]) await unchanged(() => h.command('crew.save', payload, { error }))
+    ]) {
+      await unchanged(() => h.command('crew.save', payload, { error }))
+      if (!payload.id) await unchanged(() => h.command('crew.save', { ...ten, ...payload }, { error }))
+    }
     const work = await job('Crew roster history')
     const earlier = (await book(work.id, { crewId: crew.id }, '2026-11-16')).result
     const saved = (await run(null, 'crew.save', { ...crew, name: 'Replacement team', memberIds: [b.tom.id, sid.id] }, 'crew.saved')).result
