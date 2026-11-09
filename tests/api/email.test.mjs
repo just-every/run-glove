@@ -565,6 +565,11 @@ async function providerDocuments() {
       const latest = (await h.state()).quotes.find(r => r.id === q.id)
       const recovered = receipt(h, await h.command('email.send', { kind: 'quote', id: q.id, version: latest.version }))
       assert.equal((await postEvents(h, edge.callback(recovered, 'delivered', new Date(Date.now() + 2000).toISOString()))).status, 200)
+      // Delivery to the main address cannot resolve the accounts-payable bounce.
+      assert.equal((await h.state()).emailWarnings[customer.id].messageId, sent[1].id)
+      const payable = (await h.state()).invoices.find(r => r.id === invoice.id)
+      const apRecovered = receipt(h, await h.command('email.send', { kind: 'invoice', id: invoice.id, version: payable.version }))
+      assert.equal((await postEvents(h, edge.callback(apRecovered, 'delivered', new Date(Date.now() + 3000).toISOString()))).status, 200)
       assert.equal((await h.state()).emailWarnings[customer.id], undefined)
       const { exported, activity } = await assertTrail(h, ['mail.connected', 'email.accepted', 'email.delivered', 'email.bounced', 'email.rejected', 'email.rate_limited', 'email.uncertain'])
       for (const m of [...sent, recovered]) {

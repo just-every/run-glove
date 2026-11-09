@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "edd7ce6546b13e4db8dc9f111b4e0512ff44f5449f5154225c6ee13345e82132",
+      "sha256": "620da3b92107e5e6532b93f98f06488240822efa7385237719394942c420f7d3",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "9b56f9db1dd431d361c4bc48e608e8973d6a5fad9cd8a6df1ab29bb1c636a81b",
+      "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
       "executable": false
     },
     "DEMO.md": {
@@ -2208,7 +2208,7 @@
       "executable": false
     },
     "src/glove/mail.ts": {
-      "sha256": "6d8cfc78abf8011d2e3de7d8be77d544f9777539c0a99ee64b1284596f712c05",
+      "sha256": "3714b491261ba1216e0641c27e1f920553cfdcb4f293b2da85c60a0f83346c4e",
       "executable": false
     },
     "src/glove/maps.ts": {
@@ -5604,7 +5604,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "a6487745897387b9e60377f0b4867b86ec30f59de3b43ae147ad8f385c48d9c4",
+      "sha256": "3ff24937ce4ee2f4f4f8738624013e63cb8e2f8c6e706f7940fd3eab539b5ea5",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
@@ -5657,6 +5657,10 @@
     },
     "tests/api/merge.test.mjs": {
       "sha256": "974a446dec93ce8547c13cf12050c341fbdc479820f6d91f9894635e7b14cc80",
+      "executable": false
+    },
+    "tests/api/message-outcomes.test.mjs": {
+      "sha256": "459fd0694837015ba1dd7fa7f0f802f09cba264650c4ebe446c1a0401be6809c",
       "executable": false
     },
     "tests/api/money.test.mjs": {
@@ -5864,7 +5868,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "6abf69af015d8e74cce7f15e17397538b681bc6e95fabc7ccec38303b7da7e2b",
+      "sha256": "5382754d16f1a7f8c0177b540b07ec3a5eeb09783e32867322207de56ca1a42b",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
@@ -5872,7 +5876,7 @@
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
-      "sha256": "f316fad1d61e4a012748936e1eb0eaa9d2782dfb7bafe0b1dbc49225bd112425",
+      "sha256": "22bfa3d9ef98f6708f27e8e9617d27c08de54c1f6230cef0a99caa547a43d468",
       "executable": false
     },
     "tests/browser/crew-board.spec.ts": {
