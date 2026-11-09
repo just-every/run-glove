@@ -5684,7 +5684,7 @@
       "executable": false
     },
     "tests/api/payments.test.mjs": {
-      "sha256": "57652718ac40b476146bd2b5d6b21b860434daaca6e93a56692ee1c95f6e2e1b",
+      "sha256": "9bcf2207d51a6fc255728c9e4552b585974bdf34434ede972ce84d7084501da2",
       "executable": false
     },
     "tests/api/payout-reconciliation.test.mjs": {
@@ -5737,6 +5737,10 @@
     },
     "tests/api/quote-link-records.test.mjs": {
       "sha256": "56076912a0bb089f22fd6ff89ca61738ff2a9c0fed1b4ba8506d30a11badaa68",
+      "executable": false
+    },
+    "tests/api/receipt-credit.mjs": {
+      "sha256": "5b23dc2fea3c870f3f100af245c8e950e61ee77982bca2fb65e8e4dbbaf71584",
       "executable": false
     },
     "tests/api/records.test.mjs": {
