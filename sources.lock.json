@@ -2184,7 +2184,7 @@
       "executable": false
     },
     "src/glove/leads.ts": {
-      "sha256": "842d6bbbab46025d316358160dd8bcd92cb9fed0a54d32c0a07b60dfdb530107",
+      "sha256": "a00677b04bf00d8aaf80017f4dccff21ca4969462e817bcf193d5483f81051a9",
       "executable": false
     },
     "src/glove/locations.ts": {
@@ -5633,6 +5633,10 @@
     },
     "tests/api/instant-payouts.test.mjs": {
       "sha256": "d9063e6a159303adc31f33bd268e3625d35b20be77538783b563d89523063e05",
+      "executable": false
+    },
+    "tests/api/lead-matching.test.mjs": {
+      "sha256": "baeee8c8dd4cf8649c67a5d66e67c2412d86c8823135cccaba981892bacd406a",
       "executable": false
     },
     "tests/api/live-locations.test.mjs": {
