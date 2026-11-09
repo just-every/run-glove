@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -37,14 +37,14 @@ test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future
       await h.command('series.create', { jobId: job.id, version: job.version, date: '2025-10-15', rule: { unit: 'month', interval: 3 }, technicianId: tech.id, start: '09:00', end: '10:00', until: '2025-11-30', horizonDays: 365, billing: { mode: 'fixed-monthly', lines: [{ description: 'Monthly PM fee', quantity: '1', unitPrice: '240.00', tax: 'FREE' }] } })
       await page.clock.install({ time: new Date('2025-10-01T15:00:00Z') })
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(url => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(url => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(url => url.pathname === '/app') }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const request = route.request(), url = new URL(request.url())
         const response = await h.request(url.pathname + url.search, { method: request.method(), ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#jobs`)
+      await gotoHarness(page, `${origin}/app#jobs`)
       await page.getByRole('button', { name: `${job.number} · ${job.title}`, exact: true }).click()
       const billing = page.getByRole('region', { name: `Recurring billing for ${job.number}`, exact: true })
       await expect(billing).toContainText('Fixed price at each month end')
@@ -71,7 +71,7 @@ test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future
       await expect(page.getByText(/Issued 2025-10-31 · Due 2025-11-17/)).toBeVisible()
       await expect(page.getByText(/approved after period end/i).first()).toBeVisible()
       await screenshot(page, width, 'late-approved', page.getByRole('heading', { name: `${invoice.number} · Rosa Diaz`, exact: true }))
-      await page.goto(`${origin}/app#jobs`)
+      await gotoHarness(page, `${origin}/app#jobs`)
       await page.getByRole('button', { name: `${job.number} · ${job.title}`, exact: true }).click()
       form = billing.getByRole('form', { name: 'Recurring invoicing rule', exact: true })
       await form.getByLabel('Billing from', { exact: true }).fill('2025-11-30')

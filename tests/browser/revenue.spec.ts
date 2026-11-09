@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -11,7 +11,7 @@ export async function correctionRevenue(browser: import('@playwright/test').Brow
   try {
     const { b, invoice, correctionLines } = await revenueCorrection(h)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     // Use the established native-session harness for every API request, with no report response fake.
     await harnessRoute(context, `${origin}/api/glove/**`, async route => {
@@ -61,14 +61,14 @@ export async function correctionRevenue(browser: import('@playwright/test').Brow
     await h.setTime('2026-11-01T04:05:00.000Z')
     const correction = await b.office.run('invoice.correct', { invoiceId: invoice.id, version: invoice.version, reason: 'Actual work revised by the office', lines: correctionLines })
     await restartHarness(h)
-    await page.goto(`${origin}/app#reports`)
+    await gotoHarness(page, `${origin}/app#reports`)
     await choose('2026-10-01', '2026-10-31')
     await expect.poll(rows).toEqual(['2026-103$228.37', 'Maintenance1$152.40', 'Uncategorized2$75.97', 'Main business3$228.37', 'All3$228.37'])
     expect(await csv()).toEqual(['group,key,invoices,revenue', 'month,2026-10,3,228.37', 'job type,Maintenance,1,152.40', 'job type,Uncategorized,2,75.97', 'branch,Main business,3,228.37', 'total,,3,228.37'])
     await capture('unapproved-correction')
     await b.office.run('invoice.approve', { invoiceId: correction.id, version: correction.version, revision: 2 })
     await restartHarness(h)
-    await page.reload()
+    await reloadHarness(page)
     await choose('2026-10-01', '2026-10-31')
     await expect.poll(rows).toEqual(['2026-103$221.08', 'Maintenance1$145.11', 'Uncategorized2$75.97', 'Main business3$221.08', 'All3$221.08'])
     expect(await csv()).toEqual(['group,key,invoices,revenue', 'month,2026-10,3,221.08', 'job type,Maintenance,1,145.11', 'job type,Uncategorized,2,75.97', 'branch,Main business,3,221.08', 'total,,3,221.08'])
@@ -111,7 +111,7 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
     const context = await browser.newContext(), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-      await page.goto(process.env.GLOVE_OPEN)
+      await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
@@ -125,8 +125,8 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
       })
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
-        await page.goto(`${origin}/app#reports`)
-        await page.reload()
+        await gotoHarness(page, `${origin}/app#reports`)
+        await reloadHarness(page)
         await page.getByLabel('Report', { exact: true }).selectOption('margins')
         await page.getByLabel('From', { exact: true }).fill('2026-10-01')
         const panel = page.getByRole('region', { name: 'Job margins', exact: true })
@@ -158,7 +158,7 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
     const b = await fixedMonthlyReports(h)
     await restartHarness(h)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    await page.goto(process.env.GLOVE_OPEN)
+    await gotoHarness(page, process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
@@ -171,7 +171,7 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
     await page.setViewportSize({ width: 1440, height: 1050 })
-    await page.goto(`${origin}/app#reports`)
+    await gotoHarness(page, `${origin}/app#reports`)
     const panel = page.locator('section.panel').filter({ has: page.locator('#report-title') })
     await page.getByLabel('From', { exact: true }).fill('2025-01-31')
     await page.getByLabel('To', { exact: true }).fill('2025-03-31')
@@ -210,7 +210,7 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
     // PLAN-013: follow each late invoice from the native state into its real
     // invoice screen. Report labels alone do not prove invoice presentation.
     for (const x of expected) {
-      await page.goto(`${origin}/app#invoices/${x.invoice.id}`)
+      await gotoHarness(page, `${origin}/app#invoices/${x.invoice.id}`)
       const invoice = page.getByRole('region').filter({ has: page.locator('#invoice-title') })
       await expect(invoice.getByRole('heading', { level: 2 })).toContainText(x.invoice.number)
       await expect(invoice).toContainText(`Approved after period end on ${x.approvedOn}; payment terms start on that approval date.`)
@@ -249,12 +249,12 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
       await page.setViewportSize({ width: 1440, height: 1050 })
     }
     const onTime = b.approved.find((x: any) => x.kind === 'onTime')!
-    await page.goto(`${origin}/app#invoices/${onTime.invoice.id}`)
+    await gotoHarness(page, `${origin}/app#invoices/${onTime.invoice.id}`)
     const onTimePanel = page.locator('section.panel').filter({ has: page.locator('#invoice-title') })
     await expect(onTimePanel).toContainText(`Issued ${onTime.issuedOn} · Due ${onTime.dueOn}`)
     await expect(onTimePanel).not.toContainText('Approved after period end on')
     const draft = b.proposed.find((x: any) => x.jobId === b.unapproved.id)!
-    await page.goto(`${origin}/app#invoices/${draft.id}`)
+    await gotoHarness(page, `${origin}/app#invoices/${draft.id}`)
     const draftPanel = page.locator('section.panel').filter({ has: page.locator('#invoice-title') })
     await expect(draftPanel.getByRole('status')).toContainText('Proposed — not approved, not sent')
     await expect(draftPanel).not.toContainText('Approved after period end on')

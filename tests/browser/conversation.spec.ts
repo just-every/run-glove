@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -43,10 +43,10 @@ async function proxyLifecycle(browser: Browser, h: any) {
       // A transport-only blank document avoids the public lobby's deliberately
       // restrictive CSP; every API answer still comes from the real Worker.
       await page.route(`${origin}/__proxy-lifecycle`, route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Proxy lifecycle</title>' }))
-      await page.goto(`${origin}/__proxy-lifecycle`)
+      await gotoHarness(page, `${origin}/__proxy-lifecycle`)
       await page.evaluate(() => { void fetch('/api/glove/state').then(r => r.json()).then(body => { (window as any).proxyAnswer = body }).catch(() => {}) })
       await expect.poll(() => arrived).toBe(true)
-      if (boundary === 'navigation') await page.goto('about:blank')
+      if (boundary === 'navigation') await gotoHarness(page, 'about:blank')
       const drained = (boundary === 'restart' ? restartHarness(h) : unrouteHarness(context)).then(() => { finished = true })
       // The pending real reply must hold teardown/restart, even after the page
       // has cancelled its fetch. A single event-loop turn exposes early return.
@@ -78,7 +78,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     const harbourJob = await h.command('job.create', { customerId: harbour.id, siteId: harbourSite.id, title: 'Harbour inspection' })
     const riverJob = await h.command('job.create', { customerId: river.id, siteId: riverSite.id, title: 'River inspection' })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
@@ -119,10 +119,10 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(panel).toContainText(text)
     }
-    await page.goto(`${origin}/app#jobs/${harbourJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${harbourJob.id}`)
     await log(jobPanel, 'call', 'Harbour called about the filter', 1)
     await log(jobPanel, 'note', 'Harbour needs a washable filter', 3)
-    await page.goto(`${origin}/app#jobs/${riverJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${riverJob.id}`)
     await log(jobPanel, 'call', 'River callback reached voicemail', 2, 'outbound', 'voicemail')
     await log(jobPanel, 'note', 'River needs the back entrance', 4)
     // Switch jobs through the real list while the next populated read waits.
@@ -137,7 +137,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(jobPanel).not.toContainText('River callback reached voicemail')
     jobRelease(); held = null
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
-    await page.goto(`${origin}/app#customers`)
+    await gotoHarness(page, `${origin}/app#customers`)
     await selectCustomer(harbour.name)
     await log(customerPanel, 'note', 'Harbour account contact updated', 5)
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter', 'Harbour account contact updated'])
@@ -162,7 +162,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(rows(customerPanel).nth(0)).toContainText('Outbound call · phone call (logged) · Morgan Desk to River Clinic')
     await expect(rows(customerPanel).nth(0)).toContainText('voicemail, 4 min')
     await screens(page, 'river', customerPanel)
-    await page.reload()
+    await reloadHarness(page)
     await selectCustomer(river.name)
     await expect(customerPanel).toContainText('River needs the back entrance')
 
@@ -208,7 +208,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     expect(await domain()).toEqual(beforeRole)
     await screens(page, 'authority-withdrawn', customerPanel)
     await h.command('role.set', { operatorId: desk.id, role: 'office' })
-    await page.reload()
+    await reloadHarness(page)
     await selectCustomer(river.name)
     await expect(customerPanel).toContainText('River needs the back entrance')
     await h.command('branch.limit', { operatorId: desk.id, branchId: branch.id })
@@ -225,14 +225,14 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     const s = await h.state()
     await h.command('customer.merge', { survivorId: harbour.id, mergedIds: [river.id], versions: Object.fromEntries(s.customers.filter((c: any) => [harbour.id, river.id].includes(c.id)).map((c: any) => [c.id, c.version])) })
     await restartHarness(h)
-    await page.reload()
+    await reloadHarness(page)
     await selectCustomer(harbour.name)
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'River callback reached voicemail', 'Harbour needs a washable filter', 'River needs the back entrance', 'Harbour account contact updated'])
     await screens(page, 'survivor-after-restart', customerPanel)
-    await page.goto(`${origin}/app#jobs/${harbourJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${harbourJob.id}`)
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
     await screens(page, 'harbour-job', jobPanel)
-    await page.goto(`${origin}/app#jobs/${riverJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${riverJob.id}`)
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
     await screens(page, 'river-job', jobPanel)
   } finally {
@@ -280,7 +280,7 @@ async function messageOutcomes(browser: Browser) {
     await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'SoftBounce', Inactive: true })
     expect((await h.state()).emailWarnings[customer.id].messageId).toBe(bounced.id)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
@@ -289,7 +289,7 @@ async function messageOutcomes(browser: Browser) {
     const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })
     const warning = panel.getByRole('alert')
     async function customerPage() {
-      await page.goto(`${transport!.origin}/app#customers`)
+      await gotoHarness(page, `${transport!.origin}/app#customers`)
       await page.getByRole('button', { name: customer.name, exact: true }).click()
       await expect(panel).toBeVisible()
     }
@@ -299,7 +299,7 @@ async function messageOutcomes(browser: Browser) {
     await expect(conversation).toContainText(`Delivered to ${customer.email}'s mail server (reported by Postmark)`)
     await expect(conversation).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
     await screens(page, 'address-bounce', panel)
-    await page.goto(`${transport!.origin}/app#invoices`)
+    await gotoHarness(page, `${transport!.origin}/app#invoices`)
     await page.getByRole('button', { name: invoice.number, exact: true }).click()
     const email = page.getByRole('region', { name: `Email ${invoice.number}`, exact: true })
     await expect(email).toContainText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark)`)
@@ -309,26 +309,26 @@ async function messageOutcomes(browser: Browser) {
     await expect(email).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
     await expect(email).toContainText('Check the address and send again.')
     await screens(page, 'message-failures', email)
-    await page.goto('about:blank')
+    await gotoHarness(page, 'about:blank')
     await transport.idle()
     await restartHarness(h)
     await customerPage()
     await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
     await send('quote', quote.id, { RecordType: 'SpamComplaint' })
-    await page.reload()
+    await reloadHarness(page)
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toHaveText(`Marked as spam by ${customer.email} (reported by Postmark). Do not email them again until they ask for it; call them instead.`)
     await screens(page, 'address-complaint', panel)
     await send('quote', quote.id, { RecordType: 'Delivery' })
-    await page.reload()
+    await reloadHarness(page)
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
     await send('invoice', invoice.id, { RecordType: 'Delivery' })
-    await page.reload()
+    await reloadHarness(page)
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toHaveCount(0)
     await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'HardBounce' })
-    await page.reload()
+    await reloadHarness(page)
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toContainText(customer.apEmail)
     await panel.getByLabel('Accounts-payable email', { exact: true }).fill(address('synthetic-glove-new-ap'))

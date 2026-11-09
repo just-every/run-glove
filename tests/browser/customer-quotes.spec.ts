@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 import { calendarNoon } from '../fixtures/calendar.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
@@ -52,14 +52,14 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       expect(Date.parse(old.revisions[0].validUntil) - Date.parse(issueDate)).toBe(30 * 86400000)
       await h.request('/__test/clock', { method: 'POST', body: { at: null } })
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url()), isPublic = url.pathname === '/api/glove/public/quote'
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       const defaults = page.getByRole('form', { name: 'Quote validity default' })
       await defaults.getByLabel('Default quote validity (calendar days)').fill('45')
       await send(page, defaults.getByRole('button', { name: 'Save quote validity default' }))
@@ -70,7 +70,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       const url = await links.getByLabel('Customer link (shown once)').inputValue()
       expect(url).toBe(`${origin}/quote#token=${issued.token}`)
       await screen(page, width, 'desk-issued', links)
-      await page.goto(url)
+      await gotoHarness(page, url)
       await expect(page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true })).toBeVisible()
       await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText(service.description)
       await expect(page.getByRole('region', { name: 'Your quote', exact: true })).toContainText('Work is scheduled after acceptance.')
@@ -82,7 +82,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       await page.getByRole('button', { name: 'Request changes', exact: true }).click()
       await expect(page.getByRole('status')).toContainText('Your change request is with the office.')
       await screen(page, width, 'changes-recorded', page.getByRole('status'))
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await expect(page.getByRole('region', { name: 'Customer quote requests', exact: true })).toContainText('washable filter')
       await page.getByRole('button', { name: `${quote.number} · Restore quiet cooling`, exact: true }).click()
       await page.getByRole('button', { name: 'Revise price', exact: true }).click()
@@ -91,21 +91,21 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       await send(page, page.getByRole('button', { name: /^Approve revision 2/ }))
       const revised = await send(page, links.getByRole('button', { name: 'Create customer link', exact: true }))
       await screen(page, width, 'desk-revised', links)
-      await page.goto(url)
+      await gotoHarness(page, url)
       await expect(page.getByRole('status')).toContainText('A newer revision was sent')
       await expect(page.getByRole('heading', { name: 'Restore quiet cooling', exact: true })).toHaveCount(0)
       await screen(page, width, 'superseded', page.getByRole('status'))
-      await page.goto(`${origin}/quote#token=${revised.token}`)
+      await gotoHarness(page, `${origin}/quote#token=${revised.token}`)
       await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
       await page.getByRole('button', { name: 'Decline quote', exact: true }).click()
       await expect(page.getByText('This revision is declined and is read-only.', { exact: true })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Request changes', exact: true })).toHaveCount(0)
       await screen(page, width, 'declined', page.getByRole('heading', { name: `Quote ${quote.number}`, exact: true }))
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await page.getByRole('button', { name: `${old.number} · Annual maintenance`, exact: true }).click()
       const expiredLinks = page.getByRole('region', { name: `Customer link for ${old.number}`, exact: true })
       const expired = await send(page, expiredLinks.getByRole('button', { name: 'Create customer link', exact: true }))
-      await page.goto(`${origin}/quote#token=${expired.token}`)
+      await gotoHarness(page, `${origin}/quote#token=${expired.token}`)
       await expect(page.getByText('This quote has expired.', { exact: true })).toBeVisible()
       await screen(page, width, 'expired', page.getByRole('heading', { name: `Quote ${old.number}`, exact: true }))
       await page.getByLabel('Your name', { exact: true }).fill('Mei Lin')
@@ -113,14 +113,14 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       await expect(page.getByRole('button', { name: 'Updated quote requested', exact: true })).toBeDisabled()
       expect((await h.state()).enquiries.find((e: any) => e.id === expiredRequest.id).status).toBe('contacted')
       await screen(page, width, 'update-requested', page.getByRole('button', { name: 'Updated quote requested', exact: true }))
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       const queue = page.getByRole('region', { name: 'Customer quote requests', exact: true })
       await expect(queue).toContainText(`${old.number} revision 1: Mei Lin (claimed) asked for an updated quote`)
       await screen(page, width, 'office-update', queue)
       // The link's own email controls show only actual provider facts.
       const events = mailEvents('sendgrid')
       await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-43', eventKey: events.eventKey, fromEmail: 'office@pacheco.example' })
-      await page.reload()
+      await reloadHarness(page)
       await page.getByRole('button', { name: 'New quote', exact: true }).click()
       const form = page.locator('form').filter({ has: page.getByRole('heading', { name: 'New quote', exact: true }) })
       await form.getByLabel('Customer', { exact: true }).selectOption(b.customer.id)
@@ -141,7 +141,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       const m = (await h.state()).messages.at(-1), at = Math.floor(Date.now() / 1000)
       const delivered = await postEvents(h, events.signed([{ email: m.to, timestamp: at, event: 'delivered', sg_event_id: 'browser-quote-link-delivered', sg_message_id: 'browser-quote-provider', rer_delivery_id: m.id }]))
       expect(delivered.status).toBe(200)
-      await page.reload()
+      await reloadHarness(page)
       await page.getByRole('button', { name: `${followup.number} · Filter replacement follow-up`, exact: true }).click()
       await expect(emailLinks).toContainText(`Delivered to ${b.customer.email}'s mail server`)
       await screen(page, width, 'email-delivered', emailLinks)
@@ -158,14 +158,14 @@ async function websiteIntakeJourney(browser: import('@playwright/test').Browser)
       const b = await business(h)
       await h.command('customer.save', { ...b.customer, name: 'River Street Dental', phone: '+1 212 555 0148' })
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/intake')
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { origin } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const settings = page.getByRole('region', { name: 'Website requests', exact: true })
       await settings.getByRole('checkbox', { name: 'Accept website requests', exact: true }).check()
       await settings.getByLabel('Turnstile public site key', { exact: true }).fill('synthetic-glove-61')
@@ -186,7 +186,7 @@ async function websiteIntakeJourney(browser: import('@playwright/test').Browser)
       await context.grantPermissions(['local-network-access'], { origin: fixtureOrigin.origin })
       await page.route(fixture, route => route.fulfill({ contentType: 'text/html', body: `<!doctype html><html lang="en"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Service request</title><body style="margin:0"><script src="${origin}/glove-request.js" data-source="synthetic-glove-65" defer></script></body></html>` }))
       h.turnstile.answer = () => ({ success: false })
-      await page.goto(fixture)
+      await gotoHarness(page, fixture)
       const frame = page.frameLocator('iframe[title="Request service"]'), form = frame.getByRole('region', { name: 'Request service', exact: true })
       await form.getByLabel('Service wanted', { exact: true }).fill('Air-conditioning service')
       await form.getByLabel('What needs attention', { exact: true }).fill('The waiting-room condenser is noisy and cooling poorly.')
@@ -219,7 +219,7 @@ async function websiteIntakeJourney(browser: import('@playwright/test').Browser)
       expect(state.customers).toHaveLength(before.customers.length)
       const office = await b.office.state()
       expect(office.notices.some((n: any) => n.enquiryId === enquiry.id)).toBe(true)
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await expect(page.getByRole('region', { name: 'Website request notices', exact: true })).toContainText('New website request: Air-conditioning service')
       const details = page.getByRole('region', { name: 'Website request details', exact: true })
       await expect(details).toContainText('Tuesday or Thursday after 2 pm')
@@ -254,14 +254,14 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
     const first = await h.command('quote.link', { quoteId: q.id, version: q.version })
     if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/quote')
       const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '', 'user-agent': req.headers()['user-agent'] ?? '', 'cf-connecting-ip': '198.51.100.43' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
-    await page.goto(`${origin}/app#quotes`)
+    await gotoHarness(page, `${origin}/app#quotes`)
     const owner = page.getByRole('region', { name: 'Quote signing disclosure', exact: true })
     const disclosure = 'synthetic-glove-46 owner-entered disclosure. Synthetic browser test data.'
     await owner.getByLabel('Concrete customer signing disclosure').fill(disclosure)
@@ -270,7 +270,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     await expect(owner).toContainText('Accepted; customer signing is available for open quotes')
     for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await screen(page, width, 'owner-disclosure', owner) }
     await page.setViewportSize({ width: 1440, height: 1050 })
-    await page.goto(`${origin}/quote#token=${first.token}`)
+    await gotoHarness(page, `${origin}/quote#token=${first.token}`)
     await expect(page.getByRole('region', { name: 'Better', exact: true })).toContainText(service.description)
     await page.getByRole('radio', { name: 'Choose Better', exact: true }).check()
     await page.getByRole('checkbox', { name: 'Add Filter', exact: true }).check()
@@ -286,11 +286,11 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     q = await h.command('quote.revise', { quoteId: q.id, version: q.version, options, addOns: [{ ...addOns[0], lines: [{ description: 'Washable filter', quantity: '1', unitPrice: '35.00', tax: 'FREE' }] }, addOns[1]], terms: 'synthetic-glove-45 quote terms' })
     q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 2 })
     const revised = await h.command('quote.link', { quoteId: q.id, version: q.version, email: true })
-    await page.goto(`${origin}/quote#token=${first.token}`)
-    await page.reload() // Reopen the same URL after the office changed the quote.
+    await gotoHarness(page, `${origin}/quote#token=${first.token}`)
+    await reloadHarness(page) // Reopen the same URL after the office changed the quote.
     await expect(page.getByRole('status')).toContainText('A newer revision was sent')
     await expect(page.getByRole('button', { name: 'Sign and approve selected work', exact: true })).toHaveCount(0)
-    await page.goto(`${origin}/quote#token=${revised.token}`)
+    await gotoHarness(page, `${origin}/quote#token=${revised.token}`)
     await page.getByRole('radio', { name: 'Choose Better', exact: true }).check()
     await page.getByRole('checkbox', { name: 'Add Filter', exact: true }).check()
     await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
@@ -328,7 +328,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     const confirmation = (await h.state()).messages.find((m: any) => m.id === accepted.acceptance.signing.confirmation.messageId)
     const at = Math.floor(Date.now() / 1000)
     await postEvents(h, events.signed([{ email: confirmation.to, timestamp: at, event: 'delivered', sg_event_id: 'synthetic-glove-47', sg_message_id: 'synthetic-glove-48', rer_delivery_id: confirmation.id }]))
-    await page.reload()
+    await reloadHarness(page)
     await expect(signed).toContainText(`Delivered to ${b.customer.email}'s mail server`)
     const downloaded = page.waitForEvent('download')
     await signed.getByRole('button', { name: 'Download signed copy (HTML)', exact: true }).click()
@@ -342,7 +342,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     const copyUrl = 'https://signed-copy.example.test/'
     const copyBytes = await readFile(signedPath)
     await copyPage.route(copyUrl, route => route.fulfill({ contentType: 'text/html', body: copyBytes }))
-    await copyPage.goto(copyUrl)
+    await gotoHarness(copyPage, copyUrl)
     await expect(copyPage.getByRole('img', { name: 'Drawn signature', exact: true })).toBeVisible()
     await expect(copyPage.locator('main')).toContainText('Washable filter')
     await expect(copyPage.locator('main')).toContainText(disclosure)
@@ -357,7 +357,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     const typedLink = await h.command('quote.link', { quoteId: typed.id, version: typed.version })
     h.email.status[b.customer.email] = 400
     await page.setViewportSize({ width: 390, height: 1050 })
-    await page.goto(`${origin}/quote#token=${typedLink.token}`)
+    await gotoHarness(page, `${origin}/quote#token=${typedLink.token}`)
     await expect(page.getByRole('radio', { name: 'Choose Good', exact: true })).toBeVisible()
     await keyboardFocus(page, page.getByRole('radio', { name: 'Choose Good', exact: true })); await page.keyboard.press('ArrowDown')
     await expect(page.getByRole('radio', { name: 'Choose Better', exact: true })).toBeChecked()
@@ -372,7 +372,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     await expect(signed).toContainText('Not sent: SendGrid refused it')
     expect((await h.state()).quotes.find((q: any) => q.id === typed.id).acceptance.signing.signature).toEqual({ kind: 'typed', text: 'Mei Lin' })
     await screen(page, 390, 'typed-approved-email-refused', signed)
-    await page.goto(`${origin}/app#quotes`)
+    await gotoHarness(page, `${origin}/app#quotes`)
     await page.getByRole('button', { name: `${q.number} · Cooling choices`, exact: true }).click()
     const deskRecord = page.getByRole('region', { name: 'Customer signature record', exact: true })
     await expect(deskRecord).toContainText('Mei Lin (claimed)')
@@ -390,7 +390,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     let fieldQuote = await b.priyaPerson.run('fieldQuote.draft', { visitId: fieldVisit.id, title: 'synthetic-glove-81 field options', changeOrder: true, options: [{ name: 'Repair', lines: [{ serviceId: service.id, quantity: '1', unitPrice: '189.00' }] }, { name: 'Upgrade', lines: [{ serviceId: service.id, quantity: '1', unitPrice: '207.90' }] }] })
     fieldQuote = await h.command('quote.approve', { quoteId: fieldQuote.id, version: fieldQuote.version, revision: 1 })
     const fieldLink = await h.command('quote.link', { quoteId: fieldQuote.id, version: fieldQuote.version })
-    await page.goto(`${origin}/quote#token=${fieldLink.token}`)
+    await gotoHarness(page, `${origin}/quote#token=${fieldLink.token}`)
     await page.getByRole('radio', { name: 'Choose Upgrade', exact: true }).check()
     await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
     await page.getByLabel('Signer name', { exact: true }).fill('synthetic-glove-82')
@@ -402,7 +402,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     await expect(page.getByText('This revision is accepted and is read-only.', { exact: true })).toBeVisible()
     fieldQuote = (await h.state()).quotes.find((q: any) => q.id === fieldQuote.id)
     const applied = await h.command('fieldQuote.apply', { quoteId: fieldQuote.id, version: fieldQuote.version, jobVersion: fieldJob.version })
-    await page.goto(`${origin}/app#jobs/${applied.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${applied.id}`)
     const amendedJob = page.getByRole('region', { name: `${fieldJob.number} · ${fieldJob.title}`, exact: true })
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
@@ -415,7 +415,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     for (const item of amended.checklist.filter((i: any) => i.required)) await b.priyaPerson.run('visit.capture', { visitId: fieldVisit.id, deviceTime, kind: 'checklist', itemId: item.id, result: 'done' })
     await b.priyaPerson.run('visit.complete', { visitId: fieldVisit.id, deviceTime, summary: 'synthetic-glove-83 completed addition', signoff: { absentReason: 'Customer away' } })
     const fieldInvoice = await b.office.run('invoice.prepare', { jobId: fieldJob.id })
-    await page.goto(`${origin}/app#invoices/${fieldInvoice.id}`)
+    await gotoHarness(page, `${origin}/app#invoices/${fieldInvoice.id}`)
     const invoiceDetail = page.getByRole('region', { name: `${fieldInvoice.number} · ${b.customer.name}`, exact: true })
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
@@ -443,7 +443,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     expect((await peerApproved.json()).decision).toBe('accepted')
     const peerBefore = (await h.state()).quotes.find((q: any) => q.id === peerQuote.id)
     expect(peerBefore.acceptance.signing.signedCopy.sha256).toBeTruthy()
-    await page.goto(`${origin}/app#customers/${b.customer.id}`)
+    await gotoHarness(page, `${origin}/app#customers/${b.customer.id}`)
     const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
     const preview = await send(page, privacy.getByRole('button', { name: 'Preview erasure', exact: true }))
     const affectedCopy = preview.sharedSignedCopies.find((copy: any) => copy.quoteId === peerQuote.id)
@@ -471,7 +471,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     expect(retainedPeer.acceptance.signing.signedCopy).toBeNull()
     const withdrawal = retainedPeer.acceptance.signing.copyWithdrawn
     expect(withdrawal.sha256).toBe(peerBefore.acceptance.signing.signedCopy.sha256)
-    await page.goto(`${origin}/app#quotes`)
+    await gotoHarness(page, `${origin}/app#quotes`)
     await page.getByRole('button', { name: `${peerQuote.number} · Peer maintenance`, exact: true }).click()
     const withdrawnDesk = page.getByRole('region', { name: 'Customer signature record', exact: true })
     for (const width of [1440, 390]) {
@@ -480,7 +480,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       await expect(withdrawnDesk.getByRole('button', { name: 'Download signed copy (HTML)', exact: true })).toHaveCount(0)
       await focusedScreen(page, width, 'peer-signed-copy-withdrawn-desk', withdrawnDesk)
     }
-    await page.goto(`${origin}/quote#token=${peerLink.token}`)
+    await gotoHarness(page, `${origin}/quote#token=${peerLink.token}`)
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       await expect(page.getByText('This revision is accepted and is read-only.', { exact: true })).toBeVisible()
@@ -507,14 +507,14 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bo
       await h.command('model.connect', { url: 'https://models.example.test/v1', model: 'synthetic-glove-91', key: 'synthetic-glove-92' })
       h.models.answer = () => ({ title: 'Condenser service options', ...Object.fromEntries(['good', 'better', 'best'].map(tier => [tier, { reason: 'Inspection and service for the recorded condenser condition', lines: [{ code: b.service.code, quantity: '1' }] }])) })
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/intake')
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { origin } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const settings = page.getByRole('region', { name: 'Website requests', exact: true })
       const share = settings.getByRole('checkbox', { name: 'Allow separately consented request photos in model drafts', exact: true })
       await expect(share).not.toBeChecked()
@@ -530,7 +530,7 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bo
       await focusedScreen(page, width, 'website-model-photo-policy', settings)
       await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit', route => route.fulfill({ contentType: 'application/javascript', body: `window.turnstile={render(el,options){const b=document.createElement('button');b.type='button';b.textContent='Complete verification';b.onclick=()=>options.callback('synthetic-glove-95');el.append(b);return 'widget'},remove(){},reset(){}}` }))
       h.turnstile.answer = () => ({ success: true, action: 'glove-request', hostname: new URL(origin).hostname, challenge_ts: new Date().toISOString() })
-      await page.goto(`${origin}/request`)
+      await gotoHarness(page, `${origin}/request`)
       const form = page.getByRole('region', { name: 'Request service', exact: true })
       const permission = form.getByRole('checkbox', { name: /^I separately allow my request photos/ })
       await expect(permission).not.toBeChecked()
@@ -550,7 +550,7 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bo
       await form.getByRole('button', { name: 'Send request', exact: true }).click()
       await expect(form.getByRole('status')).toContainText('Your request is with the office.')
       await focusedScreen(page, width, 'website-photo-consented-received', form)
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       const row = page.getByRole('region', { name: 'Request pipeline', exact: true }).locator('li').filter({ hasText: 'Condenser photo request' }).first()
       const details = row.getByRole('region', { name: 'Website request details', exact: true })
       await expect(details).toContainText('Separate photo permission recorded for Condenser model provider')
@@ -574,11 +574,11 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bo
       await expect(details.getByRole('img')).toHaveCount(2)
       await expect.poll(() => details.getByRole('img').evaluateAll(images => images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true)
       await focusedScreen(page, width, 'website-model-photo-withdrawn', details)
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       await share.uncheck()
       await send(page, settings.getByRole('button', { name: 'Save website request settings', exact: true }))
       await focusedScreen(page, width, 'website-model-photo-switch-off', settings)
-      await page.goto(`${origin}/request`)
+      await gotoHarness(page, `${origin}/request`)
       await expect(page.getByRole('region', { name: 'Request service', exact: true })).toContainText('Request photos are not sent to the AI quote-drafting provider.')
       await expect(page.getByRole('checkbox', { name: /^I separately allow/ })).toHaveCount(0)
       expect(h.email.sent).toHaveLength(0)
@@ -591,7 +591,7 @@ test('QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the re
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url()), isPublic = u.pathname.startsWith('/api/glove/public/')
@@ -600,7 +600,7 @@ test('QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the re
     })
     for (const width of [1440, 390]) {
       let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Deposit terms ${width}`, lines: [{ description: 'Repair', quantity: '1', unitPrice: '1850.00', tax: 'FREE' }] })
-      await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app#quotes`)
+      await page.setViewportSize({ width, height: 1050 }); await gotoHarness(page, `${origin}/app#quotes`)
       await page.getByRole('button', { name: `${q.number} · ${q.title}`, exact: true }).click()
       await page.getByLabel('Deposit type', { exact: true }).selectOption('amount')
       await page.getByLabel('Deposit value', { exact: true }).fill('500.00')
@@ -611,7 +611,7 @@ test('QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the re
       q = (await h.state()).quotes.find((x: any) => x.id === q.id)
       q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
       const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
-      await page.goto(`${origin}/quote#token=${link.token}`)
+      await gotoHarness(page, `${origin}/quote#token=${link.token}`)
       const terms = page.getByRole('region', { name: 'Quote deposit', exact: true })
       await expect(terms).toContainText('$500.00'); await expect(terms).toContainText('Customer Checkout is not enabled')
       await expect(page.getByRole('button', { name: /pay|checkout/i })).toHaveCount(0)
@@ -626,7 +626,7 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
   try {
     const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url()), isPublic = u.pathname.startsWith('/api/glove/public/')
@@ -634,7 +634,7 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
       const response = await h.request(u.pathname + u.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
-    await page.goto(`${origin}/app#quotes`)
+    await gotoHarness(page, `${origin}/app#quotes`)
     await page.getByRole('region', { name: 'Wisetack financing', exact: true }).locator('summary').click()
     await page.getByLabel('Wisetack test merchant reference', { exact: true }).fill('synthetic-glove-merchant-1'); await page.getByLabel('Wisetack test auth token', { exact: true }).fill('synthetic-glove-60'); await page.getByLabel('Financing minimum amount', { exact: true }).fill('1000.00'); await send(page, page.getByRole('button', { name: 'Save test financing connection', exact: true }))
     await expect(page.getByLabel('Wisetack test auth token', { exact: true })).toHaveValue('')
@@ -643,7 +643,7 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
       let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Finance system ${width}`, lines: [{ description: 'Replacement system', quantity: '1', unitPrice: '9800.00', tax: 'FREE' }] })
       q = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
       const link = await h.command('quote.link', { quoteId: q.id, version: q.version })
-      await page.goto(`${origin}/quote#token=${link.token}`); await page.getByRole('radio').check(); await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
+      await gotoHarness(page, `${origin}/quote#token=${link.token}`); await page.getByRole('radio').check(); await page.getByRole('button', { name: 'Review selected work', exact: true }).click()
       const customer = page.getByRole('region', { name: 'Wisetack application', exact: true })
       await customer.getByLabel('Expected service completion date', { exact: true }).fill(`2026-10-${28 + index}`)
       await expect(customer.getByRole('button', { name: 'Apply with Wisetack test mode', exact: true })).toBeDisabled()
@@ -652,10 +652,10 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
       await screen(page, width, 'finance-application', customer)
       let f = (await h.state()).financings.find((f: any) => f.quoteId === q.id)
       const tx = h.wisetack.transactions.get(f.providerReference); Object.assign(tx, { status: 'Approved', approvedLoanAmount: '9800.00', offers: { minMaxApr: '0-29.9', minMaxMonths: '3-60' } })
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       const owner = page.getByRole('region', { name: 'Wisetack financing', exact: true }), article = owner.locator('article').filter({ hasText: q.number })
       await send(page, article.getByRole('button', { name: 'Refresh Wisetack status', exact: true })); await expect(article).toContainText('Wisetack reports: Approved'); await expect(article).toContainText('0-29.9%'); await screen(page, width, 'finance-approved-owner', owner)
-      await page.goto(`${origin}/quote#token=${link.token}`); await expect(customer).toContainText('Wisetack reports: Approved'); await expect(customer).toContainText('Final terms are on Wisetack'); await screen(page, width, 'finance-approved-customer', customer)
+      await gotoHarness(page, `${origin}/quote#token=${link.token}`); await expect(customer).toContainText('Wisetack reports: Approved'); await expect(customer).toContainText('Final terms are on Wisetack'); await screen(page, width, 'finance-approved-customer', customer)
       // Complete the same real signature/job/invoice doors, then observe funding on the invoice screen.
       const post = (body: object) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${link.token}` }, body })
       await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'synthetic-glove-61 owner disclosure', accept: true })
@@ -666,7 +666,7 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
       const draft = await b.office.run('invoice.prepare', { jobId: job.id }), inv = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
       Object.assign(tx, { status: 'Paid', settledLoanAmount: '9800.00', processingFeeAmount: '300.00' }); f = (await h.state()).financings.find((f: any) => f.quoteId === q.id)
       await h.command('financing.refresh', { financingId: f.id, version: f.version })
-      await page.goto(`${origin}/app#invoices/${inv.id}`)
+      await gotoHarness(page, `${origin}/app#invoices/${inv.id}`)
       const balance = page.getByRole('region', { name: 'Payments and balance', exact: true }); await expect(balance).toContainText('Amount due $0.00'); await expect(balance).toContainText('wisetack · $9,800.00')
       expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([])
       await screen(page, width, 'finance-funded-invoice', balance)
@@ -703,14 +703,14 @@ test('COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two custom
     const delegated = await h.person('Preview inspector', 'owner')
     const acting = delegated.cookie
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       const response = await h.request(u.pathname + u.search, { as: acting, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
-    await page.goto(`${origin}/app#customers`)
+    await gotoHarness(page, `${origin}/app#customers`)
     await page.getByRole('button', { name: b.customer.name, exact: true }).click()
     const panel = page.getByRole('region', { name: 'Customer hub preview', exact: true })
     const content = panel.getByRole('region', { name: `Preview for ${b.customer.name}`, exact: true })

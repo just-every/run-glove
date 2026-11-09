@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, restartHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -40,7 +40,7 @@ test('PLAN-010 customer sees only the included visit, chooses remaining open tim
     const page = await context.newPage()
     await page.setViewportSize({ width: 1440, height: 1000 })
     if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-    await page.goto(process.env.GLOVE_OPEN)
+    await gotoHarness(page, process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
@@ -57,8 +57,8 @@ test('PLAN-010 customer sees only the included visit, chooses remaining open tim
     })
     const open = async () => {
       const href = `${origin}/book#token=${link.token}`
-      if (page.url() === href) await page.reload()
-      else await page.goto(href)
+      if (page.url() === href) await reloadHarness(page)
+      else await gotoHarness(page, href)
       await expect(page.getByRole('heading', { name: 'Seasonal inspection', exact: true })).toBeVisible()
     }
     await open()
@@ -98,7 +98,7 @@ test('PLAN-010 customer sees only the included visit, chooses remaining open tim
     await expect(region.getByRole('status')).toContainText('9:00 AM – 9:30 AM (America/Chicago)')
     expect((await h.state()).visits.filter((v: any) => v.jobId === link.jobId)).toHaveLength(1)
     await proof(page, 'booked')
-    await page.reload()
+    await reloadHarness(page)
     await expect(page.getByRole('alert')).toContainText('This booking link is unavailable')
     await expect(page.getByRole('button', { name: /^Book / })).toHaveCount(0)
   } finally {

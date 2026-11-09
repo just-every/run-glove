@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -27,7 +27,7 @@ test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and f
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await page.clock.install({ time: new Date(morningBriefAt) })
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
@@ -35,7 +35,7 @@ test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and f
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#today`)
+      await gotoHarness(page, `${origin}/app#today`)
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })
       const unbilled = brief.getByRole('region', { name: 'Unbilled work', exact: true })
       await expect(unbilled).toContainText(`${f.noInvoice.job.number} for No Invoice is complete with no invoice`)
@@ -55,7 +55,7 @@ test('AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and f
         ['Leads waiting', 'Quote the request', '#quotes', 'Contacted Lead'],
       ]) {
         await page.setViewportSize({ width: 1440, height: 1050 })
-        await page.goto(`${origin}/app#today`)
+        await gotoHarness(page, `${origin}/app#today`)
         await brief.getByRole('region', { name: section, exact: true }).getByRole('link', { name: action, exact: true }).first().click()
         await page.waitForURL(u => u.hash === hash)
         await expect(page.getByRole('heading', { name: { '#invoices': 'Invoices', '#dispatch': 'Dispatch', '#jobs': 'Jobs', '#quotes': 'Quotes' }[hash], level: 1, exact: true })).toBeVisible()

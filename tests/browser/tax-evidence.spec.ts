@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -21,14 +21,14 @@ test('MONEY-004 Reports states approved-invoice tax before and after ordinary pa
     const draft = await h.command('invoice.prepare', { jobId: job.id })
     const invoice = await h.command('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     await harnessRoute(context, origin + '/api/glove/**', async route => {
       const request = route.request(), url = new URL(request.url())
       const response = await h.request(url.pathname + url.search, { method: request.method(), ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
-    await page.goto(origin + '/app#reports')
+    await gotoHarness(page, origin + '/app#reports')
     await page.getByLabel('From', { exact: true }).fill('2026-10-30')
     await page.getByLabel('To', { exact: true }).fill('2026-10-30')
     await page.getByLabel('Report', { exact: true }).selectOption('tax')
@@ -54,14 +54,14 @@ test('MONEY-004 Reports states approved-invoice tax before and after ordinary pa
     await h.command('payment.record', { invoiceId: invoice.id, version: invoice.version, method: 'check', amount: '55.00', reference: 'synthetic-glove-163' })
     await h.command('payment.credit', { invoiceId: invoice.id, version: invoice.version, amount: '5.00', reference: 'Owner goodwill credit' })
     await restartHarness(h)
-    await page.reload()
+    await reloadHarness(page)
     await page.getByLabel('From', { exact: true }).fill('2026-10-30')
     await page.getByLabel('To', { exact: true }).fill('2026-10-30')
     await page.getByLabel('Report', { exact: true }).selectOption('tax')
     await assertReport()
     expect(await panel.locator('button,a').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim()).length)).toBe(0)
     await capture('ordinary-payment')
-    await page.goto(origin + '/app#invoices/' + invoice.id)
+    await gotoHarness(page, origin + '/app#invoices/' + invoice.id)
     for (const [label, value] of [['QuickBooks customer ID', 'synthetic-glove-customer'], ['QuickBooks sales item ID', 'synthetic-glove-item'], ['QuickBooks tax code ID', 'synthetic-glove-tax']]) await page.getByLabel(label, { exact: true }).fill(value)
     const download = page.getByRole('link', { name: 'Download QuickBooks inspection payload', exact: true })
     await expect(download).toHaveAttribute('download', '')

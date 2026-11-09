@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -44,7 +44,7 @@ test('FIELD-003 / FIELD-002 the desk copies and revokes a report link, the custo
     let acting = h.owner()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       // Render real built screens. Route forwarding supplies each request to
       // the production Worker, preserving its real command/auth/file handlers.
@@ -55,7 +55,7 @@ test('FIELD-003 / FIELD-002 the desk copies and revokes a report link, the custo
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
       acting = b.priyaPerson.cookie
-      await page.goto(`${origin}/app?job=${job.id}`)
+      await gotoHarness(page, `${origin}/app?job=${job.id}`)
       await page.getByRole('button', { name: 'Complete visit', exact: true }).click()
       await page.getByLabel('Work done', { exact: true }).fill('Cleaned filters and condenser coil')
       await page.getByLabel('Findings', { exact: true }).fill('Fan bearing is noisy')
@@ -71,7 +71,7 @@ test('FIELD-003 / FIELD-002 the desk copies and revokes a report link, the custo
       await page.getByRole('button', { name: 'Save completion', exact: true }).click()
       expect((await (await completed).json()).ok).toBe(true)
       acting = h.owner()
-      await page.goto(`${origin}/app#jobs/${job.id}`)
+      await gotoHarness(page, `${origin}/app#jobs/${job.id}`)
       const reports = page.getByRole('region', { name: 'Service reports', exact: true })
       await expect(reports.getByRole('button', { name: 'Copy report link', exact: true })).toBeVisible()
       await reports.getByRole('button', { name: 'Preview service report', exact: true }).click()
@@ -87,7 +87,7 @@ test('FIELD-003 / FIELD-002 the desk copies and revokes a report link, the custo
       await screens(page, 'link-controls', reports)
       publicPage = await context.newPage()
       // A public page needs no session; production reads explicitly omit it.
-      try { await publicPage.goto(reportUrl) } catch { throw new Error('The private report page failed to open.') }
+      try { await gotoHarness(publicPage, reportUrl) } catch { throw new Error('The private report page failed to open.') }
       const document = publicPage.getByRole('article', { name: 'Service report', exact: true })
       await expect(document).toContainText('Cleaned filters and condenser coil')
       await expect(document).toContainText('Fan bearing is noisy')
@@ -114,7 +114,7 @@ test('FIELD-003 / FIELD-002 the desk copies and revokes a report link, the custo
       const revokeResponse = page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON().type === 'report.revoke')
       await reports.getByRole('button', { name: 'Revoke report link', exact: true }).click()
       expect((await (await revokeResponse).json()).ok).toBe(true)
-      try { await publicPage.reload() } catch { throw new Error('The revoked report page failed to reload.') }
+      try { await reloadHarness(publicPage) } catch { throw new Error('The revoked report page failed to reload.') }
       await expect(publicPage.getByRole('alert')).toContainText('unavailable or has expired')
       await screens(publicPage, 'revoked')
     } finally { await unrouteHarness(context); await closeHarnessContext(context) }

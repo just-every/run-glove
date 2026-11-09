@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -60,7 +60,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       let backend = empty
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
@@ -68,7 +68,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
         const response = await backend.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const first = page.getByRole('heading', { name: 'Set up your business', exact: true }).locator('..')
       await expect(first.getByLabel('Billing currency', { exact: true })).toHaveValue('USD')
       await expect(first.getByLabel('Timezone for bookings', { exact: true })).toHaveValue('America/Chicago')
@@ -77,7 +77,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       await send(page, first.getByRole('button', { name: 'Save business', exact: true }))
       expect((await empty.state()).business[0].currency).toBe('USD')
       backend = h
-      await page.reload()
+      await reloadHarness(page)
       const business = page.getByRole('heading', { name: 'Business', exact: true }).locator('..')
       await business.getByLabel('Jurisdiction name', { exact: true }).fill('Austin city and county')
       const zips = business.getByLabel('Tax jurisdiction ZIP codes', { exact: true })
@@ -114,7 +114,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       await expect(avalara.getByRole('status')).not.toContainText('0%')
       await screens(page, 'avatax-unavailable', avalara.getByRole('status'))
       expect(h.avatax.calls.length).toBe(2)
-      await page.goto(`${origin}/app#customers`)
+      await gotoHarness(page, `${origin}/app#customers`)
       await page.getByRole('button', { name: 'Austin School', exact: true }).click()
       const exemption = page.getByRole('region', { name: 'Sales-tax exemption', exact: true })
       await exemption.getByLabel('Private exemption certificate', { exact: true }).setInputFiles({ name: 'school-certificate.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aH0cAAAAASUVORK5CYII=', 'base64') })
@@ -122,18 +122,18 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       await expect(exemption.getByRole('link', { name: 'Download private certificate', exact: true })).toBeVisible()
       await screens(page, 'certificate', exemption)
       await screens(page, 'site-tax', page.getByLabel('Site tax jurisdiction', { exact: true }).first())
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await page.getByRole('button', { name: `${work[0].q.number} · School valve repair`, exact: true }).click()
       await expect(page.locator('.page')).toContainText('Austin combined · 8.25% on $100.01')
       await screens(page, 'quote-tax', page.getByRole('cell', { name: 'Austin combined · 8.25% on $100.01', exact: true }))
-      await page.goto(`${origin}/app#invoices`)
+      await gotoHarness(page, `${origin}/app#invoices`)
       await page.getByRole('button', { name: work[0].inv.number, exact: true }).click()
       await expect(page.locator('.page')).toContainText('Austin combined · 8.25% on $100.01')
       await screens(page, 'invoice-tax', page.getByRole('cell', { name: 'Austin combined · 8.25% on $100.01', exact: true }))
       for (const [label, value] of [['QuickBooks customer ID', '58'], ['QuickBooks sales item ID', '41'], ['QuickBooks tax code ID', '7']]) await page.getByLabel(label, { exact: true }).fill(value)
       await expect(page.getByRole('link', { name: 'Download QuickBooks inspection payload', exact: true })).toBeVisible()
       await screens(page, 'qbo-inspection', page.getByRole('link', { name: 'Download QuickBooks inspection payload', exact: true }))
-      await page.goto(`${origin}/app#reports`)
+      await gotoHarness(page, `${origin}/app#reports`)
       const issuedDates = work.map(({ inv }) => inv.dates.issuedOn).sort()
       await page.getByLabel('From', { exact: true }).fill(issuedDates[0])
       await page.getByLabel('To', { exact: true }).fill(issuedDates.at(-1)!)
@@ -148,7 +148,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       await page.setViewportSize({ width: 1440, height: 1050 })
       await h.setTime('2026-11-06T15:00:00.000Z')
       const providerCalls = [h.stripeTax.calls.length, h.avatax.calls.length]
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       await business.getByRole('button', { name: 'Add tax jurisdiction', exact: true }).click()
       await business.getByLabel('Jurisdiction name', { exact: true }).nth(1).fill('Austin special district')
       await business.getByLabel('Combined sales-tax rate (%)', { exact: true }).nth(1).fill('9.5')
@@ -163,7 +163,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       for (const [index, site] of choiceSites.entries()) {
         const title = `Explicit site tax ${index + 1}`
         const startDraft = async () => {
-          await page.goto(`${origin}/app#quotes`)
+          await gotoHarness(page, `${origin}/app#quotes`)
           await page.getByRole('button', { name: 'New quote', exact: true }).click()
           const form = page.getByRole('heading', { name: 'New quote', exact: true }).locator('..')
           await form.getByLabel('Customer', { exact: true }).selectOption(choiceCustomer.id)
@@ -172,7 +172,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
           await form.getByLabel('From the price book', { exact: true }).selectOption(part.id)
           return form
         }
-        await page.reload()
+        await reloadHarness(page)
         const form = await startDraft(), before = await h.state()
         const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
         await form.getByRole('button', { name: 'Save draft', exact: true }).click()
@@ -186,7 +186,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
           ['austin', 'Austin city and county · 8.25% on $100.01', '8.25', '108.26'],
           [district.id, 'Austin special district · 9.5% on $100.01', '9.50', '109.51'],
         ]) {
-          await page.goto(`${origin}/app#customers`)
+          await gotoHarness(page, `${origin}/app#customers`)
           await page.getByRole('button', { name: choiceCustomer.name, exact: true }).click()
           const row = page.locator('.rows > li').filter({ has: page.getByText(site.address, { exact: true }) })
           await row.getByLabel('Site tax jurisdiction', { exact: true }).selectOption(jurisdictionId)
@@ -209,14 +209,14 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       expect(retained.quotes).toEqual(beforeRestart.quotes)
       for (const quote of drafted) expect(retained.quotes.find((q: any) => q.id === quote.id).revisions).toEqual(quote.revisions)
       for (const site of choiceSites) expect(retained.sites.find((s: any) => s.id === site.id).taxJurisdictionId).toBe(district.id)
-      await page.reload()
-      await page.goto(`${origin}/app#customers`)
+      await reloadHarness(page)
+      await gotoHarness(page, `${origin}/app#customers`)
       await page.getByRole('button', { name: choiceCustomer.name, exact: true }).click()
       for (const site of choiceSites) await expect(page.locator('.rows > li').filter({ has: page.getByText(site.address, { exact: true }) }).getByLabel('Site tax jurisdiction', { exact: true })).toHaveValue(district.id)
       expect([h.stripeTax.calls.length, h.avatax.calls.length]).toEqual(providerCalls)
       // These screens changed only their missing-zone fallback; use the saved US installation.
       for (const route of ['today', 'dispatch', 'jobs', 'activity', 'move-in', 'rules', 'stock']) {
-        await page.goto(`${origin}/app#${route}`)
+        await gotoHarness(page, `${origin}/app#${route}`)
         await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
         await screens(page, route)
       }

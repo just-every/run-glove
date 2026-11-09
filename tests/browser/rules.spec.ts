@@ -1,4 +1,4 @@
-import { closeHarnessContext, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Browser, type Page } from '@playwright/test'
 import { phoneDesk } from './phone-desk'
 import { deskPage, action, phoneScreen, origin } from './desk-fixture'
@@ -20,10 +20,10 @@ export async function rulesBrowser(browser: Browser) {
     const outboundBefore = outbound()
     const ownerId = (await h.state()).actor.id
     const open = async (page: Page) => {
-      await page.goto(`${origin}/app#rules`)
+      await gotoHarness(page, `${origin}/app#rules`)
       // Settle the hash route before testing its persistence across a reload.
       await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible()
-      await page.reload()
+      await reloadHarness(page)
       await expect(page.getByRole('heading', { name: 'Rules', exact: true })).toBeVisible()
     }
     const row = (page: Page, name: string) => page.getByRole('region', { name: 'Your rules' }).getByRole('listitem', { name, exact: true })
@@ -46,7 +46,7 @@ export async function rulesBrowser(browser: Browser) {
       return action(page, form.getByRole('button', { name: 'Save changes', exact: true }))
     }
     const request = async (description: string) => {
-      await owner.page.goto(`${origin}/app#quotes`)
+      await gotoHarness(owner.page, `${origin}/app#quotes`)
       const form = owner.page.locator('form').filter({ has: owner.page.getByRole('heading', { name: 'Record a request', exact: true }) })
       await form.getByLabel('Customer', { exact: true }).selectOption(b.customer.id)
       await form.getByLabel('Site', { exact: true }).selectOption(b.site.id)

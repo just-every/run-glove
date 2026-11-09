@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
 // @ts-expect-error Named scenarios add no test registrations.
 import { scenario } from '../fixtures/scenario.mjs'
 // @ts-expect-error Independent CSV assertions shared with the API journey.
@@ -70,7 +70,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
     let as: string | undefined
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      await page.goto(process.env.GLOVE_OPEN)
+      await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       // Only the transport is forwarded: all data and role decisions come from production handlers.
@@ -81,7 +81,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       })
       const steps = { diagnostic: (name: string) => { test.info().annotations.push({ type: 'scenario', description: name }); console.log(name) } }
       await scenario(steps, 'TEAM-004 point 2: Dispatch selects only its branch technicians, booked and waiting work, crews and local times, clearing selected work', async () => {
-        await page.goto(`${origin}/app#dispatch`)
+        await gotoHarness(page, `${origin}/app#dispatch`)
         await page.getByLabel('Day', { exact: true }).fill('2026-11-05')
         const branchChoice = page.getByLabel('Branch', { exact: true })
         const previous = page.getByRole('button', { name: 'Previous day', exact: true })
@@ -137,7 +137,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
           await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('technicians')
         }
       })
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const changeBranchAccess = async (control: Locator, value: string) => {
         const completed = page.waitForResponse(response => new URL(response.url()).pathname === '/api/glove/commands' && response.request().postDataJSON()?.type === 'branch.limit')
         await control.selectOption(value)
@@ -211,7 +211,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
         expect(response.disposition).toContain('attachment;')
         return csvRows(response.text)
       }
-      await page.goto(`${origin}/app#reports`)
+      await gotoHarness(page, `${origin}/app#reports`)
       await page.getByLabel('From', { exact: true }).fill('2026-01-01')
       await page.getByLabel('To', { exact: true }).fill('2027-12-31')
       await page.getByLabel('Report branch', { exact: true }).selectOption(branches[0].id)
@@ -251,7 +251,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await shot(page, width, 'reports-all-branches') }
       })
       as = b.dispatcher.cookie
-      await page.goto(`${origin}/app#jobs`)
+      await gotoHarness(page, `${origin}/app#jobs`)
       await expect(page.getByRole('heading', { name: 'Jobs', exact: true, level: 1 })).toBeVisible()
       await expect(page.locator('.glove-app')).toContainText('Raleigh rooftop inspection')
       await expect(page.locator('.glove-app')).not.toContainText('Phoenix rooftop inspection')

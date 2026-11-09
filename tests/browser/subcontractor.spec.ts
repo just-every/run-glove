@@ -1,4 +1,4 @@
-import { harnessRoute, unrouteHarness } from './harness-route'
+import { gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -20,7 +20,7 @@ test('DISP-013 subcontractor phone has current work but no notification control 
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
     if (!process.env.GLOVE_OPEN) throw new Error('Private native entry required.')
-    await page.goto(process.env.GLOVE_OPEN)
+    await gotoHarness(page, process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
@@ -73,14 +73,14 @@ test('DISP-013 subcontractor phone has current work but no notification control 
     // A previously retained Technician day must also be discarded on this role's refresh.
     const old = await f.b.priyaPerson.state()
     await page.evaluate((state: any) => localStorage.setItem('glove.day', JSON.stringify({ actorId: state.actor.id, savedAt: '2026-11-08T12:00:00.000Z', state })), old)
-    await page.reload()
+    await reloadHarness(page)
     await expect(page.getByRole('heading', { name: 'Your visits', exact: true })).toBeVisible()
     await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day'))).toBeNull()
     await expect(page.getByRole('heading', { name: 'Notifications', exact: true })).toHaveCount(0)
     // Lose the real state transport on reload, keeping the document server reachable.
     // The phone cannot reconstruct work from an offline snapshot.
     await harnessRoute(page, `${origin}/api/glove/state`, route => route.abort('internetdisconnected'))
-    await page.reload()
+    await reloadHarness(page)
     await expect(page.locator('.tech-app')).toHaveCount(0)
     await expect(page.getByText('No signal: showing your day', { exact: false })).toHaveCount(0)
     expect(await page.evaluate(() => localStorage.getItem('glove.day'))).toBeNull()

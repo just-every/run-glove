@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -31,7 +31,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     }
     await h.scheduled(`${date}T10:00:00Z`)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     let changeBeforeReviewSend = false
     await harnessRoute(page, `${origin}/api/glove/**`, async route => {
@@ -52,7 +52,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
       const iconOnly = await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))
       expect(iconOnly).toEqual([])
     }
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     const settings = page.getByRole('region', { name: 'Automatic customer email', exact: true })
     await settings.getByText('Edit templates and reminder schedules', { exact: true }).click()
     await settings.getByLabel('Visit reminder', { exact: true }).fill('Please have access ready for {{date}} at {{time}}.')
@@ -74,18 +74,18 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     expect((await h.state()).business[0].messageAutomation.templates.visitReminder).toBe('Please have access ready for {{date}} at {{time}}.')
     for (const width of [1440]) {
       await page.setViewportSize({ width, height: 1050 })
-      await page.goto(`${origin}/app#invoices/${inv.id}`)
+      await gotoHarness(page, `${origin}/app#invoices/${inv.id}`)
       const invoiceEmail = page.getByRole('region', { name: `Email ${inv.number}`, exact: true })
       await expect(invoiceEmail).toContainText('1 reminder steps reserved')
       await expect(invoiceEmail).toContainText('Accepted by SendGrid; delivery not yet reported')
       await capture(width, 'invoice', `[aria-label="Email ${inv.number}"]`)
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await page.getByRole('button', { name: `${q.number} · Heater repair`, exact: true }).click()
       const quoteEmail = page.getByRole('region', { name: `Email ${q.number}`, exact: true })
       await expect(quoteEmail).toContainText('1 of 1 quote follow-up steps reserved')
       await expect(quoteEmail).toContainText('Accepted by SendGrid; delivery not yet reported')
       await capture(width, 'quote', `[aria-label="Email ${q.number}"]`)
-      await page.goto(`${origin}/app#reports`)
+      await gotoHarness(page, `${origin}/app#reports`)
       await page.getByLabel('Aging as of', { exact: true }).fill(date)
       await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('1 reminder steps reserved')
       await capture(width, 'aging', '[aria-labelledby="aging-title"]')
@@ -110,7 +110,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     let customer = (await h.state()).customers.find((c: any) => c.id === b.customer.id)
     customer = await h.command('customer.save', { ...customer, phone: '+13125550123' })
     await h.command('reminder.consent', { customerId: customer.id, version: customer.version, purpose: 'visits', enabled: true, reference: 'Customer asked for visit confirmations and reports' })
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     const texts = page.getByRole('region', { name: 'Customer texts', exact: true })
     await texts.getByText('Manage Twilio connection', { exact: true }).click()
     await texts.getByLabel('Twilio account SID', { exact: true }).fill(h.twilio.accountSid)
@@ -124,7 +124,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await send(texts.getByRole('button', { name: 'Enable customer texts', exact: true }))
     await expect(texts).toContainText('Channel enabled')
     await both('texts-enabled', '[aria-label="Customer texts"] h2')
-    await page.goto(`${origin}/app#customers`)
+    await gotoHarness(page, `${origin}/app#customers`)
     await page.getByRole('button', { name: b.customer.name, exact: true }).click()
     const textConsent = page.getByRole('region', { name: 'Customer text consent', exact: true })
     await textConsent.getByText('Visit text consent · No active consent', { exact: true }).click()
@@ -141,10 +141,10 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     let visit = await h.command('visit.book', { jobId: visitJob.id, technicianId: b.priya.id, date: tomorrow, start: '11:00', end: '12:00' })
     await h.scheduled(`${date}T10:00:00Z`)
     expect(h.twilio.calls.some((c: any) => c.body?.Body?.includes('Reply STOP'))).toBe(true)
-    await page.goto(`${origin}/app#jobs/${visitJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${visitJob.id}`)
     await send(page.getByRole('button', { name: 'Email visit response link', exact: true }))
     const visitToken = /#token=(glv_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
-    await page.goto(`${origin}/visit#token=${visitToken}`)
+    await gotoHarness(page, `${origin}/visit#token=${visitToken}`)
     await expect(page.getByRole('heading', { name: 'Your visit', exact: true })).toBeVisible()
     await both('visit-response-choice', '[aria-label="Your visit"]')
     await page.getByRole('button', { name: 'Ask to reschedule', exact: true }).click()
@@ -152,31 +152,31 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await both('visit-reschedule-requested', '[aria-label="Your visit"]')
     expect((await h.state()).enquiries.filter((e: any) => e.visitId === visit.id)).toHaveLength(1)
     expect((await h.state()).visits.find((v: any) => v.id === visit.id).startAt).toBe(visit.startAt)
-    await page.goto(`${origin}/app#jobs/${visitJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${visitJob.id}`)
     await expect(page.locator('.job-detail')).toContainText('Customer asked to reschedule; existing booking unchanged')
     await both('desk-reschedule-request', `[aria-label="Customer response for ${visit.local.date} ${visit.local.start}"]`)
     const later = new Date(Date.parse(`${date}T00:00:00Z`) + 2 * 86400000).toISOString().slice(0, 10)
     const second = await h.command('visit.book', { jobId: visitJob.id, technicianId: b.tom.id, date: later, start: '11:00', end: '12:00' })
     await h.command('visit.replyLink', { visitId: second.id, version: second.version })
     const confirmToken = /#token=(glv_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
-    await page.goto(`${origin}/visit#token=${confirmToken}`)
+    await gotoHarness(page, `${origin}/visit#token=${confirmToken}`)
     await page.getByRole('button', { name: 'Confirm this visit', exact: true }).click()
     await expect(page.getByRole('status')).toContainText('Your confirmation is recorded.')
     await both('visit-confirmed', '[aria-label="Your visit"]')
     const report = (await h.state()).serviceReports.find((r: any) => r.jobId === inv.jobId)
     expect(report).toBeTruthy()
-    await page.goto(`${origin}/app#jobs/${inv.jobId}`)
+    await gotoHarness(page, `${origin}/app#jobs/${inv.jobId}`)
     await send(page.getByRole('button', { name: 'Email report link', exact: true }))
     await expect(page.getByRole('region', { name: 'Email service report', exact: true })).toContainText('Accepted by SendGrid')
     await both('desk-report-emailed', '[aria-label="Service reports"]')
     const reportToken = /#token=(glr_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
-    await page.goto(`${origin}/report#token=${reportToken}`)
+    await gotoHarness(page, `${origin}/report#token=${reportToken}`)
     await expect(page.getByRole('region', { name: 'Work summary', exact: true })).toBeVisible()
     await both('received-report', '[aria-label="Service report"]')
     const policy = (await h.state()).business[0]
     await h.command('reminder.configure', { version: policy.version, ...policy.messageAutomation, enabled: true, approved: true, quoteCallDays: [1] })
     await h.scheduled(`${date}T10:00:00Z`)
-    await page.goto(`${origin}/app#quotes`)
+    await gotoHarness(page, `${origin}/app#quotes`)
     await page.getByRole('button', { name: `${q.number} · Heater repair`, exact: true }).click()
     await expect(page.getByRole('region', { name: `Call tasks for ${q.number}`, exact: true })).toContainText('Waiting for a person to call')
     await both('quote-call-task', `[aria-label="Call tasks for ${q.number}"]`)
@@ -187,21 +187,21 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await h.command('quote.decline', { quoteId: q.id, version: (await h.state()).quotes.find((r: any) => r.id === q.id).version, revision: 1, method: 'phone', customerName: 'Customer', reason: 'Declined' })
     for (const width of [1440]) {
       await page.setViewportSize({ width, height: 1050 })
-      await page.goto(`${origin}/app#invoices/${inv.id}`)
+      await gotoHarness(page, `${origin}/app#invoices/${inv.id}`)
       await expect(page.getByRole('region', { name: `Email ${inv.number}`, exact: true })).toContainText('Stopped: invoice disputed')
       await capture(width, 'invoice-stopped', `[aria-label="Email ${inv.number}"]`)
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await page.getByRole('button', { name: `${q.number} · Heater repair`, exact: true }).click()
       await expect(page.getByRole('region', { name: `Email ${q.number}`, exact: true })).toContainText('Stopped: customer answered')
       await capture(width, 'quote-stopped', `[aria-label="Email ${q.number}"]`)
-      await page.goto(`${origin}/app#reports`)
+      await gotoHarness(page, `${origin}/app#reports`)
       await page.getByLabel('Aging as of', { exact: true }).fill(date)
       await expect(page.getByRole('region', { name: 'Receivables aging', exact: true })).toContainText('Stopped: invoice disputed')
       await capture(width, 'aging-stopped', '[aria-labelledby="aging-title"]')
     }
     const followupMail = h.email.sent.find((m: any) => m.body.content[0].value.includes('/email-preferences#token='))
     const stopToken = /#token=(gle_[A-Za-z0-9_-]{43})/.exec(followupMail.body.content[0].value)![1]
-    const preferencePage = await page.goto(`${origin}/email-preferences#token=${stopToken}`)
+    const preferencePage = await gotoHarness(page, `${origin}/email-preferences#token=${stopToken}`)
     expect(await preferencePage!.text()).not.toContain('window is not defined')
     await expect(page.getByRole('button', { name: 'Stop quote follow-up emails', exact: true })).toBeVisible()
     await both('email-withdrawal-choice', '[aria-label="Email preferences"]')
@@ -216,7 +216,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     const secondCurrent = (await h.state()).invoices.find((i: any) => i.id === secondPaid.id)
     await h.command('payment.record', { invoiceId: secondPaid.id, version: secondCurrent.version, amount: secondCurrent.revisions.at(-1).totals.total, method: 'cash', reference: 'synthetic-glove-902' })
     await page.setViewportSize({ width: 1440, height: 1050 })
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     const review = page.getByRole('region', { name: 'Review email', exact: true })
     await review.getByText('Edit review wording and period', { exact: true }).click()
     const reviewWording = 'Please share your service experience with our team.'
@@ -314,7 +314,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await both('review-period-and-outcome', '[aria-label="Review provider outcomes"]')
     await page.setViewportSize({ width: 1440, height: 1050 })
     const reviewToken = /#token=(gle_[A-Za-z0-9_-]{43})/.exec(h.email.sent.at(-1).body.content[0].value)![1]
-    await page.goto(`${origin}/email-preferences#token=${reviewToken}`)
+    await gotoHarness(page, `${origin}/email-preferences#token=${reviewToken}`)
     await expect(page.getByRole('button', { name: 'Stop review requests', exact: true })).toBeVisible()
     await both('review-withdrawal-choice', '[aria-label="Email preferences"]')
     await page.getByRole('button', { name: 'Stop review requests', exact: true }).click()
@@ -328,7 +328,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     await h.command('review.consent', { customerId: rateCustomer.id, version: rateCustomer.version, enabled: true, reference: 'Customer explicitly permitted review email' })
     h.email.status[rateCustomer.email] = 429
     await page.setViewportSize({ width: 1440, height: 1050 })
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     await review.getByLabel('Review customer', { exact: true }).selectOption(rateCustomer.id)
     await review.getByLabel('Completed and paid job', { exact: true }).selectOption(rateInvoice.jobId)
     await review.getByRole('checkbox', { name: `Send the saved uniform request to ${rateCustomer.email} for this job.` }).check()

@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -21,7 +21,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
     Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-browser-refund-charge', created: Date.parse(at) / 1000, status: 'succeeded', balance_transaction: { fee: 100 } } })
     expect((await paymentEvent(h, pi, 'payment_intent.succeeded', { at: Date.parse(at) / 1000 })).status).toBe(200)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    await page.goto(process.env.GLOVE_OPEN)
+    await gotoHarness(page, process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
@@ -35,7 +35,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
     await page.setViewportSize({ width: 1440, height: 1050 })
-    await page.goto(`${origin}/app#invoices/${invoice.id}`)
+    await gotoHarness(page, `${origin}/app#invoices/${invoice.id}`)
     const panel = page.getByRole('region', { name: 'Payments and balance', exact: true })
     const send = async (name: string, within = panel) => {
       const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
@@ -75,7 +75,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
     const posts = () => h.stripePayments.calls.filter((c: any) => c.path === '/v1/refunds' && c.method === 'POST').length
     const count = posts()
     await restartHarness(h)
-    await page.reload()
+    await reloadHarness(page)
     await expect(pendingRow).toContainText('pending')
     await expect(panel).toContainText('Amount due $0.00')
     h.stripePayments.refunds.get(pending.providerReference).status = 'succeeded'
@@ -100,7 +100,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
     await expect(panel).toContainText('Amount due $20.00')
     const retained = (await h.state()).payments
     await restartHarness(h)
-    await page.reload()
+    await reloadHarness(page)
     await expect(panel).toContainText('Outcome unknown. Inspect Stripe; do not send another refund.')
     await expect(failedRow).toContainText('failed')
     await expect(pendingRow).toContainText('paid')
@@ -113,7 +113,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
     expect(audit.activity.find((e: any) => e.kind === 'refund.requested').actorName).toBe('Olivia Owner')
     expect(JSON.stringify(audit)).not.toMatch(/checkout\.stripe\.com|stripe-signature|Bearer synthetic/)
     as = b.office.cookie
-    await page.reload()
+    await reloadHarness(page)
     await expect(panel.getByRole('button', { name: 'Refund through original method', exact: true })).toHaveCount(0)
     await expect(panel.getByRole('button', { name: 'Refresh refund status', exact: true })).toHaveCount(0)
   } finally {

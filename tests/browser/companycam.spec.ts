@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { readFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -49,16 +49,16 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('A private owner entry from rer dev is required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
       catch { throw new Error('Owner entry failed; obtain a fresh entry privately.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await productionApi(page, h)
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const connect = page.getByRole('heading', { name: 'CompanyCam', exact: true }).locator('..')
       await connect.getByLabel('CompanyCam access token', { exact: true }).fill('fixture-only-companycam-key')
       await send(page, connect.getByRole('button', { name: 'Save CompanyCam token', exact: true }))
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await connect.scrollIntoViewIfNeeded(); await shot(page, width, 'settings') }
-      await page.goto(`${origin}/app#jobs/${work.job.id}`)
+      await gotoHarness(page, `${origin}/app#jobs/${work.job.id}`)
       const panel = page.getByRole('region', { name: 'CompanyCam photos', exact: true })
       await panel.getByLabel('CompanyCam project ID', { exact: true }).fill('43')
       const mismatch = await send(page, panel.getByRole('button', { name: 'Link CompanyCam project', exact: true }), false)
@@ -105,12 +105,12 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       const repeat = await send(page, panel.getByRole('button', { name: 'Import CompanyCam photos', exact: true }))
       expect(repeat.result.imported).toEqual([])
       expect(repeat.result.errors).toEqual(expectedErrors.map(([photoId, message]) => ({ photoId, message })))
-      await page.reload()
+      await reloadHarness(page)
       await assertErrors()
       // Finish the reload's image and API requests before disposing their Worker.
       await page.waitForLoadState('networkidle')
       await restartHarness(h)
-      await page.reload()
+      await reloadHarness(page)
       await assertErrors()
       expect((await h.state()).captures.filter((c: any) => c.origin?.system === 'CompanyCam').sort((a: any, b: any) => a.origin.photoId.localeCompare(b.origin.photoId))).toEqual(providerCaptures)
       const restartedExport = await h.request('/api/glove/export').then((r: Response) => r.json())
@@ -147,7 +147,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       const reference = (await h.state()).events.find((e: any) => e.kind === 'companycam.uploadOutcome' && e.summary.includes('complete'))
       expect(reference.actorName).toBe('CompanyCam')
       for (let i = 0; i < 510; i++) await h.command('customer.save', { name: `Activity history customer ${i}` })
-      await page.goto(`${origin}/app#activity`)
+      await gotoHarness(page, `${origin}/app#activity`)
       const historical = page.locator('.timeline-list > li').filter({ hasText: reference.summary })
       await expect(historical).toHaveCount(0)
       await page.getByRole('button', { name: 'Load earlier activity', exact: true }).click()

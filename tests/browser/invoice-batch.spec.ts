@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -24,14 +24,14 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the
       const unpriced = await completedJob(h, b, '2026-10-20')
       await b.priyaPerson.run('visit.capture', { visitId: unpriced.visit.id, kind: 'material', description: 'Uncatalogued valve', quantity: '1', deviceTime: '2026-10-20T23:01:00Z' })
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#invoices`)
+      await gotoHarness(page, `${origin}/app#invoices`)
       const batch = page.getByRole('form', { name: 'Prepare invoices together' })
       await expect(batch.getByRole('button', { name: 'Prepare 0 draft invoices', exact: true })).toBeDisabled()
       for (const work of [...jobs, unpriced]) await batch.getByRole('checkbox', { name: new RegExp(work.job.number) }).check()
@@ -54,7 +54,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the
       for (const [index, invoice] of invoices.entries()) {
         if (index === 0) await batch.getByRole('link', { name: invoice.number, exact: true }).click()
         else {
-          await page.goto(`${origin}/app#invoices`)
+          await gotoHarness(page, `${origin}/app#invoices`)
           await page.getByRole('button', { name: invoice.number, exact: true }).click()
         }
         const heading = page.getByRole('heading', { name: `${invoice.number} · Harbourview Dental`, exact: true })
@@ -62,14 +62,14 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the
         await expect(page.getByRole('button', { name: /Approve revision 1/ })).toBeVisible()
         await screen(page, width, `review-${invoice.number}`, heading)
       }
-      await page.reload()
+      await reloadHarness(page)
       expect((await h.state()).invoices).toHaveLength(3)
       await page.getByRole('button', { name: invoices.at(-1).number, exact: true }).click()
       await screen(page, width, 'retained', page.getByRole('heading', { name: `${invoices.at(-1).number} · Harbourview Dental`, exact: true }))
       const invoice = await b.office.run('invoice.approve', { invoiceId: invoices[0].id, version: invoices[0].version, revision: 1 })
       await b.office.run('payment.record', { invoiceId: invoice.id, version: invoice.version, method: 'check', amount: '50.00', reference: 'synthetic-glove-browser-1' })
       await h.scheduled('2026-11-01T10:00:00Z')
-      await page.goto(`${origin}/app#customers/${b.customer.id}`)
+      await gotoHarness(page, `${origin}/app#customers/${b.customer.id}`)
       const statement = page.getByRole('button', { name: 'Download customer statement', exact: true })
       await expect(statement).toBeVisible()
       await statement.focus()
@@ -83,7 +83,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the
       expect(csv).toContain('50.00')
       expect(csv).toContain('157.90')
       expect(csv).not.toContain(invoices[1].number)
-      await page.goto(`${origin}/app#activity`)
+      await gotoHarness(page, `${origin}/app#activity`)
       const notice = page.getByText(/Office reminder: .* is completed and awaits invoice preparation or approval/).first()
       await expect(notice).toBeVisible()
       await screen(page, width, 'office-reminder', notice)
@@ -94,7 +94,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the
 
 async function ownerEntry(page: Page) {
   if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-  await page.goto(process.env.GLOVE_OPEN)
+  await gotoHarness(page, process.env.GLOVE_OPEN)
   await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
   if (new URL(page.url()).pathname === '/setup') {
     await page.getByRole('checkbox').check()
@@ -114,7 +114,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 off
         const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#invoices`)
+      await gotoHarness(page, `${origin}/app#invoices`)
       let form = page.getByRole('form', { name: 'Prepare progress invoice' })
       await form.getByLabel('Progress job', { exact: true }).selectOption(work.job.id)
       await form.getByLabel('Stage name', { exact: true }).fill('Rough in')
@@ -135,7 +135,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 off
       await action(page, page.getByRole('button', { name: 'Export 1 approved', exact: true }))
       await expect.poll(async () => (await h.state()).invoices.find((i: any) => i.id === first.id).status).toBe('exported')
       expect((await h.state()).jobs.find((j: any) => j.id === work.job.id).status).toBe('completed')
-      await page.goto(`${origin}/app#invoices`)
+      await gotoHarness(page, `${origin}/app#invoices`)
       form = page.getByRole('form', { name: 'Prepare progress invoice' })
       await form.getByLabel('Progress job', { exact: true }).selectOption(work.job.id)
       await form.getByLabel('Stage name', { exact: true }).fill('Final commissioning')
@@ -175,13 +175,13 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 own
         }
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const technician = page.locator('.technician-row').filter({ has: page.getByText('Priya N.', { exact: true }) })
       await technician.getByRole('button', { name: 'Allow field invoices', exact: true }).click()
       await expect(technician.getByRole('button', { name: 'Withdraw field invoices', exact: true })).toBeVisible()
       await screen(page, width, 'field-owner-permission', technician)
       activeCookie = b.priyaPerson.cookie
-      await page.goto(`${origin}/app?job=${work.job.id}`)
+      await gotoHarness(page, `${origin}/app?job=${work.job.id}`)
       await expect(page.getByRole('heading', { name: `${work.job.number} · ${work.job.title}`, exact: true })).toBeVisible()
       const request = page.getByRole('button', { name: 'Request invoice draft', exact: true })
       await expect(request).toBeEnabled()
@@ -193,7 +193,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 own
       const queuedId = await page.evaluate(() => JSON.parse(localStorage.getItem('glove.outbox') || '[]')[0].commandId)
       expect((await h.state()).invoices).toHaveLength(0)
       await screen(page, width, 'field-offline-request', page.getByRole('heading', { name: 'Invoice', exact: true }))
-      await page.reload()
+      await reloadHarness(page)
       await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
       await expect(page.getByRole('button', { name: 'Invoice draft waiting to send', exact: true })).toBeDisabled()
       disconnected = false
@@ -207,7 +207,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 own
       expect(invoice.status).toBe('draft')
       await expect(page.getByRole('article', { name: `Approved invoice ${invoice.number}` })).toHaveCount(0)
       invoice = await b.office.run('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
-      await page.reload()
+      await reloadHarness(page)
       await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
       const presentation = page.getByRole('article', { name: `Approved invoice ${invoice.number}` })
       await expect(presentation).toContainText('Approved revision 1')
@@ -216,7 +216,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 own
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') || '')).toContain(invoice.number)
       disconnected = true
       await context.setOffline(true)
-      await page.reload()
+      await reloadHarness(page)
       await page.getByRole('button', { name: new RegExp(work.job.number) }).click()
       await expect(presentation).toContainText('Kept on this phone')
       await expect(presentation).toContainText('Approved revision 1')

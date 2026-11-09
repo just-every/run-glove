@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -51,7 +51,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
   const step = (name: string, run: () => Promise<void>) => test.step(name, () => scenario({ diagnostic: (message: string) => info.annotations.push({ type: 'scenario', description: message }) }, name, run))
   try {
     if (!process.env.GLOVE_OPEN) throw new Error('A private owner entry from rer dev is required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
     catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
@@ -87,7 +87,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
     }
 
     await step('DISP-007 point 1: Owner names the two-person crew and Dispatcher books three install days alongside the subcontractor', async () => {
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const crews = page.getByRole('region', { name: 'Crews', exact: true })
       await crews.getByLabel('Crew name', { exact: true }).fill('Dental install')
       for (const member of [b.priya, b.tom]) await crews.getByLabel(member.name, { exact: true }).check()
@@ -97,7 +97,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       actions.push({ commandId: saved.commandId, kind: 'crew.saved', actor: owner, subjects: [crew.id] })
       await screen(page, 'team')
       acting = b.dispatcher.cookie
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       for (const date of dates) {
         await page.getByRole('button', { name: 'Book visit', exact: true }).first().click()
         const form = page.locator('form.book-form')
@@ -115,7 +115,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       original = (await h.state()).visits
       expect(bookings.map(g => g.visits.map((v: Row) => [v.technicianId, v.local.date]).sort())).toEqual(dates.map(date => [[b.priya.id, date], [b.tom.id, date]].sort()))
       // Reload through the real state door after the subcontractor's bookings.
-      await page.reload()
+      await reloadHarness(page)
     })
 
     await step('DISP-007 point 7: Day and week replace technician rows and member chips with one crew row and one chip per booking', async () => {
@@ -182,13 +182,13 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       await screen(page, 'month')
       await page.setViewportSize({ width: 390, height: 1050 })
       acting = h.owner()
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const crews = page.getByRole('region', { name: 'Crews', exact: true })
       await crews.scrollIntoViewIfNeeded()
       await expect(crews.getByText(crew.name, { exact: true })).toBeVisible()
       await screen(page, 'team')
       acting = b.dispatcher.cookie
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       await page.getByLabel('Day', { exact: true }).fill('2026-11-06')
       await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('crews')
       for (const name of ['Day', 'Week', 'Month']) {
@@ -216,7 +216,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       expect([activity.status, exported.status]).toEqual([200, 200])
       const events = (await activity.json()).events, archive = await exported.json()
       acting = h.owner()
-      await page.goto(`${origin}/app#activity`)
+      await gotoHarness(page, `${origin}/app#activity`)
       for (const action of actions) {
         const entries = events.filter((e: Row) => e.commandId === action.commandId && e.kind === action.kind)
         expect(entries.map((e: Row) => e.subjectId).sort()).toEqual(action.subjects.slice().sort())

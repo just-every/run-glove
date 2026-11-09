@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -24,7 +24,7 @@ test('PLAN-004 Office filters individual due visits and books through desk contr
     const page = await context.newPage()
     await page.clock.setFixedTime(new Date(at))
     if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
       await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
@@ -35,7 +35,7 @@ test('PLAN-004 Office filters individual due visits and books through desk contr
       const response = await h.request(url.pathname + url.search, { method: req.method(), as: office.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
-    await page.goto(`${origin}/app#dispatch`)
+    await gotoHarness(page, `${origin}/app#dispatch`)
     const panel = page.getByRole('region', { name: 'Due agreement visits', exact: true })
     const rows = panel.locator('ul.rows').first().locator(':scope > li')
     await expect(panel.getByRole('status')).toHaveText('6 included visits due in this range')

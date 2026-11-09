@@ -1,4 +1,4 @@
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -38,7 +38,7 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       // The page's API calls reach the harness installation that holds this journey's records.
       await harnessRoute(page, `${origin}/api/glove/**`, async route => {
@@ -47,7 +47,7 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
       // QUOTE-019: the Owner configures limits through the real Settings form.
-      await page.goto(origin + '/app#team')
+      await gotoHarness(page, origin + '/app#team')
       const limitLabels = ['Dispatcher', 'Office', 'Agent', 'Price preparer']
       const values = ['12.34', '20', '25', '33.33']
       for (const width of [1440, 390]) {
@@ -57,7 +57,7 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
         }
         await send(page, page.getByRole('button', { name: 'Save business', exact: true }))
         expect((await h.state()).business[0].discountLimits).toEqual({ dispatcher: '12.34', office: '20', agent: '25', ['custom:' + custom.id]: '33.33' })
-        await page.reload()
+        await reloadHarness(page)
         for (const [index, label] of limitLabels.entries()) {
           await expect(page.getByLabel(label + ' discount limit (%)', { exact: true })).toHaveValue(values[index])
         }
@@ -78,14 +78,14 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
       expect(refusal.error.code).toBe('INPUT')
       await expect(page.getByRole('alert')).toContainText('two decimal places')
       expect((await h.state()).business[0]).toEqual(beforeInvalid)
-      await page.reload()
+      await reloadHarness(page)
       // Blank removes the permission from the next command, then it can be set again.
       await page.getByLabel('Agent discount limit (%)', { exact: true }).fill('')
       await send(page, page.getByRole('button', { name: 'Save business', exact: true }))
       expect((await h.state()).business[0].discountLimits.agent).toBeUndefined()
       await page.getByLabel('Agent discount limit (%)', { exact: true }).fill('25')
       await send(page, page.getByRole('button', { name: 'Save business', exact: true }))
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await page.getByRole('button', { name: `${q.number} · Condenser swap`, exact: true }).click()
       await expect(page.locator('.page')).toContainText('-$50.00')
       await page.getByRole('button', { name: 'Revise price', exact: true }).click()
@@ -111,12 +111,12 @@ test('QUOTE-007, QUOTE-019 owner gives a document discount with a discount line 
       await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
       await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Condenser replaced', signoff: { absentReason: 'Customer at work' } })
       const inv = await h.command('invoice.prepare', { jobId: job.id })
-      await page.goto(`${origin}/app#invoices`)
+      await gotoHarness(page, `${origin}/app#invoices`)
       await page.getByRole('button', { name: inv.number, exact: true }).click()
       await expect(row).toBeVisible()
       await expect(page.locator('.page')).toContainText('$351.81')
       await screens(page, 'invoice-allocation', row)
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       await expect(page.getByLabel('Office discount limit (%)', { exact: true })).toHaveValue('20')
       await screens(page, 'role-limits', page.getByLabel('Office discount limit (%)', { exact: true }))
       await expect(page.locator('.page')).toContainText('First-time customer')
