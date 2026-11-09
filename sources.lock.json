@@ -5636,7 +5636,7 @@
       "executable": false
     },
     "tests/api/harness.mjs": {
-      "sha256": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+      "sha256": "79dd49bc5f48a62a4bb2d0c263c790d78dfc661da9831f3f089f0b66478364b6",
       "executable": false
     },
     "tests/api/instant-payouts.test.mjs": {
@@ -5660,7 +5660,7 @@
       "executable": false
     },
     "tests/api/message-outcomes.test.mjs": {
-      "sha256": "ac37806d1c4cc7373f41551519e6da28b556e8f5cfa493a62ac13b5f9fee058f",
+      "sha256": "57e6d2287b125b12ae1c8c5eaf5a3671d2159e9fc943dce9800cd7570375fd17",
       "executable": false
     },
     "tests/api/money.test.mjs": {

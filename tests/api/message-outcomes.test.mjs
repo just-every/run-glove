@@ -73,7 +73,7 @@ export async function messageOutcomes(t) {
         return postmarkCallback(message, connected.callbackPassword, { at, id: `synthetic-glove-event-${++eventIndex}`, details: status === 'delivered' ? { RecordType: 'Delivery' } : status === 'complained' ? { RecordType: 'SpamComplaint' } : { RecordType: 'Bounce', Type: status === 'bounced' ? 'HardBounce' : 'SoftBounce', Inactive: status === 'failed' } })
       } }
     }
-    const signer = snsEvents(edge.connection.sns, { days: 30 })
+    const signer = snsEvents(edge.connection.sns, { days: 30, at: start })
     h.email.certificates.set(signer.certUrl, signer.cert)
     return { event(message, status, at) {
       const type = { delivered: 'Delivery', bounced: 'Bounce', complained: 'Complaint', deferred: 'DeliveryDelay', failed: 'Bounce', rejected: 'Reject' }[status]
