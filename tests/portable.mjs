@@ -16,6 +16,7 @@ import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash, createHmac } from 'node:crypto'
 import { createServer } from 'node:http'
 import { createReadStream } from 'node:fs'
+import { Readable } from 'node:stream'
 import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
@@ -718,7 +719,7 @@ try {
       assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
       const service = await createPortability({ db, policy })
       const records = []
-      for await (const record of readArchive(createReadStream(archive))) records.push(record)
+      for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
       const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
       const attempt = await service.imports.create(records[0], 'owner')
       try {
