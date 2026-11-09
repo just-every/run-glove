@@ -1,0 +1,278 @@
+{
+  "blockers": [],
+  "branch": "cloud/sx-glove-c-f172",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/fixed-monthly-dates.test.mjs tests/api/fixed-monthly-reports.test.mjs",
+      "exit": 0,
+      "fail": 0,
+      "head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+      "log": "api.log",
+      "node": "22.20.0",
+      "pass": 2,
+      "tests": 2
+    },
+    {
+      "assertion_width": 1440,
+      "browser": "/usr/bin/chromium",
+      "command": "perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/revenue.spec.ts",
+      "exit": 0,
+      "fail": 0,
+      "head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+      "log": "browser.log",
+      "node": "22.20.0",
+      "pass": 1,
+      "proof_widths": [
+        1440,
+        390
+      ],
+      "tests": 1
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "relevant_source_unchanged": true
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log",
+      "relevant_source_unchanged": true
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses PLAN-013",
+      "exit": 0,
+      "log": "views-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+      "log": "views-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock then check",
+      "exit": 0,
+      "head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+      "log": "lock-check.json"
+    },
+    {
+      "baseline_total": 203,
+      "cap": 200,
+      "classification": "preexisting overage with one new focused registration; preserved protected journeys",
+      "command": "node tests/inventory.mjs --json",
+      "exit": 1,
+      "log": "test-inventory.json",
+      "total": 204
+    }
+  ],
+  "ci": {
+    "conclusion": null,
+    "discovered_at": "2026-11-09T01:08:32Z",
+    "event": "push",
+    "head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42543925199",
+    "observed_at": "2026-11-09T01:13:33Z",
+    "status": "in_progress",
+    "verify_run": 42543925199
+  },
+  "contract": {
+    "changed": false,
+    "claim_points": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "counts_after": {
+      "done": 24,
+      "missing": 29,
+      "partial": 210
+    },
+    "counts_before": {
+      "done": 24,
+      "missing": 29,
+      "partial": 210
+    },
+    "status_after": "partial",
+    "status_before": "partial"
+  },
+  "github_rest_calls": 3,
+  "handoff": "Local native proof qualified for guarded acceptance; Verify still in progress; no claim of green CI, scanning, publication or landing.",
+  "head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+  "landing": {
+    "main_equals_candidate": false,
+    "reason": "branch only; guarded lander owns publication scan, landing and exact-main Run site",
+    "run_site": null
+  },
+  "main_at_merge": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+  "probe_points": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "product_changes": [
+    "tests/api/fixed-monthly-dates.test.mjs",
+    "tests/browser/revenue.spec.ts",
+    "sources.lock.json"
+  ],
+  "product_head_pushed": true,
+  "product_pr": null,
+  "provider_boundary": "Only native invitation transport during setup; zero business-provider calls, payments, notices or customer messages from the tested monthly-date lifecycle.",
+  "publication_scan": {
+    "commit": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+    "complete": null,
+    "findings": null,
+    "historyScanned": null,
+    "reason": "cloud branch push delegates scan to guarded lander"
+  },
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "screenshots": [
+    {
+      "bytes": 199456,
+      "file": "screenshots/1440-margins-all-types.png",
+      "sha256": "5e227f4b1b44ea42bbbc6c4c3e5299b4cee6be9c2a3d3751d6ccf507e6e9337c"
+    },
+    {
+      "bytes": 195118,
+      "file": "screenshots/1440-margins-filtered.png",
+      "sha256": "b248525a5b06d9d525f29b70ae905f112df5589995c0bf1bac33a825913c614d"
+    },
+    {
+      "bytes": 384251,
+      "file": "screenshots/1440-monthly-invoice-late-2025-01-31.png",
+      "sha256": "bb516899c389b9f00a8ce0249d2c117188709c61b4934be0db9a750f7a59955f"
+    },
+    {
+      "bytes": 384488,
+      "file": "screenshots/1440-monthly-invoice-late-2025-02-28.png",
+      "sha256": "1e35b6af41d2a61d8504c4b8f6cbd05add76bced942f012723339b2a9314cf9d"
+    },
+    {
+      "bytes": 384886,
+      "file": "screenshots/1440-monthly-invoice-late-2025-03-31.png",
+      "sha256": "8022dba70481a05ba293f6d1053e9f246105c06ff61d6e3f81778c780bf63e6a"
+    },
+    {
+      "bytes": 383341,
+      "file": "screenshots/1440-monthly-invoice-pacific-2025-01-31.png",
+      "sha256": "f04b6d32b8ccde92224bbd8e8a50e33fc5b48014db7ecfd24a31324cca324ce7"
+    },
+    {
+      "bytes": 384152,
+      "file": "screenshots/1440-monthly-invoice-pacific-2025-02-28.png",
+      "sha256": "8b3ad2711f1413c4a2cc9afdf92db90bc1ae36ae811214a828228c539ddb3de4"
+    },
+    {
+      "bytes": 384122,
+      "file": "screenshots/1440-monthly-invoice-pacific-2025-03-31.png",
+      "sha256": "99cdd8b720438f80367b0220bccc0306f72e10df8d22cdf39422d0f2eb44aa6f"
+    },
+    {
+      "bytes": 431907,
+      "file": "screenshots/1440-monthly-revenue-late-approvals.png",
+      "sha256": "150c8cbd2ef7cf6e24695521cea148d3c401a0952958f73839ec6229ff44c59c"
+    },
+    {
+      "bytes": 454450,
+      "file": "screenshots/1440-monthly-tax-late-approvals.png",
+      "sha256": "660679b66f17ba655b4ff133750b329183654a9d160211b6f054caaf1ba2b35b"
+    },
+    {
+      "bytes": 117311,
+      "file": "screenshots/1440-revenue-approved-correction.png",
+      "sha256": "a90998f9cb1a533a0074b0b86f873a3020fe56e86877054a092e50753617aff7"
+    },
+    {
+      "bytes": 115606,
+      "file": "screenshots/1440-revenue-maintenance-filter.png",
+      "sha256": "f67cf19e69a0923b5330486c94b5330d9037fd9b977a2729599ec6556e5bb248"
+    },
+    {
+      "bytes": 118287,
+      "file": "screenshots/1440-revenue-next-month-empty.png",
+      "sha256": "1968893a993ad3952b45664d4814f832640e9e0ab34a23eae1c41b182d32a46f"
+    },
+    {
+      "bytes": 117071,
+      "file": "screenshots/1440-revenue-unapproved-correction.png",
+      "sha256": "4e19fb5f66f6bd263534a64f08debf884323a659f87d2ffbace0eabff24b25d2"
+    },
+    {
+      "bytes": 177971,
+      "file": "screenshots/390-margins-all-types.png",
+      "sha256": "de0094eb297f3eeb724dd750f0b4f0b1014617fe15e02a0fe6b5b429dcb8d288"
+    },
+    {
+      "bytes": 173971,
+      "file": "screenshots/390-margins-filtered.png",
+      "sha256": "fc9b06922b1fffb4cfbf9646ee56e47a412a398e28447a9e33038719bc76ad0f"
+    },
+    {
+      "bytes": 333391,
+      "file": "screenshots/390-monthly-invoice-late-2025-01-31.png",
+      "sha256": "aecb6a247ceaa12085ea5e5d13d4d9d89a5e6fa91f0785b6adf19c05a41ebe6f"
+    },
+    {
+      "bytes": 334108,
+      "file": "screenshots/390-monthly-invoice-late-2025-02-28.png",
+      "sha256": "f885a88a3b4cfec2058d9c5c18f535e2cac3f267d38b1effdd168ecabbff44dc"
+    },
+    {
+      "bytes": 333668,
+      "file": "screenshots/390-monthly-invoice-late-2025-03-31.png",
+      "sha256": "555039e844e7b34cd2ffa0b884926fda0e16bf7c2099c785ec0a1c2b797dc323"
+    },
+    {
+      "bytes": 332613,
+      "file": "screenshots/390-monthly-invoice-pacific-2025-01-31.png",
+      "sha256": "97a507265ee4e6416cec3442410c20c2f3b184678b44fa451f314e7f39513660"
+    },
+    {
+      "bytes": 333561,
+      "file": "screenshots/390-monthly-invoice-pacific-2025-02-28.png",
+      "sha256": "b93685e30b770fea67c2a2fbba168a64e4094fb472afd4ef14c9fdcf33f12473"
+    },
+    {
+      "bytes": 333503,
+      "file": "screenshots/390-monthly-invoice-pacific-2025-03-31.png",
+      "sha256": "a6ada65d42f967460b00b4938ffa64c4e605e429d7870ca882ffea4a70f97a0e"
+    },
+    {
+      "bytes": 407981,
+      "file": "screenshots/390-monthly-revenue-late-approvals.png",
+      "sha256": "e23b1adc4cd413999079ec837f10e30204bd33e95df350810dc1eee46d798a2f"
+    },
+    {
+      "bytes": 434836,
+      "file": "screenshots/390-monthly-tax-late-approvals.png",
+      "sha256": "245da33cca2cbb02fe0b833c56f50870d42493fa546d968a4e75328019f98588"
+    },
+    {
+      "bytes": 46253,
+      "file": "screenshots/390-revenue-approved-correction.png",
+      "sha256": "557d0e6a13f59efd33aba12df624b1e32edc2a42f3ce5a821ec652e8eb0ab64e"
+    },
+    {
+      "bytes": 49729,
+      "file": "screenshots/390-revenue-maintenance-filter.png",
+      "sha256": "c71c31712fb43781812096fab81a48bdb56a7be168f21fffffebb98ac2109ced"
+    },
+    {
+      "bytes": 53855,
+      "file": "screenshots/390-revenue-next-month-empty.png",
+      "sha256": "1e5581a5c60eb8a894feea1966909e25f0a49d2b2e8580616e33b27589359272"
+    },
+    {
+      "bytes": 46648,
+      "file": "screenshots/390-revenue-unapproved-correction.png",
+      "sha256": "8b0beac0530704d4dfe181fa255f7c59ec66668a7c309aab3847e526e86403da"
+    }
+  ],
+  "tag": "sx-glove-c-f172"
+}

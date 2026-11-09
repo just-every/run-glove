@@ -1,0 +1,27 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports and a legacy Worker upgrade
+ok 1 - PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports and a legacy Worker upgrade
+  ---
+  duration_ms: 14723.041689
+  type: 'test'
+  ...
+# PLAN-013 local month-end approval freezes exact dates and aging crosses every due-date boundary
+# PLAN-013 frozen issue dates survive every report, correction, replay, cron and Worker restart without collection
+# PLAN-013 pre-date monthly approvals retain their approval-date reports and downloads after a Worker upgrade
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+ok 2 - REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+  ---
+  duration_ms: 7361.665067
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 24396.1506

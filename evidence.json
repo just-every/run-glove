@@ -1,0 +1,274 @@
+{
+  "files": [
+    {
+      "blob": "a67a2520c71ba40060f82d91c579fab162a88597",
+      "bytes": 16057,
+      "path": "REPORT.md",
+      "sha256": "dade8c35b4b454fdc8b9b9bc7e97fcb07cb5ecbd89194a9030893f298596963d"
+    },
+    {
+      "blob": "4f552dade5e2e0529efc65810924290ffbdf3063",
+      "bytes": 1217,
+      "path": "api.log",
+      "sha256": "06df15b2d7f84754f101adfbf5d67918921a4680ec1023b5747453254d65bec0"
+    },
+    {
+      "blob": "bb1e3e15620191de395636ecaf229b5dec70c90c",
+      "bytes": 1685,
+      "path": "browser.log",
+      "sha256": "6bd21d84e36a16ebb273070183831bd5722c7717c10076c81016fda39c364855"
+    },
+    {
+      "blob": "452a248b878e871a012752d0816a9f0755703c65",
+      "bytes": 223,
+      "path": "candidate-ci-discovery.json",
+      "sha256": "1f2c5cc030231589e462f07f4cafb62ee63d2305379f6968aa1714a04cc5c2b2"
+    },
+    {
+      "blob": "2cf8c2daf450de139dd3c77f740e61765acc17e4",
+      "bytes": 175,
+      "path": "candidate-ci-observation.json",
+      "sha256": "73c04602bd4d9bb8d56fb98cb3dffb2ad52b937275b69a5dcc78270b98c14dfe"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "407e3fd27653ea0119efa64b4bb58a10dc37f0f5",
+      "bytes": 261994,
+      "path": "lock-check.json",
+      "sha256": "56b4569c7d6843771e30becf85c0be1dd06a69ebebcc3d63c9ddeb4d8338b40e"
+    },
+    {
+      "blob": "e296841a1efa50b721c58c9497ca276955d1eda5",
+      "bytes": 1143,
+      "path": "main-ci.json",
+      "sha256": "4f1f5d506e7781aba14b761ee1963812791cbc8d20f212192ba57bd20637ab47"
+    },
+    {
+      "blob": "2d3ab95c914bb9bcc89a0225ef2fe736143bb69d",
+      "bytes": 7010,
+      "path": "packet-files.json",
+      "sha256": "e687038c79455ffca5582f9a56ba94dce6b7f9284353f9dc05f4f67260551f8d"
+    },
+    {
+      "blob": "39b6659b29fcfb9f79bf1b54e517c4f6a2116d1c",
+      "bytes": 712,
+      "path": "push-receipt.log",
+      "sha256": "3bbf6a3e8cb1fc98239e43511512cf126ed53fab114d71671c99589e19d96ea8"
+    },
+    {
+      "blob": "78260f012021ac21357f5d4232484bba8db91142",
+      "bytes": 9062,
+      "path": "receipt.json",
+      "sha256": "a360bba1f5e4d4c816efb66cf44ba335f96d12193f02071cbc9c5d237dd04f94"
+    },
+    {
+      "blob": "5142fba0a8f72fba4d97d773a5329b645c602e79",
+      "bytes": 199456,
+      "path": "screenshots/1440-margins-all-types.png",
+      "sha256": "5e227f4b1b44ea42bbbc6c4c3e5299b4cee6be9c2a3d3751d6ccf507e6e9337c"
+    },
+    {
+      "blob": "6afb11339595bf0725cfba2d065c189c8e403c84",
+      "bytes": 195118,
+      "path": "screenshots/1440-margins-filtered.png",
+      "sha256": "b248525a5b06d9d525f29b70ae905f112df5589995c0bf1bac33a825913c614d"
+    },
+    {
+      "blob": "c158a8793bf5ca5ff427daa04137d6b7cf549cb5",
+      "bytes": 384251,
+      "path": "screenshots/1440-monthly-invoice-late-2025-01-31.png",
+      "sha256": "bb516899c389b9f00a8ce0249d2c117188709c61b4934be0db9a750f7a59955f"
+    },
+    {
+      "blob": "b6ba0f2c1f79e5e808d5c66ec7aae68643880918",
+      "bytes": 384488,
+      "path": "screenshots/1440-monthly-invoice-late-2025-02-28.png",
+      "sha256": "1e35b6af41d2a61d8504c4b8f6cbd05add76bced942f012723339b2a9314cf9d"
+    },
+    {
+      "blob": "e4bd346bbbe0402ef6c1697603e042bdb1c04a4a",
+      "bytes": 384886,
+      "path": "screenshots/1440-monthly-invoice-late-2025-03-31.png",
+      "sha256": "8022dba70481a05ba293f6d1053e9f246105c06ff61d6e3f81778c780bf63e6a"
+    },
+    {
+      "blob": "0b128699a54a730ece9dd6aa02f46781191e5738",
+      "bytes": 383341,
+      "path": "screenshots/1440-monthly-invoice-pacific-2025-01-31.png",
+      "sha256": "f04b6d32b8ccde92224bbd8e8a50e33fc5b48014db7ecfd24a31324cca324ce7"
+    },
+    {
+      "blob": "c22eb9b6c8d34f1aa3bbc779ca17a9d3b6b729fd",
+      "bytes": 384152,
+      "path": "screenshots/1440-monthly-invoice-pacific-2025-02-28.png",
+      "sha256": "8b3ad2711f1413c4a2cc9afdf92db90bc1ae36ae811214a828228c539ddb3de4"
+    },
+    {
+      "blob": "e9e028f13e96cef47e151ac6874ad3d9335d2b58",
+      "bytes": 384122,
+      "path": "screenshots/1440-monthly-invoice-pacific-2025-03-31.png",
+      "sha256": "99cdd8b720438f80367b0220bccc0306f72e10df8d22cdf39422d0f2eb44aa6f"
+    },
+    {
+      "blob": "1134b7c698a1c835146434b003420cfc1c7e9e28",
+      "bytes": 431907,
+      "path": "screenshots/1440-monthly-revenue-late-approvals.png",
+      "sha256": "150c8cbd2ef7cf6e24695521cea148d3c401a0952958f73839ec6229ff44c59c"
+    },
+    {
+      "blob": "465e8e5128506e818eec80ef9f47b6b852468eb9",
+      "bytes": 454450,
+      "path": "screenshots/1440-monthly-tax-late-approvals.png",
+      "sha256": "660679b66f17ba655b4ff133750b329183654a9d160211b6f054caaf1ba2b35b"
+    },
+    {
+      "blob": "87e523d5577f3a86decccec21c8263d6241543d2",
+      "bytes": 117311,
+      "path": "screenshots/1440-revenue-approved-correction.png",
+      "sha256": "a90998f9cb1a533a0074b0b86f873a3020fe56e86877054a092e50753617aff7"
+    },
+    {
+      "blob": "a99a83ba94bc756d4e6379982a3311624e041ab9",
+      "bytes": 115606,
+      "path": "screenshots/1440-revenue-maintenance-filter.png",
+      "sha256": "f67cf19e69a0923b5330486c94b5330d9037fd9b977a2729599ec6556e5bb248"
+    },
+    {
+      "blob": "072a1b2bcf81177807bf1bc5a906758d594468e7",
+      "bytes": 118287,
+      "path": "screenshots/1440-revenue-next-month-empty.png",
+      "sha256": "1968893a993ad3952b45664d4814f832640e9e0ab34a23eae1c41b182d32a46f"
+    },
+    {
+      "blob": "d0c2c813b4923659ad714d5623d648e1a3d5c852",
+      "bytes": 117071,
+      "path": "screenshots/1440-revenue-unapproved-correction.png",
+      "sha256": "4e19fb5f66f6bd263534a64f08debf884323a659f87d2ffbace0eabff24b25d2"
+    },
+    {
+      "blob": "f844f1ad8e6a0935029b424afbdd313c13ee98d2",
+      "bytes": 177971,
+      "path": "screenshots/390-margins-all-types.png",
+      "sha256": "de0094eb297f3eeb724dd750f0b4f0b1014617fe15e02a0fe6b5b429dcb8d288"
+    },
+    {
+      "blob": "21c0aa6f4160eacfa1f192902eaae100b590edbb",
+      "bytes": 173971,
+      "path": "screenshots/390-margins-filtered.png",
+      "sha256": "fc9b06922b1fffb4cfbf9646ee56e47a412a398e28447a9e33038719bc76ad0f"
+    },
+    {
+      "blob": "23bee3550883883d250b88c479605ef4ed25d4ce",
+      "bytes": 333391,
+      "path": "screenshots/390-monthly-invoice-late-2025-01-31.png",
+      "sha256": "aecb6a247ceaa12085ea5e5d13d4d9d89a5e6fa91f0785b6adf19c05a41ebe6f"
+    },
+    {
+      "blob": "4e7a062af81401871a0e6b0dec621bf9951cd605",
+      "bytes": 334108,
+      "path": "screenshots/390-monthly-invoice-late-2025-02-28.png",
+      "sha256": "f885a88a3b4cfec2058d9c5c18f535e2cac3f267d38b1effdd168ecabbff44dc"
+    },
+    {
+      "blob": "e1acd8df33fe4b58fa4712606d434e2d2e9989d3",
+      "bytes": 333668,
+      "path": "screenshots/390-monthly-invoice-late-2025-03-31.png",
+      "sha256": "555039e844e7b34cd2ffa0b884926fda0e16bf7c2099c785ec0a1c2b797dc323"
+    },
+    {
+      "blob": "68ae049ca4a4b86b33b7d5986b879f39be800163",
+      "bytes": 332613,
+      "path": "screenshots/390-monthly-invoice-pacific-2025-01-31.png",
+      "sha256": "97a507265ee4e6416cec3442410c20c2f3b184678b44fa451f314e7f39513660"
+    },
+    {
+      "blob": "f244580e9e04418d7207556a774449dec4c94e10",
+      "bytes": 333561,
+      "path": "screenshots/390-monthly-invoice-pacific-2025-02-28.png",
+      "sha256": "b93685e30b770fea67c2a2fbba168a64e4094fb472afd4ef14c9fdcf33f12473"
+    },
+    {
+      "blob": "8b343c707393fa189fe3547a227191d6f7d25aa0",
+      "bytes": 333503,
+      "path": "screenshots/390-monthly-invoice-pacific-2025-03-31.png",
+      "sha256": "a6ada65d42f967460b00b4938ffa64c4e605e429d7870ca882ffea4a70f97a0e"
+    },
+    {
+      "blob": "956d13db6f5a624e0f5b7805631ba610bdca1bb6",
+      "bytes": 407981,
+      "path": "screenshots/390-monthly-revenue-late-approvals.png",
+      "sha256": "e23b1adc4cd413999079ec837f10e30204bd33e95df350810dc1eee46d798a2f"
+    },
+    {
+      "blob": "641becaf7fd64b3f9736eca1530f9255d473bd0f",
+      "bytes": 434836,
+      "path": "screenshots/390-monthly-tax-late-approvals.png",
+      "sha256": "245da33cca2cbb02fe0b833c56f50870d42493fa546d968a4e75328019f98588"
+    },
+    {
+      "blob": "cd099bb91215c57101903ee03b98a3734e41281f",
+      "bytes": 46253,
+      "path": "screenshots/390-revenue-approved-correction.png",
+      "sha256": "557d0e6a13f59efd33aba12df624b1e32edc2a42f3ce5a821ec652e8eb0ab64e"
+    },
+    {
+      "blob": "7a0e1f2c64a643972a5f58ea8c6733d647068aa4",
+      "bytes": 49729,
+      "path": "screenshots/390-revenue-maintenance-filter.png",
+      "sha256": "c71c31712fb43781812096fab81a48bdb56a7be168f21fffffebb98ac2109ced"
+    },
+    {
+      "blob": "6509448818425ba6b64cb4b74fa00df148744c04",
+      "bytes": 53855,
+      "path": "screenshots/390-revenue-next-month-empty.png",
+      "sha256": "1e5581a5c60eb8a894feea1966909e25f0a49d2b2e8580616e33b27589359272"
+    },
+    {
+      "blob": "0212972f7b88f68149de4d4fb67e40719bb8481b",
+      "bytes": 46648,
+      "path": "screenshots/390-revenue-unapproved-correction.png",
+      "sha256": "8b0beac0530704d4dfe181fa255f7c59ec66668a7c309aab3847e526e86403da"
+    },
+    {
+      "blob": "acf885777432d4e6d84d8a685cf02bcc69f5f187",
+      "bytes": 1065,
+      "path": "source-receipt.json",
+      "sha256": "e9ba1d5616aab8f4ff41462b7839655bd0e5769dee2e5d74d5858189fc5fed97"
+    },
+    {
+      "blob": "ee17b249407070de4b037e51a3a41138b479f301",
+      "bytes": 7572,
+      "path": "test-inventory.json",
+      "sha256": "c8ed3b7f7ea14731c2561b5afbb790e90602ce68ed8649e05289353efc5b37c7"
+    },
+    {
+      "blob": "55b173d00c160f079952e67342b676858cc0b8ea",
+      "bytes": 212,
+      "path": "typecheck.log",
+      "sha256": "29c79839fab7ba710cd12e1b617eb89b8a0f5ecb0958d084150480d9a5552986"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "58dd21c218846e90dd798f1845377f7422e45cac",
+      "bytes": 28,
+      "path": "views-write.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f172",
+  "product_head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+  "ref": "refs/heads/evidence/sx-glove-c-f172",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f172"
+}

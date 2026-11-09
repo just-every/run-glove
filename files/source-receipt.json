@@ -1,0 +1,30 @@
+{
+  "head": "5279e022c322a9fcac68ca3bc2fa92f8619950d1",
+  "branch": "cloud/sx-glove-c-f172",
+  "files": {
+    "tests/api/fixed-monthly-dates.test.mjs": {
+      "sha256": "3291c0fe188d00821471e9946ef17074b8c11ec2ffd1a07cae09144f775f0709",
+      "matches_committed": true
+    },
+    "tests/browser/revenue.spec.ts": {
+      "sha256": "9e4ae271805f2fe0185fb102c450be6dbaeda714a9c4703ecda55eaf410e3e7c",
+      "matches_committed": true
+    },
+    "tests/api/harness.mjs": {
+      "sha256": "01a55648da59d36280f1bbc57baaf031800c5ed2a66973ebf0e9ef431d84fb1b",
+      "matches_committed": true
+    },
+    "tests/api/fixed-monthly-reports.test.mjs": {
+      "sha256": "10c18eaff559e10a3ad99fee8a351c067a8db8379991b8cf7adaef3b0d313718",
+      "matches_committed": true
+    },
+    "CONTRACT.md": {
+      "sha256": "15d8fab0183fe2cab29a1798ff40db6b1eb1f02b33e1f0b29b2628a3dd951c0a",
+      "matches_committed": true
+    },
+    "sources.lock.json": {
+      "sha256": "37e2816f704df3df070505d2e2ee962d459cab4d1e4ff01f4ef1e57e9725a571",
+      "matches_committed": true
+    }
+  }
+}

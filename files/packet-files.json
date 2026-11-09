@@ -1,0 +1,217 @@
+[
+  {
+    "file": "REPORT.md",
+    "bytes": 16057,
+    "sha256": "dade8c35b4b454fdc8b9b9bc7e97fcb07cb5ecbd89194a9030893f298596963d"
+  },
+  {
+    "file": "receipt.json",
+    "bytes": 9062,
+    "sha256": "a360bba1f5e4d4c816efb66cf44ba335f96d12193f02071cbc9c5d237dd04f94"
+  },
+  {
+    "file": "source-receipt.json",
+    "bytes": 1065,
+    "sha256": "e9ba1d5616aab8f4ff41462b7839655bd0e5769dee2e5d74d5858189fc5fed97"
+  },
+  {
+    "file": "main-ci.json",
+    "bytes": 1143,
+    "sha256": "4f1f5d506e7781aba14b761ee1963812791cbc8d20f212192ba57bd20637ab47"
+  },
+  {
+    "file": "candidate-ci-discovery.json",
+    "bytes": 223,
+    "sha256": "1f2c5cc030231589e462f07f4cafb62ee63d2305379f6968aa1714a04cc5c2b2"
+  },
+  {
+    "file": "api.log",
+    "bytes": 1217,
+    "sha256": "06df15b2d7f84754f101adfbf5d67918921a4680ec1023b5747453254d65bec0"
+  },
+  {
+    "file": "browser.log",
+    "bytes": 1685,
+    "sha256": "6bd21d84e36a16ebb273070183831bd5722c7717c10076c81016fda39c364855"
+  },
+  {
+    "file": "typecheck.log",
+    "bytes": 212,
+    "sha256": "29c79839fab7ba710cd12e1b617eb89b8a0f5ecb0958d084150480d9a5552986"
+  },
+  {
+    "file": "first-party.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "file": "views-write.log",
+    "bytes": 28,
+    "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+  },
+  {
+    "file": "views-check.log",
+    "bytes": 32,
+    "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+  },
+  {
+    "file": "lock-check.json",
+    "bytes": 261994,
+    "sha256": "56b4569c7d6843771e30becf85c0be1dd06a69ebebcc3d63c9ddeb4d8338b40e"
+  },
+  {
+    "file": "test-inventory.json",
+    "bytes": 7572,
+    "sha256": "c8ed3b7f7ea14731c2561b5afbb790e90602ce68ed8649e05289353efc5b37c7"
+  },
+  {
+    "file": "push-receipt.log",
+    "bytes": 712,
+    "sha256": "3bbf6a3e8cb1fc98239e43511512cf126ed53fab114d71671c99589e19d96ea8"
+  },
+  {
+    "file": "screenshots/1440-margins-all-types.png",
+    "bytes": 199456,
+    "sha256": "5e227f4b1b44ea42bbbc6c4c3e5299b4cee6be9c2a3d3751d6ccf507e6e9337c"
+  },
+  {
+    "file": "screenshots/1440-margins-filtered.png",
+    "bytes": 195118,
+    "sha256": "b248525a5b06d9d525f29b70ae905f112df5589995c0bf1bac33a825913c614d"
+  },
+  {
+    "file": "screenshots/1440-monthly-invoice-late-2025-01-31.png",
+    "bytes": 384251,
+    "sha256": "bb516899c389b9f00a8ce0249d2c117188709c61b4934be0db9a750f7a59955f"
+  },
+  {
+    "file": "screenshots/1440-monthly-invoice-late-2025-02-28.png",
+    "bytes": 384488,
+    "sha256": "1e35b6af41d2a61d8504c4b8f6cbd05add76bced942f012723339b2a9314cf9d"
+  },
+  {
+    "file": "screenshots/1440-monthly-invoice-late-2025-03-31.png",
+    "bytes": 384886,
+    "sha256": "8022dba70481a05ba293f6d1053e9f246105c06ff61d6e3f81778c780bf63e6a"
+  },
+  {
+    "file": "screenshots/1440-monthly-invoice-pacific-2025-01-31.png",
+    "bytes": 383341,
+    "sha256": "f04b6d32b8ccde92224bbd8e8a50e33fc5b48014db7ecfd24a31324cca324ce7"
+  },
+  {
+    "file": "screenshots/1440-monthly-invoice-pacific-2025-02-28.png",
+    "bytes": 384152,
+    "sha256": "8b3ad2711f1413c4a2cc9afdf92db90bc1ae36ae811214a828228c539ddb3de4"
+  },
+  {
+    "file": "screenshots/1440-monthly-invoice-pacific-2025-03-31.png",
+    "bytes": 384122,
+    "sha256": "99cdd8b720438f80367b0220bccc0306f72e10df8d22cdf39422d0f2eb44aa6f"
+  },
+  {
+    "file": "screenshots/1440-monthly-revenue-late-approvals.png",
+    "bytes": 431907,
+    "sha256": "150c8cbd2ef7cf6e24695521cea148d3c401a0952958f73839ec6229ff44c59c"
+  },
+  {
+    "file": "screenshots/1440-monthly-tax-late-approvals.png",
+    "bytes": 454450,
+    "sha256": "660679b66f17ba655b4ff133750b329183654a9d160211b6f054caaf1ba2b35b"
+  },
+  {
+    "file": "screenshots/1440-revenue-approved-correction.png",
+    "bytes": 117311,
+    "sha256": "a90998f9cb1a533a0074b0b86f873a3020fe56e86877054a092e50753617aff7"
+  },
+  {
+    "file": "screenshots/1440-revenue-maintenance-filter.png",
+    "bytes": 115606,
+    "sha256": "f67cf19e69a0923b5330486c94b5330d9037fd9b977a2729599ec6556e5bb248"
+  },
+  {
+    "file": "screenshots/1440-revenue-next-month-empty.png",
+    "bytes": 118287,
+    "sha256": "1968893a993ad3952b45664d4814f832640e9e0ab34a23eae1c41b182d32a46f"
+  },
+  {
+    "file": "screenshots/1440-revenue-unapproved-correction.png",
+    "bytes": 117071,
+    "sha256": "4e19fb5f66f6bd263534a64f08debf884323a659f87d2ffbace0eabff24b25d2"
+  },
+  {
+    "file": "screenshots/390-margins-all-types.png",
+    "bytes": 177971,
+    "sha256": "de0094eb297f3eeb724dd750f0b4f0b1014617fe15e02a0fe6b5b429dcb8d288"
+  },
+  {
+    "file": "screenshots/390-margins-filtered.png",
+    "bytes": 173971,
+    "sha256": "fc9b06922b1fffb4cfbf9646ee56e47a412a398e28447a9e33038719bc76ad0f"
+  },
+  {
+    "file": "screenshots/390-monthly-invoice-late-2025-01-31.png",
+    "bytes": 333391,
+    "sha256": "aecb6a247ceaa12085ea5e5d13d4d9d89a5e6fa91f0785b6adf19c05a41ebe6f"
+  },
+  {
+    "file": "screenshots/390-monthly-invoice-late-2025-02-28.png",
+    "bytes": 334108,
+    "sha256": "f885a88a3b4cfec2058d9c5c18f535e2cac3f267d38b1effdd168ecabbff44dc"
+  },
+  {
+    "file": "screenshots/390-monthly-invoice-late-2025-03-31.png",
+    "bytes": 333668,
+    "sha256": "555039e844e7b34cd2ffa0b884926fda0e16bf7c2099c785ec0a1c2b797dc323"
+  },
+  {
+    "file": "screenshots/390-monthly-invoice-pacific-2025-01-31.png",
+    "bytes": 332613,
+    "sha256": "97a507265ee4e6416cec3442410c20c2f3b184678b44fa451f314e7f39513660"
+  },
+  {
+    "file": "screenshots/390-monthly-invoice-pacific-2025-02-28.png",
+    "bytes": 333561,
+    "sha256": "b93685e30b770fea67c2a2fbba168a64e4094fb472afd4ef14c9fdcf33f12473"
+  },
+  {
+    "file": "screenshots/390-monthly-invoice-pacific-2025-03-31.png",
+    "bytes": 333503,
+    "sha256": "a6ada65d42f967460b00b4938ffa64c4e605e429d7870ca882ffea4a70f97a0e"
+  },
+  {
+    "file": "screenshots/390-monthly-revenue-late-approvals.png",
+    "bytes": 407981,
+    "sha256": "e23b1adc4cd413999079ec837f10e30204bd33e95df350810dc1eee46d798a2f"
+  },
+  {
+    "file": "screenshots/390-monthly-tax-late-approvals.png",
+    "bytes": 434836,
+    "sha256": "245da33cca2cbb02fe0b833c56f50870d42493fa546d968a4e75328019f98588"
+  },
+  {
+    "file": "screenshots/390-revenue-approved-correction.png",
+    "bytes": 46253,
+    "sha256": "557d0e6a13f59efd33aba12df624b1e32edc2a42f3ce5a821ec652e8eb0ab64e"
+  },
+  {
+    "file": "screenshots/390-revenue-maintenance-filter.png",
+    "bytes": 49729,
+    "sha256": "c71c31712fb43781812096fab81a48bdb56a7be168f21fffffebb98ac2109ced"
+  },
+  {
+    "file": "screenshots/390-revenue-next-month-empty.png",
+    "bytes": 53855,
+    "sha256": "1e5581a5c60eb8a894feea1966909e25f0a49d2b2e8580616e33b27589359272"
+  },
+  {
+    "file": "screenshots/390-revenue-unapproved-correction.png",
+    "bytes": 46648,
+    "sha256": "8b0beac0530704d4dfe181fa255f7c59ec66668a7c309aab3847e526e86403da"
+  },
+  {
+    "file": "candidate-ci-observation.json",
+    "bytes": 175,
+    "sha256": "73c04602bd4d9bb8d56fb98cb3dffb2ad52b937275b69a5dcc78270b98c14dfe"
+  }
+]
