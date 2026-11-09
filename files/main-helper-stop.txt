@@ -1,0 +1,1 @@
+Stopped redundant direct helper after more than ten minutes without reaching its first nested scenario. The full existing main email registration continues and remains the comparison proof; this helper is NOT a passing receipt.

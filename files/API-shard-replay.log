@@ -1,0 +1,841 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /workspace/glove-f216
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --test --test-concurrency=1 'tests/api/agreements.test.mjs' 'tests/api/assessments.test.mjs' 'tests/api/branch-authority.test.mjs' 'tests/api/calendar-delivery.test.mjs' 'tests/api/callbacks.test.mjs' 'tests/api/conversation.test.mjs' 'tests/api/crews.test.mjs' 'tests/api/customer-quotes.test.mjs' 'tests/api/delays.test.mjs' 'tests/api/document-presentation.test.mjs' 'tests/api/due-visit-list.test.mjs' 'tests/api/eligibility.test.mjs' 'tests/api/equipment.test.mjs' 'tests/api/fixed-monthly-dates.test.mjs' 'tests/api/flows.test.mjs' 'tests/api/grants.test.mjs' 'tests/api/lead-matching.test.mjs' 'tests/api/margins.test.mjs' 'tests/api/message-outcomes.test.mjs' 'tests/api/morning-brief.test.mjs' 'tests/api/nameplates.test.mjs' 'tests/api/payments.test.mjs' 'tests/api/payroll-files.test.mjs' 'tests/api/pipeline.test.mjs' 'tests/api/pricebook.test.mjs' 'tests/api/purchasing.test.mjs' 'tests/api/quickbooks.test.mjs' 'tests/api/quote-link-records.test.mjs' 'tests/api/recurring-billing.test.mjs' 'tests/api/reminders.test.mjs' 'tests/api/route-optimization.test.mjs' 'tests/api/rules.test.mjs' 'tests/api/security.test.mjs' 'tests/api/series.test.mjs' 'tests/api/servicecall.test.mjs' 'tests/api/ses-sns-custody.test.mjs' 'tests/api/subcontract.test.mjs' 'tests/api/suggest.test.mjs' 'tests/api/time.test.mjs' 'tests/api/travel-assignment.test.mjs'
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+ok 1 - PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+  ---
+  duration_ms: 92003.427294
+  type: 'test'
+  ...
+# PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented
+# PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term
+# PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits
+# PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue
+# PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out
+# Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart
+# PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: BOOK-006 assessment booking freezes selected forms and technician completion stays assessed after restart
+ok 2 - BOOK-006 assessment booking freezes selected forms and technician completion stays assessed after restart
+  ---
+  duration_ms: 77479.614307
+  type: 'test'
+  ...
+# BOOK-006 assessment booking freezes selected forms and technician completion stays assessed after restart
+# DISP-006 visits, service calls and assessments carry an arrival window separate from the planned time
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: TEAM-005 current branch authority fences every read, shared write, replay and commit across restart
+ok 3 - TEAM-005 current branch authority fences every read, shared write, replay and commit across restart
+  ---
+  duration_ms: 52497.909467
+  type: 'test'
+  ...
+# TEAM-005 point 1: only the unscoped Owner limits named and main branches and removes limits with exact versions and attributable facts
+# TEAM-005 point 2: the installation owner cannot be limited by either Owner and retains every branch while another Owner is scoped
+# TEAM-005 point 3: independent main and branch records are fenced at every read door and live authority governs replay, rules and the commit guard
+# TEAM-005 point 3: approved payroll and completed contractor work stay scoped in every report format
+# TEAM-005 point 4: shared references remain readable and immutable while cross-branch operational edits answer NOT_FOUND
+# TEAM-005 point 5: scoped operational creations inherit their branch and matching numbers and survive actual Worker restart and replay
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: tests/api/calendar-delivery.test.mjs
+ok 4 - tests/api/calendar-delivery.test.mjs
+  ---
+  duration_ms: 2289.610837
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings
+ok 5 - AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings
+  ---
+  duration_ms: 5963.961164
+  type: 'test'
+  ...
+# AGENT-006 the callback is detected and the agent gathers both earlier visits
+# AGENT-006 the prepared checklist cites both visits' readings, resolved from the records, and is labelled advisory
+# AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job
+ok 6 - COMM-007 a logged call, a logged note, today's real sends and agent actions read in order from the customer and the job
+  ---
+  duration_ms: 27893.984097
+  type: 'test'
+  ...
+# COMM-007 the desk logs calls and notes, refuses field and agent logs, and reads ordered customer and job streams with direction, channel, author and delivery
+# COMM-007 / CUST-001 the property history carries the same messages at its site, newest first, and not the customer-level voicemail; field roles read none
+# COMM-007 only the desk reads the stream, and the logged call and note are in Activity and the business export
+# COMM-007 two populated human histories survive merge and Worker restart; current role and branch refusals change nothing
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart
+ok 7 - DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart
+  ---
+  duration_ms: 43661.174573
+  type: 'test'
+  ...
+# point 1: three-day install isolates every signed-in member and totals only completed agreed work
+# PROBE DISP-007 1: state and filing report doors -> exactly three own visits each; completed total 750.25 with all CSV columns
+# point 2: independently enumerated single, crew and subcontractor visits span months and survive Worker restart
+# PROBE DISP-007 2: six bookings on one job across October and November -> eight exact member visits retained after actual restart
+# point 3: Owner alone saves distinct active same-branch crews; later edits leave earlier booking snapshots intact
+# PROBE DISP-007 3: saves refuse excluded actors and invalid rosters unchanged; two and ten commit; booked snapshot survives rename, move and cancellation
+# point 4: one review includes both members and partial acknowledgement or replay creates no extra visit
+# PROBE DISP-007 4: book with two overlaps -> both conflicts; partial ack no writes; full ack exactly two visits; replay unchanged
+# point 5: any open member moves the group after one review; completed and canceled visits and stale attempts stay unchanged
+# PROBE DISP-007 5: moves from both open members follow reviewed times; completed member frozen; technician swap, stale and canceled moves refused unchanged
+# point 6: cancellation acts on all members and each kind of recorded evidence refuses the whole group
+# PROBE DISP-007 6: whole group canceled; arrival, note and photo on one member each refuse cancellation and preserve visits, captures and events
+# point 7: Activity and business export attribute crew saves, bookings, moves and cancellations to real people
+# PROBE DISP-007 7: Activity and export -> actual Owner crew saves and Dispatcher member bookings, moves and cancellations
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy
+ok 8 - QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy
+  ---
+  duration_ms: 98018.990881
+  type: 'test'
+  ...
+# QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 / COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner accepts concrete disclosure, the customer chooses the middle option and one add-on, requests a revision and signs its immutable exact copy
+# drawn: 688876 bytes in 2 chunks; 4 embedded originals and the submitted signature match exactly
+# typed: 688469 bytes in 2 chunks; 4 embedded originals and the submitted signature match exactly
+# Both read doors retain exact manifests and bytes after two Worker restarts and later edits; unauthorized reads and the single damaged chunk are refused
+# QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 revision-scoped customer links show customer descriptions, take changes and declines, expire into one office update request, and never bypass the consent gate
+# QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013 concrete disclosure changes and disablement close stale signatures; typed signing competes atomically with a staff answer and never emails twice
+# QUOTE-003, QUOTE-014 frozen signed deposit stays owner-only, is held on the exact job, allocates to its final invoice and refunds through the original card
+# QUOTE-003, QUOTE-014 an original-method refund made while a deposit is job-held follows it into the final invoice once
+# Subtest: PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate
+ok 9 - PAY-006, PAY-024 customer explicitly applies for a $9,800 chosen quote; Wisetack alone approves and funds its exact signed job and original-method refunds remain separate
+  ---
+  duration_ms: 5891.851656
+  type: 'test'
+  ...
+# Subtest: COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations
+ok 10 - COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner hub preview isolates one customer and excludes drafts, access notes, payment credentials and internal conversations
+  ---
+  duration_ms: 18032.372224
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves
+ok 11 - AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves
+  ---
+  duration_ms: 15875.240434
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: QUOTE-015 document presentation preserves scoped originals, calendar facts and honest states after Worker restart
+ok 12 - QUOTE-015 document presentation preserves scoped originals, calendar facts and honest states after Worker restart
+  ---
+  duration_ms: 14521.826544
+  type: 'test'
+  ...
+# point 1: current desk roles, branches, revisions and scoped original bytes
+# point 2: stored calendar dates, phone inputs, legacy addresses and frozen validity zone
+# point 3: complete printable projections for open, expired, decided, completed and desk documents
+# point 4: unsigned disclosure, refusal and recorded statuses never invent signing or delivery
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters
+ok 13 - PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters
+  ---
+  duration_ms: 28319.527564
+  type: 'test'
+  ...
+# PLAN-004 point 1: forty due visits retain the exact remainder after thirty bookings, eight emailed offers, two declines and Worker restart
+# PLAN-004 point 2: every due entry retains its agreement, ordinal, clamped calendar date, customer, site, ZIP, job and booking state
+# PLAN-004 point 3: local today differs from UTC and date bounds and ZIP filters are exact and inclusive
+# Subtest: PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade
+ok 14 - PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade
+  ---
+  duration_ms: 89307.943464
+  type: 'test'
+  ...
+# PLAN-004 point 4: completing the later entitlement first removes only that visit and attributes the worker completion
+# PLAN-004 point 5: booking, cancellation, actual term expiry and agreement end retain outstanding work
+# PLAN-004 point 6: a Worker upgrade maps older stored jobs to first unclaimed ordinals while new jobs keep their chosen ordinal
+# PLAN-004 point 7: a cancelled job is rebooked without duplication and due reads enforce desk branch authority without writes
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review
+ok 15 - DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review
+  ---
+  duration_ms: 73909.53767
+  type: 'test'
+  ...
+# DATA-002, DATA-009, DATA-010 / DISP-004: busy time from a technician's calendar refuses an overlapping booking; the secret calendar address stays with the owner and that technician; DISP-015 ordered delivery, uncertainty and retained-event review
+# DISP-004: booking refuses a missing skill and a day off, warns outside the area, then books an eligible technician
+# Subtest: DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow
+ok 16 - DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow
+  ---
+  duration_ms: 9123.06225
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: CUST-002 and FIELD-007: equipment, warranties and service history at a site, with its refrigerant log
+    # Subtest: CUST-002 equipment saved during a condenser visit retains service history, photos and warranty state
+    ok 1 - CUST-002 equipment saved during a condenser visit retains service history, photos and warranty state
+      ---
+      duration_ms: 888.871736
+      type: 'test'
+      ...
+    # CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser
+    # CUST-002 the condenser's service history and warranty state, the phone's records and the expiring-warranty report
+    # Subtest: FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total
+    ok 2 - FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total
+      ---
+      duration_ms: 789.364278
+      type: 'test'
+      ...
+    1..2
+ok 17 - CUST-002 and FIELD-007: equipment, warranties and service history at a site, with its refrigerant log
+  ---
+  duration_ms: 1712.415678
+  type: 'suite'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports and a legacy Worker upgrade
+ok 18 - PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports and a legacy Worker upgrade
+  ---
+  duration_ms: 64907.756318
+  type: 'test'
+  ...
+# PLAN-013 local month-end approval freezes exact dates and aging crosses every due-date boundary
+# PLAN-013 frozen issue dates survive every report, correction, replay, cron and Worker restart without collection
+# PLAN-013 pre-date monthly approvals retain their approval-date reports and downloads after a Worker upgrade
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: API-001 Glove first release: quote to booked visit to field evidence to invoice export
+    # Subtest: 03 an enquiry becomes a quote whose exact revision a person prices and approves
+    ok 1 - 03 an enquiry becomes a quote whose exact revision a person prices and approves
+      ---
+      duration_ms: 9050.014223
+      type: 'test'
+      ...
+    # 01 owner sets up the business, price book, team and roles
+    # 02 desk records a customer and the sites where work happens
+    # 03 an enquiry becomes a quote whose exact revision a person prices and approves
+    # Subtest: 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+    ok 2 - 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+      ---
+      duration_ms: 5939.703122
+      type: 'test'
+      ...
+    # Subtest: 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+    ok 3 - 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+      ---
+      duration_ms: 27800.01786
+      type: 'test'
+      ...
+    # 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone
+    # 06 the technician captures checklist, notes, photos and materials through a connectivity interruption
+    # 07 a dispatch change needs conflict review and keeps late evidence for review
+    # 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing
+    # 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+    # PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+    # PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+    # Subtest: 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+    ok 4 - 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+      ---
+      duration_ms: 560.271715
+      type: 'test'
+      ...
+    # Subtest: 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+    ok 5 - 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+      ---
+      duration_ms: 1425.891554
+      type: 'test'
+      ...
+    # Subtest: 12 the job timeline names every step and person, and the business export carries it
+    ok 6 - 12 the job timeline names every step and person, and the business export carries it
+      ---
+      duration_ms: 299.543808
+      type: 'test'
+      ...
+    1..6
+ok 19 - API-001 Glove first release: quote to booked visit to field evidence to invoice export
+  ---
+  duration_ms: 45097.178607
+  type: 'suite'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+ok 20 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+  ---
+  duration_ms: 9052.765673
+  type: 'test'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+ok 21 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+  ---
+  duration_ms: 6455.71005
+  type: 'test'
+  ...
+# Subtest: AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+ok 22 - AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+  ---
+  duration_ms: 9337.850447
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: AGENT-009: an agent books tune-ups under $200 only under an active grant
+ok 23 - AGENT-009: an agent books tune-ups under $200 only under an active grant
+  ---
+  duration_ms: 7712.309547
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Subtest: BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart
+ok 24 - BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart
+  ---
+  duration_ms: 47640.471875
+  type: 'test'
+  ...
+# A ZIP-only Yelp lead never invents a service address
+# All five providers use unambiguous live identity and preserve the decision through every read door
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COST-005 time past the cost threshold warns the owner and the dispatcher once each, and the margin floor warns separately
+ok 25 - COST-005 time past the cost threshold warns the owner and the dispatcher once each, and the margin floor warns separately
+  ---
+  duration_ms: 6975.531138
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+not ok 26 - COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+  ---
+  duration_ms: 121926.000262
+  type: 'test'
+  location: '[REDACTED]/tests/api/message-outcomes.test.mjs:12:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+    +   401,
+    -   200,
+        {
+    +     error: {
+    +       code: 'MAIL_EVENT',
+    +       message: 'Not accepted: the signature, the event form or the message it names did not match.'
+    +     },
+    +     ok: false
+    -     ok: true
+        }
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 200
+    1:
+      ok: true
+  actual:
+    0: 401
+    1:
+      ok: false
+      error:
+        code: 'MAIL_EVENT'
+        message: 'Not accepted: the signature, the event form or the message it names did not match.'
+  operator: 'deepStrictEqual'
+  stack: |-
+    file://[REDACTED]/tests/api/message-outcomes.test.mjs:168:16
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async scenario (file://[REDACTED]/tests/fixtures/scenario.mjs:8:5)
+    async TestContext.<anonymous> (file://[REDACTED]/tests/api/message-outcomes.test.mjs:162:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# point 6: independent address warnings survive other-address delivery, refusal and failed attempts until same-address delivery or an address change
+# points 1 and 2: SendGrid sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: SendGrid authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: SendGrid failures retain exact user text, next steps and attributable provider references
+# point 7: SendGrid messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Resend sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Resend authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Resend failures retain exact user text, next steps and attributable provider references
+# point 7: Resend messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Postmark sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Postmark authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Postmark failures retain exact user text, next steps and attributable provider references
+# point 7: Postmark messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Amazon SES sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+ok 27 - AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+  ---
+  duration_ms: 65941.179183
+  type: 'test'
+  ...
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades
+ok 28 - AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades
+  ---
+  duration_ms: 117632.359259
+  type: 'test'
+  ...
+# point 1: opening is read only and only Owner opt-in permits one provider-confirmed morning email per local date
+# PROBE AGENT-016 1 read: four brief instants with morning email enabled, before and after restart -> zero provider attempts and identical state, events and outcomes
+# PROBE AGENT-016 1 delivery: off by default and Office refused; explicit Owner opt-in -> one accepted email per Chicago date, signed recipient-bound delivery, unchanged callback replay, restart deduplication, disable stops and zero pushes
+# point 2: overdue balances include only passed due dates and confirmed net money in the current Owner branch
+# PROBE AGENT-016 2: eleven invoices with manual receipts, TEST installment, allocation, credit and confirmed or pending refunds -> four overdue items totaling 240.25 USD; branch Owner sees only 75.25 USD; aging and tile total 440.25 USD
+# PROBE AGENT-016 2 custody: customer erasure -> same anonymous overdue cents; replayed capture and Worker restart preserve erasure with provider readback only and no money-changing request
+# point 3: due included visits retain agreement and Dispatch links, booked labels and exact completion and decline exclusions
+# PROBE AGENT-016 3: six monthly entitlements with one completed, one declined, one booked and one future -> exactly three due rows, matching due-visits and preserving both links and booked label after restart
+# point 4: actual monthly cron drafts age only after approval and the frozen later-of-period-or-local-approval due date
+# PROBE AGENT-016 4: three actual month-end cron passes, late Chicago and Pacific approvals, due-date boundaries and terms change -> only approved invoices past their frozen due dates appear; three drafts never overdue after restart
+# point 4: a pre-PLAN-013 Worker approval retains its approval-date basis after rebuild and restart
+# PROBE AGENT-016 4 legacy: actual era Worker approved January period on February 3 -> issue February 3 and due February 17 retained after current-build upgrade, overdue only at February 18 local midnight
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+ok 29 - FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+  ---
+  duration_ms: 11807.976132
+  type: 'test'
+  ...
+# FIELD-006 point 2: provider redirects are refused without forwarding the photo or saving a reading
+# FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread
+# FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms
+# FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+ok 30 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+  ---
+  duration_ms: 74101.931809
+  type: 'test'
+  ...
+# PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+# PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout
+# PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects
+# PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+# PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly
+# Subtest: PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+ok 31 - PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+  ---
+  duration_ms: 73138.889511
+  type: 'test'
+  ...
+# PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed
+# PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority
+# PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact
+# Subtest: FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+ok 32 - FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+  ---
+  duration_ms: 7667.271607
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COST-007 payroll files qualify provider rows, approved workweeks, privacy and export authority
+ok 33 - COST-007 payroll files qualify provider rows, approved workweeks, privacy and export authority
+  ---
+  duration_ms: 16552.258995
+  type: 'test'
+  ...
+# COST-007 point 1: ADP RUN exact layout, owner codes, setup refusals and unmatched payroll IDs
+# COST-007 point 2: Gusto exact employee columns and first-word names
+# COST-007 point 3: three workweeks retain each approved week and its own overtime and refuse invalid periods
+# COST-007 point 4: an offered SSN never enters state, business export or payroll files
+# COST-007 point 5: QuickBooks daily pay items, all file permissions and actual Worker restart
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+ok 34 - BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+  ---
+  duration_ms: 220074.283321
+  type: 'test'
+  ...
+# BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+# DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost
+# BOOK-015 point 1: provider costs survive rules, current authority controls costs and audited corrections refuse invalid or stale amounts
+# BOOK-015 point 2: each source retains its approved text and receipt-based deadline with honest early and late desk records
+# BOOK-015 point 3: an external-send attestation names the person and method without inventing provider delivery or deadline compliance
+# BOOK-015 point 4: connecting a source defaults to sixty minutes, accepts both boundaries and refuses fractional or out-of-range windows unchanged
+# BOOK-015 point 5: only an explicit current unscoped Owner can approve a Yelp email and every excluded actor queues nothing
+# BOOK-015 point 6: explicit email uses only the unexpired lead destination despite customer edits and refuses expiry or disconnected mail
+# BOOK-015 point 7: one durable message precedes the provider call and success or an uncertain server failure never resends across replay, cron or Worker restart
+# BOOK-015 point 8: authenticated delivery and bounce facts update only email provider state in the request and conversation and survive Worker restart without secrets
+# BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts
+# BOOK-016: overdue clock, repeated cron, replay and actual Worker restart
+# BOOK-016: every excluded actor is refused without queuing
+# BOOK-016: desk attestation sends nothing and the explicit Owner command commits before one masked-address send
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+ok 35 - MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+  ---
+  duration_ms: 55339.219657
+  type: 'test'
+  ...
+# MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export
+# MONEY-003, MONEY-006 exports honor current margin permission while retaining a usable price catalogue and full owner costs
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DATA-002, DATA-009, DATA-010 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost
+ok 36 - DATA-002, DATA-009, DATA-010 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost
+  ---
+  duration_ms: 39874.420321
+  type: 'test'
+  ...
+# DATA-002, DATA-009, DATA-010 / STOCK-002 a purchase order for a job, received in two parts, lands in stock and in the job cost
+# STOCK-002 / TEAM-001 purchase commands acknowledge writes without granting margin reads, including old outcomes after role edits
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history
+ok 37 - QuickBooks sync posts mapped customer, frozen invoice, payment and refund once; a rejected item is repaired and retried with secret-free history
+  ---
+  duration_ms: 7820.054754
+  type: 'test'
+  ...
+# Subtest: QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates
+ok 38 - QuickBooks property sub-customers receive separate invoices and one parent payment settles both without replay or unknown-send duplicates
+  ---
+  duration_ms: 24412.730538
+  type: 'test'
+  ...
+# glove command failed Error: D1_ERROR: synthetic-glove-outcome-interruption: SQLITE_CONSTRAINT (extended: SQLITE_CONSTRAINT_TRIGGER)
+#     at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:188:19)
+#     at async cloudflare-internal:d1-api:137:19
+#     ... 4 lines matching cause stack trace ...
+#     at async Object.fetch (file://[REDACTED]/script-0.mjs:29139:12) {
+#   [cause]: Error: synthetic-glove-outcome-interruption: SQLITE_CONSTRAINT (extended: SQLITE_CONSTRAINT_TRIGGER)
+#       at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:189:24)
+#       at async cloudflare-internal:d1-api:137:19
+#       at async commit (file://[REDACTED]/script-0.mjs:22192:8)
+#       at async quickbooksAfterCommit (file://[REDACTED]/script-0.mjs:24225:7)
+#       at async command (file://[REDACTED]/script-0.mjs:29004:41)
+#       at async gloveResponse (file://[REDACTED]/script-0.mjs:29081:86)
+#       at async Object.fetch (file://[REDACTED]/script-0.mjs:29139:12)
+# }
+# Subtest: QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send
+ok 39 - QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send
+  ---
+  duration_ms: 209801.204218
+  type: 'test'
+  ...
+# QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send
+# QuickBooks company discovery proposes imported customer, item and original invoice links without a write or a partial company review
+# QuickBooks reviewed migration creates only two explicitly approved unmatched customers, links old invoices and posts later money once with locked confirmed links
+# Subtest: QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge
+ok 40 - QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge
+  ---
+  duration_ms: 10044.516435
+  type: 'test'
+  ...
+# Subtest: QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload
+ok 41 - QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload
+  ---
+  duration_ms: 6930.618388
+  type: 'test'
+  ...
+# Subtest: Xero reviewed customer and property invoice links retain exact identities through guarded writes, refusal repair and uncertain sends
+ok 42 - Xero reviewed customer and property invoice links retain exact identities through guarded writes, refusal repair and uncertain sends
+  ---
+  duration_ms: 123752.435566
+  type: 'test'
+  ...
+# Xero complete company reads and reviewed existing links preserve two property invoice identities without writes or restored authority
+# Xero owner inspects current contacts, items and sales invoices without writes, retained payloads or revived provider access
+# Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts
+# Xero one parent remittance reads exact two-property applications once and refuses unsafe or changed allocations
+# Xero durable reservation refuses a concurrent send and a different tenant, then retains same-tenant recovery after disconnect
+# Xero records an authorized in-flight provider fact after Owner withdrawal and refuses the next send
+# Xero erasure during a provider response discards late personal outcomes and durable reservations
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: QUOTE-012 quote-link records preserve provider truth, customer documents and live authority
+ok 43 - QUOTE-012 quote-link records preserve provider truth, customer documents and live authority
+  ---
+  duration_ms: 90048.511836
+  type: 'test'
+  ...
+# point 3: outside sharing and each provider send answer retain the actual mail outcome
+# point 4: every recorded customer response follows confirming provider facts and never asserts verified identity
+# point 1: permitted people issue and revoke; excluded roles and tokens change nothing
+# point 2: independently expected customer document is frozen with its canonical digest
+# point 5: revision-only same-origin JSON responses accept changes, claimed decline and one update
+# point 6: changes and updates survive in every office surface and reopen the originating request
+# point 7: customer decline and each staff decision have one winner and leave a read-only revision
+# point 8: role, branch, revocation and expiry changes at the commit boundary refuse without writes
+# points 1 through 8: real Worker restart and replay retain facts without bearers or repeated sends
+# inherited privacy and replay: erasure closes the old public link without resurrecting customer data
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+ok 44 - PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+  ---
+  duration_ms: 99912.541983
+  type: 'test'
+  ...
+# PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks
+# PLAN-005, PLAN-012, PLAN-013 three months produce exactly three per-visit drafts with their own materials and three fixed monthly drafts, with skips and concurrent replay
+# PLAN-005, PLAN-012, PLAN-013 forward prices, pauses, fixed after-visit auto-approval, on-close, as-needed and missed price review preserve exactly-once evidence
+# PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt
+ok 45 - COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt
+  ---
+  duration_ms: 105091.142819
+  type: 'test'
+  ...
+# COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt
+# Erasure during an automatic provider attempt never restores recipient addresses in the outcome
+# Subtest: PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state
+ok 46 - PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state
+  ---
+  duration_ms: 13536.877184
+  type: 'test'
+  ...
+# PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state
+# QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links
+# Subtest: The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door
+ok 47 - The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door
+  ---
+  duration_ms: 7379.591429
+  type: 'test'
+  ...
+# Subtest: COMM-004, COMM-021 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once
+ok 48 - COMM-004, COMM-021 owner-approved tap sends first name, photo and live ETA; arrival and completion follow owner settings once
+  ---
+  duration_ms: 73459.507868
+  type: 'test'
+  ...
+# Subtest: COMM-008, COMM-026, COMM-027 explicit uniform email requests require completed paid jobs, current consent and a per-customer period
+ok 49 - COMM-008, COMM-026, COMM-027 explicit uniform email requests require completed paid jobs, current consent and a per-customer period
+  ---
+  duration_ms: 13859.744806
+  type: 'test'
+  ...
+# Subtest: COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+ok 50 - COMM-009, COMM-028 signed known-customer calls route in order and retain outcomes; Owner explicitly texts one consented booking reply
+  ---
+  duration_ms: 8660.810546
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive driving and survives replay and Worker restart without moving visits
+ok 51 - DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive driving and survives replay and Worker restart without moving visits
+  ---
+  duration_ms: 18557.342426
+  type: 'test'
+  ...
+# {"beforeSeconds":4524,"afterSeconds":1868,"savedSeconds":2656,"evaluations":132}
+# Subtest: DISP-003 point 2: live person authority fences day and technician requests, one cron claim, revocation and expired leases
+ok 52 - DISP-003 point 2: live person authority fences day and technician requests, one cron claim, revocation and expired leases
+  ---
+  duration_ms: 62490.174125
+  type: 'test'
+  ...
+# Subtest: DISP-003 point 3: visit and assigned-technician limits accept their endpoints and refuse excess without queuing or moving work
+ok 53 - DISP-003 point 3: visit and assigned-technician limits accept their endpoints and refuse excess without queuing or moving work
+  ---
+  duration_ms: 80528.393262
+  type: 'test'
+  ...
+# Subtest: DISP-003 point 4: coordinate-only Routes requests abort a delayed provider and retain a bounded exchange count
+ok 54 - DISP-003 point 4: coordinate-only Routes requests abort a delayed provider and retain a bounded exchange count
+  ---
+  duration_ms: 41447.768632
+  type: 'test'
+  ...
+# {"evaluations":1200,"searchElapsedMs":1185.032806000003}
+# {"providerDelayMs":12000,"providerAbortMs":10083.792910999997}
+# Subtest: DISP-003 point 5: whole proposed schedules preserve eligibility, duration and fixed crew and field-evidence placements
+ok 55 - DISP-003 point 5: whole proposed schedules preserve eligibility, duration and fixed crew and field-evidence placements
+  ---
+  duration_ms: 16206.086937
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DATA-002, DATA-009, DATA-010 / API-005 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 two rules run with a log and an effect; an office rule cannot book a visit
+ok 56 - DATA-002, DATA-009, DATA-010 / API-005 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 two rules run with a log and an effect; an office rule cannot book a visit
+  ---
+  duration_ms: 26450.066729
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: API-001 every command and read door checks the current session and role
+    # Subtest: Current built-in and custom roles fence every command and read door, including role withdrawal and unknown commands
+    ok 1 - Current built-in and custom roles fence every command and read door, including role withdrawal and unknown commands
+      ---
+      duration_ms: 32461.518896
+      type: 'test'
+      ...
+    # each role, built-in or custom, is refused exactly the commands it does not hold
+    # inherited command names receive the same safe refusal as an unknown name
+    # PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request
+    # Subtest: Command session and identity custody refuses signed-out, revoked, cross-origin and cross-person replay requests
+    ok 2 - Command session and identity custody refuses signed-out, revoked, cross-origin and cross-person replay requests
+      ---
+      duration_ms: 2508.988831
+      type: 'test'
+      ...
+    # signed-out, revoked and cross-origin requests change nothing
+    # a command identity replays its outcome only for the same person and content
+    1..2
+ok 57 - API-001 every command and read door checks the current session and role
+  ---
+  duration_ms: 35103.701971
+  type: 'suite'
+  ...
+# Subtest: a technician never reads a price, in records or in the timeline
+ok 58 - a technician never reads a price, in records or in the timeline
+  ---
+  duration_ms: 10546.281043
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit
+ok 59 - PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit
+  ---
+  duration_ms: 9194.932801
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: BOOK-005 desk creation retains request linkage, exact lines and frozen service checklists and forms under current authority
+ok 60 - BOOK-005 desk creation retains request linkage, exact lines and frozen service checklists and forms under current authority
+  ---
+  duration_ms: 33798.215231
+  type: 'test'
+  ...
+# BOOK-005 desk creation retains request linkage, exact lines and frozen service checklists and forms under current authority
+# BOOK-005 a leaking water heater: a job with an $89.00 diagnostic fee, a flat-rate valve and 1.5 hours added on site, invoiced exactly
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
+ok 61 - COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins
+  ---
+  duration_ms: 16790.906835
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
+ok 62 - COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache
+  ---
+  duration_ms: 43764.798119
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
+ok 63 - COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses
+  ---
+  duration_ms: 22977.783663
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 4: signed configuration and delivery tags bind every SES send
+ok 64 - COMM-017 point 4: signed configuration and delivery tags bind every SES send
+  ---
+  duration_ms: 16616.470715
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
+ok 65 - COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses
+  ---
+  duration_ms: 7284.393064
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
+ok 66 - COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects
+  ---
+  duration_ms: 26144.172675
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
+ok 67 - COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching
+  ---
+  duration_ms: 11343.466103
+  type: 'test'
+  ...
+# Subtest: COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
+ok 68 - COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
+  ---
+  duration_ms: 15867.477051
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year
+ok 69 - DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year
+  ---
+  duration_ms: 54363.676864
+  type: 'test'
+  ...
+# DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own
+# DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people's work
+# DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in
+# DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking
+# DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member's visit, after one conflict review
+# DISP-007, DISP-013, DISP-014 the owner's agreed amounts on completed visits make the subcontractor's 1099-NEC total for the year
+# point 1: only Owner marks, edits and clears payees; rejected TINs never enter retained data
+# point 2: Owner sets, changes and clears amounts; stale, ordinary-employee and excluded-role attempts change nothing
+# point 3: each local calendar year has exact payees, visits, cents and threshold flags after restart and once-only replay
+# point 4: every parsed CSV column and JSON label is honest; report reads have no filing effect and retain attributable source events
+# point 5: subcontractor time is never approvable or in any payroll file, with an explicit exclusion reason
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves
+ok 70 - API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves
+  ---
+  duration_ms: 15194.154401
+  type: 'test'
+  ...
+# AGENT-005, AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry
+# AGENT-005, AGENT-014 three options from the price book at its prices, each with the model's reason
+# AGENT-005, AGENT-014 the model saw the request, the furnace's age and history and the price book, never costs or who and where the customer is
+# AGENT-005, AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: a linked technician clocks a first shift, reads only their own timesheet, and the desk retains ordered corrections after restart
+ok 71 - a linked technician clocks a first shift, reads only their own timesheet, and the desk retains ordered corrections after restart
+  ---
+  duration_ms: 42641.232044
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay
+ok 72 - DISP-010 point 1: travel ranking and its retained reason cover quoted work, service calls and assessments across restart and replay
+  ---
+  duration_ms: 25219.379756
+  type: 'test'
+  ...
+# Subtest: DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books
+ok 73 - DISP-010 point 2: disconnected ranking uses booked minutes and unavailable travel refuses atomically while explicit choice books
+  ---
+  duration_ms: 9953.029464
+  type: 'test'
+  ...
+# Subtest: DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule
+ok 74 - DISP-010 point 3: assignment routes from visit sites despite a live phone position and never optimizes the schedule
+  ---
+  duration_ms: 5837.849847
+  type: 'test'
+  ...
+1..74
+# tests 81
+# suites 3
+# pass 80
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3302168.403246
+ ELIFECYCLE  Command failed with exit code 1.

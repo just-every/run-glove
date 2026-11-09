@@ -1,0 +1,75 @@
+CI failure on c3a8a9199a1996eb39dbaa217cf38771ed879fcc
+Run 42618921885, job 129165996691, shards (api-1)
+Command: node scripts/verify-ci.mjs api-1
+
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9638495Z not ok 26 - COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9639316Z   ---
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9639594Z   duration_ms: 17866.719487
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9639952Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9640421Z   location: '[REDACTED]/tests/api/message-outcomes.test.mjs:12:1'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9640960Z   failureType: 'testCodeFailure'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9641371Z   error: |-
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9641820Z     Expected values to be strictly deep-equal:
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9642438Z     + actual - expected
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9642793Z     
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9643100Z       [
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9643388Z     +   401,
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9643702Z     -   200,
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9644010Z         {
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9644306Z     +     error: {
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9644653Z     +       code: 'MAIL_EVENT',
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9645343Z     +       message: 'Not accepted: the signature, the event form or the message it names did not match.'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9645989Z     +     },
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9646260Z     +     ok: false
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9646647Z     -     ok: true
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9647212Z         }
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9647496Z       ]
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9647737Z     
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9647965Z   code: 'ERR_ASSERTION'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9648191Z   name: 'AssertionError'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9648397Z   expected:
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9648564Z     0: 200
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9648721Z     1:
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9649127Z       ok: true
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9649292Z   actual:
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9649441Z     0: 401
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9649600Z     1:
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9649759Z       ok: false
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9650026Z       error:
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9650505Z         code: 'MAIL_EVENT'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9651074Z         message: 'Not accepted: the signature, the event form or the message it names did not match.'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9651450Z   operator: 'deepStrictEqual'
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9651668Z   stack: |-
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9651950Z     file://[REDACTED]/tests/api/message-outcomes.test.mjs:168:16
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9652591Z     process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9653043Z     async scenario (file://[REDACTED]/tests/fixtures/scenario.mjs:8:5)
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9653514Z     async TestContext.<anonymous> (file://[REDACTED]/tests/api/message-outcomes.test.mjs:162:5)
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9654039Z     async Test.run (node:internal/test_runner/test:1054:7)
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9654621Z     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9655089Z   ...
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9655686Z # point 6: independent address warnings survive other-address delivery, refusal and failed attempts until same-address delivery or an address change
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9656499Z # points 1 and 2: SendGrid sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9657332Z # points 3 and 4: SendGrid authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9658060Z # points 3 and 5: SendGrid failures retain exact user text, next steps and attributable provider references
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9658686Z # point 7: SendGrid messages read as outbound conversation entries with their author, recipient and provider state
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9659361Z # points 1 and 2: Resend sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9660157Z # points 3 and 4: Resend authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9660861Z # points 3 and 5: Resend failures retain exact user text, next steps and attributable provider references
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9661464Z # point 7: Resend messages read as outbound conversation entries with their author, recipient and provider state
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9662332Z # points 1 and 2: Postmark sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9663151Z # points 3 and 4: Postmark authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9663867Z # points 3 and 5: Postmark failures retain exact user text, next steps and attributable provider references
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9664485Z # point 7: Postmark messages read as outbound conversation entries with their author, recipient and provider state
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9665172Z # points 1 and 2: Amazon SES sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+shards (api-1)	Run this shard	2026-11-09T12:45:00.9665987Z # points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+
+BOOK-015 scenario result on the same run:
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5034559Z ok 34 - BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5039845Z # BOOK-015 point 1: provider costs survive rules, current authority controls costs and audited corrections refuse invalid or stale amounts
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5041054Z # BOOK-015 point 2: each source retains its approved text and receipt-based deadline with honest early and late desk records
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5042394Z # BOOK-015 point 3: an external-send attestation names the person and method without inventing provider delivery or deadline compliance
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5043623Z # BOOK-015 point 4: connecting a source defaults to sixty minutes, accepts both boundaries and refuses fractional or out-of-range windows unchanged
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5044726Z # BOOK-015 point 5: only an explicit current unscoped Owner can approve a Yelp email and every excluded actor queues nothing
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5045805Z # BOOK-015 point 6: explicit email uses only the unexpired lead destination despite customer edits and refuses expiry or disconnected mail
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5047059Z # BOOK-015 point 7: one durable message precedes the provider call and success or an uncertain server failure never resends across replay, cron or Worker restart
+shards (api-1)	Run this shard	2026-11-09T12:46:56.5048422Z # BOOK-015 point 8: authenticated delivery and bounce facts update only email provider state in the request and conversation and survive Worker restart without secrets

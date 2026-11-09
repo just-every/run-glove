@@ -1,0 +1,31 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+not ok 1 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+  ---
+  duration_ms: 33161.796158
+  type: 'test'
+  location: '/workspace/glove-f216/tests/api/email.test.mjs:20:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    Object.processResponse (/workspace/glove-f216/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+    /workspace/glove-f216/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+    node:internal/process/task_queues:151:7
+    AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:148:8)
+    /workspace/glove-f216/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+    async MessagePort.<anonymous> ([worker eval]:32:22)
+  ...
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 38516.655821

@@ -1,0 +1,69 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+not ok 1 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+  ---
+  duration_ms: 69803.003764
+  type: 'test'
+  location: '/workspace/glove-f216/tests/api/email.test.mjs:20:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    Object.processResponse (/workspace/glove-f216/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+    /workspace/glove-f216/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+    node:internal/process/task_queues:151:7
+    AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:148:8)
+    /workspace/glove-f216/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+    async MessagePort.<anonymous> ([worker eval]:32:22)
+  ...
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+ok 2 - BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+  ---
+  duration_ms: 268845.313614
+  type: 'test'
+  ...
+# BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+# DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost
+# BOOK-015 point 1: provider costs survive rules, current authority controls costs and audited corrections refuse invalid or stale amounts
+# BOOK-015 point 2: each source retains its approved text and receipt-based deadline with honest early and late desk records
+# BOOK-015 point 3: an external-send attestation names the person and method without inventing provider delivery or deadline compliance
+# BOOK-015 point 4: connecting a source defaults to sixty minutes, accepts both boundaries and refuses fractional or out-of-range windows unchanged
+# BOOK-015 point 5: only an explicit current unscoped Owner can approve a Yelp email and every excluded actor queues nothing
+# BOOK-015 point 6: explicit email uses only the unexpired lead destination despite customer edits and refuses expiry or disconnected mail
+# BOOK-015 point 7: one durable message precedes the provider call and success or an uncertain server failure never resends across replay, cron or Worker restart
+# BOOK-015 point 8: authenticated delivery and bounce facts update only email provider state in the request and conversation and survive Worker restart without secrets
+# BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts
+# BOOK-016: overdue clock, repeated cron, replay and actual Worker restart
+# BOOK-016: every excluded actor is refused without queuing
+# BOOK-016: desk attestation sends nothing and the explicit Owner command commits before one masked-address send
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls
+1..2
+# tests 2
+# suites 0
+# pass 1
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 371093.325084

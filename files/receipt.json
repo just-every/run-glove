@@ -2,26 +2,32 @@
   "tag": "sx-glove-c-f216",
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f216",
-  "head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+  "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
   "save_head": "7949c5b648ca4ec310d517dd0f226aa573ff3c1d",
   "checks": [
     {
       "name": "api",
-      "command": "node --test --test-concurrency=1 tests/api/pipeline.test.mjs",
-      "exit": 0,
-      "head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90"
+      "command": "node --test --test-concurrency=1 tests/api/pipeline.test.mjs tests/api/email.test.mjs",
+      "exit": 1,
+      "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5"
     },
     {
       "name": "typecheck",
       "command": "pnpm typecheck",
       "exit": 0,
-      "head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90"
+      "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5"
     },
     {
       "name": "rer-check",
       "command": "npx -y @runeditrun/rer check --profile first-party",
       "exit": 0,
-      "head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90"
+      "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5"
+    },
+    {
+      "name": "email-retry",
+      "command": "node --test --test-concurrency=1 tests/api/email.test.mjs",
+      "exit": 1,
+      "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5"
     }
   ],
   "node": "22.20.0",
@@ -37,7 +43,9 @@
     "command": "node /tmp/book015-browser-owned.mjs (existing Playwright lead journey on prepared native installation)",
     "actual_test_command": "playwright test --config tests/browser/playwright.config.ts --workers=1 tests/browser/journey.spec.ts --grep BOOK-004",
     "hard_timeout_seconds": 1200,
-    "method": "Existing committed test, unchanged harness and provider fakes; native startDev and stopDev on prepared checkout."
+    "method": "Existing committed test, unchanged harness and provider fakes; native startDev and stopDev on prepared checkout.",
+    "relevance": "All BOOK-015 lead-journey bytes and production bytes identical to passed c3a8a919; main changed only other stretches. Exact-head Verify reruns the browser shard.",
+    "lead_registration_unchanged_sha256": "923854aa5c73f6131fee83ea1317388888fc621a71b69b805a65e11d68928d2b"
   },
   "views": {
     "write": "node scripts/contract-docs.mjs write",
@@ -49,7 +57,7 @@
     "write": "node scripts/edition-authoring/cli.mjs lock",
     "check": "node scripts/edition-authoring/cli.mjs check",
     "exit": 0,
-    "sha256": "e5b45a4397c37872157382c97d9e01aac6c8e7784591afde60b1716ff9b40296"
+    "sha256": "bc6e50815375cd1de0699e5f47a9257b13040f725430b2aed9c9581273c34205"
   },
   "ledger": {
     "command": null,
@@ -58,14 +66,14 @@
   },
   "source_hashes": {
     "tests/api/pipeline.test.mjs": "bec87483b2934b6e9601d085d26481baa289496ad96f0c3e99a61aaab2bbd302",
-    "tests/browser/journey.spec.ts": "befd7e6ea170cbf3565f65eca54da6b19193d1b76ceb4fc74a4a0f3c196bffc1",
+    "tests/browser/journey.spec.ts": "9aafda1bb3f95782a4a32bbdb6cb080b54fef26ef994a6ccf8544134d4463023",
     "src/glove/leads.ts": "a00677b04bf00d8aaf80017f4dccff21ca4969462e817bcf193d5483f81051a9",
     "src/glove/commands/leads.ts": "274b6190ee1d9bdec48ebfe1ece674724189dfe603ef051edee597837d36535e",
     "src/glove/rules.ts": "718866263c438c7b0b5db5451a24046480c824993fea9445aa280f1c56cb517c",
     "src/ui/lead-connections.tsx": "f310586c8cbc31cbc2df5f1f58aec0fdd4d03db21aea30284f44264753ff7834"
   },
   "publication_scan": {
-    "commit": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+    "commit": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
     "complete": false,
     "historyScanned": null,
     "findings": null,
@@ -106,23 +114,23 @@
     }
   ],
   "api_relevance": {
-    "run_head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90",
-    "candidate_head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+    "run_head": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
+    "candidate_head": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
     "all_api_tests_and_production_sources_unchanged": true,
-    "reason": "Only browser native-readiness synchronization and generated source-lock hashes changed after the passing API run."
+    "reason": "Passing touched run is on the merged candidate tree; commit adds no further source change."
   },
   "full_history": true,
   "product_pushed": true,
-  "origin_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "origin_main": "643c64323dee88c18e5b2fc542f1da730c92112f",
   "main_equality": false,
-  "typecheck_head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+  "typecheck_head": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
   "source_lock_fresh_after_final_main_merge": true,
   "generated_documents_changed": false,
   "git_status_clean": true,
   "all_candidate_identities_and_trailers_checked": true,
   "contract_status_diff": "none",
   "test_registrations_before": 202,
-  "test_registrations_after": 202,
+  "test_registrations_after": 200,
   "screenshots": [
     {
       "file": "screenshots/1440-reserve-google-queued.png",
@@ -168,13 +176,112 @@
   "ci": [
     {
       "conclusion": null,
-      "event": "push",
-      "head_sha": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
-      "html_url": "https://github.com/just-every/run-glove/actions/runs/42618921885",
-      "id": 42618921885,
-      "name": "Verify",
-      "status": "in_progress"
+      "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234",
+      "id": 42630606234,
+      "status": "in_progress",
+      "observed_at": "2026-11-09T14:12:01.503522+00:00"
     }
   ],
-  "github_calls_used": 2
+  "github_calls_used": 9,
+  "ci_status_observations": [
+    {
+      "conclusion": null,
+      "head_sha": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42618921885",
+      "status": "in_progress",
+      "observed_at": "2026-11-09T12:45:21Z",
+      "github_calls_used": 3
+    },
+    {
+      "conclusion": null,
+      "head_sha": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42618921885",
+      "status": "in_progress",
+      "observed_at": "2026-11-09T12:50:24Z",
+      "github_calls_used": 4
+    }
+  ],
+  "ci_final_observation": {
+    "conclusion": null,
+    "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234",
+    "id": 42630606234,
+    "status": "in_progress",
+    "observed_at": "2026-11-09T14:12:01.503522+00:00"
+  },
+  "local_qualification": "All eight points pass; candidate judgment awaits independent gate and landing.",
+  "transport_validation": {
+    "evidence_head": "2708da6c8109570212183dae2854199ea6b7c650",
+    "status": "restored",
+    "file": "transport-receipt.json",
+    "note": "Initial complete packet round-trip validated; final publication will have its own exact evidence head in the terminal EVIDENCE line."
+  },
+  "riders": {
+    "1": "PENDING",
+    "2": "PASS",
+    "3": "PENDING",
+    "4": "PASS",
+    "5": "PASS",
+    "6": "PASS",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS",
+    "10": "PASS",
+    "11": "PENDING"
+  },
+  "verify_replay": {
+    "head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+    "job": 129165996691,
+    "command": "node scripts/verify-ci.mjs api-1",
+    "test": "COMM-010 points 1\u20138: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart",
+    "exit": 1,
+    "failure": "message-outcomes.test.mjs:168 expected 200 {ok:true}; got 401 MAIL_EVENT: Not accepted: the signature, the event form or the message it names did not match.",
+    "tests": 81,
+    "passed": 80,
+    "failed": 1,
+    "same_node": "22.20.0",
+    "ci_environment_preserved": true
+  },
+  "repair": {
+    "origin_main": "643c64323dee88c18e5b2fc542f1da730c92112f",
+    "commit": "643c64323dee88c18e5b2fc542f1da730c92112f",
+    "description": "Inherited main\u2019s validly signed synthetic SNS certificate whose validity interval includes the pinned scenario clock. No production authentication change or builder fake edit.",
+    "main_executed_helper_exit": 247,
+    "main_executed_helper_status": "Stopped after more than ten minutes without reaching the first nested scenario; not a passing receipt"
+  },
+  "pipeline_result": {
+    "head": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
+    "registered_subtest_exit": 0,
+    "evidence": "API-merged.log: BOOK-003 registration passed including all eight BOOK-015 named steps; combined command exit 1 belongs to the separate email registration."
+  },
+  "main_email_exit": 1,
+  "test_inventory": "196 registrations (193 direct calls) + 4 assertion scripts = 200/200",
+  "main_comparison_correction": "The first node --test invocation of the extracted helper file only loaded it and did not execute its body. It is not used as proof. An explicit helper invocation then stalled before its first nested scenario and was stopped by its owned PIDs; it is also not a passing receipt. The full existing main email registration is the separate comparison run.",
+  "main_email_failure": {
+    "file": "tests/api/email.test.mjs",
+    "line": 428,
+    "failure": "A signed timestamp computed from Date.now() + 301000 was accepted with 200 where the existing test expected 401. It has only a one-second margin above the five-minute future boundary and uses the moving wall clock.",
+    "same_test_source_as_candidate": true,
+    "reached_COMM010_helper": false
+  },
+  "email_retry_failure": "undici fetch failed before reaching COMM-010; no source edits or further retry",
+  "diagnostic_worktree_removed": true,
+  "ci_history": [
+    {
+      "id": 42618921885,
+      "head_sha": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+      "status": "completed",
+      "conclusion": "failure",
+      "failed_job": 129165996691
+    },
+    {
+      "conclusion": null,
+      "head_sha": "fd128dc5f5464f16168ea8cf2539b7301334eef5",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42630606234",
+      "id": 42630606234,
+      "status": "in_progress",
+      "observed_at": "2026-11-09T14:12:01.503522+00:00"
+    }
+  ]
 }
