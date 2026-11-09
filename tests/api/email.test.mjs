@@ -423,8 +423,13 @@ test('COMM-016 Postmark outcomes retain exact message states and attributable fa
   await noFetch(signer.signed(payload, { TopicArn: 'arn:aws:sns:us-east-1:123456789012:other' }))
   await noFetch(signer.signed(payload, { SigningCertURL: signer.certUrl.replace('us-east-1', 'us-west-2') }))
   for (const SigningCertURL of [signer.certUrl.replace('https:', 'http:'), signer.certUrl + '?leak=1', signer.certUrl + '#fragment', signer.certUrl.replace('sns.us-east-1.amazonaws.com', 'sns.us-east-1.amazonaws.com.evil.example'), signer.certUrl.replace('https://', 'https://user@'), signer.certUrl.replace('/SimpleNotificationService-', '/other-')]) await noFetch(signer.signed(payload, { SigningCertURL }))
-  await noFetch(signer.signed(payload, { Timestamp: new Date(Date.now() - 3_601_000).toISOString() }))
-  await noFetch(signer.signed(payload, { Timestamp: new Date(Date.now() + 301_000).toISOString() }))
+  // Pin only the freshness probes: their one-second rejection margins must
+  // survive a slow host. Later provider facts keep their real-time ordering.
+  const at = Date.now()
+  await h.setTime(new Date(at).toISOString())
+  await noFetch(signer.signed(payload, { Timestamp: new Date(at - 3_601_000).toISOString() }))
+  await noFetch(signer.signed(payload, { Timestamp: new Date(at + 301_000).toISOString() }))
+  await h.setTime(null)
   const wrongHeader = signer.signed(payload); wrongHeader.headers['x-amz-sns-message-type'] = 'SubscriptionConfirmation'; await noFetch(wrongHeader)
   await noFetch(signer.signed(payload, { SignatureVersion: '3' }))
   const badSignature = signer.signed(payload), parsed = JSON.parse(badSignature.raw); parsed.Signature = Buffer.alloc(256).toString('base64'); badSignature.raw = JSON.stringify(parsed)
