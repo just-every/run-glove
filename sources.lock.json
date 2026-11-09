@@ -5731,6 +5731,10 @@
       "sha256": "53bfc0b7f08054960240d2b0d3f3f0ff26608e74a1cac0115caa9589201b17ea",
       "executable": false
     },
+    "tests/api/quote-approval.test.mjs": {
+      "sha256": "3d78ea8ca79b40201b32049e83a6428338bfef2d734359cc05fb8ab377b35d30",
+      "executable": false
+    },
     "tests/api/quote-link-custody.test.mjs": {
       "sha256": "af43dee77d13511d8b828d9adfa350394921d15aae3cfa43fd404cf38e3ad6ab",
       "executable": false
