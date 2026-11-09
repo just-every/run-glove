@@ -1,5 +1,4 @@
-import { restartHarness } from './harness-route'
-import { closeHarnessContext, unrouteHarness } from './harness-route'
+import { closeHarnessContext, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 // @ts-expect-error Production Worker doors, native sessions and persistent D1.
 import { installation } from '../api/harness.mjs'

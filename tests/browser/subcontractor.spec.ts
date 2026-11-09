@@ -89,7 +89,7 @@ test('DISP-013 subcontractor phone has current work but no notification control 
     expect((await h.state()).captures.filter((c: any) => c.technicianId === f.tech.id && c.kind === 'note').map((c: any) => c.text)).toEqual(['Subcontractor phone note'])
   } finally {
     if (page) await unrouteHarness(page)
-    await context?.close()
+    if (context) await closeHarnessContext(context)
     await h.close()
   }
 })

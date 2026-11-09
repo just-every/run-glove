@@ -1,5 +1,4 @@
-import { restartHarness } from './harness-route'
-import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -30,21 +29,23 @@ async function screens(page: Page, name: string, panel: Locator) {
 async function proxyLifecycle(browser: Browser, h: any) {
   for (const boundary of ['unroute', 'navigation', 'restart']) {
     const context = await browser.newContext(), page = await context.newPage()
-    let release!: () => void, arrived!: () => void, finished = false, replies = 0
+    let release!: () => void, arrived = false, finished = false, replies = 0
     const held = new Promise<void>(resolve => { release = resolve })
-    const dispatched = new Promise<void>(resolve => { arrived = resolve })
     try {
       await harnessRoute(context, `${origin}/api/glove/state`, async route => {
         const response = await h.request('/api/glove/state')
         const body = Buffer.from(await response.arrayBuffer())
         expect(response.status).toBe(200)
-        arrived(); await held
+        arrived = true; await held
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body })
         replies++
       })
-      await page.goto(origin)
+      // A transport-only blank document avoids the public lobby's deliberately
+      // restrictive CSP; every API answer still comes from the real Worker.
+      await page.route(`${origin}/__proxy-lifecycle`, route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Proxy lifecycle</title>' }))
+      await page.goto(`${origin}/__proxy-lifecycle`)
       await page.evaluate(() => { void fetch('/api/glove/state').then(r => r.json()).then(body => { (window as any).proxyAnswer = body }).catch(() => {}) })
-      await dispatched
+      await expect.poll(() => arrived).toBe(true)
       if (boundary === 'navigation') await page.goto('about:blank')
       const drained = (boundary === 'restart' ? restartHarness(h) : unrouteHarness(context)).then(() => { finished = true })
       // The pending real reply must hold teardown/restart, even after the page

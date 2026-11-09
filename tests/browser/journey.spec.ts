@@ -1,5 +1,4 @@
-import { restartHarness } from './harness-route'
-import { closeHarnessContext, harnessRoute, type HarnessRoute, unrouteHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, restartHarness, type HarnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
@@ -103,7 +102,7 @@ async function checkPropertyHistories(page: Page, width: number) {
       await expect(refused.getByRole('alert')).toHaveText('No such site for you.')
       await expect(refused.locator('li')).toHaveCount(0)
     }
-  } finally { await page.unroute(`${origin}/api/glove/**`); await h.close() }
+  } finally { await unrouteHarness(page, `${origin}/api/glove/**`); await h.close() }
 }
 
 /** Click a control that sends one command and wait for its confirmed outcome. */
@@ -742,7 +741,7 @@ for (const width of [1440, 390]) {
     await expect(clockStatus).toHaveText(/^Off the clock/)
     await sent()
     await expect(phone.getByRole('region', { name: vanName }).getByText(`Low: ${material} (1 each)`)).toBeVisible()
-    await phoneContext.close()
+    await closeHarnessContext(phoneContext)
 
     // The job record: evidence, sign-off and timeline.
     await page.goto(`${origin}/app#jobs`)

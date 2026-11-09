@@ -91,7 +91,11 @@ export async function harnessRoute(target: Target, pattern: Pattern, handler: Ha
       tickets.delete(id); finish(); throw error
     }
   }
-  await target.route(pattern, dispatch)
+  try { await target.route(pattern, dispatch) } catch (error) {
+    target.off('requestfailed', failed)
+    await new Promise<void>(resolve => server.close(() => resolve()))
+    throw error
+  }
   const owned = registrations.get(target) ?? []
   const registration: Registration = { pattern, handler, async pause() {
     let resume!: () => void
@@ -104,7 +108,9 @@ export async function harnessRoute(target: Target, pattern: Pattern, handler: Ha
     // Remove admission first; each already-continued HTTP request retains a
     // ticket until delivered or failed. A snapshot of callbacks alone misses
     // requests between Chromium's continue and the server's request event.
-    await target.unroute(pattern, dispatch)
+    // Teardown must still drain and close the server if the target itself
+    // failed/closed. Preserve that error instead of masking it with cleanup.
+    try { await target.unroute(pattern, dispatch) } catch (error) { failures.push(error) }
     while (tickets.size) await Promise.all([...tickets.values()].map(ticket => ticket.done))
     while (pending.size) await Promise.all([...pending])
     target.off('requestfailed', failed)
