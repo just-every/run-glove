@@ -1,0 +1,20 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority (109734.870787ms)
+ℹ point 1: described price-book choices, revision, drawn approval, exact cents and stale refusal survive restart
+ℹ point 2: day 31 refuses approval and one update reopens the request with one office notice
+ℹ point 3: revision bearer delegates only its own read, choice, changes, update, decline and signed approval
+ℹ point 4: Agent, Technician, integration and signed-out issuance fail; reissue leaves one live link
+ℹ point 5: every customer response exposes only its revision and service site without private cost or notes
+ℹ point 6: accepted provider email and staff handout retain honest unverified authentication bases
+ℹ point 7: withdrawn role and wrong branch refuse decisions without writes and jobs require accepted approved current work
+ℹ point 8: staff and customer race to one frozen decision; either replay is inert across actual Worker restart
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 129721.465984

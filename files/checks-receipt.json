@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses QUOTE-002 COMM-001 BOOK-015",
+      "exit": 0,
+      "log": "contract-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses QUOTE-002 COMM-001 BOOK-015",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "source-lock-write.json"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "source-lock-check.json"
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run node --test --test-concurrency=1 tests/api/quote-approval.test.mjs",
+      "exit": 0,
+      "fail": 0,
+      "log": "quote-approval-test.log",
+      "named_scenarios": 8,
+      "pass": 1,
+      "tests": 1
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "local_browser_and_portable": "not run, as instructed",
+  "product_check_scope": "Focused continuation tests; inherited main-only tests left for hosted Verify.",
+  "recorded_at": "2026-11-09T16:41:48.743642+00:00",
+  "repository": "just-every/run-glove",
+  "runtime": {
+    "node": "24.19.0",
+    "package_node_pin": "22.20.0",
+    "pnpm": "10.12.4"
+  },
+  "tag": "sx-glove-c-f212-pc2"
+}

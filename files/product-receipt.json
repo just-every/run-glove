@@ -1,0 +1,40 @@
+{
+  "blockers": [],
+  "branch": "cloud/sx-glove-c-f212-pc2",
+  "candidate_commits": [
+    "814f96df3a9d6a425739629ddeb0903c15885b1f",
+    "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+    "2c7eeb2d9253373646c42df112497c5179326c5f",
+    "a90d95e90cc1c1c41ec877ed34557f0a38452807",
+    "79b36289a889b689424aa7b2906b4284168a232c",
+    "f26e4c940e9e69a58c37cf6092b3b7bd58aee4b3"
+  ],
+  "changed_files_vs_main": [
+    "sources.lock.json",
+    "tests/api/quote-approval.test.mjs",
+    "tests/browser/journey.spec.ts",
+    "tests/browser/movein.spec.ts",
+    "tests/browser/quote-link-custody.spec.ts"
+  ],
+  "contract_and_views_match_main": true,
+  "head": "814f96df3a9d6a425739629ddeb0903c15885b1f",
+  "parents": [
+    "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+    "8490becf75f42dbff8ffcb56a6c399e06cf9d460"
+  ],
+  "pr": null,
+  "product_lock": "sources.lock.json",
+  "product_pushes": 1,
+  "push_attempts": 1,
+  "remote_tracking_head": "814f96df3a9d6a425739629ddeb0903c15885b1f",
+  "repository": "just-every/run-glove",
+  "terminal_line": "READY branch=cloud/sx-glove-c-f212-pc2 head=814f96df3a9d6a425739629ddeb0903c15885b1f",
+  "verify": {
+    "conclusion": "success",
+    "head_sha": "814f96df3a9d6a425739629ddeb0903c15885b1f",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42657368069",
+    "run_id": 42657368069,
+    "status": "completed"
+  },
+  "worktree": "clean"
+}

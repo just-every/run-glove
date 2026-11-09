@@ -1,0 +1,23 @@
+{
+  "before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "after": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "total": 263
+  },
+  "changes": [
+    {
+      "id": "BOOK-015",
+      "before": "partial",
+      "after": "done"
+    }
+  ],
+  "quote002Unchanged": true,
+  "sourceAndGeneratedViewsMatchMain": true
+}
