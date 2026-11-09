@@ -1,0 +1,287 @@
+{
+  "tag": "sx-glove-c-f217",
+  "repository": "just-every/run-glove",
+  "head": "8efd317b006b25dd25c3745b65e917f58a892af4",
+  "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs tests/browser/email.spec.ts",
+  "exit": 0,
+  "viewports": [
+    1440,
+    390
+  ],
+  "registration": "COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 owner connects email and morning settings; the desk emails quotes, invoices and supplier orders with provider outcomes at 1440 and 390",
+  "screenshots": [
+    {
+      "file": "screenshots/1440-email-disconnected.png",
+      "sha256": "bd294a7535e93874aa843c362af3f18446996ff0475acd2b5df68ae4300d5879",
+      "bytes": 121025
+    },
+    {
+      "file": "screenshots/1440-email-invoice-accepted.png",
+      "sha256": "871a4463745df74eec4a8dde16c21e42eb237216a24ccee55927c5813628a86a",
+      "bytes": 205498
+    },
+    {
+      "file": "screenshots/1440-email-invoice-bounced.png",
+      "sha256": "38b41c9f0ef901eb522dd93ace06d13e55c5e0100e6789afb9ba2c659858f98f",
+      "bytes": 208827
+    },
+    {
+      "file": "screenshots/1440-email-po-delivered.png",
+      "sha256": "dc300b5bbf02443eea7613f76135673910828baed1595f306faf00e5fb2fbc8e",
+      "bytes": 120115
+    },
+    {
+      "file": "screenshots/1440-email-postmark-400.png",
+      "sha256": "135558bdbf0cc0fe6088ce8f84598d3c3ac752fc822573630afe27d402ab1900",
+      "bytes": 122731
+    },
+    {
+      "file": "screenshots/1440-email-postmark-429.png",
+      "sha256": "fef55e4e9733bcf99ce64d2b99fd3a0ce875f27a1eb36d536e4feb8479576f07",
+      "bytes": 122613
+    },
+    {
+      "file": "screenshots/1440-email-postmark-503.png",
+      "sha256": "29406cacac81266338ae7c7b5a39edaa123e99e837c387441008146269da6ae7",
+      "bytes": 126571
+    },
+    {
+      "file": "screenshots/1440-email-postmark-allowlist.png",
+      "sha256": "27d507c8222505ac5298d3fb7f759c9eff2c7d828cd510151de3525f77fa2ab2",
+      "bytes": 138398
+    },
+    {
+      "file": "screenshots/1440-email-postmark-morning-recovered.png",
+      "sha256": "bb30fa21331c8cbf8a1e83827f47f6cd499d81b5fb91760763620a7938205129",
+      "bytes": 124098
+    },
+    {
+      "file": "screenshots/1440-email-postmark-morning-unknown.png",
+      "sha256": "5ac68e3983b4240a70996abd324cdc23e633234a187534bafdabb78379681964",
+      "bytes": 126367
+    },
+    {
+      "file": "screenshots/1440-email-postmark-recovered.png",
+      "sha256": "381f6c754cdf51c2af6a5137f8da8e45474e725e8209ef557ce321dddaf23644",
+      "bytes": 119551
+    },
+    {
+      "file": "screenshots/1440-email-postmark-rotated.png",
+      "sha256": "032151f658bed0b9cbb06dbaeae56bc1836dace346a14c431b180827058ae636",
+      "bytes": 141097
+    },
+    {
+      "file": "screenshots/1440-email-postmark-shown-once.png",
+      "sha256": "7bf5112d213bbf170185fb110208c959d47e8a3bc1b96582ff77b20b6ce87161",
+      "bytes": 139487
+    },
+    {
+      "file": "screenshots/1440-email-postmark-verified.png",
+      "sha256": "30e75a92a38de2c8c93589015dddbd3c91e0f2cd5233eb0b40ac9217ca475678",
+      "bytes": 122212
+    },
+    {
+      "file": "screenshots/1440-email-quote-accepted.png",
+      "sha256": "789219ffe0075ca82650c90d78df2d9f5de57ceeb838caf0886a07b531db33fb",
+      "bytes": 121296
+    },
+    {
+      "file": "screenshots/1440-email-quote-delivered.png",
+      "sha256": "be006d8d05796b3fea35b592ce3ef67baa5a24777c6c299dbe982665a4284d5b",
+      "bytes": 124147
+    },
+    {
+      "file": "screenshots/1440-email-ses-400.png",
+      "sha256": "7506d653ed0f83d77af28582b1c18c4a5ad836c6112f638cbbc5ecb1a1602a4b",
+      "bytes": 123065
+    },
+    {
+      "file": "screenshots/1440-email-ses-429.png",
+      "sha256": "fa9310cdd9463c96be3875f89608c69b728a20d35f6f75b2ebaf1a5d32c43eac",
+      "bytes": 123153
+    },
+    {
+      "file": "screenshots/1440-email-ses-503.png",
+      "sha256": "4f1ac900054eb7af510419e5b7240d2e339710e57cf1f5311ecad54b9f7721de",
+      "bytes": 128050
+    },
+    {
+      "file": "screenshots/1440-email-ses-morning-recovered.png",
+      "sha256": "ebf6637f89396d8642bc3d2ac0272c7a672f216def178f0617dac82c3076e274",
+      "bytes": 124637
+    },
+    {
+      "file": "screenshots/1440-email-ses-morning-unknown.png",
+      "sha256": "2adb27a99885813101b3086637557adc54435fd0c8d097395e94f90cd79cfa96",
+      "bytes": 127683
+    },
+    {
+      "file": "screenshots/1440-email-ses-recovered.png",
+      "sha256": "1f39363b452816759b805d864bba3082052c32a7989588fbb98c9d692aa33250",
+      "bytes": 121403
+    },
+    {
+      "file": "screenshots/1440-email-ses-settings.png",
+      "sha256": "f14786ed4cf9e2a36fa32c60d7a1b3c5ea5fd9c4785631614581094e35472b03",
+      "bytes": 128829
+    },
+    {
+      "file": "screenshots/1440-email-ses-subscription-warning.png",
+      "sha256": "eec7ecb80a1335e5cd34b517db493c48c5a022b2344d5233f8bdd9ba4eb6bce4",
+      "bytes": 130811
+    },
+    {
+      "file": "screenshots/1440-email-settings-disconnected.png",
+      "sha256": "de54b60e7b97ff0cda82b15597c9b50d3df9412d6f1a905d5f4b0929c7ec66ff",
+      "bytes": 126736
+    },
+    {
+      "file": "screenshots/1440-email-settings-off.png",
+      "sha256": "129d7e61a1755fe6ef991db0dc2b8f7f03a3d5b4394beb7c5d1ebbcd4f297197",
+      "bytes": 130366
+    },
+    {
+      "file": "screenshots/1440-email-settings-on.png",
+      "sha256": "80998627ccebd029c01a68e106980bf5841d1bfae0b06b5269ce82a61d4b131a",
+      "bytes": 131703
+    },
+    {
+      "file": "screenshots/390-email-disconnected.png",
+      "sha256": "24d054bdaaca1bd07beabb63b8337756357f09e41bde891af15b798c08287b19",
+      "bytes": 62150
+    },
+    {
+      "file": "screenshots/390-email-invoice-accepted.png",
+      "sha256": "895ff8a194ef2ef5bd447a9b4bd9b1da4d08821c36e288582c93b6f5857c6eab",
+      "bytes": 82471
+    },
+    {
+      "file": "screenshots/390-email-invoice-bounced.png",
+      "sha256": "759b901ccd0610d5f95d68c283a5354d1fd6bb1bb8cdb4a9aed716fb0ac967ac",
+      "bytes": 82737
+    },
+    {
+      "file": "screenshots/390-email-po-delivered.png",
+      "sha256": "567e6adfd27417e05322a08fbb74d2c60ad65aa39be027f313dd5d5955a0b67d",
+      "bytes": 57540
+    },
+    {
+      "file": "screenshots/390-email-postmark-400.png",
+      "sha256": "a56a7be191c366acc91c7e62ad37c468a5682967d380424289b253cdbae96f1b",
+      "bytes": 64668
+    },
+    {
+      "file": "screenshots/390-email-postmark-429.png",
+      "sha256": "88a8eb5aa088036f1c3635b19bef6c1bafa356b1311894919ed38d6678af1c25",
+      "bytes": 65539
+    },
+    {
+      "file": "screenshots/390-email-postmark-503.png",
+      "sha256": "db8a9cb60505d3ee330a14cfdbbf615810da092ff8caf41c453393f18ad6e2b3",
+      "bytes": 70724
+    },
+    {
+      "file": "screenshots/390-email-postmark-allowlist.png",
+      "sha256": "6b6d927ef30501ae8be56ea7e06e7c0174f85d9bda8a0598983c36f379272b74",
+      "bytes": 70930
+    },
+    {
+      "file": "screenshots/390-email-postmark-morning-recovered.png",
+      "sha256": "b231f153469b21336a478bb9205160e6f120cf7a93e4809c26e706110ab2da6f",
+      "bytes": 59247
+    },
+    {
+      "file": "screenshots/390-email-postmark-morning-unknown.png",
+      "sha256": "cccdc84fd62e0b4617d58fda91438c5a1d4a802522a6a646a159300f4f45eb26",
+      "bytes": 62735
+    },
+    {
+      "file": "screenshots/390-email-postmark-recovered.png",
+      "sha256": "c6766438e723a513ab5f209bb3ff1328fd914d289b37cd8eafd1b3f3f120eb93",
+      "bytes": 68765
+    },
+    {
+      "file": "screenshots/390-email-postmark-rotated.png",
+      "sha256": "d8018032de67c084530fe162c5e4d50bb78253e0da9317608ae6a8087d44b279",
+      "bytes": 72863
+    },
+    {
+      "file": "screenshots/390-email-postmark-shown-once.png",
+      "sha256": "dbb9f02507ed75bff7d37e60592c2a89ed95410736e53bab9bcd8ab2242a8018",
+      "bytes": 70849
+    },
+    {
+      "file": "screenshots/390-email-postmark-verified.png",
+      "sha256": "b3a6adf6ed2ed215b56cb927826bd9ef2573cfe8a37c681621dafe50351591b8",
+      "bytes": 66416
+    },
+    {
+      "file": "screenshots/390-email-quote-accepted.png",
+      "sha256": "12393714195d08edfb07c5b7d11be6c7b296918fb5ffcfb27cf02583ca3e77a3",
+      "bytes": 64849
+    },
+    {
+      "file": "screenshots/390-email-quote-delivered.png",
+      "sha256": "8f1856d83b64933ac6440311082eb01ff9a7ed3e207513a8f381e5cc00b561f1",
+      "bytes": 64307
+    },
+    {
+      "file": "screenshots/390-email-ses-400.png",
+      "sha256": "bcac4d8e0694db75f109618499d28bf25a4ae1d02e7c1850bacd49d7cd020a72",
+      "bytes": 64757
+    },
+    {
+      "file": "screenshots/390-email-ses-429.png",
+      "sha256": "2cf5674e38e4c716235a0a668a0c9e413ce9aecf5fdee9ffadd91ba8bee0e7c6",
+      "bytes": 65839
+    },
+    {
+      "file": "screenshots/390-email-ses-503.png",
+      "sha256": "fcfb9440b0c643d05bd4b297ad1a495ee5a59d61c10c85c7567b2ea3565646b9",
+      "bytes": 72164
+    },
+    {
+      "file": "screenshots/390-email-ses-morning-recovered.png",
+      "sha256": "02fae5dcff8d93607c1cc65497219de6b4f45c0c2d9a64f5167b499e7e564684",
+      "bytes": 59796
+    },
+    {
+      "file": "screenshots/390-email-ses-morning-unknown.png",
+      "sha256": "d734c834c2e8137009cc3490b6f8891711a7c510a2eb9c8f160a1a75fa41d663",
+      "bytes": 63463
+    },
+    {
+      "file": "screenshots/390-email-ses-recovered.png",
+      "sha256": "10bfee7497f139634310704e8c52e4e7814809b7845b16d2391ce10658a89177",
+      "bytes": 70349
+    },
+    {
+      "file": "screenshots/390-email-ses-settings.png",
+      "sha256": "edbf27f34438625e2cbdc647527230ec0f1d1f796134ef0255e5a76714d7d96e",
+      "bytes": 70339
+    },
+    {
+      "file": "screenshots/390-email-ses-subscription-warning.png",
+      "sha256": "6f81bec9cfa38def8d4ed203d465fdfd9abf10db368094a6f765809657be4aa0",
+      "bytes": 68935
+    },
+    {
+      "file": "screenshots/390-email-settings-disconnected.png",
+      "sha256": "035a7dacd511db336b9bf128c81e8362a4c2816020253a54681c5cda19742655",
+      "bytes": 70814
+    },
+    {
+      "file": "screenshots/390-email-settings-off.png",
+      "sha256": "a1804cd31c28ec695309ecc4c55fa01128a7f6d497ab5e82eac2760cb60c7328",
+      "bytes": 68246
+    },
+    {
+      "file": "screenshots/390-email-settings-on.png",
+      "sha256": "53c650e649fdbf493c59c70f49ea2d144a8f4ef0dffbec27ea14dc1349dfea2b",
+      "bytes": 69142
+    }
+  ],
+  "log": "browser.log",
+  "browserClosed": true,
+  "ownedServersStopped": true
+}

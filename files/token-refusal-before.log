@@ -1,0 +1,32 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+COMM-001 point 1: document messages and signed replayed outcomes retain exact timeline states and customer bounce warnings after Worker restart
+COMM-001 point 2: each connection, queued message, provider answer and event has the same attributable fact and reference in Activity and business export without secrets or body
+COMM-001 point 3: only the signed-in unscoped Owner manages all four credential shapes, secrets never return or persist in public evidence, and disconnect revokes every send and callback
+COMM-001 point 4: arbitrary from domains connect and the provider HTTP refusal says not sent with a next step and is never retried
+COMM-001 point 5: document authority, current approved revisions, invoice recipients, draft supplier orders and customer-only booking emails are enforced without unsafe queued work
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+true !== false
+
+    at Object.run (file:///tmp/sx217-probe.mjs:129:50)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async refuse (file:///tmp/sx217-probe.mjs:29:5)
+    at async file:///tmp/sx217-probe.mjs:174:73
+    at async scenario (file:///home/agent/rer-consolidation/work/sx-glove-c-f217/run-glove/tests/fixtures/scenario.mjs:8:5)
+    at async customerEmailPoints (file:///tmp/sx217-probe.mjs:168:3)
+    at async file:///tmp/sx217-probe.mjs:236:26 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

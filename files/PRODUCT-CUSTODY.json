@@ -1,0 +1,11 @@
+{
+  "repository": "just-every/run-glove",
+  "command": "git ls-remote --refs origin refs/heads/main refs/heads/cloud/sx-glove-c-f217",
+  "exit": 0,
+  "observedRefs": {
+    "refs/heads/cloud/sx-glove-c-f217": "8efd317b006b25dd25c3745b65e917f58a892af4",
+    "refs/heads/main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8"
+  },
+  "productHeadVerified": true,
+  "mainWrittenByThisTask": false
+}

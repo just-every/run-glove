@@ -1,0 +1,126 @@
+{
+  "tag": "sx-glove-c-f217",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f217",
+  "head": "8efd317b006b25dd25c3745b65e917f58a892af4",
+  "sourceHashes": {
+    "src/glove/commands/mail.ts": "0508746629309e6c77847f9e6384afa8f3cde3dab5ab4668e1a22e04aec019aa",
+    "tests/api/email.test.mjs": "7d4b44cac7ec7cb4b9a1877eca94d548ed586505a06fb9971131e6b8b9ee1fc5",
+    "tests/api/message-outcomes.test.mjs": "63418c4d4f0960210d71425ef1542da2a8e39fb32167a5ea6509d45ccc413d8f",
+    "tests/portable.mjs": "c4e82a4c9029b84412ad10544ce0481a8cb208ba818b74b85e8262c76d9bf7f7",
+    "sources.lock.json": "a3cef63038def3971078e1d67f09e43b51aa5f38e1904dfb8c10d110940558e6",
+    "tests/api/harness.mjs": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+    "tests/fixtures/mail-providers.mjs": "701bccc738479fb28be47416a247b1af8d2b1325f2804c41a3bd847e61b777c3",
+    "tests/browser/email.spec.ts": "029b3cda68bcf68aa4ba07100a848016abcff2ec57646135eb2dcc4d944062dd"
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/email.test.mjs",
+      "exit": 0,
+      "log": "email-api.log",
+      "binding": "final relevant source and test bytes match committed candidate; run completed before commit"
+    },
+    {
+      "command": "node tests/portable.mjs",
+      "exit": 0,
+      "log": "portable.log",
+      "binding": "actual archive assertion and affected custody implementation unchanged on candidate; exact-head Verify also invokes this script"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 0,
+      "resultFile": "inventory.json"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses COMM-001; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "contract-views.log",
+      "generatedViewsCommitted": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "checkFile": "source-lock-check.json"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs tests/browser/email.spec.ts",
+      "exit": 0,
+      "head": "8efd317b006b25dd25c3745b65e917f58a892af4",
+      "receipt": "BROWSER-RECEIPT.json",
+      "screenshots": 54
+    }
+  ],
+  "migrationLedger": {
+    "applicable": false,
+    "reason": "no migration changed"
+  },
+  "publicationScan": {
+    "commit": "8efd317b006b25dd25c3745b65e917f58a892af4",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "NOT RUN in cloud; guarded lander required"
+  },
+  "identities": {
+    "candidateCommitsReviewedIncludingSideParents": 17,
+    "authorsAllowed": true,
+    "committersAllowed": true,
+    "fullMessagesAndTrailersAllowed": true,
+    "openAICodexCoauthorPresent": false
+  },
+  "contractCounts": {
+    "before": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    },
+    "after": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    }
+  },
+  "claim": {
+    "clause": "COMM-001",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "sourceStatusUnchanged": true
+  },
+  "ci": {
+    "repository": "just-every/run-glove",
+    "runId": 42616161595,
+    "event": "push",
+    "head": "8efd317b006b25dd25c3745b65e917f58a892af4",
+    "latest": "ci-status-history.json",
+    "status": "in_progress",
+    "pollIntervalSeconds": 301,
+    "githubCallsBeforeWatcher": 2
+  },
+  "baselineMain": {
+    "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+    "Verify": 42611312391,
+    "VerifyConclusion": "success",
+    "RunSite": 42611312355,
+    "RunSiteConclusion": "success"
+  },
+  "generatedViewsCommitted": false,
+  "contractJudgmentEdits": false
+}

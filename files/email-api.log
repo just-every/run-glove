@@ -1,0 +1,110 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✔ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay (128610.615601ms)
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+ℹ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+ℹ COMM-001 point 1: document messages and signed replayed outcomes retain exact timeline states and customer bounce warnings after Worker restart
+ℹ COMM-001 point 2: each connection, queued message, provider answer and event has the same attributable fact and reference in Activity and business export without secrets or body
+ℹ COMM-001 point 3: only the signed-in unscoped Owner manages all four credential shapes, secrets never return or persist in public evidence, and disconnect revokes every send and callback
+ℹ COMM-001 point 4: arbitrary from domains connect and the provider HTTP refusal says not sent with a next step and is never retried
+ℹ COMM-001 point 5: document authority, current approved revisions, invoice recipients, draft supplier orders and customer-only booking emails are enforced without unsafe queued work
+ℹ COMM-001 point 6: document and booking emails contain only their transactional content and other send kinds are refused
+ℹ COMM-001 point 7: all four provider request shapes carry the business Reply-To only while a business email is set
+ℹ COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+ℹ point 6: independent address warnings survive other-address delivery, refusal and failed attempts until same-address delivery or an address change
+ℹ points 1 and 2: SendGrid sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: SendGrid authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: SendGrid failures retain exact user text, next steps and attributable provider references
+ℹ point 7: SendGrid messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 2: Resend sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: Resend authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: Resend failures retain exact user text, next steps and attributable provider references
+ℹ point 7: Resend messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 2: Postmark sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: Postmark authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: Postmark failures retain exact user text, next steps and attributable provider references
+ℹ point 7: Postmark messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 2: Amazon SES sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+ℹ points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+ℹ points 3 and 5: Amazon SES failures retain exact user text, next steps and attributable provider references
+ℹ point 7: Amazon SES messages read as outbound conversation entries with their author, recipient and provider state
+ℹ points 1 and 3: state, saved command outcomes, message timelines, Activity, export and captured Worker logs retain provider facts but no email bodies, credentials or bearer
+ℹ point 8: repeated scheduled passes, command replay and actual Worker restart retain identical facts and never resend any message
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 129708.29259
