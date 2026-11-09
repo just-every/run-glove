@@ -1,0 +1,86 @@
+# COMM-017 SES and SNS custody qualification
+
+Tag: sx-glove-c-f170. Repository: just-every/run-glove. Branch: cloud/sx-glove-c-f170. Full candidate SHA: 997594dfed81b4bdabb561e92d83e20cb245646f. Base main at candidate integration: 391f23c6036b67f351e2769e82c45e0526b96abe. Recorded: 2026-11-09T00:33:02.704679+00:00.
+
+The candidate qualifies all eight native acceptance points through real Worker commands and its public callback route. No production defect was exposed, so there is no production repair. It replays the unfinished predecessor at 53f62846c8af0f99266cfe95cb95c48700be42b3 onto current main, preserving newer work. The three predecessor commits were consolidated into one new fleet-authored commit rather than importing their obsolete source lock. The predecessor Verify run 42530273972 was successful; it is contextual evidence only, never candidate proof.
+
+The executed plan was to read the source clause and its Gap, map the existing combined email proof, recover and review the focused journeys, run them and the unchanged email regressions, inspect all riders and inherited duties, integrate current main, regenerate the contract views and then restore them from main, regenerate the source lock last, commit and push the named product branch, obtain exact-SHA CI evidence and publish this packet through its separate evidence ref. This report is the plan update for COMM-017; no other campaign row changes.
+
+The diff is limited to tests/api/ses-sns-custody.test.mjs (eight registrations), the existing SNS network edge in tests/api/harness.mjs (response override plus request accounting), and sources.lock.json. tests/api/email.test.mjs, tests/fixtures/mail-providers.mjs, tests/browser/email.spec.ts, the workflow and contract judgments are unchanged. No screen changes require browser proof.
+
+Counts before and after this branch: 23 DONE, 211 PARTIAL, 29 MISSING; 263 Status rows retained. COMM-017 remains stored PARTIAL. The requested claim is DONE on landing, points 1 through 8. If the independent gate accepts that claim, its single status flip would yield 24 DONE, 210 PARTIAL, 29 MISSING; this builder does not write that flip.
+
+The focused file adds eight behavior registrations, as requested by the lease. The unchanged email file retains six registrations and every existing assertion. No pin test or duplicate was removed because the brief explicitly preserves that combined test. A simple top-level registration inventory already exceeds the nominal 200-test budget on main (168 API and 47 browser registrations, before standalone verification scripts); this pre-existing suite budget issue is disclosed, and no unrelated test deletion or cap change is included.
+
+## Acceptance evidence
+
+| Point | Public-door result | Exact test and lines | Run |
+| --- | --- | --- | --- |
+| 1 | The owner connects SES with three pins. Malformed region, ARN and configuration set inputs return INPUT without state or fetch changes. Foreign topic, regional host and configuration set events return MAIL_EVENT without durable writes; reconnecting rejects old pins and accepts the newly pinned source. | `tests/api/ses-sns-custody.test.mjs:58` — COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins | Exact-head local run; push Verify 42540517589 pending |
+| 2 | Mismatched header, signature version 3 and unsafe certificate URLs return MAIL_EVENT without any fetch. A wrong signature with the valid cached certificate also makes no new request and changes no durable row. Independent version 1 and version 2 deliveries succeed. A certificate 302 is refused without following Location. The runtime clock proves reuse at 3599 seconds, refetch at 3600 seconds, and one refetch when shorter certificate validity ends. | `tests/api/ses-sns-custody.test.mjs:84` — COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache | Exact-head local run; push Verify 42540517589 pending |
+| 3 | Separate real messages become delivered with signed envelope timestamps exactly one hour old and five minutes ahead. One second beyond either bound returns MAIL_EVENT, changes no durable row and makes no fetch. | `tests/api/ses-sns-custody.test.mjs:129` — COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses | Exact-head local run; push Verify 42540517589 pending |
+| 4 | Two actual email.send commands produce separate SES requests with the pinned ConfigurationSetName and the exact base64url encoding of their own message ids. Raw delivery and signed events with missing, foreign or malformed configuration and delivery tags return MAIL_EVENT with no durable effect. Both correctly tagged deliveries succeed. | `tests/api/ses-sns-custody.test.mjs:140` — COMM-017 point 4: signed configuration and delivery tags bind every SES send | Exact-head local run; push Verify 42540517589 pending |
+| 5 | The first envelope produces one SNS receipt, one SES receipt and one delivered timeline fact. Replaying its MessageId changes none. The same SES event under a new SNS MessageId retains the same single SES receipt and fact, with one SNS custody receipt per distinct envelope. Reusing a MessageId with changed content returns MAIL_EVENT and changes nothing. Actual Worker restart retains the results and duplicate suppression. | `tests/api/ses-sns-custody.test.mjs:164` — COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses | Exact-head local run; push Verify 42540517589 pending |
+| 6 | Hostile URL variants, stale timestamps, wrong topics, invalid signatures and missing headers make no confirmation request. A verified confirmation uses HTTPS on the pinned regional host with exactly Action=ConfirmSubscription, TopicArn and Token, fetches once and writes its confirmed Activity fact. Replaying makes no fetch. A confirmation 302 is not followed, records an unknown-outcome warning and confirmationFailed fact, and is never refetched on replay. | `tests/api/ses-sns-custody.test.mjs:185` — COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects | Exact-head local run; push Verify 42540517589 pending |
+| 7 | A verified UnsubscribeConfirmation writes one owner warning in state and attributable Activity, without any subscription fetch. Restart retains the warning; replay retains exactly one fact and refetches only the signing certificate needed by the new isolate. | `tests/api/ses-sns-custody.test.mjs:219` — COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching | Exact-head local run; push Verify 42540517589 pending |
+| 8 | Eight actual SES messages independently become delivered, bounced, failed, deferred, complained or rejected, including both rendering-failure spellings. Exact provider references, occurrence times, actors, summaries and one fact per message are checked in Activity and the business export. After actual Worker disposal and recreation, message states, messages, saved results, SNS and SES receipts, Activity and exported timeline are byte-for-byte equal; replay sends no email. Access key, secret, session token, subscription token, certificate and a certificate body line are absent from state, saved command results, Activity, business export and captured Worker logs, including a rejected envelope containing certificate material. | `tests/api/ses-sns-custody.test.mjs:238` — COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart | Exact-head local run; push Verify 42540517589 pending |
+
+These runtime assertions are also the eight requested public-door probes:
+
+PROBE COMM-017 1: mail.connect malformed pins and callback with foreign pins -> INPUT or 401, no writes or fetches; reconnect accepts new pins only
+PROBE COMM-017 2: callback with invalid header, version, signature or certificate source -> 401 and unchanged data; valid versions succeed; runtime clock changes produce bounded cache reuse and refetch
+PROBE COMM-017 3: callback with timestamps at and beyond the old and future limits -> both exact boundaries delivered, both one-second violations 401 without writes
+PROBE COMM-017 4: email.send twice and callback with raw or incorrectly tagged SES payload -> distinct correctly tagged SES requests; bad events 401, good events delivered
+PROBE COMM-017 5: callback with original, replayed, new SNS identity and reused changed-body identity -> one SES receipt and fact; distinct SNS custody identities; changed reuse 401, stable after restart
+PROBE COMM-017 6: callback with hostile or verified SubscriptionConfirmation -> hostile fetches zero; valid fetches once; redirect not followed and failed confirmation never refetched
+PROBE COMM-017 7: callback with UnsubscribeConfirmation -> durable owner warning in state and Activity, no subscription fetch, stable after restart
+PROBE COMM-017 8: email.send plus all eight SES outcome variants -> exact states and attributable facts; restart and replay preserve results; secrets absent from all checked outputs
+
+## Inherited duties
+
+| Duty | Result | Evidence |
+| --- | --- | --- |
+| BASE-MAIL-001 | PASS | Point 8 independently checks every exact SES state and provider fact; point 6 keeps a failed confirmation honestly unknown. The email regression also verifies acceptance versus delivery and rejects unsafe recipients. |
+| BASE-OPS-003 | PASS | Points 5 and 8 compare receipts and facts through replay and actual Worker restart. Point 6 never refetches a replayed confirmation; point 7 keeps one unsubscribe warning. |
+| BASE-OPS-004 | PASS | Point 6 observes confirmationFailed in Activity and an owner warning after a redirect. Point 7 observes the unsubscribe warning; point 8 verifies failed and rejected message states. |
+| BASE-SECRET-001 | PASS | Point 8 inspects state, saved command results, Activity, business export and captured Worker logs before and after restart, with real generated certificate material and synthetic credentials. |
+
+## DONE-RIDERS
+
+| Row | Result | Evidence |
+| --- | --- | --- |
+| 1 | PASS locally; exact-SHA Verify pending | Points 1 through 8 below exercise actual commands and callback HTTP; the exact candidate run is recorded separately. |
+| 2 | PASS | Nonempty messages, provider sends, delivered states, stored receipts and exported timeline facts are independently checked. Unsafe cases assert 401 plus unchanged durable tables; supported cases complete. |
+| 3 | PENDING Verify | Push Verify 42540517589 on 997594dfed81b4bdabb561e92d83e20cb245646f invokes the focused file through verification.json and scripts/verify-app.mjs API partitions. No env flag or nightly-only registration. |
+| 4 | PASS | Exact-head tests and typecheck are recorded in receipt.json. The final source edit only constructs an invalid configuration string without a bare slash token; final tests run after the candidate commit. |
+| 5 | PASS | CONTRACT.md COMM-017 explicitly cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004 and BASE-SECRET-001 at line 1225. No inherited duty was silently removed or rewritten. |
+| 6 | PASS mechanical; judgment deferred | Generator write and check succeed, generated views equal main and are not committed. All 263 Status rows and 23 DONE, 211 PARTIAL, 29 MISSING judgments are unchanged. The lander owns the claim update. |
+| 7 | PASS | No CONTRACT.md or acceptance text changed. No point, rider or coverage-map obligation was added, narrowed or removed. |
+| 8 | PASS | Actual owner connection succeeds; existing email regression refuses office connection and technician sending. Old pins fail after reconnect; every unsafe callback snapshot stays unchanged. Tests do not grant any additional authority. |
+| 9 | PASS | Only SES and SNS transport edges are faked with real RSA signatures and generated X.509 certificates. R-9 live-provider acceptance remains unclaimed, as do automatic resend and the held neighboring clauses. |
+| 10 | NOT APPLICABLE | No new custody, consent, spending or authority policy was adopted. Existing conservative implementation semantics and ct rulings remain intact. |
+| 11 | PENDING guarded landing | Product branch is pushed. Main equality, exact-candidate Verify success, publication scan and final Run site are fleet landing duties. No scan or landing result is invented. |
+
+## Pre-ready checks
+
+1. Every named acceptance outcome is performed on real seeded business records. Incorrect header, signature, pin, age, tag, replay and redirect inputs are actually attempted and assert unchanged durable tables; accepted cases assert concrete delivered states or attributable warning facts. Exact-SHA Verify is pending in this initial report.
+2. No pre-existing assertion was deleted, skipped, narrowed or put behind a width or branch condition. No production code, schema, migration, package version or workflow changed.
+3. Point 1 exercises pin withdrawal on reconnect, points 5 and 8 exercise replay without resurrection, and the unchanged targeted privacy journey exercises customer erasure followed by an old authenticated callback with no returning message, receipt or timeline fact. This does not claim the neighboring callback-authentication or archive-restoration clauses.
+4. No screens changed. UI typography, tooltips and screen captures are inapplicable to this test-only change.
+5. Local focused and existing email tests, targeted privacy regression, typecheck, first-party profile, contract generation and source lock checks are recorded in receipt.json. Publication scanning is intentionally delegated to the Mac lander under the cloud route. Candidate main equality and final Run site remain pending landing.
+
+MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses COMM-017 and check --clauses COMM-017 exit=0; ledger=none exit=0.
+
+Scan receipt: commit=997594dfed81b4bdabb561e92d83e20cb245646f; complete=NOT RUN IN CLOUD; historyScanned=NOT ESTABLISHED; findings=NOT ESTABLISHED. A zero-finding scan is not claimed. Full-history clone was used. The lander must run the exact-tree publication scan and require COMPLETE with zero findings.
+
+Main equality: origin/main=391f23c6036b67f351e2769e82c45e0526b96abe; candidate=997594dfed81b4bdabb561e92d83e20cb245646f; candidate descends from main, main does not yet equal candidate. Baseline Verify 42537943392 and Run site 42537943388 are completed success on the baseline only. Candidate push Verify 42540517589 is recorded in candidate-runs.jsonl. No PR is required by this push-triggered repository and none was opened.
+
+All product commits use Run Edit Run fleet as author and committer, with fleet@runeditrun.com independently in both fields and no trailers. All candidates and full messages were inspected before push. The cloud commit hook remains active, and the product push used cloud-push.py. Product commit 997594dfed81b4bdabb561e92d83e20cb245646f was pushed successfully on the first attempt. No published history was rewritten.
+
+Boundary: no live Amazon SES or SNS account acceptance, actual inbox delivery, automatic resend, release or publication is claimed. COMM-013, COMM-014, COMM-010, COMM-012, COMM-018 and COMM-011 keep their owning obligations; all stated provider, Base and consent holds remain. No policy default or new acceptance point is introduced. There is no observed product blocker.
+
+CLAIM COMM-017 DONE points=1,2,3,4,5,6,7,8 tests=tests/api/ses-sns-custody.test.mjs#COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins; tests/api/ses-sns-custody.test.mjs#COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache; tests/api/ses-sns-custody.test.mjs#COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses; tests/api/ses-sns-custody.test.mjs#COMM-017 point 4: signed configuration and delivery tags bind every SES send; tests/api/ses-sns-custody.test.mjs#COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses; tests/api/ses-sns-custody.test.mjs#COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects; tests/api/ses-sns-custody.test.mjs#COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching; tests/api/ses-sns-custody.test.mjs#COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart
+
+Report and actual receipt files are selected explicitly for the report-only evidence ref. No credential files, environment dumps, held-out gate material or symlinks are selected. Product and evidence publication are separate; the latter proves only report transfer.
+
+First rate-limited CI poll: push Verify 42540517589 remains in progress on the exact candidate SHA. Four GitHub API calls have been used: predecessor context, candidate discovery, baseline discovery and this status read. No rerun or dispatch was requested.

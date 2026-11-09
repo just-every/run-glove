@@ -1,0 +1,8 @@
+{
+  "scope": "added test and harness lines only; this is not a publication scan",
+  "email_shaped_strings": [],
+  "private_key_marker": false,
+  "aws_access_key_literal": false,
+  "contract_and_views_unchanged": true,
+  "preexisting_harness_synthetic_addresses": "retained unchanged; whole-file diagnostic found those, so added-line scope is reported explicitly"
+}
