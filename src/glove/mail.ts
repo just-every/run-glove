@@ -56,7 +56,7 @@ export async function deliverMail(db: D1Database, c: Context) {
         status = result.status; providerMessageId = result.providerMessageId ?? null; code = result.code ?? null
       } catch (error) { code = typeof (error as { code?: unknown })?.code === 'string' ? (error as { code: string }).code : 'invalid_message' }
     }
-    await providerEvent(db, { id: `${m.messageId}:send`, at: new Date().toISOString(), commandId: c.commandId, provider: providerName(mail?.provider), jobId: row?.jobId ?? null, subjectKind: 'message', subjectId: m.messageId, ...(c.actor.reminderRun ? { recipientGuard: m.to } : {}), kind: `email.${status}`, summary: `${providerName(mail?.provider)} ${sentSummary[status] ?? 'answered'} (to ${m.to})`, data: { messageId: m.messageId, provider: mail?.provider ?? null, providerMessageId, status, code } }).run()
+    await providerEvent(db, { id: `${m.messageId}:send`, at: new Date().toISOString(), commandId: c.commandId, provider: providerName(mail?.provider), jobId: row?.jobId ?? null, subjectKind: 'message', subjectId: m.messageId, ...(c.actor.reminderRun ? { recipientGuard: m.to } : {}), kind: `email.${status}`, summary: `${providerName(mail?.provider)} ${sentSummary[status] ?? 'answered'} (to ${m.to})${providerMessageId ? `. Provider reference: ${providerMessageId}.` : ''}`, data: { messageId: m.messageId, provider: mail?.provider ?? null, providerMessageId, status, code } }).run()
   }
 }
 
@@ -117,8 +117,17 @@ export function emailWarnings(s: State, states: Map<string, MailState>) {
   const warnings: Record<string, { messageId: string; to: string; status: string; at: string; text: string; next: string | null }> = {}
   for (const customer of s.customers) {
     const addresses = new Set([customer.email, customer.apEmail].filter(Boolean).map((a: string) => a.toLowerCase()))
-    const last = s.messages.filter(m => m.customerId === customer.id && addresses.has(m.to.toLowerCase()) && terminal.has(states.get(m.id)?.status ?? ''))
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt)).at(-1)
+    const outstanding = new Map<string, Row>()
+    for (const message of s.messages.filter(m => m.channel !== 'sms' && m.customerId === customer.id && addresses.has(m.to.toLowerCase()))
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
+      const status = states.get(message.id)?.status, address = message.to.toLowerCase()
+      if (status === 'bounced' || status === 'complained') outstanding.set(address, message)
+      else if (status === 'delivered') outstanding.delete(address)
+    }
+    // A refusal, failed attempt or delivery to another address cannot resolve
+    // an address warning. Show the newest outstanding warning; clearing it
+    // reveals any warning that still stands on the other on-record address.
+    const last = [...outstanding.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt)).at(-1)
     const state = last && states.get(last.id)
     if (last && state && ['bounced', 'complained'].includes(state.status)) warnings[customer.id] = { messageId: last.id, to: last.to, status: state.status, at: state.at, text: state.text, next: state.next }
   }
