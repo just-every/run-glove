@@ -1,0 +1,6 @@
+{
+  "recorded_at": "2026-11-09T15:04:09.753485+00:00",
+  "owned_runtime_processes_remaining": [],
+  "cleanup_complete": true,
+  "method": "Owned test harnesses closed their own browsers and servers; no broad process termination was used."
+}

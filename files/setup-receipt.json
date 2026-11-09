@@ -1,0 +1,8 @@
+{
+  "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+  "exit_code": 0,
+  "pinned_rer": "0.2.87",
+  "setup_ready": true,
+  "commit_hooks_reinstalled": true,
+  "raw_setup_log_excluded": "Private local owner settings and runtime entries are intentionally outside the public evidence packet."
+}

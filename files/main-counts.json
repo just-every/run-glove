@@ -1,0 +1,13 @@
+{
+  "counts": {
+    "partial": 192,
+    "done": 42,
+    "missing": 29
+  },
+  "total": 263,
+  "clauses": {
+    "CUST-001": "partial",
+    "COMM-001": "done",
+    "DATA-001": "partial"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f205fix1-pc1",
+  "head": "bfb8066c945f939c2baa676e08a03a9b78830014",
+  "tree": "7d99fe1e3f7fd4b7e8e79839d617ed36a330deb3",
+  "parents": [
+    "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+    "e1d25590661c95f7f94041c395aa0c34b7b97e3a"
+  ],
+  "pushed": true,
+  "push_attempts": 1,
+  "push_command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-f205fix1-pc1",
+  "candidate_commits": 9,
+  "identity_and_trailer_audit": "passed",
+  "product_status_clean": true,
+  "recorded_at": "2026-11-09T15:02:24.125932+00:00",
+  "pr": null
+}

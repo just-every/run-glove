@@ -1,0 +1,60 @@
+{
+  "calls": [
+    {
+      "call": 1,
+      "time": 1794236511.8308408,
+      "arguments": [
+        "api",
+        "repos/just-every/run-glove/actions/runs?head_sha=bfb8066&per_page=100",
+        "--jq",
+        "{workflow_runs: [.workflow_runs[] | select(.name == \"Verify\") | {id,status,conclusion,head_sha,html_url}]}"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"workflow_runs\":[]}\n",
+      "stderr": "",
+      "finished_at": "2026-11-09T15:01:52.299515+00:00"
+    },
+    {
+      "call": 2,
+      "time": 1794236811.879033,
+      "arguments": [
+        "api",
+        "repos/just-every/run-glove/actions/runs?head_sha=bfb8066c945f939c2baa676e08a03a9b78830014&per_page=100",
+        "--jq",
+        "{workflow_runs: [.workflow_runs[] | select(.name == \"Verify\" and .event == \"push\" and .head_branch == \"cloud/sx-glove-f205fix1-pc1\") | {id,status,conclusion,head_sha,html_url}]}"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"workflow_runs\":[{\"conclusion\":null,\"head_sha\":\"bfb8066c945f939c2baa676e08a03a9b78830014\",\"html_url\":\"https://github.com/just-every/run-glove/actions/runs/42640480047\",\"id\":42640480047,\"status\":\"in_progress\"}]}\n",
+      "stderr": "",
+      "finished_at": "2026-11-09T15:06:52.480203+00:00"
+    },
+    {
+      "call": 3,
+      "time": 1794237111.92751,
+      "arguments": [
+        "api",
+        "repos/just-every/run-glove/actions/runs/42640480047",
+        "--jq",
+        "{id,status,conclusion,head_sha,html_url}"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"conclusion\":null,\"head_sha\":\"bfb8066c945f939c2baa676e08a03a9b78830014\",\"html_url\":\"https://github.com/just-every/run-glove/actions/runs/42640480047\",\"id\":42640480047,\"status\":\"in_progress\"}\n",
+      "stderr": "",
+      "finished_at": "2026-11-09T15:11:52.528031+00:00"
+    },
+    {
+      "call": 4,
+      "time": 1794237411.9795349,
+      "arguments": [
+        "api",
+        "repos/just-every/run-glove/actions/runs/42640480047",
+        "--jq",
+        "{id,status,conclusion,head_sha,html_url}"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"conclusion\":null,\"head_sha\":\"bfb8066c945f939c2baa676e08a03a9b78830014\",\"html_url\":\"https://github.com/just-every/run-glove/actions/runs/42640480047\",\"id\":42640480047,\"status\":\"queued\"}\n",
+      "stderr": "",
+      "finished_at": "2026-11-09T15:16:52.467548+00:00"
+    }
+  ]
+}

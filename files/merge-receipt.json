@@ -1,0 +1,13 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f205fix1-pc1",
+  "source_head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+  "main_head": "e1d25590661c95f7f94041c395aa0c34b7b97e3a",
+  "merge_conflicts": [
+    "sources.lock.json"
+  ],
+  "migration_collisions": [],
+  "contract_matches_main": true,
+  "id_map_matches_main": true,
+  "generated_views_match_main": true
+}

@@ -1,0 +1,14 @@
+{
+  "name": "contract-check",
+  "command": [
+    "node",
+    "scripts/contract-docs.mjs",
+    "check"
+  ],
+  "started_at": "2026-11-09T14:44:02.671659+00:00",
+  "finished_at": "2026-11-09T14:44:02.925429+00:00",
+  "elapsed_seconds": 0.25,
+  "exit_code": 0,
+  "log": "contract-check.log",
+  "log_sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+}

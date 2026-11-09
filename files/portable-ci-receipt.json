@@ -1,0 +1,14 @@
+{
+  "name": "portable-ci",
+  "command": [
+    "node",
+    "scripts/verify-ci.mjs",
+    "portable"
+  ],
+  "started_at": "2026-11-09T14:44:45.998412+00:00",
+  "finished_at": "2026-11-09T15:01:17.011904+00:00",
+  "elapsed_seconds": 991.01,
+  "exit_code": 0,
+  "log": "portable-ci.log",
+  "log_sha256": "a47905303ab7ec00237c961332fc7ac59f4259369f03f68f45ca353ed4a5dd2a"
+}

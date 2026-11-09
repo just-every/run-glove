@@ -1,0 +1,14 @@
+{
+  "name": "browser-journey",
+  "command": [
+    "node",
+    "tests/browser/run.mjs",
+    "tests/browser/journey.spec.ts"
+  ],
+  "started_at": "2026-11-09T14:46:16.589456+00:00",
+  "finished_at": "2026-11-09T14:51:40.394857+00:00",
+  "elapsed_seconds": 323.81,
+  "exit_code": 0,
+  "log": "browser-journey.log",
+  "log_sha256": "46521545d644687616dc6406af3a114722ca7a2cbe346a6a0dc9697e3e5fb9b1"
+}

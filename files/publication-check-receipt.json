@@ -1,0 +1,16 @@
+{
+  "name": "publication-check",
+  "command": [
+    "pnpm",
+    "run",
+    "check",
+    "--profile",
+    "first-party"
+  ],
+  "started_at": "2026-11-09T14:42:20.199846+00:00",
+  "finished_at": "2026-11-09T14:42:21.131673+00:00",
+  "elapsed_seconds": 0.93,
+  "exit_code": 0,
+  "log": "publication-check.log",
+  "log_sha256": "158026cbade70ce7a7137567511ae89e078f81525a304abc753efa6bcf98438e"
+}

@@ -1,0 +1,42 @@
+{
+  "test_file": "tests/browser/journey.spec.ts",
+  "tests_passed": 7,
+  "failures": 0,
+  "widths": [
+    1440,
+    390
+  ],
+  "screenshots": [
+    {
+      "path": "proof/1440-customer-privacy-erased.png",
+      "bytes": 171750,
+      "sha256": "95cfae88951da7ccf9779b8d3b5f5a1a7aebed56578ae35257b23803c3525fdf"
+    },
+    {
+      "path": "proof/390-customer-privacy-erased.png",
+      "bytes": 133812,
+      "sha256": "c1c12b364faab06567ac83bb251a18069e57977071aa6c635f08077df26d2888"
+    },
+    {
+      "path": "proof/1440-cust-001-history-1.png",
+      "bytes": 489893,
+      "sha256": "aaf1d8712bba83f86593a34fcedd16d33ebdd4dc34a69907524b3bfc0a85227b"
+    },
+    {
+      "path": "proof/1440-cust-001-history-2.png",
+      "bytes": 494794,
+      "sha256": "d43409340b7ba8bc09598005c336fd2d5e3830a81eeb5d5850043a83ac64fd15"
+    },
+    {
+      "path": "proof/390-cust-001-history-1.png",
+      "bytes": 433733,
+      "sha256": "5b9534338257ed23449069b4e6e9213b8df39ff9d9efc1e633689a5395eab62b"
+    },
+    {
+      "path": "proof/390-cust-001-history-2.png",
+      "bytes": 438622,
+      "sha256": "cac9141a3652bf8fbba11941ae2be668ee09830e8f79ca0aa6929ffa43112926"
+    }
+  ],
+  "provenance": "The uncommitted continuation merge source tree was tested; final commit source hashes are checked against tested-source-hashes.json. No product code changes are planned after these tests."
+}

@@ -1,0 +1,15 @@
+{
+  "name": "privacy-api",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/privacy.test.mjs"
+  ],
+  "started_at": "2026-11-09T14:42:00.998491+00:00",
+  "finished_at": "2026-11-09T14:43:22.669728+00:00",
+  "elapsed_seconds": 81.67,
+  "exit_code": 0,
+  "log": "privacy-api.log",
+  "log_sha256": "1634e0cbaa66bbff260c237bc8aadb90cdfbb8ee7b8fa2f79e05a372a2d0269a"
+}
