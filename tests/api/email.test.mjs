@@ -758,7 +758,7 @@ async function customerEmailPoints(t) {
       const response = await h.request('/api/glove/commands', { as: '', method: 'POST', headers: { authorization: `Bearer ${issued.token}` }, body: { commandId: `synthetic-glove-token-${++n}`, type, payload } })
       const body = await response.json(); assert.equal(body.ok, false); assert.equal(body.error.code, error)
     } }
-    b.mailSpecialist = specialist; b.mailToken = token
+    b.mailSpecialist = specialist; b.mailToken = token; b.mailTokenId = issued.id
     for (const connection of connections) {
       for (const actor of [b.office, b.dispatcher, b.priyaPerson, specialist, limited, token]) {
         await refuse(actor, 'mail.connect', connection, 'FORBIDDEN')
@@ -844,6 +844,8 @@ async function customerEmailPoints(t) {
     bodies.push(providerText(h.email.sent.at(-1)))
   })
   await scenario(t, 'COMM-001 point 6: document and booking emails contain only their transactional content and other send kinds are refused', async () => {
+    await h.command('token.revoke', { tokenId: b.mailTokenId })
+    for (let attempt = 0; attempt < 2; attempt++) await refuse(b.mailToken, 'email.send', { kind: 'quote', id: quote.id, version: (await current('quote', quote)).version }, 'AUTH')
     for (const body of bodies) assert.doesNotMatch(body, new RegExp('unsubscribe|marketing|promotion|special offer|newsletter', 'i'))
     for (const kind of ['marketing', 'newsletter', 'receipt', 'bookingLink']) await refuse(owner, 'email.send', { kind, id: quote.id, version: (await current('quote', quote)).version }, 'INPUT')
     const visible = JSON.stringify(await businessSnapshot()) + JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results) + JSON.stringify(h.logs)
