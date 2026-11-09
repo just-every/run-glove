@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 28 | 193 | 16 | 237 |
+| Core | 29 | 192 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 28 | 206 | 29 | 263 |
+| Full target | 29 | 205 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -2914,7 +2914,7 @@ Core · target · **partial** · From PLAN-005 · Cites BASE-ROLE-001
 
 #### PLAN-013 — Fixed-monthly invoice dates
 
-Core · target · **partial** · From PLAN-005
+Core · target · **done** · From PLAN-005
 
 **Requirement.** Fixed-monthly invoice dates supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-005-operating-rules) retain the record formats and calculations.
 
@@ -2925,8 +2925,8 @@ Core · target · **partial** · From PLAN-005
 4. Terms changes, correction and later export do not move those dates; preexisting documents and outputs are unchanged.
 5. No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PLAN-003 and COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 carry those remaining acceptance obligations before autopay ships.
 
-**Evidence.** `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — For newly generated fixed-monthly invoices only, approval on/after period end freezes issue date at that period end, records approval time and approver separately, and freezes due date = max(period end, the local approval date) + terms.; point 2 — Late approvals are labelled; aging begins only after approval and ages from that frozen due date.; point 3 — Revenue/tax/CSV/QuickBooks use the frozen issue date.; point 4 — Terms changes, correction and later export do not move those dates; preexisting documents and outputs are unchanged.; point 5 — No charge, receipt or dunning is added by this slice; PAY-008, PAY-027, PAY-028, PAY-029, PAY-030, PLAN-003 and COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 carry those remaining acceptance obligations before autopay ships. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/recurring-billing.test.mjs`, `tests/browser/recurring-billing.spec.ts`; `tests/api/fixed-monthly-dates.test.mjs` (PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports and a legacy Worker upgrade); `tests/browser/revenue.spec.ts` (REPORT-002, REPORT-004 the owner filters job margins and downloads the matching CSV at 1440 and 390)
+**Gap.** None.
 
 ### Stock and purchasing
 
