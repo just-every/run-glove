@@ -1283,9 +1283,15 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       const booking = recorded.reserveGoogle()
       const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/reserve-google`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Basic ${Buffer.from(`glove:${connected.password}`).toString('base64')}` }, body: JSON.stringify(booking) })
       expect(response.status).toBe(200)
-      await page.goto(`${origin}/app#quotes`)
-      await page.reload()
       const pipeline = page.getByRole('region', { name: 'Request pipeline', exact: true })
+      const reloadLeadCards = async () => {
+        const loaded = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
+        await page.reload()
+        await loaded
+        await expect(pipeline).toBeVisible({ timeout: 30_000 })
+      }
+      await page.goto(`${origin}/app#quotes`)
+      await reloadLeadCards()
       await expect(pipeline).toContainText('No Glove visit booked.')
       await expect(pipeline).toContainText('Acknowledgment queued')
       await expect(pipeline).toContainText('Reserve with Google')
@@ -1313,7 +1319,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       h.leads.yelp.set('synthetic-glove-90', recorded.yelpLead('synthetic-glove-90'))
       const yelpResponse = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/yelp`, { method: 'POST', headers: { 'content-type': ['application','json'].join('/'), authorization: `Basic ${Buffer.from(`glove:${yelp.password}`).toString('base64')}` }, body: JSON.stringify(recorded.yelpNotice('synthetic-glove-90')) })
       expect(yelpResponse.status).toBe(200)
-      await page.reload()
+      await reloadLeadCards()
       const replyButton = pipeline.getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })
       await expect(replyButton).toBeDisabled()
       const yelpCard = pipeline.locator('.lead-status').filter({ hasText: 'I approve this Yelp reply' })
@@ -1338,12 +1344,6 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       await shot(page, width, 'yelp-approved-reply')
       const message = emailedState.messages.find((m: any) => m.id === emailed.acknowledgment.messageId)
       const { postmarkCallback } = await import('../fixtures/mail-providers.mjs')
-      const reloadLeadCards = async () => {
-        const loaded = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
-        await page.reload()
-        await loaded
-        await expect(pipeline).toBeVisible({ timeout: 30_000 })
-      }
       for (const [index, outcome] of ['delivered', 'bounced'].entries()) {
         const callback = postmarkCallback({ ...message, receipt: `pm-receipt-${h.email.sent.length}` }, mailConnection.callbackPassword, { at: new Date(Date.now() + index * 1000).toISOString(), id: `synthetic-glove-book015-${outcome}`, ...(outcome === 'bounced' ? { details: { RecordType: 'Bounce', Type: 'HardBounce' } } : {}) })
         const response = await h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/'), ...callback.headers }, body: callback.raw })
