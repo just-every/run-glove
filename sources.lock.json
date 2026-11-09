@@ -5523,6 +5523,10 @@
       "sha256": "bde04bf7a40a73c0aa44bd6439f95f4022cebf4443b3b95cd8da7e469785b7f2",
       "executable": false
     },
+    "tests/api/branch-authority.test.mjs": {
+      "sha256": "cbc954a21e11d18863192b462e822e25ee4174c281a6aa63cd440b5590c57860",
+      "executable": false
+    },
     "tests/api/branches.test.mjs": {
       "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
       "executable": false
@@ -5832,7 +5836,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "8653c19befb4aa7ec767a7d91b15d8557a2d3c0ed1b1ec26a1cf867fbb74484a",
+      "sha256": "45d4e6306d150ff47e567cac48856c6d347ddb7cdcc9964aace4a2934b08d18f",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {

@@ -16,7 +16,6 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
   const h = await installation({ at: '2026-11-05T12:00:00.000Z' })
   try {
     const b = await business(h)
-    const secondOwner = await h.person('Branch Owner', 'owner')
     const branches = []
     for (const [name, prefix, timezone, zip, person, price] of [
       ['Raleigh', 'RAL', 'America/New_York', '27601', b.priyaPerson, '125.00'],
@@ -59,23 +58,22 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(limit).toHaveValue(branches[0].id)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'people') }
-      // TEAM-005: another Owner can be limited and restored through the same control.
-      const ownerLimit = page.getByLabel(`Branch access for ${secondOwner.name}`, { exact: true })
-      await ownerLimit.selectOption(branches[1].id)
+      // TEAM-005: the Owner changes the person's main limit and restores all-branch access.
+      await limit.selectOption('main')
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
-      await expect(ownerLimit).toHaveValue(branches[1].id)
-      expect((await secondOwner.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Phoenix School'])
-      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await ownerLimit.scrollIntoViewIfNeeded(); await shot(page, width, 'owner-limited') }
-      await ownerLimit.selectOption('main')
+      await expect(limit).toHaveValue('main')
+      expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Harbourview Dental'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-main') }
+      await limit.selectOption('')
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
-      await expect(ownerLimit).toHaveValue('main')
-      expect((await secondOwner.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Harbourview Dental'])
-      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await ownerLimit.scrollIntoViewIfNeeded(); await shot(page, width, 'owner-main') }
-      await ownerLimit.selectOption('')
+      await expect(limit).toHaveValue('')
+      expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name).sort()).toEqual(['Harbourview Dental', 'Phoenix School', 'Raleigh School'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-restored') }
+      await limit.selectOption(branches[0].id)
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
-      await expect(ownerLimit).toHaveValue('')
-      expect((await secondOwner.state()).customers.map((row: { name: string }) => row.name).sort()).toEqual(['Harbourview Dental', 'Phoenix School', 'Raleigh School'])
-      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await ownerLimit.scrollIntoViewIfNeeded(); await shot(page, width, 'owner-restored') }
+      await expect(limit).toHaveValue(branches[0].id)
+      expect((await b.dispatcher.state()).customers.map((row: { name: string }) => row.name)).toEqual(['Raleigh School'])
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await limit.scrollIntoViewIfNeeded(); await shot(page, width, 'dispatcher-limited') }
       // API-002: the owner issues a Viewer token for Raleigh, sees it once, and revokes it.
       const tokens = page.locator('section.panel').filter({ has: page.getByRole('heading', { name: 'Integration tokens', exact: true }) })
       await tokens.getByLabel('Name', { exact: true }).fill('Raleigh board')
