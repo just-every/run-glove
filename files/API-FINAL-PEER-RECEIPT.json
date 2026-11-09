@@ -1,0 +1,10 @@
+{
+  "command": "node tests/api/.privacy-native-qualification.mjs",
+  "exit": 0,
+  "selection": "Entire dataPrivacyQualification fixture invoked by the existing privacy registration, including final peer original file-door checks. The complete registration already passed; the only subsequent fixture change adds these byte-exact peer checks.",
+  "files": {
+    "src/glove/privacy.ts": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
+    "src/glove/privacy-imports.ts": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d",
+    "tests/fixtures/privacy-data.mjs": "b657a5dcb22b83de2fd4516e329aa3ea72737adf5e27fea740ec5c4a7d274e4a"
+  }
+}

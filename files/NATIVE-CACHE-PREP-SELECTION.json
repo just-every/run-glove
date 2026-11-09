@@ -1,0 +1,7 @@
+{
+  "source": "tests/portable.mjs",
+  "source_sha256": "7c77aecdf5cccb6656411982c25cde6437bd7cbe9ddb17df2e1c6a8195d8e859",
+  "generated_runner_sha256": "4939a739c33de83105919efe5a488aea4ff3e00a93dd3d1306d981969d1354ca",
+  "selection": "Existing service-history archive case through DATA-001 success with original cleanup; independent calendar and payment cases not selected. Preparation runs the public Vite server then closes it in each owned checkout before setup, allowing dependency caches to populate outside the pinned 60 second listener handshake. No assertions, auth, archive, erasure or import behavior changed.",
+  "preparation_attempt_note": "Two local runner preparation attempts mistakenly rewrote scratch transport imports inside generated strings. Only the static import header is now relocated. These preparation failures are not product evidence."
+}

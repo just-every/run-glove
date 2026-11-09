@@ -1,0 +1,13 @@
+{
+  "command": "node --test tests/api/privacy.test.mjs",
+  "exit": 0,
+  "node": "v22.20.0",
+  "head_at_run": "1592b19d9497e15e69ad56b667a109d2a7542f16",
+  "files": {
+    "src/glove/privacy.ts": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
+    "src/glove/privacy-imports.ts": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d",
+    "tests/api/privacy.test.mjs": "62933dfb9504c958d6e034707782cef2330e6c2079bd27e132f4c8181d1a5295",
+    "tests/fixtures/privacy-data.mjs": "a7d39ac4067793c4f12c96a171e73944a819a58cd30393231be5d1c6fad7459d",
+    "tests/fixtures/edition-archive-policy.mjs": "89bed392f5f20560165c3cf0031623e56eddd9b2e9d1bea8fc8bd9f34cbdf3c4"
+  }
+}

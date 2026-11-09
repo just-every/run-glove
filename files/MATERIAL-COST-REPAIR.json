@@ -1,0 +1,29 @@
+{
+  "door": "privacy.erase followed by the public job costing route",
+  "before_source_sha256": "20d17576c5f39be6a8aa5c083abeee9b284c3740be25ce049f06341fcacbe34b",
+  "observed_before_repair": {
+    "door": "native privacy.erase and job costing",
+    "before": {
+      "materials": "22.00",
+      "cost": "22.00"
+    },
+    "after": {
+      "materials": "0.00",
+      "cost": "0.00"
+    }
+  },
+  "observed_after_repair": {
+    "door": "native privacy.erase and job costing",
+    "before": {
+      "materials": "22.00",
+      "cost": "22.00"
+    },
+    "after": {
+      "materials": "22.00",
+      "cost": "22.00"
+    }
+  },
+  "source": "src/glove/privacy.ts",
+  "after_source_sha256": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
+  "boundary": "local production Worker; synthetic native records; no provider calls"
+}

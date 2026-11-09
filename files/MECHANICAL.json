@@ -1,0 +1,46 @@
+{
+  "head": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "TYPECHECK.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "log": "VIEWS-WRITE.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "log": "VIEWS-CHECK.log"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "output_ok": true
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "FIRST-PARTY.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "ledger": "none; no migrations changed",
+  "contract_diff": "empty",
+  "generated_views_diff": "empty",
+  "source_lock_sha256": "8ad3d7ee84a94ba3ae93c3bdbed46e74ac72f0af65bcd4b520aa8b1c6f18da72"
+}

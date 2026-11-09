@@ -1,0 +1,16 @@
+{
+  "head": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+  "files": {
+    "src/glove/privacy.ts": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
+    "src/glove/privacy-imports.ts": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d",
+    "src/ui/privacy.tsx": "6d70a26bf08b99da5245e30bc51ceffe7db6baaf36148c31d05a7be0cbf4d55c",
+    "tests/api/privacy.test.mjs": "62933dfb9504c958d6e034707782cef2330e6c2079bd27e132f4c8181d1a5295",
+    "tests/fixtures/privacy-data.mjs": "b657a5dcb22b83de2fd4516e329aa3ea72737adf5e27fea740ec5c4a7d274e4a",
+    "tests/fixtures/edition-archive-policy.mjs": "89bed392f5f20560165c3cf0031623e56eddd9b2e9d1bea8fc8bd9f34cbdf3c4",
+    "tests/browser/journey.spec.ts": "3c0f21c5f5119961abc802048e63c33e9c9ef72a46f7f8aaae7c537ec0a4ae83",
+    "tests/portable.mjs": "7c77aecdf5cccb6656411982c25cde6437bd7cbe9ddb17df2e1c6a8195d8e859",
+    "scripts/installer/local.mjs": "6d79557799a7dac76c14a224943dae7d3f7c3b3174a84f4de88f4a082480be1c",
+    "CONTRACT.md": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+    "sources.lock.json": "8ad3d7ee84a94ba3ae93c3bdbed46e74ac72f0af65bcd4b520aa8b1c6f18da72"
+  }
+}

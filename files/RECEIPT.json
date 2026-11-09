@@ -1,0 +1,58 @@
+{
+  "tag": "sx-glove-c-f205",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f205",
+  "head": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+  "product_pushed": true,
+  "ready": false,
+  "blocked": "unreproduced_Verify_failure_requires_CI_triage",
+  "claim": {
+    "clause": "DATA-001",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "remaining_native_points": [
+      7,
+      8
+    ]
+  },
+  "ci": {
+    "conclusion": "failure",
+    "head_sha": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42608851977",
+    "status": "completed"
+  },
+  "failed_jobs": {
+    "portable": 129131981714,
+    "browser-2": 129131981666,
+    "api-2": 129131981647
+  },
+  "counts_before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29
+  },
+  "repair_rounds": 0,
+  "publication_scan": {
+    "commit": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "Cloud does not run the fleet publication scanner; no landing claimed."
+  },
+  "source_binding": "SOURCE-BINDING.json",
+  "mechanical": "MECHANICAL.json",
+  "report": "REPORT.md",
+  "reproduction": "VERIFY-PORTABLE-REPRODUCTION.json"
+}

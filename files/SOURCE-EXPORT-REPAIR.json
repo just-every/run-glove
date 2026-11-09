@@ -1,0 +1,18 @@
+{
+  "door": "privacy.export after a real ServiceM8 import",
+  "before_source_sha256": "fd42b725d27e40f321cc6a528bc54a6e36ce0577b10a41ff85df9479d0a76ca2",
+  "before_shared_source": {
+    "observed": "The mixed original was returned even though a peer payment referenced it. The export omitted only an unrelated unavailable attachment.",
+    "probe_exit": 1
+  },
+  "before_company_source": {
+    "observed": "The company attachment object and held original were absent from the customer export.",
+    "probe_exit": 1
+  },
+  "after": {
+    "observed": "Complete company and job objects and unmapped fields exported; company original byte-exact; shared original withheld with a named omission; peer objects excluded.",
+    "probe_exit": 0
+  },
+  "source": "src/glove/privacy-imports.ts",
+  "after_source_sha256": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d"
+}

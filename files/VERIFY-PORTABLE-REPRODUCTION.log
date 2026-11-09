@@ -1,0 +1,49 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /workspace/glove-f205
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node tests/portable.mjs
+file://[REDACTED]/tests/portable.mjs:151
+      if (runtime.proc.exitCode !== null) throw Error(clean(runtime.output()).slice(-3000))
+                                                ^
+
+Error: Still starting (41 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (42 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (43 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (44 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (45 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (46 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (47 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (48 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (49 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (50 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (51 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (52 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (53 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (55 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (56 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (57 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (58 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (59 s)
+Application listened on port 43333, 33761, 36899; readiness failed for GET http://127.0.0.1:59981/health through expected internal port 14790. Check application health and the runtime target's port binding.
+Starting your application on this computer (waiting for the bound internal listener): readiness deadline exceeded (exit none, signal none). Last health: Waiting for the application listener handshake.
+Installation stopped while starting the application. Ask your agent to check the edition's operating command for that step, correct the cause, then select Start again. Your setup answers are saved; you may need to supply credentials again.
+Command: /home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node
+Last output (up to 40 lines):
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Log: [REDACTED]/.seed/installer/install.log
+Application listened on port 43333, 33761, 36899; readiness failed for GET http://127.0.0.1:59981/health through expected internal port 14790. Check application health and the runtime target's port binding.
+dev: failed (exit 1)
+
+    at start (file://[REDACTED]/tests/portable.mjs:151:49)
+    at async devInstallation (file://[REDACTED]/tests/dev-installation.mjs:11:14)
+    at async calendarRestore (file://[REDACTED]/tests/portable.mjs:204:13)
+    at async file://[REDACTED]/tests/portable.mjs:284:3
+
+Node.js v22.20.0
+ ELIFECYCLE  Command failed with exit code 1.

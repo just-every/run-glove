@@ -1,0 +1,35 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+(node:15316) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+NATIVE actual edition-policy older archive created from production Worker data
+NATIVE actual edition-policy later archive created after public erasure
+NATIVE old CLI archive refused with later journal
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m				You have defined bindings to the following internal Durable Objects:[0m
+
+  				- {"name":"MAIL_REJECTIONS","class_name":"MailRejections"}
+  				These will not work in local development, but they should work in production.
+  
+  				If you want to develop these locally, you can define your DO in a separate Worker, with a separate configuration file.
+  				For detailed instructions, refer to the Durable Objects section here: [4mhttps://developers.cloudflare.com/workers/wrangler/api#supported-bindings[0m
+
+
+A DurableObjectNamespace in the config referenced the class "MailRejections", but no such Durable Object class is exported from the worker. Please make sure the class name matches, it is exported, and the class extends 'DurableObject'. Attempts to call to this Durable Object class will fail at runtime, but historically this was not a startup-time error. Future versions of workerd may make this a startup-time error.
+node:internal/process/task_queues:105
+    runMicrotasks();
+    ^
+
+Error: D1_ERROR: no such table: glove_records: SQLITE_ERROR
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///workspace/glove-f205/.cache/native-archive-command-probe.mjs:243:17
+    at async inspect (file:///workspace/glove-f205/.cache/native-archive-command-probe.mjs:241:167)
+    at async file:///workspace/glove-f205/.cache/native-archive-command-probe.mjs:242:3 {
+  [cause]: Error: no such table: glove_records: SQLITE_ERROR
+      at D1DatabaseSessionAlwaysPrimary._sendOrThrow (cloudflare-internal:d1-api:189:24)
+      at async cloudflare-internal:d1-api:497:19 {
+    [cause]: undefined
+  }
+}
+
+Node.js v22.20.0

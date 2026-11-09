@@ -1,0 +1,55 @@
+{
+  "command": "focused Playwright owner privacy journey against the initialized rer dev runtime",
+  "runner": "/tmp/glove-browser-proof.mjs",
+  "exit": 0,
+  "browser": "/usr/bin/chromium, headless, --no-sandbox",
+  "widths": [
+    1440,
+    390
+  ],
+  "test": "DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390",
+  "result": "1 passed (1.9m)",
+  "head_at_run": "bc175b6de51513ca00276348d5b29493f07f5e86",
+  "binding": "The working tree included the source fixes before the run. These relevant byte hashes are retained to bind the same proof to the final candidate.",
+  "files": {
+    "src/ui/privacy.tsx": "6d70a26bf08b99da5245e30bc51ceffe7db6baaf36148c31d05a7be0cbf4d55c",
+    "tests/browser/journey.spec.ts": "3c0f21c5f5119961abc802048e63c33e9c9ef72a46f7f8aaae7c537ec0a4ae83",
+    "tests/api/harness.mjs": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+    "src/glove/privacy.ts": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
+    "src/glove/privacy-imports.ts": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d"
+  },
+  "screenshots": [
+    {
+      "path": "screenshots/1440-customer-privacy-erased.png",
+      "sha256": "c1c9d8a5a92f3e0a667b72d064228eb04ed9ea7dc2cf85fc63111b7ceeb1794a"
+    },
+    {
+      "path": "screenshots/1440-customer-privacy-export.png",
+      "sha256": "40376d4338ea479017ab1d4f6f748c5258633cf722f5acb247fd953dc8742935"
+    },
+    {
+      "path": "screenshots/1440-customer-privacy-preview-panel.png",
+      "sha256": "c4015a0544ea8d74f9dd27565712e4b6db58362adce73daec2765a3c6b18785f"
+    },
+    {
+      "path": "screenshots/1440-customer-privacy-preview.png",
+      "sha256": "19eb4f3733e428ede4a38068be81c476e33a3391cd453b87c887c4ccfcaea424"
+    },
+    {
+      "path": "screenshots/390-customer-privacy-erased.png",
+      "sha256": "838cded164f5982ce7a40c5835475ff2a9da6d07a488d17628309624769c2918"
+    },
+    {
+      "path": "screenshots/390-customer-privacy-export.png",
+      "sha256": "40fe9782485d6aab2abad93d5108ef3c30a41d9073b6241e14b0f289aabbb212"
+    },
+    {
+      "path": "screenshots/390-customer-privacy-preview-panel.png",
+      "sha256": "7a6cd4cd4a34afe5700cc628798a10ba2039464ad467223f13ac36d4d817696b"
+    },
+    {
+      "path": "screenshots/390-customer-privacy-preview.png",
+      "sha256": "b2c6e2cc3511a0c947f2b8b6a0ef15af230ccaa25cb6c20c31e424ba098374c8"
+    }
+  ]
+}

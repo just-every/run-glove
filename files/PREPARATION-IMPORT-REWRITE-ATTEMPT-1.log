@@ -1,0 +1,39 @@
+LOCAL_CACHE_PREP start source
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+11:24:56 AM [vite] (ssr) [optimizer] scanning dependencies...
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Error: Failed to load url ../tests/portable-calendars.mjs (resolved id: ../tests/portable-calendars.mjs) in /tmp/glove-portable-xAXQJe/source/src/server.ts. Does the file exist?
+    at runInRunnerObject (workers/runner-worker/index.js:107:3)
+    at getWorkerEntryExportTypes (workers/runner-worker/index.js:252:24)
+    at null.<anonymous> (workers/runner-worker/index.js:356:37)
+    at maybeCaptureError (workers/runner-worker/index.js:51:10) {
+  [cause]: undefined
+}
+
+Node.js v22.20.0
+
+
+1 !== 0
+
+    at command (file:///workspace/glove-f205/.cache/portable-data-probe.mjs:148:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async copy (file:///workspace/glove-f205/.cache/portable-data-probe.mjs:126:3)
+    at async file:///workspace/glove-f205/.cache/portable-data-probe.mjs:294:18 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0

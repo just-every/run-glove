@@ -1,0 +1,12 @@
+{
+  "command": "node .cache/portable-data-probe.mjs",
+  "exit": 1,
+  "head_at_run": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+  "files": {
+    "src/glove/privacy.ts": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
+    "src/glove/privacy-imports.ts": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d",
+    "scripts/installer/local.mjs": "6d79557799a7dac76c14a224943dae7d3f7c3b3174a84f4de88f4a082480be1c",
+    "tests/portable.mjs": "7c77aecdf5cccb6656411982c25cde6437bd7cbe9ddb17df2e1c6a8195d8e859",
+    "tests/fixtures/edition-archive-policy.mjs": "89bed392f5f20560165c3cf0031623e56eddd9b2e9d1bea8fc8bd9f34cbdf3c4"
+  }
+}

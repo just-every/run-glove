@@ -1,0 +1,6 @@
+{
+  "source": "tests/portable.mjs",
+  "source_sha256": "7c77aecdf5cccb6656411982c25cde6437bd7cbe9ddb17df2e1c6a8195d8e859",
+  "selection": "The existing service-history archive body through the DATA-001 success marker, with the original cleanup. The independent initial calendar case and subsequent payment case are not selected for this local target probe. Permanent registrations and assertions remain intact.",
+  "generated_runner_sha256": "a82082119c27a75b277925e3693fe5aa866ce9d6c5a4f6f68f21efbd7246b72b"
+}

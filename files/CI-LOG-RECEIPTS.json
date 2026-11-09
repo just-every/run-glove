@@ -1,0 +1,27 @@
+{
+  "run": 42608851977,
+  "head": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+  "calls_used": 9,
+  "calls_limit": 10,
+  "log_reads": [
+    {
+      "job": 129131981647,
+      "command": "gh run view 42608851977 --repo just-every/run-glove --job 129131981647 --log-failed",
+      "exit": 0,
+      "result": "empty output; no failed-step log returned"
+    },
+    {
+      "job": 129131981666,
+      "command": "gh run view 42608851977 --repo just-every/run-glove --job 129131981666 --log-failed",
+      "exit": 1,
+      "result": "failed to get run log: zip: not a valid zip file; no HTTP status supplied"
+    },
+    {
+      "job": 129131981714,
+      "command": "gh run view 42608851977 --repo just-every/run-glove --job 129131981714 --log-failed",
+      "exit": 0,
+      "result": "PortabilityError: policy_table_missing:glove_meta at tests/portable.mjs:715"
+    }
+  ],
+  "no_archive_retry": true
+}

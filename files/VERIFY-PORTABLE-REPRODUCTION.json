@@ -1,0 +1,16 @@
+{
+  "head": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+  "run": 42608851977,
+  "job": 129131981714,
+  "command": "node scripts/verify-ci.mjs \"$SHARD\"",
+  "shard": "portable",
+  "CI": true,
+  "GLOVE_CI_PREBUILT": "1",
+  "GLOVE_CI_PARTITION": "1",
+  "exit": 1,
+  "expected_failure": "PortabilityError: policy_table_missing:glove_meta at tests/portable.mjs:715",
+  "reproduced": false,
+  "failure": "Runtime listener handshake exceeded its 60 second readiness deadline in calendarRestore, before the destination fence at tests/portable.mjs:715 was reached.",
+  "repair_rounds": 0,
+  "disposition": "BLOCKED: the brief requires stopping when the CI failure does not reproduce; no guessed repair applied."
+}
