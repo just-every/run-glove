@@ -5868,7 +5868,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "a908f27565adb716d8f18372db0a572e6a268205cd0dd1a094f6175f3182a3df",
+      "sha256": "6abf69af015d8e74cce7f15e17397538b681bc6e95fabc7ccec38303b7da7e2b",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
@@ -6033,6 +6033,10 @@
     },
     "tests/email-link.mjs": {
       "sha256": "affd47892b073fbfe76586e4e6f8626a8712775eeb27ed3b86bdfa5644dce98f",
+      "executable": false
+    },
+    "tests/fixtures/branch-projections.mjs": {
+      "sha256": "760df1d4f670681f7ac8a1f94815293fe266580fa4d49aa61ba15c141d6063dc",
       "executable": false
     },
     "tests/fixtures/calendar.mjs": {
