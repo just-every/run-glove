@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+  "files": [
+    {
+      "path": "REPORT.md",
+      "bytes": 14000,
+      "sha256": "c5429d8154d368671563fd776c78e4c7314f03e2f6673cfc37fb27a8424ac390"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 1138,
+      "sha256": "c285ca829e311a6e96cea4d8a6524f9a51eb3952bb6f457cfb9bb5f157af34af"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 4669,
+      "sha256": "72e80325250bedddb505dd830f0d22a49687f3c2bbea4c5406ab3639a95d7984"
+    },
+    {
+      "path": "browser-receipt.json",
+      "bytes": 456,
+      "sha256": "f8a16c7b43d5a71ac1c019739c7bcfdf8a13dd765cc8130c7508d6c39a7fe84e"
+    },
+    {
+      "path": "mechanical.txt",
+      "bytes": 689,
+      "sha256": "f11baabfa59288279a1fde456c80058bbf0ca22b94b2fc92025069cfab8655c2"
+    },
+    {
+      "path": "api.log",
+      "bytes": 6414,
+      "sha256": "f43064ba8a014c8cefc864493491a885d6b7e0ea90680d8e275d4d6958faa1f9"
+    },
+    {
+      "path": "browser.log",
+      "bytes": 1405,
+      "sha256": "c45de1aab338d4a149c5a06d92448d9a5f743f17459d68a6d1c74241c4132b70"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 244,
+      "sha256": "c98da30522ab7a2c81a406c9b08fd7a30441eeaf116770faf86a71c1ff732e6f"
+    },
+    {
+      "path": "build.log",
+      "bytes": 5947,
+      "sha256": "29b3a977b39badc1306b5902b70009d08c2b505c6824f10024700b670313a9a9"
+    },
+    {
+      "path": "ci-main.json",
+      "bytes": 1143,
+      "sha256": "270445e2d9fbd2731188282dfb8bc514cae245ea5fb1d69751c414e5b5c15f8a"
+    },
+    {
+      "path": "ci-candidate.json",
+      "bytes": 317,
+      "sha256": "e967d3e6568990df17ffba6cae51085b48d7ee871f2aa78a9786028ddee298c3"
+    },
+    {
+      "path": "inventory.json",
+      "bytes": 317,
+      "sha256": "fb6962ad5888d4594d537be17aa2a664ada52b41f81c2ed3fd918cb4a42efba8"
+    },
+    {
+      "path": "browser-trial-initial.log",
+      "bytes": 4553,
+      "sha256": "042a49de1ab015609c632aa22857c6c2d1efd1893b7a6822b99895d90055fcc9"
+    },
+    {
+      "path": "browser-trial-locator.log",
+      "bytes": 8166,
+      "sha256": "104be1bf23ef96c20effdae7a2a5e281c96dcf7d07342c09775dc82fbcf34577"
+    },
+    {
+      "path": "browser-trial-authority.log",
+      "bytes": 4692,
+      "sha256": "ddbb6426c45328e1da5f5d9c0374b7df489c826308113dcffea4aec990fea362"
+    },
+    {
+      "path": "browser-trial-budget.log",
+      "bytes": 10283,
+      "sha256": "8f3128bfc7606e81bfeb641a06b1a01d2c63730e13e01a11b5e0b050b7847126"
+    },
+    {
+      "path": "api-conflicted-tree.log",
+      "bytes": 2235,
+      "sha256": "bb36361a8dca51227acf18d904ded78e84225ec19560110e5cda592562f979e3"
+    },
+    {
+      "path": "screens/1440-branches-dispatch-0.png",
+      "bytes": 234077,
+      "sha256": "e19c791be86855ada468032c6944a09a74c23b82eb74958ab292d8c103fcb35c"
+    },
+    {
+      "path": "screens/1440-branches-dispatch-1.png",
+      "bytes": 233589,
+      "sha256": "638d4ac30542e2dd35a2517cd5df5b78bcf68746ecf41b39dbe4ddc5eecd9bb0"
+    },
+    {
+      "path": "screens/1440-branches-dispatch-2.png",
+      "bytes": 242328,
+      "sha256": "43605154a4edad7c8359141c24638ead5b38b3113b95dbd673914a649f5683f5"
+    },
+    {
+      "path": "screens/1440-branches-revenue.png",
+      "bytes": 124438,
+      "sha256": "619e2076aa8102b3ab75e8ed8a21a51cce49615aa89f21979742793b5bcdb5e5"
+    },
+    {
+      "path": "screens/1440-branches-technicians.png",
+      "bytes": 127338,
+      "sha256": "384829382fcb62329a03bbc057269b141e6ff06c8e82ee2ca1d25eeb4d6a694f"
+    },
+    {
+      "path": "screens/1440-branches-sources.png",
+      "bytes": 129400,
+      "sha256": "fb06b6e34b86bc26917b7f6cd19f9b2e7acd967a90a8b706e8f9813cb873ab1d"
+    },
+    {
+      "path": "screens/1440-branches-quotes.png",
+      "bytes": 130419,
+      "sha256": "36b769f7fca78430af2b5aeda7f18f09b4d481936ca2ff9df9890b1d3a91d6df"
+    },
+    {
+      "path": "screens/1440-branches-margins.png",
+      "bytes": 130143,
+      "sha256": "ca2e7f4d87619e554ab8fdc7fba7fe470f4a4830407fcd052e71726736eed97a"
+    },
+    {
+      "path": "screens/1440-branches-tax.png",
+      "bytes": 130179,
+      "sha256": "b6044cdd23f1769e9e8fe87dd4dd380452fcce67eadc7a22e70e44d419309f0a"
+    },
+    {
+      "path": "screens/1440-branches-agreements.png",
+      "bytes": 119100,
+      "sha256": "b6382dc0919e39bdce4bbdd0fa1b4cf7cbf8a4e481dc4b2a35cdb440a8e3c2ea"
+    },
+    {
+      "path": "screens/1440-branches-reports-main.png",
+      "bytes": 122932,
+      "sha256": "fd81b4e82af657d1cd89c869080fc290cbe9fa0195abff94cfd3620dd5413aba"
+    },
+    {
+      "path": "screens/1440-branches-reports-all-branches.png",
+      "bytes": 118773,
+      "sha256": "96d749b0c94eda980ed600f56f51a0d47296608a511b2f77e52bfef300b806b4"
+    },
+    {
+      "path": "screens/390-branches-dispatch-0.png",
+      "bytes": 197731,
+      "sha256": "5577dc65fc2609b54f49853ffb8e219d8a238fcea4dac743b3e508077c8c2571"
+    },
+    {
+      "path": "screens/390-branches-dispatch-1.png",
+      "bytes": 197225,
+      "sha256": "98437b3e2a61446c07c23f16a258f07b98a460a08abe79b9163835c695e8a5ce"
+    },
+    {
+      "path": "screens/390-branches-dispatch-2.png",
+      "bytes": 205774,
+      "sha256": "7a5d45586be65e1d95e187c95855642673dc6f40c131e12c3f9b013eada4a49c"
+    },
+    {
+      "path": "screens/390-branches-revenue.png",
+      "bytes": 46056,
+      "sha256": "c72eb1a9bb5c4f525199e60df06eb4b0f7d85b3188ecae02766ebc6150eb3ea0"
+    },
+    {
+      "path": "screens/390-branches-technicians.png",
+      "bytes": 43653,
+      "sha256": "b8cbb8c7d736fe3f87cdda69a7bd7216063285cc78d62ebbd8513a6d82c9350f"
+    },
+    {
+      "path": "screens/390-branches-sources.png",
+      "bytes": 45831,
+      "sha256": "742aaf357edc5ff5b7c729a65b8560dda7744aa8d7eb0eaf521133176b460520"
+    },
+    {
+      "path": "screens/390-branches-quotes.png",
+      "bytes": 52490,
+      "sha256": "22665e318b5a0d0146507e244412fc4d1132d88daf4a04c8db849c8e2f0532d1"
+    },
+    {
+      "path": "screens/390-branches-margins.png",
+      "bytes": 45248,
+      "sha256": "c429d9cb8df920b488dfc64014b8aecaaf79922b763379b15d84bf881eedcceb"
+    },
+    {
+      "path": "screens/390-branches-tax.png",
+      "bytes": 52217,
+      "sha256": "22a4310e291c3c830e2bbd3e2edd519dc335de206042a6c66b8e7540b2a06cac"
+    },
+    {
+      "path": "screens/390-branches-agreements.png",
+      "bytes": 56270,
+      "sha256": "991adba243c4d942073310b3025bb1398606ec14abc6d0da2197a388a95204e8"
+    },
+    {
+      "path": "screens/390-branches-reports-main.png",
+      "bytes": 45104,
+      "sha256": "9ebd2362cd6840497b0a499462774dca29a530fafacb7197da828b00cba4369d"
+    },
+    {
+      "path": "screens/390-branches-reports-all-branches.png",
+      "bytes": 44004,
+      "sha256": "bb362f5e8070f8df1b4e140f00a8369e182b8514ad3a7f9d36db7ce63d3e68b8"
+    },
+    {
+      "path": "custody.json",
+      "bytes": 426,
+      "sha256": "8c01324420dd1354d9bf2adfa19eda91f497ac428fac8f418c67c3ae49cfb88d"
+    }
+  ],
+  "credential_files_selected": false,
+  "symlinks_selected": false,
+  "issued_token_images_selected": false
+}

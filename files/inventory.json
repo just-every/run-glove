@@ -1,0 +1,14 @@
+{
+  "candidate_head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+  "candidate_exit": 1,
+  "candidate_total": 202,
+  "limit": 200,
+  "added_registrations": 0,
+  "initial_main": {
+    "head": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+    "exit": 1,
+    "total": 202,
+    "registrations": 198,
+    "limit": 200
+  }
+}

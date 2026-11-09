@@ -1,0 +1,42 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ TEAM-005 current branch authority fences every read, shared write, replay and commit across restart (37291.176439ms)
+ℹ TEAM-005 point 1: only the unscoped Owner limits named and main branches and removes limits with exact versions and attributable facts
+ℹ TEAM-005 point 2: the installation owner cannot be limited by either Owner and retains every branch while another Owner is scoped
+ℹ TEAM-005 point 3: independent main and branch records are fenced at every read door and live authority governs replay, rules and the commit guard
+ℹ TEAM-005 point 3: approved payroll and completed contractor work stay scoped in every report format
+ℹ TEAM-005 point 4: shared references remain readable and immutable while cross-branch operational edits answer NOT_FOUND
+ℹ TEAM-005 point 5: scoped operational creations inherit their branch and matching numbers and survive actual Worker restart and replay
+file:///home/agent/rer-consolidation/work/sx-glove-c-f213/run-glove/tests/fixtures/branch-projections.mjs:161
+<<<<<<< HEAD
+  ^^
+
+SyntaxError: Unexpected token '<<'
+    at compileSourceTextModule (node:internal/modules/esm/utils:318:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)
+    at #translate (node:internal/modules/esm/loader:434:20)
+    at afterLoad (node:internal/modules/esm/loader:502:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:507:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:560:36)
+    at afterResolve (node:internal/modules/esm/loader:607:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:613:12)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33)
+    at ModuleJob.link (node:internal/modules/esm/module_job:253:17)
+
+Node.js v24.19.0
+✖ tests/api/branches.test.mjs (102.298721ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39498.831541
+
+✖ failing tests:
+
+test at tests/api/branches.test.mjs:1:1
+✖ tests/api/branches.test.mjs (102.298721ms)
+  'test failed'

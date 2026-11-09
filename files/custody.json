@@ -1,0 +1,13 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f213",
+  "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+  "observed_remote_head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+  "origin_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "clean": true,
+  "full_history": true,
+  "identity_checked_all_candidate_commits": 9,
+  "forbidden_trailers": 0,
+  "product_push_guard_exit": 0,
+  "pr": null
+}

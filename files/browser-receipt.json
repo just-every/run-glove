@@ -1,0 +1,15 @@
+{
+  "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+  "playwright": {
+    "status": "passed",
+    "failedTests": []
+  },
+  "test": "TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390",
+  "command": "node /tmp/glove-focused-browser.mjs",
+  "exit": 0,
+  "test_duration_seconds": 52.8,
+  "widths": [
+    1440,
+    390
+  ]
+}

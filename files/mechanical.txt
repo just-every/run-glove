@@ -1,0 +1,12 @@
+head=a89509f061d4a643ee0e9733cc7186672ea2d2b7
+views_write=node scripts/contract-docs.mjs write exit=0
+views_check=node scripts/contract-docs.mjs check exit=0
+views_restore=git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md exit=0
+lock_write=node scripts/edition-authoring/cli.mjs lock exit=0
+lock_check=node scripts/edition-authoring/cli.mjs check exit=0
+typecheck=pnpm typecheck exit=0
+first_party=npx -y @runeditrun/rer check --profile first-party exit=0
+ledger=none; no migration edits
+contract_diff=empty
+identity=9 candidate commits checked, including side parents; fleet identity throughout; no forbidden trailers
+product_push=cloud-push.py origin cloud/sx-glove-c-f213 exit=0

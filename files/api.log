@@ -1,0 +1,122 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ TEAM-005 current branch authority fences every read, shared write, replay and commit across restart (80420.868201ms)
+ℹ TEAM-005 point 1: only the unscoped Owner limits named and main branches and removes limits with exact versions and attributable facts
+ℹ TEAM-005 point 2: the installation owner cannot be limited by either Owner and retains every branch while another Owner is scoped
+ℹ TEAM-005 point 3: independent main and branch records are fenced at every read door and live authority governs replay, rules and the commit guard
+ℹ TEAM-005 point 3: approved payroll and completed contractor work stay scoped in every report format
+ℹ TEAM-005 point 4: shared references remain readable and immutable while cross-branch operational edits answer NOT_FOUND
+ℹ TEAM-005 point 5: scoped operational creations inherit their branch and matching numbers and survive actual Worker restart and replay
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings (101959.886538ms)
+ℹ TEAM-004 point 1: every booking door enforces branch and owner area rules without writes on refusal
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 booking root: Main business
+ℹ TEAM-004 booking root: Raleigh
+ℹ TEAM-004 booking root: Phoenix
+ℹ TEAM-004 point 5: cross-branch customer merges preserve every record and same-branch merges succeed
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 point 4: branch-local midnight boundaries and every revenue CSV row survive Worker restart
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 point 6: every populated current report transport selects exactly one branch or main without writes
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 report seed: Main business
+ℹ TEAM-004 report seed: Raleigh
+ℹ TEAM-004 report seed: Phoenix
+ℹ TEAM-004 report read: Main business revenue.json
+ℹ TEAM-004 report read: Main business revenue.csv
+ℹ TEAM-004 report read: Main business technicians.json
+ℹ TEAM-004 report read: Main business technicians.csv
+ℹ TEAM-004 report read: Main business sources.json
+ℹ TEAM-004 report read: Main business sources.csv
+ℹ TEAM-004 report read: Main business quotes.json
+ℹ TEAM-004 report read: Main business quotes.csv
+ℹ TEAM-004 report read: Main business margins.json
+ℹ TEAM-004 report read: Main business margins.csv
+ℹ TEAM-004 report read: Main business tax.json
+ℹ TEAM-004 report read: Main business tax.csv
+ℹ TEAM-004 report read: Main business agreements.json
+ℹ TEAM-004 report read: Main business agreements.csv
+ℹ TEAM-004 report read: Main business receivables.json
+ℹ TEAM-004 report read: Main business receivables.csv
+ℹ TEAM-004 report read: Main business 1099.json
+ℹ TEAM-004 report read: Main business 1099.csv
+ℹ TEAM-004 report read: Main business payroll.json
+ℹ TEAM-004 report read: Main business payroll-gusto.csv
+ℹ TEAM-004 report read: Main business payroll-adp-run.csv
+ℹ TEAM-004 report read: Main business payroll-quickbooks.csv
+ℹ TEAM-004 report read: Main business costing
+ℹ TEAM-004 report read: Main business warranties
+ℹ TEAM-004 report read: Main business refrigerant
+ℹ TEAM-004 report read: Main business sources
+ℹ TEAM-004 report read: Raleigh revenue.json
+ℹ TEAM-004 report read: Raleigh revenue.csv
+ℹ TEAM-004 report read: Raleigh technicians.json
+ℹ TEAM-004 report read: Raleigh technicians.csv
+ℹ TEAM-004 report read: Raleigh sources.json
+ℹ TEAM-004 report read: Raleigh sources.csv
+ℹ TEAM-004 report read: Raleigh quotes.json
+ℹ TEAM-004 report read: Raleigh quotes.csv
+ℹ TEAM-004 report read: Raleigh margins.json
+ℹ TEAM-004 report read: Raleigh margins.csv
+ℹ TEAM-004 report read: Raleigh tax.json
+ℹ TEAM-004 report read: Raleigh tax.csv
+ℹ TEAM-004 report read: Raleigh agreements.json
+ℹ TEAM-004 report read: Raleigh agreements.csv
+ℹ TEAM-004 report read: Raleigh receivables.json
+ℹ TEAM-004 report read: Raleigh receivables.csv
+ℹ TEAM-004 report read: Raleigh 1099.json
+ℹ TEAM-004 report read: Raleigh 1099.csv
+ℹ TEAM-004 report read: Raleigh payroll.json
+ℹ TEAM-004 report read: Raleigh payroll-gusto.csv
+ℹ TEAM-004 report read: Raleigh payroll-adp-run.csv
+ℹ TEAM-004 report read: Raleigh payroll-quickbooks.csv
+ℹ TEAM-004 report read: Raleigh costing
+ℹ TEAM-004 report read: Raleigh warranties
+ℹ TEAM-004 report read: Raleigh refrigerant
+ℹ TEAM-004 report read: Raleigh sources
+ℹ TEAM-004 report read: Phoenix revenue.json
+ℹ TEAM-004 report read: Phoenix revenue.csv
+ℹ TEAM-004 report read: Phoenix technicians.json
+ℹ TEAM-004 report read: Phoenix technicians.csv
+ℹ TEAM-004 report read: Phoenix sources.json
+ℹ TEAM-004 report read: Phoenix sources.csv
+ℹ TEAM-004 report read: Phoenix quotes.json
+ℹ TEAM-004 report read: Phoenix quotes.csv
+ℹ TEAM-004 report read: Phoenix margins.json
+ℹ TEAM-004 report read: Phoenix margins.csv
+ℹ TEAM-004 report read: Phoenix tax.json
+ℹ TEAM-004 report read: Phoenix tax.csv
+ℹ TEAM-004 report read: Phoenix agreements.json
+ℹ TEAM-004 report read: Phoenix agreements.csv
+ℹ TEAM-004 report read: Phoenix receivables.json
+ℹ TEAM-004 report read: Phoenix receivables.csv
+ℹ TEAM-004 report read: Phoenix 1099.json
+ℹ TEAM-004 report read: Phoenix 1099.csv
+ℹ TEAM-004 report read: Phoenix payroll.json
+ℹ TEAM-004 report read: Phoenix payroll-gusto.csv
+ℹ TEAM-004 report read: Phoenix payroll-adp-run.csv
+ℹ TEAM-004 report read: Phoenix payroll-quickbooks.csv
+ℹ TEAM-004 report read: Phoenix costing
+ℹ TEAM-004 report read: Phoenix warranties
+ℹ TEAM-004 report read: Phoenix refrigerant
+ℹ TEAM-004 report read: Phoenix sources
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191174.075431

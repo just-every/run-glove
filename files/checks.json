@@ -1,0 +1,165 @@
+{
+  "tag": "sx-glove-c-f213",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f213",
+  "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+  "base": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "source_counts": {
+    "before": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    },
+    "after": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    }
+  },
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/branches.test.mjs",
+      "head": "6fed1c0",
+      "stage": "expanded merge and complete CSV row proof",
+      "exit": 0,
+      "tests": 1,
+      "passed": 1,
+      "duration_ms": 99595.244373
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "exit": 0,
+      "generated_changes": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "head": "b435031bfca5a2bcca370d1b38a09867560af88f",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "exit": 1,
+      "total": 202,
+      "cap": 200,
+      "main_total": 202,
+      "added_registrations": 0,
+      "classification": "pre-existing on main"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/branches.test.mjs tests/api/branch-authority.test.mjs",
+      "head": "b435031bfca5a2bcca370d1b38a09867560af88f",
+      "exit": 0,
+      "tests": 2,
+      "passed": 2,
+      "duration_ms": 118999.485919
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/branches.test.mjs tests/api/branch-authority.test.mjs",
+      "head": "62b3fb1b364bb3f181ba8e711f06669795f403f2",
+      "tree_equivalent_to_save": "ed360d921c8d1f78dcb0fdee21331c150d65b34b",
+      "exit": 0,
+      "tests": 2,
+      "passed": 2,
+      "duration_ms": 191174.075431,
+      "api_sources_unchanged_on_final": true
+    },
+    {
+      "command": "node /tmp/glove-focused-browser.mjs",
+      "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+      "exit": 0,
+      "tests": 1,
+      "passed": 1,
+      "test_duration_seconds": 52.8,
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "pnpm typecheck",
+      "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write then check; restore main views",
+      "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock then check",
+      "head": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+      "exit": 0
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/branches.test.mjs tests/api/branch-authority.test.mjs",
+      "stage": "inherited proof after rebase",
+      "exit": 0,
+      "tests": 2,
+      "passed": 2,
+      "duration_ms": 134023.127721
+    }
+  ],
+  "ci": {
+    "base_runs": [
+      42611312391,
+      42611312355,
+      42603950921
+    ],
+    "candidate": {
+      "workflow_runs": [
+        {
+          "conclusion": null,
+          "event": "push",
+          "head_sha": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42613168337",
+          "id": 42613168337,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    }
+  },
+  "publication_scan": {
+    "commit": "a89509f061d4a643ee0e9733cc7186672ea2d2b7",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "fleet lander duty; not run in cloud"
+  },
+  "migration_ledger": "not applicable; no migration changes",
+  "credentials_in_packet": false,
+  "merge": {
+    "base": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+    "resolved_contract_first": true,
+    "preserved_main_browser_csv_assertions": true,
+    "preserved_main_full_page_screenshots": true,
+    "published_history_rewritten": false
+  },
+  "api_proof_basis": "No byte in production sources, API registrations, their fixtures, scripts or dependency pins changed after the successful merged API run.",
+  "custody": {
+    "product_pushed": true,
+    "identity_commits_checked": 9,
+    "side_parents_checked": true,
+    "tree_clean": true,
+    "full_history": true,
+    "main_is_ancestor": true,
+    "pr": null
+  }
+}
