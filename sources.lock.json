@@ -5555,6 +5555,10 @@
       "sha256": "76fb66ddf27b5e4bd291482d5bb5235a3415278a30dd1f90d52ccd1a61b628bd",
       "executable": false
     },
+    "tests/api/crews.test.mjs": {
+      "sha256": "6c2863840d2db474b74490bb957a325532d6d227f064d258aeae2011c4edc79f",
+      "executable": false
+    },
     "tests/api/csv.test.mjs": {
       "sha256": "73ac1ef231f0963dc7e1b4b7dcc465b7e496dc82bcc8ab1d56ed7b23be2ee981",
       "executable": false
@@ -5857,6 +5861,10 @@
     },
     "tests/browser/conversation.spec.ts": {
       "sha256": "f316fad1d61e4a012748936e1eb0eaa9d2782dfb7bafe0b1dbc49225bd112425",
+      "executable": false
+    },
+    "tests/browser/crew-board.spec.ts": {
+      "sha256": "7eb5e97443bb9170e8187727570931a4127f0e3c7de08de264b98a63534ef51e",
       "executable": false
     },
     "tests/browser/custom-roles.spec.ts": {

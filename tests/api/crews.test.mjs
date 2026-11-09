@@ -227,6 +227,20 @@ test('DISP-007 crews retain multi-day work, authority, atomic review and evidenc
       }
       await unchanged(async () => assert.deepEqual(await sub.run(type, payload, { commandId }), result))
     }
+    const erasedCustomer = await h.command('customer.save', { name: 'Synthetic private crew customer' })
+    const erasedSite = await h.command('site.save', { customerId: erasedCustomer.id, address: '21 Synthetic Street' })
+    const erasedJob = await b.dispatcher.run('job.create', { customerId: erasedCustomer.id, siteId: erasedSite.id, title: 'Synthetic private install' })
+    const erasedGroup = await b.dispatcher.run('visit.book', { jobId: erasedJob.id, crewId: crew.id, date: '2026-12-08', start: '08:00', end: '09:00' })
+    const ownVisit = erasedGroup.visits.find(v => v.technicianId === sid.id), captureId = randomUUID()
+    const capturedPhoto = { visitId: ownVisit.id, deviceTime: ownVisit.startAt, kind: 'photo', caption: 'Synthetic private equipment', photo }
+    const capture = await sub.run('visit.capture', capturedPhoto, { commandId: captureId })
+    const preview = await h.command('privacy.preview', { customerId: erasedCustomer.id, version: erasedCustomer.version })
+    await h.command('privacy.erase', { customerId: erasedCustomer.id, version: erasedCustomer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    assert.ok(!(await sub.state()).visits.some(v => v.jobId === erasedJob.id))
+    assert.ok(!(await h.state()).captures.some(c => c.visitId === ownVisit.id))
+    assert.equal((await h.request(`/api/glove/files/${capture.file.fileId}`, { as: sub.cookie })).status, 404)
+    await unchanged(() => sub.run('visit.capture', capturedPhoto, { commandId: captureId, error: 'FORBIDDEN' }))
+    assert.ok(!JSON.stringify(await read('/api/glove/export')).includes('Synthetic private equipment'))
     t.diagnostic('PROBE DISP-007 6: whole group canceled; arrival, note and photo on one member each refuse cancellation and preserve visits, captures and events')
   })
 
@@ -244,6 +258,9 @@ test('DISP-007 crews retain multi-day work, authority, atomic review and evidenc
         assert.deepEqual([kept[0].actor_id, kept[0].actor_name, kept[0].actor_role, kept[0].command_id, kept[0].subject_id, kept[0].at, kept[0].summary], [e.actorId, e.actorName, e.actorRole, commandId, e.subjectId, e.at, e.summary])
       }
     }
+    const prior = trail.find(entry => entry.kind === 'visit.booked')
+    await h.command('role.set', { operatorId: b.dispatcher.id, role: 'viewer' })
+    await unchanged(() => b.dispatcher.run('visit.book', { jobId: install.id, crewId: crew.id, date: '2026-12-10', start: '08:00', end: '09:00' }, { commandId: prior.commandId, error: 'FORBIDDEN' }))
     t.diagnostic('PROBE DISP-007 7: Activity and export -> actual Owner crew saves and Dispatcher member bookings, moves and cancellations')
   })
 })
