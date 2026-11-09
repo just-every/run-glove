@@ -13,7 +13,8 @@ const at = (date, time) => `${date}T${time}:00+11:00`
 const days = [['2026-11-02', '07:00', '20:00'], ['2026-11-03', '07:00', '17:00'], ['2026-11-04', '07:00', '17:00'], ['2026-11-05', '07:00', '14:00'], ['2026-11-06', '07:00', '11:00']]
 const csv = rows => rows.map(r => r.join(',')).join('\r\n') + '\r\n'
 
-test('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async (t) => {
+test('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async t => {
+  await scenario(t, 'COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, split at 40 hours and under the daily rule, and exported for Gusto, ADP RUN and QuickBooks Payroll without the subcontractor', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -87,12 +88,7 @@ test('COST-002, COST-006, COST-007 a 44-hour week is approved by the owner, spli
   })
 })
 
-
-// TEAM-003 commissions and spiffs through the settings, quote, agreement,
-// invoice and payroll-file doors: the owner's dated rules credit each sale to
-// the technician named as its seller, and the totals join the same payroll
-// files for the same approved weeks.
-test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files', async (t) => {
+  await scenario(t, 'TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a period reach the Gusto, ADP RUN and QuickBooks Payroll files', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -146,3 +142,9 @@ test('TEAM-003, TEAM-006 a 5% sold-revenue rule and a $25 agreement spiff over a
     assert.ok(activity.some(e => e.kind === 'payroll.settings' && e.summary.endsWith(`commissions from ${lastWeek}: 5% of sold revenue, 2% of completed revenue, $25.00 per agreement sold`)))
   })
 })
+})
+
+// TEAM-003 commissions and spiffs through the settings, quote, agreement,
+// invoice and payroll-file doors: the owner's dated rules credit each sale to
+// the technician named as its seller, and the totals join the same payroll
+// files for the same approved weeks.

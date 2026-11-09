@@ -13,12 +13,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, postEvents, snsEvents } from './harness.mjs'
 
-
-
 // COMM-001 inherits AGENT-008's morning email: opt-in by the owner, one email
 // to the owner's sign-in address per business-local date, its provider outcome
 // from the answer and signed events, and nothing sent by opening the brief.
-test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner\'s morning brief email is sent once per business-local date and records the provider outcome', async t => {
+test('COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay', async t => {
+  await scenario(t, 'COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner\'s morning brief email is sent once per business-local date and records the provider outcome', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const { job } = await completedJob(h, b)
@@ -74,31 +73,6 @@ test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM
   await providerMornings()
 })
 
-// Inspect durable identities as evidence; mutations and assertions enter via
-// the real provider and owner HTTP doors. The fake clock is solely in worker.ts.
-async function mailSnapshot(h) {
-  const tables = (await h.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE 'glove_%' OR name LIKE 'rer_mail_%') ORDER BY name").all()).results
-  return JSON.stringify(await Promise.all(tables.map(async ({ name }) => [name, (await h.db.prepare(`SELECT * FROM ${name}`).all()).results.map(r => JSON.stringify(r)).sort()])))
-}
-const clock = (h, at) => h.request('/__test/clock', { method: 'POST', body: { at } })
-const basic = value => ({ authorization: `Basic ${Buffer.from(`glove:${value}`).toString('base64')}` })
-const pmEvent = (m, type = 'Delivery', more = {}) => ({ RecordType: type, MessageID: m.receipt, Recipient: m.to, DeliveredAt: new Date().toISOString(), Metadata: { glove_delivery_id: m.id }, ...more })
-async function emailFixture(h, b) {
-  const draft = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Callback authentication', lines: [{ description: 'Service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }] })
-  return h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
-}
-async function assertRejected(h, input, status = 401) {
-  const before = await mailSnapshot(h), response = await postEvents(h, input)
-  assert.equal(response.status, status, await response.clone().text())
-  assert.deepEqual(await response.json(), { ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } })
-  assert.equal(await mailSnapshot(h), before, 'rejection writes no product, Activity, callback counter, replay ID, warning or inbound record')
-}
-
-
-
-
-
-test('COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay', async t => {
   await scenario(t, 'COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay', async t => {
   const h = await installation({ at: '2026-11-08T12:00:00.000Z' }); t.after(() => h.close())
   const b = await business(h), quote = await emailFixture(h, b)
@@ -507,8 +481,25 @@ test('COMM-016 Postmark outcomes retain exact message states and attributable fa
 })
 })
 
-
-
+// Inspect durable identities as evidence; mutations and assertions enter via
+// the real provider and owner HTTP doors. The fake clock is solely in worker.ts.
+async function mailSnapshot(h) {
+  const tables = (await h.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE 'glove_%' OR name LIKE 'rer_mail_%') ORDER BY name").all()).results
+  return JSON.stringify(await Promise.all(tables.map(async ({ name }) => [name, (await h.db.prepare(`SELECT * FROM ${name}`).all()).results.map(r => JSON.stringify(r)).sort()])))
+}
+const clock = (h, at) => h.request('/__test/clock', { method: 'POST', body: { at } })
+const basic = value => ({ authorization: `Basic ${Buffer.from(`glove:${value}`).toString('base64')}` })
+const pmEvent = (m, type = 'Delivery', more = {}) => ({ RecordType: type, MessageID: m.receipt, Recipient: m.to, DeliveredAt: new Date().toISOString(), Metadata: { glove_delivery_id: m.id }, ...more })
+async function emailFixture(h, b) {
+  const draft = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Callback authentication', lines: [{ description: 'Service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }] })
+  return h.command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+}
+async function assertRejected(h, input, status = 401) {
+  const before = await mailSnapshot(h), response = await postEvents(h, input)
+  assert.equal(response.status, status, await response.clone().text())
+  assert.deepEqual(await response.json(), { ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } })
+  assert.equal(await mailSnapshot(h), before, 'rejection writes no product, Activity, callback counter, replay ID, warning or inbound record')
+}
 
 async function providerDocuments() {
   for (const provider of ['postmark', 'ses']) {

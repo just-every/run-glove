@@ -157,6 +157,7 @@ test('QuickBooks property sub-customers receive separate invoices and one parent
 })
 
 test('QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send', async t => {
+  await scenario(t, 'QuickBooks first-post review refuses unconfirmed links and duplicate invoices; provider facts survive owner withdrawal without allowing another send', async t => {
   const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
   const b = await quickbooksBusiness(h), invoice = await qboInvoice(h, b)
   await h.command('qbo.map', { kind: 'customer', id: b.customer.id, remoteId: '10' })
@@ -191,47 +192,6 @@ test('QuickBooks first-post review refuses unconfirmed links and duplicate invoi
   await lateInvoiceFacts()
 })
 
-test('QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge', async t => {
-  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
-  const b = await quickbooksBusiness(h)
-  const discount = await h.command('service.save', { code: 'LOYALTY', name: 'First service discount', kind: 'discount', unitPrice: '-50.00', tax: 'FREE' })
-  h.quickbooks.record('item', { Id: '22', SyncToken: '0', Active: true, Type: 'Service', IncomeAccountRef: { value: '30' } })
-  await h.command('qbo.map', { kind: 'service', id: discount.id, remoteId: '22' })
-  await h.command('qbo.confirmLinks', { confirm: true })
-  const invoice = await qboInvoice(h, b, b.site, 'HVAC service', { kind: 'percent', value: '10', reason: 'Member discount' }, [{ description: 'Non-taxable service', serviceId: b.service.id, quantity: '1', unitPrice: '100.00', tax: 'FREE' }, { description: discount.name, serviceId: discount.id, quantity: '1', unitPrice: '-50.00', tax: 'FREE' }])
-  const posted = await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }); assert.equal(posted.phase, 'complete')
-  const payload = h.quickbooks.calls.find(r => r.entity === 'invoice' && r.body).body
-  assert.equal(payload.Line[2].Amount, -50); assert.equal(payload.Line[2].SalesItemLineDetail.ItemRef.value, '22'); assert.equal(payload.Line[2].SalesItemLineDetail.TaxCodeRef.value, 'NON')
-  assert.equal(payload.Line[3].DetailType, 'DiscountLineDetail'); assert.equal(payload.Line[3].Amount, 23.9)
-  assert.equal(payload.TxnTaxDetail.TotalTax, 15.59)
-  assert.deepEqual([invoice.revisions.at(-1).totals.gst, invoice.revisions.at(-1).totals.total], ['15.59', '230.69'])
-})
-
-test('QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload', async t => {
-  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
-  const b = await quickbooksBusiness(h)
-  h.quickbooks.reject = `Invalid customer ${b.customer.name}; synthetic-glove-901`
-  const rejected = await h.command('qbo.sync', { kind: 'customer', id: b.customer.id })
-  assert.match(rejected.message, /Invalid customer Cedar Property Management/); assert.doesNotMatch(rejected.message, /synthetic-glove-901/)
-  const customer = await current(h, 'customers', b.customer.id)
-  const exported = await h.command('privacy.export', { customerId: customer.id, version: customer.version })
-  const custody = JSON.parse(exported.download)
-  assert.equal(custody.records.customers[0].qboSync.message, rejected.message)
-  assert.doesNotMatch(JSON.stringify(await read(h, '/api/glove/export')), /synthetic-glove-901/)
-  h.quickbooks.beforeReply = async request => {
-    if (request.entity !== 'customer' || !request.body) return
-    h.quickbooks.beforeReply = null
-    const live = await current(h, 'customers', customer.id)
-    const preview = await h.command('privacy.preview', { customerId: live.id, version: live.version })
-    await h.command('privacy.erase', { customerId: live.id, version: live.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
-  }
-  const interrupted = await h.command('qbo.sync', { kind: 'customer', id: customer.id })
-  assert.match(interrupted.message, /subject was erased/)
-  assert.doesNotMatch(JSON.stringify(await read(h, '/api/glove/export')), /Cedar Property Management|accounts@cedar.example.test|120 Congress Avenue/)
-  await h.command('qbo.sync', { kind: 'customer', id: customer.id }, { error: 'ERASED' })
-})
-
-test('QuickBooks company discovery proposes imported customer, item and original invoice links without a write or a partial company review', async t => {
   await scenario(t, 'QuickBooks company discovery proposes imported customer, item and original invoice links without a write or a partial company review', async t => {
   const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
   const { quickbooksMoveIn } = await import('../fixtures/quickbooks-movein.mjs')
@@ -403,7 +363,45 @@ test('QuickBooks company discovery proposes imported customer, item and original
 })
 })
 
+test('QuickBooks mapped fixed discount item and document discount preserve accepted taxable and non-taxable cents at the provider edge', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await quickbooksBusiness(h)
+  const discount = await h.command('service.save', { code: 'LOYALTY', name: 'First service discount', kind: 'discount', unitPrice: '-50.00', tax: 'FREE' })
+  h.quickbooks.record('item', { Id: '22', SyncToken: '0', Active: true, Type: 'Service', IncomeAccountRef: { value: '30' } })
+  await h.command('qbo.map', { kind: 'service', id: discount.id, remoteId: '22' })
+  await h.command('qbo.confirmLinks', { confirm: true })
+  const invoice = await qboInvoice(h, b, b.site, 'HVAC service', { kind: 'percent', value: '10', reason: 'Member discount' }, [{ description: 'Non-taxable service', serviceId: b.service.id, quantity: '1', unitPrice: '100.00', tax: 'FREE' }, { description: discount.name, serviceId: discount.id, quantity: '1', unitPrice: '-50.00', tax: 'FREE' }])
+  const posted = await h.command('qbo.sync', { kind: 'invoice', id: invoice.id }); assert.equal(posted.phase, 'complete')
+  const payload = h.quickbooks.calls.find(r => r.entity === 'invoice' && r.body).body
+  assert.equal(payload.Line[2].Amount, -50); assert.equal(payload.Line[2].SalesItemLineDetail.ItemRef.value, '22'); assert.equal(payload.Line[2].SalesItemLineDetail.TaxCodeRef.value, 'NON')
+  assert.equal(payload.Line[3].DetailType, 'DiscountLineDetail'); assert.equal(payload.Line[3].Amount, 23.9)
+  assert.equal(payload.TxnTaxDetail.TotalTax, 15.59)
+  assert.deepEqual([invoice.revisions.at(-1).totals.gst, invoice.revisions.at(-1).totals.total], ['15.59', '230.69'])
+})
 
+test('QuickBooks rejection messages follow customer export and erasure without credentials or a surviving personal outbox payload', async t => {
+  const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
+  const b = await quickbooksBusiness(h)
+  h.quickbooks.reject = `Invalid customer ${b.customer.name}; synthetic-glove-901`
+  const rejected = await h.command('qbo.sync', { kind: 'customer', id: b.customer.id })
+  assert.match(rejected.message, /Invalid customer Cedar Property Management/); assert.doesNotMatch(rejected.message, /synthetic-glove-901/)
+  const customer = await current(h, 'customers', b.customer.id)
+  const exported = await h.command('privacy.export', { customerId: customer.id, version: customer.version })
+  const custody = JSON.parse(exported.download)
+  assert.equal(custody.records.customers[0].qboSync.message, rejected.message)
+  assert.doesNotMatch(JSON.stringify(await read(h, '/api/glove/export')), /synthetic-glove-901/)
+  h.quickbooks.beforeReply = async request => {
+    if (request.entity !== 'customer' || !request.body) return
+    h.quickbooks.beforeReply = null
+    const live = await current(h, 'customers', customer.id)
+    const preview = await h.command('privacy.preview', { customerId: live.id, version: live.version })
+    await h.command('privacy.erase', { customerId: live.id, version: live.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  }
+  const interrupted = await h.command('qbo.sync', { kind: 'customer', id: customer.id })
+  assert.match(interrupted.message, /subject was erased/)
+  assert.doesNotMatch(JSON.stringify(await read(h, '/api/glove/export')), /Cedar Property Management|accounts@cedar.example.test|120 Congress Avenue/)
+  await h.command('qbo.sync', { kind: 'customer', id: customer.id }, { error: 'ERASED' })
+})
 
 const tenant = '00000000-0000-4000-8000-000000000001'
 const token = 'synthetic-glove-51'
@@ -414,7 +412,7 @@ const inspect = async (h, customerId) => {
   return JSON.parse(result.result.review)
 }
 
-test('Xero complete company reads and reviewed existing links preserve two property invoice identities without writes or restored authority', async t => {
+test("Xero reviewed customer and property invoice links retain exact identities through guarded writes, refusal repair and uncertain sends", async t => {
   await scenario(t, 'Xero complete company reads and reviewed existing links preserve two property invoice identities without writes or restored authority', async t => {
   const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })
@@ -698,9 +696,7 @@ test('Xero complete company reads and reviewed existing links preserve two prope
   await h.command('xero.confirmLinks', { confirm: true }, { error: 'XERO_SETUP' })
   assert.equal(h.xero.calls.length, calls, 'restored domain history without provider credentials grants no read access')
 })
-})
 
-test('Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts', async t => {
   await scenario(t, 'Xero reviewed writes preserve frozen invoice cents and property references, repair refusals and reconcile uncertain sends without duplicate posts', async t => {
   const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
   const b = await xeroBusiness(h)
@@ -892,16 +888,6 @@ test('Xero reviewed writes preserve frozen invoice cents and property references
   assert.ok(!JSON.stringify(exported).includes(b.customer.name))
 })
 })
-
-
-
-
-
-
-
-
-
-
 
 async function interruptedInvoiceRecovery(durablePhase) {
   const h = await installation({ at: '2026-11-01T12:00:00Z' })
