@@ -64,6 +64,8 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
     const mainInvoice = await h.command('invoice.prepare', { jobId: mainWork.id })
     await h.command('invoice.approve', { invoiceId: mainInvoice.id, version: mainInvoice.version, revision: 1 })
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+    page.setDefaultTimeout(15_000)
+    page.setDefaultNavigationTimeout(30_000)
     let as: string | undefined
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
@@ -118,7 +120,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
           await branchChoice.selectOption(next.id)
           await expect(page.locator('.book-form')).toHaveCount(0)
           await branchChoice.selectOption(root.id)
-          await page.getByLabel('Rows', { exact: true }).selectOption('crews')
+          await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('crews')
           await expect(board.locator('.techrow')).toHaveCount(1)
           await expect(board).toContainText(`Crew ${root.name} Team`)
           await expect(board.getByRole('button', { name: new RegExp(`${root.name} crew work,.*13:00 to 14:00`) })).toHaveCount(1)
@@ -127,7 +129,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
           await page.setViewportSize({ width: 390, height: 1050 })
           await shot(page, 390, `dispatch-${i}`)
           await page.setViewportSize({ width: 1440, height: 1050 })
-          await page.getByLabel('Rows', { exact: true }).selectOption('technicians')
+          await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('technicians')
         }
       })
       await page.goto(`${origin}/app#team`)
