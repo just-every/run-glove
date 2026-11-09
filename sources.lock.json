@@ -5772,7 +5772,7 @@
       "executable": false
     },
     "tests/api/schedule-push.test.mjs": {
-      "sha256": "3e08e4ad8985746b42882043f00d284a9aa2f428bc337e6d89c69388baabe74f",
+      "sha256": "be114328c3589e648fa11f6a6411cd01b41f935c3f353eb452a8bfbe64c2415a",
       "executable": false
     },
     "tests/api/security.test.mjs": {
