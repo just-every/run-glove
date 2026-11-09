@@ -1131,6 +1131,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       })
       await page.goto(`${origin}/app#customers/${b.customer.id}`)
       await page.reload()
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
       const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
       await test.step('DATA-001 point 8: the owner sees how the latest backup prevents restoration of erased data', async () => {
         await expect(privacy.getByText(/Keep the latest backup as the erasure journal when restoring older backups/)).toBeVisible()
@@ -1160,6 +1161,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
       await test.step('DATA-001 point 8: export and erasure outcomes remain additive after the destructive action', async () => {
         await page.reload()
+        await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
         await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
         await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
       })
