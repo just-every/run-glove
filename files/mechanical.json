@@ -1,0 +1,29 @@
+{
+  "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "branch": "cloud/sx-glove-c-f222",
+  "remote_head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "lock": {
+    "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+    "exit": 0
+  },
+  "views": {
+    "write": "node scripts/contract-docs.mjs write --clauses PAY-021",
+    "write_exit": 0,
+    "check": "node scripts/contract-docs.mjs check",
+    "check_exit": 0,
+    "generated_files_restored_from": "origin/main"
+  },
+  "migration_ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration touched."
+  },
+  "inventory": {
+    "total": 202,
+    "limit": 200,
+    "exit": 1,
+    "new_registrations": 0,
+    "baseline": "assignment states main inventory 202/200"
+  },
+  "protected_files_unchanged": true
+}

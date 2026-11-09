@@ -1,0 +1,72 @@
+[
+  {
+    "clause": "PAY-021",
+    "point": 1,
+    "path": "tests/api/receipt-credit.mjs",
+    "line": 154,
+    "step": "PAY-021 point 1: exact installment boundaries and current Owner-only TEST Checkout refuse unsafe amounts without a request",
+    "registration": "tests/api/payments.test.mjs",
+    "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "local_result": "pass"
+  },
+  {
+    "clause": "PAY-021",
+    "point": 2,
+    "path": "tests/api/receipt-credit.mjs",
+    "line": 165,
+    "step": "PAY-021 point 2: Owner and Office cash and check references remain attributable staff records and unauthorized or unapproved receipts change nothing",
+    "registration": "tests/api/payments.test.mjs",
+    "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "local_result": "pass"
+  },
+  {
+    "clause": "PAY-021",
+    "point": 3,
+    "path": "tests/api/receipt-credit.mjs",
+    "line": 181,
+    "step": "PAY-021 point 3: a check exceeding the remaining balance retains exactly the excess on its source invoice",
+    "registration": "tests/api/payments.test.mjs",
+    "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "local_result": "pass"
+  },
+  {
+    "clause": "PAY-021",
+    "point": 4,
+    "path": "tests/api/receipt-credit.mjs",
+    "line": 189,
+    "step": "PAY-021 point 4: explicit credit allocations enforce customer, currency, branch, source and target limits with no money movement",
+    "registration": "tests/api/payments.test.mjs",
+    "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "local_result": "pass"
+  },
+  {
+    "clause": "PAY-021",
+    "point": 5,
+    "path": "tests/api/receipt-credit.mjs",
+    "line": 215,
+    "step": "PAY-021 point 5: only the Owner records a reasoned non-cash credit",
+    "registration": "tests/api/payments.test.mjs",
+    "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "local_result": "pass"
+  },
+  {
+    "clause": "PAY-021",
+    "point": 6,
+    "path": "tests/api/receipt-credit.mjs",
+    "line": 226,
+    "step": "PAY-021 point 6: every invoice, customer, aging bucket and CSV cell, Today tile and linked overdue item matches the independent cent ledger after every allowed and refused step",
+    "registration": "tests/api/payments.test.mjs",
+    "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "local_result": "pass"
+  },
+  {
+    "clause": "PAY-021",
+    "point": 7,
+    "path": "tests/api/receipt-credit.mjs",
+    "line": 238,
+    "step": "PAY-021 point 7: Stripe revenue and technician tips exclude staff receipts and allocations, with identical restart, replay, Activity and business export",
+    "registration": "tests/api/payments.test.mjs",
+    "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+    "local_result": "pass"
+  }
+]

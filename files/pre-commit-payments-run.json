@@ -1,0 +1,6 @@
+{
+  "command": "timeout 900 node --test --test-concurrency=1 tests/api/payments.test.mjs",
+  "node": "22.20.0",
+  "phase": "continuation qualification before commit",
+  "exit": 0
+}

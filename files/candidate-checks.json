@@ -1,0 +1,77 @@
+{
+  "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "node": "v22.20.0",
+  "at": "2026-11-09T12:59:19.578717+00:00",
+  "checks": [
+    {
+      "check": "payments",
+      "command": [
+        "timeout",
+        "900",
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/payments.test.mjs"
+      ],
+      "exit": 0,
+      "seconds": 121.484,
+      "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+      "log": "payments.log",
+      "sha256": "3e70549a2ec5de10e71e656ad34e7445926a3ce42c7edfb3e68688174ffe9dc3"
+    },
+    {
+      "check": "typecheck",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "seconds": 0.764,
+      "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+      "log": "typecheck.log",
+      "sha256": "f00fd4b1f5f2213e149f71bd99b76d53a1d2fdc5c05708cfda0b979ca57499d1"
+    },
+    {
+      "check": "first-party",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "seconds": 7.387,
+      "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+      "log": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "contract-views",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 0.29,
+      "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+      "log": "contract-views.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "check": "source-lock",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "seconds": 1.389,
+      "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+      "log": "source-lock.log",
+      "sha256": "9acb9dd8fd32e139c52e28a7e8b5892b8f878da1188eb40560f58c6ee5436b85"
+    }
+  ]
+}
