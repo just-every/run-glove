@@ -5604,7 +5604,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "3ff24937ce4ee2f4f4f8738624013e63cb8e2f8c6e706f7940fd3eab539b5ea5",
+      "sha256": "1a8f22399ba99b420fb42a3088f88105c952f12007da2dbf8e82912a4f91ec00",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
@@ -5660,7 +5660,7 @@
       "executable": false
     },
     "tests/api/message-outcomes.test.mjs": {
-      "sha256": "459fd0694837015ba1dd7fa7f0f802f09cba264650c4ebe446c1a0401be6809c",
+      "sha256": "ac37806d1c4cc7373f41551519e6da28b556e8f5cfa493a62ac13b5f9fee058f",
       "executable": false
     },
     "tests/api/money.test.mjs": {
@@ -5880,7 +5880,7 @@
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
-      "sha256": "22bfa3d9ef98f6708f27e8e9617d27c08de54c1f6230cef0a99caa547a43d468",
+      "sha256": "e10490dba81765d8e07febf2a36afb4bdf033301392ba398e49e260217506e0c",
       "executable": false
     },
     "tests/browser/crew-board.spec.ts": {
