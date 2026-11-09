@@ -92,7 +92,7 @@
     }
   },
   "evidence_scope": "explicit non-secret report and receipt files only",
-  "github_api_calls_used": 7,
+  "github_api_calls_used": 8,
   "head": "2fe930341c3c8b77b56feaa866299bd02ef2312b",
   "migration_ledger": "not applicable: no migration edits",
   "policy_default": null,
@@ -110,7 +110,7 @@
   },
   "production_repairs": [],
   "proof_strengthening": "Unsafe-source refusals check all outbound requests, including an unexpected host or protocol, as well as SNS-edge requests.",
-  "recorded_at": "2026-11-09T00:40:45.173027+00:00",
+  "recorded_at": "2026-11-09T00:53:48.879313+00:00",
   "repository": "just-every/run-glove",
   "runtime": "Node 22.20.0",
   "scan": {
@@ -123,11 +123,11 @@
   "schema": 1,
   "tag": "sx-glove-c-f170",
   "verify": {
-    "conclusion": null,
+    "conclusion": "success",
     "event": "push",
     "head_sha": "2fe930341c3c8b77b56feaa866299bd02ef2312b",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42541254395",
     "id": 42541254395,
-    "status": "in_progress"
+    "status": "completed"
   }
 }
