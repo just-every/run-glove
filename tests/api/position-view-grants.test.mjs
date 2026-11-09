@@ -142,6 +142,7 @@ test('DISP-009 current-shift grants retain attributable custody and fence every 
         const next = (await h.state()).visits.find(v => v.technicianId === tech.id && v.local.start === '10:00')
         assert.deepEqual(live.eta, { visitId: next.id, seconds, arrivalAt: arrival })
       }
+      assert.equal(board.find(t => t.id === third.id)?.live, null, 'the ungranted technician is present without a live view')
       assert.ok(board.filter(t => ![b.priya.id, b.tom.id].includes(t.id)).every(t => t.live === null))
       const audits = (await f.audits()).slice(before)
       assert.equal(audits.length, read * 2)
@@ -179,7 +180,8 @@ test('DISP-009 current-shift grants retain attributable custody and fence every 
     await scenario(t, `point 2: ${ending} ends positions and further audit`, async step => {
       const f = await fixture(step), { h, b } = f
       const secondOwner = ending.startsWith('granting Owner') ? await h.person('Synthetic Second Owner', 'owner') : null
-      await f.grant(b.priya, b.dispatcher, true, secondOwner)
+      const originalGrant = await f.payload(), commandId = randomUUID()
+      await h.command('location.delegate', originalGrant, { commandId, ...(secondOwner ? { as: secondOwner.cookie } : {}) })
       const agentEnding = ['staff revocation', 'clock-out', 'consent withdrawal'].includes(ending)
       if (agentEnding) {
         await f.grant(b.priya, b.agent)
@@ -210,6 +212,14 @@ test('DISP-009 current-shift grants retain attributable custody and fence every 
       } else {
         const branch = await h.command('branch.save', { name: 'Synthetic foreign branch', prefix: 'SYN', timezone: 'UTC', zips: [] })
         await h.command('branch.limit', { operatorId: secondOwner?.id ?? b.dispatcher.id, branchId: branch.id })
+      }
+      if (agentEnding || ending === 'new shift') {
+        const retained = await f.grants(), positions = await f.rows()
+        const events = (await (await h.request('/api/glove/export')).json()).timeline
+        assert.deepEqual(await h.command('location.delegate', originalGrant, { commandId }), { enabled: true })
+        assert.deepEqual(await f.grants(), retained, 'replaying the original command cannot restore an ended grant')
+        assert.deepEqual(await f.rows(), positions, 'replay cannot restore a prior capture')
+        assert.deepEqual((await (await h.request('/api/glove/export')).json()).timeline, events)
       }
       await f.ended(b.dispatcher, ending === 'recipient deactivation' ? 401 : 200)
       if (agentEnding) await f.ended(b.agent)
