@@ -5868,7 +5868,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "def8267ec4339c62249ad09d995854b65c36bbd4631b4313be3228466f03740b",
+      "sha256": "5c91d93d6d7a70910b128d64c34e764f6df6ceb100ba0d3dbbb1e7b8ff88b685",
       "executable": false
     },
     "tests/browser/commission-download-journey.ts": {
@@ -6048,7 +6048,7 @@
       "executable": false
     },
     "tests/fixtures/branch-projections.mjs": {
-      "sha256": "e9f9129dbafe8489f7f4245ac9cdb5d2c8a3aff6cc739621170ac4aa78fcdc7e",
+      "sha256": "1f92ed98d03092c1980a0e6a77d93e1a5e7b5334fc36d86e13aa43b09b71675a",
       "executable": false
     },
     "tests/fixtures/calendar.mjs": {
