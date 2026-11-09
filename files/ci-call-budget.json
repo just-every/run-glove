@@ -1,0 +1,47 @@
+{
+  "task_calls": 10,
+  "budget": 10,
+  "calls": [
+    {
+      "number": 1,
+      "command": "gh run view 42608851977 --repo just-every/run-glove --job 129131981647 --log-failed"
+    },
+    {
+      "number": 2,
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=671d2538175fb969ad0220e799bc8609a235b643&per_page=100"
+    },
+    {
+      "number": 3,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42619455401 (12:49 UTC)"
+    },
+    {
+      "number": 4,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42619455401 (12:54 UTC)"
+    },
+    {
+      "number": 5,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42619455401 (12:59 UTC)"
+    },
+    {
+      "number": 6,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42619455401/jobs?per_page=100"
+    },
+    {
+      "number": 7,
+      "command": "gh run view 42619455401 --repo just-every/run-glove --job 129167833573 --log-failed"
+    },
+    {
+      "number": 8,
+      "command": "gh run view 42619455401 --repo just-every/run-glove --job 129167833531 --log-failed"
+    },
+    {
+      "number": 9,
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=4cb7a67af164eb018628577d9cccf9fe00f2d53c&per_page=100"
+    },
+    {
+      "number": 10,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42621763978 (13:23 UTC)"
+    }
+  ],
+  "further_job_lookups_or_logs": "not requested: task budget exhausted"
+}

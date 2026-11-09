@@ -1,0 +1,18 @@
+{
+  "label": "portable-final",
+  "cwd": "/home/agent/rer-consolidation/work/sx-glove-f205fix1/run-glove",
+  "command": [
+    "python3",
+    "/tmp/rer-reap.py",
+    "node",
+    "scripts/verify-ci.mjs",
+    "portable"
+  ],
+  "start": "2026-11-09T14:06:05.036635+00:00",
+  "end": "2026-11-09T14:14:21.397716+00:00",
+  "node_binary": "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+  "node_version": "v22.20.0",
+  "elapsed_seconds": 496.361,
+  "exit_code": 1,
+  "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c"
+}

@@ -1,0 +1,55 @@
+shards (portable)	Run this shard	﻿2026-11-09T12:44:57.1286793Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (portable)	Run this shard	2026-11-09T12:44:57.1287116Z [36;1mnode scripts/verify-ci.mjs "$SHARD"[0m
+shards (portable)	Run this shard	2026-11-09T12:44:57.1303923Z shell: /usr/bin/bash -e {0}
+shards (portable)	Run this shard	2026-11-09T12:44:57.1304143Z env:
+shards (portable)	Run this shard	2026-11-09T12:44:57.1304308Z   CI: true
+shards (portable)	Run this shard	2026-11-09T12:44:57.1304484Z   GLOVE_VERIFY_SHARD: portable
+shards (portable)	Run this shard	2026-11-09T12:44:57.1304704Z   WRANGLER_SEND_METRICS: false
+shards (portable)	Run this shard	2026-11-09T12:44:57.1304908Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (portable)	Run this shard	2026-11-09T12:44:57.1305112Z   GLOVE_CI_PREBUILT: 1
+shards (portable)	Run this shard	2026-11-09T12:44:57.1305380Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (portable)	Run this shard	2026-11-09T12:44:57.1305665Z   SHARD: portable
+shards (portable)	Run this shard	2026-11-09T12:44:57.1305857Z ##[endgroup]
+shards (portable)	Run this shard	2026-11-09T12:44:57.1586775Z > pnpm run verify:app
+shards (portable)	Run this shard	2026-11-09T12:44:57.3675656Z 
+shards (portable)	Run this shard	2026-11-09T12:44:57.3676553Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (portable)	Run this shard	2026-11-09T12:44:57.3677052Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (portable)	Run this shard	2026-11-09T12:44:57.3677261Z 
+shards (portable)	Run this shard	2026-11-09T12:44:57.4440728Z verify:app
+shards (portable)	Run this shard	2026-11-09T12:44:57.4700492Z > node tests/portable.mjs
+shards (portable)	Run this shard	2026-11-09T12:47:13.3307399Z DISP-008 real archive passed: both provider credentials, pending work and mappings absent; import, startup, replay and restart silent; explicit reconnection required
+shards (portable)	Run this shard	2026-11-09T12:49:23.8951885Z CUST-006 real archive passed: both keys absent, push history retained, restored replay sends nothing, explicit reconnection required
+shards (portable)	Run this shard	2026-11-09T12:49:24.0768218Z DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position
+shards (portable)	Run this shard	2026-11-09T12:49:24.5610622Z MOVE-003 / MOVE-004 source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door
+shards (portable)	Run this shard	2026-11-09T12:49:24.8819553Z PLAN-010 real archive passed: metadata and replay retained, source bearer <REDACTED> fresh link reads the same included job
+shards (portable)	Run this shard	2026-11-09T12:49:25.7373877Z QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only
+shards (portable)	Run this shard	2026-11-09T12:49:37.3794672Z Using secrets defined in ../../../../../tmp/glove-portable-rUgB9N/destination/.dev.vars
+shards (portable)	Run this shard	2026-11-09T12:49:37.4197668Z ▲ [WARNING] 				You have defined bindings to the following internal Durable Objects:
+shards (portable)	Run this shard	2026-11-09T12:49:37.4198351Z 
+shards (portable)	Run this shard	2026-11-09T12:49:37.4198924Z   				- {"name":"MAIL_REJECTIONS","class_name":"MailRejections"}
+shards (portable)	Run this shard	2026-11-09T12:49:37.4199821Z   				These will not work in local development, but they should work in production.
+shards (portable)	Run this shard	2026-11-09T12:49:37.4200477Z   
+shards (portable)	Run this shard	2026-11-09T12:49:37.4201205Z   				If you want to develop these locally, you can define your DO in a separate Worker, with a separate configuration file.
+shards (portable)	Run this shard	2026-11-09T12:49:37.4204277Z   				For detailed instructions, refer to the Durable Objects section here: https://developers.cloudflare.com/workers/wrangler/api#supported-bindings
+shards (portable)	Run this shard	2026-11-09T12:49:37.4204993Z 
+shards (portable)	Run this shard	2026-11-09T12:49:37.4205029Z 
+shards (portable)	Run this shard	2026-11-09T12:49:37.5099054Z A DurableObjectNamespace in the config referenced the class "MailRejections", but no such Durable Object class is exported from the worker. Please make sure the class name matches, it is exported, and the class extends 'DurableObject'. Attempts to call to this Durable Object class will fail at runtime, but historically this was not a startup-time error. Future versions of workerd may make this a startup-time error.
+shards (portable)	Run this shard	2026-11-09T12:49:37.7416165Z (node:2442) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+shards (portable)	Run this shard	2026-11-09T12:49:37.7416828Z (Use `node --trace-warnings ...` to show where the warning was created)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9014885Z file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/modules/portability/lines.mjs:6
+shards (portable)	Run this shard	2026-11-09T12:49:39.9015543Z   const reader = source.getReader();
+shards (portable)	Run this shard	2026-11-09T12:49:39.9015826Z                         ^
+shards (portable)	Run this shard	2026-11-09T12:49:39.9015991Z 
+shards (portable)	Run this shard	2026-11-09T12:49:39.9016554Z TypeError: source.getReader is not a function
+shards (portable)	Run this shard	2026-11-09T12:49:39.9017217Z     at archiveLines (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/modules/portability/lines.mjs:6:25)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9017831Z     at archiveLines.next (<anonymous>)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9018528Z     at verifiedRecords (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/modules/portability/format.mjs:121:19)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9019198Z     at verifiedRecords.next (<anonymous>)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9020254Z     at readArchive (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/modules/portability/format.mjs:112:10)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9021104Z     at readArchive.next (<anonymous>)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9021524Z     at file://[REDACTED]/tests/portable.mjs:721:24
+shards (portable)	Run this shard	2026-11-09T12:49:39.9021966Z     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+shards (portable)	Run this shard	2026-11-09T12:49:39.9022233Z 
+shards (portable)	Run this shard	2026-11-09T12:49:39.9022327Z Node.js v22.20.0
+shards (portable)	Run this shard	2026-11-09T12:49:39.9989665Z  ELIFECYCLE  Command failed with exit code 1.
+shards (portable)	Run this shard	2026-11-09T12:49:40.0174841Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,12 @@
+{
+  "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+  "clauses": [
+    "DATA-001",
+    "CUST-001"
+  ],
+  "write_exit": 0,
+  "check_exit": 0,
+  "source_lock_check_exit": 0,
+  "generated_views_restored_from": "origin/main",
+  "contract_source_preserved": true
+}

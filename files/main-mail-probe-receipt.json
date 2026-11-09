@@ -1,0 +1,16 @@
+{
+  "label": "main-mail-probe",
+  "cwd": "/home/agent/rer-consolidation/work/sx-glove-f205fix1/main-mail-probe",
+  "command": [
+    "python3",
+    "/tmp/rer-reap.py",
+    "node",
+    "--test",
+    "tests/api/message-outcomes.test.mjs"
+  ],
+  "start": "2026-11-09T13:01:23.878179+00:00",
+  "end": "2026-11-09T13:03:03.417208+00:00",
+  "elapsed_seconds": 99.539,
+  "exit_code": 1,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8"
+}

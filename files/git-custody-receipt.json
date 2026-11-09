@@ -1,0 +1,19 @@
+{
+  "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+  "remote_tracking_head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+  "worktree_clean": true,
+  "candidate_commit_count": 8,
+  "commits": [
+    "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+    "671d2538175fb969ad0220e799bc8609a235b643",
+    "3dbd2a1a6513278fcf62ed65e0d07ea497989961",
+    "e9c1c010c1124f6cfc8168a666358019c607beb0",
+    "1592b19d9497e15e69ad56b667a109d2a7542f16",
+    "bc175b6de51513ca00276348d5b29493f07f5e86",
+    "25e285d39b884d6c61172faa643479b68b18dc1d",
+    "528e08f4b34e918e8e6ac40ac80b970d314c1835"
+  ],
+  "author_and_committer_policy": "pass",
+  "all_messages_and_trailers": "pass; no OpenAI/Codex co-author",
+  "source_lock_check_ok": true
+}

@@ -1,0 +1,11 @@
+{
+  "observed_at": "2026-11-09T14:03:27.124434+00:00",
+  "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+  "owned_node_test_runners": [
+    {
+      "pid": 7862,
+      "executable": "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+      "version": "v22.20.0"
+    }
+  ]
+}

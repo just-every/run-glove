@@ -1,0 +1,125 @@
+{
+  "api_2": {
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      "scripts/verify-ci.mjs",
+      "api-2"
+    ],
+    "counts": {
+      "cancelled": 0,
+      "fail": 0,
+      "pass": 60,
+      "skipped": 0,
+      "tests": 60
+    },
+    "cwd": "/home/agent/rer-consolidation/work/sx-glove-f205fix1/run-glove",
+    "elapsed_seconds": 3452.429,
+    "end": "2026-11-09T14:06:04.431776+00:00",
+    "exit_code": 0,
+    "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+    "label": "api-2",
+    "start": "2026-11-09T13:08:32.002960+00:00"
+  },
+  "branch": "cloud/sx-glove-f205fix1",
+  "checkpoint_probe": {
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      "/tmp/glove-portability-probe.mjs"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/sx-glove-f205fix1/run-glove",
+    "details": {
+      "actualEditionPolicy": true,
+      "counterVersion": 0,
+      "gloveMetaRows": 1,
+      "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+      "nodeFileAdaptedToWebStream": true,
+      "status": "pass",
+      "validatedArchiveRecords": 6,
+      "versionedPersistenceRoot": true
+    },
+    "elapsed_seconds": 29.584,
+    "end": "2026-11-09T14:16:21.534482+00:00",
+    "exit_code": 0,
+    "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+    "label": "checkpoint-probe",
+    "node_binary": "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+    "node_version": "v22.20.0",
+    "start": "2026-11-09T14:15:51.950641+00:00"
+  },
+  "ci": {
+    "conclusion": "failure",
+    "head_sha": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42621763978",
+    "observed_at": "2026-11-09T13:23:05.267868+00:00",
+    "run_id": 42621763978,
+    "status": "completed",
+    "task_github_calls": 10
+  },
+  "clause_status_changes": [],
+  "contract": {
+    "check_exit": 0,
+    "clauses": [
+      "DATA-001",
+      "CUST-001"
+    ],
+    "contract_source_preserved": true,
+    "generated_views_restored_from": "origin/main",
+    "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+    "source_lock_check_exit": 0,
+    "write_exit": 0
+  },
+  "cust_001_test_unchanged": true,
+  "data_001_claim": {
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "status": "PARTIAL"
+  },
+  "full_history": true,
+  "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+  "inventory": {
+    "after": 202,
+    "also_present_on_main": true,
+    "before": 202,
+    "limit": 200
+  },
+  "local_portable_blocker": "restored-calendar rer setup exceeded the existing 60-second Vite listener deadline, before DATA-001 checkpoint assertions",
+  "merged_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "observed_at": "2026-11-09T14:17:29.171153+00:00",
+  "portable": {
+    "command": [
+      "python3",
+      "/tmp/rer-reap.py",
+      "node",
+      "scripts/verify-ci.mjs",
+      "portable"
+    ],
+    "cwd": "/home/agent/rer-consolidation/work/sx-glove-f205fix1/run-glove",
+    "elapsed_seconds": 496.361,
+    "end": "2026-11-09T14:14:21.397716+00:00",
+    "exit_code": 1,
+    "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+    "label": "portable-final",
+    "node_binary": "/home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node",
+    "node_version": "v22.20.0",
+    "start": "2026-11-09T14:06:05.036635+00:00"
+  },
+  "pr": null,
+  "product_pushed": true,
+  "protected_documents_match_merged_main": true,
+  "publication_scan": "not run, per cloud brief; fleet owns publication/landing scans",
+  "ready": false,
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-f205fix1",
+  "terminal_status": "BLOCKED",
+  "tree": "eb15d98482a4ba37aef115f23dcc8642a1db41af"
+}

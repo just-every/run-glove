@@ -1,0 +1,13 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f205fix1",
+  "product_head": "671d2538175fb969ad0220e799bc8609a235b643",
+  "checks": [
+    {"command": "gh run view 42608851977 --repo just-every/run-glove --job 129131981647 --log-failed", "exit_code": 0, "stdout_bytes": 0, "calls": 1},
+    {"command": "node --test tests/api/customers.test.mjs", "phase": "before", "exit_code": 1, "tests": 1, "passed": 0, "failed": 1, "log": "cust-before.log"},
+    {"command": "node --test tests/api/customers.test.mjs tests/api/privacy.test.mjs", "phase": "after", "exit_code": 0, "tests": 2, "passed": 2, "failed": 0, "duration_ms": 316489.504115, "log": "touched-api.log"},
+    {"command": "pnpm run typecheck", "exit_code": 0, "log": "typecheck.log"},
+    {"command": "node scripts/edition-authoring/cli.mjs lock && node scripts/edition-authoring/cli.mjs check", "exit_code": 0, "log": "source-lock-check.log"},
+    {"command": "node tests/inventory.mjs", "exit_code": 1, "total_before": 202, "total_after": 202, "limit": 200, "also_present_on_main": true, "registrations_added": 0}
+  ]
+}

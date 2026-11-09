@@ -1,0 +1,4 @@
+Using project Node 22.20.0 (current Node 24.19.0).
+Heavy job admitted: Glove setup:workflow [d679ed07b200]
+A local process holds this checkout: PID 1968 (MainThread). Stop it with kill -TERM 1968, then retry. Use rer dev --stop or rer preview --stop for a registered server.
+setup: failed (exit 4)

@@ -1,0 +1,57 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ CUST-001: each property has its whole history, and a business customer bills apart from its sites (23052.47783ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28459.614856
+
+✖ failing tests:
+
+test at tests/api/customers.test.mjs:9:1
+✖ CUST-001: each property has its whole history, and a business customer bills apart from its sites (23052.47783ms)
+  AssertionError [ERR_ASSERTION]: replayed captures never return after erasure
+  + actual - expected
+  
+  + [
+  +   {
+  +     description: 'Retained material',
+  +     erasedAt: '2026-11-09T12:37:16.882Z',
+  +     id: '0c221b23-ebe1-4af0-92b1-620d2f7b7428',
+  +     jobId: 'b150391f-da4c-4852-a789-f0270de4a5d7',
+  +     kind: 'material',
+  +     quantity: '2',
+  +     serviceId: '6d111a35-4a90-4c81-b896-7d133620c25a',
+  +     unit: 'kg',
+  +     version: 1
+  +   },
+  +   {
+  +     description: 'Retained material',
+  +     erasedAt: '2026-11-09T12:37:16.882Z',
+  +     id: 'c00823c1-bbd9-4712-adbe-e80e678bf5ed',
+  +     jobId: '92563d61-7af2-42f8-9bb2-79320887662c',
+  +     kind: 'material',
+  +     quantity: '2',
+  +     serviceId: '6d111a35-4a90-4c81-b896-7d133620c25a',
+  +     unit: 'kg',
+  +     version: 1
+  +   }
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///home/agent/rer-consolidation/work/sx-glove-f205fix1/run-glove/tests/api/customers.test.mjs:105:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { id: '0c221b23-ebe1-4af0-92b1-620d2f7b7428', version: 1, jobId: 'b150391f-da4c-4852-a789-f0270de4a5d7', kind: 'material', quantity: '2', unit: 'kg', serviceId: '6d111a35-4a90-4c81-b896-7d133620c25a', description: 'Retained material', erasedAt: '2026-11-09T12:37:16.882Z' }, { id: 'c00823c1-bbd9-4712-adbe-e80e678bf5ed', version: 1, jobId: '92563d61-7af2-42f8-9bb2-79320887662c', kind: 'material', quantity: '2', unit: 'kg', serviceId: '6d111a35-4a90-4c81-b896-7d133620c25a', description: 'Retained material', erasedAt: '2026-11-09T12:37:16.882Z' } ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,16 @@
+{
+  "label": "portable",
+  "cwd": "/home/agent/rer-consolidation/work/sx-glove-f205fix1/portable-worktree",
+  "command": [
+    "python3",
+    "/tmp/rer-reap.py",
+    "node",
+    "scripts/verify-ci.mjs",
+    "portable"
+  ],
+  "start": "2026-11-09T12:48:56.666611+00:00",
+  "end": "2026-11-09T12:53:45.682517+00:00",
+  "elapsed_seconds": 289.016,
+  "exit_code": 1,
+  "head": "671d2538175fb969ad0220e799bc8609a235b643"
+}

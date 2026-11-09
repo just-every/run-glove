@@ -1,0 +1,15 @@
+{
+  "label": "api-2",
+  "command": [
+    "python3",
+    "/tmp/rer-reap.py",
+    "node",
+    "scripts/verify-ci.mjs",
+    "api-2"
+  ],
+  "start": "2026-11-09T12:45:54.282000+00:00",
+  "end": "2026-11-09T13:08:16.421285+00:00",
+  "elapsed_seconds": 1342.14,
+  "exit_code": 143,
+  "head": "4cb7a67af164eb018628577d9cccf9fe00f2d53c"
+}

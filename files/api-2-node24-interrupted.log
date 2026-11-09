@@ -1,0 +1,509 @@
+> pnpm run verify:app
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @field-service/glove@0.1.1 verify:app /home/agent/rer-consolidation/work/sx-glove-f205fix1/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+Heavy job admitted: Glove verify:app:command [d679ed07b200]
+> pnpm run build
+ WARN  Unsupported engine: wanted: {"node":"22.20.0"} (current: {"node":"v24.19.0","pnpm":"10.12.4"})
+
+> @field-service/glove@0.1.1 build [REDACTED]
+> rer build
+
+Using project Node 22.20.0 (current Node 24.19.0).
+Checking pinned pnpm
+10.12.4
+Building your application
+build:app
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 276 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/.assetsignore                             0.02 kB
+dist/client/assets/app-CDZKTpLU.css                   0.20 kB │ gzip:   0.15 kB
+dist/client/assets/quote-DbBzijWW.css                 0.35 kB │ gzip:   0.17 kB
+dist/client/assets/documents-BCO3wTRl.css             0.89 kB │ gzip:   0.42 kB
+dist/client/assets/style-8Vj1uPtt.css                57.43 kB │ gzip:  11.08 kB
+dist/client/assets/style-C_NcJQro.js                  0.17 kB │ gzip:   0.15 kB
+dist/client/assets/document-1MKksTth.js               0.19 kB │ gzip:   0.16 kB
+dist/client/assets/report-B5zClBMo.js                 0.20 kB │ gzip:   0.17 kB
+dist/client/assets/technician-photo-ER5ol6Vg.js       0.20 kB │ gzip:   0.17 kB
+dist/client/assets/email-preferences-BMqSTCNY.js      2.50 kB │ gzip:   1.19 kB
+dist/client/assets/visit-uq3d3LBN.js                  2.91 kB │ gzip:   1.36 kB
+dist/client/assets/book-DlizOL41.js                   3.49 kB │ gzip:   1.53 kB
+dist/client/assets/controls-COUVCRNl.js               4.60 kB │ gzip:   2.14 kB
+dist/client/assets/service-report-D_Jm6fvg.js         4.96 kB │ gzip:   1.89 kB
+dist/client/assets/technician-portrait-BhvHMdnf.js    5.95 kB │ gzip:   2.50 kB
+dist/client/assets/api-CK-nmmFe.js                    6.43 kB │ gzip:   2.63 kB
+dist/client/assets/request-BtZyDzIG.js                6.91 kB │ gzip:   2.76 kB
+dist/client/assets/documents-CuqJAA_Q.js              8.68 kB │ gzip:   3.21 kB
+dist/client/assets/quote-DIB3bfFu.js                  9.78 kB │ gzip:   3.35 kB
+dist/client/assets/quote-signing-BcStQD8r.js         10.10 kB │ gzip:   3.72 kB
+dist/client/assets/index-5UckXEcG.js                317.93 kB │ gzip: 102.85 kB
+dist/client/assets/app-BpR68_km.js                  513.36 kB │ gzip: 128.05 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.18s
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 906 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/wrangler.json                                      1.76 kB │ gzip:   0.87 kB
+dist/server/.vite/manifest.json                                8.27 kB │ gzip:   1.26 kB
+dist/server/assets/app-CDZKTpLU.css                            0.20 kB │ gzip:   0.15 kB
+dist/server/assets/quote-DbBzijWW.css                          0.35 kB │ gzip:   0.17 kB
+dist/server/assets/documents-BCO3wTRl.css                      0.89 kB │ gzip:   0.42 kB
+dist/server/assets/style-8Vj1uPtt.css                         57.43 kB │ gzip:  11.08 kB
+dist/server/assets/empty-plugin-adapters-D_0twvAa.js           0.28 kB │ gzip:   0.18 kB
+dist/server/assets/start-D8qDT34V.js                           0.28 kB │ gzip:   0.21 kB
+dist/server/assets/style-DlKaosYH.js                           0.45 kB │ gzip:   0.28 kB
+dist/server/assets/document-CEP-dzg7.js                        0.50 kB │ gzip:   0.28 kB
+dist/server/assets/report-lOym6_xE.js                          0.52 kB │ gzip:   0.28 kB
+dist/server/assets/technician-photo-DwygQBSt.js                0.55 kB │ gzip:   0.29 kB
+dist/server/assets/document-format-DwUV4wVu.js                 0.67 kB │ gzip:   0.43 kB
+dist/server/assets/_tanstack-start-manifest_v-Ctt8NauM.js      3.69 kB │ gzip:   0.79 kB
+dist/server/assets/email-preferences-Cjl52JTw.js               4.45 kB │ gzip:   1.58 kB
+dist/server/assets/visit-crvOItZ0.js                           5.07 kB │ gzip:   1.78 kB
+dist/server/assets/book-B09gyhVd.js                            6.31 kB │ gzip:   2.02 kB
+dist/server/assets/controls-BmH9dpMJ.js                        6.65 kB │ gzip:   2.66 kB
+dist/server/assets/service-report-Cox07WwS.js                  9.23 kB │ gzip:   2.55 kB
+dist/server/assets/technician-portrait-3-8kDzYJ.js            10.41 kB │ gzip:   3.35 kB
+dist/server/assets/api-DStwgt4m.js                            11.36 kB │ gzip:   4.09 kB
+dist/server/assets/recurrence-DfE5ipgt.js                     13.07 kB │ gzip:   5.22 kB
+dist/server/assets/request-DMeDPqc_.js                        13.10 kB │ gzip:   3.63 kB
+dist/server/assets/documents-edGOSuou.js                      15.63 kB │ gzip:   3.99 kB
+dist/server/assets/quote-signing-B85HT0A8.js                  17.67 kB │ gzip:   4.64 kB
+dist/server/assets/jsx-runtime-zPeYIBpK.js                    18.51 kB │ gzip:   4.98 kB
+dist/server/assets/quote-BzykSZ6-.js                          18.81 kB │ gzip:   4.37 kB
+dist/server/assets/router-C7Z-2Mek.js                         46.64 kB │ gzip:  11.81 kB
+dist/server/assets/Match-DL6S_0SJ.js                         145.43 kB │ gzip:  36.64 kB
+dist/server/assets/app-DYKVWZ60.js                           946.53 kB │ gzip: 175.59 kB
+dist/server/index.js                                       3,167.21 kB │ gzip: 792.01 kB
+
+[INEFFECTIVE_DYNAMIC_IMPORT] src/modules/import-kit/src/d1/undo-snapshot.ts is dynamically imported by src/modules/import-kit/src/d1/apply.ts but also statically imported by src/modules/import-kit/src/d1/preserved-preview.ts, src/modules/import-kit/src/d1/preserved-reverse.ts, dynamic import will not move module into another chunk.
+
+✓ built in 2.12s
+Your application is built
+build: complete (exit 0)
+> node --test --test-concurrency=1 'tests/api/arrival-windows.test.mjs' 'tests/api/booking-offer-history.test.mjs' 'tests/api/branches.test.mjs' 'tests/api/calendar-sync.test.mjs' 'tests/api/companycam.test.mjs' 'tests/api/costing.test.mjs' 'tests/api/csv.test.mjs' 'tests/api/customers.test.mjs' 'tests/api/discounts.test.mjs' 'tests/api/documents.test.mjs' 'tests/api/due-visit-offers.test.mjs' 'tests/api/email.test.mjs' 'tests/api/expenses.test.mjs' 'tests/api/fixed-monthly-reports.test.mjs' 'tests/api/forms.test.mjs' 'tests/api/instant-payouts.test.mjs' 'tests/api/live-locations.test.mjs' 'tests/api/merge.test.mjs' 'tests/api/money.test.mjs' 'tests/api/movein.test.mjs' 'tests/api/options.test.mjs' 'tests/api/payout-reconciliation.test.mjs' 'tests/api/payroll.test.mjs' 'tests/api/postmark-custody.test.mjs' 'tests/api/privacy.test.mjs' 'tests/api/push.test.mjs' 'tests/api/quote-link-custody.test.mjs' 'tests/api/records.test.mjs' 'tests/api/refunds.test.mjs' 'tests/api/reports.test.mjs' 'tests/api/routing.test.mjs' 'tests/api/schedule-push.test.mjs' 'tests/api/segments.test.mjs' 'tests/api/service-reports.test.mjs' 'tests/api/servicetitan-memberships.test.mjs' 'tests/api/stock.test.mjs' 'tests/api/subcontractor-field.test.mjs' 'tests/api/tax-evidence.test.mjs' 'tests/api/tokens.test.mjs' 'tests/api/xero.test.mjs'
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ Arrival windows and automatic assignment preserve boundaries, eligibility and refusal state (74206.766421ms)
+ℹ Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes
+ℹ Approved dispatch and move proposals retain exact windows and changed promises require a person
+ℹ Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart
+ℹ Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises
+ℹ Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure (6477.576657ms)
+✔ PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states (5519.328142ms)
+✔ PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site (16202.031384ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings (77922.635816ms)
+ℹ TEAM-004 point 1: every booking door enforces branch and owner area rules without writes on refusal
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 booking root: Main business
+ℹ TEAM-004 booking root: Raleigh
+ℹ TEAM-004 booking root: Phoenix
+ℹ TEAM-004 point 5: cross-branch customer merges preserve every record and same-branch merges succeed
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 point 4: branch-local midnight boundaries and every revenue CSV row survive Worker restart
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 point 6: every populated current report transport selects exactly one branch or main without writes
+ℹ TEAM-004 fixture: starting Worker
+ℹ TEAM-004 fixture: Worker ready
+ℹ TEAM-004 fixture: main business ready
+ℹ TEAM-004 report seed: Main business
+ℹ TEAM-004 report seed: Raleigh
+ℹ TEAM-004 report seed: Phoenix
+ℹ TEAM-004 report read: Main business revenue.json
+ℹ TEAM-004 report read: Main business revenue.csv
+ℹ TEAM-004 report read: Main business technicians.json
+ℹ TEAM-004 report read: Main business technicians.csv
+ℹ TEAM-004 report read: Main business sources.json
+ℹ TEAM-004 report read: Main business sources.csv
+ℹ TEAM-004 report read: Main business quotes.json
+ℹ TEAM-004 report read: Main business quotes.csv
+ℹ TEAM-004 report read: Main business margins.json
+ℹ TEAM-004 report read: Main business margins.csv
+ℹ TEAM-004 report read: Main business tax.json
+ℹ TEAM-004 report read: Main business tax.csv
+ℹ TEAM-004 report read: Main business agreements.json
+ℹ TEAM-004 report read: Main business agreements.csv
+ℹ TEAM-004 report read: Main business receivables.json
+ℹ TEAM-004 report read: Main business receivables.csv
+ℹ TEAM-004 report read: Main business 1099.json
+ℹ TEAM-004 report read: Main business 1099.csv
+ℹ TEAM-004 report read: Main business payroll.json
+ℹ TEAM-004 report read: Main business payroll-gusto.csv
+ℹ TEAM-004 report read: Main business payroll-adp-run.csv
+ℹ TEAM-004 report read: Main business payroll-quickbooks.csv
+ℹ TEAM-004 report read: Main business costing
+ℹ TEAM-004 report read: Main business warranties
+ℹ TEAM-004 report read: Main business refrigerant
+ℹ TEAM-004 report read: Main business sources
+ℹ TEAM-004 report read: Raleigh revenue.json
+ℹ TEAM-004 report read: Raleigh revenue.csv
+ℹ TEAM-004 report read: Raleigh technicians.json
+ℹ TEAM-004 report read: Raleigh technicians.csv
+ℹ TEAM-004 report read: Raleigh sources.json
+ℹ TEAM-004 report read: Raleigh sources.csv
+ℹ TEAM-004 report read: Raleigh quotes.json
+ℹ TEAM-004 report read: Raleigh quotes.csv
+ℹ TEAM-004 report read: Raleigh margins.json
+ℹ TEAM-004 report read: Raleigh margins.csv
+ℹ TEAM-004 report read: Raleigh tax.json
+ℹ TEAM-004 report read: Raleigh tax.csv
+ℹ TEAM-004 report read: Raleigh agreements.json
+ℹ TEAM-004 report read: Raleigh agreements.csv
+ℹ TEAM-004 report read: Raleigh receivables.json
+ℹ TEAM-004 report read: Raleigh receivables.csv
+ℹ TEAM-004 report read: Raleigh 1099.json
+ℹ TEAM-004 report read: Raleigh 1099.csv
+ℹ TEAM-004 report read: Raleigh payroll.json
+ℹ TEAM-004 report read: Raleigh payroll-gusto.csv
+ℹ TEAM-004 report read: Raleigh payroll-adp-run.csv
+ℹ TEAM-004 report read: Raleigh payroll-quickbooks.csv
+ℹ TEAM-004 report read: Raleigh costing
+ℹ TEAM-004 report read: Raleigh warranties
+ℹ TEAM-004 report read: Raleigh refrigerant
+ℹ TEAM-004 report read: Raleigh sources
+ℹ TEAM-004 report read: Phoenix revenue.json
+ℹ TEAM-004 report read: Phoenix revenue.csv
+ℹ TEAM-004 report read: Phoenix technicians.json
+ℹ TEAM-004 report read: Phoenix technicians.csv
+ℹ TEAM-004 report read: Phoenix sources.json
+ℹ TEAM-004 report read: Phoenix sources.csv
+ℹ TEAM-004 report read: Phoenix quotes.json
+ℹ TEAM-004 report read: Phoenix quotes.csv
+ℹ TEAM-004 report read: Phoenix margins.json
+ℹ TEAM-004 report read: Phoenix margins.csv
+ℹ TEAM-004 report read: Phoenix tax.json
+ℹ TEAM-004 report read: Phoenix tax.csv
+ℹ TEAM-004 report read: Phoenix agreements.json
+ℹ TEAM-004 report read: Phoenix agreements.csv
+ℹ TEAM-004 report read: Phoenix receivables.json
+ℹ TEAM-004 report read: Phoenix receivables.csv
+ℹ TEAM-004 report read: Phoenix 1099.json
+ℹ TEAM-004 report read: Phoenix 1099.csv
+ℹ TEAM-004 report read: Phoenix payroll.json
+ℹ TEAM-004 report read: Phoenix payroll-gusto.csv
+ℹ TEAM-004 report read: Phoenix payroll-adp-run.csv
+ℹ TEAM-004 report read: Phoenix payroll-quickbooks.csv
+ℹ TEAM-004 report read: Phoenix costing
+ℹ TEAM-004 report read: Phoenix warranties
+ℹ TEAM-004 report read: Phoenix refrigerant
+ℹ TEAM-004 report read: Phoenix sources
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing (17797.602153ms)
+✔ DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent (16977.516087ms)
+✔ DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees (33727.005818ms)
+✔ DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed (24084.394453ms)
+✔ DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately (53212.070806ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes (36744.399978ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ COST-004 a $1,850 job retains frozen estimates and approved revenue through actual costs and restart (9430.38527ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ CUST-003: a 500-row customer CSV previews, commits, undoes, and the export re-imports unchanged (45094.625729ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ CUST-001: each property has its whole history, and a business customer bills apart from its sites (11952.01536ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ Owner discounts retain exact rounding, boundaries, ordered allocation, authority and downstream figures (193354.104664ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images (15843.341384ms)
+ℹ QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images
+ℹ QUOTE-005, QUOTE-015 desk invoice and agreement projections use identity and descriptions without granting public or technician access
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ PLAN-010 desk issuance enforces slot bounds, current permissions and outstanding entitlement state while preserving included ordinals (41775.448332ms)
+✔ PLAN-010 bearer <REDACTED> survives restart, expires at the runtime boundary and ends atomically on use or staff revocation (22015.374315ms)
+✔ PLAN-010 customer choices use live offering authority and refuse deactivation, role withdrawal, branch exclusion and erased replay (13309.916051ms)
+✔ PLAN-010 public reads and choices repeat conflicts, disclose only remaining offers and keep exhausted visits due (8828.786106ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✖ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay (214294.267986ms)
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+ℹ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ COST-003 a billable supply-house receipt with 20% markup and a non-billable permit fee reach the invoice draft and job cost (10649.809845ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart (22288.220142ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ FIELD-002 an HVAC inspection form with a conditional question and a reading range flags an out-of-range reading on the job and the equipment (32682.010976ms)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✖ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (181389.543901ms)
+ℹ PAY-026 point 1: Owner pricing, independent cent boundaries and unsafe previews
+ℹ PAY-026 point 2: explicit amounts and exact clock expiry recheck every mutable prerequisite
+ℹ PAY-026 point 3: durable reservation and retained key precede one concurrent request
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+✔ DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart (12722.836817ms)
+✔ DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position (8855.536109ms)
+
+Interrupted while running:
+
+⚠ tests/api/live-locations.test.mjs (tests/api/live-locations.test.mjs:1:1)
+✖ tests/api/live-locations.test.mjs (36906.940851ms)
+✖ tests/api/merge.test.mjs
+✖ tests/api/money.test.mjs
+✖ tests/api/movein.test.mjs
+✖ tests/api/options.test.mjs
+✖ tests/api/payout-reconciliation.test.mjs
+✖ tests/api/payroll.test.mjs
+✖ tests/api/postmark-custody.test.mjs
+✖ tests/api/privacy.test.mjs
+✖ tests/api/push.test.mjs
+✖ tests/api/quote-link-custody.test.mjs
+✖ tests/api/records.test.mjs
+✖ tests/api/refunds.test.mjs
+✖ tests/api/reports.test.mjs
+✖ tests/api/routing.test.mjs
+✖ tests/api/schedule-push.test.mjs
+✖ tests/api/segments.test.mjs
+✖ tests/api/service-reports.test.mjs
+✖ tests/api/servicetitan-memberships.test.mjs
+✖ tests/api/stock.test.mjs
+✖ tests/api/subcontractor-field.test.mjs
+✖ tests/api/tax-evidence.test.mjs
+✖ tests/api/tokens.test.mjs
+✖ tests/api/xero.test.mjs
+ℹ tests 51
+ℹ suites 0
+ℹ pass 25
+ℹ fail 1
+ℹ cancelled 25
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1327862.639363
+
+✖ failing tests:
+
+test at tests/api/email.test.mjs:19:1
+✖ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay (214294.267986ms)
+  AssertionError [ERR_ASSERTION]: {"ok":true}
+  
+  200 !== 401
+  
+      at assertRejected (file://[REDACTED]/tests/api/email.test.mjs:499:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async noFetch (file://[REDACTED]/tests/api/email.test.mjs:421:70)
+      at async file://[REDACTED]/tests/api/email.test.mjs:427:3
+      at async scenario (file://[REDACTED]/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file://[REDACTED]/tests/api/email.test.mjs:394:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/api/instant-payouts.test.mjs:68:1
+✖ PAY-026 Owner Instant Payout qualification, reservation and reconciliation (181389.543901ms)
+  'test timed out after 180000ms'
+
+test at tests/api/live-locations.test.mjs:1:1
+✖ tests/api/live-locations.test.mjs (36906.940851ms)
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/merge.test.mjs:1:1
+✖ tests/api/merge.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/money.test.mjs:1:1
+✖ tests/api/money.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/movein.test.mjs:1:1
+✖ tests/api/movein.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/options.test.mjs:1:1
+✖ tests/api/options.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/payout-reconciliation.test.mjs:1:1
+✖ tests/api/payout-reconciliation.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/payroll.test.mjs:1:1
+✖ tests/api/payroll.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/postmark-custody.test.mjs:1:1
+✖ tests/api/postmark-custody.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/privacy.test.mjs:1:1
+✖ tests/api/privacy.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/push.test.mjs:1:1
+✖ tests/api/push.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/quote-link-custody.test.mjs:1:1
+✖ tests/api/quote-link-custody.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/records.test.mjs:1:1
+✖ tests/api/records.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/refunds.test.mjs:1:1
+✖ tests/api/refunds.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/reports.test.mjs:1:1
+✖ tests/api/reports.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/routing.test.mjs:1:1
+✖ tests/api/routing.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/schedule-push.test.mjs:1:1
+✖ tests/api/schedule-push.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/segments.test.mjs:1:1
+✖ tests/api/segments.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/service-reports.test.mjs:1:1
+✖ tests/api/service-reports.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/servicetitan-memberships.test.mjs:1:1
+✖ tests/api/servicetitan-memberships.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/stock.test.mjs:1:1
+✖ tests/api/stock.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/subcontractor-field.test.mjs:1:1
+✖ tests/api/subcontractor-field.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/tax-evidence.test.mjs:1:1
+✖ tests/api/tax-evidence.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/tokens.test.mjs:1:1
+✖ tests/api/tokens.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+
+test at tests/api/xero.test.mjs:1:1
+✖ tests/api/xero.test.mjs
+  'Promise resolution is still pending but the event loop has already resolved'
+ ELIFECYCLE  Command failed with exit code 143.

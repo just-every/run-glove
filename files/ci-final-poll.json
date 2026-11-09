@@ -1,0 +1,9 @@
+{
+  "conclusion": "failure",
+  "head_sha": "4cb7a67af164eb018628577d9cccf9fe00f2d53c",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42621763978",
+  "status": "completed",
+  "run_id": 42621763978,
+  "observed_at": "2026-11-09T13:23:05.267868+00:00",
+  "task_github_calls": 10
+}
