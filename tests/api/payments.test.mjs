@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import { depositBatchQualification } from './deposit-batches.mjs'
 import { connectMail, receipt as mailReceipt } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
@@ -209,6 +210,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows custom
 })
 
 test('PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
+  await scenario(t, 'PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
   const inv = await paidInvoice(h, b, '2026-10-20')
@@ -313,8 +315,7 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refun
   assert.equal((await read(h, '/api/glove/dashboard')).paidToday.tips, '0.00', 'a later return never reverses an already refunded tip twice')
   assert.equal((await read(h, '/api/glove/balances')).invoices.find(i => i.id === inv.id).due, '10.00', 'only the unrefunded card principal returns')
 })
-
-test('PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly', async t => {
+  await scenario(t, 'PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' }), inv = await paidInvoice(h, b, '2026-10-20')
   await connectPayments(h)
@@ -349,6 +350,9 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, r
   await b.agent.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'cash', amount: '1.00', reference: 'synthetic-glove-10' }, { error: 'FORBIDDEN' })
   await assertTrail(h, ['refund.unconfirmed'])
 })
+})
+
+
 
 test('PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate', async t => {
   await depositBatchQualification(t)

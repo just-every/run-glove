@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import { connectMail, textOf } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -47,6 +48,7 @@ async function connectSms(h, customerId, purpose) {
 }
 
 test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt', async t => {
+  await scenario(t, 'COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and move visits including assessments, respect consent and quiet hours, and never replay an attempt', async t => {
   for (const provider of ['sendgrid', 'postmark', 'ses']) {
   const h = await installation(); t.after(() => h.close())
   const { b, signer } = await setup(h, provider)
@@ -239,8 +241,57 @@ test('COMM-003, COMM-019, COMM-020 owner-approved email templates confirm and mo
   }
   await automaticEmailRefusals(t)
 })
+  await scenario(t, 'Erasure during an automatic provider attempt never restores recipient addresses in the outcome', async t => {
+  const h = await installation(); t.after(() => h.close())
+  const { b } = await setup(h)
+  await clock(h, at(0))
+  await configure(h, { visitHours: [], paymentDays: [], quoteDays: [] })
+  await consent(h, b.customer.id, 'visits')
+  const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Visit with pending provider reply' })
+  await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: day(1), start: '12:00', end: '13:00' })
+  let release, entered
+  const pending = new Promise(resolve => { release = resolve })
+  const started = new Promise(resolve => { entered = resolve })
+  h.email.beforeRespond = () => { entered(); return pending }
+  const run = h.scheduled(at(0))
+  try {
+    await started
+    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  } finally { release(); await run }
+  assert.equal(h.email.sent.length, 1, 'the already-started provider request cannot be recalled')
+  const exported = await h.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(exported).includes(b.customer.email), 'provider response does not restore an erased address')
+  assert.equal((await h.state()).messages.length, 0)
+  const sms = await installation(); t.after(() => sms.close()); const { b: textBusiness } = await setup(sms)
+  await clock(sms, at(0)); await configure(sms, { visitHours: [], paymentDays: [], quoteDays: [] })
+  await connectSms(sms, textBusiness.customer.id, 'visits')
+  const smsJob = await sms.command('job.create', { customerId: textBusiness.customer.id, siteId: textBusiness.site.id, title: 'Text with pending provider reply' })
+  await sms.command('visit.book', { jobId: smsJob.id, technicianId: textBusiness.priya.id, date: day(1), start: '12:00', end: '13:00' })
+  let finishText, textEntered
+  const textPending = new Promise(resolve => { finishText = resolve }), textStarted = new Promise(resolve => { textEntered = resolve })
+  sms.twilio.beforeRespond = () => { textEntered(); return textPending }
+  const textRun = sms.scheduled(at(0))
+  try {
+    await textStarted
+    const customer = (await sms.state()).customers.find(c => c.id === textBusiness.customer.id)
+    const preview = await sms.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await sms.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+  } finally { finishText(); await textRun }
+  const smsExport = await sms.request('/api/glove/export').then(r => r.json())
+  assert.ok(!JSON.stringify(smsExport).includes('+13125550123'))
+  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_attempts').first()).n, 0)
+  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_receipts').first()).n, 0)
+  assert.equal((await sms.state()).messages.length, 0)
+  const lateDelivery = sms.twilio.delivery([...sms.twilio.messages.keys()][0])
+  assert.equal((await postSms(sms, lateDelivery)).status, 200)
+  assert.equal((await sms.state()).messages.length, 0, 'a late signed callback never restores an erased SMS message')
+})
+})
 
 test('PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state', async t => {
+  await scenario(t, 'PAY-005 due-date reminders stop after payment or dispute and aging exposes their actual state', async t => {
   const h = await installation(); t.after(() => h.close())
   const { b } = await setup(h)
   await clock(h, at(0))
@@ -266,8 +317,7 @@ test('PAY-005 due-date reminders stop after payment or dispute and aging exposes
   assert.match(JSON.stringify(disputed), /Stopped: invoice disputed/)
   await assertTrail(h, ['invoice.dispute', 'email.queued', 'email.accepted'])
 })
-
-test('QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links', async t => {
+  await scenario(t, 'QUOTE-004 three quote sequences stop on day-three answer and day-seven expiry without reusing customer links', async t => {
   const h = await installation(); t.after(() => h.close())
   const { b } = await setup(h)
   await clock(h, at(0))
@@ -323,6 +373,9 @@ test('QUOTE-004 three quote sequences stop on day-three answer and day-seven exp
   assert.ok(!JSON.stringify(exported).includes(customer.email))
   await tick(h, at(11)); assert.equal(h.email.sent.length, 6)
 })
+})
+
+
 
 async function automaticEmailRefusals(t) {
   const h = await installation(); t.after(() => h.close())
@@ -346,53 +399,7 @@ async function automaticEmailRefusals(t) {
 }
 
 
-test('Erasure during an automatic provider attempt never restores recipient addresses in the outcome', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const { b } = await setup(h)
-  await clock(h, at(0))
-  await configure(h, { visitHours: [], paymentDays: [], quoteDays: [] })
-  await consent(h, b.customer.id, 'visits')
-  const job = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Visit with pending provider reply' })
-  await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: day(1), start: '12:00', end: '13:00' })
-  let release, entered
-  const pending = new Promise(resolve => { release = resolve })
-  const started = new Promise(resolve => { entered = resolve })
-  h.email.beforeRespond = () => { entered(); return pending }
-  const run = h.scheduled(at(0))
-  try {
-    await started
-    const customer = (await h.state()).customers.find(c => c.id === b.customer.id)
-    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
-    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
-  } finally { release(); await run }
-  assert.equal(h.email.sent.length, 1, 'the already-started provider request cannot be recalled')
-  const exported = await h.request('/api/glove/export').then(r => r.json())
-  assert.ok(!JSON.stringify(exported).includes(b.customer.email), 'provider response does not restore an erased address')
-  assert.equal((await h.state()).messages.length, 0)
-  const sms = await installation(); t.after(() => sms.close()); const { b: textBusiness } = await setup(sms)
-  await clock(sms, at(0)); await configure(sms, { visitHours: [], paymentDays: [], quoteDays: [] })
-  await connectSms(sms, textBusiness.customer.id, 'visits')
-  const smsJob = await sms.command('job.create', { customerId: textBusiness.customer.id, siteId: textBusiness.site.id, title: 'Text with pending provider reply' })
-  await sms.command('visit.book', { jobId: smsJob.id, technicianId: textBusiness.priya.id, date: day(1), start: '12:00', end: '13:00' })
-  let finishText, textEntered
-  const textPending = new Promise(resolve => { finishText = resolve }), textStarted = new Promise(resolve => { textEntered = resolve })
-  sms.twilio.beforeRespond = () => { textEntered(); return textPending }
-  const textRun = sms.scheduled(at(0))
-  try {
-    await textStarted
-    const customer = (await sms.state()).customers.find(c => c.id === textBusiness.customer.id)
-    const preview = await sms.command('privacy.preview', { customerId: customer.id, version: customer.version })
-    await sms.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
-  } finally { finishText(); await textRun }
-  const smsExport = await sms.request('/api/glove/export').then(r => r.json())
-  assert.ok(!JSON.stringify(smsExport).includes('+13125550123'))
-  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_attempts').first()).n, 0)
-  assert.equal((await sms.db.prepare('SELECT COUNT(*) AS n FROM glove_sms_receipts').first()).n, 0)
-  assert.equal((await sms.state()).messages.length, 0)
-  const lateDelivery = sms.twilio.delivery([...sms.twilio.messages.keys()][0])
-  assert.equal((await postSms(sms, lateDelivery)).status, 200)
-  assert.equal((await sms.state()).messages.length, 0, 'a late signed callback never restores an erased SMS message')
-})
+
 
 import { smsInboxFlow } from './sms-inbox-flow.mjs'
 test('The desk explicitly retains, assigns and answers a customer text on its job; STOP and role withdrawal close the send door', smsInboxFlow)
