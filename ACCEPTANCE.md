@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 22 | 199 | 16 | 237 |
+| Core | 24 | 197 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 22 | 212 | 29 | 263 |
+| Full target | 24 | 210 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1057,7 +1057,7 @@ Core · target · **done** · From DISP-002
 
 #### DISP-003 — Route optimization
 
-Core · target · **partial** · From DISP-003
+Core · target · **done** · From DISP-003
 
 **Requirement.** Route optimization supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-003-operating-rules) retain the record formats and calculations.
 
@@ -1071,8 +1071,8 @@ Core · target · **partial** · From DISP-003
 7. The board shows the proposal and time saved.
 8. The comparison measures driving between visits, with no depot legs; the bounded improvement search does not claim a global optimum.
 
-**Evidence.** `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture optimizes a fixture day of 12 visits for 3 technicians (routing provider fake), checks no arrival window or skill is broken and the drive time falls, and checks nothing moves until accepted.; point 2 — A signed-in owner or dispatcher requests a day or one technician with route optimize action; the existing 15-minute Worker cron claims one durable job per pass.; point 3 — A job covers 2–20 visits and up to 8 assigned technicians.; point 4 — It requests coordinate-only, traffic-unaware Google Routes driving times with a ten-second abort, then performs at most 1,200 appointment exchanges within twenty seconds.; point 5 — It retains appointment duration and arrival windows, validates skills, working availability, service areas, overlaps and driving time against the whole proposed schedule, and keeps crews and visits with field evidence fixed.; point 6 — It saves the original and proposed slots and driving comparison; no visit moves in the background.; point 7 — The board shows the proposal and time saved.; point 8 — The comparison measures driving between visits, with no depot legs; the bounded improvement search does not claim a global optimum. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/routing.test.mjs`, `tests/browser/routing.spec.ts`; `tests/api/route-optimization.test.mjs` (DISP-003 points 1, 6 and 8: a twelve-visit proposal saves only consecutive driving and survives replay and Worker restart without moving visits); `tests/api/route-optimization.test.mjs` (DISP-003 point 2: live person authority fences day and technician requests, one cron claim, revocation and expired leases); `tests/api/route-optimization.test.mjs` (DISP-003 point 3: visit and assigned-technician limits accept their endpoints and refuse excess without queuing or moving work); `tests/api/route-optimization.test.mjs` (DISP-003 point 4: coordinate-only Routes requests abort a delayed provider and retain a bounded exchange count); `tests/api/route-optimization.test.mjs` (DISP-003 point 5: whole proposed schedules preserve eligibility, duration and fixed crew and field-evidence placements); `tests/browser/routing.spec.ts` (DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390)
+**Gap.** None.
 
 #### DISP-011 — Apply or discard a route proposal
 
@@ -1103,7 +1103,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-SECRE
 
 #### DISP-005 — Live technician location and ETA
 
-Core · target · **partial** · From DISP-005 · Cites BASE-ROLE-001
+Core · target · **done** · From DISP-005 · Cites BASE-ROLE-001
 
 **Requirement.** Live technician location and ETA supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-005-operating-rules) retain the record formats and calculations. Recorded decisions: RL-6.
 
@@ -1117,8 +1117,8 @@ Core · target · **partial** · From DISP-005 · Cites BASE-ROLE-001
 7. The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal.
 8. Consent changes and generic capture outcomes are audited without coordinates.
 
-**Evidence.** `tests/api/eligibility.test.mjs`, `tests/portable.mjs`, `tests/browser/dispatch-map.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture posts phone locations and a fleet-provider feed (fake), checks positions and ETAs on the board, and checks no location is recorded after clock-out.; point 2 — Location sharing starts off.; point 3 — Only the technician's current person session can record or withdraw their explicit consent; the phone requests browser permission and captures only while visible, online, clocked in and running a travel or job timer on its current assigned visit.; point 4 — Locations never enter the offline outbox.; point 5 — The owner can explicitly connect one Samsara vehicle per technician and request its current GPS snapshot from the fixed documented host; that read requires the same consent, shift and visit checks.; point 6 — Coordinates captured before the shift or timer, more than two minutes ago, in the future beyond ten seconds, or after assignment, consent or sign-in withdrawal are refused.; point 7 — The most recent position replaces the previous one in transient storage; it is hidden after two minutes and removed by the next product command, clock-out, timer stop, reassignment or consent withdrawal.; point 8 — Consent changes and generic capture outcomes are audited without coordinates. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/eligibility.test.mjs`, `tests/portable.mjs`, `tests/browser/dispatch-map.spec.ts`; `tests/api/live-locations.test.mjs` (DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart); `tests/api/live-locations.test.mjs` (DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position); `tests/api/live-locations.test.mjs` (DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing); `tests/api/live-locations.test.mjs` (DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers); `tests/api/live-locations.test.mjs` (DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix); `tests/api/live-locations.test.mjs` (DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions); `tests/api/live-locations.test.mjs` (DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export); `tests/browser/phone-location.spec.ts` (DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440); `tests/browser/phone-location.spec.ts` (DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390)
+**Gap.** None.
 
 #### DISP-012 — Position disclosure and delay estimate
 
