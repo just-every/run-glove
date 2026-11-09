@@ -1,0 +1,9 @@
+c0578470df599d2d38efe96b2010b0e45d088dfa
+Run Edit Run fleet <fleet@runeditrun.com>
+Run Edit Run fleet <fleet@runeditrun.com>
+
+test: qualify morning brief financial and agreement outcomes
+
+sources.lock.json                |   2 +-
+ tests/api/morning-brief.test.mjs | 256 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 256 insertions(+), 2 deletions(-)

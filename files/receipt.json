@@ -1,0 +1,151 @@
+{
+  "base_main": "63bfd0d1a155d7be44561e579d643f895fabded3",
+  "branch": "cloud/sx-glove-c-f182",
+  "candidate_run_site": null,
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/morning-brief.test.mjs",
+      "duration_ms": 51217.847413,
+      "exit": 0,
+      "failed": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+      "log": "api-test.log",
+      "passed": 2,
+      "tests": 2
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses AGENT-016",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+      "log": "views-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses AGENT-016",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+      "log": "views-check.log"
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+      "log": "lock-check.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "head": "c0578470df599d2d38efe96b2010b0e45d088dfa"
+    }
+  ],
+  "claim": {
+    "id": "AGENT-016",
+    "partial_point_1": "opened-brief slice proven; morning-email remainder stays with COMM-012",
+    "points": [
+      2,
+      3,
+      4
+    ],
+    "status": "PARTIAL"
+  },
+  "count_note": "The rebase retained a concurrent STOCK-002 lander judgment; this candidate changes no judgment.",
+  "existing_assertions_preserved": true,
+  "github_api_calls": 2,
+  "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+  "held_files_unchanged": [
+    "tests/api/harness.mjs",
+    "tests/api/fixed-monthly-reports.test.mjs",
+    "tests/api/payments.test.mjs",
+    "tests/browser/morning-brief.spec.ts",
+    "src/glove/morning-email.ts",
+    "src/glove/recurring-billing.ts",
+    "src/glove/storage.ts",
+    "src/ui/series.tsx",
+    "tests/browser/revenue.spec.ts",
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    ".github/workflows/verify.yml"
+  ],
+  "initial_clone_counts": {
+    "done": 27,
+    "missing": 29,
+    "partial": 207,
+    "total": 263
+  },
+  "landing": "pending independent guarded lander",
+  "main_ci": {
+    "conclusion": "success",
+    "head": "63bfd0d1a155d7be44561e579d643f895fabded3",
+    "run_site": 42554943436,
+    "verify": 42554943349
+  },
+  "main_equality": false,
+  "migration_ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "no migration change"
+  },
+  "pr": null,
+  "product_pushed": true,
+  "publication_scan": {
+    "commit": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+    "complete": null,
+    "findings": null,
+    "historyScanned": null,
+    "status": "NOT RUN in cloud; required independent Mac lander gate"
+  },
+  "registration_count": {
+    "after": 2,
+    "before": 1,
+    "file": "tests/api/morning-brief.test.mjs"
+  },
+  "repository": "just-every/run-glove",
+  "runtime": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4"
+  },
+  "source_counts_after": {
+    "done": 28,
+    "missing": 29,
+    "partial": 206,
+    "total": 263
+  },
+  "source_counts_before": {
+    "done": 28,
+    "missing": 29,
+    "partial": 206,
+    "total": 263
+  },
+  "tag": "sx-glove-c-f182",
+  "verify": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+    "id": 42555779210,
+    "observed_at": "2026-11-09T03:20:13Z",
+    "status": "in_progress",
+    "url": "https://github.com/just-every/run-glove/actions/runs/42555779210"
+  }
+}

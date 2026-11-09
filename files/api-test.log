@@ -1,0 +1,34 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+ok 1 - AGENT-008 points 1–8: fixed-date owner brief, authority, cron delivery and Worker restart
+  ---
+  duration_ms: 19685.419042
+  type: 'test'
+  ...
+# Subtest: AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades
+ok 2 - AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades
+  ---
+  duration_ms: 29857.713877
+  type: 'test'
+  ...
+# point 1: opening at several business-local instants is read only even when morning email is enabled
+# PROBE AGENT-016 1: four brief instants with morning email enabled, before and after restart -> zero provider attempts and identical state, events and outcomes
+# point 2: overdue balances include only passed due dates and confirmed net money in the current Owner branch
+# PROBE AGENT-016 2: eleven invoices with manual receipts, TEST installment, allocation, credit and confirmed or pending refunds -> four overdue items totaling 240.25 USD; branch Owner sees only 75.25 USD; aging and tile total 440.25 USD
+# point 3: due included visits retain agreement and Dispatch links, booked labels and exact completion and decline exclusions
+# PROBE AGENT-016 3: six monthly entitlements with one completed, one declined, one booked and one future -> exactly three due rows, matching due-visits and preserving both links and booked label after restart
+# point 4: actual monthly cron drafts age only after approval and the frozen later-of-period-or-local-approval due date
+# PROBE AGENT-016 4: three actual month-end cron passes, late Chicago and Pacific approvals, due-date boundaries and terms change -> only approved invoices past their frozen due dates appear; three drafts never overdue after restart
+# point 4: a pre-PLAN-013 Worker approval retains its approval-date basis after rebuild and restart
+# PROBE AGENT-016 4 legacy: actual era Worker approved January period on February 3 -> issue February 3 and due February 17 retained after current-build upgrade, overdue only at February 18 local midnight
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 51217.847413
+NODE_TEST_EXIT=0
