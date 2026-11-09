@@ -84,6 +84,7 @@ export const mail: Handler = async (c, type, p, db) => {
   }
   if (type !== 'email.send') return undefined
   allow(c.actor, type)
+  if (c.actor.token) fail('FORBIDDEN', 'A signed-in person sends document email.', null, 403)
   const b = business(c.s); connection(c.s)
   const kind = oneOf(p.kind, ['quote', 'invoice', 'purchaseOrder'] as const, 'kind')
   if (kind === 'quote') {
