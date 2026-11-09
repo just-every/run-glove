@@ -10,6 +10,7 @@ const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const short = (date: string) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }).format(new Date(`${date}T00:00:00Z`))
 type Row = Record<string, any>
 type AuditAction = { commandId: string; kind: string; actor: Row; subjects: string[] }
+test.use({ actionTimeout: 15_000 })
 
 async function send(page: Page, button: Locator, type: string) {
   const answer = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST' && r.request().postDataJSON().type === type)
@@ -41,6 +42,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
     }
+    await page.clock.setFixedTime(new Date('2026-11-01T12:00:00.000Z'))
     const b = await business(h)
     const sub = await h.person('Sid Install', 'subcontractor')
     const sid = await h.command('technician.save', { name: sub.name, operatorId: sub.id, subcontractor: { payeeName: 'Sid Install Services', tinLast4: '4321' } })
@@ -211,5 +213,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       }
       await screen(page, 'activity')
     })
-  } finally { await context.close(); await h.close() }
+  } finally {
+    try { await context.close() } finally { await h.close() }
+  }
 })
