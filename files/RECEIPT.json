@@ -85,7 +85,8 @@
         7
       ],
       "policy_default": null,
-      "status_judgment_edited": false
+      "status_judgment_edited": false,
+      "claimed_status": "DONE"
     }
   },
   "publication_scan": {
@@ -101,16 +102,16 @@
     "main_equals_candidate": false
   },
   "ci": {
-    "github_calls": 4,
+    "github_calls": 6,
     "candidate_discovery": "no runs yet at immediate discovery",
     "exact_sha_verify": {
+      "conclusion": "success",
+      "head_sha": "69086f3f92012d6cd58b67a4b6fb3994a84087ab",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42544494847",
+      "status": "completed",
       "id": 42544494847,
       "name": "Verify",
-      "event": "push",
-      "status": "in_progress",
-      "conclusion": null,
-      "head_sha": "69086f3f92012d6cd58b67a4b6fb3994a84087ab",
-      "html_url": "https://github.com/just-every/run-glove/actions/runs/42544494847"
+      "event": "push"
     },
     "baseline_runs": [
       {
@@ -195,7 +196,10 @@
       }
     ],
     "push_discovery_note": "Merged main contains fc2c10e with skip-ci marker; if no exact-SHA run appears at bounded rediscovery, dispatch Verify once.",
-    "observed_at": "2026-11-09T01:19:30.261281+00:00"
+    "observed_at": "2026-11-09T01:29:32.216066+00:00",
+    "dispatches": 0,
+    "reruns": 0,
+    "coverage": "full push verification; merge candidate has two parents and therefore cannot take the one-parent light-coverage path"
   },
   "screenshots": [
     {
@@ -291,5 +295,21 @@
       "result": "passed",
       "reason": "final screenshots scrolled to changed states"
     }
-  ]
+  ],
+  "riders": {
+    "1": "pass",
+    "2": "pass",
+    "3": "pass",
+    "4": "pass",
+    "5": "pass",
+    "6": "pass",
+    "7": "pass",
+    "8": "pass",
+    "9": "pass",
+    "10": "not applicable; no new policy default",
+    "11": "pending guarded landing"
+  },
+  "pre_ready": "pass for clause scope; publication scan and main Run site remain lander duties",
+  "blockers": [],
+  "completed_at": "2026-11-09T01:30:07.669715+00:00"
 }
