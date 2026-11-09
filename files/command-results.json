@@ -101,5 +101,15 @@
     "remote_ref_verified": true,
     "head": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
     "note": "Guard reported successful new branch; independent git ls-remote confirmed exact product SHA despite outer shell command exit 1."
+  },
+  "exact_sha_verify": {
+    "exit": 0,
+    "id": 42548981081,
+    "head_sha": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42548981081",
+    "github_calls": 4,
+    "poll_spacing_seconds_min": 300.00038838386536
   }
 }

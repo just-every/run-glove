@@ -1215,13 +1215,13 @@
   "assertion_equivalence": true,
   "ci": {
     "id": 42548981081,
-    "status": "in_progress",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "success",
     "head_sha": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/42548981081",
     "name": "Verify",
     "event": "push",
-    "github_calls": 2
+    "github_calls": 4
   },
   "command_results": {
     "initial_touched_tests": {
@@ -1326,17 +1326,27 @@
       "remote_ref_verified": true,
       "head": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
       "note": "Guard reported successful new branch; independent git ls-remote confirmed exact product SHA despite outer shell command exit 1."
+    },
+    "exact_sha_verify": {
+      "exit": 0,
+      "id": 42548981081,
+      "head_sha": "a9626806a7691019bf0a82bdb979d59b7aa0ce5a",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42548981081",
+      "github_calls": 4,
+      "poll_spacing_seconds_min": 300.00038838386536
     }
   },
-  "updated_utc": "2026-11-09T02:12:28Z",
+  "updated_utc": "2026-11-09T02:22:10Z",
   "packet_files": {
     "contract-write.log": {
       "bytes": 28,
       "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
     },
     "REPORT.md": {
-      "bytes": 9270,
-      "sha256": "b6627d4402abc206428e269e84e831b2791511fc75057fb0aa13a12f2015835b"
+      "bytes": 7397,
+      "sha256": "c45e49416e7920165490e16f9b7c66fc8444994cc500d272b9912139baba131a"
     },
     "refund-main-touched-tests.tap": {
       "bytes": 3280,
@@ -1379,16 +1389,16 @@
       "sha256": "289f9812c7a0f77aa79f2701684ecc1340b2dd3efb8ee697af73522d524022cd"
     },
     "ci-receipt.json": {
-      "bytes": 273,
-      "sha256": "d9c511bc4217c695327131420ed7858971bb20bb3881a12ae7e09b9c5e51abde"
+      "bytes": 276,
+      "sha256": "5af0b32b59d05d97b9850c5e8bb231f2c0a0d3163c8ecc4764631d4279e08781"
     },
     "lock-write.json": {
       "bytes": 262285,
       "sha256": "e08785368aa44d61ec794f6d54c6a44a18f99f7f0a448b610920af4192e1315f"
     },
     "github-calls.json": {
-      "bytes": 301,
-      "sha256": "0c3219302e41b883a2c88adcc0c9ffdf704fdb70ffa381e4ec3b3632ae5d4581"
+      "bytes": 549,
+      "sha256": "45e35fa4206daa595cbd7a176d59ea1fb90e19b7a917c3cbb8aa4a234d4ee11d"
     },
     "assertion-audit.mjs": {
       "bytes": 3197,
@@ -1411,8 +1421,8 @@
       "sha256": "148bad84b5b174568017df50d58e073566703d43c6c9fe7fa6f1af04420adf55"
     },
     "ci-run.json": {
-      "bytes": 192,
-      "sha256": "fa16b87401da55607a4e29f26966804b64e62976c863f92997ee1bb338e94c7c"
+      "bytes": 195,
+      "sha256": "a3e62b7e21fcca59d424476ecb7b1f313ffeb52d39ba4ae0dbd7c8920c264b2b"
     },
     "inventory-after.json": {
       "bytes": 7719,
@@ -1435,8 +1445,8 @@
       "sha256": "6bfac10de48c4fafeee83c5a76d756b682cc0d6911023633f283d9dd4a7ef005"
     },
     "command-results.json": {
-      "bytes": 3308,
-      "sha256": "a19c3560fe748af285bb666bab1240f0341b2b4740504b0f414145725e854b0c"
+      "bytes": 3649,
+      "sha256": "052155119c61d66e77f30ab3845594f6018a82606ffd0be9ba7cebdd0dd2f449"
     },
     "candidate-messages.txt": {
       "bytes": 560,
