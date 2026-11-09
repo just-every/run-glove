@@ -36,7 +36,7 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
   } }] })
   t.after(() => h.close())
   const owner = (await h.request('/auth/session').then(r => r.json())).operator
-  await h.command('business.save', { name: 'Independent branch service', currency: 'AUD', timezone: 'UTC', paymentTermsDays: 14 })
+  await h.command('business.save', { name: 'Independent branch service', currency: 'USD', timezone: 'UTC', paymentTermsDays: 14, taxSettings: { jurisdictions: [{ id: 'scope-tax', name: 'Scope district', rate: '0', zips: [] }], defaultJurisdictionId: 'scope-tax' } })
   const dispatcher = await h.person('Branch Dispatcher', 'dispatcher'), office = await h.person('Main Office', 'office')
   const second = await h.person('Second Owner', 'owner'), mainOwner = await h.person('Main Owner', 'owner')
   const agent = await h.person('Branch Agent', 'agent')
@@ -67,10 +67,11 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
     const invoice = await h.command('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
     await h.command('branch.limit', { operatorId: exportDesk.id, branchId: branch ?? 'main' })
     const exportFile = await exportDesk.run('invoice.export', {})
+    const segment = await exportDesk.run('segment.save', { name: `${name} customer segment`, filter: {} })
     const conversation = await h.command('conversation.log', { customerId: customer.id, jobId: job.id, kind: 'note', text: `${name} private desk note` })
     const rootPlan = await h.command('plan.save', { name: `${name} annual care`, price, termMonths: 12, includedVisits: 2, visitServiceId: service.id })
     const agreement = await h.command('agreement.sell', { customerId: customer.id, siteId: site.id, planId: rootPlan.id, startDate: '2026-01-01', via: 'phone' })
-    roots.push({ branch, name, price, prefix, leadSource, person, tech, customer, site, enquiry, quote, job, visit, invoice, equipment, conversation, agreement, exportFile, rootPlan })
+    roots.push({ branch, name, price, prefix, leadSource, person, tech, customer, site, enquiry, quote, job, visit, invoice, equipment, conversation, agreement, exportFile, rootPlan, segment })
   }
 
   await scenario(t, 'TEAM-005 point 1: only the unscoped Owner limits named and main branches and removes limits with exact versions and attributable facts', async () => {
@@ -125,8 +126,9 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
   await scenario(t, 'TEAM-005 point 3: independent main and branch records are fenced at every read door and live authority governs replay, rules and the commit guard', async () => {
     await h.command('branch.limit', { operatorId: dispatcher.id, branchId: east.id })
     await h.command('branch.limit', { operatorId: office.id, branchId: 'main' })
-    const cases = [[null, roots], [dispatcher, [roots[1]]], [office, [roots[0]]], [second, [roots[1]]]]
-    const mappings = { customers: 'customer', sites: 'site', enquiries: 'enquiry', quotes: 'quote', jobs: 'job', visits: 'visit', invoices: 'invoice', technicians: 'tech', equipment: 'equipment', agreements: 'agreement', conversations: 'conversation', exports: 'exportFile' }
+    await h.command('branch.limit', { operatorId: mainOwner.id, branchId: 'main' })
+    const cases = [[null, roots], [dispatcher, [roots[1]]], [office, [roots[0]]], [second, [roots[1]]], [mainOwner, [roots[0]]]]
+    const mappings = { customers: 'customer', sites: 'site', enquiries: 'enquiry', quotes: 'quote', jobs: 'job', visits: 'visit', invoices: 'invoice', technicians: 'tech', equipment: 'equipment', agreements: 'agreement', conversations: 'conversation', exports: 'exportFile', segments: 'segment' }
     for (const [who, expected] of cases) {
       const selected = new Set(expected), hidden = roots.filter(root => !selected.has(root))
       const view = await (who ? who.state() : h.state())
@@ -155,13 +157,29 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
           [`/jobs/${root.job.id}/callback`, result => assert.equal(result.callback, null)],
           [`/customers/${root.customer.id}/duplicates`, result => assert.ok(JSON.stringify(result).includes(root.customer.id))],
           [`/documents/invoice/${root.invoice.id}`, result => assert.ok(JSON.stringify(result).includes(root.invoice.number))],
+          [`/documents/agreement/${root.agreement.id}`, result => assert.equal(result.customer.name, root.customer.name)],
+          [`/segments/${root.segment.id}`, result => assert.deepEqual(ids(result.members), ids(expected.map(r => r.customer)))],
+          [`/parts?date=2026-11-05&technicianId=${root.tech.id}`, result => assert.deepEqual(result.jobs.map(j => j.jobId), [root.job.id])],
         ]
+        if (!who || who !== dispatcher) doors.push([
+          `/invoices/${root.invoice.id}/quickbooks.json?customerRef=1&itemRef=2&taxCodeRef=3`,
+          result => { assert.equal(result.DocNumber, root.invoice.number); assert.equal(result.Line[0].Amount, Number(root.price)) },
+        ])
+        if (!who || who === second || who === mainOwner) doors.push([
+          `/technicians/${root.tech.id}/calendar`, result => assert.deepEqual(result, { url: null }),
+        ])
         const statement = `/customers/${root.customer.id}/statement.json?asOf=2026-11-05`
         doors.push([statement, result => { assert.deepEqual(ids(result.invoices), [root.invoice.id]); assert.equal(result.totals[0].due, root.price) }])
-        for (const door of [`/customers/${root.customer.id}/statement.csv?asOf=2026-11-05`, ...(!who || who !== dispatcher ? [`/exports/${root.exportFile.id}.csv`] : [])]) {
+        for (const door of [`/customers/${root.customer.id}/statement.csv?asOf=2026-11-05`, ...(!who || who !== dispatcher ? [`/exports/${root.exportFile.id}.csv`, `/segments/${root.segment.id}.csv`] : [])]) {
           const response = await h.request('/api/glove' + door, who ? { as: who.cookie } : {})
           assert.equal(response.status, selected.has(root) ? 200 : 404, door)
-          if (selected.has(root)) { const csv = await response.text(); assert.ok(csv.includes(root.invoice.number)); assert.ok(csv.includes(root.price)); noHidden(csv, door) }
+          if (selected.has(root)) {
+            const csv = await response.text()
+            if (door.startsWith('/segments/')) {
+              for (const other of roots) assert.equal(csv.includes(other.customer.name), selected.has(other))
+            } else { assert.ok(csv.includes(root.invoice.number)); assert.ok(csv.includes(root.price)) }
+            noHidden(csv, door)
+          }
         }
         if (!who || who === dispatcher || who === second) doors.push([`/jobs/${root.job.id}/companycam`, result => assert.deepEqual(result.uploads, [])])
         for (const [door, check] of doors) {
@@ -172,6 +190,16 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
             else assert.deepEqual(Buffer.from(await response.arrayBuffer()), Buffer.from(photo.base64, 'base64'))
           } else assert.equal((await response.json()).error.code, 'NOT_FOUND')
         }
+      }
+      const map = await read(h, '/map?date=2026-11-05', who)
+      assert.deepEqual(ids(map.technicians), ids(expected.map(r => r.tech)))
+      assert.deepEqual(map.technicians.flatMap(t => t.stops.map(v => v.visitId)).sort(), expected.map(r => r.visit.id).sort())
+      noHidden(map, 'map board')
+      if (!who || who === second || who === mainOwner) {
+        const brief = await read(h, '/brief?at=2026-11-06T12:00:00.000Z', who)
+        assert.equal(brief.sections.agreements.length, expected.length * 2)
+        for (const root of roots) assert.equal(JSON.stringify(brief.sections.agreements).includes(root.customer.name), selected.has(root))
+        noHidden(brief, 'morning brief')
       }
       const balance = await read(h, '/balances', who)
       assert.deepEqual(ids(balance.invoices), ids(expected.map(r => r.invoice)))
@@ -200,6 +228,13 @@ test('TEAM-005 current branch authority fences every read, shared write, replay 
         assert.equal(response.status, 200)
         const csv = await response.text()
         assert.ok(csv.split('\n').length > 2, `${kind} has actual report rows`)
+        const csvRows = csv.trim().split(/\r?\n/).map(row => row.split(','))
+        if (kind === 'quotes') assert.deepEqual(csvRows.slice(1), [[String(expected.length), String(expected.length), '0', '100.0', sum]])
+        if (kind === 'tax') assert.deepEqual(csvRows.slice(1).sort(), expected.flatMap(r => [
+          [r.name === 'Main' ? 'Main business' : r.name, 'Scope district', '2026-11', '1', '0.00'],
+          [r.name === 'Main' ? 'Main business' : r.name, 'Scope district', 'total', '1', '0.00'],
+        ]).sort())
+        if (kind === 'margins') assert.deepEqual(csvRows.filter(r => r[0] === 'total').map(r => r.slice(1, 4)), [[String(expected.length), sum, '0.00']])
         assert.ok(csv.includes(kind === 'tax' ? ',0.00' : kind === 'technicians' ? expected[0].tech.name : kind === 'sources' ? expected[0].leadSource : sum), `${kind} CSV contains its independent scoped figure`)
         for (const other of hidden) {
           if (kind === 'technicians') assert.ok(!csv.includes(other.tech.name))
