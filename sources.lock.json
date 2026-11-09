@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "5006813b3a97e40601854a10ead09e7518314a7c58213355b7712d9a46871189",
+      "sha256": "5ea7bb88028b29f9557569de2a3f56060480cebed1e3de0c7b07ee06fac06471",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8c68b0a157b6d349fceb11935149721daead1402995f0d8b6ee20c925fb6df9f",
+      "sha256": "6090a4200302839ecc21f578587943439a2398d699c90644e36296fdbffd9b8d",
       "executable": false
     },
     "DEMO.md": {
@@ -5700,7 +5700,7 @@
       "executable": false
     },
     "tests/api/pipeline.test.mjs": {
-      "sha256": "ed2accf0b9e0b77c6adc7e4ff1a628ab7924a33e82068441655577a99a10595a",
+      "sha256": "bec87483b2934b6e9601d085d26481baa289496ad96f0c3e99a61aaab2bbd302",
       "executable": false
     },
     "tests/api/portrait-status-flow.mjs": {
@@ -5868,7 +5868,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "5382754d16f1a7f8c0177b540b07ec3a5eeb09783e32867322207de56ca1a42b",
+      "sha256": "11dfd3ead1685b901069e62657c78560d6a7e5306439f11fefa96cbd25531467",
       "executable": false
     },
     "tests/browser/commission-download-journey.ts": {
@@ -5908,7 +5908,7 @@
       "executable": false
     },
     "tests/browser/document-print.spec.ts": {
-      "sha256": "631517aa63d9565f64ac081f1b39ee8968b8bbb1934a3cf3cda08b0eb394fed6",
+      "sha256": "8efac1feddf89df300420726dc13ba99b5584c1ba7c345b57abb027bb39fe4cc",
       "executable": false
     },
     "tests/browser/documents.spec.ts": {
@@ -5940,7 +5940,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "b093091b26a981ac6d37910e77f3d3924941f04a652dcdb8999a0a2b4f0a69e3",
+      "sha256": "9aafda1bb3f95782a4a32bbdb6cb080b54fef26ef994a6ccf8544134d4463023",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -6044,7 +6044,7 @@
       "executable": false
     },
     "tests/fixtures/branch-projections.mjs": {
-      "sha256": "e9f9129dbafe8489f7f4245ac9cdb5d2c8a3aff6cc739621170ac4aa78fcdc7e",
+      "sha256": "1f92ed98d03092c1980a0e6a77d93e1a5e7b5334fc36d86e13aa43b09b71675a",
       "executable": false
     },
     "tests/fixtures/calendar.mjs": {
