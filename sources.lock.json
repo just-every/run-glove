@@ -5600,7 +5600,7 @@
       "executable": false
     },
     "tests/api/fixed-monthly-dates.test.mjs": {
-      "sha256": "9a2f0aaec4d9dc1ccaa2df184aea0582d6049902a63f7832e05254c27963973a",
+      "sha256": "3291c0fe188d00821471e9946ef17074b8c11ec2ffd1a07cae09144f775f0709",
       "executable": false
     },
     "tests/api/fixed-monthly-reports.test.mjs": {
@@ -5916,7 +5916,7 @@
       "executable": false
     },
     "tests/browser/revenue.spec.ts": {
-      "sha256": "7d451cf3f903efb5c2e03322a21e0ff20342fc5a0e0a3b9b5fcc4c8a56f16015",
+      "sha256": "9e4ae271805f2fe0185fb102c450be6dbaeda714a9c4703ecda55eaf410e3e7c",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
