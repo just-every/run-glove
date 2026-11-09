@@ -1,0 +1,53 @@
+(node:4798) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Candidate public site built from the committed source without private installation files.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Using secrets defined in .dev.vars
+Declared development target is healthy; native owner entry retained only in memory.
+Normal native page loads completed before the unchanged journey.
+Error: 
+Running 1 test using 1 worker
+
+(node:5081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (37.2s)
+
+
+  1) tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'Request pipeline', exact: true })
+    Expected substring: "No Glove visit booked."
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'Request pipeline', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Request pipeline', exact: true })
+
+
+      1287 |       await page.reload()
+      1288 |       const pipeline = page.getByRole('region', { name: 'Request pipeline', exact: true })
+    > 1289 |       await expect(pipeline).toContainText('No Glove visit booked.')
+           |                              ^
+      1290 |       await expect(pipeline).toContainText('Acknowledgment queued')
+      1291 |       await expect(pipeline).toContainText('Reserve with Google')
+      1292 |       const state = await h.state(), request = state.enquiries.find((e: any) => e.source === 'reserve-google')
+        at /home/agent/rer-consolidation/work/sx-glove-c-f214/run-glove/tests/browser/journey.spec.ts:1289:30
+
+    Error Context: ../browser/results/direct-candidate/journey-BOOK-004-BOOK-014--1edde-attestation-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 
+
+    at command (file:///home/agent/rer-consolidation/work/sx-glove-c-f214/run-glove/tests/browser/runtime.mjs:41:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///tmp/glove-direct-browser.mjs:58:15

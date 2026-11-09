@@ -1,0 +1,61 @@
+{
+  "observedAt": "2026-11-09T11:39:58.979906+00:00",
+  "head": "a1363930c00e9d3ba4e2234ae810db10aa050e28",
+  "runs": [
+    {
+      "conclusion": "failure",
+      "event": "push",
+      "head_sha": "a1363930c00e9d3ba4e2234ae810db10aa050e28",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42608659219",
+      "id": 42608659219,
+      "name": "Verify",
+      "status": "completed"
+    }
+  ],
+  "githubCallsUsed": 8,
+  "observations": [
+    {
+      "at": "2026-11-09T11:24:01.185727+00:00",
+      "runs": [
+        {
+          "id": 42608659219,
+          "name": "Verify",
+          "event": "push",
+          "status": "in_progress",
+          "conclusion": null,
+          "head_sha": "a1363930c00e9d3ba4e2234ae810db10aa050e28",
+          "head_branch": "cloud/sx-glove-c-f214",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42608659219"
+        }
+      ]
+    },
+    {
+      "at": "2026-11-09T11:29:14.186355+00:00",
+      "runs": [
+        {
+          "conclusion": null,
+          "event": "push",
+          "head_sha": "a1363930c00e9d3ba4e2234ae810db10aa050e28",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42608659219",
+          "id": 42608659219,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    },
+    {
+      "at": "2026-11-09T11:34:38.293484+00:00",
+      "runs": [
+        {
+          "conclusion": null,
+          "event": "push",
+          "head_sha": "a1363930c00e9d3ba4e2234ae810db10aa050e28",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42608659219",
+          "id": 42608659219,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    }
+  ]
+}

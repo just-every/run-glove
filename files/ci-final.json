@@ -1,0 +1,17 @@
+{
+  "observedAt": "2026-11-09T11:43:27.271417+00:00",
+  "head": "61fae338ea45bf8fab68fa1b60b1d1c63aaa39c5",
+  "runs": [
+    {
+      "id": 42611236930,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "61fae338ea45bf8fab68fa1b60b1d1c63aaa39c5",
+      "head_branch": "cloud/sx-glove-c-f214",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42611236930"
+    }
+  ],
+  "githubCallsUsed": 9
+}

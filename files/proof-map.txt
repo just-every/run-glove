@@ -1,0 +1,10 @@
+tests/api/lead-matching.test.mjs:13: test('BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart', async t => {
+tests/api/lead-matching.test.mjs:233: await scenario(t, 'BOOK-017 point 1: the authenticated Booking door admits one request and refuses wrong, absent and disconnected credentials without writes', async () => {
+tests/api/lead-matching.test.mjs:269: await scenario(t, 'BOOK-017 point 2: only a signed-in unscoped Owner issues a relay credential and intake makes no Google server or notification claim', async () => {
+tests/api/lead-matching.test.mjs:299: await scenario(t, 'BOOK-017 point 3: exact source facts survive a real Worker restart without a visit, job, calendar write, reply, message or push', async () => {
+tests/api/lead-matching.test.mjs:316: await scenario(t, 'BOOK-017 point 4: neither admitted status invents a lead cost from slot or user fields', async () => {
+tests/api/lead-matching.test.mjs:340: await scenario(t, 'BOOK-017 point 5: cancellations and unsupported statuses refuse all writes and changed-slot updates retain the first record', async () => {
+tests/api/lead-matching.test.mjs:355: await scenario(t, 'BOOK-017 point 6: retry, concurrent deliveries and restart replay land one request and one receipt fact per booking identity', async () => {
+tests/api/lead-matching.test.mjs:383: await scenario(t, 'BOOK-017 point 7: a slot five days ahead keeps creation and acknowledgment deadline at Glove receipt', async () => {
+tests/api/lead-matching.test.mjs:397: await scenario(t, 'BOOK-017 point 8: Activity and business export attribute intake to the Reserve feed and exclude the door password', async () => {
+tests/browser/journey.spec.ts:1233: test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390', async ({ browser }) => {

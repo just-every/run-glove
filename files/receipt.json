@@ -1,0 +1,148 @@
+{
+  "head": "61fae338ea45bf8fab68fa1b60b1d1c63aaa39c5",
+  "baseMain": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "branch": "cloud/sx-glove-c-f214",
+  "recordedAt": "2026-11-09T11:44:52.384660+00:00",
+  "files": {
+    "tests/api/lead-matching.test.mjs": "7386e4e520027ffe4194e00371799737ab4c44b4969eed3cb32ccb8ccf5e846f",
+    "tests/api/merge.test.mjs": "974a446dec93ce8547c13cf12050c341fbdc479820f6d91f9894635e7b14cc80",
+    "tests/api/pipeline.test.mjs": "ed2accf0b9e0b77c6adc7e4ff1a628ab7924a33e82068441655577a99a10595a",
+    "tests/browser/journey.spec.ts": "57b50796f2db058eb32f1002d0fcd66eb27bbad7d326b2259f5112d5aadee857",
+    "src/glove/leads.ts": "a00677b04bf00d8aaf80017f4dccff21ca4969462e817bcf193d5483f81051a9",
+    "src/ui/lead-connections.tsx": "f310586c8cbc31cbc2df5f1f58aec0fdd4d03db21aea30284f44264753ff7834",
+    "docs/lead-sources.md": "a10ef090ed39f03e079c6ad056d3fa37a19bc5e8cb431e099134b4e12cec6b9b",
+    "tests/fixtures/leads.mjs": "dd03690898fe15438a3451671520dafcdecf439f323dadbff91d48cb3d6f2e1e",
+    "tests/fixtures/scenario.mjs": "96f7b51254a901cdc4961c9faded2baba84ee5b02f1f87864636151438b579ef"
+  },
+  "checks": {
+    "touchedAPI": {
+      "exit": 0,
+      "registrations": 3,
+      "passed": 3,
+      "failed": 0,
+      "log": "api.log"
+    },
+    "typecheck": {
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    "firstParty": {
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    "contractWrite": {
+      "command": "node scripts/contract-docs.mjs write --clauses BOOK-017",
+      "exit": 0,
+      "output": "Wrote 0 contract documents."
+    },
+    "contractCheck": {
+      "command": "node scripts/contract-docs.mjs check --clauses BOOK-017",
+      "exit": 0,
+      "output": "Contract documents are current."
+    },
+    "sourceLock": {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    "migrationLedger": {
+      "command": null,
+      "reason": "No migration changed"
+    },
+    "inventory": {
+      "exit": 1,
+      "total": 202,
+      "limit": 200,
+      "mainTotal": 202,
+      "addedRegistrations": 0,
+      "reason": "Existing main overage reproduced from archived main tests; no registration added or removed",
+      "classification": "Pre-existing main issue; no new test registration or cap change"
+    },
+    "build": {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    "browserPreparation": {
+      "command": "node tests/browser/run.mjs tests/browser/journey.spec.ts --grep 'Reserve with Google request intake and external-send attestation'",
+      "exit": 1,
+      "log": "browser.log",
+      "reason": "Fresh installation cold Vite scan missed the 60-second internal-listener handshake; no Playwright assertion ran"
+    },
+    "setup": {
+      "exit": 0,
+      "reason": "Warmed retry on the owned candidate checkout completed after the touched API processes exited; no source changes"
+    },
+    "browser": {
+      "command": "cloud_run perl -e 'alarm 1200; exec @ARGV' -- node /tmp/glove-direct-browser.mjs",
+      "exit": 0,
+      "registrations": 1,
+      "passed": 1,
+      "widths": [
+        1440,
+        390
+      ],
+      "log": "browser-direct.log",
+      "runner": "browser-direct-runner.mjs",
+      "executedHead": "61fae338ea45bf8fab68fa1b60b1d1c63aaa39c5",
+      "screenshots": [
+        "screenshots/1440-reserve-google-attestation.png",
+        "screenshots/1440-reserve-google-connected-panel.png",
+        "screenshots/1440-reserve-google-connected.png",
+        "screenshots/1440-reserve-google-docs-data-flows.png",
+        "screenshots/1440-reserve-google-docs-lead-sources.png",
+        "screenshots/1440-reserve-google-queued.png",
+        "screenshots/1440-yelp-approved-reply.png",
+        "screenshots/1440-yelp-reply-approved.png",
+        "screenshots/390-reserve-google-attestation.png",
+        "screenshots/390-reserve-google-connected-panel.png",
+        "screenshots/390-reserve-google-connected.png",
+        "screenshots/390-reserve-google-docs-data-flows.png",
+        "screenshots/390-reserve-google-docs-lead-sources.png",
+        "screenshots/390-reserve-google-queued.png",
+        "screenshots/390-yelp-approved-reply.png",
+        "screenshots/390-yelp-reply-approved.png"
+      ],
+      "note": "Declared Vite target and native dev gate, loopback only. Final test reloads wait for network idle; no assertion or assertion timeout changed."
+    },
+    "browserColdRoute": {
+      "exit": 1,
+      "log": "browser-cold-route.log",
+      "failure": "Request pipeline element not found within the existing 5000ms assertion while the page was Loading your work. Reproduced in browser-direct-before-wait.log. The final lifecycle wait repairs this local proof."
+    },
+    "browserManagedStartup": {
+      "exit": 1,
+      "log": "browser-candidate.log",
+      "failure": "Cold Vite target did not announce its bound listener within the pinned launcher 60-second window. Direct declared target became healthy without a product change."
+    }
+  },
+  "changedTextHygiene": {
+    "emailShapedLiterals": 0,
+    "credentialPrefixShapedLiterals": 0,
+    "bareProseSlashPairs": [],
+    "publicationScan": false,
+    "recognizedSlashValue": "America/Chicago is an IANA timezone used by the existing public business command"
+  },
+  "initialCandidate": "a1363930c00e9d3ba4e2234ae810db10aa050e28",
+  "remoteHead": "61fae338ea45bf8fab68fa1b60b1d1c63aaa39c5",
+  "ci": {
+    "finalRun": 42611236930,
+    "finalEvent": "push",
+    "finalStatus": "in_progress",
+    "finalConclusion": null,
+    "priorRun": 42608659219,
+    "priorHead": "a1363930c00e9d3ba4e2234ae810db10aa050e28",
+    "priorConclusion": "failure",
+    "failedJobs": [
+      129131281930,
+      129131281948
+    ],
+    "githubCallsUsed": 9,
+    "note": "Earlier failures are in unchanged conversation and document-print browser fixtures. No repair to those fixtures or production behavior is claimed."
+  },
+  "sourceEqualityToMainForPriorFailures": {
+    "src": true,
+    "tests/browser/conversation.spec.ts": true,
+    "tests/browser/document-print.spec.ts": true,
+    "tests/api/harness.mjs": true
+  }
+}

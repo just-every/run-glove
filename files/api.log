@@ -1,0 +1,89 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Subtest: BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart
+ok 1 - BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart
+  ---
+  duration_ms: 49313.392766
+  type: 'test'
+  ...
+# A ZIP-only Yelp lead never invents a service address
+# All five providers use unambiguous live identity and preserve the decision through every read door
+# BOOK-017 point 1: the authenticated Booking door admits one request and refuses wrong, absent and disconnected credentials without writes
+# BOOK-017 point 2: only a signed-in unscoped Owner issues a relay credential and intake makes no Google server or notification claim
+# BOOK-017 point 3: exact source facts survive a real Worker restart without a visit, job, calendar write, reply, message or push
+# BOOK-017 point 4: neither admitted status invents a lead cost from slot or user fields
+# BOOK-017 point 5: cancellations and unsupported statuses refuse all writes and changed-slot updates retain the first record
+# BOOK-017 point 6: retry, concurrent deliveries and restart replay land one request and one receipt fact per booking identity
+# BOOK-017 point 7: a slot five days ahead keeps creation and acknowledgment deadline at Glove receipt
+# BOOK-017 point 8: Activity and business export attribute intake to the Reserve feed and exclude the door password
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+ok 2 - CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+  ---
+  duration_ms: 20751.947264
+  type: 'test'
+  ...
+# CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+# CUST-005: the move-in preview flags incoming customers that duplicate Glove customers
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Lead post rejected
+# Subtest: BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+ok 3 - BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+  ---
+  duration_ms: 96529.308458
+  type: 'test'
+  ...
+# BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report
+# DATA-002, DATA-009, DATA-010 / BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 / API-005: a lead from each of Google, Angi, Thumbtack and Yelp lands as a request with its source and cost, one matched to an existing customer, each with an acknowledgment queued; an Angi rule applies its lead cost
+# BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts
+# BOOK-016: overdue clock, repeated cron, replay and actual Worker restart
+# BOOK-016: every excluded actor is refused without queuing
+# BOOK-016: desk attestation sends nothing and the explicit Owner command commits before one masked-address send
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 a consented website request matches a customer, keeps two private originals, notifies the office and follows customer erasure
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 failed verification, consent, origins and ambiguous matching persist no request; owner disable fences an in-flight submission
+# BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 only an unscoped owner enables provider-bound photo consent; model copies strip metadata and withdrawal excludes later calls
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 183234.099282

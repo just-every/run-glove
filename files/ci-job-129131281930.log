@@ -1,0 +1,149 @@
+shards (browser-4)	Run this shard	﻿2026-11-09T11:24:28.4293937Z ##[group]Run node scripts/verify-ci.mjs "$SHARD"
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4294365Z [36;1mnode scripts/verify-ci.mjs "$SHARD"[0m
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4317315Z shell: /usr/bin/bash -e {0}
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4317589Z env:
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4317798Z   CI: true
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4318019Z   GLOVE_VERIFY_SHARD: browser-4
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4318306Z   WRANGLER_SEND_METRICS: false
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4318580Z   PLAYWRIGHT_SKIP_BROWSER_GC: 1
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4318840Z   GLOVE_CI_PREBUILT: 1
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4319171Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/_temp/ms-playwright
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4319551Z   SHARD: browser-4
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4319771Z ##[endgroup]
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.4667511Z > pnpm run verify:app
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.7550366Z 
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.7551505Z > @field-service/glove@0.1.1 verify:app /home/runner/work/run-glove/run-glove
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.7552726Z > rer queue verify:app -- node scripts/verify-app.mjs
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.7553139Z 
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.8531995Z verify:app
+shards (browser-4)	Run this shard	2026-11-09T11:24:28.8871918Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/conversation.spec.ts' 'tests/browser/discounts.spec.ts' 'tests/browser/due-visit-list.spec.ts' 'tests/browser/fresh-install.spec.ts' 'tests/browser/morning-brief.spec.ts' 'tests/browser/quote-link-custody.spec.ts' 'tests/browser/reminders.spec.ts' 'tests/browser/service-reports.spec.ts'
+shards (browser-4)	Run this shard	2026-11-09T11:24:29.8219976Z [verify phase] frozen install: start
+shards (browser-4)	Run this shard	2026-11-09T11:24:37.0828196Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=7263
+shards (browser-4)	Run this shard	2026-11-09T11:24:37.0831115Z [verify phase] rer: start
+shards (browser-4)	Run this shard	2026-11-09T11:24:42.2787078Z [verify phase] rer: exit=0 signal=none elapsed_ms=5195
+shards (browser-4)	Run this shard	2026-11-09T11:24:42.2791343Z [verify phase] site build: start
+shards (browser-4)	Run this shard	2026-11-09T11:24:44.7938330Z [verify phase] site build: exit=0 signal=none elapsed_ms=2514
+shards (browser-4)	Run this shard	2026-11-09T11:24:44.8289275Z [verify phase] native setup: start
+shards (browser-4)	Run this shard	2026-11-09T11:25:20.8225764Z [verify phase] native setup: exit=0 signal=none elapsed_ms=35994
+shards (browser-4)	Run this shard	2026-11-09T11:25:20.8231456Z [verify phase] native dev: start
+shards (browser-4)	Run this shard	2026-11-09T11:25:37.6598668Z [verify phase] browser assertions: start
+shards (browser-4)	Run this shard	2026-11-09T11:25:38.6155860Z [verify progress] Running 1 test using 1 worker
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.0781431Z [verify progress]   ✓  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (28.8s)
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1538462Z [verify progress]   1 passed (29.8s)
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1670562Z [verify phase] browser assertions: exit=0 signal=none elapsed_ms=30507
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1678115Z 
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1678471Z Running 1 test using 1 worker
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1678790Z 
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1680038Z   ✓  1 tests/browser/fresh-install.spec.ts:48:1 › DATA-004 fresh local installation completes service work as four separately signed-in people (28.8s)
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1680858Z 
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1680991Z   1 passed (29.8s)
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1681188Z 
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.1682128Z Real install, setup and dev journeys passed at 1440 and 390. Screenshots: /tmp/glove-browser-evidence/screenshots
+shards (browser-4)	Run this shard	2026-11-09T11:26:08.3982335Z [verify phase] native dev: exit=143 signal=none elapsed_ms=47575
+shards (browser-4)	Run this shard	2026-11-09T11:26:09.5212183Z [verify phase] frozen install: start
+shards (browser-4)	Run this shard	2026-11-09T11:26:16.1526343Z [verify phase] frozen install: exit=0 signal=none elapsed_ms=6632
+shards (browser-4)	Run this shard	2026-11-09T11:26:16.1531160Z [verify phase] rer: start
+shards (browser-4)	Run this shard	2026-11-09T11:26:21.3792545Z [verify phase] rer: exit=0 signal=none elapsed_ms=5226
+shards (browser-4)	Run this shard	2026-11-09T11:26:21.3821472Z [verify phase] site build: start
+shards (browser-4)	Run this shard	2026-11-09T11:26:23.8886391Z [verify phase] site build: exit=0 signal=none elapsed_ms=2509
+shards (browser-4)	Run this shard	2026-11-09T11:26:23.9213212Z [verify phase] native setup: start
+shards (browser-4)	Run this shard	2026-11-09T11:27:01.1650684Z [verify phase] native setup: exit=0 signal=none elapsed_ms=37244
+shards (browser-4)	Run this shard	2026-11-09T11:27:01.1654243Z [verify phase] native dev: start
+shards (browser-4)	Run this shard	2026-11-09T11:27:18.9986628Z [verify phase] browser assertions: start
+shards (browser-4)	Run this shard	2026-11-09T11:27:21.6719161Z [verify progress] Running 10 tests using 1 worker
+shards (browser-4)	Run this shard	2026-11-09T11:27:40.7360823Z [verify progress]   ✓   1 tests/browser/conversation.spec.ts:25:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (17.3s)
+shards (browser-4)	Run this shard	2026-11-09T11:27:50.7587258Z [verify progress]   ✘   2 tests/browser/conversation.spec.ts:207:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (9.9s)
+shards (browser-4)	Run this shard	2026-11-09T11:28:02.3179329Z [verify progress]   ✓   3 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (9.8s)
+shards (browser-4)	Run this shard	2026-11-09T11:28:07.0000493Z [verify progress]   ✓   4 tests/browser/due-visit-list.spec.ts:9:1 › PLAN-004 Office filters individual due visits and books through desk controls while outstanding work stays listed (4.7s)
+shards (browser-4)	Run this shard	2026-11-09T11:28:14.0620585Z [verify progress]   ✓   5 tests/browser/morning-brief.spec.ts:19:1 › AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending (7.0s)
+shards (browser-4)	Run this shard	2026-11-09T11:28:31.7174247Z [verify progress]   ✓   6 tests/browser/quote-link-custody.spec.ts:34:1 › QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390 (17.6s)
+shards (browser-4)	Run this shard	2026-11-09T11:28:57.3725338Z [verify progress]   ✓   7 tests/browser/reminders.spec.ts:10:1 › PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390 (25.6s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:24.4799418Z [verify progress]   ✓   8 tests/browser/reminders.spec.ts:352:1 › COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390 (27.1s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:31.1468695Z [verify progress]   ✓   9 tests/browser/reminders.spec.ts:355:1 › COMM-009, COMM-028 native call history is Owner-only while the desk retains text history (6.7s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.7682037Z [verify progress]   ✓  10 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (8.6s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.8747973Z [verify progress]   1 failed
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.8748667Z [verify progress]   9 passed (2.3m)
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9068405Z [verify phase] browser assertions: exit=1 signal=none elapsed_ms=140908
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9076772Z Dev runtime output (last 6000 characters):
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9080946Z Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9082179Z rer dev: checking the server limit
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9082513Z Checking pinned pnpm
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9082761Z 10.12.4
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9083007Z Applying database migrations
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9083372Z Applying database migrations
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9083626Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9084049Z  ⛅️ wrangler 4.129.1 (update available 4.158.0)
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9084739Z ───────────────────────────────────────────────
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9085261Z Resource location: local 
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9085508Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9085831Z Use --remote if you want to access the remote instance.
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9086083Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9086257Z ✅ No migrations to apply!
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9086589Z Starting your application on this computer
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9087178Z Starting your application on this computer
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9087528Z Using secrets defined in .dev.vars
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9087876Z   ➜  Local:   [URL]
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9088135Z Opening your application
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9088440Z Your application is running locally
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9088737Z Building the run site
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9089037Z {"pages":22,"assets":6,"styles":1}
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9090265Z Warning: Run site preview refused: The run site file contract.html contains this installation's private data (owner identity or a secret). The run site renders only edition identity. The app is running; fix the site and run rer build --site before publishing it.
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9092046Z Open your app, already signed in on this computer: [URL]
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9092465Z App address (without sign-in): [URL]
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9092792Z Keep the sign-in link private.
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9093363Z Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9094305Z Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9095566Z Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): not measured; dependencies: 512151552 bytes.
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9096209Z Details for tools and troubleshooting:
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9096504Z RER_READY [URL]
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9096777Z RER_SIGNED_IN owner@example.test
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9097072Z [private runtime entry]
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9097410Z Running the scheduled trigger locally: */15 * * * *
+shards (browser-4)	Run this shard	2026-11-09T11:29:39.9097639Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.1176191Z [verify phase] native dev: exit=143 signal=none elapsed_ms=158952
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3624264Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3625044Z Running 10 tests using 1 worker
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3625395Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3626762Z   ✓   1 tests/browser/conversation.spec.ts:25:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (17.3s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3629132Z   ✘   2 tests/browser/conversation.spec.ts:207:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (9.9s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3630433Z QUOTE-007 screen: revise-form
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3630968Z QUOTE-007 screen: quote-allocation
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3631549Z QUOTE-007 screen: invoice-allocation
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3632175Z QUOTE-007 screen: role-limits
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3632521Z QUOTE-007 screen: price-book-discount
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3633732Z   ✓   3 tests/browser/discounts.spec.ts:26:1 › QUOTE-007, QUOTE-019 owner gives a document discount with a discount line and sees the allocation on the quote, invoice, price book and role limits at 1440 and 390 (9.8s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3635277Z   ✓   4 tests/browser/due-visit-list.spec.ts:9:1 › PLAN-004 Office filters individual due visits and books through desk controls while outstanding work stays listed (4.7s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3636073Z AGENT-008 screen: today
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3636377Z AGENT-008 screen: invoices
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3636674Z AGENT-008 screen: dispatch
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3636951Z AGENT-008 screen: jobs
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3637210Z AGENT-008 screen: quotes
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3638246Z   ✓   5 tests/browser/morning-brief.spec.ts:19:1 › AGENT-008 points 1–2 and 4: owner reads the fixed-date Today brief and follows every section action at 1440 and 390 without sending (7.0s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3639815Z   ✓   6 tests/browser/quote-link-custody.spec.ts:34:1 › QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390 (17.6s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3641426Z   ✓   7 tests/browser/reminders.spec.ts:10:1 › PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text consent, visit replies, report notices and stopped states at 1440 and 390 (25.6s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3643810Z   ✓   8 tests/browser/reminders.spec.ts:352:1 › COMM-004, COMM-021 owner previews status templates; technician shares photo and ETA, arrival and the exact completed report at 1440 and 390 (27.1s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3645163Z   ✓   9 tests/browser/reminders.spec.ts:355:1 › COMM-009, COMM-028 native call history is Owner-only while the desk retains text history (6.7s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3646733Z   ✓  10 tests/browser/service-reports.spec.ts:23:1 › FIELD-003 / FIELD-002 the desk copies and revokes a report link, the customer reads its flagged inspection and originals, and a recommendation becomes an ordinary draft at 1440/390 (8.6s)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3648014Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3648024Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3649072Z   1) tests/browser/conversation.spec.ts:207:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3649954Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3650244Z     Error: route.fulfill: Route is already handled!
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3650616Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3650925Z       248 |       const req = route.request(), url = new URL(req.url())
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3652628Z       249 |       const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3655161Z     > 250 |       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3656446Z           |                   ^
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3656889Z       251 |     })
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3657747Z       252 |     const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3658464Z       253 |     const warning = panel.getByRole('alert')
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3658925Z         at [REDACTED]/tests/browser/conversation.spec.ts:250:19
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3659207Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3659832Z     Error Context: ../../../../../tmp/glove-browser-evidence/results/journeys/conversation-COMM-010-poin-43393-tcomes-after-Worker-restart/error-context.md
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3660468Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3660572Z   1 failed
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3661478Z     tests/browser/conversation.spec.ts:207:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3662429Z   9 passed (2.3m)
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.3662607Z 
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.4515928Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-4)	Run this shard	2026-11-09T11:29:40.4759803Z ##[error]Process completed with exit code 1.
