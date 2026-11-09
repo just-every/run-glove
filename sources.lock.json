@@ -2188,7 +2188,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "76a04ffa6f1707f32b433835b3e63b79ed3d324557b4d8abcad48a908c738efb",
+      "sha256": "79b7aebd94ccd568d82c740427db5900c24cf3e392fdb80029ffd1c315fa42c3",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -5684,7 +5684,7 @@
       "executable": false
     },
     "tests/api/position-view-grants.test.mjs": {
-      "sha256": "7bfd5c3e95e1831a1d9f3355ce34de45d5505707a6dad5d96a89a432ffb94ba7",
+      "sha256": "a5f94abfc837c9c5d766fd3f6b3298ae33ebe5132f9a5e7a8a3be3e1bbbbfd65",
       "executable": false
     },
     "tests/api/postmark-custody.test.mjs": {

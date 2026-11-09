@@ -123,7 +123,9 @@ export async function locationDelegates(db: D1Database, s: State, technicianId?:
 /** Audit each delegated view before releasing any coordinates; a changed authority fails closed. */
 export async function delegatedPositions(db: D1Database, s: State, actor: Actor, date: string) {
   if (actor.token || actor.custom || !['dispatcher', 'agent'].includes(actor.role)) return []
-  const grants = (await locationDelegates(db, s)).filter(d => d.operator_id === actor.id && s.technicians.some(t => t.id === d.technician_id && locationWork(s, t)))
+  const grants = (await locationDelegates(db, s)).filter(d =>
+    d.operator_id === actor.id && s.technicians.some(t =>
+      t.id === d.technician_id && t.locationConsent?.enabled && t.locationConsent.by === t.operatorId))
   if (!grants.length) return []
   const permitted = new Set(grants.map(d => d.technician_id))
   const view = { ...s, technicians: s.technicians.filter(t => permitted.has(t.id)) }

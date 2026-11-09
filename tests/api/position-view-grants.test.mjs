@@ -169,6 +169,10 @@ test('DISP-009 current-shift grants retain attributable custody and fence every 
     await f.tick(120_001)
     const stale = await f.board()
     for (const id of [b.priya.id, b.tom.id]) assert.deepEqual(stale.find(t => t.id === id).live, { technicianId: id, status: 'Location stale', position: null, eta: null })
+    const beforePause = (await f.audits()).length
+    await b.priyaPerson.run('timer.stop', { visitId: f.visits[0].id, deviceTime: f.now() })
+    assert.deepEqual((await f.board()).find(t => t.id === b.priya.id).live, { technicianId: b.priya.id, status: 'Location stopped or unavailable', position: null, eta: null })
+    assert.equal((await f.audits()).length, beforePause + 2, 'each retained consented grant still audits a read while a timer is paused')
     const { activity, exported } = await assertTrail(h, ['location.viewed'])
     for (const value of ['41.89071', '-87.63071', '41.89172', '-87.63172', '41.89999']) {
       assert.ok(!JSON.stringify(activity).includes(value))
