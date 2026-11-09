@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 29 | 192 | 16 | 237 |
+| Core | 30 | 191 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 29 | 205 | 29 | 263 |
+| Full target | 30 | 204 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -795,7 +795,7 @@ Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCE
 
 #### QUOTE-012 — Quote-link issue and response records
 
-Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-AUDIT-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Quote-link issue and response records supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations.
 
@@ -809,8 +809,8 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 7. A decline competes atomically with staff decisions and makes the revision read-only.
 8. Issuer role removal, branch restriction, revocation and expiry are enforced again in the commit batch.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Issuing a quote link and revoking a quote link require a signed-in person allowed to record that quote as sent, never an integration token.; point 2 — A link freezes a customer-only document and canonical SHA-256, with price-book customer descriptions captured when priced; costs, internal evidence and unrelated customer details are excluded.; point 3 — The desk shares it outside Glove, labelled recipient unverified, or queues it to the customer's on-record address through COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 with the actual provider outcome.; point 4 — A customer response records “link sent by Glove to the address on record” only once a provider fact confirms the provider took the email; a refused or unconfirmed send retains the staff-handed, recipient-unverified basis.; point 5 — The customer quote door reads only that revision; same-origin JSON responses can request changes, decline with a claimed name and capacity, or request an update once per revision.; point 6 — Changes and updates enter the office queue, Activity, property history, COMM-007 stream and business export; an update reopens the originating request as contacted.; point 7 — A decline competes atomically with staff decisions and makes the revision read-only.; point 8 — Issuer role removal, branch restriction, revocation and expiry are enforced again in the commit batch. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/quote-link-records.test.mjs` (QUOTE-012 quote-link records preserve provider truth, customer documents and live authority); `tests/browser/quote-link-custody.spec.ts` (QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390)
+**Gap.** None.
 
 #### QUOTE-013 — Signed-copy confirmation and custody
 
