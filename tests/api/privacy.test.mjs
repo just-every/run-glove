@@ -199,8 +199,10 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
     const companyId = '6b1f3a52-1c2e-4d8a-9a5e-0d3c2b7f0a11', peerId = '9d0e4c71-5b2a-4f39-8e61-7a4b3c2d1e22'
     const jobId = '3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01', peerJob = '3e4f5a6b-cccc-4c7d-8e9f-0a1b2c3d4e03'
     const sharedName = 'attachments/8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02'
+    const companyOriginal = { name: 'attachments/8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03', base64: Buffer.from('Synthetic complete company source original').toString('base64') }
     files.push({ name: 'jobpayment.json', text: JSON.stringify([{ uuid: '7b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', job_uuid: jobId, amount: '10.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic complete payment source' }, { uuid: '7b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', job_uuid: peerJob, amount: '20.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic peer payment source' }]) })
     files.push({ name: sharedName, base64: Buffer.from('Synthetic mixed customer original; must be omitted').toString('base64') })
+    files.push(companyOriginal)
     const staged = await h.command('import.stage', { files })
     await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
     const s = await h.state(), customer = s.customers.find(c => c.id === `sm8-${companyId}`), peer = s.customers.find(c => c.id === `sm8-${peerId}`)
@@ -213,6 +215,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
       'job.json': authored['job.json'].filter(r => r.company_uuid === companyId),
       'jobmaterial.json': authored['jobmaterial.json'].filter(r => [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.job_uuid)),
       'jobactivity.json': authored['jobactivity.json'].filter(r => [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.job_uuid)),
+      'attachment.json': authored['attachment.json'].filter(r => r.related_object === 'company' ? r.related_object_uuid === companyId : [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.related_object_uuid)),
     }
     for (const [name, expected] of Object.entries(selected)) {
       assert.ok(expected.length, `${name} has independent nonempty source objects`)
@@ -220,8 +223,9 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
       assert.ok(file, `${name} is exported`)
       assert.deepEqual(JSON.parse(Buffer.from(file.bytes, 'base64').toString()), expected, `${name} holds complete source objects including unmapped fields`)
     }
-    assert.ok(exported.omissions.some(o => o.artifact === sharedName && /Shared source attachment.*peer data withheld/.test(o.reason)), 'the mixed-ownership original is explicitly named as an omission')
+    assert.ok(exported.omissions.some(o => o.artifact === sharedName && /Shared source attachment.*peer data withheld/.test(o.reason)), `the mixed-ownership original is explicitly named as an omission: ${JSON.stringify(exported.omissions)}`)
     assert.ok(!exported.importOriginals.some(f => f.name === sharedName))
+    assert.equal(exported.importOriginals.find(f => f.name === companyOriginal.name)?.bytes, companyOriginal.base64, 'the customer company attachment is included byte-exactly')
     for (const value of [peer.name, peer.email, 'Synthetic peer payment source']) {
       assert.ok(!JSON.stringify(exported).includes(value))
       for (const file of exported.importOriginals) assert.ok(!Buffer.from(file.bytes, 'base64').toString().includes(value), 'decoded original projections withhold peer content')

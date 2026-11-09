@@ -2308,7 +2308,7 @@
       "executable": false
     },
     "src/glove/privacy-imports.ts": {
-      "sha256": "fd42b725d27e40f321cc6a528bc54a6e36ce0577b10a41ff85df9479d0a76ca2",
+      "sha256": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d",
       "executable": false
     },
     "src/glove/privacy-preview.ts": {
@@ -5716,7 +5716,7 @@
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
-      "sha256": "146d7b478fb2397bf055a1fd9389e613c614472539197fc5e0a44bd8125b62cb",
+      "sha256": "62933dfb9504c958d6e034707782cef2330e6c2079bd27e132f4c8181d1a5295",
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
