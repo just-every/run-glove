@@ -185,8 +185,9 @@ async function signInPersona(browser: Browser, persona: string, width: number, k
   return { context, phone }
 }
 
-for (const width of [1440, 390]) {
-  test(`MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
+test('MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px', async ({ browser }) => {
+  test.setTimeout(480_000)
+  for (const width of [1440, 390]) {
     const entry = process.env.GLOVE_OPEN
     if (!entry) throw new Error('Set GLOVE_OPEN privately to rer dev’s owner-entry URL; this test needs a real local installation.')
     const desk = await browser.newContext({ viewport: { width, height: 1000 } })
@@ -859,8 +860,8 @@ for (const width of [1440, 390]) {
     await shot(page, width, 'activity')
     await checkPropertyHistories(page, width)
     await desk.close()
-  })
-}
+  }
+})
 
 
 test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {
@@ -1112,10 +1113,10 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
   // @ts-expect-error Production Worker/native sessions/D1 fixture.
   const { installation, business } = await import('../api/harness.mjs')
   for (const width of [1440, 390]) {
-    const h = await installation()
+    const h = await test.step('DATA-001 native privacy installation', () => installation())
     const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
     try {
-      const b = await business(h)
+      const b = await test.step('DATA-001 independent native people and customer', () => business(h))
       const duplicate = await h.command('customer.save', { name: 'Synthetic merged identity', email: 'synthetic-glove-8@example.test' })
       await h.command('customer.merge', { survivorId: b.customer.id, mergedIds: [duplicate.id], versions: { [b.customer.id]: b.customer.version, [duplicate.id]: duplicate.version } })
       const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-26.csv', text: `ID,Name,Email,Address\n${b.customer.id},Harbourview Dental,accounts@harbourview.example,17 Synthetic Road\n,Synthetic Peer,synthetic-glove-27@example.test,18 Synthetic Road\n` }], mapping: { customerId: 'ID', name: 'Name', email: 'Email', siteAddress: 'Address' } })
@@ -1131,7 +1132,11 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       })
       await page.goto(`${origin}/app#customers/${b.customer.id}`)
       await page.reload()
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
       const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
+      await test.step('DATA-001 point 8: the owner sees how the latest backup prevents restoration of erased data', async () => {
+        await expect(privacy.getByText(/Keep the latest backup as the erasure journal when restoring older backups/)).toBeVisible()
+      })
       await expect(privacy.getByRole('button', { name: 'Erase customer personal data' })).toBeDisabled()
       const downloading = page.waitForEvent('download')
       await send(page, privacy.getByRole('button', { name: 'Export customer data' }))
@@ -1155,6 +1160,12 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await expect(privacy.getByRole('status')).toHaveText('Personal data erased. Anonymous invoices and tax totals remain.')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      await test.step('DATA-001 point 8: export and erasure outcomes remain additive after the destructive action', async () => {
+        await page.reload()
+        await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      })
       await expect(page.getByRole('heading', { name: 'Harbourview Dental', exact: true })).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await shot(page, width, 'customer-privacy-erased')
