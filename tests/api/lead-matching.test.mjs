@@ -243,6 +243,10 @@ test('BOOK-014 leads match exactly one live customer and retain source, sites an
       await h.request('/api/glove/leads/reserve-google', { method: 'POST', as: '', body: first, headers: { authorization: `Basic ${Buffer.from(`someone:${connection.password}`).toString('base64')}` } }),
       await h.request('/api/glove/leads/reserve-google', { method: 'POST', as: '', body: first }),
     ]
+    // A valid credential cannot substitute a notification or incomplete record for a Booking.
+    for (const body of [{}, { ...first, slot: null }, { ...first, user_information: null }]) {
+      failures.push(await post(h, 'reserve-google', body, connection.password))
+    }
     for (const response of failures) {
       assert.equal(response.status, 401)
       assert.deepEqual(await response.json(), { ok: false, error: { code: 'LEAD', message: 'Not accepted: the credentials or the lead did not match.' } })
@@ -350,18 +354,23 @@ test('BOOK-014 leads match exactly one live customer and retain source, sites an
 
   await scenario(t, 'BOOK-017 point 6: retry, concurrent deliveries and restart replay land one request and one receipt fact per booking identity', async () => {
     const concurrent = booking('synthetic-glove-608')
+    const contender = { ...concurrent, status: 'PENDING_MERCHANT_CONFIRMATION', slot: { ...concurrent.slot, duration_sec: '7200' } }
     const before = await h.state(), outbound = h.outbound.attempts
-    assert.deepEqual(await Promise.all([1, 2].map(async () => (await post(h, 'reserve-google', concurrent, connection.password)).status)), [200, 200])
+    assert.deepEqual(await Promise.all([concurrent, contender].map(async body => (await post(h, 'reserve-google', body, connection.password)).status)), [200, 200])
     const settled = await h.state(), request = settled.enquiries.find(e => e.lead?.providerLeadId === 'synthetic-glove-608')
     assert.equal(settled.enquiries.length, before.enquiries.length + 1)
     assert.equal(settled.enquiries.filter(e => e.lead?.providerLeadId === 'synthetic-glove-608').length, 1)
-    assert.deepEqual(request.lead.booking, expectedBooking)
+    const winningBooking = request.lead.booking.sourceStatus === 'CONFIRMED'
+      ? expectedBooking
+      : { ...expectedBooking, sourceStatus: 'PENDING_MERCHANT_CONFIRMATION', durationSeconds: 7200 }
+    assert.deepEqual(request.lead.booking, winningBooking, 'one complete source record wins; concurrent records never mix fields')
     assert.equal(settled.events.filter(e => e.kind === 'lead.received' && e.subjectId === request.id).length, 1)
     assert.deepEqual(noEffects(settled), noEffects(before))
     assert.equal((await post(h, 'reserve-google', concurrent, connection.password)).status, 200)
+    assert.equal((await post(h, 'reserve-google', contender, connection.password)).status, 200)
     assert.deepEqual(await h.state(), settled)
     await h.restart()
-    for (const body of [concurrent, { ...concurrent, slot: { ...concurrent.slot, duration_sec: '9000' } }, first]) assert.equal((await post(h, 'reserve-google', body, connection.password)).status, 200)
+    for (const body of [concurrent, contender, { ...concurrent, slot: { ...concurrent.slot, duration_sec: '9000' } }, first]) assert.equal((await post(h, 'reserve-google', body, connection.password)).status, 200)
     assert.deepEqual(await h.state(), settled)
     assert.equal(h.outbound.attempts, outbound)
     const { activity, exported } = await assertTrail(h, ['lead.received'])
