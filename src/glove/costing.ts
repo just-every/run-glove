@@ -52,7 +52,9 @@ export function costing(s: State, job: Row) {
   // What the job's orders received is costed there; a recorded material counts only beyond it.
   const bought = new Map<string, number>()
   for (const l of purchases) bought.set(l.serviceId, (bought.get(l.serviceId) ?? 0) + thousandths(l.received, 'received'))
-  const materials = s.captures.filter(x => x.jobId === job.id && x.kind === 'material').map(x => {
+  // Erasure retains financial inputs on the anonymous job, never field captures.
+  const retained = job.erasedAt ? (job.retainedMaterials ?? []).map((x: { quantity: string; unit?: string; serviceId?: string | null }) => ({ ...x, id: null, description: 'Retained material' })) : []
+  const materials = [...s.captures.filter(x => x.jobId === job.id && x.kind === 'material'), ...retained].map(x => {
     const item = x.serviceId ? s.services.find(i => i.id === x.serviceId) : null
     const q = thousandths(x.quantity, 'quantity'), covered = item ? Math.min(q, bought.get(item.id) ?? 0) : 0
     if (item) bought.set(item.id, (bought.get(item.id) ?? 0) - covered)

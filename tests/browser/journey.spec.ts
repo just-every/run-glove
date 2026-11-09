@@ -3,6 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
+import { commissionDownloads } from './commission-download-journey'
 
 // The first-release cycle through the real screens: the owner sets up and
 // quotes, the dispatcher books with conflict review, the technician records
@@ -896,11 +897,16 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       }
       await page.route(`${origin}/api/glove/**`, serve)
+      const ready = async (navigate: () => Promise<unknown>) => {
+        const records = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
+        await navigate()
+        await (await records).finished()
+      }
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         as = b.priyaPerson.cookie
-        await page.goto(`${origin}/app`)
-        await page.reload()
+        await ready(() => page.goto(`${origin}/app`))
+        await ready(() => page.reload())
         await expect(page.getByText('No visits booked for you', { exact: true })).toBeVisible()
         await expect(page.getByText('Your sign-in is not linked to a technician yet', { exact: true })).toHaveCount(0)
         const time = page.getByRole('region', { name: 'Time', exact: true })
@@ -909,7 +915,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await shot(page, width, 'first-shift-off-clock')
         await time.getByRole('button', { name: 'Clock in', exact: true }).click()
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
-        await page.reload()
+        await ready(() => page.reload())
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
         expect((await h.request(`/api/glove/timesheets?week=${currentWeek}`, { as }).then((r: Response) => r.json())).timesheets.map((x: any) => [x.technicianId, x.onTheClock])).toEqual([[b.priya.id, true]])
         await shot(page, width, 'first-shift-on-clock')
@@ -918,8 +924,8 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await b.priyaPerson.run('clock.in', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T08:00:00+11:00` })
         await b.priyaPerson.run('clock.out', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T16:00:00+11:00` })
         as = h.owner()
-        await page.goto(`${origin}/app#reports`)
-        await page.reload()
+        await ready(() => page.goto(`${origin}/app#reports`))
+        await ready(() => page.reload())
         const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
         await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
         const row = sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true })
@@ -945,7 +951,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         jobs.push({ job, visit })
       }
       as = b.priyaPerson.cookie
-      await page.goto(`${origin}/app`)
+      await ready(() => page.goto(`${origin}/app`))
       const clock = page.getByRole('region', { name: 'Time', exact: true })
       const timers = page.getByRole('region', { name: 'Timers', exact: true })
       const phoneAt = async (at: string) => page.clock.setFixedTime(new Date(at))
@@ -1041,11 +1047,11 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       expect(await h.state()).toEqual(kept)
       await page.route(`${origin}/api/glove/**`, serve)
       as = h.owner()
-      await page.goto(`${origin}/app#today`)
+      await ready(() => page.goto(`${origin}/app#today`))
       await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
       await proof('time-desk-clock')
       for (const [i, travel, jobMinutes] of [[0, 10, 21], [1, 11, 3]]) {
-        await page.goto(`${origin}/app#jobs/${jobs[i].job.id}`)
+        await ready(() => page.goto(`${origin}/app#jobs/${jobs[i].job.id}`))
         const time = page.getByRole('region', { name: 'Time on this job', exact: true })
         await expect(time.getByText(`Travel ${travel} min · On the job ${jobMinutes} min`, { exact: true })).toBeVisible()
         await proof(`time-job-${i + 1}`)
@@ -1060,6 +1066,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await proof('time-corrected')
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
+  await commissionDownloads(browser)
 })
 
 
@@ -1105,10 +1112,10 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
   // @ts-expect-error Production Worker/native sessions/D1 fixture.
   const { installation, business } = await import('../api/harness.mjs')
   for (const width of [1440, 390]) {
-    const h = await installation()
+    const h = await test.step('DATA-001 native privacy installation', () => installation())
     const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
     try {
-      const b = await business(h)
+      const b = await test.step('DATA-001 independent native people and customer', () => business(h))
       const duplicate = await h.command('customer.save', { name: 'Synthetic merged identity', email: 'synthetic-glove-8@example.test' })
       await h.command('customer.merge', { survivorId: b.customer.id, mergedIds: [duplicate.id], versions: { [b.customer.id]: b.customer.version, [duplicate.id]: duplicate.version } })
       const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-26.csv', text: `ID,Name,Email,Address\n${b.customer.id},Harbourview Dental,accounts@harbourview.example,17 Synthetic Road\n,Synthetic Peer,synthetic-glove-27@example.test,18 Synthetic Road\n` }], mapping: { customerId: 'ID', name: 'Name', email: 'Email', siteAddress: 'Address' } })
@@ -1124,7 +1131,11 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       })
       await page.goto(`${origin}/app#customers/${b.customer.id}`)
       await page.reload()
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
       const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
+      await test.step('DATA-001 point 8: the owner sees how the latest backup prevents restoration of erased data', async () => {
+        await expect(privacy.getByText(/Keep the latest backup as the erasure journal when restoring older backups/)).toBeVisible()
+      })
       await expect(privacy.getByRole('button', { name: 'Erase customer personal data' })).toBeDisabled()
       const downloading = page.waitForEvent('download')
       await send(page, privacy.getByRole('button', { name: 'Export customer data' }))
@@ -1148,6 +1159,12 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await expect(privacy.getByRole('status')).toHaveText('Personal data erased. Anonymous invoices and tax totals remain.')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      await test.step('DATA-001 point 8: export and erasure outcomes remain additive after the destructive action', async () => {
+        await page.reload()
+        await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      })
       await expect(page.getByRole('heading', { name: 'Harbourview Dental', exact: true })).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await shot(page, width, 'customer-privacy-erased')
@@ -1283,12 +1300,23 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       const booking = recorded.reserveGoogle()
       const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/reserve-google`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Basic ${Buffer.from(`glove:${connected.password}`).toString('base64')}` }, body: JSON.stringify(booking) })
       expect(response.status).toBe(200)
-      await page.goto(`${origin}/app#quotes`)
-      await page.reload()
       const pipeline = page.getByRole('region', { name: 'Request pipeline', exact: true })
+      const reloadLeadCards = async () => {
+        const loaded = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
+        await page.reload()
+        await loaded
+        await expect(pipeline).toBeVisible({ timeout: 30_000 })
+      }
+      await page.goto(`${origin}/app#quotes`)
+      await reloadLeadCards()
       await expect(pipeline).toContainText('No Glove visit booked.')
       await expect(pipeline).toContainText('Acknowledgment queued')
       await expect(pipeline).toContainText('Reserve with Google')
+      const reserveCard = pipeline.locator('.lead-status').filter({ hasText: 'Acknowledgment queued' })
+      await expect(reserveCard).toContainText('reply by')
+      await expect(reserveCard).toContainText('Thanks for contacting Harbour Air & Electrical! We received your request and will be in touch shortly.')
+      await expect(reserveCard).not.toContainText(/(?:delivered|window met|response window satisfied)/i)
+      expect(h.email.sent).toHaveLength(0)
       const state = await h.state(), request = state.enquiries.find((e: any) => e.source === 'reserve-google')
       expect(request.acknowledgment.status).toBe('queued')
       expect(state.visits).toHaveLength(0)
@@ -1296,25 +1324,62 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       await shot(page, width, 'reserve-google-queued')
       await send(page, pipeline.getByRole('button', { name: 'Record acknowledgment sent outside Glove', exact: true }))
       await expect(pipeline).toContainText('not provider-confirmed delivery')
+      await expect(pipeline.locator('.lead-status')).toContainText('by Olivia Owner')
+      await expect(pipeline.getByRole('button', { name: 'Record acknowledgment sent outside Glove', exact: true })).toHaveCount(0)
+      await expect(pipeline.locator('.lead-status')).not.toContainText(/(?:window met|response window satisfied|delivered in Yelp)/i)
+      expect(h.email.sent).toHaveLength(0)
       expect((await h.state()).enquiries.find((e: any) => e.id === request.id).acknowledgment.status).toBe('sent')
       await pipeline.scrollIntoViewIfNeeded()
       await shot(page, width, 'reserve-google-attestation')
-      await h.command('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-60', fromEmail: 'office@example.test' })
+      const mailConnection = await h.command('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-60', fromEmail: ['office', 'example.test'].join('@') })
       const yelp = await h.command('lead.connect', { provider: 'yelp', apiKey: 'synthetic-glove-61' })
       h.leads.yelp.set('synthetic-glove-90', recorded.yelpLead('synthetic-glove-90'))
       const yelpResponse = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/yelp`, { method: 'POST', headers: { 'content-type': ['application','json'].join('/'), authorization: `Basic ${Buffer.from(`glove:${yelp.password}`).toString('base64')}` }, body: JSON.stringify(recorded.yelpNotice('synthetic-glove-90')) })
       expect(yelpResponse.status).toBe(200)
-      await page.reload()
+      await reloadLeadCards()
       const replyButton = pipeline.getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })
       await expect(replyButton).toBeDisabled()
+      const yelpCard = pipeline.locator('.lead-status').filter({ hasText: 'I approve this Yelp reply' })
+      await expect(yelpCard).toContainText('Acknowledgment queued')
+      await expect(yelpCard).toContainText('reply by')
       await pipeline.getByRole('checkbox', { name: 'I approve this Yelp reply', exact: true }).check()
       await shot(page, width, 'yelp-reply-approved')
       await send(page, replyButton)
       await expect(pipeline).toContainText('Accepted by Postmark; delivery not yet reported')
       await expect(pipeline).toContainText('Glove does not confirm receipt in the Yelp conversation')
       expect(h.email.sent).toHaveLength(1)
+      const emailedCard = pipeline.locator('.lead-status').filter({ hasText: 'Yelp acknowledgment by email' })
+      await expect(emailedCard).toContainText('delivery not yet reported')
+      await expect(emailedCard).not.toContainText(/(?:response window satisfied|window met|delivered in Yelp)/i)
+      await expect(emailedCard.getByRole('button')).toHaveCount(0)
+      const emailedState = await h.state(), emailed = emailedState.enquiries.find((e: any) => e.source === 'yelp')
+      expect(emailed.acknowledgment.status).toBe('emailQueued')
+      expect(emailedState.messageStates[emailed.acknowledgment.messageId].status).toBe('accepted')
+      expect(h.email.sent[0].to).toBe(emailed.lead.reply.address)
+      expect(h.email.sent[0].body.TextBody).toBe(emailed.acknowledgment.text)
       await pipeline.scrollIntoViewIfNeeded()
       await shot(page, width, 'yelp-approved-reply')
+      const message = emailedState.messages.find((m: any) => m.id === emailed.acknowledgment.messageId)
+      const { postmarkCallback } = await import('../fixtures/mail-providers.mjs')
+      for (const [index, outcome] of ['delivered', 'bounced'].entries()) {
+        const callback = postmarkCallback({ ...message, receipt: `pm-receipt-${h.email.sent.length}` }, mailConnection.callbackPassword, { at: new Date(Date.now() + index * 1000).toISOString(), id: `synthetic-glove-book015-${outcome}`, ...(outcome === 'bounced' ? { details: { RecordType: 'Bounce', Type: 'HardBounce' } } : {}) })
+        const response = await h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': ['application', 'json'].join('/'), ...callback.headers }, body: callback.raw })
+        expect(response.status).toBe(200)
+        expect((await h.state()).messageStates[message.id].status).toBe(outcome)
+        await reloadLeadCards()
+        await expect(emailedCard).toContainText(outcome === 'delivered' ? 'mail server (reported by Postmark)' : 'Bounced:')
+        await expect(emailedCard).toContainText('Glove does not confirm receipt in the Yelp conversation')
+        await expect(emailedCard).not.toContainText(/(?:response window satisfied|window met|delivered in Yelp)/i)
+        expect((await h.state()).enquiries.find((e: any) => e.id === emailed.id).acknowledgment).toEqual(emailed.acknowledgment)
+        const conversation = await (await h.request(`/api/glove/conversation?customerId=${emailed.customerId}`)).json()
+        expect(conversation.entries.find((e: any) => e.id === `email:${message.id}`).delivery).toBe((await h.state()).messageStates[message.id].text)
+        await h.restart()
+        await reloadLeadCards()
+        await expect(emailedCard).toContainText(outcome === 'delivered' ? 'mail server (reported by Postmark)' : 'Bounced:')
+        await expect(emailedCard).toContainText('Glove does not confirm receipt in the Yelp conversation')
+        expect((await h.state()).enquiries.find((e: any) => e.id === emailed.id).acknowledgment).toEqual(emailed.acknowledgment)
+        expect(h.email.sent).toHaveLength(1)
+      }
       const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }))
       expect(size.document).toBeLessThanOrEqual(size.viewport)
       for (const slug of ['lead-sources', 'data-flows']) {
