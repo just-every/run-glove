@@ -1,0 +1,59 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings
+ok 1 - AGENT-006 a callback on a condenser with two prior visits gets an advisory checklist that cites both visits' readings
+  ---
+  duration_ms: 7291.299421
+  type: 'test'
+  ...
+# AGENT-006 the callback is detected and the agent gathers both earlier visits
+# AGENT-006 the prepared checklist cites both visits' readings, resolved from the records, and is labelled advisory
+# AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+ok 2 - FIELD-006, FIELD-011 a technician photographs three nameplates; the model proposes the fields and nothing is saved until the technician confirms
+  ---
+  duration_ms: 24060.067104
+  type: 'test'
+  ...
+# FIELD-006 point 2: provider redirects are refused without forwarding the photo or saving a reading
+# FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread
+# FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms
+# FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves
+ok 3 - API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves
+  ---
+  duration_ms: 63470.707854
+  type: 'test'
+  ...
+# AGENT-005 point 3: exact permitted evidence and strict schema across business-local midnight
+# PROBE AGENT-005 3: two native units and completed histories at Sydney 23:59 and 00:01 -> exact evidence, install-preferred ages 14 to 15 and manufacture fallback 9 to 10, store false and strict schema
+# AGENT-005 point 7: AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry
+# PROBE AGENT-005 7 shape: 43 malformed or inactive-code answers -> whole refusal, every record unchanged, exactly one model call each
+# AGENT-005 point 6: AGENT-014 three options from the price book at its prices, each with the model's reason
+# AGENT-005 point 4: AGENT-014 the model saw the request, the furnace's age and history and the price book, never costs or who and where the customer is
+# PROBE AGENT-005 4: populated costs, category markup, identity, contacts, addresses, serials, archived item and other-site history -> absent everywhere in provider body
+# AGENT-005 point 8: current prices, exact label and reasons survive command replay and actual Worker restart
+# PROBE AGENT-005 8: saved draft command replay and actual Worker restart -> identical quote, reasons, exact label and quoted request; zero additional provider calls
+# AGENT-005 point 1: AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices
+# PROBE AGENT-005 1: Agent approval and sending refused; Sam Ortiz approves -> Agent retained as preparer and exact Office, Agent and Dispatcher attribution in Activity and export without the model key
+# AGENT-005 point 2: current roles and request prerequisites admit only authorized new or contacted drafts
+# PROBE AGENT-005 2: six allowed role and state combinations -> drafts; excluded roles, token, branch, pause, terminal states, no site, empty book and disconnected provider -> refusal, no model call, all records unchanged
+# AGENT-005 point 6: positive quantities through three decimals use only active price-book codes
+# PROBE AGENT-005 6: one-line and twenty-line options with positive three-decimal quantities -> exact lines, quantities and reasons saved
+# AGENT-005 point 7: HTTP error, redirect and unreachable provider refuse once with secret-free outcome facts
+# PROBE AGENT-005 7: HTTP 503, redirect 307 and broken model connection -> MODEL, one provider attempt, unchanged records, one bounded model.outcome in Activity and export
+# AGENT-005 point 8: a changed price book supplies current prices instead of earlier draft prices
+# PROBE AGENT-005 8 prices: price book 149.00 to 159.00 -> new draft uses 159.00 while prior approved revision keeps 149.00
+# AGENT-005 point 8: erasure fences persisted suggestion replay after actual Worker restart
+# PROBE AGENT-005 8 custody: erased request and quote -> old successful command returns ERASED before and after Worker restart; no model call or resurrection
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 114350.233685

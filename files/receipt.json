@@ -1,0 +1,159 @@
+{
+  "baseMain": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "branch": "cloud/sx-glove-c-f218",
+  "browserProof": {
+    "reason": "No UI change; all selected points are command and provider-edge proof.",
+    "status": "not applicable"
+  },
+  "changedFiles": [
+    "tests/api/suggest.test.mjs",
+    "sources.lock.json"
+  ],
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "node": "22.20.0"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses AGENT-005",
+      "exit": 0,
+      "writtenViews": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses AGENT-005",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "baselineTotal": 202,
+      "command": "node tests/inventory.mjs --json",
+      "exit": 1,
+      "limit": 200,
+      "newRegistrations": 0,
+      "note": "Existing over-cap inventory is unchanged as required by the brief.",
+      "total": 202
+    }
+  ],
+  "ci": {
+    "candidate": {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "d2eb4c0cb800e603bcaa98a0319d483c1f2f46e1",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42615589942",
+      "id": 42615589942,
+      "name": "Verify",
+      "status": "in_progress"
+    },
+    "dispatches": 0,
+    "mainRunSite": 42611312355,
+    "mainVerifyRuns": [
+      42611312391,
+      42603950921
+    ],
+    "reruns": 0,
+    "watchers": 1
+  },
+  "clause": {
+    "claim": "PARTIAL",
+    "heldPoints": [
+      1,
+      5
+    ],
+    "id": "AGENT-005",
+    "qualifiedSlices": {
+      "1": "fixed named-person approval gate"
+    },
+    "qualifiedWholePoints": [
+      2,
+      3,
+      4,
+      6,
+      7,
+      8
+    ]
+  },
+  "contractCountsAfter": {
+    "done": 41,
+    "missing": 29,
+    "partial": 193,
+    "total": 263
+  },
+  "contractCountsBefore": {
+    "done": 41,
+    "missing": 29,
+    "partial": 193,
+    "total": 263
+  },
+  "createdAt": "2026-11-09T12:17:45.890170+00:00",
+  "githubApiCalls": 2,
+  "head": "d2eb4c0cb800e603bcaa98a0319d483c1f2f46e1",
+  "localTests": {
+    "allProofBytesMatchCommittedHead": true,
+    "command": "node --test --test-concurrency=1 tests/api/suggest.test.mjs tests/api/nameplates.test.mjs tests/api/callbacks.test.mjs",
+    "exit": 0,
+    "fail": 0,
+    "log": "touched-tests.log",
+    "node": "22.20.0",
+    "pass": 3,
+    "proofFileSha256": {
+      "src/glove/commands/suggest.ts": "2ab8c68f5150124ce9898276d1b7ff949d2ffd02397566348ccfcf0148867ea5",
+      "src/glove/provider.ts": "b9f3893e4f864e4617f57102ee4ee5012ca5294cd4b3c53310aa112bde74309a",
+      "tests/api/callbacks.test.mjs": "118db40396efc1ae9c86aab4d6c472b255c769cc807648820a468651273afce3",
+      "tests/api/harness.mjs": "c72bc1e58dfe29df435b6615487e146488dcf64079323402065af9643fec30e1",
+      "tests/api/nameplates.test.mjs": "94b7be0cb3e20a8e21fbdb20f84f6b056679c51bd7c431f4b96fd556c29562c5",
+      "tests/api/suggest.test.mjs": "5a0bf704e0923e5b064047d65aa9d015cdbc83454676383b1a94d0263c68c7b5",
+      "tests/api/worker.ts": "7421cd46b51d137e29666720bd0d23b23acbaf80f24d018b276f690d11c82fb7",
+      "tests/fixtures/scenario.mjs": "96f7b51254a901cdc4961c9faded2baba84ee5b02f1f87864636151438b579ef"
+    },
+    "skipped": 0,
+    "tests": 3
+  },
+  "pr": null,
+  "productPush": {
+    "attempts": 1,
+    "exit": 0,
+    "identityCommitsInspected": 1,
+    "ref": "refs/heads/cloud/sx-glove-c-f218",
+    "trailers": []
+  },
+  "publicationScan": {
+    "complete": null,
+    "findings": null,
+    "head": "d2eb4c0cb800e603bcaa98a0319d483c1f2f46e1",
+    "historyScanned": null,
+    "status": "reserved for Mac lander"
+  },
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "setup": {
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 1,
+    "reason": "Application listener handshake readiness deadline exceeded; direct Worker tests and production build succeeded."
+  },
+  "statusChanges": [],
+  "tag": "sx-glove-c-f218"
+}
