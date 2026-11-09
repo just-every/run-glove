@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer'
 import { allow } from './access'
 import { optionsOf, quotes } from './commands/quotes'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
-import { address, queueEmail } from './mail'
+import { isAddress, queueEmail } from './mail'
 import { totals } from './money'
 import { priceTax } from './sales-tax'
 import { bump, business, event, expectVersion, fail, find, text, type Context, type Row, type State } from './model'
@@ -109,19 +109,23 @@ export async function signQuote(c: Context, db: D1Database, link: Row, payload: 
   if (payload.selectionHash !== selected.hash) fail('CHOICE_CHANGED', 'Review the chosen option, add-ons and exact total before signing.')
   const q = find(c.s, 'quotes', link.quoteId), name = text(payload.name, 'name', { max: 200 }), capacity = text(payload.capacity, 'capacity', { max: 200 }), signed = signature(payload.signature)
   const ip = request.headers.get('cf-connecting-ip')
-  const evidence = { name, capacity, identity: 'CLAIMED', authenticationBasis: link.authenticationBasis, linkId: link.id, revision: link.revision, revisionDocumentHash: link.documentHash, chosenDocumentHash: selected.hash, signature: signed, consent: { version: disclosure.version, text: disclosure.text, hash: disclosure.hash, affirmed: true, ownerAcceptedAt: disclosure.acceptedAt, ownerAcceptedBy: disclosure.acceptedBy }, at: c.now, ip: ip && /^[0-9a-fA-F:.]{3,45}$/.test(ip) ? ip : null, ipSource: ip ? 'Cloudflare connecting-IP header' : 'unavailable', browser: (request.headers.get('user-agent') ?? '').slice(0, 1000) }
+  const evidence = { name, capacity, identity: 'CLAIMED', authenticationBasis: link.authenticationBasis, linkId: link.id, revision: link.revision, revisionDocumentHash: link.documentHash, chosenDocumentHash: selected.hash, signature: signed, consent: { version: disclosure.version, text: disclosure.text, hash: disclosure.hash, affirmed: true, ownerAcceptedAt: disclosure.acceptedAt, ownerAcceptedBy: disclosure.acceptedBy }, at: c.now, ...(ip && /^[0-9a-fA-F:.]{3,45}$/.test(ip) ? { ip, ipSource: 'Cloudflare connecting-IP header' } : { ip: null, ipSource: 'unavailable' }), browser: (request.headers.get('user-agent') ?? '').slice(0, 1000) }
   await quotes(c, 'quote.accept', { quoteId: q.id, version: q.version, revision: link.revision, method: 'customer link', customerName: name, choice: selected.choice }, db)
   const copy = await frozenCopy(c, db, q, selected.document, evidence)
   const accepted = find(c.s, 'quotes', q.id)
   let confirmation: any = { status: 'not_connected', messageId: null, to: null }
   if (business(c.s).mail) {
-    const customer = find(c.s, 'customers', q.customerId), to = address(customer.email, 'customer email')
-    const message = queueEmail(c, { kind: 'quoteConfirmation', subjectKind: 'quote', subjectId: q.id, customerId: q.customerId, jobId: null, to, subject: `Signed quote ${q.number}, revision ${link.revision}`, text: `${copy.text}\n\nSigned HTML copy SHA-256: ${copy.manifest.sha256}`, html: copy.html, label: `${q.number} signed revision ${link.revision} confirmation copy` })
-    confirmation = { status: 'queued', messageId: message.id, to }
+    const customer = find(c.s, 'customers', q.customerId), to = typeof customer.email === 'string' ? customer.email.trim() : ''
+    // Only an on-record address receives the copy; without one the signature still commits and no delivery is claimed.
+    if (!isAddress(to)) confirmation = { status: 'not_sent', reason: 'no_on_record_email', messageId: null, to: null }
+    else {
+      const message = queueEmail(c, { kind: 'quoteConfirmation', subjectKind: 'quote', subjectId: q.id, customerId: q.customerId, jobId: null, to, subject: `Signed quote ${q.number}, revision ${link.revision}`, text: `${copy.text}\n\nSigned HTML copy SHA-256: ${copy.manifest.sha256}`, html: copy.html, label: `${q.number} signed revision ${link.revision} confirmation copy` })
+      confirmation = { status: 'queued', messageId: message.id, to }
+    }
   }
   const signing = { ...evidence, document: selected.document, signedCopy: copy.manifest, confirmation }
   const response = { revision: link.revision, action: 'approve', name, capacity, at: c.now, linkId: link.id, identity: 'CLAIMED', authenticationBasis: link.authenticationBasis, choice: selected.choice }
   const row = bump(c.s, 'quotes', accepted, { acceptance: { ...accepted.acceptance, identity: 'CLAIMED', capacity, authenticationBasis: link.authenticationBasis, signing }, customerRequests: [...(accepted.customerRequests ?? []), response] })
-  event(c, { jobId: null, subjectKind: 'quote', subjectId: q.id, kind: 'quote.customer.approve', summary: `${q.number} revision ${link.revision} signed by ${name} (claimed), capacity ${capacity} (claimed); exact chosen document frozen`, data: { revision: link.revision, linkId: link.id, identity: 'CLAIMED', consentVersion: disclosure.version, consentHash: disclosure.hash, documentHash: link.documentHash, chosenDocumentHash: selected.hash, signedCopyHash: copy.manifest.sha256, signatureKind: signed.kind, confirmationMessageId: confirmation.messageId } })
+  event(c, { jobId: null, subjectKind: 'quote', subjectId: q.id, kind: 'quote.customer.approve', summary: `${q.number} revision ${link.revision} signed by ${name} (claimed), capacity ${capacity} (claimed); exact chosen document frozen`, data: { revision: link.revision, linkId: link.id, identity: 'CLAIMED', name, capacity, authenticationBasis: link.authenticationBasis, signedAt: c.now, ip: evidence.ip, ipSource: evidence.ipSource, browser: evidence.browser, signature: signed, consentVersion: disclosure.version, consentText: disclosure.text, consentHash: disclosure.hash, documentHash: link.documentHash, chosenDocumentHash: selected.hash, signedCopyHash: copy.manifest.sha256, signatureKind: signed.kind, confirmationMessageId: confirmation.messageId } })
   return row
 }

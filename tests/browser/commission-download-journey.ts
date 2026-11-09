@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, restartHarness } from './harness-route'
 import { expect, type Browser } from '@playwright/test'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -42,15 +43,14 @@ export async function commissionDownloads(browser: Browser) {
       const context = await browser.newContext({ viewport: { width, height: 1050 } }), page = await context.newPage()
       try {
         if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-        try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+        try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
         if (new URL(page.url()).pathname === '/setup') {
           await page.getByRole('checkbox').check()
-          await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-          await page.waitForURL(u => u.pathname === '/app')
+          await finishHarnessSetup(page)
         }
         await page.clock.setFixedTime(new Date('2026-11-23T02:00:00Z'))
         const records = page.waitForResponse(r => r.url() === `${transport.origin}/api/glove/state` && r.status() === 200)
-        await page.goto(`${transport.origin}/app#reports`)
+        await gotoHarness(page, `${transport.origin}/app#reports`)
         await (await records).finished()
         await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
         const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
@@ -82,9 +82,9 @@ export async function commissionDownloads(browser: Browser) {
           }
         }
         await phoneScreen(page, width, 'commission-downloads', sheets.getByRole('link', { name: 'Gusto hours CSV', exact: true }))
-      } finally { await context.close() }
+      } finally { await closeHarnessContext(context) }
       // No browser request remains in flight across the actual Worker restart.
-      if (width === 1440) { await transport.idle(); await h.restart() }
+      if (width === 1440) { await transport.idle(); await restartHarness(h) }
     }
   } finally { try { await transport.close() } finally { await h.close() } }
 }

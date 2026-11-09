@@ -34,7 +34,7 @@ function centLedger(h) {
     return invoice
   }
   const post = (invoice, cents) => entries.push({ id: invoice.id, cents })
-  const check = async () => {
+  const check = async (asOf = '2026-11-09') => {
     const expected = invoices.map(({ invoice, customer, cents, currency }) => {
       const netCents = cents - entries.filter(e => e.id === invoice.id).reduce((n, e) => n + e.cents, 0)
       return { id: invoice.id, number: invoice.number, customerId: customer.id, currency, netCents, due: money(Math.max(0, netCents)), credit: money(Math.max(0, -netCents)), href: '#invoices/' + invoice.id }
@@ -51,13 +51,13 @@ function centLedger(h) {
     }))
     const open = expected.filter(i => i.netCents > 0).map(i => {
       const source = invoices.find(row => row.invoice.id === i.id)
-      const days = Math.round((Date.parse('2026-11-09') - Date.parse(source.dueOn)) / 86_400_000)
+      const days = Math.round((Date.parse(asOf) - Date.parse(source.dueOn)) / 86_400_000)
       const bucket = days <= 0 ? 'current' : days <= 30 ? '1-30' : days <= 60 ? '31-60' : days <= 90 ? '61-90' : 'over90'
       return { ...i, source, days, bucket }
     })
     const buckets = rows => Object.fromEntries(['current', '1-30', '31-60', '61-90', 'over90'].map(bucket => [bucket, money(rows.filter(i => i.bucket === bucket).reduce((n, i) => n + i.netCents, 0))]))
-    const aging = await read(h, '/api/glove/reports/receivables.json?asOf=2026-11-09')
-    assert.deepEqual(byId(aging.customers.flatMap(c => c.invoices)).map(i => [i.id, i.balance, i.bucket, i.daysPastDue, i.href]), byId(open).map(i => [i.id, i.due, i.bucket, i.days, i.href]))
+    const aging = await read(h, '/api/glove/reports/receivables.json?asOf=' + asOf)
+    assert.deepEqual(byId(aging.customers.flatMap(c => c.invoices)).map(i => [i.id, i.balance, i.bucket, i.daysPastDue, i.href]), byId(open).map(i => [i.id, i.due, i.bucket, Math.max(0, i.days), i.href]))
     assert.deepEqual(customerRows(aging.customers).map(c => [c.customerId, c.currency, c.total, c.buckets]), keys.filter(key => open.some(i => i.customerId + ':' + i.currency === key)).map(key => {
       const list = open.filter(i => i.customerId + ':' + i.currency === key)
       return [list[0].customerId, list[0].currency, money(list.reduce((n, i) => n + i.netCents, 0)), buckets(list)]
@@ -67,15 +67,19 @@ function centLedger(h) {
       return { currency, buckets: buckets(list), total: money(list.reduce((n, i) => n + i.netCents, 0)) }
     })
     assert.deepEqual(aging.totals, totals)
-    const csv = await h.request('/api/glove/reports/receivables.csv?asOf=2026-11-09')
+    const csv = await h.request('/api/glove/reports/receivables.csv?asOf=' + asOf)
     assert.equal(csv.status, 200)
     const cells = csvRows(await csv.text())
     assert.deepEqual(cells[0], ['Customer', 'Currency', 'Invoice', 'Revision', 'Issued', 'Due', 'Date basis', 'Days past due', 'Bucket', 'Balance', 'Reminder state', 'Invoice link'])
     const sortCells = rows => [...rows].sort((a, b) => a.at(-1).localeCompare(b.at(-1)))
-    assert.deepEqual(sortCells(cells.slice(1)), sortCells(open.map(i => [i.source.customer.name, i.currency, i.number, '1', i.source.invoice.dates.issuedOn, i.source.dueOn, i.source.invoice.dates.basis, String(i.days), i.bucket, i.due, 'No reminders scheduled', i.href])), 'every parsed CSV cell, including quoted names, agrees')
+    assert.deepEqual(sortCells(cells.slice(1)), sortCells(open.map(i => [i.source.customer.name, i.currency, i.number, '1', i.source.invoice.dates.issuedOn, i.source.dueOn, i.source.invoice.dates.basis, String(Math.max(0, i.days)), i.bucket, i.due, 'No reminders scheduled', i.href])), 'every parsed CSV cell, including quoted names, agrees')
     const dashboard = await read(h, '/api/glove/dashboard')
-    assert.deepEqual(dashboard.receivables, totals)
-    const brief = await read(h, '/api/glove/brief?at=' + at)
+    const todayOpen = open.map(i => {
+      const days = Math.round((Date.parse(at.slice(0, 10)) - Date.parse(i.source.dueOn)) / 86_400_000)
+      return { ...i, bucket: days <= 0 ? 'current' : days <= 30 ? '1-30' : days <= 60 ? '31-60' : days <= 90 ? '61-90' : 'over90' }
+    })
+    assert.deepEqual(dashboard.receivables, totals.map(row => ({ ...row, buckets: buckets(todayOpen.filter(i => i.currency === row.currency)) })))
+    const brief = await read(h, '/api/glove/brief?at=' + asOf + 'T12:00:00.000Z')
     assert.deepEqual(byId(brief.sections.overdue), byId(open.filter(i => i.days > 0).map(i => ({ kind: 'overdue', id: i.id, text: `${i.number} for ${i.source.customer.name}: $${i.due} ${i.currency} overdue since ${i.source.dueOn}`, action: { label: 'Review overdue invoice', href: i.href } }))))
     return { balances, aging, cells, tile: dashboard.receivables, overdue: brief.sections.overdue }
   }
@@ -89,7 +93,10 @@ export async function receiptCreditQualification(t) {
   const cardInvoice = ledger.add(await nativeInvoice(h, b, 10003, '2026-09-20'), b.customer, 10003)
   const source = ledger.add(await nativeInvoice(h, b, 8007, '2026-09-21'), b.customer, 8007)
   const target = ledger.add(await nativeInvoice(h, b, 5011, '2026-09-22'), b.customer, 5011)
-  const small = ledger.add(await nativeInvoice(h, b, 503, '2026-09-23'), b.customer, 503)
+  const settings = (await h.state()).business[0]
+  await h.command('business.save', { ...settings, paymentTermsDays: 14 })
+  const small = ledger.add(await nativeInvoice(h, b, 503, '2026-09-23'), b.customer, 503, 'USD', '2026-11-18')
+  await h.command('business.save', { ...(await h.state()).business[0], paymentTermsDays: 0 })
   const peer = await h.command('customer.save', { name: 'Peer, "Quoted" customer' })
   const site = await h.command('site.save', { customerId: peer.id, address: 'Two Synthetic Road' })
   const otherCustomer = ledger.add(await nativeInvoice(h, b, 3333, '2026-09-24', { customer: peer, site }), peer, 3333)
@@ -181,6 +188,14 @@ export async function receiptCreditQualification(t) {
 
   await scenario(t, 'PAY-021 point 4: explicit credit allocations enforce customer, currency, branch, source and target limits with no money movement', async inner => {
     const input = { ...payload(target), sourceInvoiceId: source.id, sourceVersion: source.version, amount: '0.01' }
+    assert.equal(otherCustomer.branchId, source.branchId, 'the other-customer case keeps the source branch')
+    assert.equal(otherCustomer.revisions.at(-1).totals.currency, source.revisions.at(-1).totals.currency)
+    assert.notEqual(otherBranch.branchId, source.branchId)
+    await unchanged(() => h.command('site.save', { customerId: b.customer.id, branchId: branch.id, address: 'Forbidden cross-branch site' }, { error: 'BRANCH' }))
+    const scoped = await h.person('Receipt branch office', 'office')
+    await h.command('branch.limit', { operatorId: scoped.id, branchId: branch.id })
+    await unchanged(() => scoped.run('payment.allocate', input, { error: 'NOT_FOUND' }))
+    await unchanged(() => scoped.run('payment.record', { ...payload(source), method: 'check', amount: '1.00', reference: 'synthetic-glove-cross-branch' }, { error: 'NOT_FOUND' }))
     for (const invoice of [otherCustomer, otherBranch, source]) await unchanged(() => b.office.run('payment.allocate', { ...input, ...payload(invoice) }, { error: 'ALLOCATION' }))
     await unchanged(() => b.office.run('payment.allocate', { ...input, amount: '20.04' }, { error: 'AMOUNT' }))
     await unchanged(() => b.office.run('payment.allocate', { ...input, ...payload(small), amount: '5.04' }, { error: 'AMOUNT' }))
@@ -213,6 +228,11 @@ export async function receiptCreditQualification(t) {
     assert.equal(result.balances.invoices.find(i => i.id === target.id).due, '27.01')
     assert.equal(result.balances.customers.find(c => c.customerId === b.customer.id).balance, '32.04')
     assert.ok(result.cells.some(row => row[0] === peer.name), 'a nonempty quoted customer row was downloaded and parsed')
+    assert.equal(result.aging.customers.flatMap(c => c.invoices).find(i => i.id === small.id).bucket, 'current')
+    for (const [asOf, bucket] of [['2026-12-04', '1-30'], ['2026-12-05', '31-60'], ['2027-01-03', '31-60'], ['2027-01-04', '61-90'], ['2027-02-02', '61-90'], ['2027-02-03', 'over90']]) {
+      const boundary = await ledger.check(asOf)
+      assert.equal(boundary.aging.customers.flatMap(c => c.invoices).find(i => i.id === target.id).bucket, bucket, 'outstanding principal crosses the exact frozen-date aging boundary')
+    }
   })
 
   await scenario(t, 'PAY-021 point 7: Stripe revenue and technician tips exclude staff receipts and allocations, with identical restart, replay, Activity and business export', async () => {
@@ -262,7 +282,10 @@ export async function receiptCreditQualification(t) {
       assert.equal(replay.checkoutUrl, undefined, 'Checkout bearer is shown once and never replayed')
       await ledger.check()
     }
-    for (const { pi, eventId } of cards) assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded', { id: eventId, at: Date.parse(at) / 1000 })).status, 200)
+    for (const { pi, eventId } of cards) {
+      assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded', { id: eventId, at: Date.parse(at) / 1000 })).status, 200)
+      assert.deepEqual(await ledger.check(), before.projections, 'each duplicate callback preserves every cent projection after restart')
+    }
     assert.equal(h.stripePayments.calls.slice(calls).filter(c => c.method === 'POST').length, 0)
     assert.equal(h.email.sent.length, mailCount, 'no receipt email or other message was added')
     assert.deepEqual({ projections: await ledger.check(), payments: (await h.state()).payments, payroll: await payroll(), trail: await assertTrail(h, ['payment.recorded', 'payment.allocated', 'payment.credited']) }, before)

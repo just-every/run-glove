@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -14,22 +15,21 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
   try {
     await page.clock.install({ time: new Date(at) })
     if (!process.env.GLOVE_OPEN) throw new Error('A private owner entry from rer dev is required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
     catch { throw new Error('Owner entry failed; obtain a fresh entry privately.') }
     if (new URL(page.url()).pathname === '/setup') {
       await page.getByRole('checkbox').check()
-      await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(u => u.pathname === '/app')
+      await finishHarnessSetup(page)
     }
     const b = await business(h)
     const job = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Morning arrival promise' })
     let acting = b.dispatcher.cookie
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const res = await h.request(url.pathname + url.search, { as: acting, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: res.status, headers: Object.fromEntries(res.headers), body: Buffer.from(await res.arrayBuffer()) })
     })
-    await page.goto(`${origin}/app#dispatch`)
+    await gotoHarness(page, `${origin}/app#dispatch`)
     await page.getByLabel('Day', { exact: true }).fill('2026-11-03')
     await page.getByRole('button', { name: 'Book visit', exact: true }).first().click()
     const form = page.locator('form.book-form')
@@ -54,7 +54,7 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1050 })
       acting = b.dispatcher.cookie
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       await page.getByLabel('Day', { exact: true }).fill('2026-11-03')
       await page.getByRole('button', { name: new RegExp(`${job.number} Morning arrival promise,`) }).click()
       const panel = page.getByRole('region', { name: 'Morning arrival promise', exact: true })
@@ -72,7 +72,7 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
       await panel.getByRole('radio', { name: /Pick another time/ }).check()
       await shot(width, 'dispatcher')
       acting = b.priyaPerson.cookie
-      await page.goto(`${origin}/app?job=${job.id}`)
+      await gotoHarness(page, `${origin}/app?job=${job.id}`)
       const phone = page.getByRole('region', { name: `${job.number} · Morning arrival promise`, exact: true })
       await phone.scrollIntoViewIfNeeded()
       if (width === 1440) {
@@ -86,7 +86,7 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     acting = b.dispatcher.cookie
     await page.setViewportSize({ width: 1440, height: 1050 })
     const openPanel = async () => {
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       await page.getByLabel('Day', { exact: true }).fill('2026-11-03')
       await page.getByRole('button', { name: new RegExp(`${job.number} Morning arrival promise,`) }).click()
       const panel = page.getByRole('region', { name: 'Morning arrival promise', exact: true })
@@ -120,7 +120,7 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     expect((await apply(panel)).ok).toBe(true)
     await expect(panel).toHaveCount(0)
     acting = b.priyaPerson.cookie
-    await page.goto(`${origin}/app?job=${job.id}`)
+    await gotoHarness(page, `${origin}/app?job=${job.id}`)
     let revisedPhone = page.getByRole('region', { name: `${job.number} · Morning arrival promise`, exact: true })
     await expect(revisedPhone).toContainText('1:00 PM – 2:30 PM')
     await expect(revisedPhone).toContainText('arrival window 12:00 PM – 2:00 PM')
@@ -140,9 +140,9 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     expect(removed.arrivalWindow).toBeUndefined()
     expect([removed.local.start, removed.local.end]).toEqual(['13:00', '14:30'])
     acting = b.priyaPerson.cookie
-    await page.goto(`${origin}/app?job=${job.id}`)
+    await gotoHarness(page, `${origin}/app?job=${job.id}`)
     revisedPhone = page.getByRole('region', { name: `${job.number} · Morning arrival promise`, exact: true })
     await expect(revisedPhone).toContainText('1:00 PM – 2:30 PM')
     await expect(revisedPhone).not.toContainText('arrival window')
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })

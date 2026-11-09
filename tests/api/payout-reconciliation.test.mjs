@@ -51,9 +51,9 @@ async function fixture(t) {
     assert.deepEqual(await h.state(), before, 'actual Worker restart retains exact financial and audit state')
     await replay()
   }
-  const unchangedRefusal = async (payload, code) => {
+  const unchangedRefusal = async (payload, code, commandId = randomUUID()) => {
     const before = await h.state()
-    const error = await h.command('payout.reconcile', payload, { error: code })
+    const error = await h.command('payout.reconcile', payload, { error: code, commandId })
     assert.deepEqual(await h.state(), before, 'refused inspection changes no retained fact or balance')
     return error
   }
@@ -186,6 +186,10 @@ test('PAY-007 point 1: six Checkout payments, a refund, missing source and Insta
   assert.deepEqual(pages.map(c => [c.limit, c.startingAfter]), Array.from({ length: 10 }, (_, n) => ['100', n === 0 ? null : tx[n * 100 - 1].id]))
   const overflow = f.register('synthetic-glove-overflow', [...tx, { ...tx[1], id: 'synthetic-glove-overflow-row' }])
   await f.unchangedRefusal(overflow, 'PAYOUT_LIMIT')
+  // A provider ignoring the requested page size must not bypass the total cap.
+  const oversized = f.register('synthetic-glove-oversized-page', tx, { amount: 8900 })
+  h.stripePayments.balancePages.set(oversized.providerId, new Map([[null, { data: [...tx, { ...tx[1], id: 'synthetic-glove-extra-in-page' }], has_more: false }]]))
+  await f.unchangedRefusal(oversized, 'PAYOUT_LIMIT')
   const malformed = f.register('synthetic-glove-malformed', [source.tx])
   for (const page of [{ data: [], has_more: true }, { data: [source.tx, source.tx], has_more: false }, { data: [{ ...source.tx, net: 1 }], has_more: false }]) {
     h.stripePayments.balancePages.set(malformed.providerId, new Map([[null, page]]))
@@ -214,7 +218,18 @@ test('PAY-007 point 1: six Checkout payments, a refund, missing source and Insta
   const foreign = f.register('synthetic-glove-foreign-source', [{ ...source.tx, currency: 'aud' }])
   const error = await f.unchangedRefusal(foreign, 'PAYOUT_PROVIDER')
   assert.match(error.message, /currency differs/)
+  const refused = []
+  for (const [input, code] of [[overflow, 'PAYOUT_LIMIT'], [oversized, 'PAYOUT_LIMIT'], [malformed, 'PAYOUT_PROVIDER'], [foreign, 'PAYOUT_PROVIDER']]) {
+    const commandId = randomUUID(), calls = h.stripePayments.calls.length
+    const error = await f.unchangedRefusal(input, code, commandId)
+    refused.push({ input, code, commandId, error, calls: h.stripePayments.calls.length - calls })
+  }
   await f.restart()
+  for (const row of refused) {
+    const calls = h.stripePayments.calls.length
+    assert.deepEqual(await f.unchangedRefusal(row.input, row.code, row.commandId), row.error, 'refused command replay after restart returns the same reason')
+    assert.equal(h.stripePayments.calls.length - calls, row.calls, 'refused command replay after restart reads the same provider pages')
+  }
   const count = h.stripePayments.calls.length, fresh = await f.inspect(payload)
   assert.deepEqual([fresh.items, fresh.unmatched, fresh.net, fresh.reconciled], [result.items, result.unmatched, result.net, true])
   assert.equal(h.stripePayments.calls.length - count, 11, 'a fresh inspection still reads exactly ten pages after Worker restart')

@@ -11,7 +11,6 @@ import { connectPayments, paidInvoice, paymentEvent, instantFunding } from '../f
 const read = async (h, path) => { const response = await h.request(path), body = await response.json(); assert.equal(response.status, 200, JSON.stringify(body)); return body }
 
 test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
-  await receiptCreditQualification(t)
   await scenario(t, 'PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined sales tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
@@ -211,6 +210,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH set
   assert.doesNotMatch(JSON.stringify(exported), /synthetic-glove-intent|synthetic-glove-custody-charge|accounts@harbourview\.example/)
 })
 
+  await receiptCreditQualification(t)
   await scenario(t, 'PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })
