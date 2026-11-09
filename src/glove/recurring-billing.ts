@@ -68,6 +68,12 @@ function occurrences(s: State, job: Row, at: string): Due[] {
   return out.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.key.localeCompare(b.key))
 }
 
+/** Captures the job's invoices already carry: a recurring draft names its own; an ordinary GLOVE-09 invoice, prepared under the earlier job-wide workflow, carried every line and material recorded by the time it was prepared. */
+function claimedCaptures(s: State, job: Row): string[] {
+  const own = s.invoices.filter(i => i.jobId === job.id), ordinary = own.filter(i => !i.recurring && !i.openingBalance)
+  return [...own.flatMap(i => i.recurring?.captureIds ?? []), ...s.captures.filter(x => x.jobId === job.id && ordinary.some(i => x.createdAt <= i.createdAt)).map(x => x.id)]
+}
+
 const fulfilled = (s: State, due: Due) => s.invoices.some(i => i.recurring?.key === due.key) || s.notices.some(n => n.recurringBillingKey === due.key)
 
 /** Missed dates remain visible even if a scheduled pass has not run yet. */
@@ -111,7 +117,7 @@ export async function generateRecurringBilling(c: Context) {
         } else {
           const scoped = due.visitId ? { ...item, s: { ...item.s, expenses: item.s.expenses.filter(e => e.visitId === due.visitId) } } : item
           const extras = due.mode === 'per-visit' || due.mode === 'on-close' ? expenseLines(scoped, currentJob) : []
-          const billedCaptures: string[] = item.s.invoices.flatMap(i => i.recurring?.captureIds ?? [])
+          const billedCaptures = claimedCaptures(item.s, currentJob)
           const captureIds = due.mode.startsWith('fixed-') ? [] : item.s.captures.filter(x => x.jobId === job.id && (!due.visitId || x.visitId === due.visitId) && ['line', 'material'].includes(x.kind) && !billedCaptures.includes(x.id)).map(x => x.id)
           const priced: Line[] = due.mode.startsWith('fixed-') ? rule.lines : lines([...suggested(item, currentJob, due.visitId, rule.lines, billedCaptures), ...extras.map(e => e.line)])
           const metadata = { key: due.key, mode: due.mode, dueDate: due.dueDate, ruleRevision: rule.n, ruleBy: rule.by, captureIds, ...(due.visitId ? { visitId: due.visitId } : {}), ...(due.periodEnd ? { periodStart: due.periodStart, periodEnd: due.periodEnd, proposedIssuedOn: due.periodEnd } : {}) }
