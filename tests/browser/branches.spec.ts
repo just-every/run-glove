@@ -191,9 +191,20 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await page.getByLabel('Report branch', { exact: true }).selectOption(branches[0].id)
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('$125.00')
       await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Phoenix')
-      for (const kind of ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax']) {
-        await page.getByLabel('Report', { exact: true }).selectOption(kind)
+      for (const kind of ['revenue', 'technicians', 'sources', 'quotes', 'margins', 'tax', 'agreements']) {
+        const loaded = page.waitForResponse(response => {
+          const url = new URL(response.url())
+          return url.pathname === `/api/glove/reports/${kind}.json` && url.searchParams.get('branchId') === branches[0].id && response.ok()
+        })
+        if (kind === 'revenue') {
+          await page.getByLabel('Report branch', { exact: true }).selectOption(branches[1].id)
+          await page.getByLabel('Report branch', { exact: true }).selectOption(branches[0].id)
+        } else await page.getByLabel('Report', { exact: true }).selectOption(kind)
+        const figures = await (await loaded).json()
+        expect(figures.filters.branchId).toBe(branches[0].id)
         await expect(page.getByLabel('Report branch', { exact: true })).toHaveValue(branches[0].id)
+        const csv = new URL((await page.getByRole('link', { name: 'Download CSV', exact: true }).getAttribute('href'))!, origin)
+        expect([csv.pathname, csv.searchParams.get('branchId'), csv.searchParams.get('from'), csv.searchParams.get('to')]).toEqual([`/api/glove/reports/${kind}.csv`, branches[0].id, '2026-01-01', '2027-12-31'])
         for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await page.getByLabel('Report', { exact: true }).scrollIntoViewIfNeeded(); await shot(page, width, kind) }
       }
       await page.setViewportSize({ width: 1440, height: 1050 })
