@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { installation, business, assertTrail } from './harness.mjs'
+import { scenario } from '../fixtures/scenario.mjs'
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
 
 const at = '2026-11-09T12:00:00.000Z'
@@ -53,7 +54,8 @@ async function trail(h, kinds) {
   return result
 }
 
-test('PAY-023 point 1: only the current signed-in Owner refunds and original methods enforce the exact remaining principal', async t => {
+test('PAY-023 original-method refund authority, accounting and recovery', { timeout: 120_000 }, async t => {
+await scenario(t, 'PAY-023 point 1: only the current signed-in Owner refunds and original methods enforce the exact remaining principal', async t => {
   const { h, b } = await fixture(t)
   const card = await source(h, b)
   const custom = await h.person('Refund custom', 'viewer')
@@ -89,7 +91,7 @@ test('PAY-023 point 1: only the current signed-in Owner refunds and original met
   await trail(h, ['refund.requested', 'refund.paid', 'refund.pending'])
 })
 
-test('PAY-023 point 2: tip-only returns lower technician payroll while principal, collected tax and receivables stay exact', async t => {
+await scenario(t, 'PAY-023 point 2: tip-only returns lower technician payroll while principal, collected tax and receivables stay exact', async t => {
   const { h, b } = await fixture(t), { invoice, payment } = await source(h, b)
   await b.priyaPerson.run('clock.in', { deviceTime: '2026-11-09T09:00:00Z' })
   await b.priyaPerson.run('clock.out', { deviceTime: '2026-11-09T10:00:00Z' })
@@ -115,7 +117,7 @@ test('PAY-023 point 2: tip-only returns lower technician payroll while principal
   await trail(h, ['refund.requested', 'refund.paid'])
 })
 
-test('PAY-023 point 3: a later Stripe dispute reverses only the principal and tip left after a partial refund', async t => {
+await scenario(t, 'PAY-023 point 3: a later Stripe dispute reverses only the principal and tip left after a partial refund', async t => {
   const { h, b } = await fixture(t), { invoice, payment, pi } = await source(h, b)
   await h.command('payment.refund', input(invoice, payment, '50.00', '5.00'))
   assert.equal(await due(h, invoice), '50.00')
@@ -134,7 +136,7 @@ test('PAY-023 point 3: a later Stripe dispute reverses only the principal and ti
   await trail(h, ['refund.paid', 'payment.returned'])
 })
 
-test('PAY-023 point 4: manual returns stay offline and durable Stripe reservations fence concurrent requests, replay and Worker restart', { timeout: 60_000 }, async t => {
+await scenario(t, 'PAY-023 point 4: manual returns stay offline and durable Stripe reservations fence concurrent requests, replay and Worker restart', async t => {
   const { h, b } = await fixture(t), { invoice, payment } = await source(h, b)
   for (const method of ['cash', 'check']) {
     const original = await b.office.run('payment.record', { invoiceId: invoice.id, version: invoice.version, amount: '10.00', method, reference: 'synthetic-glove-manual-' + method })
@@ -180,7 +182,7 @@ const unreachableStripe = { name: 'refund-network-edge', setup(build) {
   build.initialOptions.banner.js += `const refundNetworkFetch = globalThis.fetch; globalThis.fetch = async (...args) => { const response = await refundNetworkFetch(...args); if (response.headers.get('x-synthetic-glove-refund-unreachable') === '1') throw new TypeError('Synthetic Stripe unreachable'); return response; };\n`
 } }
 
-test('PAY-023 point 5: pending, failed and unconfirmed linked records never alter balances or resend after replay, cron and restart', async t => {
+await scenario(t, 'PAY-023 point 5: pending, failed and unconfirmed linked records never alter balances or resend after replay, cron and restart', async t => {
   const { h, b } = await fixture(t, { workerPlugins: [unreachableStripe] }), { invoice, payment } = await source(h, b)
   const attempts = []
   for (const outcome of ['pending', 'failed', 'http503', 'unreachable']) {
@@ -227,7 +229,7 @@ test('PAY-023 point 5: pending, failed and unconfirmed linked records never alte
   assert.ok(!JSON.stringify(exported).includes('Customer requested original-method return'))
 })
 
-test('PAY-023 point 6: refresh only reads a pending retained reference, confirms once and releases failed reservations', async t => {
+await scenario(t, 'PAY-023 point 6: refresh only reads a pending retained reference, confirms once and releases failed reservations', async t => {
   const { h, b } = await fixture(t), { invoice, payment } = await source(h, b, 'ach')
   h.stripePayments.refundStatus = 'pending'
   let pending = await h.command('payment.refund', input(invoice, payment, '50.00'))
@@ -264,4 +266,6 @@ test('PAY-023 point 6: refresh only reads a pending retained reference, confirms
   assert.equal(exact.status, 'paid', 'failed reservation releases its principal; unresolved reservation retains its principal')
   assert.equal(await due(h, invoice), '197.90')
   await trail(h, ['refund.refreshRequested', 'refund.paid', 'refund.failed', 'refund.unconfirmed'])
+})
+
 })
