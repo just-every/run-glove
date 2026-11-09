@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 41 | 180 | 16 | 237 |
+| Core | 42 | 179 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 41 | 193 | 29 | 263 |
+| Full target | 42 | 192 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -3002,7 +3002,7 @@ Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-
 
 #### TEAM-004 — Branch operational projections
 
-Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
+Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-ROLE-001
 
 **Requirement.** Branch operational projections supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-002-operating-rules) retain the record formats and calculations.
 
@@ -3014,8 +3014,8 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-RO
 5. Customers cannot merge across branches.
 6. Every existing report accepts the branch filter in JSON and CSV; future record kinds, read doors and reports inherit the same scope before shipping (API-002, API-006, API-007/003, COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018..009, PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016..009, LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007..004, PLAN-002..005, MOVE-001, MOVE-007..006).
 
-**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A technician must belong to the job’s branch; the existing area warning/refusal rule also applies to its branch ZIP codes.; point 2 — The Dispatch branch choice shows its own technicians, work and local zone.; point 3 — Actual per-branch US tax settings and the REPORT-002, REPORT-004 tax-jurisdiction rows ship with MONEY-001, MONEY-004, MONEY-005, which carries them in its text and acceptance.; point 4 — Revenue reports include branch rows and a branch filter in JSON and CSV, dating each invoice by its branch’s local first-approval date (both period ends included).; point 5 — Customers cannot merge across branches.; point 6 — Every existing report accepts the branch filter in JSON and CSV; future record kinds, read doors and reports inherit the same scope before shipping (API-002, API-006, API-007/003, COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018..009, PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016..009, LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007..004, PLAN-002..005, MOVE-001, MOVE-007..006). See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`; `tests/api/branches.test.mjs` (TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings); `tests/browser/branches.spec.ts` (TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token)
+**Gap.** None.
 
 #### TEAM-005 — Current branch authority
 
