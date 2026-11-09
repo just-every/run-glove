@@ -1,0 +1,151 @@
+{
+  "assertions_preserved": true,
+  "branch": "cloud/sx-glove-c-f219-pc1",
+  "browser": {
+    "assertionWidth": 1440,
+    "at": "2026-10-22T10:20:00.000Z",
+    "door": "/app#dispatch",
+    "exit": 0,
+    "expectedFree": "10:40",
+    "head": "1eb31d3484cf5c8983d8181b37556c0fc30b259a",
+    "offeredOwnStart": "10:45",
+    "proof": "BROWSER-PROOF.mjs",
+    "read": "/api/glove/delays?at=2026-10-22T10:20:00.000Z",
+    "runner": "BROWSER-RUNTIME.mjs",
+    "samples": [
+      {
+        "cardText": "At risk now\nJ-1002\nPriya N. is still on J-1001, 20 min past its booked end; expected free about 10:40.\nLocation and ETA unavailable\n\nTom B. is free at the same time. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable.\n\nPriya N. later, inside the arrival window. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable.",
+        "file": "1440-dispatch-delay-card.png",
+        "width": 1440
+      },
+      {
+        "cardText": "At risk now\nJ-1002\nPriya N. is still on J-1001, 20 min past its booked end; expected free about 10:40.\nLocation and ETA unavailable\n\nTom B. is free at the same time. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable.\n\nPriya N. later, inside the arrival window. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable.",
+        "file": "390-dispatch-delay-card.png",
+        "width": 390
+      }
+    ],
+    "visitId": "df40a3d6-7390-4d5b-b5aa-f81f6201df58"
+  },
+  "ci": {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "1eb31d3484cf5c8983d8181b37556c0fc30b259a",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42658480508",
+    "id": 42658480508,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "final_checks": {
+    "first_party_exit": 0,
+    "product_tree_clean": true,
+    "source_lock_exit": 0,
+    "typecheck_exit": 0
+  },
+  "github_invocations": 7,
+  "head": "1eb31d3484cf5c8983d8181b37556c0fc30b259a",
+  "integrated_main": "0c76685078292ea640a2d9bc3238a51abd7c2b62",
+  "judgment_counts": {
+    "candidate": {
+      "done": 42,
+      "missing": 29,
+      "partial": 192
+    },
+    "note": "The count change is inherited from main; this builder changes no judgment or acceptance cell.",
+    "starting_saved_head": {
+      "done": 41,
+      "missing": 29,
+      "partial": 193
+    }
+  },
+  "landing": {
+    "main_written": false,
+    "run_site": "main-only fleet duty",
+    "status": "not_attempted"
+  },
+  "migrations_changed": false,
+  "native_checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/delays.test.mjs",
+      "duration_ms": 147966.797224,
+      "exit": 0,
+      "failed": 0,
+      "passed": 1,
+      "phase": "integrated tree before final commit",
+      "tests": 1
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "cap": 200,
+      "command": "node tests/inventory.mjs",
+      "exit": 0,
+      "starting_total": 202,
+      "total": 200
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write",
+      "documents_written": 0,
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    }
+  ],
+  "new_email_shaped_strings": 0,
+  "new_registrations": 0,
+  "product_push": {
+    "candidate_exit": 0,
+    "candidate_pushed": true,
+    "entrypoint": "cloud-push.py",
+    "save_exit": 0
+  },
+  "proof_blobs": {
+    "src/glove/commands/dispatch.ts": "594fca100667ae654be563a817764a64f70570cf",
+    "src/glove/delays.ts": "dea1217b5d5b885bf33d80995d63076324868cb3",
+    "tests/api/delays.test.mjs": "092ed715f7211c5353777db1b775091a753659b2",
+    "tests/api/harness.mjs": "2c960ce19ef863e97dae84244c82f6cc336f3ae9"
+  },
+  "publication_scan": {
+    "reason": "Cloud handoff; guarded fleet lander owns the full-history scan.",
+    "status": "not_run"
+  },
+  "relevant_proof_bytes_unchanged_after_save": true,
+  "repository": "just-every/run-glove",
+  "save_head": "ac18df6a91a1ae29d3f9f70eb0c44e1a1a4f9193",
+  "saved_head_replay": {
+    "command": "node scripts/verify-ci.mjs api-1",
+    "complete": false,
+    "exit": 1,
+    "head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+    "observed_failures": [
+      "delay fixture socket closure",
+      "COMM-010 expected callback 200, received 401 MAIL_EVENT"
+    ],
+    "separate_mail_reproduction_complete": true,
+    "separate_mail_reproduction_exit": 1,
+    "stopped_after_candidate_green": true
+  },
+  "source_lock_blob": "e999c896a4a0fe6f88b6079512c8b1de437b2b43",
+  "starting_head": "de5204c75fb27b054cf13fbf9ae72f107e8ef28c",
+  "tag": "sx-glove-c-f219-pc1",
+  "terminal_custody": "READY"
+}

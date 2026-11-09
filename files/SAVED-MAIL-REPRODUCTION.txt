@@ -1,0 +1,72 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+not ok 1 - COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+  ---
+  duration_ms: 101245.457214
+  type: 'test'
+  location: '/workspace/run-glove/tests/api/message-outcomes.test.mjs:12:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+    +   401,
+    -   200,
+        {
+    +     error: {
+    +       code: 'MAIL_EVENT',
+    +       message: 'Not accepted: the signature, the event form or the message it names did not match.'
+    +     },
+    +     ok: false
+    -     ok: true
+        }
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 200
+    1:
+      ok: true
+  actual:
+    0: 401
+    1:
+      ok: false
+      error:
+        code: 'MAIL_EVENT'
+        message: 'Not accepted: the signature, the event form or the message it names did not match.'
+  operator: 'deepStrictEqual'
+  stack: |-
+    file:///workspace/run-glove/tests/api/message-outcomes.test.mjs:168:16
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async scenario (file:///workspace/run-glove/tests/fixtures/scenario.mjs:8:5)
+    async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/message-outcomes.test.mjs:162:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# point 6: independent address warnings survive other-address delivery, refusal and failed attempts until same-address delivery or an address change
+# points 1 and 2: SendGrid sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: SendGrid authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: SendGrid failures retain exact user text, next steps and attributable provider references
+# point 7: SendGrid messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Resend sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Resend authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Resend failures retain exact user text, next steps and attributable provider references
+# point 7: Resend messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Postmark sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Postmark authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Postmark failures retain exact user text, next steps and attributable provider references
+# point 7: Postmark messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Amazon SES sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 104081.348672

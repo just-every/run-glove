@@ -1,0 +1,23 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves
+ok 1 - AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves
+  ---
+  duration_ms: 144647.163323
+  type: 'test'
+  ...
+# AGENT-003 point 5: recovery excludes unavailable technicians and rounds the expected free instant to the next quarter hour
+# AGENT-003 point 2: desk and Agent reads are branch scoped and field roles are refused without writes
+# AGENT-003 point 3: timers and arrivals use the overrun floor and exclude ineligible later visits at fixed instants
+# AGENT-003 point 4: draft sent and partly received orders flag the visit until every ordered part arrives
+# AGENT-003 point 6: fixed proposals enforce current roles independent approval conflict review stale refusal and replay
+# AGENT-003 point 7: same-time and in-window moves retain promises while outside and other-day moves drop them
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 147966.797224

@@ -1,0 +1,22 @@
+{
+  "head": "1eb31d3484cf5c8983d8181b37556c0fc30b259a",
+  "at": "2026-10-22T10:20:00.000Z",
+  "door": "/app#dispatch",
+  "read": "/api/glove/delays?at=2026-10-22T10:20:00.000Z",
+  "visitId": "df40a3d6-7390-4d5b-b5aa-f81f6201df58",
+  "expectedFree": "10:40",
+  "offeredOwnStart": "10:45",
+  "assertionWidth": 1440,
+  "samples": [
+    {
+      "width": 1440,
+      "file": "1440-dispatch-delay-card.png",
+      "cardText": "At risk now\nJ-1002\nPriya N. is still on J-1001, 20 min past its booked end; expected free about 10:40.\nLocation and ETA unavailable\n\nTom B. is free at the same time. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable.\n\nPriya N. later, inside the arrival window. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable."
+    },
+    {
+      "width": 390,
+      "file": "390-dispatch-delay-card.png",
+      "cardText": "At risk now\nJ-1002\nPriya N. is still on J-1001, 20 min past its booked end; expected free about 10:40.\nLocation and ETA unavailable\n\nTom B. is free at the same time. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable.\n\nPriya N. later, inside the arrival window. Delayed technician: Location and ETA unavailable. Alternative: Location and ETA unavailable."
+    }
+  ]
+}
