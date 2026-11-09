@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -13,7 +15,7 @@ export async function correctionRevenue(browser: import('@playwright/test').Brow
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     // Use the established native-session harness for every API request, with no report response fake.
-    await context.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -59,14 +61,14 @@ export async function correctionRevenue(browser: import('@playwright/test').Brow
     }
     await h.setTime('2026-11-01T04:05:00.000Z')
     const correction = await b.office.run('invoice.correct', { invoiceId: invoice.id, version: invoice.version, reason: 'Actual work revised by the office', lines: correctionLines })
-    await h.restart()
+    await restartHarness(h)
     await page.goto(`${origin}/app#reports`)
     await choose('2026-10-01', '2026-10-31')
     await expect.poll(rows).toEqual(['2026-103$228.37', 'Maintenance1$152.40', 'Uncategorized2$75.97', 'Main business3$228.37', 'All3$228.37'])
     expect(await csv()).toEqual(['group,key,invoices,revenue', 'month,2026-10,3,228.37', 'job type,Maintenance,1,152.40', 'job type,Uncategorized,2,75.97', 'branch,Main business,3,228.37', 'total,,3,228.37'])
     await capture('unapproved-correction')
     await b.office.run('invoice.approve', { invoiceId: correction.id, version: correction.version, revision: 2 })
-    await h.restart()
+    await restartHarness(h)
     await page.reload()
     await choose('2026-10-01', '2026-10-31')
     await expect.poll(rows).toEqual(['2026-103$221.08', 'Maintenance1$145.11', 'Uncategorized2$75.97', 'Main business3$221.08', 'All3$221.08'])
@@ -87,7 +89,7 @@ export async function correctionRevenue(browser: import('@playwright/test').Brow
     await expect.poll(rows).toEqual(['All0$0.00'])
     expect(await csv()).toEqual(['group,key,invoices,revenue', 'total,,0,0.00'])
     await capture('next-month-empty')
-  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
 }
 
 const shots = process.env.GLOVE_SCREENSHOTS
@@ -117,7 +119,7 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
         await page.waitForURL(u => u.pathname === '/app')
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -144,7 +146,7 @@ test('REPORT-002, REPORT-004 the owner filters job margins and downloads the mat
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(page, width, 'margins-filtered')
       }
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
   await correctionRevenue(browser)
   await fixedMonthlyRevenue(browser)
@@ -155,7 +157,7 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
   const h = await installation({ at: '2026-11-08T12:00:00.000Z' }), context = await browser.newContext(), page = await context.newPage()
   try {
     const b = await fixedMonthlyReports(h)
-    await h.restart()
+    await restartHarness(h)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     await page.goto(process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
@@ -164,7 +166,7 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
       await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
     }
-    await context.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -259,5 +261,5 @@ export async function fixedMonthlyRevenue(browser: import('@playwright/test').Br
     await expect(draftPanel).not.toContainText('Approved after period end on')
     expect(h.stripePayments.calls).toHaveLength(0)
     expect(h.email.sent).toHaveLength(0)
-  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
 }

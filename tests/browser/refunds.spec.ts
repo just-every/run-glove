@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -28,7 +30,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
       await page.waitForURL(u => u.pathname === '/app')
     }
     let as = h.owner()
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const request = route.request(), url = new URL(request.url())
       const response = await h.request(url.pathname + url.search, { as, method: request.method(), ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -73,7 +75,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
     await capture('pending')
     const posts = () => h.stripePayments.calls.filter((c: any) => c.path === '/v1/refunds' && c.method === 'POST').length
     const count = posts()
-    await h.restart()
+    await restartHarness(h)
     await page.reload()
     await expect(pendingRow).toContainText('pending')
     await expect(panel).toContainText('Amount due $0.00')
@@ -98,7 +100,7 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
     await expect(panel).toContainText('reserved')
     await expect(panel).toContainText('Amount due $20.00')
     const retained = (await h.state()).payments
-    await h.restart()
+    await restartHarness(h)
     await page.reload()
     await expect(panel).toContainText('Outcome unknown. Inspect Stripe; do not send another refund.')
     await expect(failedRow).toContainText('failed')
@@ -116,8 +118,8 @@ test('PAY-023 Owner refunds and refreshes original-method outcomes with unchange
     await expect(panel.getByRole('button', { name: 'Refund through original method', exact: true })).toHaveCount(0)
     await expect(panel.getByRole('button', { name: 'Refresh refund status', exact: true })).toHaveCount(0)
   } finally {
-    await page.unrouteAll({ behavior: 'wait' })
-    await context.close()
+    await unrouteHarness(page)
+    await closeHarnessContext(context)
     await h.close()
   }
 })

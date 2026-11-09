@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 // @ts-expect-error Deterministic synthetic image originals.
 import { documentPhoto, documentLogo, documentSignature } from '../fixtures/document-images.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
@@ -74,7 +75,7 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
     await page.goto(process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await context.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url()), publicDoor = url.pathname.startsWith('/api/glove/public/')
       const response = await h.request(url.pathname + url.search, { method: req.method(), as: publicDoor ? '' : h.owner(), headers: publicDoor ? { authorization: req.headers().authorization ?? '' } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -125,5 +126,5 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
       await shot(page, width, 'branded-report')
       await pdf(page, width, 'report', reportFields, 3)
     }
-  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
 })

@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -62,7 +64,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       let backend = empty
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await backend.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -203,7 +205,7 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
         }
       }
       const beforeRestart = await h.state()
-      await h.restart()
+      await restartHarness(h)
       const retained = await h.state()
       expect(retained.quotes).toEqual(beforeRestart.quotes)
       for (const quote of drafted) expect(retained.quotes.find((q: any) => q.id === quote.id).revisions).toEqual(quote.revisions)
@@ -219,6 +221,6 @@ test('MONEY-001, MONEY-004, MONEY-005 owner manages branch rates, private exempt
         await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
         await screens(page, route)
       }
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await empty.close(); await h.close() }
 })

@@ -1,3 +1,4 @@
+import { harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -13,7 +14,7 @@ test('DISP-013 subcontractor phone has current work but no notification control 
     const f = await subcontractorFieldFixture(h)
     context = await browser.newContext({ viewport: { width: 390, height: 1050 } })
     page = await context.newPage()
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const request = route.request(), url = new URL(request.url())
       const response = await h.request(url.pathname + url.search, { as: f.sub.cookie, method: request.method(), ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -78,7 +79,7 @@ test('DISP-013 subcontractor phone has current work but no notification control 
     await expect(page.getByRole('heading', { name: 'Notifications', exact: true })).toHaveCount(0)
     // Lose the real state transport on reload, keeping the document server reachable.
     // The phone cannot reconstruct work from an offline snapshot.
-    await page.route(`${origin}/api/glove/state`, route => route.abort('internetdisconnected'))
+    await harnessRoute(page, `${origin}/api/glove/state`, route => route.abort('internetdisconnected'))
     await page.reload()
     await expect(page.locator('.tech-app')).toHaveCount(0)
     await expect(page.getByText('No signal: showing your day', { exact: false })).toHaveCount(0)
@@ -87,7 +88,7 @@ test('DISP-013 subcontractor phone has current work but no notification control 
     expect(h.pushes.sent).toEqual([])
     expect((await h.state()).captures.filter((c: any) => c.technicianId === f.tech.id && c.kind === 'note').map((c: any) => c.text)).toEqual(['Subcontractor phone note'])
   } finally {
-    if (page) await page.unrouteAll({ behavior: 'wait' })
+    if (page) await unrouteHarness(page)
     await context?.close()
     await h.close()
   }

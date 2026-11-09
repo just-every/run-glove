@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -16,7 +17,7 @@ test('REPORT-003 owner reads every aging bucket and follows the exact open invoi
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
         const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -39,7 +40,7 @@ test('REPORT-003 owner reads every aging bucket and follows the exact open invoi
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         if (process.env.GLOVE_SCREENSHOTS) await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-receivables-invoice.png`) })
       }
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
 })
 
@@ -66,7 +67,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH retu
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -143,7 +144,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 confirmed payment and ACH retu
       await expect(page.locator('main')).toContainText('This page does not confirm a payment')
       await capture(width, 'checkout-return')
     }
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 test('PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refund controls, customer credit, receivables and overdue brief at 1440 and 390', async ({ browser }) => {
@@ -153,7 +154,7 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refu
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       // Read the brief tomorrow to prove a real past-due invoice without editing storage.
       const path = u.pathname + (u.pathname === '/api/glove/brief' ? '?at=2099-01-01T12:00:00Z' : u.search)
@@ -228,7 +229,7 @@ test('PAY-004, PAY-021, PAY-022, PAY-023 office payment and original-method refu
       await expect(panel).toContainText('Amount due $0.00'); await expect(panel).toContainText('Tip refunded $15.00')
       await page.getByLabel('Tip to refund', { exact: true }).scrollIntoViewIfNeeded(); await capture(width, 'tip-refund')
     }
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the visible instant fee and groups cash/check deposits at 1440 and 390', async ({ browser }) => {
@@ -246,7 +247,7 @@ test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the v
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url()), response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
@@ -306,5 +307,5 @@ test('PAY-007, PAY-025, PAY-026 owner inspects unmatched payouts, confirms the v
       await page.reload(); await panel.getByLabel(/check · .* · \$5.00/).check(); await page.getByLabel('Bank deposit reference', { exact: true }).fill(`Bank deposit ${width}`); await send('Record deposit batch')
       await expect(panel).toContainText('Cash/check deposit · $5.00'); await panel.getByText('Cash/check deposit · $5.00', { exact: true }).first().scrollIntoViewIfNeeded(); await capture(width, 'deposit-batch')
     }
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })

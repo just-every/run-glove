@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Request } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
@@ -51,7 +53,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       const workerCalls: { method: string, status: number }[] = []
       // Assets and the customer page come from the real installation. JSON is
       // forwarded to the production Worker with native D1, never fabricated.
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const request = route.request(), url = new URL(request.url())
         expect(url.pathname).toBe('/api/glove/public/quote')
         const response = await h.request(url.pathname + url.search, { as: '', method: request.method(), headers: { authorization: request.headers().authorization ?? '' }, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
@@ -192,7 +194,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       const declined = (await h.state()).quotes.find((row: any) => row.id === declining.id)
       expect(declined.declined).toMatchObject({ name: 'Mei Lin', capacity: 'Practice manager', identity: 'CLAIMED', authenticationBasis: 'link handed out by staff, recipient unverified' })
       expect(declined.customerRequests).toHaveLength(1)
-      await h.restart()
+      await restartHarness(h)
       received = responseFrom(page, 'GET')
       await page.reload()
       expect((await (await received).json()).decision).toBe('declined')
@@ -219,8 +221,8 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
       absent({ state: await h.state(), activity: await (await h.request('/api/glove/activity')).json(), exported: await (await h.request('/api/glove/export')).json() }, tokens, 'final state, Activity and business export')
       absent({ cookies: await context.cookies(), storage: await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } })) }, tokens, 'browser cookies and persistent storage')
     } finally {
-      await page.unrouteAll({ behavior: 'wait' })
-      await context.close()
+      await unrouteHarness(page)
+      await closeHarnessContext(context)
       await h.close()
     }
   }

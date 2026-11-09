@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { expect, type Browser, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -7,7 +8,7 @@ export async function deskPage(browser: Browser, h: any, width: number, cookie?:
   // Attach this installation before sign-in can hydrate /app and fetch state.
   // A URL alone is not readiness: navigating its hash during hydration can be
   // overwritten by the router's initial history update.
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url())
     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(cookie ? { as: cookie } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
     await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -19,8 +20,8 @@ export async function deskPage(browser: Browser, h: any, width: number, cookie?:
     await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
     return { context, page }
   } catch (error) {
-    await page.unrouteAll({ behavior: 'wait' })
-    await context.close()
+    await unrouteHarness(page)
+    await closeHarnessContext(context)
     throw error
   }
 }

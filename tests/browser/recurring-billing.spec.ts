@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -38,7 +39,7 @@ test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(url => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(url => url.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const request = route.request(), url = new URL(request.url())
         const response = await h.request(url.pathname + url.search, { method: request.method(), ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -86,8 +87,8 @@ test('PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future
     } finally {
       // Closing the browser does not wait for asynchronous route handlers.
       // Finish their Worker requests before disposing the installation.
-      await page.unrouteAll({ behavior: 'wait' })
-      await context.close()
+      await unrouteHarness(page)
+      await closeHarnessContext(context)
       await h.close()
     }
   }

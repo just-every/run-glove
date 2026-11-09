@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 // @ts-expect-error Provider edge helpers drive production HTTP.
 import { connectMail, receipt } from '../fixtures/mail-providers.mjs'
@@ -45,7 +46,7 @@ test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
@@ -155,7 +156,7 @@ test('COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM
       expect((await h.state()).mailConnected).toBe(false)
       await expect(settings.getByRole('button', { name: 'Disconnect customer email', exact: true })).toHaveCount(0)
       await screen(page, width, 'settings-disconnected', settings)
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
   }
   await providerRecovery(browser)
 })
@@ -172,7 +173,7 @@ async function providerRecovery(browser: import('@playwright/test').Browser) {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
@@ -208,13 +209,13 @@ async function providerRecovery(browser: import('@playwright/test').Browser) {
       await h.scheduled(`${tomorrow}T08:00:00Z`)
       const m = receipt(h, { id: `brief:${tomorrow}`, to: 'owner@example.test' })
       expect((await postEvents(h, edge.callback(m))).status).toBe(200)
-      await page.route(`${origin}/api/glove/brief`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/brief`, async route => {
         const response = await h.request(`/api/glove/brief?at=${tomorrow}T08:00:00Z`)
         await route.fulfill({ status: response.status, contentType: 'application/json', body: await response.text() })
       })
       await page.reload()
       await expect(morning).toContainText(`Morning email for ${tomorrow}: Delivered to`)
       await screen(page, width, `${provider}-morning-recovered`, morning)
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
   }
 }

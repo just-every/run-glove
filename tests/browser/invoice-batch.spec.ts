@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -25,7 +26,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -87,7 +88,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 the
       await expect(notice).toBeVisible()
       await screen(page, width, 'office-reminder', notice)
 
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -108,7 +109,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 off
     try {
       const b = await business(h, { currency: 'USD', timezone: 'UTC' }), work = await completedJob(h, b)
       await ownerEntry(page)
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -152,7 +153,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 off
       await expect(detail.getByLabel('Progress invoice stages')).toContainText(first.number)
       await screen(page, width, 'progress-approved-final', detail)
       expect((await h.state()).invoices.map((i: any) => i.revisions[0].totals.total)).toEqual(['60.00', '129.00'])
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -164,7 +165,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 own
     try {
       const b = await business(h, { currency: 'USD', timezone: 'UTC' }), work = await completedJob(h, b)
       await ownerEntry(page)
-      await context.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         if (disconnected) { await route.abort('internetdisconnected'); return }
         const req = route.request(), url = new URL(req.url()), body = req.postData() ? JSON.parse(req.postData()!) : null
         const response = await h.request(url.pathname + url.search, { ...(activeCookie ? { as: activeCookie } : {}), method: req.method(), ...(body ? { body } : {}) })
@@ -228,6 +229,6 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 own
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') || '')).not.toContain(invoice.number)
       expect((await h.state()).invoices).toHaveLength(1)
       expect(h.email.sent).toHaveLength(0)
-    } finally { disconnected = false; await context.setOffline(false); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { disconnected = false; await context.setOffline(false); await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
   }
 })

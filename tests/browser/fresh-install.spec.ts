@@ -1,3 +1,4 @@
+import { closeHarnessContext } from './harness-route'
 import { test, expect, type Browser, type BrowserContext, type Locator, type Page } from '@playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -330,5 +331,5 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await proof(owner, 'completed-job')
     await proof(phone, 'technician-visits')
     await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT || test.info().outputDir, 'fresh-install-receipt.json'), JSON.stringify({ sourceHead: process.env.GLOVE_PRODUCT_HEAD, clause: 'DATA-004', point: 1, people: actors, jobId: job.id, visitId: visit.id, invoiceId: invoice.id, invoiceCsv: exportedLine, payment: { method: 'check', amount: '200.00', balance: '0.00' }, series: { jobId: maintenance.id, dates }, captureKinds: captures.map((c: any) => c.kind), offlineServerState: 'booked with no arrival or captures', roleRefusals: ['owner:visit.arrive', 'dispatcher:invoice.approve', 'technician:payment.record', 'office:service.save'], duplicateExport: 'NOTHING_TO_EXPORT', activityKinds: Object.keys(eventRoles), exportCount: 1, passed: true }, null, 2) + '\n')
-  } finally { for (const context of contexts) await context.close() }
+  } finally { for (const context of contexts) await closeHarnessContext(context) }
 })

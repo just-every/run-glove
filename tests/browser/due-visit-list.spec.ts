@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -29,7 +30,7 @@ test('PLAN-004 Office filters individual due visits and books through desk contr
       await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
     }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { method: req.method(), as: office.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -85,7 +86,7 @@ test('PLAN-004 Office filters individual due visits and books through desk contr
     await expect(rows.filter({ hasText: 'Synthetic Aspen' }).filter({ hasText: 'Visit 1' })).toContainText('Awaiting booking')
     await expect(rows.filter({ hasText: 'Synthetic Aspen' }).filter({ hasText: 'Visit 2' })).toContainText('Booked, awaiting completion')
   } finally {
-    await context.close()
+    await closeHarnessContext(context)
     await h.close()
   }
 })

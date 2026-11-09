@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 // @ts-expect-error Production Worker doors, native sessions and persistent D1.
 import { installation } from '../api/harness.mjs'
@@ -128,7 +130,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     await refused('enquiry.contact', contactAgain)
     await refused(contactCommand.type, contactCommand.payload, contactCommand.commandId)
     const retained = await snapshot()
-    await h.restart()
+    await restartHarness(h)
     expect(await snapshot()).toEqual(retained)
     await csr.reload()
     await expect(pipeline).toContainText('synthetic-glove-102')
@@ -157,7 +159,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     }
     expect(h.mails).toHaveLength(fixtureMailCount)
   } finally {
-    for (const { page, context } of contexts) { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    for (const { page, context } of contexts) { await unrouteHarness(page); await closeHarnessContext(context) }
     await h.close()
   }
 })

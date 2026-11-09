@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -49,7 +50,7 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app','/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
         const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -364,6 +365,6 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
         expect((await h.state()).invoices.some((i: any) => i.id === sm8Invoice.id)).toBe(false)
       }
       expect(errors).toEqual([])
-    } finally { await context.close(); await h.close() }
+    } finally { await closeHarnessContext(context); await h.close() }
   }
 })

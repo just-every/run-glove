@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -48,7 +50,7 @@ test('PLAN-010 customer sees only the included visit, chooses remaining open tim
     }
     // Serve the built customer document; forward only API transport to the real isolated Worker.
     const transports: { path: string; search: string; authorization?: string; body: string | null }[] = []
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url()), authorization = req.headers()['authorization']
       transports.push({ path: url.pathname, search: url.search, authorization, body: req.postData() })
       const response = await h.request(url.pathname + url.search, { method: req.method(), as: '', headers: authorization ? { authorization } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -87,7 +89,7 @@ test('PLAN-010 customer sees only the included visit, chooses remaining open tim
     await expect(region).toContainText(/Contact the business for more times; your included visit remains due/)
     expect((await h.request('/api/glove/due-visits').then((r: Response) => r.json())).visits.find((v: any) => v.agreementId === agreement.id).booked).toBe(false)
     await proof(page, 'no-open-times')
-    await h.restart()
+    await restartHarness(h)
     await open()
     await expect(region).toContainText('your included visit remains due')
     await h.command('visit.cancel', { visitId: occupied.id, version: occupied.version, reason: 'Customer can choose the reopened time' })
@@ -101,7 +103,7 @@ test('PLAN-010 customer sees only the included visit, chooses remaining open tim
     await expect(page.getByRole('alert')).toContainText('This booking link is unavailable')
     await expect(page.getByRole('button', { name: /^Book / })).toHaveCount(0)
   } finally {
-    await context.close()
+    await closeHarnessContext(context)
     await h.close()
   }
 })

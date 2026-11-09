@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import assert from 'node:assert/strict'
 import { mkdir, writeFile } from 'node:fs/promises'
@@ -142,7 +144,7 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
     await page.goto(process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await context.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const request = route.request(), url = new URL(request.url()), publicDoor = url.pathname.startsWith('/api/glove/public/')
       const response = await h.request(url.pathname + url.search, { method: request.method(), as: publicDoor ? '' : h.owner(), headers: publicDoor ? { authorization: request.headers().authorization ?? '' } : {}, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -195,7 +197,7 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
         const text = allTexts[`1440-${kind}`]
         expect(text).not.toMatch(/\b(?:Signed by|Sent to|Delivered to|Confirmation copy queued)\b/i)
       }
-      await h.restart()
+      await restartHarness(h)
       await page.setViewportSize({ width: 1440, height: 1000 })
       for (const [kind, url] of Object.entries(urls)) {
         await page.goto(url); await expect(page.locator('.printable-document')).toBeVisible()
@@ -203,5 +205,5 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
       }
       expect(h.email.sent).toHaveLength(0)
     })
-  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
 })

@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -33,7 +34,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     let changeBeforeReviewSend = false
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       if (changeBeforeReviewSend && u.pathname === '/api/glove/commands' && req.postDataJSON()?.type === 'review.request') {
         changeBeforeReviewSend = false
@@ -345,7 +346,7 @@ test('PAY-005, QUOTE-004 and COMM-003, COMM-019, COMM-020 owner templates, text 
     expect(h.email.sent.length).toBe(beforeReview + 2)
     await both('review-rate-limited-period', '[aria-label="Review provider outcomes"]')
 
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 import { visitStatusBrowser } from './visit-status-journey'

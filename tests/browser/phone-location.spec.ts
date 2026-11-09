@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -19,7 +21,7 @@ async function open(browser: any, width: number) {
   return { context, page }
 }
 async function api(page: Page, h: any, as?: string, captures: any[] = []) {
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url()), body = req.postDataJSON()
     if (body?.type === 'location.phone') captures.push(body)
     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(as ? { as } : {}), ...(body ? { body } : {}) })
@@ -49,7 +51,7 @@ test('DISP-005 point 1: owner board displays phone and Samsara fixes with next-s
     await h.command('location.fleetConnect', { technicianId: b.tom.id, vehicleId: '12345', key: 'synthetic-glove-703' })
     h.fleet.data = [{ id: '12345', gps: { time: f.now(), latitude: 41.89172, longitude: -87.63172 } }]
     await h.command('location.fleetRead', { technicianId: b.tom.id })
-    await h.restart()
+    await restartHarness(h)
     await api(page, h)
     await page.goto(`${origin}/app#dispatch`)
     await page.getByLabel('Day', { exact: true }).fill('2026-11-09')
@@ -77,7 +79,7 @@ test('DISP-005 point 1: owner board displays phone and Samsara fixes with next-s
     await expect(map.getByText(/^Location stopped or unavailable · ETA unavailable/)).toHaveCount(2)
     expect(await f.rows()).toEqual([])
     expect(h.fleet.calls.length).toBe(calls)
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })
 
 test('DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390', async ({ browser }) => {
@@ -201,5 +203,5 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     expect((await (await withdrawal).json()).ok).toBe(true)
     await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
     expect(await f.rows()).toEqual([])
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })

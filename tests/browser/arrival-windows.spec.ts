@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -24,7 +25,7 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     const b = await business(h)
     const job = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Morning arrival promise' })
     let acting = b.dispatcher.cookie
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const res = await h.request(url.pathname + url.search, { as: acting, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: res.status, headers: Object.fromEntries(res.headers), body: Buffer.from(await res.arrayBuffer()) })
@@ -144,5 +145,5 @@ test('Arrival promises survive desk booking and reload and appear on the assigne
     revisedPhone = page.getByRole('region', { name: `${job.number} · Morning arrival promise`, exact: true })
     await expect(revisedPhone).toContainText('1:00 PM – 2:30 PM')
     await expect(revisedPhone).not.toContainText('arrival window')
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })

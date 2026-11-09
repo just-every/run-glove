@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { technicianPhoto } from '../fixtures/document-images.mjs'
@@ -20,7 +21,7 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     let acting = h.owner()
-    await context.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const request = route.request(), url = new URL(request.url()), publicRead = url.pathname.startsWith('/api/glove/public/')
       const response = await h.request(url.pathname + url.search, { method: request.method(), as: publicRead ? '' : acting, headers: publicRead ? { authorization: request.headers().authorization ?? '' } : {}, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -110,5 +111,5 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       expect((await h.request('/api/glove/public/technician-photo/image', { as: '', headers: { authorization: `Bearer ${photoToken}` } })).status).toBe(404)
       await h.command('technician.save', { ...(await h.state()).technicians.find((t: any) => t.id === b.priya.id), active: true })
     }
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 }

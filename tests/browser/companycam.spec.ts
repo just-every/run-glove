@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { readFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -11,7 +13,7 @@ const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 /** Forward the browser transport to the real production API Worker and D1.
  * Only CompanyCam's paid network edge is fake; no application answers are stubbed. */
 async function productionApi(page: Page, h: any) {
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url())
     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
     await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
@@ -108,7 +110,7 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       await assertErrors()
       // Finish the reload's image and API requests before disposing their Worker.
       await page.waitForLoadState('networkidle')
-      await h.restart()
+      await restartHarness(h)
       await page.reload()
       await assertErrors()
       expect((await h.state()).captures.filter((c: any) => c.origin?.system === 'CompanyCam').sort((a: any, b: any) => a.origin.photoId.localeCompare(b.origin.photoId))).toEqual(providerCaptures)
@@ -157,6 +159,6 @@ test('DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project linking
       await expect(changed.locator('details')).toContainText(work.job.id)
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await changed.scrollIntoViewIfNeeded(); await shot(page, width, 'activity'); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true) }
 
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
 })

@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -58,7 +60,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), as: url.pathname === '/api/glove/public/booking' ? '' : as, headers: req.headers()['authorization'] ? { authorization: req.headers()['authorization'] } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -170,7 +172,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
         { member: members[1], index: 1, due: '2029-12-01', booked: false, left: 2 },
         { member: members[2], index: 1, due: '2030-01-01', booked: true, left: 1 },
       ]
-      await h.restart()
+      await restartHarness(h)
       const beforeReads = await h.state()
       const brief = page.getByRole('region', { name: 'Morning brief', exact: true })
       const dueBrief = brief.getByRole('region', { name: 'Agreement visits due', exact: true })
@@ -313,7 +315,7 @@ test('BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLA
       await previous.focus()
       await expect(page.getByRole('tooltip', { name: 'Previous day', exact: true })).toBeVisible()
 
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
 })
 
@@ -344,7 +346,7 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
       await route.abort('connectionfailed')
     } else await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: bytes })
   }
-  await page.route(`${origin}/api/glove/commands`, transport)
+  await harnessRoute(page, `${origin}/api/glove/commands`, transport)
   try {
     await page.goto(`${origin}/app#dispatch`)
     const panel = page.getByRole('region', { name: 'Due agreement visits', exact: true })
@@ -376,7 +378,7 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await screens(page, 'paused-batch', panel.getByRole('form', { name: 'Batch book included visits', exact: true }))
     await screens(page, 'interrupted-batch', results)
     // Restart the Worker with durable D1; Retry recovers the original result.
-    await h.restart()
+    await restartHarness(h)
     await page.getByRole('button', { name: 'Retry', exact: true }).click()
     await expect(page.getByRole('button', { name: 'Retry', exact: true })).toHaveCount(0)
     expect(sent).toHaveLength(3)
@@ -388,7 +390,7 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await expect(panel.getByRole('button', { name: 'Select unbooked visits', exact: true })).toBeEnabled()
     expect(await page.evaluate(() => sessionStorage.getItem('glove.pending-command'))).toBeNull()
     await screens(page, 'reconciled-results', results)
-    await h.restart()
+    await restartHarness(h)
     await page.reload()
     await panel.getByLabel('Area ZIP (optional)', { exact: true }).fill('78799')
     await expect(panel.getByRole('status')).toHaveText('3 included visits due in this range')
@@ -421,7 +423,7 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     expect(exported.timeline.filter((e: any) => e.command_id === original.commandId && e.kind === 'visit.booked').map((e: any) => e.id)).toEqual([recovered[0].id])
     // Complete the recovered booking through the technician's actual controls.
     // The other inspections stay due until their own explicit completions.
-    await page.unroute(`${origin}/api/glove/commands`, transport)
+    await unrouteHarness(page, `${origin}/api/glove/commands`, transport)
     setActor(person.cookie)
     await page.reload()
     await page.getByRole('button', { name: new RegExp(`^${firstJob.number} ·`) }).click()
@@ -434,7 +436,7 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     await page.getByRole('button', { name: 'Save completion', exact: true }).click()
     await expect(page.getByRole('status').filter({ hasText: 'Visit completed' })).toBeVisible()
     await screens(page, 'recovered-completion', page.getByRole('status').filter({ hasText: 'Visit completed' }))
-    await h.restart()
+    await restartHarness(h)
     expect((await h.state()).visits.find((v: any) => v.id === firstVisit.id).status).toBe('completed')
     expect((await h.request('/api/glove/due-visits?area=78799').then((r: any) => r.json())).visits.map((v: any) => [v.id, v.booked]).sort()).toEqual(members.slice(1).map(m => [`${m.agreement.id}:0`, true]).sort())
     for (const visit of visits.filter((v: any) => v.id !== firstVisit.id)) {
@@ -444,7 +446,7 @@ async function interruptedBatch(page: Page, h: any, office: any, person: any, se
     setActor(office.cookie)
     await page.reload()
     expect((await h.request('/api/glove/due-visits?area=78799').then((r: any) => r.json())).visits).toEqual([])
-  } finally { await page.unroute(`${origin}/api/glove/commands`, transport) }
+  } finally { await unrouteHarness(page, `${origin}/api/glove/commands`, transport) }
 }
 
 

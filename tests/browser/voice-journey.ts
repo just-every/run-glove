@@ -1,3 +1,4 @@
+import { closeHarnessContext, unrouteHarness } from './harness-route'
 import { expect, type Browser } from '@playwright/test'
 // @ts-expect-error Production HTTP and provider-edge fixtures.
 import { voiceFlow } from '../api/voice-flow.mjs'
@@ -27,7 +28,7 @@ export async function voiceBrowser(browser: Browser) {
             await page.setViewportSize({ width, height: 1050 })
             await phoneScreen(page, width, `voice-${label}`, conversation)
           }
-        } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+        } finally { await unrouteHarness(page); await closeHarnessContext(context) }
       }
     })
   } finally { for (const close of cleanup.reverse()) await close() }

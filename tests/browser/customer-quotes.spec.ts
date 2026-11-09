@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { calendarNoon } from '../fixtures/calendar.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
@@ -53,7 +54,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url()), isPublic = url.pathname === '/api/glove/public/quote'
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -145,7 +146,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       await expect(emailLinks).toContainText(`Delivered to ${b.customer.email}'s mail server`)
       await screen(page, width, 'email-delivered', emailLinks)
 
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -159,7 +160,7 @@ async function websiteIntakeJourney(browser: import('@playwright/test').Browser)
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/intake')
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { origin } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -227,7 +228,7 @@ async function websiteIntakeJourney(browser: import('@playwright/test').Browser)
       for (const photo of await details.getByRole('img').all()) expect(await photo.evaluate(async (el: HTMLImageElement) => { await el.decode(); return el.naturalWidth > 0 })).toBe(true)
       await screen(page, width, 'website-request-office', details)
       await focusedScreen(page, width, 'website-request-office-details', details)
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
   }
 }
 
@@ -255,7 +256,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
     if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/quote')
       const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '', 'user-agent': req.headers()['user-agent'] ?? '', 'cf-connecting-ip': '198.51.100.43' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -490,7 +491,7 @@ test('QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-01
       await focusedScreen(page, width, 'peer-signed-copy-withdrawn-customer', signed)
     }
 
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bound photo permission; the sender opts in, sanitized photos draft a quote and the owner records withdrawal at 1440/390', async ({ browser }) => {
@@ -508,7 +509,7 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bo
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url()), isPublic = url.pathname.startsWith('/api/glove/public/intake')
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(isPublic ? { as: '', headers: { origin } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -581,7 +582,7 @@ test('BOOK-001, BOOK-007, BOOK-008, BOOK-009, BOOK-010 owner enables provider-bo
       await expect(page.getByRole('region', { name: 'Request service', exact: true })).toContainText('Request photos are not sent to the AI quote-drafting provider.')
       await expect(page.getByRole('checkbox', { name: /^I separately allow/ })).toHaveCount(0)
       expect(h.email.sent).toHaveLength(0)
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -592,7 +593,7 @@ test('QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the re
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url()), isPublic = u.pathname.startsWith('/api/glove/public/')
       const response = await h.request(u.pathname + u.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -617,7 +618,7 @@ test('QUOTE-003, QUOTE-014 owner sets frozen deposit terms; customer sees the re
       expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([])
       await screen(page, width, 'deposit-customer', terms)
     }
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 test('PAY-006, PAY-024 explicit customer financing consent and provider offers/funding appear on the quote and exact invoice at 1440 and 390', async ({ browser }) => {
@@ -627,7 +628,7 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url()), isPublic = u.pathname.startsWith('/api/glove/public/')
       if (req.postData() && JSON.parse(req.postData()!).type === 'financing.connect') expect(await page.evaluate(() => sessionStorage.getItem('glove.pending-command'))).toBeNull()
       const response = await h.request(u.pathname + u.search, { method: req.method(), ...(isPublic ? { as: '', headers: { authorization: req.headers().authorization ?? '' } } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -670,7 +671,7 @@ test('PAY-006, PAY-024 explicit customer financing consent and provider offers/f
       expect(await page.locator('button:visible,a:visible').evaluateAll(nodes => nodes.filter(n => !(n as HTMLElement).innerText.trim() && !n.querySelector('img[alt]:not([alt=""])')).map(n => n.getAttribute('aria-label')))).toEqual([])
       await screen(page, width, 'finance-funded-invoice', balance)
     }
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 
@@ -704,7 +705,7 @@ test('COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two custom
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), u = new URL(req.url())
       const response = await h.request(u.pathname + u.search, { as: acting, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -776,5 +777,5 @@ test('COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 Owner inspects two custom
     const inspections = (await (await h.request('/api/glove/export')).json()).timeline.filter((e: any) => e.kind === 'hub.previewed' && e.actor_id === delegated.id)
     expect(inspections.some((e: any) => e.subject_id === b.customer.id)).toBe(true)
     expect(JSON.stringify(inspections)).not.toMatch(/Customer-facing annual inspection|Cleaned filters|Private/)
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })

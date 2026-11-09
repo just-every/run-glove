@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -67,7 +68,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
     const dates = ['2026-11-02', '2026-11-03', '2026-11-04']
     const actions: AuditAction[] = [], bookings: Row[] = []
     let acting = h.owner(), crew: Row = {}, original: Row[] = []
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { as: acting, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -231,6 +232,6 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       await screen(page, 'activity')
     })
   } finally {
-    try { if (!page.isClosed()) await context.close() } finally { await h.close() }
+    try { if (!page.isClosed()) await closeHarnessContext(context) } finally { await h.close() }
   }
 })

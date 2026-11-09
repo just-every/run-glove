@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -23,6 +25,40 @@ async function screens(page: Page, name: string, panel: Locator) {
   await page.setViewportSize({ width: 1440, height: 1050 })
 }
 
+// Keep transport lifecycle coverage in the existing journey registration: a
+// delayed real Worker answer survives handler removal, cancellation and restart.
+async function proxyLifecycle(browser: Browser, h: any) {
+  for (const boundary of ['unroute', 'navigation', 'restart']) {
+    const context = await browser.newContext(), page = await context.newPage()
+    let release!: () => void, arrived!: () => void, finished = false, replies = 0
+    const held = new Promise<void>(resolve => { release = resolve })
+    const dispatched = new Promise<void>(resolve => { arrived = resolve })
+    try {
+      await harnessRoute(context, `${origin}/api/glove/state`, async route => {
+        const response = await h.request('/api/glove/state')
+        const body = Buffer.from(await response.arrayBuffer())
+        expect(response.status).toBe(200)
+        arrived(); await held
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body })
+        replies++
+      })
+      await page.goto(origin)
+      await page.evaluate(() => { void fetch('/api/glove/state').then(r => r.json()).then(body => { (window as any).proxyAnswer = body }).catch(() => {}) })
+      await dispatched
+      if (boundary === 'navigation') await page.goto('about:blank')
+      const drained = (boundary === 'restart' ? restartHarness(h) : unrouteHarness(context)).then(() => { finished = true })
+      // The pending real reply must hold teardown/restart, even after the page
+      // has cancelled its fetch. A single event-loop turn exposes early return.
+      await new Promise(resolve => setTimeout(resolve, 0))
+      expect(finished).toBe(false)
+      release(); await drained
+      expect(replies).toBe(1)
+      if (boundary !== 'navigation') await expect.poll(() => page.evaluate(() => (window as any).proxyAnswer?.actor?.role)).toBe('owner')
+      expect((await h.state()).actor.role).toBe('owner')
+    } finally { release(); await closeHarnessContext(context) }
+  }
+}
+
 test('COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations', async ({ browser }) => {
   const h = await installation({ at: '2030-03-12T12:00:00Z' })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
@@ -30,6 +66,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
   let releaseHeld: (() => void) | undefined
   let unavailableQuery: string | null = null
   try {
+    await test.step('Delayed proxy replies drain before removal, navigation and Worker restart', () => proxyLifecycle(browser, h))
     await h.command('business.save', { name: 'Harbour Service', timezone: 'UTC' })
     const desk = await h.person('Morgan Desk', 'office')
     const branch = await h.command('branch.save', { name: 'River', prefix: 'RIV', timezone: 'UTC', zips: ['10001'] })
@@ -47,7 +84,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     }
     // The UI uses the real Worker and signed-in desk session. Delay a read only
     // to inspect the ordinary pending state; never fabricate a domain answer.
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       if (url.pathname === '/api/glove/conversation' && url.searchParams.toString() === unavailableQuery) {
         await route.abort('failed'); return
@@ -186,7 +223,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
 
     const s = await h.state()
     await h.command('customer.merge', { survivorId: harbour.id, mergedIds: [river.id], versions: Object.fromEntries(s.customers.filter((c: any) => [harbour.id, river.id].includes(c.id)).map((c: any) => [c.id, c.version])) })
-    await h.restart()
+    await restartHarness(h)
     await page.reload()
     await selectCustomer(harbour.name)
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'River callback reached voicemail', 'Harbour needs a washable filter', 'River needs the back entrance', 'Harbour account contact updated'])
@@ -200,8 +237,8 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
   } finally {
     // A delayed transport is always released before shutting down its Worker.
     releaseHeld?.()
-    await page.unrouteAll({ behavior: 'wait' })
-    await context.close(); await h.close()
+    await unrouteHarness(page)
+    await closeHarnessContext(context); await h.close()
   }
   await test.step('COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart', () => messageOutcomes(browser))
 })
@@ -273,7 +310,7 @@ async function messageOutcomes(browser: Browser) {
     await screens(page, 'message-failures', email)
     await page.goto('about:blank')
     await transport.idle()
-    await h.restart()
+    await restartHarness(h)
     await customerPage()
     await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
     await send('quote', quote.id, { RecordType: 'SpamComplaint' })
@@ -298,8 +335,8 @@ async function messageOutcomes(browser: Browser) {
     await expect(warning).toHaveCount(0)
     expect((await h.state()).customers.find((c: { id: string }) => c.id === customer.id).apEmail).toBe(address('synthetic-glove-new-ap'))
   } finally {
-    await page.unrouteAll({ behavior: 'wait' })
-    await context.close()
+    await unrouteHarness(page)
+    await closeHarnessContext(context)
     try { await transport?.close() } finally { await h.close() }
   }
 }

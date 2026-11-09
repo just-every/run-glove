@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -9,7 +11,7 @@ const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 /** Forward the browser transport to the real production API Worker and D1, as this person.
  * Only Google Maps' paid network edge is fake; no application answers are stubbed. */
 async function productionApi(page: Page, h: any, as?: string) {
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url())
     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(as ? { as } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
     await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
@@ -87,7 +89,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         await expect(calendar.getByLabel('Include customer name and service address')).not.toBeChecked()
         await expect(calendar.getByLabel('OAuth client secret', { exact: true })).toHaveValue('')
         const stoppedWrites = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
-        await h.restart()
+        await restartHarness(h)
         await h.scheduled('2026-11-03T00:00:00.000Z')
         expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(stoppedWrites)
         expect([...h.calendarSync.events.entries()]).toEqual(retainedProviderEvents)
@@ -167,7 +169,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
       await expect(map.getByRole('img', { name: new RegExp(`^Priya N\\. stop 3: J-\\d+ at 1:00 PM`) })).toBeVisible()
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       await shot(page, 390, 'board')
-    } finally { await context.close() }
+    } finally { await closeHarnessContext(context) }
 
     // Keep the alternative technician eligible at the northern stops after the zone-drawing proof.
     const tomForLocation = (await h.state()).technicians.find((t: any) => t.id === b.tom.id)
@@ -253,7 +255,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
           await expect(liveMap.getByRole('region', { name: 'Location delay watch' }).getByText(/free at the same time.*Delayed technician: Samsara position/).first()).toBeVisible()
           await shot(desk.page, width, 'fleet-delay-watch')
           await b.tomPerson.run('clock.out', { deviceTime: now() })
-        } finally { await desk.context.close() }
+        } finally { await closeHarnessContext(desk.context) }
         await phone.page.getByRole('button', { name: 'Clock out', exact: true }).click()
         await expect.poll(async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n).toBe(0)
         await expect(sharing.getByText('Location stopped: clock in and start a visit timer', { exact: true })).toBeVisible()
@@ -263,7 +265,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
         await expect.poll(async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n).toBe(0)
         await shot(phone.page, width, 'location-withdrawn')
-      } finally { await phone.context.close() }
+      } finally { await closeHarnessContext(phone.context) }
     }
   } finally { await h.close() }
 })
@@ -301,7 +303,7 @@ async function calendarDeliveryReview(browser: any) {
       visit = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, start: '11:00', end: '12:00', reason: 'Waiting for uncertain provider outcome' })
       review.push({ calendar, provider, tech, visit, uncertain, mapping })
     }
-    await h.restart()
+    await restartHarness(h)
     await h.scheduled('2026-11-03T00:00:00.000Z')
     await page.reload()
     for (const { calendar, provider } of review) {
@@ -347,5 +349,5 @@ async function calendarDeliveryReview(browser: any) {
       await expect(calendar.getByRole('status')).toContainText('confirmed')
       await expect(calendar.getByRole('region', { name: 'Retained calendar events' })).toContainText(mapping.event_id)
     }
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 }

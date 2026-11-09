@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, unrouteHarness } from './harness-route'
 import { test, expect, type Browser, type Page } from '@playwright/test'
 import { phoneDesk } from './phone-desk'
 import { deskPage, action, phoneScreen, origin } from './desk-fixture'
@@ -119,7 +121,7 @@ export async function rulesBrowser(browser: Browser) {
     const beforeRestart = await h.request('/api/glove/export').then((r: Response) => r.json())
     expect(beforeRestart.ruleRuns).toHaveLength(5)
     expect(beforeRestart.notices).toHaveLength(4)
-    await h.restart()
+    await restartHarness(h)
     await open(owner.page)
     await inspect('Office intake', 5, refused, 'By Olu Office (viewer); created by Olu Office (office)', 'not allowed', 'Olu Office no longer holds a desk role', 'office', 'Owner reviewed office instructions')
     await inspect('Owner intake', 1, first, 'By Olivia Owner (owner); created by Olivia Owner (owner)', 'done', 'notice to owner', 'owner', 'Owner checks the request')
@@ -136,7 +138,7 @@ export async function rulesBrowser(browser: Browser) {
     expect(retained.notices).toEqual(beforeRestart.notices)
     expect(outbound()).toEqual(outboundBefore)
   } finally {
-    for (const { page, context } of contexts) { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    for (const { page, context } of contexts) { await unrouteHarness(page); await closeHarnessContext(context) }
     await h.close()
   }
 }

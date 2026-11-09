@@ -1,4 +1,6 @@
-import { test, expect, chromium, type Page, type Locator, type Browser, type Route } from '@playwright/test'
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, type HarnessRoute, unrouteHarness } from './harness-route'
+import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
@@ -52,8 +54,8 @@ async function checkPropertyHistories(page: Page, width: number) {
   try {
     const b = await business(h)
     const fixture = await customerHistoryFixture(h, b)
-    await h.restart()
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await restartHarness(h)
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -886,7 +888,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
         await page.waitForURL(u => u.pathname === '/app')
       }
-      const serve = async (route: Route) => {
+      const serve = async (route: HarnessRoute) => {
         const req = route.request(), url = new URL(req.url())
         if (offline) { await route.abort('internetdisconnected'); return }
         const body = req.postData() ? JSON.parse(req.postData()!) : undefined
@@ -896,7 +898,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         if (loseNext && body?.type === 'timer.start') { loseNext = false; await route.abort('connectionreset'); return }
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       }
-      await page.route(`${origin}/api/glove/**`, serve)
+      await harnessRoute(page, `${origin}/api/glove/**`, serve)
       const ready = async (navigate: () => Promise<unknown>) => {
         const records = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
         await navigate()
@@ -1042,10 +1044,10 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       ].sort())
       // Drain browser reads before replacing the Worker they dispatch to.
       await page.goto('about:blank')
-      await page.unrouteAll({ behavior: 'wait' })
-      await h.restart()
+      await unrouteHarness(page)
+      await restartHarness(h)
       expect(await h.state()).toEqual(kept)
-      await page.route(`${origin}/api/glove/**`, serve)
+      await harnessRoute(page, `${origin}/api/glove/**`, serve)
       as = h.owner()
       await ready(() => page.goto(`${origin}/app#today`))
       await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
@@ -1064,7 +1066,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await expect(row.getByText('Original from the phone: 8:40 AM – 8:50 AM', { exact: true })).toBeVisible()
       await expect(page.getByText('Travel 15 min · On the job 3 min', { exact: true })).toBeVisible()
       await proof('time-corrected')
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
   await commissionDownloads(browser)
 })
@@ -1087,7 +1089,7 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
         await page.waitForURL(u => u.pathname === '/app')
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -1104,7 +1106,7 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(page, width, 'uncosted-estimate-lines')
       }
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
 })
 
@@ -1124,7 +1126,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await page.goto(process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await context.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -1158,7 +1160,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await expect(page.getByRole('heading', { name: 'Harbourview Dental', exact: true })).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await shot(page, width, 'customer-privacy-erased')
-    } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -1183,7 +1185,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await page.goto(process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await context.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         const reply = (async () => {
           const req = route.request(), url = new URL(req.url())
           const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -1231,7 +1233,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await page.reload()
       await expect(page.getByRole('button', { name: new RegExp(`${peerJob.number} · Kept visit`) })).toBeVisible()
       expect(await page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), peerOriginal.file.fileId)).toBe(true)
-    } finally { await context.setOffline(false); await settled(); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await context.setOffline(false); await settled(); await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -1269,7 +1271,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
         await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
         await page.waitForURL(u => u.pathname === '/app')
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
         const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -1363,7 +1365,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
         expect((await h.state()).enquiries.find((e: any) => e.id === emailed.id).acknowledgment).toEqual(emailed.acknowledgment)
         const conversation = await (await h.request(`/api/glove/conversation?customerId=${emailed.customerId}`)).json()
         expect(conversation.entries.find((e: any) => e.id === `email:${message.id}`).delivery).toBe((await h.state()).messageStates[message.id].text)
-        await h.restart()
+        await restartHarness(h)
         await reloadLeadCards()
         await expect(emailedCard).toContainText(outcome === 'delivered' ? 'mail server (reported by Postmark)' : 'Bounced:')
         await expect(emailedCard).toContainText('Glove does not confirm receipt in the Yelp conversation')
@@ -1381,6 +1383,6 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       }
       expect(errors).toEqual([])
-    } finally { await context.close(); await h.close(); await new Promise<void>(done => site.close(() => done())) }
+    } finally { await closeHarnessContext(context); await h.close(); await new Promise<void>(done => site.close(() => done())) }
   }
 })

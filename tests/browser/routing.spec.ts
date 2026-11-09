@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -6,7 +8,7 @@ import { installation, routingDay, assertTrail } from '../api/harness.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 async function productionApi(page: Page, h: any, as: string) {
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url())
     const res = await h.request(url.pathname + url.search, { as, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
     await route.fulfill({ status: res.status, contentType: res.headers.get('content-type') ?? 'application/json', body: Buffer.from(await res.arrayBuffer()) })
@@ -125,7 +127,7 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     const events = trail.activity.filter((e: any) => e.commandId === trail.activity.find((e: any) => e.kind === 'route.accepted').commandId)
     expect(events.filter((e: any) => e.kind === 'visit.changed').map((e: any) => e.subjectId).sort()).toEqual(changed.sort())
     for (const event of events) expect([event.actorId, event.actorName, event.actorRole, event.at]).toEqual([b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at])
-    await h.restart()
+    await restartHarness(h)
     await page.reload()
     await expect(routes.getByText('Route accepted. Sam Ortiz recorded: Less driving while keeping the promised windows', { exact: true })).toBeVisible()
     expect((await h.state()).visits).toEqual(after)
@@ -143,5 +145,5 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
       await routes.scrollIntoViewIfNeeded()
       await shot(page, width, 'accepted')
     }
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })

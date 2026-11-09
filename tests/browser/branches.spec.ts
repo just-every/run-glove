@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 // @ts-expect-error Named scenarios add no test registrations.
 import { scenario } from '../fixtures/scenario.mjs'
 // @ts-expect-error Independent CSV assertions shared with the API journey.
@@ -73,7 +74,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       // Only the transport is forwarded: all data and role decisions come from production handlers.
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
         const r = await h.request(u.pathname + u.search, { method: req.method(), ...(as ? { as } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: r.status, headers: Object.fromEntries(r.headers), body: Buffer.from(await r.arrayBuffer()) })
@@ -238,6 +239,6 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await expect(page.locator('.glove-app')).not.toContainText('Phoenix rooftop inspection')
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await shot(page, width, 'limited-jobs') }
     } catch (error) { console.error(error); throw error }
-    finally { if (!page.isClosed()) await page.unrouteAll({ behavior: 'ignoreErrors' }); await context.close() }
+    finally { if (!page.isClosed()) await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
 })

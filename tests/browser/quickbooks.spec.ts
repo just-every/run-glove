@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -42,7 +43,7 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
     const retiredWorkers = new WeakSet<object>(), restart = h.restart
     h.restart = async () => { retiredWorkers.add(h.mf); await restart() }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url()), worker = h.mf
       try {
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -178,7 +179,7 @@ test('QuickBooks owner connects and maps existing records, repairs a rejected in
       await expect(allocation).toBeVisible()
       await shots(page, allocation, name)
     }
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 test('QuickBooks company review resolves ambiguous links, approves two creations and preserves moved invoices at 1440 and 390', async ({ browser }) => {
@@ -193,7 +194,7 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     await page.goto(process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
@@ -280,7 +281,7 @@ test('QuickBooks company review resolves ambiguous links, approves two creations
     const activity = await (await h.request('/api/glove/export')).json()
     expect(JSON.stringify(activity)).toContain('qbo.linksConfirmed')
     expect(JSON.stringify(activity)).not.toContain('synthetic-glove-901')
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })
 
 test('Xero remittance shows each property invoice allocation and refuses unsupported refund controls', async ({ browser }) => {
@@ -299,7 +300,7 @@ test('Xero remittance shows each property invoice allocation and refuses unsuppo
     await page.goto(process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
@@ -318,5 +319,5 @@ test('Xero remittance shows each property invoice allocation and refuses unsuppo
         if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-xero-property-${index + 1}.png`) }) }
       }
     }
-  } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(page); await closeHarnessContext(context); await h.close() }
 })

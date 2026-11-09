@@ -1,3 +1,4 @@
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -47,7 +48,7 @@ test('FIELD-003 / FIELD-002 the desk copies and revokes a report link, the custo
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
       // Render real built screens. Route forwarding supplies each request to
       // the production Worker, preserving its real command/auth/file handlers.
-      await context.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         const request = route.request(), url = new URL(request.url())
         const isPublic = url.pathname.startsWith('/api/glove/public/')
         const response = await h.request(url.pathname + url.search, { method: request.method(), as: isPublic ? '' : acting, headers: isPublic ? { authorization: request.headers().authorization ?? '' } : {}, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
@@ -116,6 +117,6 @@ test('FIELD-003 / FIELD-002 the desk copies and revokes a report link, the custo
       try { await publicPage.reload() } catch { throw new Error('The revoked report page failed to reload.') }
       await expect(publicPage.getByRole('alert')).toContainText('unavailable or has expired')
       await screens(publicPage, 'revoked')
-    } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(context); await closeHarnessContext(context) }
   } finally { await h.close() }
 })

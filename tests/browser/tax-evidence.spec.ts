@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext, harnessRoute, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -22,7 +24,7 @@ test('MONEY-004 Reports states approved-invoice tax before and after ordinary pa
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await context.route(origin + '/api/glove/**', async route => {
+    await harnessRoute(context, origin + '/api/glove/**', async route => {
       const request = route.request(), url = new URL(request.url())
       const response = await h.request(url.pathname + url.search, { method: request.method(), ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -52,7 +54,7 @@ test('MONEY-004 Reports states approved-invoice tax before and after ordinary pa
     await h.setTime('2026-11-02T12:00:00.000Z')
     await h.command('payment.record', { invoiceId: invoice.id, version: invoice.version, method: 'check', amount: '55.00', reference: 'synthetic-glove-163' })
     await h.command('payment.credit', { invoiceId: invoice.id, version: invoice.version, amount: '5.00', reference: 'Owner goodwill credit' })
-    await h.restart()
+    await restartHarness(h)
     await page.reload()
     await page.getByLabel('From', { exact: true }).fill('2026-10-30')
     await page.getByLabel('To', { exact: true }).fill('2026-10-30')
@@ -71,5 +73,5 @@ test('MONEY-004 Reports states approved-invoice tax before and after ordinary pa
     expect(document.body.TxnTaxDetail.TotalTax).toBe(10)
     expect(document.body.CustomerRef.value).toBe('synthetic-glove-customer')
     expect(h.outbound.attempts).toBe(outgoing)
-  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
 })

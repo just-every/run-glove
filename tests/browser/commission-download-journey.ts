@@ -1,3 +1,5 @@
+import { restartHarness } from './harness-route'
+import { closeHarnessContext } from './harness-route'
 import { expect, type Browser } from '@playwright/test'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -82,9 +84,9 @@ export async function commissionDownloads(browser: Browser) {
           }
         }
         await phoneScreen(page, width, 'commission-downloads', sheets.getByRole('link', { name: 'Gusto hours CSV', exact: true }))
-      } finally { await context.close() }
+      } finally { await closeHarnessContext(context) }
       // No browser request remains in flight across the actual Worker restart.
-      if (width === 1440) { await transport.idle(); await h.restart() }
+      if (width === 1440) { await transport.idle(); await restartHarness(h) }
     }
   } finally { try { await transport.close() } finally { await h.close() } }
 }
