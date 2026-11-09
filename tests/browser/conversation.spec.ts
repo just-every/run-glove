@@ -9,6 +9,30 @@ import { connectMail, postmarkCallback } from '../fixtures/mail-providers.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
+// These proxy journeys use the harness Worker for every Glove HTTP request;
+// an installed service worker must not bypass that network boundary.
+function trackProxyReplies() {
+  const pending = new Set<Promise<void>>()
+  async function drain() {
+    while (pending.size) await Promise.all([...pending])
+  }
+  return {
+    wrap(handle: (route: Route) => Promise<void>) {
+      return (route: Route) => {
+        const reply = handle(route)
+        pending.add(reply)
+        return reply.finally(() => { pending.delete(reply) })
+      }
+    },
+    async park(page: Page) {
+      // Keep the handler registered. Unregistering can make Playwright continue
+      // a route whose independent proxy is still reading its response.
+      await drain()
+      if (!page.isClosed()) await page.goto('about:blank')
+      await drain()
+    },
+  }
+}
 async function screens(page: Page, name: string, panel: Locator) {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1050 })
@@ -24,7 +48,8 @@ async function screens(page: Page, name: string, panel: Locator) {
 
 test('COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations', async ({ browser }) => {
   const h = await installation({ at: '2030-03-12T12:00:00Z' })
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  const context = await browser.newContext({ serviceWorkers: 'block', viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  const replies = trackProxyReplies()
   let held: { query: string; arrived: () => void; wait: Promise<void> } | null = null
   let releaseHeld: (() => void) | undefined
   let unavailableQuery: string | null = null
@@ -46,7 +71,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     }
     // The UI uses the real Worker and signed-in desk session. Delay a read only
     // to inspect the ordinary pending state; never fabricate a domain answer.
-    await page.route(`${origin}/api/glove/**`, async route => {
+    const proxy = replies.wrap(async route => {
       const req = route.request(), url = new URL(req.url())
       if (url.pathname === '/api/glove/conversation' && url.searchParams.toString() === unavailableQuery) {
         await route.abort('failed'); return
@@ -57,12 +82,27 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
       if (pause && url.pathname === '/api/glove/conversation' && url.searchParams.toString() === pause.query) { pause.arrived(); await pause.wait }
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body })
     })
+    await page.route(`${origin}/api/glove/**`, proxy)
+    async function park() {
+      await replies.park(page)
+    }
+    async function open(url: string) {
+      await park()
+      await page.goto(url)
+      await page.locator('.glove-app[aria-busy="false"]').waitFor({ state: 'visible' })
+      if (new URL(url).hash.startsWith('#jobs/')) {
+        const conversation = page.getByRole('region', { name: 'Job conversation', exact: true })
+        await conversation.waitFor({ state: 'visible' })
+        await conversation.getByRole('status').waitFor({ state: 'hidden' })
+      }
+    }
     const customerPanel = page.getByRole('region', { name: 'Customer conversation', exact: true })
     const jobPanel = page.getByRole('region', { name: 'Job conversation', exact: true })
     const rows = (panel: Locator) => panel.locator('ol.timeline-list > li')
     async function selectCustomer(name: string) {
       await page.getByRole('button', { name, exact: true }).click()
       await expect(customerPanel).toBeVisible()
+      if (!held) await customerPanel.getByRole('status').waitFor({ state: 'hidden' })
     }
     async function log(panel: Locator, kind: string, text: string, minute: number, direction = 'inbound', outcome = 'answered') {
       await h.request('/__test/clock', { method: 'POST', body: { at: `2030-03-12T12:${String(minute).padStart(2, '0')}:00Z` } })
@@ -78,12 +118,13 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
       await form.getByRole('button', { name: kind === 'call' ? 'Log call' : 'Log note', exact: true }).click()
       expect((await (await response).json()).ok).toBe(true)
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
+      await panel.getByRole('status').waitFor({ state: 'hidden' })
       await expect(panel).toContainText(text)
     }
-    await page.goto(`${origin}/app#jobs/${harbourJob.id}`)
+    await open(`${origin}/app#jobs/${harbourJob.id}`)
     await log(jobPanel, 'call', 'Harbour called about the filter', 1)
     await log(jobPanel, 'note', 'Harbour needs a washable filter', 3)
-    await page.goto(`${origin}/app#jobs/${riverJob.id}`)
+    await open(`${origin}/app#jobs/${riverJob.id}`)
     await log(jobPanel, 'call', 'River callback reached voicemail', 2, 'outbound', 'voicemail')
     await log(jobPanel, 'note', 'River needs the back entrance', 4)
     // Switch jobs through the real list while the next populated read waits.
@@ -98,7 +139,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(jobPanel).not.toContainText('River callback reached voicemail')
     jobRelease(); held = null
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
-    await page.goto(`${origin}/app#customers`)
+    await open(`${origin}/app#customers`)
     await selectCustomer(harbour.name)
     await log(customerPanel, 'note', 'Harbour account contact updated', 5)
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter', 'Harbour account contact updated'])
@@ -123,7 +164,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(rows(customerPanel).nth(0)).toContainText('Outbound call · phone call (logged) · Morgan Desk to River Clinic')
     await expect(rows(customerPanel).nth(0)).toContainText('voicemail, 4 min')
     await screens(page, 'river', customerPanel)
-    await page.reload()
+    await open(page.url())
     await selectCustomer(river.name)
     await expect(customerPanel).toContainText('River needs the back entrance')
 
@@ -169,7 +210,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     expect(await domain()).toEqual(beforeRole)
     await screens(page, 'authority-withdrawn', customerPanel)
     await h.command('role.set', { operatorId: desk.id, role: 'office' })
-    await page.reload()
+    await open(page.url())
     await selectCustomer(river.name)
     await expect(customerPanel).toContainText('River needs the back entrance')
     await h.command('branch.limit', { operatorId: desk.id, branchId: branch.id })
@@ -185,29 +226,34 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
 
     const s = await h.state()
     await h.command('customer.merge', { survivorId: harbour.id, mergedIds: [river.id], versions: Object.fromEntries(s.customers.filter((c: any) => [harbour.id, river.id].includes(c.id)).map((c: any) => [c.id, c.version])) })
+    await park()
     await h.restart()
-    await page.reload()
+    await open(`${origin}/app#customers`)
     await selectCustomer(harbour.name)
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'River callback reached voicemail', 'Harbour needs a washable filter', 'River needs the back entrance', 'Harbour account contact updated'])
     await screens(page, 'survivor-after-restart', customerPanel)
-    await page.goto(`${origin}/app#jobs/${harbourJob.id}`)
+    await open(`${origin}/app#jobs/${harbourJob.id}`)
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
     await screens(page, 'harbour-job', jobPanel)
-    await page.goto(`${origin}/app#jobs/${riverJob.id}`)
+    await open(`${origin}/app#jobs/${riverJob.id}`)
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
     await screens(page, 'river-job', jobPanel)
   } finally {
     // A delayed transport is always released before shutting down its Worker.
     releaseHeld?.()
-    await page.unrouteAll({ behavior: 'wait' })
-    await context.close(); await h.close()
+    try {
+      await replies.park(page)
+    } finally {
+      await context.close(); await h.close()
+    }
   }
 })
 
 test('COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart', async ({ browser }) => {
   const h = await installation({ at: '2026-11-09T12:00:00.000Z' })
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  const context = await browser.newContext({ serviceWorkers: 'block', viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
   const address = (name: string) => [name, 'example.test'].join('@')
+  const replies = trackProxyReplies()
   try {
     const b = await business(h, { timezone: 'UTC' })
     let customer = await h.command('customer.save', { ...b.customer, kind: 'business', email: address('synthetic-glove-main'), apEmail: address('synthetic-glove-ap') })
@@ -244,22 +290,35 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
       await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
     }
-    const proxy = async (route: Route) => {
+    const proxy = replies.wrap(async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       const body = Buffer.from(await response.arrayBuffer())
-      // Navigation can cancel the browser request while the independent
-      // harness fetch is still reading. Only a live request needs a reply.
-      if (page.isClosed() || req.failure()) return
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body })
-    }
+    })
     await page.route(`${origin}/api/glove/**`, proxy)
+    async function park() {
+      await replies.park(page)
+    }
+    async function open(url: string) {
+      await park()
+      await page.goto(url)
+      await page.locator('.glove-app[aria-busy="false"]').waitFor({ state: 'visible' })
+      if (new URL(url).hash.startsWith('#jobs/')) {
+        const conversation = page.getByRole('region', { name: 'Job conversation', exact: true })
+        await conversation.waitFor({ state: 'visible' })
+        await conversation.getByRole('status').waitFor({ state: 'hidden' })
+      }
+    }
     const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })
     const warning = panel.getByRole('alert')
     async function customerPage() {
-      await page.goto(`${origin}/app#customers`)
+      await open(`${origin}/app#customers`)
       await page.getByRole('button', { name: customer.name, exact: true }).click()
       await expect(panel).toBeVisible()
+      const conversation = page.getByRole('region', { name: 'Customer conversation', exact: true })
+      await conversation.waitFor({ state: 'visible' })
+      await conversation.getByRole('status').waitFor({ state: 'hidden' })
     }
     await customerPage()
     await expect(warning).toHaveText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark). Check the address with the customer, correct it on their record and send again.`)
@@ -267,7 +326,7 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
     await expect(conversation).toContainText(`Delivered to ${customer.email}'s mail server (reported by Postmark)`)
     await expect(conversation).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
     await screens(page, 'address-bounce', panel)
-    await page.goto(`${origin}/app#invoices`)
+    await open(`${origin}/app#invoices`)
     await page.getByRole('button', { name: invoice.number, exact: true }).click()
     const email = page.getByRole('region', { name: `Email ${invoice.number}`, exact: true })
     await expect(email).toContainText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark)`)
@@ -277,30 +336,26 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
     await expect(email).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
     await expect(email).toContainText('Check the address and send again.')
     await screens(page, 'message-failures', email)
-    // Drain proxy callbacks before disposing their Worker, then park the old
-    // document so it cannot start another read during the restart. Reattach
-    // the same real-Worker proxy before opening the persisted customer record.
-    await page.unrouteAll({ behavior: 'wait' })
-    await page.goto('about:blank')
+    // The old document cannot start another read while its Worker is stopped.
+    await park()
     await h.restart()
-    await page.route(`${origin}/api/glove/**`, proxy)
     await customerPage()
     await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
     await send('quote', quote.id, { RecordType: 'SpamComplaint' })
-    await page.reload()
+    await open(page.url())
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toHaveText(`Marked as spam by ${customer.email} (reported by Postmark). Do not email them again until they ask for it; call them instead.`)
     await screens(page, 'address-complaint', panel)
     await send('quote', quote.id, { RecordType: 'Delivery' })
-    await page.reload()
+    await open(page.url())
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
     await send('invoice', invoice.id, { RecordType: 'Delivery' })
-    await page.reload()
+    await open(page.url())
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toHaveCount(0)
     await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'HardBounce' })
-    await page.reload()
+    await open(page.url())
     await page.getByRole('button', { name: customer.name, exact: true }).click()
     await expect(warning).toContainText(customer.apEmail)
     await panel.getByLabel('Accounts-payable email', { exact: true }).fill(address('synthetic-glove-new-ap'))
@@ -308,7 +363,10 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
     await expect(warning).toHaveCount(0)
     expect((await h.state()).customers.find((c: { id: string }) => c.id === customer.id).apEmail).toBe(address('synthetic-glove-new-ap'))
   } finally {
-    await page.unrouteAll({ behavior: 'wait' })
-    await context.close(); await h.close()
+    try {
+      await replies.park(page)
+    } finally {
+      await context.close(); await h.close()
+    }
   }
 })
