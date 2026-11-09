@@ -230,5 +230,60 @@
       "sha256": "600787401fefd8e6f9500ca10a78676fffeaab91d3544dc2be12c98566f29dd3",
       "head": "629d11606d056eb44d3a95305e106a99ff5e84d8"
     }
-  ]
+  ],
+  "evidence_transport": {
+    "initial_publish": {
+      "exit": 1,
+      "HTTP": "unknown (not supplied by entrypoint)"
+    },
+    "recovery": {
+      "launcher_refreshed": true,
+      "fleet_git_setup_reinstalled": true,
+      "second_publish_exit": 0
+    },
+    "verified_snapshot": "d394cc5bec28e3dee7b35fd45961c83db87ebd10",
+    "roundtrip_status": "restored",
+    "verified_files": 29
+  },
+  "ci_observations": [
+    {
+      "at": "2026-11-09T10:00:54Z",
+      "id": 42597679105,
+      "head_sha": "629d11606d056eb44d3a95305e106a99ff5e84d8",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "at": "2026-11-09T10:06:19Z",
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "629d11606d056eb44d3a95305e106a99ff5e84d8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42597679105",
+      "id": 42597679105,
+      "name": "Verify",
+      "status": "in_progress"
+    },
+    {
+      "at": "2026-11-09T10:11:26Z",
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "629d11606d056eb44d3a95305e106a99ff5e84d8",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42597679105",
+      "id": 42597679105,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "github_calls_used": 4,
+  "handoff": {
+    "native_points_proven": true,
+    "ci_green_claimed": false,
+    "state": "READY for guarded fleet landing",
+    "requires": [
+      "exact-head Verify success",
+      "complete fleet publication scan",
+      "guarded main landing",
+      "exact-main Run site where applicable"
+    ]
+  }
 }
