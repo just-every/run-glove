@@ -1,0 +1,16 @@
+{
+  "head": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "command": "node --test --test-concurrency=1 tests/api/costing.test.mjs tests/api/customers.test.mjs tests/api/message-outcomes.test.mjs tests/api/privacy.test.mjs",
+  "exit": 0,
+  "runnerEntries": 4,
+  "behaviorRegistrations": 3,
+  "privacyDuration_ms": 369795.195403,
+  "runnerDuration_ms": 413841.539297,
+  "emptyHelperEntry": "message-outcomes.test.mjs has no registration after main consolidation; actual function separately invoked",
+  "existingSNSJourney": {
+    "command": "node --test /tmp/f221-sns-current.mjs",
+    "exit": 0,
+    "tests": 1,
+    "duration_ms": 140479.794047
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "head": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "typecheck": 0,
+  "firstParty": 0,
+  "inventory": {
+    "tests": 200,
+    "cap": 200,
+    "exit": 0,
+    "roundAddedRegistrations": 0
+  },
+  "contractWrite": 0,
+  "contractCheck": 0,
+  "viewsRestoredFromMain": true,
+  "sourceLockGenerate": 0,
+  "cleanProductLockCheck": 0,
+  "whitespaceCheck": 0,
+  "contractStatusDiff": "unchanged",
+  "originalCustomerAssertions": "preserved",
+  "countsBeforeAndAfter": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29
+  }
+}

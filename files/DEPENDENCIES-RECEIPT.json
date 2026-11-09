@@ -1,0 +1,11 @@
+{
+  "head": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "sourceChanges": false,
+  "extraProbeMistake": "A shared node_modules symlink let an isolated installer rewrite checkout-local package links. No source or committed artifact changed.",
+  "restorationCommand": "CI=true pnpm install --offline --frozen-lockfile",
+  "restorationExit": 0,
+  "portabilityModuleImportExit": 0,
+  "sourceLockCheckExit": 0,
+  "fleetCommitHooksReinstalled": true,
+  "subsequentProbe": "Each scratch installation owns independently installed locked dependencies."
+}

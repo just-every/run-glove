@@ -1,0 +1,55 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COST-004 a $1,850 job retains frozen estimates and approved revenue through actual costs and restart
+ok 1 - COST-004 a $1,850 job retains frozen estimates and approved revenue through actual costs and restart
+  ---
+  duration_ms: 17910.24849
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: CUST-001: each property has its whole history, and a business customer bills apart from its sites
+ok 2 - CUST-001: each property has its whole history, and a business customer bills apart from its sites
+  ---
+  duration_ms: 13427.069451
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: tests/api/message-outcomes.test.mjs
+ok 3 - tests/api/message-outcomes.test.mjs
+  ---
+  duration_ms: 2578.967308
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# (node:18461) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+ok 4 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+  ---
+  duration_ms: 369795.195403
+  type: 'test'
+  ...
+# DATA-001 points 1–7: native privacy qualification through the production Worker
+# DATA-001 point 1: independently seeded merged histories and a peer contain operational, financial and original evidence
+# DATA-001 point 2: every excluded caller is refused export and erasure without changing any record
+# DATA-001 point 3: either merged identity previews and exports the complete group and every receipt names both IDs
+# DATA-001 point 4: full timeline and byte-exact originals are shown once and excluded from replay, Activity, stored outcomes and Worker logs
+# DATA-001 point 5: erasure removes operational content, originals, certificates, credentials and personal event and command copies through every existing storage door
+# DATA-001 point 6: peer histories and anonymous financial dates, classifications, costs and tax totals stay exact while edits and unmerge are refused
+# DATA-001 point 7: the same erasure advances the Base redaction epoch and invalidates the pending archive transfer
+# DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+# DATA-001 point 7: the edition archive policy rejects an older checkpoint with a later journal or destination fence and restores an anonymous backup
+# DATA-001 point 8: a fresh offline destination given only the older archive restores personal data and originals, demonstrating the trusted-journal limit
+# DATA-001 point 4: complete customer CSV rows retain unmapped columns and exclude peers; imported erasure removes retained source copies
+# DATA-001 point 4: complete ServiceM8 objects include unmapped fields, exclude peer objects and name mixed-ownership attachment omissions
+# DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact
+# DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 413841.539297

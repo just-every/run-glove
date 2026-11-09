@@ -1,0 +1,21 @@
+Native DATA-001 archive probe: starting unwrapped edition installation
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"ok":false,"error":{"code":"INPUT","message":"Save the certificate number and expiry first.","details":null}}
+
+400 !== 200
+
+    at Object.cmd (file:///tmp/f221-native-archive.mjs:68:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///tmp/f221-native-archive.mjs:115:13 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 400,
+  expected: 200,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0

@@ -1,0 +1,40 @@
+Native DATA-001 archive probe: starting unwrapped edition installation
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: node:internal/modules/cjs/loader:1386
+  throw err;
+  ^
+
+Error: Cannot find module '/tmp/f221-native-archive-mvAcU5/source/node_modules/@runeditrun/rer/global/rer.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Function._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.20.0
+
+
+1 !== 0
+
+    at command (file:///tmp/f221-native-archive.mjs:31:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async devInstallation (file:///workspace/run-glove/tests/dev-installation.mjs:10:7)
+    at async file:///tmp/f221-native-archive.mjs:99:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.20.0

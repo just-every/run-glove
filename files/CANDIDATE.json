@@ -1,0 +1,26 @@
+{
+  "head": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "branch": "cloud/sx-glove-c-f221",
+  "repository": "just-every/run-glove",
+  "pushed": true,
+  "originMain": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "currentVerify": "unobserved: ten-call GitHub budget exhausted",
+  "previousVerify": 42622010536,
+  "previousConclusion": "failure: CUST-001 corrected; local SNS failure also occurs on old main, incoming main repair now passes",
+  "publicationScan": "not run in cloud",
+  "mainEquality": false,
+  "ready": false,
+  "claim": "PARTIAL",
+  "pointsLocallyQualified": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "currentFullCliRestore": "not established; supplementary probe rejected unsupported absolute journal path before restore",
+  "remoteHeadVerified": "7296b84ca02cda60b41642ccae13f8bfcfd998a8"
+}

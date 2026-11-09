@@ -1,0 +1,34 @@
+{
+  "head": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "command": "node /tmp/f221-native-archive.mjs",
+  "timeoutSeconds": 780,
+  "exit": 1,
+  "status": "partial; expected CLI safety guard reached before restore assertions",
+  "probeSourceSha256": "432c9a156fae5c2dfce145961edaf1abe8bd1f4527e8a78e1ebbdfe00734a868",
+  "completed": [
+    "unwrapped real edition setup and native sign-in",
+    "public material capture with exact 14.00 cost",
+    "actual CLI pre-erasure archive export",
+    "owner preview and confirmed erasure",
+    "zero captures after erasure and exact 14.00 material cost",
+    "actual CLI post-erasure archive export"
+  ],
+  "notReached": [
+    "trusted later journal erasure_epoch refusal",
+    "post-erasure financial restore",
+    "fresh offline older-only restore"
+  ],
+  "terminalFailure": "CLI exit 4: --journal must stay inside this checkout, without .. or an absolute path. The supplementary probe supplied an absolute path.",
+  "committedJourney": "tests/portable.mjs already copies latest into olderTarget and supplies relative post-erasure.rer; it is unchanged by this supplementary probe.",
+  "earlierAttempts": [
+    {
+      "exit": 1,
+      "cause": "Probe omitted required certificate number and expiry; product correctly refused INPUT."
+    },
+    {
+      "exit": 1,
+      "cause": "Shared dependency symlink let the first probe setup rewrite local links. Restored independently with locked offline install; no product source changed."
+    }
+  ],
+  "claimLimit": "No current-head full CLI restore pass is claimed. Current edition-policy API archive cases and browser proof pass; earlier full portable CI success belongs only to c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3."
+}

@@ -1,0 +1,41 @@
+{
+  "testedBase": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "command": "node /tmp/glove-browser-direct.mjs; invokes playwright test --config tests/browser/playwright.config.ts --workers=1 tests/browser/journey.spec.ts --grep \"the owner exports and explicitly erases\"",
+  "node": "22.20.0",
+  "browser": "/usr/bin/chromium",
+  "args": [
+    "--no-sandbox",
+    "--use-mock-keychain",
+    "--password-store=basic"
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "tests": 1,
+  "pass": 1,
+  "fail": 0,
+  "duration_ms": 78000,
+  "assertions": "latest-backup instruction, merged customer export bytes, named shared-original preview, explicit consent and ERASE confirmation, additive export and erasure receipts before and after reload, no horizontal overflow",
+  "files": {
+    "tests/browser/journey.spec.ts": "03d4a63f5ddb5fb595986b1d48c3ade17d597469b91d09d9358567a65091bb22",
+    "src/ui/privacy.tsx": "6d70a26bf08b99da5245e30bc51ceffe7db6baaf36148c31d05a7be0cbf4d55c",
+    "tests/api/harness.mjs": "79dd49bc5f48a62a4bb2d0c263c790d78dfc661da9831f3f089f0b66478364b6",
+    "src/ui/app.tsx": "3a24169fa0d04c27514fca79841890835d899a253126d8b41b5d9c6efa0d0389",
+    "src/ui/api.ts": "99897b364944259c3a21acb82b00d958beed4e4ac6f53a3ab4b440e7f7f67276",
+    "src/ui/customers.tsx": "c5ca296bced0ae1525bb5bba6024277f242a74adabdcf65edcf364a0f7218084"
+  },
+  "screenshots": {
+    "1440-customer-privacy-preview.png": "69618cc51c22bf364195f00667e0b6b7aee7085e9c54d4a23c9c62bc2c6cee2b",
+    "1440-customer-privacy-export.png": "883e1a2947b2616b099fb99f78383a9434255c1da6fcb283e712d99e403fc802",
+    "1440-customer-privacy-erased.png": "dc622c7aa084351f3ad193ce9e52785af29ce27c2975752c82cee96cb1b5cd68",
+    "390-customer-privacy-erased.png": "1652f071910c19715841cf19c5134f73e3e3769db0d3477261b6440112d759eb",
+    "390-customer-privacy-preview-panel.png": "0f8bb125e9d2523a9fb4ef5fb51d3e4d264a960ff1d6802e7398222eac922b05",
+    "390-customer-privacy-preview.png": "728c7db148cecbcb5554b839fe31cd81a4bcc0d6baf37cafb9a77be231551ed8",
+    "1440-customer-privacy-preview-panel.png": "1f0f27dc81dba1a82b8e0081d2af77e9f2acf14ce89fb44ebc5201241a04fe08",
+    "390-customer-privacy-export.png": "22319d187a918d692261ca495e12f1ee2ff2c56dec3e5d007d549440cc009d2e"
+  },
+  "candidate": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "byteEquivalentToCandidate": true,
+  "exit": 0
+}

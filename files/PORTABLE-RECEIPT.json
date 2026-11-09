@@ -1,0 +1,11 @@
+{
+  "head": "c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3",
+  "command": "node tests/portable.mjs",
+  "timeoutSeconds": 1200,
+  "node": "22.20.0",
+  "exit": 1,
+  "reachedPrivacyCase": false,
+  "failure": "Pinned rer development listener readiness failed during the earlier calendar restore fixture before DATA-001. No privacy assertion ran in this full local script.",
+  "classification": "local installer startup infrastructure",
+  "sharedPredecessorFailures": true
+}

@@ -1,0 +1,12 @@
+{
+  "failedHead": "c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3",
+  "run": 42622010536,
+  "job": 129176659127,
+  "command": "node --test --test-concurrency=1 tests/api/customers.test.mjs",
+  "candidateExit": 1,
+  "mainHead": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "mainExit": 0,
+  "test": "CUST-001: each property has its whole history, and a business customer bills apart from its sites",
+  "failure": "replayed captures never return after erasure; expected [], got anonymous material capture rows",
+  "repairPlan": "Retain non-personal material quantity, unit and catalogue association on the anonymous job, teach costing to read them, and remove every operational capture. Preserve all original main assertions."
+}

@@ -1,0 +1,47 @@
+Native DATA-001 archive probe: starting unwrapped edition installation
+Native pre-erasure archive exported
+Native post-erasure archive exported with material costs and no captures
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /erasure_epoch/. Input:
+
+'AssertionError [ERR_ASSERTION]: Checking pinned pnpm\n' +
+  '10.12.4\n' +
+  `--journal "/tmp/f221-native-archive-ef4nkN/latest.rer" must stay inside this checkout, without .. or an absolute path, for example .rer/recovery/<name>.rer. Stage the archives there as owned private files (0600), then run: rer import --input '/tmp/f221-native-archive-ef4nkN/older.rer' --journal '.rer/recovery/latest.rer' --yes --cwd '/tmp/f221-native-archive-ef4nkN/destination'\n` +
+  'import: failed (exit 4)\n' +
+  '\n' +
+  '\n' +
+  '4 !== 0\n'
+
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///tmp/f221-native-archive.mjs:131:2 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: AssertionError [ERR_ASSERTION]: Checking pinned pnpm
+  10.12.4
+  --journal "/tmp/f221-native-archive-ef4nkN/latest.rer" must stay inside this checkout, without .. or an absolute path, for example .rer/recovery/<name>.rer. Stage the archives there as owned private files (0600), then run: rer import --input '/tmp/f221-native-archive-ef4nkN/older.rer' --journal '.rer/recovery/latest.rer' --yes --cwd '/tmp/f221-native-archive-ef4nkN/destination'
+  import: failed (exit 4)
+  
+  
+  4 !== 0
+  
+      at command (file:///tmp/f221-native-archive.mjs:31:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async waitForActual (node:assert:644:5)
+      at async Function.rejects (node:assert:767:25)
+      at async file:///tmp/f221-native-archive.mjs:131:2 {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 4,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  },
+  expected: /erasure_epoch/,
+  operator: 'rejects',
+  diff: 'simple'
+}
+
+Node.js v22.20.0

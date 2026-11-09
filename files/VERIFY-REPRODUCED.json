@@ -1,0 +1,26 @@
+{
+  "head": "c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3",
+  "run": 42622010536,
+  "jobs": {
+    "api-1": 129176658887,
+    "api-2": 129176659127
+  },
+  "commands": [
+    "node scripts/verify-ci.mjs api-1",
+    "node scripts/verify-ci.mjs api-2"
+  ],
+  "exits": [
+    124,
+    124
+  ],
+  "node": "22.20.0",
+  "CI": "true",
+  "GLOVE_CI_PREBUILT": "1",
+  "failedTest": "CUST-001: each property has its whole history, and a business customer bills apart from its sites",
+  "targetedCommand": "node --test --test-concurrency=1 tests/api/customers.test.mjs",
+  "targetedExit": 1,
+  "failure": "replayed captures never return after erasure; expected [], got anonymous material captures",
+  "repairHead": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "repairExit": 0,
+  "repairRound": 1
+}

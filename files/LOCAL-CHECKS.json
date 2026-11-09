@@ -1,0 +1,38 @@
+{
+  "head": "e9052a69e5b1c0c512a2a28eb387824c49348802",
+  "base": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "node": "22.20.0",
+  "checks": [
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "exit": 1,
+      "finding": "202 registrations and assertion scripts against cap 200; identical on origin/main; no registrations added"
+    }
+  ],
+  "judgments": {
+    "before": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    },
+    "after": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    },
+    "statusRows": 263
+  },
+  "productionChanges": [
+    "Retain anonymous material quantities and catalogue references so job costing stays exact after erasure.",
+    "Withhold shared ServiceM8 attachment bytes from customer export, report named omissions, and include customer-owned company attachments."
+  ],
+  "policyChanges": false
+}

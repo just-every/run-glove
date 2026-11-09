@@ -1,0 +1,21 @@
+{
+  "failedHead": "c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3",
+  "run": 42622010536,
+  "job": 129176658887,
+  "failedShardCommand": "node scripts/verify-ci.mjs api-1",
+  "boundedCommandExit": 124,
+  "test": "COMM-010 points 1\u20138: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart",
+  "failure": "tests/api/message-outcomes.test.mjs:168 expected authenticated unknown event response 200 but received 401 MAIL_EVENT",
+  "mainHead": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "mainCommand": "node --test --test-concurrency=1 tests/api/message-outcomes.test.mjs",
+  "mainExit": 1,
+  "mainFailure": "Identical 401 MAIL_EVENT at line 168",
+  "incomingMain": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "incomingRepair": "Keep the synthetic SNS certificate valid at the fixed scenario clock",
+  "remoteJobLogRead": false,
+  "remoteFailureMatch": "Not established: ten-call API budget exhausted",
+  "additionalPartialReplay": {
+    "exit": 241,
+    "reason": "Stopped only the owned timeout process after 13 additional passing tests, when fresh main supplied the SNS fixture repair; not a complete shard pass."
+  }
+}

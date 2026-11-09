@@ -1,0 +1,70 @@
+{
+  "failedHead": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+  "ciRun": 42608851977,
+  "job": 129131981714,
+  "command": "node scripts/verify-ci.mjs portable",
+  "environment": {
+    "CI": "true",
+    "GLOVE_CI_PREBUILT": "1",
+    "GLOVE_VERIFY_SHARD": "portable",
+    "SHARD": "portable",
+    "WRANGLER_SEND_METRICS": "false",
+    "node": "22.20.0"
+  },
+  "originalFailure": "PortabilityError: policy_table_missing:glove_meta at tests/portable.mjs:715",
+  "attempts": [
+    {
+      "exit": 1,
+      "reachedPrivacyAssertion": false,
+      "failure": "pnpm 10.12.4 could not be fetched (fetch failed)",
+      "action": "Populate the verified pnpm cache with the shipped downloader; no product edit."
+    },
+    {
+      "exit": 1,
+      "reachedPrivacyAssertion": false,
+      "failure": "Application listener handshake did not become ready within 60 seconds during calendar destination setup.",
+      "action": "Run the same failed-head shard with no concurrent browser or dev runtime."
+    }
+  ],
+  "focusedReproduction": {
+    "head": "e9c1c010c1124f6cfc8168a666358019c607beb0",
+    "job": 129131981714,
+    "command": "node /tmp/glove-focused-f205.mjs",
+    "test": "Existing destination-fence service construction from tests/portable.mjs:715 with the edition archive policy and CLI persistence directory.",
+    "exit": 1,
+    "failure": "PortabilityError: policy_table_missing:glove_meta",
+    "samePinnedNode": true,
+    "samePinnedPortability": true
+  },
+  "repair": {
+    "file": "tests/portable.mjs",
+    "change": "Pass the versioned v3 persistence directory to the Wrangler API, matching the pinned edition CLI; verify its source identity and erasure epoch before the fence attempt.",
+    "scopedCheck": {
+      "command": "node /tmp/glove-focused-versioned.mjs",
+      "exit": 0
+    },
+    "baseOrPinnedHelperChanged": false
+  },
+  "additionalArchiveReaderFailure": {
+    "command": "node /tmp/glove-actual-archive-probe.mjs",
+    "exit": 1,
+    "failure": "TypeError: source.getReader is not a function",
+    "input": "Actual rer export archive read with the original Node stream call from tests/portable.mjs",
+    "repair": "Convert Node file streams with Readable.toWeb before calling the pinned Web stream archive reader."
+  },
+  "realArchiveStaging": {
+    "command": "node /tmp/glove-actual-archive-probe.mjs",
+    "exportCommand": "npx -y @runeditrun/rer export --output /tmp/glove-native-journal.rer",
+    "exit": 0,
+    "outcome": "Actual CLI archive read and accepted for staging; abort completed after applying both fixture API corrections."
+  },
+  "candidateLockCorrection": {
+    "failedHead": "908f7e89eb0d651a5910a25d42a366865b665c1c",
+    "command": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 1,
+    "failure": "Stale lock or source/tool integrity mismatch",
+    "newHead": "c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3",
+    "cleanTreeCheckExit": 0,
+    "publishedHistoryRewritten": false
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "head": "c8ff1f19eea00e126b1ac4eb6da9f5ea89488ef3",
+  "id": 42622010536,
+  "event": "push",
+  "status": "completed",
+  "conclusion": "failure",
+  "githubCallsUsed": 10,
+  "jobs": [
+    {
+      "id": 129176375262,
+      "name": "build",
+      "conclusion": "success"
+    },
+    {
+      "id": 129176658881,
+      "name": "foundation",
+      "conclusion": "success"
+    },
+    {
+      "id": 129176658973,
+      "name": "portable",
+      "conclusion": "success"
+    },
+    {
+      "id": 129176658904,
+      "name": "browser-1",
+      "conclusion": "success"
+    },
+    {
+      "id": 129176658929,
+      "name": "browser-2",
+      "conclusion": "success"
+    },
+    {
+      "id": 129176659065,
+      "name": "browser-3",
+      "conclusion": "success"
+    },
+    {
+      "id": 129176659133,
+      "name": "browser-4",
+      "conclusion": "success"
+    },
+    {
+      "id": 129176658887,
+      "name": "api-1",
+      "conclusion": "failure",
+      "logRead": false,
+      "reason": "Ten-call GitHub budget exhausted after reading the privacy-containing failed shard."
+    },
+    {
+      "id": 129176659127,
+      "name": "api-2",
+      "conclusion": "failure",
+      "logRead": true,
+      "privacyRegistration": "passed",
+      "failure": "CUST-001 replayed captures never return after erasure: expected [], got anonymous retained material captures."
+    }
+  ]
+}

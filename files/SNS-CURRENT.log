@@ -1,0 +1,37 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: Existing COMM-010 journey after incoming main certificate repair
+ok 1 - Existing COMM-010 journey after incoming main certificate repair
+  ---
+  duration_ms: 137529.431524
+  type: 'test'
+  ...
+# COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+# point 6: independent address warnings survive other-address delivery, refusal and failed attempts until same-address delivery or an address change
+# points 1 and 2: SendGrid sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: SendGrid authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: SendGrid failures retain exact user text, next steps and attributable provider references
+# point 7: SendGrid messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Resend sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Resend authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Resend failures retain exact user text, next steps and attributable provider references
+# point 7: Resend messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Postmark sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Postmark authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Postmark failures retain exact user text, next steps and attributable provider references
+# point 7: Postmark messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Amazon SES sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Amazon SES failures retain exact user text, next steps and attributable provider references
+# point 7: Amazon SES messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 3: state, saved command outcomes, message timelines, Activity, export and captured Worker logs retain provider facts but no email bodies, credentials or bearer
+# point 8: repeated scheduled passes, command replay and actual Worker restart retain identical facts and never resend any message
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 140479.794047

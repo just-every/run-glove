@@ -1,0 +1,18 @@
+{
+  "productHead": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "mergedMain": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "currentApiAndBrowserTestedHead": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "files": {
+    "src/glove/privacy.ts": "eb6b9fa265d728c1c142102621dbbbb652d7ce21d8ef5d0b95573cdc67390afc",
+    "src/glove/privacy-imports.ts": "7aed1c02d90fb60fa644e24cfdcaf53225b773f813d9bf50ad992956ca769e3d",
+    "src/glove/costing.ts": "3839d57df0fd763b021ff85d0085b34bbd2c417f6fdeabc3cc21a5d5eece0d0b",
+    "tests/api/privacy.test.mjs": "3b8995ba69e313d57c8dae0769c6be9b4a4e11f1b34b62b6d1723753568ff36d",
+    "tests/api/harness.mjs": "79dd49bc5f48a62a4bb2d0c263c790d78dfc661da9831f3f089f0b66478364b6",
+    "tests/fixtures/privacy-data.mjs": "75811d60b1929998b5904c23fbd0b9b2e97a9cc83a7a98993ec2e332e942addf",
+    "tests/fixtures/edition-archive-policy.mjs": "89bed392f5f20560165c3cf0031623e56eddd9b2e9d1bea8fc8bd9f34cbdf3c4",
+    "tests/portable.mjs": "a72b605179813e9a862ad90786c0da02369ce9a06f3757ba60984bceb75bd825",
+    "tests/browser/journey.spec.ts": "03d4a63f5ddb5fb595986b1d48c3ade17d597469b91d09d9358567a65091bb22",
+    "src/ui/privacy.tsx": "6d70a26bf08b99da5245e30bc51ceffe7db6baaf36148c31d05a7be0cbf4d55c",
+    "sources.lock.json": "db5e09ac39b3ee9ff8d7aa3bd1d4aabb837bddd73e99010ded8751ce46b00a9a"
+  }
+}
