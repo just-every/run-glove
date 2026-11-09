@@ -28,6 +28,7 @@ qualify('DISP-002 day map orders five stops and exact legs, restricts desk reads
   const sub = await h.person('Map Subcontractor', 'subcontractor')
   h.maps.calls.length = 0
   const check = async () => {
+    const callStart = h.maps.calls.length
     const response = await h.request(`/api/glove/map?date=${f.day}`, { as: f.dispatcher.cookie })
     assert.equal(response.status, 200)
     const board = await response.json()
@@ -48,15 +49,22 @@ qualify('DISP-002 day map orders five stops and exact legs, restricts desk reads
     assert.ok(!JSON.stringify(limited).includes(otherVisit.id))
     assert.ok(!limited.technicians.some(t => t.id === other.id))
     assert.deepEqual((await (await h.request(`/api/glove/map?date=${f.day}&branch=${branch.id}`, { as: scoped.cookie })).json()).technicians, [])
+    const scopedImage = await h.request(`/api/glove/map.png?date=${f.day}`, { as: scoped.cookie })
+    assert.equal(scopedImage.status, 200)
+    assert.ok((await scopedImage.arrayBuffer()).byteLength > 100)
+    assert.deepEqual(limited.view, { center: { lat: 41.820003, lng: -87.63 }, zoom: 12, width: 640, height: 360 })
+    assert.notDeepEqual(limited.view, board.view, 'the other branch must not influence the scoped map bounds')
+    const foreignImage = await h.request(`/api/glove/map.png?date=${f.day}&branch=${branch.id}`, { as: scoped.cookie })
+    assert.equal(foreignImage.status, 200)
+    assert.ok((await foreignImage.arrayBuffer()).byteLength > 100)
     for (const as of [f.people[0].cookie, sub.cookie, '']) for (const door of ['map', 'map.png']) assert.equal((await h.request(`/api/glove/${door}?date=${f.day}`, { as })).status, as ? 403 : 401)
     const routes = h.maps.calls.filter(c => c.api === 'routes')
     assert.ok(routes.length)
     const waypoint = site => ({ waypoint: { location: { latLng: { latitude: site.location.lat, longitude: site.location.lng } } } })
     const sorted = points => [...points].sort((a, b) => a.waypoint.location.latLng.latitude - b.waypoint.location.latLng.latitude)
     for (const call of routes) assert.deepEqual({ ...call.body, origins: sorted(call.body.origins), destinations: sorted(call.body.destinations) }, { origins: [f.sites[0], f.sites[1], f.sites[3]].map(waypoint), destinations: [f.sites[1], f.sites[2], f.sites[4]].map(waypoint), travelMode: 'DRIVE', routingPreference: 'TRAFFIC_UNAWARE' })
-    const images = h.maps.calls.filter(c => c.api === 'staticmap')
-    assert.ok(images.length)
-    for (const call of images) assert.deepEqual(call.query, { center: `${board.view.center.lat},${board.view.center.lng}`, zoom: String(board.view.zoom), size: `${board.view.width}x${board.view.height}`, scale: '2', maptype: 'roadmap' })
+    const images = h.maps.calls.slice(callStart).filter(c => c.api === 'staticmap')
+    assert.deepEqual(images.map(call => call.query), [board, limited, limited].map(({ view }) => ({ center: `${view.center.lat},${view.center.lng}`, zoom: String(view.zoom), size: `${view.width}x${view.height}`, scale: '2', maptype: 'roadmap' })))
   }
   await check()
   await h.restart()

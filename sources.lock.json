@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "390e5f88c37ded0b0a90a378bd7979cbb644c09db4ad5109e54041a5cd405060",
+      "sha256": "b9ab1c0813479cb3e41799ffd77d46686b64f0d29a45cb4b43cdb4cb106ef359",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "a04d08e7d4002cfe1b9fc280bf57918b6b8163efefeb2c8cbf44cb968068d74e",
+      "sha256": "a1a553d2621fce9424a23dfdc6eb1943f29ea6847fd02e7794c11728f519b34a",
       "executable": false
     },
     "DEMO.md": {
@@ -5603,6 +5603,10 @@
       "sha256": "a3700dfbf2be1b8320cdc6a8e0d799bb5b4a5b280abf11888ef740cd4ddd2b95",
       "executable": false
     },
+    "tests/api/fixed-monthly-dates.test.mjs": {
+      "sha256": "3291c0fe188d00821471e9946ef17074b8c11ec2ffd1a07cae09144f775f0709",
+      "executable": false
+    },
     "tests/api/fixed-monthly-reports.test.mjs": {
       "sha256": "10c18eaff559e10a3ad99fee8a351c067a8db8379991b8cf7adaef3b0d313718",
       "executable": false
@@ -5628,7 +5632,7 @@
       "executable": false
     },
     "tests/api/map-board.test.mjs": {
-      "sha256": "395447b623517e11f63fc874fdd9162fe4a018734fb5dbd98cd077a827fb96fa",
+      "sha256": "5b6ee7762aa999a93afda351d9d4a0aced36769c5c51d1c6834254fdbe20f4fa",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5940,7 +5944,7 @@
       "executable": false
     },
     "tests/browser/revenue.spec.ts": {
-      "sha256": "d1a0cd9686e66b87e9b557fc7bc445b2c26ee7b9b7ecf34af64c68005dac7bac",
+      "sha256": "9e4ae271805f2fe0185fb102c450be6dbaeda714a9c4703ecda55eaf410e3e7c",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
