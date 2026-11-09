@@ -710,7 +710,7 @@ export async function mapBoardFixture(h) {
   const day = '2026-11-09', sites = [], jobs = [], visits = []
   for (let i = 0; i < 5; i++) {
     const address = `${101 + i} Map Street, Chicago, IL 60601`
-    h.maps.places.set(address, { lat: 41.8 + i * 0.01, lng: -87.63 })
+    h.maps.places.set(address, { lat: [41.80, 41.81, 41.82, 41.83, 41.84][i], lng: -87.63 })
     sites.push(await h.command('site.save', { customerId: customer.id, address, accessNotes: 'Private access instructions' }))
     jobs.push(await dispatcher.run('job.create', { customerId: customer.id, siteId: sites[i].id, title: `Map visit ${i + 1}` }))
   }

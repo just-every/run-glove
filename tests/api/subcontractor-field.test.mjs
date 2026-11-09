@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -38,7 +39,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
     assert.equal(await h.db.prepare('SELECT id FROM glove_commands WHERE id=?').bind(commandId).first(), null)
   }
 
-  await t.test('point 1: mailed staff invitation confirms a built-in Subcontractor linked to their technician', async () => {
+  await scenario(t, 'point 1: mailed staff invitation confirms a built-in Subcontractor linked to their technician', async () => {
     assert.deepEqual(sub.invitation, { status: 202, confirmationStatus: 303, path: '/auth/confirm' })
     const session = await read(h, '/auth/session', sub.cookie)
     assert.deepEqual([session.operator.id, session.operator.displayName, session.operator.role], [sub.id, 'Sid Field', 'member'])
@@ -52,7 +53,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
     assert.equal(exported.technicians.find(x => x.id === tech.id).operatorId, sub.id)
   })
 
-  await t.test('point 2: exact current assignments, bounded records and frozen ordered work survive Worker restart', async () => {
+  await scenario(t, 'point 2: exact current assignments, bounded records and frozen ordered work survive Worker restart', async () => {
     // Captures from another visit of the same job must disappear when it moves away.
     const oldPayload = { visitId: moved.id, deviceTime: at, kind: 'note', text: 'Old reassigned work' }, oldCommand = randomUUID()
     const oldNote = await sub.run('visit.capture', oldPayload, { commandId: oldCommand })
@@ -103,7 +104,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
   })
 
   let photo
-  await t.test('point 4: arrival, every checklist item, note, captioned photo, described material, frozen form and completion land once with attribution', async () => {
+  await scenario(t, 'point 4: arrival, every checklist item, note, captioned photo, described material, frozen form and completion land once with attribution', async () => {
     const operations = [
       ['visit.arrive', {}],
       ...job.checklist.map((item, i) => ['visit.capture', { kind: 'checklist', itemId: item.id, result: i === 1 ? 'not applicable' : 'done', ...(i === 1 ? { note: 'No connection fitted' } : {}) }]),
@@ -150,7 +151,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
     assert.deepEqual(await sub.state(), before)
   })
 
-  await t.test('point 3: files and every other read door expose no desk money, timeline or other worker data', async () => {
+  await scenario(t, 'point 3: files and every other read door expose no desk money, timeline or other worker data', async () => {
     const ownFile = await h.request(`/api/glove/files/${photo.file.fileId}`, { as: sub.cookie })
     assert.equal(ownFile.status, 200)
     assert.deepEqual(Buffer.from(await ownFile.arrayBuffer()), Buffer.from(png, 'base64'))
@@ -189,7 +190,7 @@ test('DISP-013 invited subcontractor works only on current visits through every 
     noPrivate(await sub.state())
   })
 
-  await t.test('point 5: all Technician-only writes refuse without retained effects; erasure and withdrawn sessions cannot replay captures', async () => {
+  await scenario(t, 'point 5: all Technician-only writes refuse without retained effects; erasure and withdrawn sessions cannot replay captures', async () => {
     const writes = [
       ['clock.in', {}], ['clock.out', {}], ['timer.start', { kind: 'job' }], ['timer.stop', {}],
       ['expense.record', { description: 'Refused expense', amount: '25.00' }], ['expense.price', {}],

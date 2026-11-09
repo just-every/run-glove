@@ -1,18 +1,28 @@
 import test from 'node:test'
+import { scenario } from '../fixtures/scenario.mjs'
 import assert from 'node:assert/strict'
 import { installation, mapBoardFixture, assertTrail } from './harness.mjs'
+
+const checks = []
+const qualify = (name, run) => checks.push([name, run])
 
 const at = '2026-11-09T23:30:00.000Z'
 const triangle = [{ lat: 41.7, lng: -87.7 }, { lat: 41.9, lng: -87.7 }, { lat: 41.8, lng: -87.5 }]
 const currentTech = async (h, id) => (await h.state()).technicians.find(t => t.id === id)
 const noSecret = (value, key) => assert.ok(!JSON.stringify(value).includes(key), 'installation key never enters retained or visible data')
 
-test('DISP-002 day map orders five stops and exact legs, restricts desk reads and sends minimal provider data after restart', async t => {
+qualify('DISP-002 day map orders five stops and exact legs, restricts desk reads and sends minimal provider data after restart', async t => {
   const h = await installation({ at })
   t.after(() => h.close())
   const f = await mapBoardFixture(h)
   const branch = await h.command('branch.save', { name: 'Other map branch', prefix: 'OTH', timezone: 'America/Chicago', zips: [] })
   const other = await h.command('technician.save', { name: 'Other technician', branchId: branch.id })
+  const otherCustomer = await h.command('customer.save', { name: 'Other branch private customer', branchId: branch.id })
+  const otherAddress = '901 Remote Street, Denver, CO 80201'
+  h.maps.places.set(otherAddress, { lat: 39.7, lng: -104.9 })
+  const otherSite = await h.command('site.save', { customerId: otherCustomer.id, address: otherAddress, branchId: branch.id })
+  const otherJob = await h.command('job.create', { customerId: otherCustomer.id, siteId: otherSite.id, title: 'Private branch visit' })
+  const otherVisit = await h.command('visit.book', { jobId: otherJob.id, technicianId: other.id, date: f.day, start: '09:00', end: '10:00' })
   const scoped = await h.person('Limited Map Desk', 'dispatcher')
   await h.command('branch.limit', { operatorId: scoped.id, branchId: 'main' })
   const sub = await h.person('Map Subcontractor', 'subcontractor')
@@ -33,13 +43,17 @@ test('DISP-002 day map orders five stops and exact legs, restricts desk reads an
     assert.ok((await image.arrayBuffer()).byteLength > 100)
     const limited = await (await h.request(`/api/glove/map?date=${f.day}`, { as: scoped.cookie })).json()
     assert.ok(limited.technicians.length > 0)
+    assert.ok(board.technicians.some(t => t.stops.some(s => s.visitId === otherVisit.id)), 'unscoped desk sees the populated other branch')
+    assert.ok(!JSON.stringify(limited).includes(otherAddress))
+    assert.ok(!JSON.stringify(limited).includes(otherVisit.id))
     assert.ok(!limited.technicians.some(t => t.id === other.id))
     assert.deepEqual((await (await h.request(`/api/glove/map?date=${f.day}&branch=${branch.id}`, { as: scoped.cookie })).json()).technicians, [])
     for (const as of [f.people[0].cookie, sub.cookie, '']) for (const door of ['map', 'map.png']) assert.equal((await h.request(`/api/glove/${door}?date=${f.day}`, { as })).status, as ? 403 : 401)
     const routes = h.maps.calls.filter(c => c.api === 'routes')
     assert.ok(routes.length)
     const waypoint = site => ({ waypoint: { location: { latLng: { latitude: site.location.lat, longitude: site.location.lng } } } })
-    for (const call of routes) assert.deepEqual(call.body, { origins: [f.sites[0], f.sites[1], f.sites[3]].map(waypoint), destinations: [f.sites[1], f.sites[2], f.sites[4]].map(waypoint), travelMode: 'DRIVE', routingPreference: 'TRAFFIC_UNAWARE' })
+    const sorted = points => [...points].sort((a, b) => a.waypoint.location.latLng.latitude - b.waypoint.location.latLng.latitude)
+    for (const call of routes) assert.deepEqual({ ...call.body, origins: sorted(call.body.origins), destinations: sorted(call.body.destinations) }, { origins: [f.sites[0], f.sites[1], f.sites[3]].map(waypoint), destinations: [f.sites[1], f.sites[2], f.sites[4]].map(waypoint), travelMode: 'DRIVE', routingPreference: 'TRAFFIC_UNAWARE' })
     const images = h.maps.calls.filter(c => c.api === 'staticmap')
     assert.ok(images.length)
     for (const call of images) assert.deepEqual(call.query, { center: `${board.view.center.lat},${board.view.center.lng}`, zoom: String(board.view.zoom), size: `${board.view.width}x${board.view.height}`, scale: '2', maptype: 'roadmap' })
@@ -49,7 +63,7 @@ test('DISP-002 day map orders five stops and exact legs, restricts desk reads an
   await check()
 })
 
-test('DISP-002 Maps key custody allows only the current unscoped signed-in Owner and disconnect survives replay', async t => {
+qualify('DISP-002 Maps key custody allows only the current unscoped signed-in Owner and disconnect survives replay', async t => {
   const h = await installation({ at, captureLogs: true })
   t.after(() => h.close())
   const f = await mapBoardFixture(h), key = 'synthetic-glove-174'
@@ -75,7 +89,20 @@ test('DISP-002 Maps key custody allows only the current unscoped signed-in Owner
   }
   const connectId = crypto.randomUUID()
   noSecret(await h.command('maps.connect', { key }, { commandId: connectId }), key)
+  for (const who of [office, f.dispatcher, f.people[0], custom, limited]) {
+    await who.run('maps.connect', { key: null }, { error: 'FORBIDDEN' })
+    assert.equal((await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='maps'").first()).value, key, 'refused disconnect keeps the current key')
+  }
+  const delegated = await h.person('Map Temporary Owner', 'owner')
+  const delegatedId = crypto.randomUUID()
+  await delegated.run('maps.connect', { key }, { commandId: delegatedId })
+  await h.command('role.set', { operatorId: delegated.id, role: 'dispatcher' })
+  await delegated.run('maps.connect', { key }, { commandId: delegatedId, error: 'FORBIDDEN' })
   assert.equal((await h.db.prepare("SELECT value FROM glove_provider_keys WHERE provider='maps'").first()).value, key)
+  for (const door of ['map', 'map.png']) assert.equal((await h.request(`/api/glove/${door}?date=${f.day}`)).status, 200)
+  h.maps.status.geocode = 'REQUEST_DENIED'
+  noSecret(await h.command('site.save', { customerId: f.customer.id, address: '499 Key custody Street' }, { error: 'MAPS' }), key)
+  delete h.maps.status.geocode
   for (const as of [h.owner(), office.cookie, f.dispatcher.cookie, f.people[0].cookie]) noSecret(await h.state(as), key)
   for (const door of ['activity', 'export']) noSecret(await (await h.request(`/api/glove/${door}`)).json(), key)
   for (const table of ['glove_commands', 'glove_events', 'glove_records']) noSecret((await h.db.prepare(`SELECT * FROM ${table}`).all()).results, key)
@@ -91,7 +118,7 @@ test('DISP-002 Maps key custody allows only the current unscoped signed-in Owner
   await assertTrail(h, ['maps.connected', 'maps.disconnected'])
 })
 
-test('DISP-002 site placement sends only the changed street address, saves no-place honestly and retries listed unplaced sites', async t => {
+qualify('DISP-002 site placement sends only the changed street address, saves no-place honestly and retries listed unplaced sites', async t => {
   const h = await installation({ at })
   t.after(() => h.close())
   const f = await mapBoardFixture(h)
@@ -111,6 +138,8 @@ test('DISP-002 site placement sends only the changed street address, saves no-pl
   const unplaced = await h.command('site.save', { customerId: f.customer.id, address: missingAddress })
   assert.equal(unplaced.location, null)
   assert.match(unplaced.locateError, /Google Maps found no place/)
+  const secondUnplaced = await h.command('site.save', { customerId: f.customer.id, address: '206 Unplaced Street, Chicago, IL 60606' })
+  assert.equal(secondUnplaced.location, null)
   const before = await h.state()
   h.maps.status.geocode = 'REQUEST_DENIED'
   await h.command('site.save', { ...site, address: '204 Refused Street' }, { error: 'MAPS' })
@@ -118,9 +147,10 @@ test('DISP-002 site placement sends only the changed street address, saves no-pl
   assert.deepEqual(await h.state(), before)
   delete h.maps.status.geocode
   h.maps.places.set(missingAddress, { lat: 41.333333, lng: -87.444444 })
-  const payload = { siteIds: [unplaced.id] }, commandId = crypto.randomUUID()
+  h.maps.places.set(secondUnplaced.address, { lat: 41.555555, lng: -87.666666 })
+  const payload = { siteIds: [unplaced.id, secondUnplaced.id] }, commandId = crypto.randomUUID()
   const placed = await f.dispatcher.run('site.locate', payload, { commandId })
-  assert.deepEqual(placed.results, [{ siteId: unplaced.id, location: { lat: 41.333333, lng: -87.444444 } }])
+  assert.deepEqual(placed.results, [{ siteId: unplaced.id, location: { lat: 41.333333, lng: -87.444444 } }, { siteId: secondUnplaced.id, location: { lat: 41.555555, lng: -87.666666 } }])
   const calls = h.maps.calls.length, after = await h.state()
   await h.restart()
   assert.deepEqual(await f.dispatcher.run('site.locate', payload, { commandId }), placed)
@@ -129,7 +159,7 @@ test('DISP-002 site placement sends only the changed street address, saves no-pl
   await assertTrail(h, ['site.located'])
 })
 
-test('DISP-002 zone editing accepts boundary polygons and refuses invalid shapes or non-Owner writes unchanged', async t => {
+qualify('DISP-002 zone editing accepts boundary polygons and refuses invalid shapes or non-Owner writes unchanged', async t => {
   const h = await installation({ at })
   t.after(() => h.close())
   const f = await mapBoardFixture(h), tech = f.technicians[0]
@@ -153,7 +183,7 @@ test('DISP-002 zone editing accepts boundary polygons and refuses invalid shapes
   await assertTrail(h, ['technician.zones'])
 })
 
-test('DISP-002 ZIP codes and drawn zones jointly allow bookings while outside and unplaced sites follow the Owner area rule', async t => {
+qualify('DISP-002 ZIP codes and drawn zones jointly allow bookings while outside and unplaced sites follow the Owner area rule', async t => {
   const h = await installation({ at })
   t.after(() => h.close())
   const f = await mapBoardFixture(h), original = f.technicians[0]
@@ -182,8 +212,10 @@ test('DISP-002 ZIP codes and drawn zones jointly allow bookings while outside an
       if (rule === 'warn') {
         const commandId = crypto.randomUUID(), acknowledged = { ...payload, acknowledge: [conflicts[0].code], reason: 'Reviewed service area' }
         const visit = await f.dispatcher.run('visit.book', acknowledged, { commandId })
+        const bookedState = await h.state()
         await h.restart()
         assert.deepEqual(await f.dispatcher.run('visit.book', acknowledged, { commandId }), visit)
+        assert.deepEqual(await h.state(), bookedState, 'replay retains exactly one reviewed booking and its original Activity')
       }
     }
   }
@@ -191,4 +223,8 @@ test('DISP-002 ZIP codes and drawn zones jointly allow bookings while outside an
   await h.restart()
   await check('2026-11-11', 'refuse')
   await assertTrail(h, ['technician.zones', 'visit.booked'])
+})
+
+test('DISP-002 map board qualification through desk, Owner and booking doors', async t => {
+  for (const [name, run] of checks) await scenario(t, name, run)
 })

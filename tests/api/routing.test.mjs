@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, routingDay, assertTrail } from './harness.mjs'
@@ -16,6 +17,7 @@ const legs = slots => [...new Set(slots.map(v => v.technicianId))].flatMap(id =>
 
 
 test('DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure', async t => {
+  await scenario(t, 'DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded background proposal, respect windows and skills, and move only on dispatcher acceptance before safe customer erasure', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const { b, visits, day } = await routingDay(h)
   const before = (await h.state()).visits
@@ -251,8 +253,7 @@ test('DISP-003, DISP-011: 12 visits for 3 technicians improve through a bounded 
     assert.deepEqual(await effects(h), retained)
   }
 })
-
-test('DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments', async t => {
+  await scenario(t, 'DISP-003, DISP-011: stale eligibility, discard and a routing-provider refusal never change appointments', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const { b, day } = await routingDay(h)
   let route = await b.dispatcher.run('route.optimize', { date: day })
@@ -380,4 +381,5 @@ test('DISP-003, DISP-011: stale eligibility, discard and a routing-provider refu
   assert.deepEqual(await effects(h), retained)
   await assertTrail(h, ['route.discarded', 'route.failed'])
 
+})
 })

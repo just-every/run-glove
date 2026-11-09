@@ -266,6 +266,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
       } finally { await phone.context.close() }
     }
   } finally { await h.close() }
+  await mapQualification(browser)
 })
 
 async function calendarDeliveryReview(browser: any) {
@@ -350,12 +351,13 @@ async function calendarDeliveryReview(browser: any) {
   } finally { await context.close(); await h.close() }
 }
 
-test('DISP-002 focused map qualification: ordered pins and fixed drives, clicked and typed zones, unplaced stops and every phone directions address', async ({ browser }) => {
+async function mapQualification(browser: any) {
   const h = await installation({ at: '2026-11-09T23:30:00.000Z' })
   try {
     const f = await mapBoardFixture(h)
     const { context, page } = await signedIn(browser, 1440)
     try {
+      await page.clock.install({ time: new Date('2026-11-09T23:30:00.000Z') })
       await productionApi(page, h)
       await page.goto(`${origin}/app#dispatch`)
       await page.getByLabel('Day', { exact: true }).fill(f.day)
@@ -387,7 +389,7 @@ test('DISP-002 focused map qualification: ordered pins and fixed drives, clicked
       await map.getByLabel('Zone name', { exact: true }).fill('Typed service zone')
       await map.getByLabel('Corners', { exact: true }).fill('41.70, -87.70\n41.90, -87.70\n41.80, -87.50')
       await send(page, map.getByRole('button', { name: 'Save zone', exact: true }))
-      await expect(map.locator('polygon.zone title')).toHaveText(['Map Ada: Clicked service zone', 'Map Bea: Typed service zone'])
+      await expect.poll(async () => (await map.locator('polygon.zone title').allTextContents()).sort()).toEqual(['Map Ada: Clicked service zone', 'Map Bea: Typed service zone'])
       const typed = (await h.state()).technicians.find((t: any) => t.id === f.technicians[1].id)
       expect(typed.zones[0].points).toEqual([{ lat: 41.7, lng: -87.7 }, { lat: 41.9, lng: -87.7 }, { lat: 41.8, lng: -87.5 }])
       const outsideAddress = '401 Outside Street, Chicago, IL 60609'
@@ -402,6 +404,7 @@ test('DISP-002 focused map qualification: ordered pins and fixed drives, clicked
       const unplacedJob = await f.dispatcher.run('job.create', { customerId: f.customer.id, siteId: unplaced.id, title: 'Unplaced stop' })
       await f.dispatcher.run('visit.book', { jobId: unplacedJob.id, technicianId: f.technicians[1].id, date: f.day, start: '15:00', end: '16:00', acknowledge: ['area:60610'] })
       await page.reload()
+      await page.getByLabel('Day', { exact: true }).fill(f.day)
       await expect(map.getByRole('button', { name: 'Place on the map', exact: true })).toBeVisible()
       await expect(map.getByText(/402 Unplaced Street.*Google Maps found no place/)).toBeVisible()
       await expect(surface.getByRole('img')).toHaveCount(5)
@@ -416,6 +419,7 @@ test('DISP-002 focused map qualification: ordered pins and fixed drives, clicked
     for (const [personIndex, indices] of [[0, [0, 1, 2]], [1, [3, 4]]] as [number, number[]][]) {
       const phone = await signedIn(browser, 390)
       try {
+        await phone.page.clock.install({ time: new Date('2026-11-09T23:30:00.000Z') })
         await productionApi(phone.page, h, f.people[personIndex].cookie)
         for (const i of indices) {
           await phone.page.goto(`${origin}/app?job=${f.jobs[i].id}`)
@@ -436,4 +440,4 @@ test('DISP-002 focused map qualification: ordered pins and fixed drives, clicked
       } finally { await phone.context.close() }
     }
   } finally { await h.close() }
-})
+}
