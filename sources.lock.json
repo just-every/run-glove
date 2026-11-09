@@ -4824,7 +4824,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
+      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5599,6 +5599,10 @@
       "sha256": "a3700dfbf2be1b8320cdc6a8e0d799bb5b4a5b280abf11888ef740cd4ddd2b95",
       "executable": false
     },
+    "tests/api/fixed-monthly-dates.test.mjs": {
+      "sha256": "3291c0fe188d00821471e9946ef17074b8c11ec2ffd1a07cae09144f775f0709",
+      "executable": false
+    },
     "tests/api/fixed-monthly-reports.test.mjs": {
       "sha256": "10c18eaff559e10a3ad99fee8a351c067a8db8379991b8cf7adaef3b0d313718",
       "executable": false
@@ -5928,7 +5932,7 @@
       "executable": false
     },
     "tests/browser/revenue.spec.ts": {
-      "sha256": "7d451cf3f903efb5c2e03322a21e0ff20342fc5a0e0a3b9b5fcc4c8a56f16015",
+      "sha256": "9e4ae271805f2fe0185fb102c450be6dbaeda714a9c4703ecda55eaf410e3e7c",
       "executable": false
     },
     "tests/browser/routing.spec.ts": {
