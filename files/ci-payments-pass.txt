@@ -1,0 +1,20 @@
+Exact SHA: 44baf40fbacc1e3307877b1aca736bc1c46dc996
+Verify run: 42621607320, job: 129175280036
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0060390Z # Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0063298Z ok 30 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0065102Z   ---
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0065713Z   duration_ms: 32511.785246
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0066407Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0066837Z   ...
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0068664Z # PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0070991Z # PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0073097Z # PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0074985Z # PAY-021 point 1: exact installment boundaries and current Owner-only TEST Checkout refuse unsafe amounts without a request
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0076960Z # PAY-021 point 2: Owner and Office cash and check references remain attributable staff records and unauthorized or unapproved receipts change nothing
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0078994Z # PAY-021 point 3: a check exceeding the remaining balance retains exactly the excess on its source invoice
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0080707Z # PAY-021 point 4: explicit credit allocations enforce customer, currency, branch, source and target limits with no money movement
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0082069Z # PAY-021 point 5: only the Owner records a reasoned non-cash credit
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0083874Z # PAY-021 point 6: every invoice, customer, aging bucket and CSV cell, Today tile and linked overdue item matches the independent cent ledger after every allowed and refused step
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0086274Z # PAY-021 point 7: Stripe revenue and technician tips exclude staff receipts and allocations, with identical restart, replay, Activity and business export
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0088825Z # PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+shards (api-1)	Run this shard	2026-11-09T13:07:28.0091221Z # PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly

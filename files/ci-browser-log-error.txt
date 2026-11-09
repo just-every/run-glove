@@ -1,0 +1,4 @@
+Command: gh run view 42621607320 --repo just-every/run-glove --job 129175280024 --log-failed
+Exit: 1
+HTTP: unknown (no status supplied)
+Observed sanitized error: failed to get run log: zip: not a valid zip file

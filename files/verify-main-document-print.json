@@ -1,0 +1,19 @@
+{
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "command": [
+    "timeout",
+    "1200",
+    "node",
+    "--import",
+    "./scripts/verify-progress.mjs",
+    "tests/browser/run.mjs",
+    "tests/browser/document-print.spec.ts",
+    "--grep",
+    "QUOTE-015 scoped documents"
+  ],
+  "exit": 1,
+  "seconds": 345.042,
+  "at": "2026-11-09T13:43:54.147769+00:00",
+  "comparison": "origin/main on the same local runner",
+  "node": "v22.20.0"
+}

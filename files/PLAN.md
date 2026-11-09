@@ -7,3 +7,5 @@
 5. Run only touched payment tests, typecheck and the first-party check. Generate and check contract views locally, restore the views from main, regenerate the edition lock last and check it.
 6. Audit all candidate identities and trailers, push only cloud/sx-glove-c-f222 with the fleet guard, inspect exact-SHA Verify through REST within the API budget, and publish the actual report and receipts separately on evidence/sx-glove-c-f222.
 7. Leave judgments and counts to the fleet lander. Report held outcomes, every rider result, proof lines, CI observations and the actual product SHA. Delete the fully pushed checkout at the end; preserve all non-secret packet files.
+
+8. Actual Verify triage: capture failed job metadata and one archive read per failed shard. Reproduce the exact API and browser shard entry points, preserve time-limit exits, then run focused mail and document cases on main. The mail case fails identically on candidate and main; the print case also fails on main. Make no unrelated or speculative repair. Return the pushed PARTIAL candidate as BLOCKED on Verify and route the complete receipts to FV.

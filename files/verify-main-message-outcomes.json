@@ -1,0 +1,14 @@
+{
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/message-outcomes.test.mjs"
+  ],
+  "exit": 1,
+  "seconds": 92.797,
+  "at": "2026-11-09T13:38:08.982203+00:00",
+  "comparison": "origin/main on the same local runner",
+  "node": "v22.20.0"
+}

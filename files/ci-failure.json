@@ -1,0 +1,12 @@
+{
+  "run_id": 42621607320,
+  "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "api_job": 129175280036,
+  "api_test": "COMM-010 points 1\u20138: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart",
+  "api_path": "tests/api/message-outcomes.test.mjs:168",
+  "api_failure": "Expected HTTP 200 and ok true; received HTTP 401 MAIL_EVENT: Not accepted: the signature, the event form or the message it names did not match.",
+  "browser_job": 129175280024,
+  "browser_test": null,
+  "browser_archive": "gh run view failed: zip: not a valid zip file; no archive retry attempted",
+  "github_calls_used": 8
+}

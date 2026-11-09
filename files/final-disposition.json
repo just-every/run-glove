@@ -1,0 +1,26 @@
+{
+  "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "branch": "cloud/sx-glove-c-f222",
+  "repository": "just-every/run-glove",
+  "product_pushed": true,
+  "claim": "PAY-021 PARTIAL",
+  "points": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "verify_run": 42621607320,
+  "verify_conclusion": "failure",
+  "api_job": 129175280036,
+  "browser_job": 129175280024,
+  "disposition": "BLOCKED",
+  "blocker": "Exact-SHA Verify red: existing COMM-010 failure reproduced on candidate and main; browser-2 archive unavailable, local print failure also reproduced on main.",
+  "repairs": 0,
+  "github_calls": 8,
+  "ci_reruns": 0,
+  "all_owned_runtimes_stopped": true
+}

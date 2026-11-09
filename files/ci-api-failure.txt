@@ -1,0 +1,45 @@
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6827815Z not ok 26 - COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6829274Z   ---
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6829710Z   duration_ms: 22428.665844
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6829995Z   type: 'test'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6830367Z   location: '[REDACTED]/tests/api/message-outcomes.test.mjs:12:1'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6830822Z   failureType: 'testCodeFailure'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6831119Z   error: |-
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6831412Z     Expected values to be strictly deep-equal:
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6831738Z     + actual - expected
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6831964Z     
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6832159Z       [
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6832347Z     +   401,
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6832558Z     -   200,
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6832755Z         {
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6832954Z     +     error: {
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6833213Z     +       code: 'MAIL_EVENT',
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6833725Z     +       message: 'Not accepted: the signature, the event form or the message it names did not match.'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6834184Z     +     },
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6834397Z     +     ok: false
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6834609Z     -     ok: true
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6834811Z         }
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6835002Z       ]
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6835183Z     
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6835379Z   code: 'ERR_ASSERTION'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6835626Z   name: 'AssertionError'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6836195Z   expected:
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6836393Z     0: 200
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6836579Z     1:
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6836924Z       ok: true
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6837126Z   actual:
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6837314Z     0: 401
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6837929Z     1:
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6838159Z       ok: false
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6838373Z       error:
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6838584Z         code: 'MAIL_EVENT'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6839349Z         message: 'Not accepted: the signature, the event form or the message it names did not match.'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6840215Z   operator: 'deepStrictEqual'
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6840665Z   stack: |-
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6841210Z     file://[REDACTED]/tests/api/message-outcomes.test.mjs:168:16
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6842132Z     process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6843108Z     async scenario (file://[REDACTED]/tests/fixtures/scenario.mjs:8:5)
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6844187Z     async TestContext.<anonymous> (file://[REDACTED]/tests/api/message-outcomes.test.mjs:162:5)
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6845147Z     async Test.run (node:internal/test_runner/test:1054:7)
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6845875Z     async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+shards (api-1)	Run this shard	2026-11-09T13:06:02.6846286Z   ...

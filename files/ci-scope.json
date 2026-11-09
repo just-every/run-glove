@@ -1,0 +1,12 @@
+{
+  "unchanged_from_main": [
+    "src",
+    "tests/api/message-outcomes.test.mjs",
+    "tests/fixtures/mail-providers.mjs",
+    "tests/browser",
+    "tests/api/harness.mjs"
+  ],
+  "main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "candidate": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "api_failure_precedes_payment_registration_in_CI_log": true
+}

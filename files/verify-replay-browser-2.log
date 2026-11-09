@@ -1,0 +1,34 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /home/agent/rer-consolidation/work/sx-glove-c-f222/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/branches.spec.ts' 'tests/browser/custom-roles.spec.ts' 'tests/browser/document-print.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/phone-location.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/routing.spec.ts' 'tests/browser/tax-evidence.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=24123
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=8736
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=6407
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=102698
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 16 tests using 1 worker
+[verify progress]   ✓   1 tests/browser/branches.spec.ts:19:1 › TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (1.0m)
+[verify progress]   ✓   2 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (38.0s)
+[verify progress]   ✘   3 tests/browser/document-print.spec.ts:117:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (31.3s)
+[verify progress]   ✓   4 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (1.8m)
+[verify progress]   ✓   5 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (2.4m)
+[verify progress]   ✓   6 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (3.1m)
+[verify progress]   ✓   7 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (1.1m)
+[verify progress]   ✓   8 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (19.4s)
+[verify progress]   ✓   9 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (27.9s)
+[verify progress]   ✘  10 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (34.9s)
+[verify progress]   ✓  11 tests/browser/journey.spec.ts:1233:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 (58.0s)
+[verify progress]   ✓  12 tests/browser/phone-location.spec.ts:42:1 › DISP-005 point 1: owner board displays phone and Samsara fixes with next-stop ETAs and removes them on clock-out at 1440 (26.9s)
+[verify progress]   ✘  13 tests/browser/phone-location.spec.ts:83:1 › DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390 (27.5s)
+[verify progress]   ✓  14 tests/browser/recurring-billing.spec.ts:26:1 › PLAN-005, PLAN-012, PLAN-013 owner reviews fixed billing, changes a future price, approves a proposed monthly invoice late and pauses future billing at 1440/390 (1.1m)
+[verify progress]   ✓  15 tests/browser/routing.spec.ts:21:1 › DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then compares driving saved and explicitly accepts the route, at 1440 and 390 (1.0m)
+ ELIFECYCLE  Command failed.

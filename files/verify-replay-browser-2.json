@@ -1,0 +1,13 @@
+{
+  "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "job": "shards (browser-2)",
+  "job_id": 129175280024,
+  "run_id": 42621607320,
+  "command": "node scripts/verify-ci.mjs browser-2",
+  "timeout_seconds": 1200,
+  "exit": 124,
+  "seconds": 1200.082,
+  "at": "2026-11-09T13:39:39.415986+00:00",
+  "browser": "/usr/bin/chromium",
+  "ci_failure": "assertion unavailable because the single gh run view archive read failed with zip: not a valid zip file"
+}

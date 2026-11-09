@@ -1,0 +1,21 @@
+{
+  "owned_reaper": 3094,
+  "stopped_pids": [
+    3108,
+    3119,
+    3120,
+    3136,
+    3147,
+    7379,
+    7392,
+    7402,
+    8347,
+    8359,
+    8365
+  ],
+  "owned_scratch": [
+    "/tmp/glove-api-HC3lqZ",
+    "/tmp/glove-api-Yyxf6Z",
+    "/tmp/glove-api-l4xXdF"
+  ]
+}

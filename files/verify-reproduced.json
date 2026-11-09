@@ -1,0 +1,10 @@
+{
+  "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "job": "shards (api-1)",
+  "job_id": 129175280036,
+  "job_command": "node scripts/verify-ci.mjs api-1",
+  "command": "timeout 300 node --test --test-concurrency=1 tests/api/message-outcomes.test.mjs",
+  "test": "COMM-010 points 1\u20138: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart",
+  "exit": 1,
+  "failure": "HTTP 401 MAIL_EVENT instead of expected HTTP 200 at tests/api/message-outcomes.test.mjs:168"
+}

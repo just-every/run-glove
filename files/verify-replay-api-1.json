@@ -1,0 +1,11 @@
+{
+  "head": "44baf40fbacc1e3307877b1aca736bc1c46dc996",
+  "job": "shards (api-1)",
+  "job_id": 129175280036,
+  "run_id": 42621607320,
+  "command": "node scripts/verify-ci.mjs api-1",
+  "exit": 124,
+  "seconds": 1350.011,
+  "at": "2026-11-09T13:40:08.802596+00:00",
+  "ci_failure": "tests/api/message-outcomes.test.mjs:168 expected HTTP 200 and ok true; received HTTP 401 MAIL_EVENT"
+}
