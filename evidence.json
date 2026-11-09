@@ -1,0 +1,118 @@
+{
+  "files": [
+    {
+      "blob": "86b085b6f9d244daea50688b80813e36391f5591",
+      "bytes": 3308,
+      "path": "API.log",
+      "sha256": "9ec891fc50afc7a42e1f6df27a6a06f696d6af0da7dd1803241158a3de7eaff7"
+    },
+    {
+      "blob": "f93b62a1a2a31459afa28add19bbf124c1c75bf5",
+      "bytes": 1475,
+      "path": "Browser.log",
+      "sha256": "035b5a484758c99b18c8d5552787b6c03d2a9a5efe1721ee3fc6147298daf7b0"
+    },
+    {
+      "blob": "fdbe0786fa2de45fe291d481f57898be5d1d7b42",
+      "bytes": 17163,
+      "path": "REPORT.md",
+      "sha256": "a21520b0912aa2d4cba435e55de92369d4e58ae0bbbe3b3f343158f2f36848e4"
+    },
+    {
+      "blob": "ceb110cdda99519b89645b423eaa6216cdd98547",
+      "bytes": 6410,
+      "path": "browser-attempt-1.log",
+      "sha256": "921d670c6ad78d9633e35893dbec19755982774561530875d758a2b7dd1c2ee7"
+    },
+    {
+      "blob": "1e19e7f4f49cc6c6beb0ffe64d76049e8ce27edb",
+      "bytes": 6435,
+      "path": "browser-attempt-2.log",
+      "sha256": "0963894e49765d793d54139472c93667722754f9401dcafe19b24d25047d8ff8"
+    },
+    {
+      "blob": "595e7c1c405ac04de30fa6c6a277409fa72ba45c",
+      "bytes": 5527,
+      "path": "browser-attempt-3.log",
+      "sha256": "90c40a5d22dab949ff26ec2a7ff8689f03da48655d2273a9188d5064490cf491"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "contract-views.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "b51153eb747a82dce566b26744898274ed4cc29e",
+      "bytes": 6494,
+      "path": "receipt.json",
+      "sha256": "dd31a053fb3a448569795116de02fcc930d65fd765431f84e0bf23768ca097fe"
+    },
+    {
+      "blob": "0cfa324052451e37986bb3447f2dddb2086cede2",
+      "bytes": 201469,
+      "path": "screenshots/1440-reserve-google-attestation.png",
+      "sha256": "6602915e9c6d45a73c7ef78195fd1c7682915632e44a0199ff0988455fa072ff"
+    },
+    {
+      "blob": "85773565597797c544e688151e813cbcb7323cca",
+      "bytes": 211005,
+      "path": "screenshots/1440-reserve-google-queued.png",
+      "sha256": "b60e82798d8d60e0177dd08e94089104d0768df2e1cc163ab2d5d63c0eb2ad07"
+    },
+    {
+      "blob": "c00e69388b0da9af8b9c73c609006be01c5f416c",
+      "bytes": 238545,
+      "path": "screenshots/1440-yelp-approved-reply.png",
+      "sha256": "3e57eb86c86ae3d703881da3ad5eef8c1e95d4ea79b6593eee1070c86b3aac15"
+    },
+    {
+      "blob": "dba61d3822f21ab9b18f8052197ebf7a8ba09e20",
+      "bytes": 249450,
+      "path": "screenshots/1440-yelp-reply-approved.png",
+      "sha256": "ed57e27b88d1e8e3a0366be77e3865b174e2554a0bc961f7021c67905645f6f2"
+    },
+    {
+      "blob": "1407f0e9253bb7ad4fbf9b539c0e3cbca43a98cf",
+      "bytes": 161392,
+      "path": "screenshots/390-reserve-google-attestation.png",
+      "sha256": "bd7f0b09ae1d3fcccf0b2fb3ddbfa752dbb0cffba5166ca5e74bc4beaec55ffb"
+    },
+    {
+      "blob": "bbf89f91030867ce4ac91819d0550d3840ec7116",
+      "bytes": 169161,
+      "path": "screenshots/390-reserve-google-queued.png",
+      "sha256": "eb013aeef4505507bd68325b7260a7a6c7e6e37ac30c294aef84dc9bb86ba8de"
+    },
+    {
+      "blob": "199742b3c6b38315cfeaaf8996a73d6bd5f1a1c5",
+      "bytes": 196384,
+      "path": "screenshots/390-yelp-approved-reply.png",
+      "sha256": "e416ff9b5a0e75e56ec0c07d267d2d26769829a06bc879942fecc49486bac219"
+    },
+    {
+      "blob": "1c957419b007356b6b591e94035aa223e662e3e0",
+      "bytes": 208778,
+      "path": "screenshots/390-yelp-reply-approved.png",
+      "sha256": "f024c9b958e0fa8c327b17b617293f9af1e964378ab1c4bc0ca1ac5ed605a478"
+    },
+    {
+      "blob": "c5d2e4a6633ffb0ad793b5cbec1f4176b11ea0f2",
+      "bytes": 91,
+      "path": "typecheck.log",
+      "sha256": "e386b234ef9d4746f48a827341b56ad32b9c5c76e9a5dbbb030846a1d406c789"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f216",
+  "product_head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+  "ref": "refs/heads/evidence/sx-glove-c-f216",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f216"
+}

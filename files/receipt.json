@@ -1,0 +1,180 @@
+{
+  "tag": "sx-glove-c-f216",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f216",
+  "head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+  "save_head": "7949c5b648ca4ec310d517dd0f226aa573ff3c1d",
+  "checks": [
+    {
+      "name": "api",
+      "command": "node --test --test-concurrency=1 tests/api/pipeline.test.mjs",
+      "exit": 0,
+      "head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90"
+    },
+    {
+      "name": "typecheck",
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90"
+    },
+    {
+      "name": "rer-check",
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90"
+    }
+  ],
+  "node": "22.20.0",
+  "browser": {
+    "status": "passed",
+    "exit": 0,
+    "head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+    "widths": [
+      1440,
+      390
+    ],
+    "executable": "/usr/bin/chromium",
+    "command": "node /tmp/book015-browser-owned.mjs (existing Playwright lead journey on prepared native installation)",
+    "actual_test_command": "playwright test --config tests/browser/playwright.config.ts --workers=1 tests/browser/journey.spec.ts --grep BOOK-004",
+    "hard_timeout_seconds": 1200,
+    "method": "Existing committed test, unchanged harness and provider fakes; native startDev and stopDev on prepared checkout."
+  },
+  "views": {
+    "write": "node scripts/contract-docs.mjs write",
+    "check": "node scripts/contract-docs.mjs check",
+    "exit": 0,
+    "generated_files_committed": false
+  },
+  "lock": {
+    "write": "node scripts/edition-authoring/cli.mjs lock",
+    "check": "node scripts/edition-authoring/cli.mjs check",
+    "exit": 0,
+    "sha256": "e5b45a4397c37872157382c97d9e01aac6c8e7784591afde60b1716ff9b40296"
+  },
+  "ledger": {
+    "command": null,
+    "exit": 0,
+    "reason": "No migration changed"
+  },
+  "source_hashes": {
+    "tests/api/pipeline.test.mjs": "bec87483b2934b6e9601d085d26481baa289496ad96f0c3e99a61aaab2bbd302",
+    "tests/browser/journey.spec.ts": "befd7e6ea170cbf3565f65eca54da6b19193d1b76ceb4fc74a4a0f3c196bffc1",
+    "src/glove/leads.ts": "a00677b04bf00d8aaf80017f4dccff21ca4969462e817bcf193d5483f81051a9",
+    "src/glove/commands/leads.ts": "274b6190ee1d9bdec48ebfe1ece674724189dfe603ef051edee597837d36535e",
+    "src/glove/rules.ts": "718866263c438c7b0b5db5451a24046480c824993fea9445aa280f1c56cb517c",
+    "src/ui/lead-connections.tsx": "f310586c8cbc31cbc2df5f1f58aec0fdd4d03db21aea30284f44264753ff7834"
+  },
+  "publication_scan": {
+    "commit": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+    "complete": false,
+    "historyScanned": null,
+    "findings": null,
+    "status": "Not run in cloud; guarded fleet lander owns the full-history scan"
+  },
+  "counts": {
+    "before": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    },
+    "after": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29
+    },
+    "status_rows": 263
+  },
+  "pr": null,
+  "browser_attempts": [
+    {
+      "head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90",
+      "exit": 1,
+      "file": "browser-attempt-1.log",
+      "failure": "New provider-state assertion began while the native page still showed Loading your work; the state projection API scenarios passed."
+    },
+    {
+      "head": "1e993f9d6804310723e4b7f8022d830ef106e713",
+      "exit": 1,
+      "file": "browser-attempt-2.log",
+      "failure": "Fresh fixture setup failed at the native internal-listener health handshake after Vite optimizer startup; no browser test was executed."
+    },
+    {
+      "head": "1e993f9d6804310723e4b7f8022d830ef106e713",
+      "exit": 1,
+      "file": "browser-attempt-3.log",
+      "failure": "The prepared native installation reached the original Yelp-button assertion; its reload still showed Loading your work under the old five-second assertion deadline."
+    }
+  ],
+  "api_relevance": {
+    "run_head": "3a299f6bcb14041ddd797b9ee3837a2bc001fa90",
+    "candidate_head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+    "all_api_tests_and_production_sources_unchanged": true,
+    "reason": "Only browser native-readiness synchronization and generated source-lock hashes changed after the passing API run."
+  },
+  "full_history": true,
+  "product_pushed": true,
+  "origin_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "main_equality": false,
+  "typecheck_head": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+  "source_lock_fresh_after_final_main_merge": true,
+  "generated_documents_changed": false,
+  "git_status_clean": true,
+  "all_candidate_identities_and_trailers_checked": true,
+  "contract_status_diff": "none",
+  "test_registrations_before": 202,
+  "test_registrations_after": 202,
+  "screenshots": [
+    {
+      "file": "screenshots/1440-reserve-google-queued.png",
+      "width": 1440,
+      "sha256": "b60e82798d8d60e0177dd08e94089104d0768df2e1cc163ab2d5d63c0eb2ad07"
+    },
+    {
+      "file": "screenshots/1440-reserve-google-attestation.png",
+      "width": 1440,
+      "sha256": "6602915e9c6d45a73c7ef78195fd1c7682915632e44a0199ff0988455fa072ff"
+    },
+    {
+      "file": "screenshots/1440-yelp-reply-approved.png",
+      "width": 1440,
+      "sha256": "ed57e27b88d1e8e3a0366be77e3865b174e2554a0bc961f7021c67905645f6f2"
+    },
+    {
+      "file": "screenshots/1440-yelp-approved-reply.png",
+      "width": 1440,
+      "sha256": "3e57eb86c86ae3d703881da3ad5eef8c1e95d4ea79b6593eee1070c86b3aac15"
+    },
+    {
+      "file": "screenshots/390-reserve-google-queued.png",
+      "width": 390,
+      "sha256": "eb013aeef4505507bd68325b7260a7a6c7e6e37ac30c294aef84dc9bb86ba8de"
+    },
+    {
+      "file": "screenshots/390-reserve-google-attestation.png",
+      "width": 390,
+      "sha256": "bd7f0b09ae1d3fcccf0b2fb3ddbfa752dbb0cffba5166ca5e74bc4beaec55ffb"
+    },
+    {
+      "file": "screenshots/390-yelp-reply-approved.png",
+      "width": 390,
+      "sha256": "f024c9b958e0fa8c327b17b617293f9af1e964378ab1c4bc0ca1ac5ed605a478"
+    },
+    {
+      "file": "screenshots/390-yelp-approved-reply.png",
+      "width": 390,
+      "sha256": "e416ff9b5a0e75e56ec0c07d267d2d26769829a06bc879942fecc49486bac219"
+    }
+  ],
+  "ci": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "c3a8a9199a1996eb39dbaa217cf38771ed879fcc",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42618921885",
+      "id": 42618921885,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "github_calls_used": 2
+}
