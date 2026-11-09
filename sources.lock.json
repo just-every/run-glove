@@ -6240,7 +6240,7 @@
       "executable": false
     },
     "tests/fixtures/privacy-data.mjs": {
-      "sha256": "75811d60b1929998b5904c23fbd0b9b2e97a9cc83a7a98993ec2e332e942addf",
+      "sha256": "c2e9862b3f1a906e407cf94db244101b6374b9fff9b0484eb025b1a273c2a75e",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {

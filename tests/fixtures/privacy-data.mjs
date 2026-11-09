@@ -203,8 +203,10 @@ export async function dataPrivacyQualification(t) {
       assert.equal(after.expenses.find(r => r.id === g.expense.id).amount, '12.00')
       assert.equal(after.customers.find(r => r.id === g.customer.id).name, 'Erased customer')
       assert.equal(after.sites.find(r => r.id === g.site.id).address, 'Erased address')
-      for (const [type, payload] of [['customer.save', { ...g.customer, name: 'Resurrected' }], ['site.save', { ...g.site, address: 'Resurrected' }], ['quote.draft', { customerId: g.customer.id, siteId: g.site.id, title: 'Resurrected' }], ['invoice.prepare', { jobId: g.job.id }], ['booking.offer', { jobId: g.pending.id, slots: [] }]]) await h.command(type, payload, { error: 'ERASED' })
+      for (const [type, payload] of [['customer.save', { ...g.customer, name: 'Resurrected' }], ['site.save', { ...g.site, address: 'Resurrected' }], ['quote.draft', { customerId: g.customer.id, siteId: g.site.id, title: 'Resurrected' }], ['invoice.prepare', { jobId: g.job.id }], ['invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 }], ['booking.offer', { jobId: g.pending.id, slots: [] }]]) await h.command(type, payload, { error: 'ERASED' })
     }
+    for (const g of graphs.slice(0, 2)) await h.command('quote.link', { quoteId: g.quote.id, version: g.quote.version }, { error: 'NOT_FOUND' })
+    await h.command('privacy.export', exportPayload, { commandId: exportId, error: 'ERASED' })
     await h.command('customer.unmerge', { mergeId: merged.id, version: merged.version }, { error: 'NOT_FOUND' })
     assert.deepEqual(await h.state(), after, 'all attempts leave anonymous and peer records unchanged')
   })
