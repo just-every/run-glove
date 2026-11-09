@@ -4,7 +4,7 @@ import { business, bump, event, expectVersion, fail, find, newId, put, type Cont
 import { cents, dollars } from './money'
 import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
 import { stripeRequest, stripeKey, paidCents, paymentCashCents } from './payments'
-import { providerId } from './payouts'
+import { providerId, payoutSourceFingerprint } from './payouts'
 import { providerEvent } from './timeline'
 import type { Handler } from './commands/types'
 
@@ -34,7 +34,7 @@ export const instantPayouts: Handler = async (c, type, p, db) => {
     if (sourceNet !== amount + fee) fail('PAYOUT_ALLOCATION', 'Selected source net must equal the bank amount plus the displayed Instant Payout fee.')
     const destination = providerId(p.destination)
     await eligible(key!, destination, amount + fee)
-    const row = put(c.s, 'payouts', { id: newId(), version: 1, kind: 'instantRequest', createdAt: c.now, expiresAt: new Date(Date.parse(c.now) + 600000).toISOString(), connectionId: b.stripe.connectionId, currency: 'USD', sourcePaymentIds: sourcePayments.map((x: Row) => x.id), sourceNet: dollars(sourceNet), sourceBasis: 'Owner-reviewed books allocation; Stripe does not attribute source payments to manual payouts', amount: dollars(amount), expectedFee: dollars(fee), destination, feeSource: 'Owner-recorded Stripe account fee schedule; not verified by Glove', feePolicyHash: sha256(canonicalJson(policy)), status: 'preview' })
+    const row = put(c.s, 'payouts', { id: newId(), version: 1, kind: 'instantRequest', createdAt: c.now, expiresAt: new Date(Date.parse(c.now) + 600000).toISOString(), connectionId: b.stripe.connectionId, currency: 'USD', sourcePaymentIds: sourcePayments.map((x: Row) => x.id), sourceNet: dollars(sourceNet), sourceFingerprint: payoutSourceFingerprint(sourcePayments), sourceBasis: 'Owner-reviewed books allocation; Stripe does not attribute source payments to manual payouts', amount: dollars(amount), expectedFee: dollars(fee), destination, feeSource: 'Owner-recorded Stripe account fee schedule; not verified by Glove', feePolicyHash: sha256(canonicalJson(policy)), status: 'preview' })
     event(c, { jobId: null, subjectKind: 'payout', subjectId: row.id, kind: 'payout.instantPreviewed', summary: `Owner reviewed a test Instant Payout of $${row.amount}, expected fee $${row.expectedFee}; nothing sent`, data: { payoutId: row.id, amount: row.amount, expectedFee: row.expectedFee, feeSource: row.feeSource } })
     return row
   }
@@ -42,11 +42,11 @@ export const instantPayouts: Handler = async (c, type, p, db) => {
   if (row.kind !== 'instantRequest' || row.status !== 'preview' || row.expiresAt <= c.now || row.connectionId !== b.stripe.connectionId || row.feePolicyHash !== sha256(canonicalJson(b.payoutFeeSchedule))) fail('PAYOUT_STATE', 'Preview changed or expired. Review a new fee preview.')
   if (p.confirmAmount !== row.amount || p.confirmFee !== row.expectedFee) fail('CONSENT', 'Explicitly confirm the displayed amount and expected fee.', null, 400)
   const sources = row.sourcePaymentIds.map((id: string) => find(c.s, 'payments', id))
-  if (sources.some((x: Row) => x.status !== 'paid' || x.payoutAllocationId || x.connectionId !== b.stripe.connectionId || c.s.payouts.some(r => r.reconciled && r.items?.some((i: Row) => i.paymentId === x.id)))) fail('PAYOUT_ALLOCATION', 'Sources changed or were allocated elsewhere; review a new preview.')
+  if (sources.some((x: Row) => x.status !== 'paid' || x.fee === null || x.fee === undefined || x.currency !== 'USD' || !x.providerReference || x.payoutAllocationId || x.connectionId !== b.stripe.connectionId || c.s.payouts.some(r => r.reconciled && r.items?.some((i: Row) => i.paymentId === x.id)))) fail('PAYOUT_ALLOCATION', 'Sources changed or were allocated elsewhere; review a new preview.')
   const netNow = sources.reduce((n: number, x: Row) => n + paymentCashCents(x) - cents(x.fee ?? '0.00', 'fee'), 0)
-  if (netNow !== cents(row.sourceNet, 'source net')) fail('PAYOUT_ALLOCATION', 'Source net changed; review a new preview.')
+  if (netNow !== cents(row.sourceNet, 'source net') || row.sourceFingerprint !== payoutSourceFingerprint(sources)) fail('PAYOUT_ALLOCATION', 'Source net changed; review a new preview.')
   await eligible(key!, row.destination, cents(row.amount, 'amount') + cents(row.expectedFee, 'fee'))
-  const reserved = bump(c.s, 'payouts', row, { status: 'reserved', confirmedBy: { id: c.actor.id, name: c.actor.name }, confirmedAt: c.now })
+  const reserved = bump(c.s, 'payouts', row, { status: 'reserved', idempotencyKey: `glove-payout-${row.id}`, confirmedAmount: row.amount, confirmedSourcePaymentIds: [...row.sourcePaymentIds], confirmedBy: { id: c.actor.id, name: c.actor.name }, confirmedAt: c.now })
   for (const payment of sources) bump(c.s, 'payments', payment, { payoutAllocationId: row.id })
   c.payoutId = row.id
   event(c, { jobId: null, subjectKind: 'payout', subjectId: row.id, kind: 'payout.instantRequested', summary: `Owner explicitly confirmed test Instant Payout $${row.amount} and expected fee $${row.expectedFee}; provider outcome pending`, data: { payoutId: row.id, amount: row.amount, expectedFee: row.expectedFee } })
@@ -57,7 +57,7 @@ export async function instantAfterCommit(db: D1Database, c: Context, result: any
   const key = await db.prepare(`SELECT value FROM glove_provider_keys WHERE provider='stripe-payments' AND (${a.sql}) AND EXISTS(SELECT 1 FROM glove_records WHERE kind='business' AND json_extract(data,'$.stripe.connectionId')=?)`).bind(...a.params, row.connectionId).first<{value:string}>()
   if (!key) return result
   try {
-    const response = await stripeRequest(key.value, 'payouts', new URLSearchParams({ amount: String(cents(row.amount, 'amount')), currency: 'usd', method: 'instant', destination: row.destination, 'metadata[glove_payout_id]': row.id }), `glove-payout-${row.id}`)
+    const response = await stripeRequest(key.value, 'payouts', new URLSearchParams({ amount: String(cents(row.amount, 'amount')), currency: 'usd', method: 'instant', destination: row.destination, 'metadata[glove_payout_id]': row.id }), row.idempotencyKey ?? `glove-payout-${row.id}`)
     if (typeof response.id !== 'string' || response.livemode !== false || response.currency !== 'usd' || response.amount !== cents(row.amount, 'amount') || response.method !== 'instant' || response.destination !== row.destination || !['pending', 'in_transit', 'paid', 'failed', 'canceled'].includes(response.status)) throw Error('Unconfirmed payout')
     for (let retry = 0; retry < 6; retry++) {
       const before = await load(db), current = before.payouts.find(r => r.id === row.id)

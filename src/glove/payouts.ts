@@ -1,6 +1,10 @@
 import { cents, dollars } from './money'
 import { fail, type State, type Row } from './model'
 import { stripeRequest, paidCents, paymentCashCents } from './payments'
+import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
+
+// Keep the reviewed source facts stable even when later provider reads change a payment.
+export const payoutSourceFingerprint = (sources: Row[]) => sha256(canonicalJson(sources.map(p => ({ id: p.id, status: p.status, connectionId: p.connectionId, currency: p.currency, providerReference: p.providerReference, fee: p.fee, cashCents: paymentCashCents(p) })).sort((a, b) => a.id.localeCompare(b.id))))
 
 export const providerId = (value: unknown) => typeof value === 'string' && /^[A-Za-z0-9_-]{1,200}$/.test(value) ? value : fail('INPUT', 'Use a provider reference of at most 200 letters, digits, underscores or hyphens.', null, 400)
 export async function payoutSnapshot(key: string, id: string, s: State) {
@@ -15,8 +19,9 @@ export async function payoutSnapshot(key: string, id: string, s: State) {
     if (!request) return { providerId: payout.id, provider: 'Stripe', mode: 'test', currency: 'USD', method: payout.method, providerStatus: payout.status, amount: dollars(payout.amount), payoutFee: dollars(tx.fee), net: dollars(-tx.net), difference: '0.00', items: [], unmatched: [{ id: payout.id + ':allocation', type: 'manual payout', paymentId: null, providerReference: payout.id, amountCents: tx.amount, feeCents: tx.fee, netCents: tx.net, reason: 'source allocation not reviewed' }], reconciled: false, sourceMembership: 'Stripe does not attribute source payments to manual payouts. The owner must review the books allocation.' }
     const sources = (request!.sourcePaymentIds ?? []).map((id: string) => s.payments.find(p => p.id === id))
     const sourceNet = sources.reduce((n: number, p: Row | undefined) => n + (p ? paymentCashCents(p) - cents(p.fee ?? '0.00', 'fee') : 0), 0)
-    const matches = sources.length > 0 && sources.every((p: Row | undefined) => p?.status === 'paid' && p.payoutAllocationId === request!.id) && sourceNet === payout.amount + tx.fee && request!.expectedFee === dollars(tx.fee) && request!.amount === dollars(payout.amount)
-    const item = { id: tx.id, type: 'manual payout debit', paymentId: null, providerReference: payout.id, amountCents: tx.amount, feeCents: tx.fee, netCents: tx.net, reason: matches ? null : 'actual amount or fee differs from confirmed preview' }
+    const allocationMatches = sources.length > 0 && sources.every((p: Row | undefined) => p?.status === 'paid' && p.payoutAllocationId === request!.id && p.connectionId === request!.connectionId && p.currency === 'USD' && p.fee !== null && p.fee !== undefined && p.providerReference) && (!request!.confirmedSourcePaymentIds || canonicalJson(request!.confirmedSourcePaymentIds) === canonicalJson(request!.sourcePaymentIds)) && (!request!.sourceFingerprint || payoutSourceFingerprint(sources as Row[]) === request!.sourceFingerprint)
+    const matches = allocationMatches && sourceNet === payout.amount + tx.fee && request!.expectedFee === dollars(tx.fee) && (request!.confirmedAmount ?? request!.amount) === dollars(payout.amount)
+    const item = { id: tx.id, type: 'manual payout debit', paymentId: null, providerReference: payout.id, amountCents: tx.amount, feeCents: tx.fee, netCents: tx.net, reason: matches ? null : !allocationMatches ? 'source allocation differs from confirmed preview' : 'actual amount or fee differs from confirmed preview' }
     return { providerId: payout.id, provider: 'Stripe', mode: 'test', currency: 'USD', method: payout.method, providerStatus: payout.status, amount: dollars(payout.amount), payoutFee: dollars(tx.fee), net: dollars(-tx.net), difference: dollars(-tx.net - payout.amount - cents(request!.expectedFee, 'expected fee')), items: [item, ...sources.filter((p: Row | undefined): p is Row => !!p).map((p: Row) => ({ id: p.id, type: 'owner-allocated source', paymentId: p.id, providerReference: p.providerReference, amountCents: paymentCashCents(p), feeCents: cents(p.fee ?? '0.00', 'fee'), netCents: paymentCashCents(p) - cents(p.fee ?? '0.00', 'fee'), reason: null }))], unmatched: matches ? [] : [item], reconciled: payout.status === 'paid' && matches, sourceMembership: 'Stripe does not attribute source payments to manual Instant Payouts; the owner explicitly allocates source payments/refunds in the books, and this record reconciles that allocation with the actual debit and fee.' }
   }
   const transactions: any[] = [], seen = new Set<string>()
