@@ -6240,7 +6240,7 @@
       "executable": false
     },
     "tests/fixtures/privacy-data.mjs": {
-      "sha256": "a7d39ac4067793c4f12c96a171e73944a819a58cd30393231be5d1c6fad7459d",
+      "sha256": "b657a5dcb22b83de2fd4516e329aa3ea72737adf5e27fea740ec5c4a7d274e4a",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
@@ -6524,7 +6524,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "4ae32abea645e402b69e34d415eab6257226f2e5d9f03eb98acd9552176cf219",
+      "sha256": "18980e7038d164f16781b95de00bab6d54f99a39128cc8a21730ef259990f38b",
       "executable": false
     },
     "tests/runtime.mjs": {
