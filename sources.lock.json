@@ -5496,7 +5496,7 @@
       "executable": false
     },
     "tests/agent-browser-proof.mjs": {
-      "sha256": "6a00a345e2d15a7dfa0445eded2405a7dca9b13244db45cfd58706e2d4f7deca",
+      "sha256": "36398d67fe599f96351e69d9a681b1e10cf67a3ab7cfbc064901a6a3eaf74893",
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
@@ -5932,11 +5932,11 @@
       "executable": false
     },
     "tests/browser/fresh-install.spec.ts": {
-      "sha256": "7353a4315f33ea763e1c4471c1e67d42f119dad6b2da3012b0259e355ec56e82",
+      "sha256": "2f714f5c0945f3cd65994e6845ee262b118f69be5ab9857a3d4135b45fb7f6da",
       "executable": false
     },
     "tests/browser/harness-route.ts": {
-      "sha256": "6b29f0041abdf664ea4fc05c142505504383f5f1833f75cf6bb3f0fb005a347b",
+      "sha256": "4dc2ce1149d86a6e07038e939cd5dd547fe9fe112113af56bcf357888ec70aaf",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {

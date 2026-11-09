@@ -85,20 +85,19 @@ async function initialReadReady(page: Page) {
   // The document load event does not wait for the app's initial Worker read.
   // Match the navigation deadline, then let each journey assert its business
   // outcome. Offline/error screens count as settled, never as successful data.
-  await page.waitForFunction(() => location.pathname !== '/app'
-    || !!document.querySelector('.glove-app:not(.loading), .tech-app, .glove-app.loading button'), undefined, { timeout: 30_000 })
+  await page.locator('.glove-app:not(.loading), .tech-app, .glove-app.loading button').first().waitFor({ state: 'attached', timeout: 30_000 })
 }
 
 export async function gotoHarness(page: Page, ...args: Parameters<Page['goto']>) {
   const response = await page.goto(...args)
   // Owner entry deliberately precedes attachment in some journeys. Preserve
   // that handoff so its first app read belongs to the installation under test.
-  if (args[0] !== process.env.GLOVE_OPEN && !new URL(args[0], page.url()).hash.startsWith('#rer-dev')) await initialReadReady(page)
+  if ((!response || response.status() < 400) && args[0] !== process.env.GLOVE_OPEN && !new URL(args[0], page.url()).hash.startsWith('#rer-dev')) await initialReadReady(page)
   return response
 }
 
 export async function reloadHarness(page: Page, ...args: Parameters<Page['reload']>) {
   const response = await page.reload(...args)
-  await initialReadReady(page)
+  if (!response || response.status() < 400) await initialReadReady(page)
   return response
 }
