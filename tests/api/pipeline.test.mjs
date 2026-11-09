@@ -308,6 +308,8 @@ test('BOOK-003 requests from four sources move through the pipeline into the con
 
   await scenario(t, 'BOOK-015 point 1: provider costs survive rules, current authority controls costs and audited corrections refuse invalid or stale amounts', async t => {
     const { h, b, receive, unchanged } = await leadProof(t)
+    const older = await receive('angi', 'synthetic-glove-book015-before-rule')
+    assert.equal(older.leadCost, undefined)
     const rule = (person, source, amount) => person('rule.save', { name: `${source} lead cost`, trigger: 'enquiry.created', condition: { source }, action: { kind: 'leadCost', amount } })
     const thumbRule = await rule(h.command, 'thumbtack', '99.00')
     const angiRule = await rule(b.office.run, 'angi', '42.00')
@@ -340,6 +342,7 @@ test('BOOK-003 requests from four sources move through the pipeline into the con
     assert.equal(denied.outcome, 'not allowed')
     assert.match(denied.detail, /cannot enquiry.cost/)
     assert.equal(state.enquiries.find(e => e.id === angi.id).leadCost.amount, '42.00', 'later commands never reapply the creation rule to an older request')
+    assert.equal(state.enquiries.find(e => e.id === older.id).leadCost, undefined, 'a rule installed later never fills an older request’s missing cost')
     await assertTrail(h, ['enquiry.cost', 'rule.ran'])
   })
 

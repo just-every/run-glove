@@ -1349,6 +1349,11 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
         expect((await h.state()).enquiries.find((e: any) => e.id === emailed.id).acknowledgment).toEqual(emailed.acknowledgment)
         const conversation = await (await h.request(`/api/glove/conversation?customerId=${emailed.customerId}`)).json()
         expect(conversation.entries.find((e: any) => e.id === `email:${message.id}`).delivery).toBe((await h.state()).messageStates[message.id].text)
+        await h.restart()
+        await page.reload()
+        await expect(emailedCard).toContainText(outcome === 'delivered' ? 'mail server (reported by Postmark)' : 'Bounced:')
+        await expect(emailedCard).toContainText('Glove does not confirm receipt in the Yelp conversation')
+        expect((await h.state()).enquiries.find((e: any) => e.id === emailed.id).acknowledgment).toEqual(emailed.acknowledgment)
         expect(h.email.sent).toHaveLength(1)
       }
       const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }))
