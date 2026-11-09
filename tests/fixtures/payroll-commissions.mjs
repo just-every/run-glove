@@ -66,6 +66,8 @@ export async function commissionFixture(h) {
       items.push({ technicianId: tech.id, date, kind: 'agreement', subjectId: agreement.id, label: `${plan.name} sold`, base: '228.00', rate: `$${amount}`, amount })
     }
     await spiff('2026-11-04', priya, '25.00')
+    await h.setTime(stamp('2026-11-08'))
+    await h.renewSessions(b)
     await sold('2026-11-08', tom, '200.10', '5%', '10.01')
     await sold('2026-11-09', priya, '300.05', '10%', '30.01')
     await sold('2026-11-09', tom, '100.10', '10%', '10.01')
@@ -77,11 +79,15 @@ export async function commissionFixture(h) {
     }
     await h.setTime(stamp('2026-11-11'))
     for (const tech of [priya, tom]) await h.command('timesheet.approve', { technicianId: tech.id, weekStart: '2026-11-09' })
+    await h.setTime(stamp('2026-11-16'))
+    await h.renewSessions(b)
     await sold('2026-11-16', priya, '400.00', '10%', '40.00')
     await sold('2026-11-16', tom, '500.00', '10%', '50.00')
     await spiff('2026-11-16', priya, '40.00')
     await sold('2026-11-16', excluded, '600.00', '10%', '60.00')
     await sold('2026-11-16', sub, '700.00', '10%', '70.00')
+    await h.setTime(stamp('2026-11-23'))
+    await h.renewSessions(b)
     await sale('2026-11-23', priya, '900.00') // Outside the selected period.
     await h.setTime(stamp('2026-11-23'))
   }
