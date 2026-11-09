@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, id } from './harness.mjs'
@@ -19,7 +20,8 @@ function priceBook() {
   return csv(rows)
 }
 
-test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export', async (t) => {
+test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export', async t => {
+  await scenario(t, 'MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 5% category raise, a flat-rate task quoted beside time and materials, and a round-trip export', async (t) => {
   const at = '2026-11-05T12:00:00.000Z'
   const h = await installation({ at })
   t.after(() => h.close())
@@ -358,9 +360,7 @@ test('MONEY-003, MONEY-006: a 200-line price book CSV with costs and markups, a 
     for (const [itemId] of expected) assert.deepEqual(download.services.find(x => x.id === itemId), afterWithdrawal.services.find(x => x.id === itemId), 'business download retains exact task and component records')
   }
 })
-
-
-test('MONEY-003, MONEY-006 exports honor current margin permission while retaining a usable price catalogue and full owner costs', async (t) => {
+  await scenario(t, 'MONEY-003, MONEY-006 exports honor current margin permission while retaining a usable price catalogue and full owner costs', async (t) => {
   const h = await installation()
   t.after(() => h.close())
   const b = await business(h)
@@ -428,4 +428,5 @@ test('MONEY-003, MONEY-006 exports honor current margin permission while retaini
   await restricted()
   await h.command('role.save', { id: role.id, version: role.version, name: role.name, permissions: ['reports.read'] })
   for (const door of ['/api/glove/pricebook.csv', '/api/glove/export']) assert.equal((await h.request(door, { as: exporter.cookie })).status, 403, 'reports.read alone grants no export')
+})
 })

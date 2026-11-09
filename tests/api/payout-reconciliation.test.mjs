@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -50,9 +51,9 @@ async function fixture(t) {
     assert.deepEqual(await h.state(), before, 'actual Worker restart retains exact financial and audit state')
     await replay()
   }
-  const unchangedRefusal = async (payload, code) => {
+  const unchangedRefusal = async (payload, code, commandId = randomUUID()) => {
     const before = await h.state()
-    const error = await h.command('payout.reconcile', payload, { error: code })
+    const error = await h.command('payout.reconcile', payload, { error: code, commandId })
     assert.deepEqual(await h.state(), before, 'refused inspection changes no retained fact or balance')
     return error
   }
@@ -60,6 +61,7 @@ async function fixture(t) {
 }
 
 test('PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay', async t => {
+  await scenario(t, 'PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay', async t => {
   const f = await fixture(t), { h, b } = f, sources = []
   for (let n = 0; n < 6; n++) sources.push(await f.source())
   const first = sources[0]
@@ -88,8 +90,7 @@ test('PAY-007 point 1: six Checkout payments, a refund, missing source and Insta
   assert.deepEqual([fresh.reconciled, fresh.items, fresh.unmatched, fresh.net], [missing.reconciled, missing.items, missing.unmatched, missing.net])
   assert.equal(h.stripePayments.calls.length - calls, f.records[1].calls)
 })
-
-test('PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts', async t => {
+  await scenario(t, 'PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts', async t => {
   const f = await fixture(t), { h } = f, source = await f.source()
   const automatic = f.register('synthetic-glove-audit-auto', [source.tx])
   await f.inspect(automatic)
@@ -122,8 +123,7 @@ test('PAY-007 point 2: every inspection and reviewed allocation has attributable
     assert.ok(!text.includes('checkout.stripe.com') && !text.includes('synthetic-glove-session-'), 'private Checkout material is absent')
   }
 })
-
-test('PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts', async t => {
+  await scenario(t, 'PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts', async t => {
   const f = await fixture(t), { h, b } = f, source = await f.source()
   const payload = f.register('synthetic-glove-authority', [source.tx])
   const result = await f.inspect(payload)
@@ -175,8 +175,7 @@ test('PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD tes
   await f.restart()
   await former.run('payout.reconcile', payload, { commandId: formerCommand, error: 'FORBIDDEN' })
 })
-
-test('PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomplete pages, duplicates, inconsistent rows and wrong sources refuse safely', async t => {
+  await scenario(t, 'PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomplete pages, duplicates, inconsistent rows and wrong sources refuse safely', async t => {
   const f = await fixture(t), { h } = f, source = await f.source(), pending = await f.source({ paid: false }), noFee = await f.source({ fee: null })
   const tx = [source.tx, ...Array.from({ length: 999 }, (_, n) => ({ id: `synthetic-glove-fee-${n}`, type: 'stripe_fee', source: null, amount: -1, fee: 0, net: -1, currency: 'usd' }))]
   const payload = f.register('synthetic-glove-thousand', tx)
@@ -187,6 +186,10 @@ test('PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomple
   assert.deepEqual(pages.map(c => [c.limit, c.startingAfter]), Array.from({ length: 10 }, (_, n) => ['100', n === 0 ? null : tx[n * 100 - 1].id]))
   const overflow = f.register('synthetic-glove-overflow', [...tx, { ...tx[1], id: 'synthetic-glove-overflow-row' }])
   await f.unchangedRefusal(overflow, 'PAYOUT_LIMIT')
+  // A provider ignoring the requested page size must not bypass the total cap.
+  const oversized = f.register('synthetic-glove-oversized-page', tx, { amount: 8900 })
+  h.stripePayments.balancePages.set(oversized.providerId, new Map([[null, { data: [...tx, { ...tx[1], id: 'synthetic-glove-extra-in-page' }], has_more: false }]]))
+  await f.unchangedRefusal(oversized, 'PAYOUT_LIMIT')
   const malformed = f.register('synthetic-glove-malformed', [source.tx])
   for (const page of [{ data: [], has_more: true }, { data: [source.tx, source.tx], has_more: false }, { data: [{ ...source.tx, net: 1 }], has_more: false }]) {
     h.stripePayments.balancePages.set(malformed.providerId, new Map([[null, page]]))
@@ -215,13 +218,23 @@ test('PAY-007 point 4: ten pages reconcile exactly 1000 rows; overflow, incomple
   const foreign = f.register('synthetic-glove-foreign-source', [{ ...source.tx, currency: 'aud' }])
   const error = await f.unchangedRefusal(foreign, 'PAYOUT_PROVIDER')
   assert.match(error.message, /currency differs/)
+  const refused = []
+  for (const [input, code] of [[overflow, 'PAYOUT_LIMIT'], [oversized, 'PAYOUT_LIMIT'], [malformed, 'PAYOUT_PROVIDER'], [foreign, 'PAYOUT_PROVIDER']]) {
+    const commandId = randomUUID(), calls = h.stripePayments.calls.length
+    const error = await f.unchangedRefusal(input, code, commandId)
+    refused.push({ input, code, commandId, error, calls: h.stripePayments.calls.length - calls })
+  }
   await f.restart()
+  for (const row of refused) {
+    const calls = h.stripePayments.calls.length
+    assert.deepEqual(await f.unchangedRefusal(row.input, row.code, row.commandId), row.error, 'refused command replay after restart returns the same reason')
+    assert.equal(h.stripePayments.calls.length - calls, row.calls, 'refused command replay after restart reads the same provider pages')
+  }
   const count = h.stripePayments.calls.length, fresh = await f.inspect(payload)
   assert.deepEqual([fresh.items, fresh.unmatched, fresh.net, fresh.reconciled], [result.items, result.unmatched, result.net, true])
   assert.equal(h.stripePayments.calls.length - count, 11, 'a fresh inspection still reads exactly ten pages after Worker restart')
 })
-
-test('PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile', async t => {
+  await scenario(t, 'PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile', async t => {
   const f = await fixture(t), { h } = f, source = await f.source()
   const payload = f.register('synthetic-glove-cent-boundary', [source.tx], { amount: 9875, balance_transaction: { fee: 25 } })
   const payments = (await h.state()).payments
@@ -240,8 +253,7 @@ test('PAY-007 point 5: bank plus payout fee must equal source net exactly and on
   assert.deepEqual((await h.state()).payments, payments, 'inspection never changes a payment balance')
   await f.restart()
 })
-
-test('PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout', async t => {
+  await scenario(t, 'PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout', async t => {
   const f = await fixture(t), { h } = f, source = await f.source()
   const payload = f.register('synthetic-glove-fee-required', [source.tx])
   await f.inspect(payload)
@@ -253,13 +265,7 @@ test('PAY-007 point 6: an unavailable payout fee refuses without changing any re
   await f.restart()
   await f.unchangedRefusal(payload, 'PAYOUT_PROVIDER')
 })
-
-async function manualFixture(t) {
-  const f = await fixture(t), source = await f.source()
-  const payload = f.register('synthetic-glove-manual', [], { automatic: false, amount: 9875, balance_transaction: { id: 'synthetic-glove-manual-debit', type: 'payout', amount: -9875, fee: 25, net: -9900, currency: 'usd' } })
-  return { ...f, source, payload }
-}
-test('PAY-007 point 7: a manual payout has no Stripe source attribution before owner review', async t => {
+  await scenario(t, 'PAY-007 point 7: a manual payout has no Stripe source attribution before owner review', async t => {
   const f = await manualFixture(t), { h, payload } = f
   const payments = (await h.state()).payments
   const row = await f.inspect(payload)
@@ -269,8 +275,7 @@ test('PAY-007 point 7: a manual payout has no Stripe source attribution before o
   assert.deepEqual((await h.state()).payments, payments, 'inspection does not allocate available sources')
   await f.restart()
 })
-
-test('PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched', async t => {
+  await scenario(t, 'PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched', async t => {
   const f = await manualFixture(t), { h, payload, source } = f
   const unreviewed = f.register('synthetic-glove-unreviewed', [], { ...h.stripePayments.payouts.get(payload.providerId), id: 'synthetic-glove-unreviewed' })
   await f.inspect(payload); await f.inspect(unreviewed)
@@ -314,3 +319,20 @@ test('PAY-007 point 8: only explicit owner books allocation reconciles manual so
   await h.restart()
   assert.deepEqual(await erased(), afterErasure)
 })
+})
+
+
+
+
+
+
+
+
+
+
+
+async function manualFixture(t) {
+  const f = await fixture(t), source = await f.source()
+  const payload = f.register('synthetic-glove-manual', [], { automatic: false, amount: 9875, balance_transaction: { id: 'synthetic-glove-manual-debit', type: 'payout', amount: -9875, fee: 25, net: -9900, currency: 'usd' } })
+  return { ...f, source, payload }
+}

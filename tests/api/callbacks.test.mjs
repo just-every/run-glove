@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // AGENT-006 repeat-callback diagnosis through the command and callback doors,
 // with the owner's model provider faked at the network edge.
 import test from 'node:test'
@@ -35,7 +36,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
   const callback = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'No cooling again', equipmentIds: [condenser.id] })
   const other = await b.office.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Furnace noise', equipmentIds: [furnace.id] })
 
-  await t.test('AGENT-006 the callback is detected and the agent gathers both earlier visits', async () => {
+  await scenario(t, 'AGENT-006 the callback is detected and the agent gathers both earlier visits', async () => {
     assert.deepEqual(callback.callback, { days: 30, equipment: [{ equipmentId: condenser.id, visitIds: [first.id, second.id] }] })
     assert.equal(other.callback, null, 'the furnace was never serviced, so that job is no callback')
     const timeline = await (await h.request(`/api/glove/jobs/${callback.id}/timeline`)).json()
@@ -49,7 +50,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
     await b.agent.run('callback.prepare', { jobId: other.id }, { error: 'NOT_CALLBACK' })
   })
 
-  await t.test('AGENT-006 the prepared checklist cites both visits\' readings, resolved from the records, and is labelled advisory', async () => {
+  await scenario(t, 'AGENT-006 the prepared checklist cites both visits\' readings, resolved from the records, and is labelled advisory', async () => {
     h.models.answer = () => ({
       checklist: [
         { step: 'Check for a refrigerant leak at the service valves', why: 'Suction fell from 118 to 104 psi in a week and superheat rose, after 1.5 lb was added', cites: ['R1', 'R3', 'R2', 'R4'] },
@@ -72,7 +73,7 @@ test('AGENT-006 a callback on a condenser with two prior visits gets an advisory
     assert.equal(diagnosis.preparedBy.role, 'agent')
   })
 
-  await t.test('AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not', async () => {
+  await scenario(t, 'AGENT-006 a checklist citing what the pack does not hold is refused; the technician on the callback reads the checklist, another does not', async () => {
     h.models.answer = () => ({ checklist: [{ step: 'Replace the compressor', why: 'Guess', cites: ['R99'] }], parts: [] })
     await b.agent.run('callback.prepare', { jobId: callback.id }, { error: 'MODEL' })
     await b.priyaPerson.run('callback.prepare', { jobId: callback.id }, { error: 'FORBIDDEN' })

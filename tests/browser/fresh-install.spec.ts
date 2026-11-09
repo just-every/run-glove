@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, reloadHarness } from './harness-route'
 import { test, expect, type Browser, type BrowserContext, type Locator, type Page } from '@playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -26,7 +27,7 @@ async function localSignIn(browser: Browser, as: string, key: string) {
   context.setDefaultTimeout(15_000)
   const page = await context.newPage()
   expect((await page.request.post(`${origin}/__dev/key`, { headers: { origin }, data: { key } })).ok()).toBe(true)
-  await page.goto(`${origin}/auth/dev/enter?as=${as}&returnTo=%2Fapp`)
+  await gotoHarness(page, `${origin}/auth/dev/enter?as=${as}&returnTo=%2Fapp`)
   await page.waitForURL(url => url.pathname === '/app')
   return { context, page }
 }
@@ -37,7 +38,7 @@ async function proof(page: Page, name: string, reopen?: () => Promise<void>) {
   const viewport = page.viewportSize()!
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 1000 })
-    await page.reload()
+    await reloadHarness(page)
     await expect(page.locator('.glove-app[aria-busy="false"], .tech-app')).toBeVisible()
     if (reopen) await reopen()
     await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-fresh-${name}.png`), fullPage: true })
@@ -56,12 +57,11 @@ test('DATA-004 fresh local installation completes service work as four separatel
     ownerContext.setDefaultTimeout(15_000)
     contexts.push(ownerContext)
     const owner = await ownerContext.newPage()
-    await owner.goto(entry)
+    await gotoHarness(owner, entry)
     await owner.waitForURL(url => ['/setup', '/app'].includes(url.pathname) && !url.hash.includes('rer-dev'))
     if (new URL(owner.url()).pathname === '/setup') {
       await owner.getByRole('checkbox').check()
-      await owner.getByRole('button', { name: 'Finish setup', exact: true }).click({ timeout: 60_000 })
-      await owner.waitForURL(url => url.pathname === '/app')
+      await finishHarnessSetup(owner, { timeout: 60_000 })
     }
     const initial = await state(owner)
     expect(initial.business).toEqual([])
@@ -70,7 +70,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     const ownerActor = identity(initial.actor)
     expect(ownerActor.role).toBe('owner')
 
-    await owner.goto(`${origin}/app#team`)
+    await gotoHarness(owner, `${origin}/app#team`)
     let form = panel(owner, 'Set up your business')
     await form.getByLabel('Business name', { exact: true }).fill('Synthetic Glove service company')
     await form.getByLabel('Tax ID (EIN)', { exact: true }).fill('12-3456789')
@@ -102,7 +102,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     const actors = { owner: ownerActor, dispatcher: identity((await state(d)).actor), technician: identity((await state(phone)).actor), office: identity((await state(o)).actor) }
     expect(new Set(Object.values(actors).map(a => a.id)).size).toBe(4)
     for (const role of ['dispatcher', 'technician', 'office'] as const) expect(actors[role]).toEqual({ id: expect.any(String), name: `Synthetic ${role}`, role })
-    await owner.reload()
+    await reloadHarness(owner)
     form = panel(owner, 'Add a technician')
     await form.getByLabel('Name on the board', { exact: true }).fill('Synthetic technician')
     await form.getByLabel('Signs in as (optional)', { exact: true }).selectOption(actors.technician.id)
@@ -111,7 +111,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
 
     // The dispatcher performs intake, price approval and the customer's
     // recorded answer in their own session, then creates and books the job.
-    await d.goto(`${origin}/app#customers`)
+    await gotoHarness(d, `${origin}/app#customers`)
     await d.getByRole('button', { name: 'New customer', exact: true }).click()
     form = panel(d, 'New customer')
     await form.getByLabel('Name', { exact: true }).fill('Synthetic Glove customer')
@@ -122,7 +122,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     form = panel(d, 'Sites')
     await form.getByLabel('Site address', { exact: true }).fill('126 Synthetic Street')
     await send(d, form.getByRole('button', { name: 'Add site' }))
-    await d.goto(`${origin}/app#quotes`)
+    await gotoHarness(d, `${origin}/app#quotes`)
     form = panel(d, 'Record a request')
     await form.getByLabel('Customer', { exact: true }).selectOption({ label: 'Synthetic Glove customer' })
     await form.getByLabel('Site', { exact: true }).selectOption({ index: 1 })
@@ -138,7 +138,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await send(d, d.getByRole('button', { name: 'Record as sent', exact: true }))
     await send(d, d.getByRole('button', { name: 'Record acceptance', exact: true }))
     await proof(d, 'quote', () => d.getByRole('button', { name: / · Synthetic maintenance visit$/, exact: true }).click())
-    await d.goto(`${origin}/app#dispatch`)
+    await gotoHarness(d, `${origin}/app#dispatch`)
     await send(d, d.locator('.queue li').filter({ hasText: 'Synthetic Glove customer' }).getByRole('button', { name: 'Create job', exact: true }))
     await d.locator('.queue li').filter({ hasText: 'Synthetic Glove customer' }).getByRole('button', { name: 'Book a visit', exact: true }).click()
     // Choose a future Monday once. No expectation depends on a wall-clock
@@ -173,7 +173,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
       return body.result
     }
     const maintenance = await command(d, 'job.create', { customerId: job.customerId, siteId: job.siteId, title: 'Synthetic recurring maintenance', lines: [{ serviceId: booked.services[0].id, description: 'Maintenance inspection', quantity: '1', unitPrice: '200.00' }] })
-    await d.goto(`${origin}/app#jobs`)
+    await gotoHarness(d, `${origin}/app#jobs`)
     await d.getByRole('button', { name: `${maintenance.number} · Synthetic recurring maintenance`, exact: true }).click()
     const repeat = d.getByRole('form', { name: 'Repeat this job', exact: true })
     const seriesFrom = new Date(`${day}T00:00:00Z`)
@@ -189,12 +189,12 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await repeat.getByLabel('Technician', { exact: true }).selectOption(tech.id)
     await repeat.getByLabel('Ends on (optional)', { exact: true }).fill(dates[2])
     await send(d, repeat.getByRole('button', { name: 'Make it repeat', exact: true }))
-    await d.goto(`${origin}/app#jobs/${maintenance.id}`)
+    await gotoHarness(d, `${origin}/app#jobs/${maintenance.id}`)
     await proof(d, 'series')
 
     // A real disconnected phone queues the visit's evidence and completion.
     // The independent owner session sees no arrival until reconnection.
-    await phone.goto(`${origin}/app`)
+    await gotoHarness(phone, `${origin}/app`)
     await phone.getByRole('button', { name: new RegExp(`${job.number} · Synthetic maintenance visit`) }).click()
     const phoneTime = new Date('2026-11-01T09:00:00.000Z')
     // Keep device timestamps exact while timers continue to drive the offline queue.
@@ -220,7 +220,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     await expect.poll(async () => (await state(owner)).visits.find((v: any) => v.id === visit.id)?.status).toBe('completed')
 
     // Office prepares, approves, records a customer's check and exports once.
-    await o.goto(`${origin}/app#invoices`)
+    await gotoHarness(o, `${origin}/app#invoices`)
     await send(o, o.locator('li').filter({ hasText: 'Synthetic Glove customer' }).getByRole('button', { name: 'Prepare invoice', exact: true }))
     await o.locator('tr').filter({ hasText: 'Synthetic Glove customer' }).getByRole('button').click()
     await send(o, o.getByRole('button', { name: /^Approve revision 1 at/ }))
@@ -240,7 +240,7 @@ test('DATA-004 fresh local installation completes service work as four separatel
     expect(csvRows).toHaveLength(2)
     const exportedLine = Object.fromEntries(csvRows[0].map((column, index) => [column, csvRows[1][index]]))
     expect(exportedLine).toMatchObject({ '*ContactName': 'Synthetic Glove customer', EmailAddress: '', POAddressLine1: 'PO Box 126', '*InvoiceNumber': invoice.number, Reference: job.number, '*Description': 'Maintenance inspection', '*Quantity': '1', '*UnitAmount': '200.00', Currency: 'USD', DocumentTaxAmount: '0.00', DocumentTotal: '200.00' })
-    await o.goto(`${origin}/app#invoices/${invoice.id}`)
+    await gotoHarness(o, `${origin}/app#invoices/${invoice.id}`)
     await proof(o, 'invoice')
     const beforeRefusals = await state(owner)
     const stable = (s: any) => Object.fromEntries(['version', 'business', 'services', 'technicians', 'enquiries', 'quotes', 'jobs', 'visits', 'captures', 'invoices', 'payments', 'exports', 'approvals', 'events'].map(k => [k, s[k]]))
@@ -254,10 +254,10 @@ test('DATA-004 fresh local installation completes service work as four separatel
     expect((await noSecondExport.json()).error.code).toBe('NOTHING_TO_EXPORT')
     expect(stable(await state(owner))).toEqual(stable(beforeRefusals))
 
-    await owner.goto(`${origin}/app#activity`)
+    await gotoHarness(owner, `${origin}/app#activity`)
     // One set of business assertions, after all sessions and the owner page
     // reload. Screens of this same persisted result are captured at both widths.
-    await Promise.all([owner.reload(), d.reload(), phone.reload(), o.reload()])
+    await Promise.all([reloadHarness(owner), reloadHarness(d), reloadHarness(phone), reloadHarness(o)])
     const s = await state(owner)
     for (const [page, actor] of [[d, actors.dispatcher], [phone, actors.technician], [o, actors.office]] as const) expect(identity((await state(page)).actor)).toEqual(actor)
     await expect(o.getByText('Amount due $0.00', { exact: true })).toBeVisible()
@@ -325,10 +325,10 @@ test('DATA-004 fresh local installation completes service work as four separatel
       }
     }
     await proof(owner, 'activity')
-    await owner.goto(`${origin}/app#jobs/${job.id}`)
+    await gotoHarness(owner, `${origin}/app#jobs/${job.id}`)
     await expect(owner.getByText('Completed the annual filter service', { exact: true })).toBeVisible()
     await proof(owner, 'completed-job')
     await proof(phone, 'technician-visits')
     await writeFile(join(process.env.GLOVE_BROWSER_OUTPUT || test.info().outputDir, 'fresh-install-receipt.json'), JSON.stringify({ sourceHead: process.env.GLOVE_PRODUCT_HEAD, clause: 'DATA-004', point: 1, people: actors, jobId: job.id, visitId: visit.id, invoiceId: invoice.id, invoiceCsv: exportedLine, payment: { method: 'check', amount: '200.00', balance: '0.00' }, series: { jobId: maintenance.id, dates }, captureKinds: captures.map((c: any) => c.kind), offlineServerState: 'booked with no arrival or captures', roleRefusals: ['owner:visit.arrive', 'dispatcher:invoice.approve', 'technician:payment.record', 'office:service.save'], duplicateExport: 'NOTHING_TO_EXPORT', activityKinds: Object.keys(eventRoles), exportCount: 1, passed: true }, null, 2) + '\n')
-  } finally { for (const context of contexts) await context.close() }
+  } finally { for (const context of contexts) await closeHarnessContext(context) }
 })

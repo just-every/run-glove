@@ -1,7 +1,7 @@
 import { branchEvent, inBranch } from './branch-access'
 import { Problem, fail, text, oneOf, find, expectVersion, put, bump, event, newId, business, type Actor, type Context, type Row } from './model'
 import { cents, dollars } from './money'
-import { allow, roleSql } from './access'
+import { allow, roleSql, withRole } from './access'
 import { tokenCreator } from './tokens'
 import { addDays } from './recurrence'
 import { localParts } from './time'
@@ -95,7 +95,9 @@ export async function runRules(c: Context, db: D1Database, perform: Perform) {
     const limit = c.s.branchAccess.find(r => r.id === rule.createdBy.id && r.limited !== false)
     const branch = byToken ? (byToken.branchId === null ? undefined : { id: byToken.branchId === 'main' ? null : byToken.branchId, version: 0 }) : limit ? { id: limit.branchId, version: limit.version } : undefined
     if (branch && (!branchEvent(c.s, { branch } as Actor, e) || !branchEvent(c.s, { branch } as Actor, { jobId: null, subjectId: rule.id, subjectKind: 'rule' }))) continue
-    const as: Actor = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, role: (row?.role ?? 'viewer') as Actor['role'], custom: undefined, branch, token: byToken ? rule.createdBy.id.slice('token:'.length) : undefined }
+    // API-006: a token creator carries its role's current permissions (a custom role removed since grants nothing).
+    const base = { ...c.actor, id: rule.createdBy.id, name: `${rule.createdBy.name} (rule "${rule.name}")`, custom: undefined, branch, token: byToken ? rule.createdBy.id.slice('token:'.length) : undefined }
+    const as: Actor = byToken ? await withRole(db, base, byToken.role) : { ...base, role: (row?.role ?? 'viewer') as Actor['role'] }
     if (rule.createdBy.id.startsWith('token:') && !byToken) { log('not allowed', `${rule.createdBy.name} was revoked`); continue }
     if (rule.action.kind === 'notify') {
       if (!(roles as readonly string[]).includes(as.role)) { log('not allowed', `${rule.createdBy.name} no longer holds a desk role`); continue }

@@ -1,16 +1,22 @@
+import { scenario } from '../fixtures/scenario.mjs'
+import { dataPrivacyQualification } from '../fixtures/privacy-data.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, completedJob, id } from './harness.mjs'
 import { createPortability } from '@runeditrun/rer/modules/portability'
 import { createHash } from 'node:crypto'
 import { readArchive } from '@runeditrun/rer/modules/portability/format'
+import { readFile, readdir } from 'node:fs/promises'
+import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
+import { unstable_splitSqlQuery } from 'wrangler'
+import { editionArchivePolicy } from '../fixtures/edition-archive-policy.mjs'
 
 const pdf = Buffer.from('%PDF-1.4 synthetic-glove-1 certificate').toString('base64')
 const jpeg = Buffer.from('ffd8ffe000104a4649460001010000010000010000ffd9', 'hex').toString('base64')
 const exportRequest = (h, c) => h.command('privacy.export', { customerId: c.id, version: c.version })
 
 async function snapshot(h) {
-  const policy = { product: 'field-service-glove', replaceableTables: ['glove_meta'], excludeTables: ['glove_guard','glove_privacy_guard','glove_secrets','glove_provider_keys','glove_quote_secrets','glove_booking_secrets','glove_report_secrets','glove_mail_callback_auth','glove_tokens','glove_push_subscriptions'] }
+  const policy = await editionArchivePolicy(process.cwd())
   const service = await createPortability({ db: h.db, policy })
   const job = await service.exports.create('owner')
   while ((await service.exports.advance(job, { maxParts: 16 })).phase === 'building') {}
@@ -18,6 +24,13 @@ async function snapshot(h) {
   for await (const row of readArchive(await service.exports.download(job))) records.push(row)
   await service.exports.abort(job)
   return { records, service }
+}
+async function emptyArchiveDestination(t) {
+  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch() { return new Response(null, { status: 404 }) } }', compatibilityDate: '2026-09-08', d1Databases: { DB: 'synthetic-glove-empty-archive' } }))
+  t.after(() => mf.dispose())
+  const db = await mf.getD1Database('DB')
+  for (const file of (await readdir('./migrations/core')).filter(f => f.endsWith('.sql')).sort()) await db.batch(unstable_splitSqlQuery(await readFile('./migrations/core/' + file, 'utf8')).map(sql => db.prepare(sql)))
+  return { db, service: await createPortability({ db, policy: await editionArchivePolicy(process.cwd()) }) }
 }
 async function restore(service, records, later) {
   const created = await service.imports.create(records[0], 'owner')
@@ -27,6 +40,8 @@ async function restore(service, records, later) {
 }
 
 test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
+  await scenario(t, 'DATA-001 points 1–7: native privacy qualification through the production Worker', dataPrivacyQualification)
+  await scenario(t, 'DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const scopedOwner = await h.person('Limited owner', 'owner')
@@ -108,8 +123,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
   await h.command('customer.save', { ...customer, name: 'Resurrected' }, { error: 'ERASED' })
   await assert.rejects(h.db.prepare("UPDATE glove_events SET summary='changed'").run(), /append_only_timeline/)
 })
-
-test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure journal refuses an older backup and a new anonymous backup restores without certificate bytes', async t => {
+  await scenario(t, 'DATA-001 point 7: the edition archive policy rejects an older checkpoint with a later journal or destination fence and restores an anonymous backup', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
   const customer = await h.command('customer.save', { ...b.customer, taxExemption: { certificateNumber: 'synthetic-glove-4', expires: '2028-12-31' } })
@@ -118,11 +132,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure j
   await h.command('privacy.erase', { customerId: customer.id, version: withCertificate.version, confirm: 'ERASE', fingerprint: (await h.command('privacy.preview', { customerId: customer.id, version: withCertificate.version })).fingerprint })
   const after = await snapshot(h)
   assert.ok(after.records[0].epoch > before.records[0].epoch)
-  const target = await installation(); t.after(() => target.close())
-  const destination = (await snapshot(target)).service
-  // Native owner/auth state is outside this minimal archive policy. Clear the
-  // fixture's domain rows for the actual fresh-destination import door.
-  await target.db.prepare('DELETE FROM glove_records').run()
+  const target = await emptyArchiveDestination(t), destination = target.service
   await assert.rejects(restore(destination, before.records, { sourceIdentity: after.records[0].sourceIdentity, epoch: after.records[0].epoch, journal: after.records[0].journal }), /erasure_epoch/)
   await restore(destination, after.records)
   assert.equal((await target.db.prepare('SELECT count(*) AS n FROM glove_tax_certificates').first()).n, 0)
@@ -130,12 +140,24 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a trusted later erasure j
   const restored = JSON.stringify((await target.db.prepare('SELECT data FROM glove_records').all()).results)
   assert.ok(!restored.includes('Harbourview Dental'))
   assert.ok(!restored.includes('synthetic-glove-4'))
+  await assert.rejects(restore(destination, before.records), /erasure_epoch/, 'the newer destination checkpoint refuses the older archive without an external journal')
+  assert.equal(JSON.stringify((await target.db.prepare('SELECT data FROM glove_records').all()).results), restored, 'the destination fence leaves every restored record unchanged')
+  await scenario(t, 'DATA-001 point 8: a fresh offline destination given only the older archive restores personal data and originals, demonstrating the trusted-journal limit', async () => {
+    const offline = await emptyArchiveDestination(t)
+    await restore(offline.service, before.records)
+    const rows = JSON.stringify((await offline.db.prepare('SELECT data FROM glove_records').all()).results)
+    assert.ok(rows.includes('Harbourview Dental'))
+    assert.ok(rows.includes('synthetic-glove-4'))
+    assert.equal((await offline.db.prepare('SELECT count(*) AS n FROM glove_tax_certificates').first()).n, 1)
+    const chunks = (await offline.db.prepare('SELECT bytes FROM glove_tax_certificate_chunks ORDER BY ordinal').all()).results
+    assert.equal(Buffer.concat(chunks.map(r => Buffer.from(r.bytes))).toString('base64'), pdf)
+  })
 })
-
-test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure removes retained source copies and shared originals without changing a peer customer', async t => {
+  await scenario(t, 'DATA-001 point 4: complete customer CSV rows retain unmapped columns and exclude peers; imported erasure removes retained source copies', async t => {
   const h = await installation(); t.after(() => h.close())
   await business(h)
-  const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-5.csv', text: 'Name,Email,Address\nSynthetic Imported,synthetic-glove-6@example.test,125 Test Street\nSynthetic Peer,synthetic-glove-7@example.test,126 Test Street\n' }], mapping: { name: 'Name', email: 'Email', siteAddress: 'Address' } })
+  const sourceRows = ['Name,Email,Address,Unmapped source note', `Synthetic Imported,${['synthetic-glove-6', 'example.test'].join('@')},125 Test Street,Synthetic first source note`, `Synthetic Imported,${['synthetic-glove-6', 'example.test'].join('@')},127 Test Street,Synthetic second source note`, `Synthetic Peer,${['synthetic-glove-7', 'example.test'].join('@')},126 Test Street,Synthetic peer source note`]
+  const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-5.csv', text: sourceRows.join('\n') + '\n' }], mapping: { name: 'Name', email: 'Email', siteAddress: 'Address' } })
   const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
   const s = await h.state(), customer = s.customers.find(c => c.name === 'Synthetic Imported'), peer = s.customers.find(c => c.name === 'Synthetic Peer')
   assert.ok(customer && peer)
@@ -148,6 +170,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure
   assert.match(projected, /Synthetic Imported/)
   assert.ok(!projected.includes('Synthetic Peer'))
   assert.ok(!projected.includes('synthetic-glove-7@example.test'))
+  assert.deepEqual(projected.trim().split(/\r?\n/), sourceRows.slice(0, 3), 'both complete source rows, including unmapped columns, are projected without the peer row')
   const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
   assert.ok(preview.sharedOriginals.some(a => a.name === 'synthetic-glove-5.csv' && a.peers === 1))
   assert.ok(preview.retiredBatches.some(b => b.jobId === batch.jobId && /cannot tombstone/.test(b.reason)))
@@ -167,8 +190,50 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 imported customer erasure
   const peerExport = JSON.parse((await exportRequest(h, peer)).download)
   assert.ok(peerExport.omissions.some(o => o.artifact === 'synthetic-glove-5.csv' && /withdrawn/.test(o.reason)))
 })
-
-test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact', async t => {
+  await scenario(t, 'DATA-001 point 4: complete ServiceM8 objects include unmapped fields, exclude peer objects and name mixed-ownership attachment omissions', async t => {
+    const h = await installation(); t.after(() => h.close()); await business(h)
+    const root = './tests/fixtures/servicem8-small-hvac/'
+    const kinds = ['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment']
+    const files = await Promise.all(kinds.map(async kind => ({ name: `${kind}.json`, text: await readFile(root + kind + '.json', 'utf8') })))
+    const authored = Object.fromEntries(files.map(f => [f.name, JSON.parse(f.text)]))
+    const companyId = '6b1f3a52-1c2e-4d8a-9a5e-0d3c2b7f0a11', peerId = '9d0e4c71-5b2a-4f39-8e61-7a4b3c2d1e22'
+    const jobId = '3e4f5a6b-aaaa-4c7d-8e9f-0a1b2c3d4e01', peerJob = '3e4f5a6b-cccc-4c7d-8e9f-0a1b2c3d4e03'
+    const sharedName = 'attachments/8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02'
+    const companyOriginal = { name: 'attachments/8b9c0d1e-0003-4f2a-9b3c-4d5e6f7a8b03', base64: Buffer.from('Synthetic complete company source original').toString('base64') }
+    const paymentSources = [{ uuid: '7b9c0d1e-0001-4f2a-9b3c-4d5e6f7a8b01', job_uuid: jobId, amount: '10.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic complete payment source' }, { uuid: '7b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', job_uuid: peerJob, amount: '20.00', attachment_uuid: '8b9c0d1e-0002-4f2a-9b3c-4d5e6f7a8b02', private_source_note: 'Synthetic peer payment source' }]
+    files.push({ name: 'jobpayment.json', text: JSON.stringify(paymentSources) })
+    files.push({ name: sharedName, base64: Buffer.from('Synthetic mixed customer original; must be omitted').toString('base64') })
+    files.push(companyOriginal)
+    const staged = await h.command('import.stage', { files })
+    await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+    const s = await h.state(), customer = s.customers.find(c => c.id === `sm8-${companyId}`), peer = s.customers.find(c => c.id === `sm8-${peerId}`)
+    assert.ok(customer && peer)
+    const result = await exportRequest(h, customer), exported = JSON.parse(result.download)
+    assert.equal(result.outcome, 'partial')
+    const selected = {
+      'company.json': authored['company.json'].filter(r => r.uuid === companyId),
+      'companycontact.json': authored['companycontact.json'].filter(r => r.company_uuid === companyId),
+      'job.json': authored['job.json'].filter(r => r.company_uuid === companyId),
+      'jobpayment.json': paymentSources.filter(r => r.job_uuid === jobId),
+      'jobmaterial.json': authored['jobmaterial.json'].filter(r => [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.job_uuid)),
+      'jobactivity.json': authored['jobactivity.json'].filter(r => [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.job_uuid)),
+      'attachment.json': authored['attachment.json'].filter(r => r.related_object === 'company' ? r.related_object_uuid === companyId : [jobId, '3e4f5a6b-bbbb-4c7d-8e9f-0a1b2c3d4e02'].includes(r.related_object_uuid)),
+    }
+    for (const [name, expected] of Object.entries(selected)) {
+      assert.ok(expected.length, `${name} has independent nonempty source objects`)
+      const file = exported.importOriginals.find(f => f.name === name)
+      assert.ok(file, `${name} is exported`)
+      assert.deepEqual(JSON.parse(Buffer.from(file.bytes, 'base64').toString()), expected, `${name} holds complete source objects including unmapped fields`)
+    }
+    assert.ok(exported.omissions.some(o => o.artifact === sharedName && /Shared source attachment.*peer data withheld/.test(o.reason)), `the mixed-ownership original is explicitly named as an omission: ${JSON.stringify(exported.omissions)}`)
+    assert.ok(!exported.importOriginals.some(f => f.name === sharedName))
+    assert.equal(exported.importOriginals.find(f => f.name === companyOriginal.name)?.bytes, companyOriginal.base64, 'the customer company attachment is included byte-exactly')
+    for (const value of [peer.name, peer.email, 'Synthetic peer payment source']) {
+      assert.ok(!JSON.stringify(exported).includes(value))
+      for (const file of exported.importOriginals) assert.ok(!Buffer.from(file.bytes, 'base64').toString().includes(value), 'decoded original projections withhold peer content')
+    }
+  })
+  await scenario(t, 'DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact', async t => {
   const { exportedFixture } = await import('../fixtures/movein.mjs')
   const h = await installation(); t.after(() => h.close()); await business(h)
   for (const format of ['fieldpulse','servicetitan','jobber']) {
@@ -213,9 +278,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MO
   for (const value of ['Synthetic Jobber job note', 'Synthetic source quote', 'Synthetic source attachment.txt', 'Call before arranging a date']) assert.ok(!erasedExport.includes(value), 'erasure removes source quote, note, attachment and pending-visit content')
 
 })
-
-
-test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo', async t => {
+  await scenario(t, 'DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo', async t => {
   const h = await installation(); t.after(() => h.close()); await business(h)
   const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-23.csv', text: 'Name,Email\nSynthetic Erased,synthetic-glove-24@example.test\nSynthetic Remaining,synthetic-glove-25@example.test\n' }], mapping: { name: 'Name', email: 'Email' } })
   const batch = await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
@@ -235,4 +298,5 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CS
   const undone = await h.state()
   assert.ok(!undone.customers.some(c => c.id === peer.id))
   assert.equal(undone.customers.find(c => c.id === subject.id).name, 'Erased customer')
+})
 })

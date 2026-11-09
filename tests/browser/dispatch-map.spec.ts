@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -9,7 +10,7 @@ const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 /** Forward the browser transport to the real production API Worker and D1, as this person.
  * Only Google Maps' paid network edge is fake; no application answers are stubbed. */
 async function productionApi(page: Page, h: any, as?: string) {
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url())
     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(as ? { as } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
     await route.fulfill({ status: response.status, contentType: response.headers.get('content-type') ?? 'application/json', body: Buffer.from(await response.arrayBuffer()) })
@@ -34,9 +35,9 @@ async function shot(page: Page, width: number, name: string) {
 async function signedIn(browser: any, width: number) {
   const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
   if (!process.env.GLOVE_OPEN) throw new Error('A private owner entry from rer dev is required.')
-  try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL((u: URL) => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
+  try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL((u: URL) => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
   catch { throw new Error('Owner entry failed; obtain a fresh entry privately.') }
-  if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL((u: URL) => u.pathname === '/app') }
+  if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
   return { context, page }
 }
 
@@ -51,7 +52,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
     try {
       await productionApi(page, h)
       // DISP-008: owner calendar credentials and explicit detail consent use the real command door.
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       for (const [provider, width] of [['google', 1440], ['microsoft', 390]] as const) {
         await page.setViewportSize({ width, height: 1000 })
         const calendar = page.getByRole('form', { name: 'Visit calendar for Tom B.', exact: true })
@@ -69,7 +70,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         await send(page, calendar.getByRole('button', { name: 'Connect visit calendar', exact: true }))
         await expect(calendar.getByText(provider === 'google' ? /Customer details hidden/ : /Customer name and service address included/)).toBeVisible()
         await expect(calendar.getByLabel('OAuth client secret', { exact: true })).toHaveCount(0)
-        await page.reload()
+        await reloadHarness(page)
         await expect(calendar.getByText(provider === 'google' ? /Customer details hidden/ : /Customer name and service address included/)).toBeVisible()
         const calendarJob = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Private browser calendar visit' })
         await b.dispatcher.run('visit.book', { jobId: calendarJob.id, technicianId: b.tom.id, date: provider === 'google' ? '2027-02-01' : '2027-02-02', start: '15:15', end: '16:15' })
@@ -87,7 +88,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         await expect(calendar.getByLabel('Include customer name and service address')).not.toBeChecked()
         await expect(calendar.getByLabel('OAuth client secret', { exact: true })).toHaveValue('')
         const stoppedWrites = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
-        await h.restart()
+        await restartHarness(h)
         await h.scheduled('2026-11-03T00:00:00.000Z')
         expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(stoppedWrites)
         expect([...h.calendarSync.events.entries()]).toEqual(retainedProviderEvents)
@@ -97,7 +98,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
       await calendarDeliveryReview(browser)
       await page.setViewportSize({ width: 1440, height: 1000 })
       // The owner connects Google Maps with their own key under Team.
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const card = page.getByRole('heading', { name: 'Google Maps', exact: true }).locator('..')
       await card.getByLabel('Google Maps API key', { exact: true }).fill('synthetic-glove-2')
       await send(page, card.getByRole('button', { name: 'Save Google Maps key', exact: true }))
@@ -121,7 +122,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
       const board = await (await h.request(`/api/glove/map?date=${day}&branch=main`)).json()
       const drives = (name: string) => board.technicians.find((t: any) => t.name === name).legs.map((l: any) => `${Math.max(1, Math.round(l.seconds / 60))} min drive · ${(l.meters / 1609.344).toFixed(1)} mi`)
 
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       await page.getByLabel('Day', { exact: true }).fill(day)
       const map = page.getByRole('region', { name: 'Route map' })
       const previous = page.getByRole('button', { name: 'Previous day', exact: true })
@@ -167,7 +168,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
       await expect(map.getByRole('img', { name: new RegExp(`^Priya N\\. stop 3: J-\\d+ at 1:00 PM`) })).toBeVisible()
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       await shot(page, 390, 'board')
-    } finally { await context.close() }
+    } finally { await closeHarnessContext(context) }
 
     // Keep the alternative technician eligible at the northern stops after the zone-drawing proof.
     const tomForLocation = (await h.state()).technicians.find((t: any) => t.id === b.tom.id)
@@ -177,7 +178,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
       const phone = await signedIn(browser, width)
       try {
         await productionApi(phone.page, h, b.priyaPerson.cookie)
-        await phone.page.goto(`${origin}/app?job=${(await h.state()).jobs.find((j: any) => j.title === 'Erie St rooftop unit').id}`)
+        await gotoHarness(phone.page, `${origin}/app?job=${(await h.state()).jobs.find((j: any) => j.title === 'Erie St rooftop unit').id}`)
         await expect(phone.page.getByRole('heading', { name: /^J-\d+ · Erie St rooftop unit$/ })).toBeVisible()
         const state = await h.state(), firstJob = state.jobs.find((j: any) => j.title === 'Erie St rooftop unit')
         const firstVisit = state.visits.find((v: any) => v.jobId === firstJob.id)
@@ -193,7 +194,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         await b.priyaPerson.run('timer.start', { visitId: firstVisit.id, kind: 'job', deviceTime: now() })
         await phone.context.grantPermissions(['geolocation'], { origin })
         await phone.context.setGeolocation({ latitude: 41.89001, longitude: -87.63001 })
-        await phone.page.reload()
+        await reloadHarness(phone.page)
         const sharing = phone.page.getByRole('region', { name: 'Location sharing', exact: true })
         await sharing.scrollIntoViewIfNeeded()
         await shot(phone.page, width, 'location-consent')
@@ -208,7 +209,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         const desk = await signedIn(browser, width)
         try {
           await productionApi(desk.page, h)
-          await desk.page.goto(`${origin}/app#dispatch`)
+          await gotoHarness(desk.page, `${origin}/app#dispatch`)
           await desk.page.getByLabel('Day', { exact: true }).fill('2026-10-22')
           const liveMap = desk.page.getByRole('region', { name: 'Route map' })
           await expect(liveMap.getByRole('img', { name: 'Priya N. live phone position', exact: true })).toBeVisible()
@@ -222,12 +223,12 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
           await send(desk.page, liveMap.getByRole('button', { name: 'Grant position view for Priya N.', exact: true }))
           await liveMap.getByText('Shift position views', { exact: true }).scrollIntoViewIfNeeded()
           await shot(desk.page, width, 'delegation-controls')
-          await phone.page.reload()
+          await reloadHarness(phone.page)
           await expect(sharing.getByText(/Position view is on for this shift:.*dispatcher.*agent/)).toBeVisible()
           await sharing.scrollIntoViewIfNeeded()
           await shot(phone.page, width, 'delegation-notice')
           await productionApi(desk.page, h, b.dispatcher.cookie)
-          await desk.page.reload()
+          await reloadHarness(desk.page)
           await desk.page.getByLabel('Day', { exact: true }).fill('2026-10-22')
           await expect(liveMap.getByRole('img', { name: 'Priya N. live phone position', exact: true })).toBeVisible()
           await liveMap.scrollIntoViewIfNeeded()
@@ -242,7 +243,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
           await b.tomPerson.run('clock.in', { deviceTime: now() })
           await b.tomPerson.run('timer.start', { visitId: tomVisit.id, kind: 'job', deviceTime: now() })
           await b.tomPerson.run('location.phone', { lat: 41.89234, lng: -87.63234, observedAt: now() })
-          await desk.page.reload()
+          await reloadHarness(desk.page)
           await desk.page.getByLabel('Day', { exact: true }).fill('2026-10-22')
           await expect(liveMap.getByRole('img', { name: 'Priya N. live Samsara position', exact: true })).toBeVisible()
           await expect(liveMap.getByRole('img', { name: 'Tom B. live phone position', exact: true })).toBeVisible()
@@ -253,7 +254,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
           await expect(liveMap.getByRole('region', { name: 'Location delay watch' }).getByText(/free at the same time.*Delayed technician: Samsara position/).first()).toBeVisible()
           await shot(desk.page, width, 'fleet-delay-watch')
           await b.tomPerson.run('clock.out', { deviceTime: now() })
-        } finally { await desk.context.close() }
+        } finally { await closeHarnessContext(desk.context) }
         await phone.page.getByRole('button', { name: 'Clock out', exact: true }).click()
         await expect.poll(async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n).toBe(0)
         await expect(sharing.getByText('Location stopped: clock in and start a visit timer', { exact: true })).toBeVisible()
@@ -263,7 +264,7 @@ test('DISP-002, DISP-010, DISP-015 the map board shows the day\'s pins and drive
         await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
         await expect.poll(async () => (await h.db.prepare('SELECT COUNT(*) AS n FROM glove_live_locations').first()).n).toBe(0)
         await shot(phone.page, width, 'location-withdrawn')
-      } finally { await phone.context.close() }
+      } finally { await closeHarnessContext(phone.context) }
     }
   } finally { await h.close() }
 })
@@ -274,7 +275,7 @@ async function calendarDeliveryReview(browser: any) {
   try {
     const b = await business(h)
     await productionApi(page, h)
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     const calendars = [
       { tech: b.tom, provider: 'google', name: 'Tom B.' },
       { tech: b.priya, provider: 'microsoft', name: 'Priya N.' },
@@ -301,9 +302,9 @@ async function calendarDeliveryReview(browser: any) {
       visit = await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, start: '11:00', end: '12:00', reason: 'Waiting for uncertain provider outcome' })
       review.push({ calendar, provider, tech, visit, uncertain, mapping })
     }
-    await h.restart()
+    await restartHarness(h)
     await h.scheduled('2026-11-03T00:00:00.000Z')
-    await page.reload()
+    await reloadHarness(page)
     for (const { calendar, provider } of review) {
       await expect(calendar.getByRole('status')).toContainText('unknown')
       await expect(calendar.getByRole('status')).toContainText('uncertain writes are not repeated')
@@ -314,14 +315,14 @@ async function calendarDeliveryReview(browser: any) {
       }
       await page.setViewportSize({ width: 1440, height: 1000 })
     }
-    await page.goto(`${origin}/app#activity`)
+    await gotoHarness(page, `${origin}/app#activity`)
     await expect(page.getByText(/Calendar create: unknown; check the provider before reconnecting/)).toHaveCount(2)
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1000 })
       await shot(page, width, 'calendar-activity')
     }
     await page.setViewportSize({ width: 1440, height: 1000 })
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     const writeCount = h.calendarSync.calls.filter((c: any) => c.method !== 'GET').length
     for (const { calendar, mapping, visit, uncertain, provider } of review) {
       await send(page, calendar.getByRole('button', { name: 'Disconnect visit calendar', exact: true }))
@@ -343,11 +344,11 @@ async function calendarDeliveryReview(browser: any) {
       await expect(calendar.getByRole('status')).toContainText('No visit changes sent yet')
       expect(h.calendarSync.calls.filter((c: any) => c.method !== 'GET')).toHaveLength(beforeReconnect)
       await b.dispatcher.run('visit.book', { jobId: visit.jobId, technicianId: tech.id, date: '2026-11-07', start: '09:00', end: '10:00' })
-      await page.reload()
+      await reloadHarness(page)
       await expect(calendar.getByRole('status')).toContainText('confirmed')
       await expect(calendar.getByRole('region', { name: 'Retained calendar events' })).toContainText(mapping.event_id)
     }
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 }
 
 test('DISP-002 focused map qualification: ordered pins and fixed drives, clicked and typed zones, unplaced stops and every phone directions address', async ({ browser }) => {

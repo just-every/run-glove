@@ -62,7 +62,7 @@ globalThis.fetch = async (input, options) => {
   // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
   const pushes = { sent: [], status: {} }
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
-  const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
+  const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [], snsReply: null }
   const outbound = { attempts: 0 }
   const logs = []
   class CapturedLog extends Log { log(message) { logs.push(message) } }
@@ -139,8 +139,12 @@ globalThis.fetch = async (input, options) => {
         }
         if (request.url.startsWith('https://sns.')) {
           email.fetches.push(request.url)
+          const confirmation = new URL(request.url).searchParams.get('Action') === 'ConfirmSubscription'
+          if (confirmation) email.subscriptions.push(request.url)
+          const reply = await email.snsReply?.(request)
+          if (reply) return reply
           if (email.certificates.has(request.url)) return new Response(email.certificates.get(request.url))
-          if (new URL(request.url).searchParams.get('Action') === 'ConfirmSubscription') { email.subscriptions.push(request.url); return new Response('<ConfirmSubscriptionResponse/>') }
+          if (confirmation) return new Response('<ConfirmSubscriptionResponse/>')
           return new Response('Not found', { status: 404 })
         }
         if (request.url === 'https://api.postmarkapp.com/email') {
@@ -375,7 +379,7 @@ export function mailEvents(provider) {
 export const postEvents = (h, { raw, headers }) => h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: raw })
 
 /** COMM-001: SNS signature v1/v2 and real X.509 certificate at the network edge. */
-export function snsEvents(settings, { days = 1 } = {}) {
+export function snsEvents(settings, { days = 1, at = null } = {}) {
   const keys = generateKeyPairSync('rsa', { modulusLength: 2048 })
   const directory = mkdtempSync(join(tmpdir(), 'glove-sns-certificate-'))
   let cert
@@ -383,6 +387,18 @@ export function snsEvents(settings, { days = 1 } = {}) {
     const keyFile = join(directory, 'test-key.pem')
     writeFileSync(keyFile, keys.privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 })
     cert = execFileSync('openssl', ['req', '-new', '-x509', '-key', keyFile, '-subj', `/CN=sns.${settings.region}.amazonaws.com`, '-days', String(days)], { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
+    if (at) {
+      // A clock-pinned Worker needs a provider certificate valid at that clock,
+      // including when the host later runs this historical scenario again.
+      const rootFile = join(directory, 'bootstrap.pem'), requestFile = join(directory, 'request.pem')
+      const configFile = join(directory, 'ca.cnf'), indexFile = join(directory, 'index'), serialFile = join(directory, 'serial')
+      writeFileSync(rootFile, cert)
+      execFileSync('openssl', ['req', '-new', '-key', keyFile, '-subj', `/CN=sns.${settings.region}.amazonaws.com`, '-out', requestFile], { stdio: 'ignore' })
+      writeFileSync(indexFile, ''); writeFileSync(serialFile, '01\n')
+      writeFileSync(configFile, `[ca]\ndefault_ca=signer\n[signer]\ndatabase=${indexFile}\nserial=${serialFile}\nnew_certs_dir=${directory}\ndefault_md=sha256\npolicy=subject\n[subject]\ncommonName=supplied\n`)
+      const epoch = Date.parse(at), stamp = ms => new Date(ms).toISOString().replace(/\D/g, '').slice(0, 14) + 'Z'
+      cert = execFileSync('openssl', ['ca', '-selfsign', '-batch', '-notext', '-keyfile', keyFile, '-cert', rootFile, '-in', requestFile, '-startdate', stamp(epoch - 86_400_000), '-enddate', stamp(epoch + days * 86_400_000), '-config', configFile], { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
+    }
   } finally { rmSync(directory, { recursive: true, force: true }) }
 
   const certUrl = `https://sns.${settings.region}.amazonaws.com/SimpleNotificationService-${randomUUID()}.pem`

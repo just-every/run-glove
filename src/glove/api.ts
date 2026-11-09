@@ -268,7 +268,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const certificate = await db.prepare('SELECT id,customer_id AS customerId,media_type AS mediaType FROM glove_tax_certificates WHERE id=?').bind(file[1]).first<any>()
     if (certificate) {
       const view = visible(s, actor)
-      if (fieldRole(actor) || !view.customers.some(c => c.id === certificate.customerId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
+      if (actor.token || fieldRole(actor) || !view.customers.some(c => c.id === certificate.customerId)) fail('NOT_FOUND', 'No such file for you.', null, 404)
       const chunks = (await db.prepare('SELECT bytes FROM glove_tax_certificate_chunks WHERE file_id=? ORDER BY ordinal').bind(file[1]).all<any>()).results
       return new Response(new Blob(chunks.map(x => new Uint8Array(x.bytes))), { headers: { ...headers, 'content-type': certificate.mediaType, 'content-disposition': 'attachment; filename="exemption-certificate"', 'content-security-policy': "default-src 'none'" } })
     }
@@ -601,6 +601,9 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
   // record version the person saw is still refused by the command itself.
   for (let attempt = 0; attempt < 6; attempt++) {
     let before = await load(env.DB)
+    // The import journal commits before its batch record is settled below.
+    // Keep the original schedule for the notification after that final commit.
+    const notificationBefore = before
     const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true', origin: new URL(env.AUTH_ORIGIN).origin })
     let c = fresh(), result: unknown
     if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
@@ -643,7 +646,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     committed = { ...committed, result: await savedCardAfterCommit(env.DB, c, committed.result) }
     if (c.checkoutId) committed = { ...committed, result: await checkoutAfterCommit(env.DB, c, committed.result) }
     // FIELD-004, FIELD-009, FIELD-010: once committed, each technician whose schedule changed gets one push per phone.
-    await notify(env, before, c)
+    await notify(env, notificationBefore, c, type === 'import.undo')
     // COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: committed emails go to the owner's provider once; each answer is a provider fact.
     await deliverMail(env.DB, c)
     await deliverSms(env.DB, c)

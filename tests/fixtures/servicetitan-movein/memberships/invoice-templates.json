@@ -1,0 +1,59 @@
+{
+  "data": [
+    {
+      "id": 17,
+      "name": "Annual care billing",
+      "total": 240,
+      "items": []
+    },
+    {
+      "id": 37,
+      "name": "Ongoing care billing",
+      "total": 19.5,
+      "items": []
+    },
+    {
+      "id": 23,
+      "name": "First-site included work",
+      "total": 0,
+      "items": [
+        {
+          "id": 24,
+          "skuId": 6,
+          "skuType": "Service",
+          "quantity": 1,
+          "unitPrice": 0
+        },
+        {
+          "id": 32,
+          "skuId": 31,
+          "skuType": "Material",
+          "quantity": 2,
+          "unitPrice": 0
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "Second-site included work",
+      "total": 0,
+      "items": [
+        {
+          "id": 30,
+          "skuId": 28,
+          "skuType": "Service",
+          "quantity": 2,
+          "unitPrice": 0
+        },
+        {
+          "id": 33,
+          "skuId": 31,
+          "skuType": "Material",
+          "quantity": 3,
+          "unitPrice": 0
+        }
+      ]
+    }
+  ],
+  "hasMore": false
+}
