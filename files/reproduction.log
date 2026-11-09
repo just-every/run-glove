@@ -1,0 +1,37 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart (4473.27557ms)
+ℹ A ZIP-only Yelp lead never invents a service address
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8161.571069
+
+✖ failing tests:
+
+test at tests/api/lead-matching.test.mjs:13:1
+✖ BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart (4473.27557ms)
+  AssertionError [ERR_ASSERTION]: a postal code alone is not a service address
+  + actual - expected
+  
+  + '5a515d9d-f94d-4a9f-9d9c-1c47a60d584e'
+  - null
+  
+      at file:///workspace/run-glove/tests/api/lead-matching.test.mjs:23:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async scenario (file:///workspace/run-glove/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/lead-matching.test.mjs:14:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '5a515d9d-f94d-4a9f-9d9c-1c47a60d584e',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

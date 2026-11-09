@@ -1,0 +1,149 @@
+{
+  "tag": "sx-glove-c-f197",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f197",
+  "head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9",
+  "product_push": {
+    "status": "success",
+    "attempts": 1,
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f197"
+  },
+  "pr": null,
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/lead-matching.test.mjs tests/api/pipeline.test.mjs tests/api/merge.test.mjs",
+      "exit": 0,
+      "head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9",
+      "tests": 3,
+      "passed": 3,
+      "log": "touched-tests.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "provenance": "Executed on the committed candidate",
+      "head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "log": "build.log",
+      "provenance": "Same production source bytes as candidate; run before commit"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "stdout": "",
+      "provenance": "Executed on the committed candidate",
+      "head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9"
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "exit": 0,
+      "stdout": "191 registrations (188 direct calls) + 4 assertion scripts = 195/200",
+      "before_count": 194,
+      "after_count": 195
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses BOOK-014",
+      "exit": 0,
+      "stdout": "Wrote 0 contract documents."
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "stdout": "Contract documents are current."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "provenance": "Regenerated last after staging the new test"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --exit-code origin/main HEAD -- CONTRACT.md ACCEPTANCE.md docs/CLAIMS.md tests/api/harness.mjs tests/fixtures/leads.mjs tests/api/pipeline.test.mjs tests/api/merge.test.mjs",
+      "exit": 0
+    }
+  ],
+  "reproduction": {
+    "command": "node --test tests/api/lead-matching.test.mjs",
+    "exit": 1,
+    "source": "Original main Yelp parser with ZIP-only substitution",
+    "error": "a postal code alone is not a service address: actual non-null siteId, expected null",
+    "log": "reproduction.log"
+  },
+  "contract": {
+    "status_before": "PARTIAL",
+    "status_after": "PARTIAL",
+    "claim": "DONE",
+    "points": [
+      1
+    ],
+    "counts_before": {
+      "done": 35,
+      "partial": 199,
+      "missing": 29
+    },
+    "counts_after": {
+      "done": 35,
+      "partial": 199,
+      "missing": 29
+    }
+  },
+  "main": {
+    "head": "592be9edd6258ffb39bed635bb28a1506494ae7d",
+    "equals_candidate": false,
+    "verify": {
+      "run_id": 42577457957,
+      "event": "push",
+      "conclusion": "success"
+    },
+    "run_site": {
+      "run_id": 42577457916,
+      "event": "push",
+      "conclusion": "success"
+    }
+  },
+  "verify": {
+    "run_id": 42581126681,
+    "head_sha": "b73ef129faba4fb90d2a84962f00490b7d2d76c9",
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42581126681",
+    "observed_at": "2026-11-09T07:49:18Z"
+  },
+  "publication_scan": {
+    "head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "NOT RUN: guarded Mac lander duty"
+  },
+  "run_site_candidate": {
+    "status": "NOT RUN: main-only workflow after guarded landing"
+  },
+  "blockers": [],
+  "identity": {
+    "author_name": "Run Edit Run fleet",
+    "author_email": "fleet@runeditrun.com",
+    "committer_name": "Run Edit Run fleet",
+    "committer_email": "fleet@runeditrun.com",
+    "trailers": []
+  },
+  "file_proof": {
+    "src/glove/leads.ts": "a00677b04bf00d8aaf80017f4dccff21ca4969462e817bcf193d5483f81051a9",
+    "tests/api/lead-matching.test.mjs": "baeee8c8dd4cf8649c67a5d66e67c2412d86c8823135cccaba981892bacd406a",
+    "sources.lock.json": "8613bfb1fb02594354529b48acaff3fb9b543c830bbb63878f2d62f3825e50a2"
+  },
+  "github_calls_used": 3
+}

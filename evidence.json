@@ -1,0 +1,58 @@
+{
+  "files": [
+    {
+      "blob": "7b06486929479460cfccde75fba4f5c027612626",
+      "bytes": 10610,
+      "path": "REPORT.md",
+      "sha256": "4b343fd7f1b2e92ad22d7139a9dfcab5c1fb7f51f9cd63932bdeb0c72571e51c"
+    },
+    {
+      "blob": "8731ae193a5b6555374f6446aeb02cc01898e253",
+      "bytes": 5896,
+      "path": "build.log",
+      "sha256": "55ba9bfca5c406bb77bd066faaea0f414d57e96efade9001644e012ff3529a31"
+    },
+    {
+      "blob": "078ed370570812388b128baa7795250ccbb0d288",
+      "bytes": 2478,
+      "path": "github-calls.jsonl",
+      "sha256": "aea519651707f0d92ee1d9ad5166636abeea1af02143e252b7d50c70b3af706d"
+    },
+    {
+      "blob": "ad981f4c1fb01a5472e2e936bcaddafdae281f34",
+      "bytes": 898,
+      "path": "product-push.log",
+      "sha256": "0d716ac279e5c0add06f8275a6d9c4e3181f5c5543e7fce65802c64469b3aa83"
+    },
+    {
+      "blob": "8045e9eb9c736f241771e3001d176b8f8ae8152d",
+      "bytes": 4526,
+      "path": "receipt.json",
+      "sha256": "29869d82e293bcae4198f91cdc7b0346bd0c24adddc79a2750620a7bee5280b8"
+    },
+    {
+      "blob": "7fe0c9b5b7538a1d181720a603cd7453c82f09a8",
+      "bytes": 1495,
+      "path": "reproduction.log",
+      "sha256": "35dbb8f78f433f305a6e27b148bcb1e0332e2ff566bdc50a04fbb940b3a2bf75"
+    },
+    {
+      "blob": "a04ecc61458ceffca82de29392036adfbd1fa236",
+      "bytes": 3091,
+      "path": "touched-tests.log",
+      "sha256": "47dbc9fbaaa8587b0dad9cb4f492a083803f311ab9b714fab21a47736fbc1f89"
+    },
+    {
+      "blob": "bf164ad6545d92723e37dbe2a1bff2882f3be650",
+      "bytes": 90,
+      "path": "typecheck.log",
+      "sha256": "84883ede4f28ca45248866ebaac0946c30d243f54710423a59b26139fdcc9705"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f197",
+  "product_head": "b73ef129faba4fb90d2a84962f00490b7d2d76c9",
+  "ref": "refs/heads/evidence/sx-glove-c-f197",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f197"
+}
