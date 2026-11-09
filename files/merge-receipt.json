@@ -1,0 +1,31 @@
+{
+  "head": "f6897f8d65633c3afce4755dd1243439e6ca7e7c",
+  "parents": [
+    "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+    "a81559508ceab2126d0259be3a06afb7f647ec77"
+  ],
+  "main": "a81559508ceab2126d0259be3a06afb7f647ec77",
+  "original_candidate": "7296b84ca02cda60b41642ccae13f8bfcfd998a8",
+  "generated_views_and_contract_match_main": {
+    "CONTRACT.md": true,
+    "ACCEPTANCE.md": true,
+    "docs/CLAIMS.md": true,
+    "docs/contract/ID-MAP.json": true
+  },
+  "claim_lines_unchanged": true,
+  "migrations_changed": [],
+  "identity_check_commits": 10,
+  "identity_check": "pass; all authors and committers fleet, no trailers",
+  "clean_worktree": true,
+  "touched_files": [
+    "sources.lock.json",
+    "src/glove/costing.ts",
+    "src/glove/privacy-imports.ts",
+    "src/glove/privacy.ts",
+    "tests/api/privacy.test.mjs",
+    "tests/browser/journey.spec.ts",
+    "tests/fixtures/edition-archive-policy.mjs",
+    "tests/fixtures/privacy-data.mjs",
+    "tests/portable.mjs"
+  ]
+}

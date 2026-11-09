@@ -1,0 +1,50 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f221-pc1",
+  "head": "f6897f8d65633c3afce4755dd1243439e6ca7e7c",
+  "status": "BLOCKED",
+  "blocker": "Fresh Vite listener handshake exceeded pinned rer 60-second deadline; browser/portable checks incomplete",
+  "product_push_attempted": false,
+  "product_pushed": false,
+  "ci_run_ids": [],
+  "pr_url": null,
+  "typecheck": "passed",
+  "privacy_api": {
+    "tests": 1,
+    "passed": 1,
+    "failed": 0
+  },
+  "browser": "infrastructure failure before assertions, reproduced sequentially with Node 22.20.0",
+  "portable": "infrastructure failure at calendarRestore setup",
+  "source_lock_check": "passed",
+  "contract_generator_check": "passed",
+  "first_party_check": "passed",
+  "counts_before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "total": 263
+  },
+  "clause_changes": {
+    "DATA-001": "partial unchanged",
+    "COMM-001": "main judgment partial to done retained"
+  },
+  "recovery": {
+    "path": "/home/agent/rer-consolidation/work/push-rescue/sx-glove-c-f221-pc1-f6897f8d6563-incremental.bundle",
+    "head": "f6897f8d65633c3afce4755dd1243439e6ca7e7c",
+    "sha256": "13b4b12cc6f2bdf137e53ef7bdc7b8fcdcf2d9898b0785d18af97b40bc4f372f",
+    "bytes": 24338,
+    "verified": true,
+    "kind": "incremental, HEAD ^origin/main",
+    "prerequisites": "Existing repository history through main; see bundle-verify.log for prerequisite commits",
+    "product_push_attempted": false,
+    "product_pushed": false
+  },
+  "worktree_clean": true
+}

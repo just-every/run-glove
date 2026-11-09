@@ -1,0 +1,11 @@
+{
+  "path": "/home/agent/rer-consolidation/work/push-rescue/sx-glove-c-f221-pc1-f6897f8d6563-incremental.bundle",
+  "head": "f6897f8d65633c3afce4755dd1243439e6ca7e7c",
+  "sha256": "13b4b12cc6f2bdf137e53ef7bdc7b8fcdcf2d9898b0785d18af97b40bc4f372f",
+  "bytes": 24338,
+  "verified": true,
+  "kind": "incremental, HEAD ^origin/main",
+  "prerequisites": "Existing repository history through main; see bundle-verify.log for prerequisite commits",
+  "product_push_attempted": false,
+  "product_pushed": false
+}

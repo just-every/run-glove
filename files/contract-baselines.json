@@ -1,0 +1,72 @@
+{
+  "candidate": {
+    "counts": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29,
+      "total": 263
+    },
+    "clauseCount": 263,
+    "data001": {
+      "id": "DATA-001",
+      "title": "Customer privacy requests and erasure",
+      "kind": "target",
+      "status": "partial",
+      "evidence": [
+        "tests/api/privacy.test.mjs",
+        "tests/browser/journey.spec.ts",
+        "tests/portable.mjs",
+        "tests/api/customer-quotes.test.mjs",
+        "tests/browser/customer-quotes.spec.ts"
+      ],
+      "gap": "The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture exports one customer's data, erases them, checks every personal field and file is gone while invoice totals and tax records remain, and checks a restored older backup cannot bring them back.; point 2 — Only a signed-in owner without branch limits, never an integration token or custom role, requests whole-customer export or explicitly confirms erasure.; point 3 — The request closes over every merged identity and its receipt lists every merged ID.; point 4 — Export includes related records, full timeline and base64 original files/certificates; shared CSV/ServiceM8 sources are projected to this customer’s complete source rows/objects, never peer records, with any mixed-ownership source omission explicitly named; its download is shown only in that response, never in saved command outcomes.; point 5 — Erasure removes personal operational records, attached originals and certificate chunks/evidence, customer-link credentials, delivery-recipient/event copies, personal timeline text and command results.; point 6 — Anonymous customer/site/job placeholders, invoice amounts/dates/classifications, job costs and tax totals remain; erased records cannot be edited or unmerged.; point 7 — The Base redaction checkpoint and transfer invalidation commit atomically with the erasure; the destination fence or a trusted later post-erasure backup supplied as the import journal refuses an older checkpoint.; point 8 — A fresh offline destination cannot discover an erasure without that trusted later journal; the owner is told to keep it. See docs/contract/DONE-AUDIT.md for each named outcome.",
+      "area": "Data, privacy and operations",
+      "text": "*Tier:* Core · *From:* DATA-001 · *Cites:* BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-DATA-005, BASE-ROLE-001, BASE-SECRET-001 **Requirement.** Customer privacy requests and erasure supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#data-001-operating-rules) retain the record formats and calculations. Recorded decisions: RL-23. **Acceptance.** 1. A fixture exports one customer's data, erases them, checks every personal field and file is gone while invoice totals and tax records remain, and checks a restored older backup cannot bring them back. 2. Only a signed-in owner without branch limits, never an integration token or custom role, requests whole-customer export or explicitly confirms erasure. 3. The request closes over every merged identity and its receipt lists every merged ID. 4. Export includes related records, full timeline and base64 original files/certificates; shared CSV/ServiceM8 sources are projected to this customer’s complete source rows/objects, never peer records, with any mixed-ownership source omission explicitly named; its download is shown only in that response, never in saved command outcomes. 5. Erasure removes personal operational records, attached originals and certificate chunks/evidence, customer-link credentials, delivery-recipient/event copies, personal timeline text and command results. 6. Anonymous customer/site/job placeholders, invoice amounts/dates/classifications, job costs and tax totals remain; erased records cannot be edited or unmerged. 7. The Base redaction checkpoint and transfer invalidation commit atomically with the erasure; the destination fence or a trusted later post-erasure backup supplied as the import journal refuses an older checkpoint. 8. A fresh offline destination cannot discover an erasure without that trusted later journal; the owner is told to keep it.",
+      "line": 2868,
+      "row": 3883
+    },
+    "keys": [
+      "commit",
+      "date",
+      "target",
+      "areas",
+      "clauses",
+      "counts"
+    ]
+  },
+  "main": {
+    "counts": {
+      "done": 42,
+      "partial": 192,
+      "missing": 29,
+      "total": 263
+    },
+    "clauseCount": 263,
+    "data001": {
+      "id": "DATA-001",
+      "title": "Customer privacy requests and erasure",
+      "kind": "target",
+      "status": "partial",
+      "evidence": [
+        "tests/api/privacy.test.mjs",
+        "tests/browser/journey.spec.ts",
+        "tests/portable.mjs",
+        "tests/api/customer-quotes.test.mjs",
+        "tests/browser/customer-quotes.spec.ts"
+      ],
+      "gap": "The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture exports one customer's data, erases them, checks every personal field and file is gone while invoice totals and tax records remain, and checks a restored older backup cannot bring them back.; point 2 — Only a signed-in owner without branch limits, never an integration token or custom role, requests whole-customer export or explicitly confirms erasure.; point 3 — The request closes over every merged identity and its receipt lists every merged ID.; point 4 — Export includes related records, full timeline and base64 original files/certificates; shared CSV/ServiceM8 sources are projected to this customer’s complete source rows/objects, never peer records, with any mixed-ownership source omission explicitly named; its download is shown only in that response, never in saved command outcomes.; point 5 — Erasure removes personal operational records, attached originals and certificate chunks/evidence, customer-link credentials, delivery-recipient/event copies, personal timeline text and command results.; point 6 — Anonymous customer/site/job placeholders, invoice amounts/dates/classifications, job costs and tax totals remain; erased records cannot be edited or unmerged.; point 7 — The Base redaction checkpoint and transfer invalidation commit atomically with the erasure; the destination fence or a trusted later post-erasure backup supplied as the import journal refuses an older checkpoint.; point 8 — A fresh offline destination cannot discover an erasure without that trusted later journal; the owner is told to keep it. See docs/contract/DONE-AUDIT.md for each named outcome.",
+      "area": "Data, privacy and operations",
+      "text": "*Tier:* Core · *From:* DATA-001 · *Cites:* BASE-AUDIT-001, BASE-DATA-001, BASE-DATA-003, BASE-DATA-005, BASE-ROLE-001, BASE-SECRET-001 **Requirement.** Customer privacy requests and erasure supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#data-001-operating-rules) retain the record formats and calculations. Recorded decisions: RL-23. **Acceptance.** 1. A fixture exports one customer's data, erases them, checks every personal field and file is gone while invoice totals and tax records remain, and checks a restored older backup cannot bring them back. 2. Only a signed-in owner without branch limits, never an integration token or custom role, requests whole-customer export or explicitly confirms erasure. 3. The request closes over every merged identity and its receipt lists every merged ID. 4. Export includes related records, full timeline and base64 original files/certificates; shared CSV/ServiceM8 sources are projected to this customer’s complete source rows/objects, never peer records, with any mixed-ownership source omission explicitly named; its download is shown only in that response, never in saved command outcomes. 5. Erasure removes personal operational records, attached originals and certificate chunks/evidence, customer-link credentials, delivery-recipient/event copies, personal timeline text and command results. 6. Anonymous customer/site/job placeholders, invoice amounts/dates/classifications, job costs and tax totals remain; erased records cannot be edited or unmerged. 7. The Base redaction checkpoint and transfer invalidation commit atomically with the erasure; the destination fence or a trusted later post-erasure backup supplied as the import journal refuses an older checkpoint. 8. A fresh offline destination cannot discover an erasure without that trusted later journal; the owner is told to keep it.",
+      "line": 2868,
+      "row": 3883
+    },
+    "keys": [
+      "commit",
+      "date",
+      "target",
+      "areas",
+      "clauses",
+      "counts"
+    ]
+  }
+}

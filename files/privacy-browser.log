@@ -1,0 +1,54 @@
+Allow roughly 500 MB–1 GB of downloads and 1–3 GB of disk space for a first run, including Node, rer, the app and its dependencies. The app and your computer can need more; later runs reuse downloads.
+rer dev: checking the server limit
+Checking pinned pnpm
+10.12.4
+Applying database migrations
+Applying database migrations
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.159.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Starting your application on this computer (waiting for the bound internal listener): Still starting (30 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (31 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (32 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (33 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (37 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (39 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (40 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (41 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (43 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (44 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (46 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (48 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (50 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (51 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (55 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (56 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (57 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (60 s)
+Application listened on port 43119, 36843, 45881; readiness failed for GET [URL] through expected internal port 18064. Check application health and the runtime target's port binding.
+Starting your application on this computer (waiting for the bound internal listener): readiness deadline exceeded (exit none, signal none). Last health: Waiting for the application listener handshake.
+Installation stopped while starting the application. Ask your agent to check the edition's operating command for that step, correct the cause, then select Start again. Your setup answers are saved; you may need to supply credentials again.
+Command: /home/agent/.rer/node/node-v22.20.0-linux-x64/bin/node
+Last output (up to 40 lines):
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Log: [REDACTED]/.seed/installer/install.log
+Application listened on port 43119, 36843, 45881; readiness failed for GET [URL] through expected internal port 18064. Check application health and the runtime target's port binding.
+dev: failed (exit 1)
+

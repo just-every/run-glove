@@ -1,0 +1,46 @@
+[
+  {
+    "command": "pnpm typecheck",
+    "exit_code": 0,
+    "log": "typecheck.log"
+  },
+  {
+    "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit_code": 0,
+    "log": "setup.log"
+  },
+  {
+    "command": "node --test --test-concurrency=1 tests/api/privacy.test.mjs",
+    "exit_code": 0,
+    "log": "privacy-api.log",
+    "tests": 1,
+    "pass": 1,
+    "fail": 0
+  },
+  {
+    "command": "node tests/browser/run.mjs tests/browser/journey.spec.ts --grep '^DATA-001'",
+    "attempt": 1,
+    "exit_code": 1,
+    "log": "privacy-browser-first-attempt.log",
+    "assertions_started": false,
+    "reason": "Fresh installation missed its unchanged 60-second Vite listener/health readiness deadline during concurrent execution."
+  },
+  {
+    "command": "node tests/portable.mjs",
+    "attempt": 1,
+    "exit_code": 1,
+    "log": "portable-first-attempt.log",
+    "archive_assertions_started": false,
+    "reason": "calendarRestore fresh installation missed its unchanged 60-second Vite listener/health readiness deadline during concurrent execution."
+  },
+  {
+    "command": "node tests/browser/run.mjs tests/browser/journey.spec.ts --grep '^DATA-001'",
+    "attempt": 2,
+    "runtime": "Node 22.20.0, sequential",
+    "exit_code": 1,
+    "log": "privacy-browser.log",
+    "setup_passed": true,
+    "assertions_started": false,
+    "reason": "rer dev missed unchanged 60-second application listener-handshake deadline; runner adapter caps timeout at 60000 ms."
+  }
+]
