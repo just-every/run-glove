@@ -48,7 +48,7 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 
 1. PARTIAL: points 2–5 and 7 plus the fixed proposal path are reached; point 1 and company-policy selection remain external holds. No DONE claim.
 2. PASS for native scope: populated records and exact observed outcomes; unauthorized and conflicting changes are attempted and refused without state change, with supported approvals also exercised. See points 2, 5 and 6.
-3. Pending exact-SHA Verify outcome: the existing API test is selected by Verify's existing API glob. Its event and conclusion are recorded in ci-receipt.json. The temporary screenshot script is run evidence, not a registered Verify browser journey or a new acceptance claim.
+3. PENDING at handoff: Verify 42615509897 remained in progress after two polls separated by at least 300 seconds. The existing API test is selected by Verify's existing API glob. Its event and conclusion are recorded in ci-receipt.json. The temporary screenshot script is run evidence, not a registered Verify browser journey or a new acceptance claim.
 4. PASS locally: final checks and browser receipts are bound to this candidate. The production build predates only test changes; provenance.json records the empty production-source diff from that build to the candidate.
 5. INSPECTED: no receiving Base duty, contract inheritance or acceptance semantics were added or claimed.
 6. PASS mechanical source checks: contract source and all Status cells unchanged, generated views checked and restored, lock regenerated. Judgment cells and future landed provenance remain lander-owned; existing Gap text is not rewritten here.
@@ -68,7 +68,9 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 
 ## CI and publication
 
-GitHub REST call budget: main discovery 1; candidate discovery 1; later run polls are at least 300 seconds apart, with the terminal total in ci-receipt.json. No dispatch or rerun has been issued.
+GitHub REST calls used: 4 of 10, comprising main discovery, candidate discovery and two candidate polls at least 300 seconds apart. The bounded cloud CI wait ended after ten minutes of observing the candidate, consistent with the brief’s instruction to leave CI waiting to the fleet; terminal custody is PUSHED, without a green or READY claim. No dispatch or rerun has been issued.
+
+Final CI observation: in_progress, conclusion null, recorded at 2026-11-09T12:27:25.761346+00:00. No failed run or failed job was observed.
 
 Candidate Verify run: 42615509897, push event, exact head de5204c75fb27b054cf13fbf9ae72f107e8ef28c; final observed status is in ci-receipt.json. Main baseline Verify run 42611312391 and Run site run 42611312355 are completed success on fcfafa4d17d1ff83fcd75fd89b929a29780397f8.
 
@@ -78,3 +80,5 @@ The packet's selected report, receipts, reproduction, touched-test output, brows
 
 CLAIM AGENT-003 PARTIAL points=2,3,4,5,7 tests=tests/api/delays.test.mjs#AGENT-003, AGENT-010: a job runs long, the agent proposes moving the next visit to another technician and the dispatcher approves
 GAP AGENT-003: Point 1 and point 6's company-policy selection remain held on the Base client-custody adapter and the service-work agent surface; customer confirmation replies and agent texts remain with COMM-002 and COMM-005. Fixed proposal preparation, independent approval and conflict review are qualified.
+
+PUSHED branch=cloud/sx-glove-c-f219 head=de5204c75fb27b054cf13fbf9ae72f107e8ef28c

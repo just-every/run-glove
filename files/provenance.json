@@ -66,5 +66,10 @@
     "lock_exit": 0,
     "ledger": "none; no migration changed",
     "ledger_exit": 0
-  }
+  },
+  "terminal_custody": "PUSHED",
+  "candidate_verify_run": 42615509897,
+  "candidate_verify_status": "in_progress",
+  "candidate_verify_conclusion": null,
+  "gh_calls": 4
 }
