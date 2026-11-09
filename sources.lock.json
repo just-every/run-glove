@@ -5692,7 +5692,7 @@
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
-      "sha256": "1ae883714cc5a15b55c4b5fb22845ae5f49058b59d2b5e0d48c093b466550ac2",
+      "sha256": "0398e8d00460c44a7e604f60e851bdfc51f3f05af343e511911fb6fe3184db53",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -5872,7 +5872,7 @@
       "executable": false
     },
     "tests/browser/commission-download-journey.ts": {
-      "sha256": "6cdb91b107e0f2de4e14731c2856d62bf75fd1199196d46026afbfe49fbbf6b2",
+      "sha256": "99cb4d2aef792cee0e9d875502416020023ad3c0f31ba4d67e87c3dc7a3abd09",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
@@ -5940,7 +5940,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "3970b52139751e4ddc111da393c69055fafa15d2b7eacb4ac867f0e98216e2eb",
+      "sha256": "3d265a0fbfb0c2872397eef4c3ce25fbdec6ec15ec0b6e776b1a822d05a70721",
       "executable": false
     },
     "tests/browser/money.spec.ts": {

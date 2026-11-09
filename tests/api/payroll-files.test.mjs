@@ -226,11 +226,21 @@ test('COST-007 payroll files qualify provider rows, approved workweeks, privacy 
       await scenario(t, 'TEAM-006 point 1: reads recompute earnings after hours approval under the rule on each sale date', async () => {
         const approval = await sheet()
         const before = await read('gusto')
+        const beforeAdp = await read('adp-run'), beforeQuickbooks = await read('quickbooks')
         assert.equal((await json()).people.find(x => x.technicianId === f.priya.id).commission.total, '0.00')
         const sold = await f.sold('2026-11-04', f.priya, '1234.50', '5%', '61.73')
         assert.ok(Date.parse(sold.acceptance.at) > Date.parse(approval.approval.at), 'the credited sale is later than the hours approval')
         assert.notEqual(await read('gusto'), before)
         assert.ok((await read('gusto')).split('\r\n').includes('N.,Priya,304,2026-11-02 - 2026-11-08,8.00,0.00,0.00,61.73'), 'the next file read credits the already-approved workweek')
+        const adp = await read('adp-run'), quickbooks = await read('quickbooks')
+        assert.notEqual(adp, beforeAdp, 'the next ADP read includes the post-approval sale')
+        assert.notEqual(quickbooks, beforeQuickbooks, 'the next QuickBooks read includes the post-approval sale')
+        assert.deepEqual(rows(adp).filter(row => row[5] === 'COMM'), [
+          ['GLOVE23', 'B', '11/02/2026', '11/22/2026', '304', 'COMM', '', '61.73', '0', '', 'BASE'],
+        ])
+        assert.deepEqual(rows(quickbooks).filter(row => row[2] === 'Commission'), [
+          ['Priya N.', '11/04/2026', 'Commission', '', '61.73'],
+        ])
         assert.equal((await json()).people.find(x => x.technicianId === f.priya.id).commission.total, '61.73')
         assert.deepEqual(await sheet(), approval, 'a credited sale neither changes approved hours nor reapproves the sheet')
         assert.equal((await sheet()).status, 'approved')

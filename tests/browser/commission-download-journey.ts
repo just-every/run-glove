@@ -49,7 +49,9 @@ export async function commissionDownloads(browser: Browser) {
           await page.waitForURL(u => u.pathname === '/app')
         }
         await page.clock.setFixedTime(new Date('2026-11-23T02:00:00Z'))
+        const records = page.waitForResponse(r => r.url() === `${transport.origin}/api/glove/state` && r.status() === 200)
         await page.goto(`${transport.origin}/app#reports`)
+        await (await records).finished()
         await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
         const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
         await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
