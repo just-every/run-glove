@@ -1,0 +1,68 @@
+Owned dev ready; native private entry retained only in process memory.
+{"run":1,"head":"6787b9abef40c3cee5576f90433ed95f8f0333bc","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:05:38.725Z","ended":"2026-11-09T13:09:07.329Z","seconds":208.603,"exit":1,"log":"spec-run-01.log","proofScreenshots":true}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:17308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:17308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.9m)
+(node:17308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Document readiness failure: /app Loading your work…
+  ✘  2 tests/browser/conversation.spec.ts:257:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (1.0m)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/browser/conversation.spec.ts:257:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart 
+
+    TimeoutError: locator.waitFor: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('.glove-app[aria-busy="false"]') to be visible
+
+
+      310 |       await page.goto(url)
+      311 |       try {
+    > 312 |         await page.locator('.glove-app[aria-busy="false"]').waitFor({ state: 'visible' })
+          |                                                             ^
+      313 |       } catch (error) {
+      314 |         console.error('Document readiness failure:', new URL(page.url()).pathname, (await page.locator('body').innerText()).slice(0, 3000))
+      315 |         throw error
+        at open (/workspace/run-glove/tests/browser/conversation.spec.ts:312:61)
+        at customerPage (/workspace/run-glove/tests/browser/conversation.spec.ts:326:7)
+        at /workspace/run-glove/tests/browser/conversation.spec.ts:333:5
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-f201fix1/browser-final/spec-run-01/conversation-COMM-010-poin-43393-tcomes-after-Worker-restart/error-context.md
+
+  1 failed
+    tests/browser/conversation.spec.ts:257:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart 
+  1 passed (3.4m)
+  1 error was not a part of any test, see above for details
+
+Dev output:
+mponents maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:06:54 PM [vite] (client) [console.error] Encountered two children with the same key, `b2cc90dc-ec9d-40bc-9fd5-68c76f0bdf911`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:06:55 PM [vite] (client) [console.error] Encountered two children with the same key, `b2cc90dc-ec9d-40bc-9fd5-68c76f0bdf911`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:06:56 PM [vite] (client) [console.error] Encountered two children with the same key, `812b5741-ba99-427a-9c77-4af7e2cf9da21`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:01 PM [vite] (client) [console.error] Encountered two children with the same key, `812b5741-ba99-427a-9c77-4af7e2cf9da21`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:01 PM [vite] (client) [console.error] Encountered two children with the same key, `b2cc90dc-ec9d-40bc-9fd5-68c76f0bdf911`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:01 PM [vite] (client) [console.error] Encountered two children with the same key, `812b5741-ba99-427a-9c77-4af7e2cf9da21`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:02 PM [vite] (client) [console.error] Encountered two children with the same key, `812b5741-ba99-427a-9c77-4af7e2cf9da21`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:03 PM [vite] (client) [console.error] Encountered two children with the same key, `812b5741-ba99-427a-9c77-4af7e2cf9da21`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:04 PM [vite] (client) [console.error] Encountered two children with the same key, `b2cc90dc-ec9d-40bc-9fd5-68c76f0bdf911`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:12 PM [vite] (client) [console.error] Encountered two children with the same key, `812b5741-ba99-427a-9c77-4af7e2cf9da21`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:12 PM [vite] (client) [console.error] Encountered two children with the same key, `b2cc90dc-ec9d-40bc-9fd5-68c76f0bdf911`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:27 PM [vite] (client) [console.error] Encountered two children with the same key, `692407b3-259a-42c0-b5bd-6142f0d65cd52`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:27 PM [vite] (client) [console.error] Encountered two children with the same key, `812b5741-ba99-427a-9c77-4af7e2cf9da22`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+1:07:27 PM [vite] (client) [console.error] Encountered two children with the same key, `b2cc90dc-ec9d-40bc-9fd5-68c76f0bdf911`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+Spec run 1 failed; stopped without retry.

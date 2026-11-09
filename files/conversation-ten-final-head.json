@@ -1,0 +1,15 @@
+{
+  "name": "conversation-ten-final-head",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "f9343528b5a9c679eef38786fe62766cf68076de",
+  "command": [
+    "node",
+    "/tmp/glove-ten-specs.mjs"
+  ],
+  "started": "2026-11-09T11:33:36.620502+00:00",
+  "ended": "2026-11-09T11:36:29.355816+00:00",
+  "seconds": 172.74,
+  "exit": 1,
+  "log": "conversation-ten-final-head.log"
+}

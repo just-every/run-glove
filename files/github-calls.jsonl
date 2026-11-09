@@ -1,0 +1,9 @@
+{"at": 1794229011.5317428, "args": ["api", "repos/just-every/run-glove/actions/runs?head_sha=6787b9abef40c3cee5576f90433ed95f8f0333bc&per_page=100", "--jq", "[.workflow_runs[] | {id,name,status,conclusion,head_sha,html_url,event}]"], "exit": 0}
+{"at": 1794229315.5071483, "args": ["api", "repos/just-every/run-glove/actions/runs/42621166547", "--jq", "{id,status,conclusion,head_sha,html_url}"], "exit": 0}
+{"at": 1794229616.9541678, "args": ["api", "repos/just-every/run-glove/actions/runs/42621166547", "--jq", "{id,status,conclusion,head_sha,html_url}"], "exit": 0}
+{"at": 1794230222.1986718, "args": ["api", "repos/just-every/run-glove/actions/runs?head_sha=30350fbcb64c3457c9b890ee88f354473121d919&per_page=100", "--jq", "[.workflow_runs[] | {id,name,status,conclusion,head_sha,html_url,event}]"], "exit": 0}
+{"at": 1794230525.8191686, "args": ["api", "repos/just-every/run-glove/actions/runs/42623346266", "--jq", "{id,status,conclusion,head_sha,html_url}"], "exit": 0}
+{"at": 1794230827.8597612, "args": ["api", "repos/just-every/run-glove/actions/runs/42623346266", "--jq", "{id,status,conclusion,head_sha,html_url}"], "exit": 0}
+{"at": 1794230840.1800473, "args": ["api", "repos/just-every/run-glove/actions/runs/42623346266/jobs?per_page=100", "--jq", "[.jobs[] | {id,name,status,conclusion,steps:[.steps[]|{name,conclusion}]}]"], "exit": 0}
+{"at": 1794230863.6307845, "args": ["run", "view", "42623346266", "--repo", "just-every/run-glove", "--job", "129181059028", "--log-failed"], "exit": 0}
+{"at": 1794230873.5655046, "args": ["run", "view", "42623346266", "--repo", "just-every/run-glove", "--job", "129188012523", "--log-failed"], "exit": 0}

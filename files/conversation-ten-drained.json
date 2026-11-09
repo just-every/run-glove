@@ -1,0 +1,15 @@
+{
+  "name": "conversation-ten-drained",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "5353c5c266a31c9c75236a808193f82d85e6248d",
+  "command": [
+    "node",
+    "/tmp/glove-ten-specs.mjs"
+  ],
+  "started": "2026-11-09T11:38:13.168259+00:00",
+  "ended": "2026-11-09T11:40:34.619398+00:00",
+  "seconds": 141.45,
+  "exit": 1,
+  "log": "conversation-ten-drained.log"
+}

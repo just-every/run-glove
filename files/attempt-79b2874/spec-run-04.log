@@ -1,0 +1,283 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:13996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:13996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/6e69653e-93b4-4383-9c11-d0d8d4e062e8/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 403 
+PROXY GET /api/glove/agreements 403 
+PROXY GET /api/glove/conversation 403 
+PROXY GET /api/glove/agreements 403 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/3e2fe6c0-f467-43d7-9679-414edd2218d4/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 404 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 404 
+(node:13996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/d9eb44ab-474f-465d-970d-0a299a179640/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["River Clinic","Harbour Workshop"],"jobs":["Harbour inspection","River inspection"]}
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+FIXTURE PAGE /app #jobs
+FIXTURE BODY Glove
+Today
+Dispatch
+Quotes
+Jobs
+Invoices
+Customers
+Text inbox
+Reports
+Stock
+Rules
+Move in
+Activity
+Team
+
+Harbour Service
+
+MD
+Morgan Desk
+Office
+Sign out
+Jobs
+
+Accepted work, its visits and its field evidence
+
+Jobs
+JOB	CUSTOMER	STATUS
+J-1002 ·
+River inspection
+	Harbour Workshop	Open
+J-1001 ·
+Harbour inspection
+	Harbour Workshop	Open
+J-1001 · Harbour inspection
+
+Harbour Workshop · 10 Harbour Street
+
+Service call without a quote · prices are approved on its invoice
+
+Field evidence
+Nothing recorded yet
+Expenses
+
+No expenses recorded.
+
+Expense
+Supply-house purchase
+Permit
+Equipment rental
+Subcontractor bill
+Other
+Vendor
+What it was for
+Amount
+Markup % (blank bills at cost)
+Bill this to the customer
+Record expense
+Time on this job
+
+No time recorded yet
+
+Visits
+No visits booked
+Conversation
+
+Loading conversation…
+
+Log
+Call
+Note
+Direction
+Customer called us
+We called the customer
+Outcome
+Answered
+Voicemail
+No answer
+Minutes (optional)
+What was said (optional)
+Log call
+Timeline
+Job costing
+
+Jobs completed in the period, by job type (the first price-book line's category) and by technician.
+
+From
+To
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/jobs/3cceaca2-5273-48ce-9ecd-1fefb15e78da/timeline 200 
+PROXY GET /api/glove/conversation 200 
+  ✘  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.1m)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('region', { name: 'Job conversation', exact: true }).locator('ol.timeline-list > li').locator('.conversation-entry > p:nth-child(2)')
+    Timeout: 5000ms
+    - Expected  - 4
+    + Received  + 1
+
+    - Array [
+    -   "Harbour called about the filter",
+    -   "Harbour needs a washable filter",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "toHaveText" getByRole('region', { name: 'Job conversation', exact: true }).locator('ol.timeline-list > li').locator('.conversation-entry > p:nth-child(2)') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Job conversation', exact: true }).locator('ol.timeline-list > li').locator('.conversation-entry > p:nth-child(2)')
+        11 × locator resolved to 0 elements
+
+
+      230 |     await screens(page, 'survivor-after-restart', customerPanel)
+      231 |     await open(`${origin}/app#jobs/${harbourJob.id}`)
+    > 232 |     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
+          |                                                                                  ^
+      233 |     await screens(page, 'harbour-job', jobPanel)
+      234 |     await open(`${origin}/app#jobs/${riverJob.id}`)
+      235 |     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
+        at /workspace/run-glove/tests/browser/conversation.spec.ts:232:82
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-f201fix1/browser-final/spec-run-04/conversation-COMM-007-desk-76a1e-te-or-refused-conversations/error-context.md
+
+  1 failed
+    tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+  1 did not run
+  1 error was not a part of any test, see above for details

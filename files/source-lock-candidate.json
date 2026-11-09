@@ -1,0 +1,16 @@
+{
+  "name": "source-lock-candidate",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "5353c5c266a31c9c75236a808193f82d85e6248d",
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "check"
+  ],
+  "started": "2026-11-09T11:39:22.916613+00:00",
+  "ended": "2026-11-09T11:39:27.198285+00:00",
+  "seconds": 4.28,
+  "exit": 1,
+  "log": "source-lock-candidate.log"
+}

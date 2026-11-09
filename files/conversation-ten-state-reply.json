@@ -1,0 +1,15 @@
+{
+  "name": "conversation-ten-state-reply",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "command": [
+    "node",
+    "/tmp/glove-ten-specs.mjs"
+  ],
+  "started": "2026-11-09T13:10:25.303220+00:00",
+  "ended": "2026-11-09T13:42:56.372146+00:00",
+  "seconds": 1951.07,
+  "exit": 0,
+  "log": "conversation-ten-state-reply.log"
+}

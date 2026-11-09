@@ -1,0 +1,31 @@
+{
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "base": "6854445708d24dbc80d7372c7acc1cba5f998b6a",
+  "conversation_tests_before": 2,
+  "conversation_tests_after": 2,
+  "conversation_assertions_before": 54,
+  "conversation_assertions_after": 54,
+  "comm010_assertions_before": 19,
+  "comm010_assertions_after": 19,
+  "test_inventory_before": 203,
+  "test_inventory_after": 203,
+  "test_cap": 200,
+  "test_inventory_result": "pre-existing excess, no registrations changed",
+  "contract_counts_before": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "total": 263
+  },
+  "contract_counts_after": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "total": 263
+  },
+  "contract_and_views_unchanged": true,
+  "quote002_claim_unchanged": true,
+  "product_code_changed": false,
+  "publication_scan": "not run per brief; fleet publication gate remains required",
+  "integrated_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8"
+}

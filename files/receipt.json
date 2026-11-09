@@ -1,0 +1,413 @@
+{
+  "tag": "sx-glove-f201fix1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "base": "6854445708d24dbc80d7372c7acc1cba5f998b6a",
+  "origin_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "full_history": true,
+  "pr": null,
+  "local_spec_runs": [
+    {
+      "run": 1,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:11:56.991Z",
+      "ended": "2026-11-09T13:14:58.350Z",
+      "seconds": 181.359,
+      "exit": 0,
+      "log": "spec-run-01.log",
+      "proofScreenshots": true
+    },
+    {
+      "run": 2,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:14:58.351Z",
+      "ended": "2026-11-09T13:16:51.585Z",
+      "seconds": 113.234,
+      "exit": 0,
+      "log": "spec-run-02.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 3,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:16:51.586Z",
+      "ended": "2026-11-09T13:20:02.232Z",
+      "seconds": 190.647,
+      "exit": 0,
+      "log": "spec-run-03.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 4,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:20:02.256Z",
+      "ended": "2026-11-09T13:23:18.613Z",
+      "seconds": 196.357,
+      "exit": 0,
+      "log": "spec-run-04.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 5,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:23:18.616Z",
+      "ended": "2026-11-09T13:28:35.454Z",
+      "seconds": 316.839,
+      "exit": 0,
+      "log": "spec-run-05.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 6,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:28:35.461Z",
+      "ended": "2026-11-09T13:32:21.357Z",
+      "seconds": 225.896,
+      "exit": 0,
+      "log": "spec-run-06.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 7,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:32:21.358Z",
+      "ended": "2026-11-09T13:35:56.535Z",
+      "seconds": 215.177,
+      "exit": 0,
+      "log": "spec-run-07.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 8,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:35:56.556Z",
+      "ended": "2026-11-09T13:38:45.588Z",
+      "seconds": 169.033,
+      "exit": 0,
+      "log": "spec-run-08.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 9,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:38:45.590Z",
+      "ended": "2026-11-09T13:40:44.357Z",
+      "seconds": 118.767,
+      "exit": 0,
+      "log": "spec-run-09.log",
+      "proofScreenshots": false
+    },
+    {
+      "run": 10,
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "/workspace/run-glove/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/workspace/run-glove/tests/browser/playwright.config.ts",
+        "tests/browser/conversation.spec.ts",
+        "--retries=0",
+        "--workers=1",
+        "--max-failures=1"
+      ],
+      "started": "2026-11-09T13:40:44.359Z",
+      "ended": "2026-11-09T13:42:55.907Z",
+      "seconds": 131.548,
+      "exit": 0,
+      "log": "spec-run-10.log",
+      "proofScreenshots": false
+    }
+  ],
+  "local_checks": {
+    "typecheck-clean": {
+      "name": "typecheck-clean",
+      "repository": "just-every/run-glove",
+      "branch": "cloud/sx-glove-f201fix1",
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "started": "2026-11-09T13:44:13.668651+00:00",
+      "ended": "2026-11-09T13:44:14.917385+00:00",
+      "seconds": 1.25,
+      "exit": 0,
+      "log": "typecheck-clean.log"
+    },
+    "source-lock-clean": {
+      "name": "source-lock-clean",
+      "repository": "just-every/run-glove",
+      "branch": "cloud/sx-glove-f201fix1",
+      "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "started": "2026-11-09T13:45:55.553138+00:00",
+      "ended": "2026-11-09T13:45:56.176405+00:00",
+      "seconds": 0.62,
+      "exit": 0,
+      "log": "source-lock-clean.log"
+    }
+  },
+  "ci": {
+    "repository": "just-every/run-glove",
+    "branch": "cloud/sx-glove-f201fix1",
+    "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+    "observed_at": "2026-11-09T13:27:07.871166+00:00",
+    "observation": 3,
+    "exit": 0,
+    "run": {
+      "conclusion": "failure",
+      "head_sha": "30350fbcb64c3457c9b890ee88f354473121d919",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42623346266",
+      "id": 42623346266,
+      "status": "completed"
+    }
+  },
+  "counts": {
+    "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+    "base": "6854445708d24dbc80d7372c7acc1cba5f998b6a",
+    "conversation_tests_before": 2,
+    "conversation_tests_after": 2,
+    "conversation_assertions_before": 54,
+    "conversation_assertions_after": 54,
+    "comm010_assertions_before": 19,
+    "comm010_assertions_after": 19,
+    "test_inventory_before": 203,
+    "test_inventory_after": 203,
+    "test_cap": 200,
+    "test_inventory_result": "pre-existing excess, no registrations changed",
+    "contract_counts_before": {
+      "done": 42,
+      "partial": 192,
+      "missing": 29,
+      "total": 263
+    },
+    "contract_counts_after": {
+      "done": 42,
+      "partial": 192,
+      "missing": 29,
+      "total": 263
+    },
+    "contract_and_views_unchanged": true,
+    "quote002_claim_unchanged": true,
+    "product_code_changed": false,
+    "publication_scan": "not run per brief; fleet publication gate remains required",
+    "integrated_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8"
+  },
+  "local_bootstrap": {
+    "scope": "local, untracked dependency used only to start the UI for browser testing",
+    "file": "node_modules/@runeditrun/rer/onboarding/development-runtime.mjs",
+    "original_sha256": "db95a05420065e5488baec71192ab5884fdefbc8167411645207e9645066fbeb",
+    "temporary_sha256": "45e0895e1a70bfdabb0337c18f65514fed12bad2796887e48bd3f17eb9957b82",
+    "change": "createServer server port: port || 17888, instead of port (requested port is 0)",
+    "ownership_and_health_guards": "unchanged",
+    "test_timeouts_and_assertions": "unchanged",
+    "observed": "unmodified dev repeatedly timed out awaiting the internal listener handshake; fixed-port instance announced readiness and launched the spec",
+    "restore": "completed after owned server stopped; byte-for-byte originals restored",
+    "fixed_port_experiment": "restored; one startup succeeded but the next still failed, so this did not establish the cause",
+    "final_local_bootstrap": {
+      "file": "node_modules/@runeditrun/rer/onboarding/adapter.mjs",
+      "change": "Initial launcher readiness allowance 60s -> 180s only; original ephemeral binding restored",
+      "original_sha256": "d6677445506a122bc8ea7a4d6ece57e00ad7308c71652523904831a677d1f878",
+      "temporary_sha256": "6d6139377faa34f46ef8e6688cd1d09ca838a3b0ffaba9433d23cdd45cd184a3",
+      "browser_and_test_timeouts": "unchanged",
+      "ownership_and_health_checks": "unchanged",
+      "restore": "completed; original hash verified"
+    },
+    "restored": true,
+    "restoration": [
+      {
+        "file": "node_modules/@runeditrun/rer/onboarding/development-runtime.mjs",
+        "restored_sha256": "db95a05420065e5488baec71192ab5884fdefbc8167411645207e9645066fbeb"
+      },
+      {
+        "file": "node_modules/@runeditrun/rer/onboarding/adapter.mjs",
+        "restored_sha256": "d6677445506a122bc8ea7a4d6ece57e00ad7308c71652523904831a677d1f878"
+      }
+    ]
+  },
+  "screenshots": [
+    "screenshots/1440-conversation-address-bounce.png",
+    "screenshots/1440-conversation-message-failures.png",
+    "screenshots/1440-conversation-address-complaint.png",
+    "screenshots/390-conversation-address-bounce.png",
+    "screenshots/390-conversation-message-failures.png",
+    "screenshots/390-conversation-address-complaint.png"
+  ],
+  "hashes": {
+    "tests/browser/conversation.spec.ts": "b4873b1bb97effc337b8e234a59c2fd654a5d4286e3a953ca01c46185499b456",
+    "sources.lock.json": "d58403ad3b14f4388f3abbd573003996ffb0f42e054f47e238aa0527492ee866",
+    "CONTRACT.md": "cf9f0c98f36bea7df93cb96bb35de823b68c13519482de4988d8461175dc6348",
+    "ACCEPTANCE.md": "ec0874c28bcbdaac276cf2521b66929bacb9e75977a5083c90c4e312bff331e3",
+    "docs/CLAIMS.md": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+  },
+  "product_push_log": "product-push-final.log",
+  "publication_scan": "not run in cloud per brief; required fleet publication gate remains",
+  "clause_changes": [],
+  "inherited_quote002_claim": {
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "unchanged": true
+  },
+  "time": "2026-11-09T13:46:34.359457+00:00",
+  "blocker": {
+    "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+    "run": 42623346266,
+    "status": "completed",
+    "conclusion": "failure",
+    "failing_jobs": [
+      {
+        "id": 129181059028,
+        "name": "shards (api-1)",
+        "file": "tests/api/message-outcomes.test.mjs",
+        "line": 168,
+        "expected": [
+          200,
+          {
+            "ok": true
+          }
+        ],
+        "actual_status": 401,
+        "actual_code": "MAIL_EVENT"
+      },
+      {
+        "id": 129188012523,
+        "name": "verify",
+        "reason": "aggregate requires all selected shards success"
+      }
+    ],
+    "browser_shards": "all success, including browser-4",
+    "scope": "callback API assertion and production handler unchanged by this repair",
+    "blocker": "Exact-SHA Verify red on callback assertion; not a generated contract-view failure.",
+    "logs": [
+      "ci-api-1-failed.log",
+      "ci-verify-failed.log"
+    ]
+  },
+  "local_generated_view_restore": {
+    "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md; git restore --source=HEAD -- CONTRACT.md",
+    "origin_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+    "regenerated_sha256": {
+      "CONTRACT.md": "cf9f0c98f36bea7df93cb96bb35de823b68c13519482de4988d8461175dc6348",
+      "ACCEPTANCE.md": "ec0874c28bcbdaac276cf2521b66929bacb9e75977a5083c90c4e312bff331e3",
+      "docs/CLAIMS.md": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+    },
+    "restored_sha256": {
+      "CONTRACT.md": "cf9f0c98f36bea7df93cb96bb35de823b68c13519482de4988d8461175dc6348",
+      "ACCEPTANCE.md": "620da3b92107e5e6532b93f98f06488240822efa7385237719394942c420f7d3",
+      "docs/CLAIMS.md": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+    },
+    "source_judgments": "unchanged; no touched source clauses",
+    "generated_views_committed": false,
+    "final_restore_at": "2026-11-09T13:47:32.795137+00:00",
+    "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+    "canonical_candidate_lock_check": "source-lock-clean.json: exit 0 after canonical HEAD restoration; generated main view restored again afterward",
+    "expected_uncommitted_view_files": [
+      "ACCEPTANCE.md"
+    ]
+  },
+  "hashes_source": "canonical candidate HEAD before local main-view restore"
+}

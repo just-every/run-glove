@@ -1,0 +1,235 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:13471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:13471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/timeline 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/timeline 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 403 
+PROXY GET /api/glove/agreements 403 
+PROXY GET /api/glove/agreements 403 
+PROXY GET /api/glove/conversation 403 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/6b2ba7ce-34b9-418f-90db-3c52aac2343f/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 404 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 404 
+(node:13471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 200 
+PROXY GET /api/glove/customers/08902ee3-6097-45b4-969e-f0758ce601b7/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/cost 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/b32dff64-8072-49c9-9765-01bdb1479a00/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbour Workshop","River Clinic"],"jobs":["River inspection","Harbour inspection"]}
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/cost 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/timeline 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/reports/costing 200 
+PROXY GET /api/glove/jobs/16098452-b52e-4488-a4ec-ae7b5a5f8d1e/timeline 200 
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.3m)
+(node:13471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+(node:13471) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+PROXY GET /api/glove/conversation 200 
+PROXY POST /api/glove/commands 200 
+PROXY GET /api/glove/state 200 {"actor":"office","customers":["Harbourview Dental"],"jobs":["Service 2026-10-20"]}
+PROXY GET /api/glove/reports/warranties 200 
+PROXY GET /api/glove/customers/0cb51b65-8f5a-4d85-8d85-f49e4f66169f/duplicates 200 
+PROXY GET /api/glove/agreements 200 
+PROXY GET /api/glove/conversation 200 
+  ✓  2 tests/browser/conversation.spec.ts:255:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (37.1s)
+
+  2 passed (2.2m)

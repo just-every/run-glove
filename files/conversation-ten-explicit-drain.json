@@ -1,0 +1,15 @@
+{
+  "name": "conversation-ten-explicit-drain",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "9b9ad05284836e216148306e57bbc595824758f8",
+  "command": [
+    "node",
+    "/tmp/glove-ten-specs.mjs"
+  ],
+  "started": "2026-11-09T11:51:04.918563+00:00",
+  "ended": "2026-11-09T12:03:37.688950+00:00",
+  "seconds": 752.77,
+  "exit": 1,
+  "log": "conversation-ten-explicit-drain.log"
+}

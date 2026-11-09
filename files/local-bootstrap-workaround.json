@@ -1,0 +1,32 @@
+{
+  "scope": "local, untracked dependency used only to start the UI for browser testing",
+  "file": "node_modules/@runeditrun/rer/onboarding/development-runtime.mjs",
+  "original_sha256": "db95a05420065e5488baec71192ab5884fdefbc8167411645207e9645066fbeb",
+  "temporary_sha256": "45e0895e1a70bfdabb0337c18f65514fed12bad2796887e48bd3f17eb9957b82",
+  "change": "createServer server port: port || 17888, instead of port (requested port is 0)",
+  "ownership_and_health_guards": "unchanged",
+  "test_timeouts_and_assertions": "unchanged",
+  "observed": "unmodified dev repeatedly timed out awaiting the internal listener handshake; fixed-port instance announced readiness and launched the spec",
+  "restore": "completed after owned server stopped; byte-for-byte originals restored",
+  "fixed_port_experiment": "restored; one startup succeeded but the next still failed, so this did not establish the cause",
+  "final_local_bootstrap": {
+    "file": "node_modules/@runeditrun/rer/onboarding/adapter.mjs",
+    "change": "Initial launcher readiness allowance 60s -> 180s only; original ephemeral binding restored",
+    "original_sha256": "d6677445506a122bc8ea7a4d6ece57e00ad7308c71652523904831a677d1f878",
+    "temporary_sha256": "6d6139377faa34f46ef8e6688cd1d09ca838a3b0ffaba9433d23cdd45cd184a3",
+    "browser_and_test_timeouts": "unchanged",
+    "ownership_and_health_checks": "unchanged",
+    "restore": "completed; original hash verified"
+  },
+  "restored": true,
+  "restoration": [
+    {
+      "file": "node_modules/@runeditrun/rer/onboarding/development-runtime.mjs",
+      "restored_sha256": "db95a05420065e5488baec71192ab5884fdefbc8167411645207e9645066fbeb"
+    },
+    {
+      "file": "node_modules/@runeditrun/rer/onboarding/adapter.mjs",
+      "restored_sha256": "d6677445506a122bc8ea7a4d6ece57e00ad7308c71652523904831a677d1f878"
+    }
+  ]
+}

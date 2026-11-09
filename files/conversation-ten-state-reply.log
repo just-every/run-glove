@@ -1,0 +1,253 @@
+Owned dev ready; native private entry retained only in process memory.
+{"run":1,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:11:56.991Z","ended":"2026-11-09T13:14:58.350Z","seconds":181.359,"exit":0,"log":"spec-run-01.log","proofScreenshots":true}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:18013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:18013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.8m)
+(node:18013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18013) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (45.0s)
+
+  2 passed (3.0m)
+
+{"run":2,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:14:58.351Z","ended":"2026-11-09T13:16:51.585Z","seconds":113.234,"exit":0,"log":"spec-run-02.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:18294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:18294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (49.1s)
+(node:18294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (42.2s)
+
+  2 passed (1.8m)
+
+{"run":3,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:16:51.586Z","ended":"2026-11-09T13:20:02.232Z","seconds":190.647,"exit":0,"log":"spec-run-03.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:18558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:18558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (2.1m)
+(node:18558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (55.0s)
+
+  2 passed (3.2m)
+
+{"run":4,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:20:02.256Z","ended":"2026-11-09T13:23:18.613Z","seconds":196.357,"exit":0,"log":"spec-run-04.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:18841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:18841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.5m)
+(node:18841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (56.2s)
+
+  2 passed (3.0m)
+
+{"run":5,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:23:18.616Z","ended":"2026-11-09T13:28:35.454Z","seconds":316.839,"exit":0,"log":"spec-run-05.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:19117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:19117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (3.1m)
+(node:19117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (2.0m)
+
+  Slow test file: tests/browser/conversation.spec.ts (5.1m)
+  Consider running tests from slow files in parallel. See: [URL]
+  2 passed (5.2m)
+
+{"run":6,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:28:35.461Z","ended":"2026-11-09T13:32:21.357Z","seconds":225.896,"exit":0,"log":"spec-run-06.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:19477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:19477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (2.1m)
+(node:19477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19477) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (1.4m)
+
+  2 passed (3.7m)
+
+{"run":7,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:32:21.358Z","ended":"2026-11-09T13:35:56.535Z","seconds":215.177,"exit":0,"log":"spec-run-07.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:19862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:19862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.6m)
+(node:19862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19862) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (1.7m)
+
+  2 passed (3.5m)
+
+{"run":8,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:35:56.556Z","ended":"2026-11-09T13:38:45.588Z","seconds":169.033,"exit":0,"log":"spec-run-08.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:20137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:20137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.2m)
+(node:20137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20137) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (56.1s)
+
+  2 passed (2.7m)
+
+{"run":9,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:38:45.590Z","ended":"2026-11-09T13:40:44.357Z","seconds":118.767,"exit":0,"log":"spec-run-09.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:20396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:20396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (56.1s)
+(node:20396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20396) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (39.0s)
+
+  2 passed (1.9m)
+
+{"run":10,"head":"30350fbcb64c3457c9b890ee88f354473121d919","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T13:40:44.359Z","ended":"2026-11-09T13:42:55.907Z","seconds":131.548,"exit":0,"log":"spec-run-10.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:20662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:20662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.1m)
+(node:20662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:258:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (53.0s)
+
+  2 passed (2.1m)
+

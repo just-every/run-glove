@@ -1,0 +1,22 @@
+Preview output:
+Checking pinned pnpm
+10.12.4
+Reusing intact production output.
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Opening your application
+Your application is running locally
+Your app is ready, open it: [URL]
+RER_READY [URL]
+[private runtime entry]
+RER_OWNER_OPEN [URL]
+Native owner entry: open on this computer once within 15 minutes. The link is not saved.
+Running the scheduled trigger locally: */15 * * * *
+
+page.waitForURL: Timeout 30000ms exceeded.
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================

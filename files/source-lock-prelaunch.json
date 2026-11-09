@@ -1,0 +1,16 @@
+{
+  "name": "source-lock-prelaunch",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "check"
+  ],
+  "started": "2026-11-09T13:10:08.943703+00:00",
+  "ended": "2026-11-09T13:10:09.780484+00:00",
+  "seconds": 0.84,
+  "exit": 0,
+  "log": "source-lock-prelaunch.log"
+}

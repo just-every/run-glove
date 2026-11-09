@@ -1,0 +1,34 @@
+{
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "run": 42623346266,
+  "status": "completed",
+  "conclusion": "failure",
+  "failing_jobs": [
+    {
+      "id": 129181059028,
+      "name": "shards (api-1)",
+      "file": "tests/api/message-outcomes.test.mjs",
+      "line": 168,
+      "expected": [
+        200,
+        {
+          "ok": true
+        }
+      ],
+      "actual_status": 401,
+      "actual_code": "MAIL_EVENT"
+    },
+    {
+      "id": 129188012523,
+      "name": "verify",
+      "reason": "aggregate requires all selected shards success"
+    }
+  ],
+  "browser_shards": "all success, including browser-4",
+  "scope": "callback API assertion and production handler unchanged by this repair",
+  "blocker": "Exact-SHA Verify red on callback assertion; not a generated contract-view failure.",
+  "logs": [
+    "ci-api-1-failed.log",
+    "ci-verify-failed.log"
+  ]
+}

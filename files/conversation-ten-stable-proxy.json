@@ -1,0 +1,15 @@
+{
+  "name": "conversation-ten-stable-proxy",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "2f92ece98745d84b451c28c5a3d2bbf03c2b1d4c",
+  "command": [
+    "node",
+    "/tmp/glove-ten-specs.mjs"
+  ],
+  "started": "2026-11-09T12:17:26.974637+00:00",
+  "ended": "2026-11-09T12:19:33.828545+00:00",
+  "seconds": 126.85,
+  "exit": 1,
+  "log": "conversation-ten-stable-proxy.log"
+}

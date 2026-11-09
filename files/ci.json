@@ -1,0 +1,15 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "observed_at": "2026-11-09T13:27:07.871166+00:00",
+  "observation": 3,
+  "exit": 0,
+  "run": {
+    "conclusion": "failure",
+    "head_sha": "30350fbcb64c3457c9b890ee88f354473121d919",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42623346266",
+    "id": 42623346266,
+    "status": "completed"
+  }
+}

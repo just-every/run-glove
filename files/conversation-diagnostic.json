@@ -1,0 +1,15 @@
+{
+  "name": "conversation-diagnostic",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "79b28744f523bb5d035627b499c16b4da91161c9",
+  "command": [
+    "node",
+    "/tmp/glove-ten-specs.mjs"
+  ],
+  "started": "2026-11-09T12:25:24.214650+00:00",
+  "ended": "2026-11-09T12:33:57.955240+00:00",
+  "seconds": 513.74,
+  "exit": 1,
+  "log": "conversation-diagnostic.log"
+}

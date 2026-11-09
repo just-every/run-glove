@@ -1,0 +1,15 @@
+{
+  "name": "conversation-readiness-diagnostic",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "6787b9abef40c3cee5576f90433ed95f8f0333bc",
+  "command": [
+    "node",
+    "/tmp/glove-ten-specs.mjs"
+  ],
+  "started": "2026-11-09T13:04:08.110132+00:00",
+  "ended": "2026-11-09T13:09:11.869103+00:00",
+  "seconds": 303.76,
+  "exit": 1,
+  "log": "conversation-readiness-diagnostic.log"
+}

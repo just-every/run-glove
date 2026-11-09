@@ -1,0 +1,55 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:12490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:12490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.1m)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('region', { name: 'Job conversation', exact: true }).locator('ol.timeline-list > li').locator('.conversation-entry > p:nth-child(2)')
+    Timeout: 5000ms
+    - Expected  - 4
+    + Received  + 1
+
+    - Array [
+    -   "Harbour called about the filter",
+    -   "Harbour needs a washable filter",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "toHaveText" getByRole('region', { name: 'Job conversation', exact: true }).locator('ol.timeline-list > li').locator('.conversation-entry > p:nth-child(2)') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Job conversation', exact: true }).locator('ol.timeline-list > li').locator('.conversation-entry > p:nth-child(2)')
+        9 × locator resolved to 0 elements
+
+
+      226 |     await screens(page, 'survivor-after-restart', customerPanel)
+      227 |     await open(`${origin}/app#jobs/${harbourJob.id}`)
+    > 228 |     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
+          |                                                                                  ^
+      229 |     await screens(page, 'harbour-job', jobPanel)
+      230 |     await open(`${origin}/app#jobs/${riverJob.id}`)
+      231 |     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
+        at /workspace/run-glove/tests/browser/conversation.spec.ts:228:82
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-f201fix1/browser-final/spec-run-01/conversation-COMM-007-desk-76a1e-te-or-refused-conversations/error-context.md
+
+  1 failed
+    tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+  1 did not run
+  1 error was not a part of any test, see above for details

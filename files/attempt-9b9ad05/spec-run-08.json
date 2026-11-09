@@ -1,0 +1,20 @@
+{
+  "run": 8,
+  "head": "9b9ad05284836e216148306e57bbc595824758f8",
+  "command": [
+    "/workspace/run-glove/node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "/workspace/run-glove/tests/browser/playwright.config.ts",
+    "tests/browser/conversation.spec.ts",
+    "--retries=0",
+    "--workers=1",
+    "--max-failures=1"
+  ],
+  "started": "2026-11-09T12:01:07.738Z",
+  "ended": "2026-11-09T12:02:48.025Z",
+  "seconds": 100.287,
+  "exit": 0,
+  "log": "spec-run-08.log",
+  "proofScreenshots": false
+}

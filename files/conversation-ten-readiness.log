@@ -1,0 +1,141 @@
+Owned dev ready; native private entry retained only in process memory.
+{"run":1,"head":"8364c6ef3812cfa78da0d641e921e168dbf24c10","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T12:42:53.873Z","ended":"2026-11-09T12:45:37.112Z","seconds":163.239,"exit":0,"log":"spec-run-01.log","proofScreenshots":true}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:14704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:14704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.3m)
+(node:14704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:252:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (1.2m)
+
+  2 passed (2.7m)
+
+{"run":2,"head":"8364c6ef3812cfa78da0d641e921e168dbf24c10","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T12:45:37.114Z","ended":"2026-11-09T12:47:50.414Z","seconds":133.3,"exit":0,"log":"spec-run-02.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:14963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:14963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.2m)
+(node:14963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14963) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:252:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (50.5s)
+
+  2 passed (2.2m)
+
+{"run":3,"head":"8364c6ef3812cfa78da0d641e921e168dbf24c10","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T12:47:50.415Z","ended":"2026-11-09T12:50:40.991Z","seconds":170.576,"exit":0,"log":"spec-run-03.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:15250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:15250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.0m)
+(node:15250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 tests/browser/conversation.spec.ts:252:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (1.6m)
+
+  2 passed (2.8m)
+
+{"run":4,"head":"8364c6ef3812cfa78da0d641e921e168dbf24c10","command":["/workspace/run-glove/node_modules/.bin/playwright","test","--config","/workspace/run-glove/tests/browser/playwright.config.ts","tests/browser/conversation.spec.ts","--retries=0","--workers=1","--max-failures=1"],"started":"2026-11-09T12:50:40.993Z","ended":"2026-11-09T12:52:59.984Z","seconds":138.991,"exit":130,"log":"spec-run-04.log","proofScreenshots":false}
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:15505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:15505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:49:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (1.3m)
+(node:15505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/browser/conversation.spec.ts:252:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart (44.5s)
+
+
+  1) tests/browser/conversation.spec.ts:252:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart 
+
+    Test was interrupted.
+
+    Error: locator.waitFor: Test ended.
+    Call log:
+      - waiting for locator('.glove-app[aria-busy="false"]') to be visible
+
+
+      304 |       await park()
+      305 |       await page.goto(url)
+    > 306 |       await page.locator('.glove-app[aria-busy="false"]').waitFor({ state: 'visible' })
+          |                                                           ^
+      307 |       if (new URL(url).hash.startsWith('#jobs/')) {
+      308 |         const conversation = page.getByRole('region', { name: 'Job conversation', exact: true })
+      309 |         await conversation.waitFor({ state: 'visible' })
+        at open (/workspace/run-glove/tests/browser/conversation.spec.ts:306:59)
+        at /workspace/run-glove/tests/browser/conversation.spec.ts:354:5
+
+  1 interrupted
+    tests/browser/conversation.spec.ts:252:1 › COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart 
+  1 passed (2.3m)
+
+Dev output:
+ain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:51:56 PM [vite] (client) [console.error] Encountered two children with the same key, `a4e05ec8-0fcb-4e9c-b4e7-81cc1116b8201`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:51:56 PM [vite] (client) [console.error] Encountered two children with the same key, `04667858-fdce-4590-98b2-fe76bf0fd1871`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:51:56 PM [vite] (client) [console.error] Encountered two children with the same key, `04667858-fdce-4590-98b2-fe76bf0fd1871`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:51:57 PM [vite] (client) [console.error] Encountered two children with the same key, `04667858-fdce-4590-98b2-fe76bf0fd1871`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:51:58 PM [vite] (client) [console.error] Encountered two children with the same key, `a4e05ec8-0fcb-4e9c-b4e7-81cc1116b8201`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:03 PM [vite] (client) [console.error] Encountered two children with the same key, `04667858-fdce-4590-98b2-fe76bf0fd1871`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:04 PM [vite] (client) [console.error] Encountered two children with the same key, `a4e05ec8-0fcb-4e9c-b4e7-81cc1116b8201`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:09 PM [vite] (client) [console.error] Encountered two children with the same key, `bdcff3ab-dffd-4dd6-8f84-3d2e2b3377522`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:09 PM [vite] (client) [console.error] Encountered two children with the same key, `04667858-fdce-4590-98b2-fe76bf0fd1872`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:09 PM [vite] (client) [console.error] Encountered two children with the same key, `a4e05ec8-0fcb-4e9c-b4e7-81cc1116b8201`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:26 PM [vite] (client) [console.error] Encountered two children with the same key, `edffbed6-d5df-4d67-a9e7-1e01a85a122c1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:39 PM [vite] (client) [console.error] Encountered two children with the same key, `edffbed6-d5df-4d67-a9e7-1e01a85a122c1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:43 PM [vite] (client) [console.error] Encountered two children with the same key, `edffbed6-d5df-4d67-a9e7-1e01a85a122c1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+12:52:50 PM [vite] (client) [console.error] Encountered two children with the same key, `edffbed6-d5df-4d67-a9e7-1e01a85a122c1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+Spec run 4 failed; stopped without retry.

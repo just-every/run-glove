@@ -1,0 +1,40 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:11065) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:11065) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/conversation.spec.ts:42:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (37.3s)
+Testing stopped early after 1 maximum allowed failures.
+
+
+  1) tests/browser/conversation.spec.ts:42:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'River Clinic', exact: true })
+
+
+      90 |     const rows = (panel: Locator) => panel.locator('ol.timeline-list > li')
+      91 |     async function selectCustomer(name: string) {
+    > 92 |       await page.getByRole('button', { name, exact: true }).click()
+         |                                                             ^
+      93 |       await expect(customerPanel).toBeVisible()
+      94 |     }
+      95 |     async function log(panel: Locator, kind: string, text: string, minute: number, direction = 'inbound', outcome = 'answered') {
+        at selectCustomer (/workspace/run-glove/tests/browser/conversation.spec.ts:92:61)
+        at /workspace/run-glove/tests/browser/conversation.spec.ts:201:11
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-f201fix1/browser-final/spec-run-09/conversation-COMM-007-desk-76a1e-te-or-refused-conversations/error-context.md
+
+  1 failed
+    tests/browser/conversation.spec.ts:42:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+  1 did not run
+  1 error was not a part of any test, see above for details

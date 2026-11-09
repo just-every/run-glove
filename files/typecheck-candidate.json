@@ -1,0 +1,15 @@
+{
+  "name": "typecheck-candidate",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "5353c5c266a31c9c75236a808193f82d85e6248d",
+  "command": [
+    "pnpm",
+    "typecheck"
+  ],
+  "started": "2026-11-09T11:39:03.419083+00:00",
+  "ended": "2026-11-09T11:39:22.708156+00:00",
+  "seconds": 19.29,
+  "exit": 0,
+  "log": "typecheck-candidate.log"
+}

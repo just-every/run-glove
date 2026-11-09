@@ -1,0 +1,16 @@
+{
+  "name": "source-lock-regenerate",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-f201fix1",
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "lock"
+  ],
+  "started": "2026-11-09T13:45:54.809632+00:00",
+  "ended": "2026-11-09T13:45:55.398622+00:00",
+  "seconds": 0.59,
+  "exit": 0,
+  "log": "source-lock-regenerate.log"
+}

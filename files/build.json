@@ -1,0 +1,14 @@
+{
+  "name": "build",
+  "repository": "just-every/run-glove",
+  "command": [
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "build"
+  ],
+  "log": "build.log",
+  "completed_marker": "build: complete (exit 0)",
+  "exit": 0,
+  "scope": "prepares browser runtime; test-only candidate does not change built product code"
+}

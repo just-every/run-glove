@@ -1,0 +1,22 @@
+{
+  "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md; git restore --source=HEAD -- CONTRACT.md",
+  "origin_main": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "regenerated_sha256": {
+    "CONTRACT.md": "cf9f0c98f36bea7df93cb96bb35de823b68c13519482de4988d8461175dc6348",
+    "ACCEPTANCE.md": "ec0874c28bcbdaac276cf2521b66929bacb9e75977a5083c90c4e312bff331e3",
+    "docs/CLAIMS.md": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+  },
+  "restored_sha256": {
+    "CONTRACT.md": "cf9f0c98f36bea7df93cb96bb35de823b68c13519482de4988d8461175dc6348",
+    "ACCEPTANCE.md": "620da3b92107e5e6532b93f98f06488240822efa7385237719394942c420f7d3",
+    "docs/CLAIMS.md": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+  },
+  "source_judgments": "unchanged; no touched source clauses",
+  "generated_views_committed": false,
+  "final_restore_at": "2026-11-09T13:47:32.795137+00:00",
+  "head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "canonical_candidate_lock_check": "source-lock-clean.json: exit 0 after canonical HEAD restoration; generated main view restored again afterward",
+  "expected_uncommitted_view_files": [
+    "ACCEPTANCE.md"
+  ]
+}
