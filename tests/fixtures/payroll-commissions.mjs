@@ -29,11 +29,6 @@ export async function commissionFixture(h) {
     const visit = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-03', start: '08:00', end: '09:00' })
     visits.push(visit)
   }
-  for (const [i, person] of [b.tomPerson, b.priyaPerson].entries()) {
-    const visit = visits[i]
-    await person.run('visit.arrive', { visitId: visit.id, deviceTime: stamp('2026-11-03', '08:00') })
-    await person.run('visit.complete', { visitId: visit.id, deviceTime: stamp('2026-11-03', '09:00'), summary: 'Installed', signoff: { absentReason: 'Customer away' } })
-  }
   for (const [person, date, end] of [[b.priyaPerson, '2026-11-02', '16:00'], [b.priyaPerson, '2026-11-09', '21:00'], [b.tomPerson, '2026-11-03', '10:00'], [b.tomPerson, '2026-11-10', '11:00']]) {
     await person.run('clock.in', { deviceTime: stamp(date, '08:00') })
     if (date === '2026-11-03') {
@@ -41,6 +36,11 @@ export async function commissionFixture(h) {
       await person.run('timer.stop', { visitId: visits[0].id, deviceTime: stamp(date, '09:00') })
     }
     await person.run('clock.out', { deviceTime: stamp(date, end) })
+  }
+  for (const [i, person] of [b.tomPerson, b.priyaPerson].entries()) {
+    const visit = visits[i]
+    await person.run('visit.arrive', { visitId: visit.id, deviceTime: stamp('2026-11-03', '08:00') })
+    await person.run('visit.complete', { visitId: visit.id, deviceTime: stamp('2026-11-03', '09:00'), summary: 'Installed', signoff: { absentReason: 'Customer away' } })
   }
   await h.setTime(stamp('2026-11-23'))
   for (const tech of [priya, tom]) for (const weekStart of ['2026-11-02', '2026-11-09']) await h.command('timesheet.approve', { technicianId: tech.id, weekStart })
