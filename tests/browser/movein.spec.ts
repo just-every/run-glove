@@ -196,7 +196,10 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
             const visits = (await h.state()).visits.filter((v: any) => v.jobId === job.id)
             expect(visits.map((v: any) => v.local.date).sort()).toEqual([...dates])
             expect(visits.every((v: any) => v.technicianId === technician.id && v.local.start === start && v.local.end === end)).toBe(true)
-            await expect(page.getByLabel('Series', { exact: true })).toContainText(`Ends ${until}`)
+            const summary = page.getByLabel('Series', { exact: true })
+            await expect(summary).toContainText(`Ends ${until}`)
+            await expect(summary).toContainText(technician.name)
+            await summary.scrollIntoViewIfNeeded()
             await shot(page, system, width, id === '19' ? 'monthly-activated' : 'weekly-activated')
           }
           await page.goto(`${origin}/app#move-in`)
