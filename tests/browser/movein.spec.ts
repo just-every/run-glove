@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
-import { mkdir, readFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Shared production Worker, native sessions and D1 harness.
 import { installation, business } from '../api/harness.mjs'
@@ -35,6 +35,10 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
     page.on('pageerror', e => errors.push(e.message))
     try {
       await business(h)
+      if (system === 'servicetitan') {
+        await h.setTime('2026-11-09T12:00:00.000Z')
+        await page.clock.install({ time: new Date('2026-11-09T12:00:00.000Z') })
+      }
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app','/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
@@ -133,6 +137,71 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       await expect(committed).toContainText('Undone')
       expect((await h.state()).invoices.some((i: any) => i.id === invoice.id)).toBe(false)
       await committed.scrollIntoViewIfNeeded(); await shot(page, system, width, 'undone')
+      if (system === 'servicetitan') {
+        await test.step('MOVE-009: read fixed and ongoing source terms, then explicitly activate monthly and weekly proposals', async () => {
+          const root = 'tests/fixtures/servicetitan-movein/memberships/'
+          const membershipFiles = await Promise.all((await readdir(root)).filter(name => name.endsWith('.json')).map(async name => ({ name, mimeType: 'application/json', buffer: await readFile(root + name) })))
+          await page.goto(`${origin}/app#move-in`)
+          await page.getByLabel('Move-in source', { exact: true }).selectOption('servicetitan')
+          await page.getByLabel('Export files', { exact: true }).setInputFiles(membershipFiles)
+          const membershipLabel = `Membership terms ${width}`
+          await page.getByLabel('Name this move-in (optional)', { exact: true }).fill(membershipLabel)
+          const preview = await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
+          expect(preview.preview.rejections).toEqual([])
+          expect(preview.preview.unmappedFields['recurring-services'].join(' ')).toContain('weekday differs from its start date')
+          expect(preview.preview.unmappedFields['recurring-services'].join(' ')).toContain('no exact native rule')
+          const membershipBatch = page.getByRole('region', { name: membershipLabel, exact: true })
+          await send(page, membershipBatch.getByRole('button', { name: 'Commit exactly this preview', exact: true }))
+          const imported = await h.state()
+          const customer = imported.customers.find((c: any) => c.source?.system === 'ServiceTitan')
+          await page.goto(`${origin}/app#customers/${customer.id}`)
+          const agreements = page.getByRole('region', { name: 'Agreements', exact: true })
+          for (const [name, price, frequency, term] of [['Synthetic annual care', '$240.00', 'Annually', 'Dec 31, 2026'], ['Synthetic ongoing care', '$19.50', 'Monthly', 'ongoing']]) {
+            const agreement = agreements.getByRole('listitem').filter({ has: page.getByText(name, { exact: true }) })
+            await expect(agreement).toContainText(`Source billing template ${price} · ${frequency}`)
+            await expect(agreement).toContainText('not a new sale or an authorization to charge')
+            await expect(agreement).toContainText('other source member benefits need review')
+            await expect(agreement).toContainText('2 of 6 visits left')
+            await expect(agreement).toContainText('2 source-closed visits are kept apart from customer declines')
+            await expect(agreement).toContainText(term)
+          }
+          await agreements.scrollIntoViewIfNeeded(); await shot(page, system, width, 'membership-terms')
+          for (const [id, first, until, start, end, dates] of [
+            ['19', '2027-01-15', '2028-12-31', '09:30', '10:45', ['2027-01-15', '2027-07-15']],
+            ['39', '2026-11-16', '2027-01-31', '13:00', '14:30', ['2026-11-16', '2026-11-30', '2026-12-14', '2026-12-28', '2027-01-11', '2027-01-25']],
+          ] as const) {
+            const job = imported.jobs.find((j: any) => j.source?.system === 'ServiceTitan' && j.source.id === id)
+            expect(job.series).toBeUndefined()
+            expect(imported.visits.filter((v: any) => v.jobId === job.id)).toHaveLength(0)
+            await page.goto(`${origin}/app#jobs/${job.id}`)
+            await page.getByRole('button', { name: 'Use imported schedule', exact: true }).click()
+            const form = page.getByRole('form', { name: 'Repeat this job', exact: true })
+            await expect(form.getByLabel('First visit', { exact: true })).toHaveValue(first)
+            await expect(form.getByLabel('Ends on (optional)', { exact: true })).toHaveValue(until)
+            await expect(form.getByLabel('Technician', { exact: true })).toHaveValue('')
+            const technician = imported.technicians.find((t: any) => !t.source && t.active)
+            await form.getByLabel('Technician', { exact: true }).selectOption(technician.id)
+            await form.getByLabel('Start', { exact: true }).fill(start)
+            await form.getByLabel('End', { exact: true }).fill(end)
+            const active = await send(page, form.getByRole('button', { name: 'Make it repeat', exact: true }))
+            expect(active.series.until).toBe(until)
+            expect(active.series.revisions[0].rule).toEqual(job.importedRecurrence.proposal.rule)
+            const visits = (await h.state()).visits.filter((v: any) => v.jobId === job.id)
+            expect(visits.map((v: any) => v.local.date).sort()).toEqual([...dates])
+            expect(visits.every((v: any) => v.technicianId === technician.id && v.local.start === start && v.local.end === end)).toBe(true)
+            await expect(page.getByLabel('Series', { exact: true })).toContainText(`Ends ${until}`)
+            await shot(page, system, width, id === '19' ? 'monthly-activated' : 'weekly-activated')
+          }
+          await page.goto(`${origin}/app#move-in`)
+          const activatedBatch = page.getByRole('region', { name: membershipLabel, exact: true })
+          await activatedBatch.getByLabel('Why undo this move-in', { exact: true }).fill('Keep activated visits')
+          const undo = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+          await activatedBatch.getByRole('button', { name: 'Undo move-in', exact: true }).click()
+          expect((await (await undo).json()).error.code).toBe('IMPORT_DEPENDENTS')
+          await expect(activatedBatch).toContainText('Committed')
+          expect((await h.state()).visits.filter((v: any) => v.series)).toHaveLength(8)
+        })
+      }
       if (system === 'fieldpulse') {
         // Exercise the next source through the same owner move-in journey.
         await page.goto(`${origin}/app#move-in`)

@@ -5771,6 +5771,10 @@
       "sha256": "1ca6aad9fe799d3ec91f5d68198162881bbce5af87c5a3f822ed73144b25a69c",
       "executable": false
     },
+    "tests/api/servicetitan-memberships.test.mjs": {
+      "sha256": "61f0a994d54c88ed6333ba059617b590deaa1b9d4e848cc23fdb05ea818323c9",
+      "executable": false
+    },
     "tests/api/ses-sns-custody.test.mjs": {
       "sha256": "b70624ce6f8acca9b141cd6a8242f857b888bd2cae7ad5b2df22e530d7454887",
       "executable": false
@@ -5908,7 +5912,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "ae640903a66f997ff4988cb36195e9130f8ca9bb5e27d1d0df3970baf2397dee",
+      "sha256": "7784d4f8fddf54258e445012cf6559d67b372ffae9c8664e403b39cbdce49082",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
@@ -6313,6 +6317,54 @@
     },
     "tests/fixtures/servicetitan-movein/memberships.json": {
       "sha256": "24f895762fa7d3bf32e0213be7adef9105573dc956ca3465eda38ee1797b925f",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/contacts.json": {
+      "sha256": "fec010da8a20e61f50db0f0c2ec739abe2fd5d7b16fb4a9caa1aff81e81b2bc8",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/customers.json": {
+      "sha256": "c329c3a26e96f376647b4936e34a39d7ce9b0ea9bad4ba2af7a362cfde0ab316",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/invoice-templates.json": {
+      "sha256": "0658b4ace11f93c6ee3a11ca633a687a237f75eb9872edf4985a3655223c4b4e",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/locations.json": {
+      "sha256": "f393bce9d38d5c4c2ea52c99c9e798729b44480a8ad40bfd2cef6f988ae20b4a",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/materials.json": {
+      "sha256": "1428a5732cce9768edbe8c6f062b67181c3c641325f335839983b6131cb1749a",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/membership-types.json": {
+      "sha256": "b7563d64e1f801c2c4940bf23f06b1ad43f4e0f47511e0546567d6df108fdf07",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/memberships.json": {
+      "sha256": "bc90ca5d3b55ac6a4ccecc6be94b0ce847ec0b5f5355f6518e7a92eed9dd3697",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/README.md": {
+      "sha256": "1daa159f6043c1db15098cdc89fa70e5ac833a9061923cbda9c9ace895dd265e",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/recurring-service-events.json": {
+      "sha256": "58a1020b6945776d127e4477164c8e038004b417e4f2d5c1f030f8e95fae4753",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/recurring-services.json": {
+      "sha256": "72404a6fa96461e0f4b2d8e959da835d3774791fdb41c3db9d70c2681e6a8df0",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/services.json": {
+      "sha256": "d1bab331e951b46b833c6bf0f1f834561695e0c0d9ccf77c094bce4f1b04a440",
+      "executable": false
+    },
+    "tests/fixtures/servicetitan-movein/memberships/technicians.json": {
+      "sha256": "5e36a058eb3e7597b71e678945517407315d47752f42e01acc4d145f40f7772f",
       "executable": false
     },
     "tests/fixtures/servicetitan-movein/README.md": {
