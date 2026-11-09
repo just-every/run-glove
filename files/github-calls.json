@@ -1,0 +1,14 @@
+[
+  {
+    "label": "ci-discovery",
+    "time": 1794234597.8362384,
+    "utc": "2026-11-09T14:29:57.836568+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=d99694b751f693f63d3d4f80f09ee7729a2724c6&per_page=100",
+      "--jq",
+      "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+    ]
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "tests/inventory.mjs",
+    "--json"
+  ],
+  "exit_code": 0,
+  "started_utc": "2026-11-09T14:19:06.868114+00:00",
+  "duration_seconds": 11.09,
+  "log": "inventory.log"
+}

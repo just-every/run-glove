@@ -1,0 +1,35 @@
+{
+  "origin/cloud/sx-glove-c-f212": {
+    "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+    "counts": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29,
+      "total": 263
+    },
+    "total": 263,
+    "quote_002_status": "partial"
+  },
+  "origin/main": {
+    "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+    "counts": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29,
+      "total": 263
+    },
+    "total": 263,
+    "quote_002_status": "partial"
+  },
+  "merged_worktree": {
+    "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+    "counts": {
+      "done": 41,
+      "partial": 193,
+      "missing": 29,
+      "total": 263
+    },
+    "total": 263,
+    "quote_002_status": "partial"
+  }
+}

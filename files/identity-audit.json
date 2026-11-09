@@ -1,0 +1,54 @@
+{
+  "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+  "base": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "candidate_count": 5,
+  "includes_side_parents": true,
+  "passed": true,
+  "commits": [
+    {
+      "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": "",
+      "message": "Merge current main into the quote approval candidate"
+    },
+    {
+      "head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": "",
+      "message": "Bind the approved job to the exact customer-selected price-book items"
+    },
+    {
+      "head": "a90d95e90cc1c1c41ec877ed34557f0a38452807",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": "",
+      "message": "Preserve exact decision evidence and test coverage within cap [skip ci]"
+    },
+    {
+      "head": "79b36289a889b689424aa7b2906b4284168a232c",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": "",
+      "message": "Replay focused quote approval proof onto current main [skip ci]"
+    },
+    {
+      "head": "f26e4c940e9e69a58c37cf6092b3b7bd58aee4b3",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": "",
+      "message": "Qualify customer quote approval through focused public journeys [skip ci]"
+    }
+  ]
+}

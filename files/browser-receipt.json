@@ -1,0 +1,70 @@
+{
+  "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+  "browser": "/usr/bin/chromium",
+  "arguments": [
+    "--no-sandbox"
+  ],
+  "widths": [
+    1440,
+    390
+  ],
+  "registered_tests": 8,
+  "passed": 4,
+  "failed": 4,
+  "passed_files": [
+    "tests/browser/movein.spec.ts",
+    "tests/browser/quote-link-custody.spec.ts"
+  ],
+  "failed_file": "tests/browser/journey.spec.ts",
+  "failures": [
+    {
+      "path": "browser-failures/failure-1.md",
+      "source_path": "browser/results/journeys/journey-BOOK-004-BOOK-014--1edde-attestation-at-1440-and-390/error-context.md",
+      "error_and_snapshot": "\n```\nError: expect(locator).toBeDisabled() failed\n\nLocator: getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeDisabled\" getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true }) with timeout 5000ms\n  - waiting for getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+    },
+    {
+      "path": "browser-failures/failure-2.md",
+      "source_path": "browser/results/journeys/journey-DATA-001-DATA-005--4317e-le-outcomes-at-1440-and-390/error-context.md",
+      "error_and_snapshot": "\n```\nError: expect(locator).toBeDisabled() failed\n\nLocator: getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeDisabled\" getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' }) with timeout 5000ms\n  - waiting for getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+    },
+    {
+      "path": "browser-failures/failure-3.md",
+      "source_path": "browser/results/journeys/journey-DATA-001-DATA-005--addfa-ased-visits-at-1440-and-390/error-context.md",
+      "error_and_snapshot": "\n```\nError: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'J-1001 \u00b7 Split system service', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('heading', { name: 'J-1001 \u00b7 Split system service', exact: true }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'J-1001 \u00b7 Split system service', exact: true })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+    },
+    {
+      "path": "browser-failures/failure-4.md",
+      "source_path": "browser/results/journeys/journey-MONEY-002-BOOK-005-2d5bb-nd-office-journey-at-1440px/error-context.md",
+      "error_and_snapshot": "\n```\nError: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Team and settings' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('heading', { name: 'Team and settings' }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Team and settings' })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+    }
+  ],
+  "quote_screenshots": [
+    "screenshots/1440-quote-custody-approval-changes.png",
+    "screenshots/1440-quote-custody-approval-choice.png",
+    "screenshots/1440-quote-custody-approval-drawn.png",
+    "screenshots/1440-quote-custody-approval-signed.png",
+    "screenshots/1440-quote-custody-approval-stale-refused.png",
+    "screenshots/1440-quote-custody-declined.png",
+    "screenshots/1440-quote-custody-expired.png",
+    "screenshots/1440-quote-custody-open.png",
+    "screenshots/1440-quote-custody-response.png",
+    "screenshots/1440-quote-custody-superseded.png",
+    "screenshots/1440-quote-custody-unavailable.png",
+    "screenshots/1440-quote-custody-update-requested.png",
+    "screenshots/390-quote-custody-approval-changes.png",
+    "screenshots/390-quote-custody-approval-choice.png",
+    "screenshots/390-quote-custody-approval-drawn.png",
+    "screenshots/390-quote-custody-approval-signed.png",
+    "screenshots/390-quote-custody-approval-stale-refused.png",
+    "screenshots/390-quote-custody-declined.png",
+    "screenshots/390-quote-custody-expired.png",
+    "screenshots/390-quote-custody-open.png",
+    "screenshots/390-quote-custody-response.png",
+    "screenshots/390-quote-custody-superseded.png",
+    "screenshots/390-quote-custody-unavailable.png",
+    "screenshots/390-quote-custody-update-requested.png"
+  ],
+  "diagnosis": "All four retained failure snapshots show Loading your work\u2026 when an existing locator timed out after 5000 ms; no root cause or successful retry is claimed.",
+  "rerun": false,
+  "product_changes_after_tests": false
+}

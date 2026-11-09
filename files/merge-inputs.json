@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f212-pc1",
+  "source_head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+  "main_head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "merge_base": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "source_unique_commits": 4,
+  "main_new_commits": 18,
+  "conflicts": [
+    "sources.lock.json"
+  ],
+  "source_conflicts": [],
+  "generated_views_changed": false,
+  "migration_collision": false,
+  "contract_changed": false,
+  "plan": "PLAN.md"
+}

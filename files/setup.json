@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npx",
+    "-y",
+    "@runeditrun/rer",
+    "setup",
+    "--owner-email",
+    "fleet@runeditrun.com",
+    "--non-interactive"
+  ],
+  "exit_code": 0,
+  "started_utc": "2026-11-09T14:09:03.201661+00:00",
+  "duration_seconds": 107.12,
+  "log": "setup.log"
+}

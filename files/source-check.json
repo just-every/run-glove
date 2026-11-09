@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "check"
+  ],
+  "exit_code": 0,
+  "started_utc": "2026-11-09T14:08:48.923517+00:00",
+  "duration_seconds": 1.69,
+  "log": "source-check.log"
+}

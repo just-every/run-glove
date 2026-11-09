@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f212-pc1",
+  "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+  "parents": [
+    "2c7eeb2d9253373646c42df112497c5179326c5f",
+    "643c64323dee88c18e5b2fc542f1da730c92112f"
+  ],
+  "tree": "1b82d931183020ea994956b72580ad2485b92c44",
+  "merge_commit_count": 1,
+  "generated_views_committed": false,
+  "contract_changed": false,
+  "clause_status_changes": [],
+  "claim_lines_changed": false,
+  "product_diff_stat": "sources.lock.json                        |  10 +-\n tests/api/quote-approval.test.mjs        | 230 +++++++++++++++++++++++++++++++\n tests/browser/journey.spec.ts            |   9 +-\n tests/browser/movein.spec.ts             |   6 +-\n tests/browser/quote-link-custody.spec.ts | 104 ++++++++++++++\n 5 files changed, 349 insertions(+), 10 deletions(-)",
+  "pr_url": null,
+  "blockers": []
+}

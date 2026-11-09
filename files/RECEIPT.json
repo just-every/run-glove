@@ -1,0 +1,389 @@
+{
+  "tag": "sx-glove-c-f212-pc1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f212-pc1",
+  "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+  "product_pushed": true,
+  "product_push_attempts": 1,
+  "ready": false,
+  "status": "BLOCKED",
+  "blocker": "Four local journey.spec.ts assertions timed out at 5000 ms while snapshots showed Loading your work\u2026",
+  "ci_run_id": 42635178645,
+  "ci_status_observed": "in_progress",
+  "ci_conclusion_observed": null,
+  "ci_url": "https://github.com/just-every/run-glove/actions/runs/42635178645",
+  "pr_url": null,
+  "clause_status_changes": [],
+  "counts_before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "receipts": {
+    "api-quote-approval": {
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/quote-approval.test.mjs"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:12:28.988668+00:00",
+      "duration_seconds": 25.42,
+      "log": "api-quote-approval.log"
+    },
+    "browser-receipt": {
+      "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+      "browser": "/usr/bin/chromium",
+      "arguments": [
+        "--no-sandbox"
+      ],
+      "widths": [
+        1440,
+        390
+      ],
+      "registered_tests": 8,
+      "passed": 4,
+      "failed": 4,
+      "passed_files": [
+        "tests/browser/movein.spec.ts",
+        "tests/browser/quote-link-custody.spec.ts"
+      ],
+      "failed_file": "tests/browser/journey.spec.ts",
+      "failures": [
+        {
+          "path": "browser-failures/failure-1.md",
+          "source_path": "browser/results/journeys/journey-BOOK-004-BOOK-014--1edde-attestation-at-1440-and-390/error-context.md",
+          "error_and_snapshot": "\n```\nError: expect(locator).toBeDisabled() failed\n\nLocator: getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeDisabled\" getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true }) with timeout 5000ms\n  - waiting for getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+        },
+        {
+          "path": "browser-failures/failure-2.md",
+          "source_path": "browser/results/journeys/journey-DATA-001-DATA-005--4317e-le-outcomes-at-1440-and-390/error-context.md",
+          "error_and_snapshot": "\n```\nError: expect(locator).toBeDisabled() failed\n\nLocator: getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeDisabled\" getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' }) with timeout 5000ms\n  - waiting for getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+        },
+        {
+          "path": "browser-failures/failure-3.md",
+          "source_path": "browser/results/journeys/journey-DATA-001-DATA-005--addfa-ased-visits-at-1440-and-390/error-context.md",
+          "error_and_snapshot": "\n```\nError: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'J-1001 \u00b7 Split system service', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('heading', { name: 'J-1001 \u00b7 Split system service', exact: true }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'J-1001 \u00b7 Split system service', exact: true })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+        },
+        {
+          "path": "browser-failures/failure-4.md",
+          "source_path": "browser/results/journeys/journey-MONEY-002-BOOK-005-2d5bb-nd-office-journey-at-1440px/error-context.md",
+          "error_and_snapshot": "\n```\nError: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Team and settings' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" getByRole('heading', { name: 'Team and settings' }) with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Team and settings' })\n\n```\n\n```yaml\n- main:\n  - status: Loading your work\u2026\n```\n\n"
+        }
+      ],
+      "quote_screenshots": [
+        "screenshots/1440-quote-custody-approval-changes.png",
+        "screenshots/1440-quote-custody-approval-choice.png",
+        "screenshots/1440-quote-custody-approval-drawn.png",
+        "screenshots/1440-quote-custody-approval-signed.png",
+        "screenshots/1440-quote-custody-approval-stale-refused.png",
+        "screenshots/1440-quote-custody-declined.png",
+        "screenshots/1440-quote-custody-expired.png",
+        "screenshots/1440-quote-custody-open.png",
+        "screenshots/1440-quote-custody-response.png",
+        "screenshots/1440-quote-custody-superseded.png",
+        "screenshots/1440-quote-custody-unavailable.png",
+        "screenshots/1440-quote-custody-update-requested.png",
+        "screenshots/390-quote-custody-approval-changes.png",
+        "screenshots/390-quote-custody-approval-choice.png",
+        "screenshots/390-quote-custody-approval-drawn.png",
+        "screenshots/390-quote-custody-approval-signed.png",
+        "screenshots/390-quote-custody-approval-stale-refused.png",
+        "screenshots/390-quote-custody-declined.png",
+        "screenshots/390-quote-custody-expired.png",
+        "screenshots/390-quote-custody-open.png",
+        "screenshots/390-quote-custody-response.png",
+        "screenshots/390-quote-custody-superseded.png",
+        "screenshots/390-quote-custody-unavailable.png",
+        "screenshots/390-quote-custody-update-requested.png"
+      ],
+      "diagnosis": "All four retained failure snapshots show Loading your work\u2026 when an existing locator timed out after 5000 ms; no root cause or successful retry is claimed.",
+      "rerun": false,
+      "product_changes_after_tests": false
+    },
+    "browser-touched": {
+      "command": [
+        "node",
+        "tests/browser/run.mjs",
+        "tests/browser/journey.spec.ts",
+        "tests/browser/movein.spec.ts",
+        "tests/browser/quote-link-custody.spec.ts"
+      ],
+      "exit_code": 1,
+      "started_utc": "2026-11-09T14:12:28.863228+00:00",
+      "duration_seconds": 951.11,
+      "log": "browser-touched.log"
+    },
+    "ci-discovery": {
+      "total_count": 1,
+      "workflow_runs": [
+        {
+          "conclusion": null,
+          "head_sha": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42635178645",
+          "id": 42635178645,
+          "name": "Verify",
+          "status": "in_progress"
+        }
+      ]
+    },
+    "contract-check": {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:08:47.665601+00:00",
+      "duration_seconds": 0.42,
+      "log": "contract-check.log"
+    },
+    "contract-preservation": {
+      "origin/cloud/sx-glove-c-f212": {
+        "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+        "counts": {
+          "done": 41,
+          "partial": 193,
+          "missing": 29,
+          "total": 263
+        },
+        "total": 263,
+        "quote_002_status": "partial"
+      },
+      "origin/main": {
+        "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+        "counts": {
+          "done": 41,
+          "partial": 193,
+          "missing": 29,
+          "total": 263
+        },
+        "total": 263,
+        "quote_002_status": "partial"
+      },
+      "merged_worktree": {
+        "sha256": "96499573977147b3aaeee0cb84f13291068e012a4e8efe4bcf6df9236134e549",
+        "counts": {
+          "done": 41,
+          "partial": 193,
+          "missing": 29,
+          "total": 263
+        },
+        "total": 263,
+        "quote_002_status": "partial"
+      }
+    },
+    "contract-write": {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:08:47.073672+00:00",
+      "duration_seconds": 0.53,
+      "log": "contract-write.log"
+    },
+    "github-calls": [
+      {
+        "label": "ci-discovery",
+        "time": 1794234597.8362384,
+        "utc": "2026-11-09T14:29:57.836568+00:00",
+        "command": [
+          "gh",
+          "api",
+          "repos/just-every/run-glove/actions/runs?head_sha=d99694b751f693f63d3d4f80f09ee7729a2724c6&per_page=100",
+          "--jq",
+          "{total_count,workflow_runs:[.workflow_runs[]|{id,name,status,conclusion,head_sha,html_url}]}"
+        ]
+      }
+    ],
+    "identity-audit": {
+      "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+      "base": "643c64323dee88c18e5b2fc542f1da730c92112f",
+      "candidate_count": 5,
+      "includes_side_parents": true,
+      "passed": true,
+      "commits": [
+        {
+          "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+          "author_name": "Run Edit Run fleet",
+          "author_email": "fleet@runeditrun.com",
+          "committer_name": "Run Edit Run fleet",
+          "committer_email": "fleet@runeditrun.com",
+          "trailers": "",
+          "message": "Merge current main into the quote approval candidate"
+        },
+        {
+          "head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+          "author_name": "Run Edit Run fleet",
+          "author_email": "fleet@runeditrun.com",
+          "committer_name": "Run Edit Run fleet",
+          "committer_email": "fleet@runeditrun.com",
+          "trailers": "",
+          "message": "Bind the approved job to the exact customer-selected price-book items"
+        },
+        {
+          "head": "a90d95e90cc1c1c41ec877ed34557f0a38452807",
+          "author_name": "Run Edit Run fleet",
+          "author_email": "fleet@runeditrun.com",
+          "committer_name": "Run Edit Run fleet",
+          "committer_email": "fleet@runeditrun.com",
+          "trailers": "",
+          "message": "Preserve exact decision evidence and test coverage within cap [skip ci]"
+        },
+        {
+          "head": "79b36289a889b689424aa7b2906b4284168a232c",
+          "author_name": "Run Edit Run fleet",
+          "author_email": "fleet@runeditrun.com",
+          "committer_name": "Run Edit Run fleet",
+          "committer_email": "fleet@runeditrun.com",
+          "trailers": "",
+          "message": "Replay focused quote approval proof onto current main [skip ci]"
+        },
+        {
+          "head": "f26e4c940e9e69a58c37cf6092b3b7bd58aee4b3",
+          "author_name": "Run Edit Run fleet",
+          "author_email": "fleet@runeditrun.com",
+          "committer_name": "Run Edit Run fleet",
+          "committer_email": "fleet@runeditrun.com",
+          "trailers": "",
+          "message": "Qualify customer quote approval through focused public journeys [skip ci]"
+        }
+      ]
+    },
+    "inventory": {
+      "command": [
+        "node",
+        "tests/inventory.mjs",
+        "--json"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:19:06.868114+00:00",
+      "duration_seconds": 11.09,
+      "log": "inventory.log"
+    },
+    "merge-inputs": {
+      "repository": "just-every/run-glove",
+      "branch": "cloud/sx-glove-c-f212-pc1",
+      "source_head": "2c7eeb2d9253373646c42df112497c5179326c5f",
+      "main_head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+      "merge_base": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+      "source_unique_commits": 4,
+      "main_new_commits": 18,
+      "conflicts": [
+        "sources.lock.json"
+      ],
+      "source_conflicts": [],
+      "generated_views_changed": false,
+      "migration_collision": false,
+      "contract_changed": false,
+      "plan": "PLAN.md"
+    },
+    "merge-receipt": {
+      "repository": "just-every/run-glove",
+      "branch": "cloud/sx-glove-c-f212-pc1",
+      "head": "d99694b751f693f63d3d4f80f09ee7729a2724c6",
+      "parents": [
+        "2c7eeb2d9253373646c42df112497c5179326c5f",
+        "643c64323dee88c18e5b2fc542f1da730c92112f"
+      ],
+      "tree": "1b82d931183020ea994956b72580ad2485b92c44",
+      "merge_commit_count": 1,
+      "generated_views_committed": false,
+      "contract_changed": false,
+      "clause_status_changes": [],
+      "claim_lines_changed": false,
+      "product_diff_stat": "sources.lock.json                        |  10 +-\n tests/api/quote-approval.test.mjs        | 230 +++++++++++++++++++++++++++++++\n tests/browser/journey.spec.ts            |   9 +-\n tests/browser/movein.spec.ts             |   6 +-\n tests/browser/quote-link-custody.spec.ts | 104 ++++++++++++++\n 5 files changed, 349 insertions(+), 10 deletions(-)",
+      "pr_url": null,
+      "blockers": []
+    },
+    "product-push": {
+      "command": [
+        "python3",
+        "/home/agent/rer-consolidation/.tools/cloud-push.py",
+        "origin",
+        "cloud/sx-glove-c-f212-pc1"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:29:22.733679+00:00",
+      "duration_seconds": 3.02,
+      "log": "product-push.log"
+    },
+    "setup": {
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "setup",
+        "--owner-email",
+        "fleet@runeditrun.com",
+        "--non-interactive"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:09:03.201661+00:00",
+      "duration_seconds": 107.12,
+      "log": "setup.log"
+    },
+    "source-check": {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:08:48.923517+00:00",
+      "duration_seconds": 1.69,
+      "log": "source-check.log"
+    },
+    "source-final-check": {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:12:11.543054+00:00",
+      "duration_seconds": 0.65,
+      "log": "source-final-check.log"
+    },
+    "source-lock": {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "lock"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:08:48.160542+00:00",
+      "duration_seconds": 0.7,
+      "log": "source-lock.log"
+    },
+    "typecheck": {
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit_code": 0,
+      "started_utc": "2026-11-09T14:11:06.142833+00:00",
+      "duration_seconds": 53.24,
+      "log": "typecheck.log"
+    },
+    "browser-last-run": {
+      "status": "failed",
+      "failedTests": [
+        "bf222bad70f76648f722-f87591b2a85652d21438",
+        "bf222bad70f76648f722-36e561a3ddb08a6ddc47",
+        "bf222bad70f76648f722-ff445902b908c33920bd",
+        "bf222bad70f76648f722-25dc082e083f15669736"
+      ]
+    }
+  }
+}

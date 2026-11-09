@@ -1,0 +1,108 @@
+Dev runtime output (last 6000 characters):
+ior is unsupported and could change in a future version.
+2:23:06 PM [vite] (client) [console.error] Encountered two children with the same key, `housecallpro-sites-9dbb76467e61f4d8bc6c36e61`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:01 PM [vite] (client) [console.error] Encountered two children with the same key, `workiz-sites-ad25506c5c8fcd0e6be46bef1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:01 PM [vite] (client) [console.error] Encountered two children with the same key, `workiz-sites-ad25506c5c8fcd0e6be46bef1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:15 PM [vite] (client) [console.error] Encountered two children with the same key, `workiz-sites-ad25506c5c8fcd0e6be46bef1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:15 PM [vite] (client) [console.error] Encountered two children with the same key, `workiz-sites-ad25506c5c8fcd0e6be46bef1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:29 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:29 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:33 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:33 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-b7a56873cd771f2c446d369b1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:33 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:33 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-b7a56873cd771f2c446d369b1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:47 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:47 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:50 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:50 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-b7a56873cd771f2c446d369b1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:50 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+2:24:50 PM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-b7a56873cd771f2c446d369b1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+Set up your business', exact: true }).isVisible()) {
+      236 |       await businessForm.getByLabel('Business name', { exact: true }).fill('Harbour Air & Electrical')
+        at /home/agent/rer-consolidation/work/sx-glove-c-f212-pc1/run-glove/tests/browser/journey.spec.ts:233:76
+
+    Error Context: ../browser/results/journeys/journey-MONEY-002-BOOK-005-2d5bb-nd-office-journey-at-1440px/error-context.md
+
+  2) tests/browser/journey.spec.ts:1112:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' })
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Customer privacy', exact: true }).getByRole('button', { name: 'Erase customer personal data' })
+
+
+      1134 |       await page.reload()
+      1135 |       const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
+    > 1136 |       await expect(privacy.getByRole('button', { name: 'Erase customer personal data' })).toBeDisabled()
+           |                                                                                           ^
+      1137 |       const downloading = page.waitForEvent('download')
+      1138 |       await send(page, privacy.getByRole('button', { name: 'Export customer data' }))
+      1139 |       const download = await downloading, chunks: Buffer[] = []
+        at /home/agent/rer-consolidation/work/sx-glove-c-f212-pc1/run-glove/tests/browser/journey.spec.ts:1136:91
+
+    Error Context: ../browser/results/journeys/journey-DATA-001-DATA-005--4317e-le-outcomes-at-1440-and-390/error-context.md
+
+  3) tests/browser/journey.spec.ts:1166:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'J-1001 · Split system service', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'J-1001 · Split system service', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'J-1001 · Split system service', exact: true })
+
+
+      1195 |       })
+      1196 |       await page.goto(`${origin}/app?job=${job.id}`)
+    > 1197 |       await expect(page.getByRole('heading', { name: `${job.number} · ${job.title}`, exact: true })).toBeVisible()
+           |                                                                                                      ^
+      1198 |       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).toContain('Harbourview Dental')
+      1199 |       await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), original.file.fileId)).toBe(true)
+      1200 |       // Both keep-files requests must finish before cutting this phone's signal.
+        at /home/agent/rer-consolidation/work/sx-glove-c-f212-pc1/run-glove/tests/browser/journey.spec.ts:1197:102
+
+    Error Context: ../browser/results/journeys/journey-DATA-001-DATA-005--addfa-ased-visits-at-1440-and-390/error-context.md
+
+  4) tests/browser/journey.spec.ts:1241:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Request pipeline', exact: true }).getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })
+
+
+      1315 |       await page.reload()
+      1316 |       const replyButton = pipeline.getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })
+    > 1317 |       await expect(replyButton).toBeDisabled()
+           |                                 ^
+      1318 |       await pipeline.getByRole('checkbox', { name: 'I approve this Yelp reply', exact: true }).check()
+      1319 |       await shot(page, width, 'yelp-reply-approved')
+      1320 |       await send(page, replyButton)
+        at /home/agent/rer-consolidation/work/sx-glove-c-f212-pc1/run-glove/tests/browser/journey.spec.ts:1317:33
+
+    Error Context: ../browser/results/journeys/journey-BOOK-004-BOOK-014--1edde-attestation-at-1440-and-390/error-context.md
+
+  4 failed
+    tests/browser/journey.spec.ts:188:1 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px 
+    tests/browser/journey.spec.ts:1112:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 
+    tests/browser/journey.spec.ts:1166:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 
+    tests/browser/journey.spec.ts:1241:1 › BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390 
+  4 passed (12.1m)
+
