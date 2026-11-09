@@ -2,7 +2,7 @@ FIELD-010 results for sx-glove-c-f199
 
 CLAIM FIELD-010 DONE points=1,2,3,4,5 tests=tests/api/schedule-push.test.mjs#FIELD-010 points 1–5: every schedule producer sends private once-only phone outcomes with attributable failures and subscription control
 
-Candidate: ecff63d68bbc2b4bd27462745b3de96a7f19f9d9; branch cloud/sx-glove-c-f199; repository just-every/run-glove. Product ref is confirmed on the remote. PR: none required; Verify runs on branch pushes. Verify 42581830646 is in_progress with conclusion None on this exact head, event push. Independent acceptance and landing are pending.
+Candidate: ecff63d68bbc2b4bd27462745b3de96a7f19f9d9; branch cloud/sx-glove-c-f199; repository just-every/run-glove. Product ref is confirmed on the remote. PR: none required; Verify runs on branch pushes. Verify 42581830646 is completed with conclusion success on this exact head, event push. Independent acceptance and landing are pending.
 
 Repaired two reproduced missing notifications. The scheduled recurring-billing pass now calls notify only after its existing successful commit; a lost optimistic race continues without sending. One background caller passes the existing bindings. The original extendSeries call lines are unchanged. The import branch keeps its pre-journal schedule for notification after the ordinary batch-record commit. An explicit import-undo flag includes removed future booked visits as cancellations; erasure never uses this flag.
 
@@ -37,9 +37,9 @@ DONE-RIDERS:
 
 | Row | Result | Evidence |
 | --- | --- | --- |
-| 1 | PENDING CI | Every native outcome is reached by the focused registration and the existing push registration. See R1 to R17; exact-head Verify 42581830646. |
+| 1 | PASS | Every native outcome is reached by the focused registration and the existing push registration. See R1 to R17; exact-head Verify 42581830646. |
 | 2 | PASS | Real invited people, native jobs and committed D1 changes; independent expected lines and counts; wrong-key decryption, absent and revoked grant, cross-person unsubscribe, signed-out and erased-customer refusals. |
-| 3 | PENDING CI | Existing verification.json API glob loads the new registration; push Verify 42581830646, in_progress, None on ecff63d68bbc2b4bd27462745b3de96a7f19f9d9. |
+| 3 | PASS | Existing verification.json API glob loads the new registration; push Verify 42581830646, completed, success on ecff63d68bbc2b4bd27462745b3de96a7f19f9d9. |
 | 4 | PASS | Exact-head focused rerun passes on Node 22.20.0. Existing regression sources and repaired production bytes were unchanged between their passing run and the candidate; only focused-test coverage and its lock changed. |
 | 5 | PASS | CONTRACT.md FIELD-010 meta line already cites BASE-ACCESSIBILITY-001, BASE-ROLE-001 and BASE-SECRET-001. No new inheritance or duty is invented. |
 | 6 | PASS mechanical; judgment delegated | Contract write and check exit 0, views restored from main. Status, Gap, Evidence, provenance and generated counts remain main-owned; the lander writes the accepted judgment. |
