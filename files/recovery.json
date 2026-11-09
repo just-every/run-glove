@@ -1,0 +1,8 @@
+{
+  "candidate": "3ba2e111e1b65146e477104d621a2ed0fcfed1c0",
+  "last_pushed_head": "6fd1d525acc6ffc3eb2c8fefc7ad6b3d0459e81b",
+  "bundle": "/home/agent/rer-consolidation/work/push-rescue/sx-glove-c-f179-candidate.bundle",
+  "sha256": "b7393860413a69dfbbacc73344e4a046e5d08a0aedda4df8bd4fb2335996f1e6",
+  "verified": true,
+  "prerequisite": "63bfd0d1a155d7be44561e579d643f895fabded3"
+}

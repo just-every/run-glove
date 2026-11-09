@@ -1,0 +1,23 @@
+Product head: 3ba2e111e1b65146e477104d621a2ed0fcfed1c0
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ QUOTE-012 quote-link records preserve provider truth, customer documents and live authority (29520.247964ms)
+ℹ point 3: outside sharing and each provider send answer retain the actual mail outcome
+ℹ point 4: every recorded customer response follows confirming provider facts and never asserts verified identity
+ℹ point 1: permitted people issue and revoke; excluded roles and tokens change nothing
+ℹ point 2: independently expected customer document is frozen with its canonical digest
+ℹ point 5: revision-only same-origin JSON responses accept changes, claimed decline and one update
+ℹ point 6: changes and updates survive in every office surface and reopen the originating request
+ℹ point 7: customer decline and each staff decision have one winner and leave a read-only revision
+ℹ point 8: role, branch, revocation and expiry changes at the commit boundary refuse without writes
+ℹ points 1 through 8: real Worker restart and replay retain facts without bearers or repeated sends
+ℹ inherited privacy and replay: erasure closes the old public link without resurrecting customer data
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31516.906984

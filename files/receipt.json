@@ -1,0 +1,96 @@
+{
+  "product_head": "3ba2e111e1b65146e477104d621a2ed0fcfed1c0",
+  "branch": "cloud/sx-glove-c-f179",
+  "checks": [
+    {
+      "command": "node --test tests/api/quote-link-records.test.mjs",
+      "exit": 0,
+      "receipt": "api.txt"
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/quote-link-custody.spec.ts",
+      "exit": 0,
+      "receipt": "browser.txt",
+      "widths": [
+        1440,
+        390
+      ],
+      "screenshots": [
+        "1440-quote-custody-declined.png",
+        "1440-quote-custody-expired.png",
+        "1440-quote-custody-open.png",
+        "1440-quote-custody-response.png",
+        "1440-quote-custody-superseded.png",
+        "1440-quote-custody-unavailable.png",
+        "1440-quote-custody-update-requested.png",
+        "390-quote-custody-declined.png",
+        "390-quote-custody-expired.png",
+        "390-quote-custody-open.png",
+        "390-quote-custody-response.png",
+        "390-quote-custody-superseded.png",
+        "390-quote-custody-unavailable.png",
+        "390-quote-custody-update-requested.png"
+      ]
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "receipt": "typecheck.txt"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "receipt": "first-party.txt"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write and check",
+      "exit": 0,
+      "receipt": "views.txt"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock and check",
+      "exit": 0,
+      "receipt": "lock-check.json"
+    }
+  ],
+  "publication_scan": "not run in cloud; fleet lander required",
+  "candidate_ci": {
+    "id": 42556607931,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "head": "3ba2e111e1b65146e477104d621a2ed0fcfed1c0"
+  },
+  "main_observed": "63bfd0d1a155d7be44561e579d643f895fabded3",
+  "main_verify": [
+    42554943349,
+    42553468889
+  ],
+  "main_run_site": 42554943436,
+  "proven_points": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "claim": "QUOTE-012 DONE candidate for points 1 through 8; guarded landing and exact-head Verify pending",
+  "counts_before": {
+    "done": 28,
+    "partial": 206,
+    "missing": 29
+  },
+  "counts_after": {
+    "done": 28,
+    "partial": 206,
+    "missing": 29
+  },
+  "product_publication": {
+    "status": "pushed",
+    "head": "3ba2e111e1b65146e477104d621a2ed0fcfed1c0",
+    "attempts": 5
+  }
+}
