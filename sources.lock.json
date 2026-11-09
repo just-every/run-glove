@@ -2188,7 +2188,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758",
+      "sha256": "76a04ffa6f1707f32b433835b3e63b79ed3d324557b4d8abcad48a908c738efb",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -5683,6 +5683,10 @@
       "sha256": "71ce8d8d764b6c5f0364a1b37d63114a454b94f88d9d6e205a5d8624e8a258e2",
       "executable": false
     },
+    "tests/api/position-view-grants.test.mjs": {
+      "sha256": "00611446185d4d79044e4178010a5fbf3739bb8d2d7bdc2951bbc5f312b39b35",
+      "executable": false
+    },
     "tests/api/postmark-custody.test.mjs": {
       "sha256": "8a038f458124207d3109e76b81f54033f6968276986bb9f76495270ead4dc902",
       "executable": false
@@ -5916,7 +5920,7 @@
       "executable": false
     },
     "tests/browser/phone-location.spec.ts": {
-      "sha256": "2e6608c6170bb540fcd75e36ea901713ddca91869d10c5eaa38a54a636d8c97d",
+      "sha256": "979f8dbe9dbce87aec30c6070add9c52ba3cab905f5bd15c53dd5f3b4768bd8e",
       "executable": false
     },
     "tests/browser/playwright.config.ts": {
@@ -6404,7 +6408,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae",
+      "sha256": "7cb213e8d0f23e37c3a142629b928d1d1e87062c9f892a75fdf554f7f6ede549",
       "executable": false
     },
     "tests/runtime.mjs": {

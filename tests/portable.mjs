@@ -484,7 +484,7 @@ try {
   assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
   // DISP-005 populated source custody stays transient across an actual installation archive.
-  for (const name of ['glove_live_locations', 'glove_fleet_credentials']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
+  for (const name of ['glove_live_locations', 'glove_fleet_credentials', 'glove_location_delegates']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
   const locationHistory = before.timeline.filter(e => ['location.consent', 'location.received', 'location.fleetConnected'].includes(e.kind))
   assert.deepEqual(locationHistory.map(e => e.kind).sort(), ['location.consent', 'location.fleetConnected', 'location.received'])
   for (const e of locationHistory) assert.ok(e.actor_id && e.at && e.command_id)
