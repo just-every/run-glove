@@ -1,0 +1,20 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule
+ok 1 - MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule
+  ---
+  duration_ms: 5857.74518
+  type: 'test'
+  ...
+# Point 1: fixed and ongoing memberships keep exactly one identity and independently enumerated site-specific events
+# Point 2: labelled source billing amounts confer no payment authority through replay or actual Worker restart
+# Point 3: monthly and weekly proposals need explicit people, exact future dates and original ends; unsafe changes leave records unchanged
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7030.76706

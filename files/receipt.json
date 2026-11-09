@@ -1,0 +1,297 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f189",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f189",
+  "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+  "base": "730d7c415d566fb08cf2acf0086766811bd6aeb5",
+  "product_pushed": true,
+  "product_remote_verified": true,
+  "created_at": "2026-11-09T05:41:58.956420+00:00",
+  "changed_files": [
+    {
+      "path": "sources.lock.json",
+      "sha256": "4f62890656015283e7c8e2523da558d04e999df640540ac7071753708fd4acec"
+    },
+    {
+      "path": "tests/api/servicetitan-memberships.test.mjs",
+      "sha256": "aae09b4d19fc13737ff8c9bfbc87ddbdfbd5bb02feeee1a09a18f0d52c9ef19e"
+    },
+    {
+      "path": "tests/browser/movein.spec.ts",
+      "sha256": "35c0dce3dcabc6346bf55e9e96817d5587a52ace658b239e6a03124e17c5803e"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/README.md",
+      "sha256": "1daa159f6043c1db15098cdc89fa70e5ac833a9061923cbda9c9ace895dd265e"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/contacts.json",
+      "sha256": "fec010da8a20e61f50db0f0c2ec739abe2fd5d7b16fb4a9caa1aff81e81b2bc8"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/customers.json",
+      "sha256": "c329c3a26e96f376647b4936e34a39d7ce9b0ea9bad4ba2af7a362cfde0ab316"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/invoice-templates.json",
+      "sha256": "0658b4ace11f93c6ee3a11ca633a687a237f75eb9872edf4985a3655223c4b4e"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/locations.json",
+      "sha256": "f393bce9d38d5c4c2ea52c99c9e798729b44480a8ad40bfd2cef6f988ae20b4a"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/materials.json",
+      "sha256": "1428a5732cce9768edbe8c6f062b67181c3c641325f335839983b6131cb1749a"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/membership-types.json",
+      "sha256": "b7563d64e1f801c2c4940bf23f06b1ad43f4e0f47511e0546567d6df108fdf07"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/memberships.json",
+      "sha256": "bc90ca5d3b55ac6a4ccecc6be94b0ce847ec0b5f5355f6518e7a92eed9dd3697"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/recurring-service-events.json",
+      "sha256": "58a1020b6945776d127e4477164c8e038004b417e4f2d5c1f030f8e95fae4753"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/recurring-services.json",
+      "sha256": "72404a6fa96461e0f4b2d8e959da835d3774791fdb41c3db9d70c2681e6a8df0"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/services.json",
+      "sha256": "d1bab331e951b46b833c6bf0f1f834561695e0c0d9ccf77c094bce4f1b04a440"
+    },
+    {
+      "path": "tests/fixtures/servicetitan-movein/memberships/technicians.json",
+      "sha256": "5e36a058eb3e7597b71e678945517407315d47752f42e01acc4d145f40f7772f"
+    }
+  ],
+  "contract_changed": false,
+  "generated_views_committed": false,
+  "production_changes": false,
+  "source_lock_sha256": "4f62890656015283e7c8e2523da558d04e999df640540ac7071753708fd4acec",
+  "local_checks": [
+    {
+      "command": "node --test tests/api/servicetitan-memberships.test.mjs",
+      "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+      "exit": 0,
+      "log": "api.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+      "exit": 0,
+      "log": "inventory.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses MOVE-009; node scripts/contract-docs.mjs check; git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0,
+      "log": "contract-views.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+      "exit": 0
+    }
+  ],
+  "browser": {
+    "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+    "status": "passed",
+    "widths": [
+      1440,
+      390
+    ],
+    "command": "node tests/browser/run.mjs tests/browser/movein.spec.ts --grep 'MOVE-003, MOVE-009 servicetitan'",
+    "timeout_seconds": 1200,
+    "chromium": "/usr/bin/chromium",
+    "exit": 0,
+    "log": "browser.log"
+  },
+  "ci": {
+    "id": 42569137861,
+    "event": "push",
+    "head": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+    "status": "queued",
+    "conclusion": null,
+    "url": "https://github.com/just-every/run-glove/actions/runs/42569137861"
+  },
+  "publication_scan": {
+    "commit": "8b86815b52ade9a2960196cdefaa6fa427a6dc4e",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "reason": "guarded Mac lander owns the publication scan"
+  },
+  "main_equality": false,
+  "run_site_candidate": null,
+  "initial_main_ci": {
+    "head": "c270566732b115a5514cdab4b9f22cbc9f12fe4a",
+    "verify": 42566672074,
+    "verify_conclusion": "success",
+    "run_site": 42566672055,
+    "run_site_conclusion": "success"
+  },
+  "counts": {
+    "before": {
+      "done": 32,
+      "partial": 202,
+      "missing": 29,
+      "tests": 191
+    },
+    "after": {
+      "done": 32,
+      "partial": 202,
+      "missing": 29,
+      "tests": 192
+    },
+    "proposed_after_landing": {
+      "done": 33,
+      "partial": 201,
+      "missing": 29
+    },
+    "initial_before_concurrent_landing": {
+      "done": 31,
+      "partial": 203,
+      "missing": 29,
+      "tests": 191
+    }
+  },
+  "riders": {
+    "1": "local-pass",
+    "2": "pass",
+    "3": "pending-exact-head-verify",
+    "4": "pass-exact-head-local-reruns",
+    "5": "inspected",
+    "6": "pass",
+    "7": "inspected",
+    "8": "pass",
+    "9": "inspected",
+    "10": "not-applicable",
+    "11": "pending-guarded-landing"
+  },
+  "blockers": [],
+  "pr": null,
+  "screenshots": [
+    {
+      "path": "screenshots/1440-movein-servicetitan-aging.png",
+      "bytes": 156842,
+      "sha256": "809002723e617d1606834ca1dd835ea799fe7e878cdc807b7a85b8887302f8d4"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-customer.png",
+      "bytes": 133056,
+      "sha256": "a19a5c19119f0c9716cd7698d5518dd033b37476faad7f858690c4124ebe8b9e"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-invoice.png",
+      "bytes": 214904,
+      "sha256": "15d8436017cfc2d128a7fcfcd4f84da49a4b67a71377092193f77aff48e44e95"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-job.png",
+      "bytes": 103704,
+      "sha256": "9d11b5ca687227768260964e949d36b3e75bf2d659887be6744a4f2ce5487140"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-membership-terms.png",
+      "bytes": 155874,
+      "sha256": "1ff52aa896947a29eff0898be7a7d0a3f81aed683c855e02f1997b8cb2e6b6f4"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-monthly-activated.png",
+      "bytes": 96711,
+      "sha256": "edcbfe05b14f481c34a4d768e99f4bf484c0f01fe373234fe866748dc0d9f129"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-preview.png",
+      "bytes": 961772,
+      "sha256": "bb133cd2cd0dc361482fefd8e028d36f9cff62ccd8e435749cebea13a7e3a828"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-recurring.png",
+      "bytes": 349855,
+      "sha256": "b7e67eb705953af0f1d504a58449285201bdf16146a19222e91bb6b158148268"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-undone.png",
+      "bytes": 238609,
+      "sha256": "699f04ed022db6102da9c6ff9577a033b14e1d422dbec9e138a6e61e8ae356b5"
+    },
+    {
+      "path": "screenshots/1440-movein-servicetitan-weekly-activated.png",
+      "bytes": 91741,
+      "sha256": "e9f779f3254777b12b8423d63f8b08b72da9727347f938904914844b9fa6c8b2"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-aging.png",
+      "bytes": 67616,
+      "sha256": "b2abe5375cb5d1ee5247f186edf9f3c319715a182f6282c39d25cb23de713e78"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-customer.png",
+      "bytes": 65127,
+      "sha256": "76e281acdb732f060725d5fa1617bf60b2b843affb4cf194fca9dd172d3f641a"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-invoice.png",
+      "bytes": 77626,
+      "sha256": "7b651d26ccc7c1e2134d07ddd8986a90633c16284d31d7555d9cfc20b9937b23"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-job.png",
+      "bytes": 62918,
+      "sha256": "80678e23471492a520ff8435dee66b67ec0e4ba5aee9f7af586cc317843358f3"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-membership-terms.png",
+      "bytes": 79898,
+      "sha256": "eee70725a15b79469ea983e4ab22d68560646d85849fe0d41e9643d6719c6911"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-monthly-activated.png",
+      "bytes": 61779,
+      "sha256": "13b3175e03300db078193f460720b4808c90bee620c7ba994b7af83731e1a35a"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-preview.png",
+      "bytes": 896999,
+      "sha256": "a551054c96c18b47b43ed1296131996469757474eda1e62f30f0b7640236e425"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-recurring.png",
+      "bytes": 263770,
+      "sha256": "2121afcfebe8bcae10573e1cc51155c1d7ad6f1d7c9ed88cd0c809074ca4896b"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-undone.png",
+      "bytes": 66061,
+      "sha256": "4a95a1fb8c39a527817b406a5ca7973ea8148003ee82581fc47315039af17f1e"
+    },
+    {
+      "path": "screenshots/390-movein-servicetitan-weekly-activated.png",
+      "bytes": 57199,
+      "sha256": "6a9a3ec06dc3233c5c09a2fb7948c2ccc1f1c7db0777de59b2659b8bb4c98345"
+    }
+  ],
+  "superseded_candidate": {
+    "head": "070beccea3b1c3b9a6803eaa3f171d10f40cdec3",
+    "verify": 42568667366,
+    "reason": "improved screenshot position and displayed technician proof, then merged fresh main"
+  }
+}
