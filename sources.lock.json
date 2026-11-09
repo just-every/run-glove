@@ -4824,7 +4824,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
+      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5716,7 +5716,7 @@
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
-      "sha256": "f6eb4d471f05a8c19d27647f9bc85866bd4e0b495a0649f436287512378e69ca",
+      "sha256": "db37d48fec44974ce158afd1f8ec461fdce7fbb5a307287493c697c73bcae546",
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
@@ -5944,7 +5944,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "9aafda1bb3f95782a4a32bbdb6cb080b54fef26ef994a6ccf8544134d4463023",
+      "sha256": "0b0830e12ca95a6749e41b8f0d4c3e8ae075742e2b8412f3f2cd82dffacc93af",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -6073,6 +6073,10 @@
     },
     "tests/fixtures/document-images.mjs": {
       "sha256": "39f0a34dc33a885ed94fd6c3cdb75ecda5f51f159f1fe6effc0a7f1a89547059",
+      "executable": false
+    },
+    "tests/fixtures/edition-archive-policy.mjs": {
+      "sha256": "ae363d643591a0b3a418cc9dc61a684552c468c3d53d6e39366ad6d1199b9f95",
       "executable": false
     },
     "tests/fixtures/fieldpulse-movein/comments.json": {
@@ -6233,6 +6237,10 @@
     },
     "tests/fixtures/portable-stripe.mjs": {
       "sha256": "b9b9fc089e37a949b70cbe72aa8704193b4acf6590e8f0fd07f427fc1f9be37c",
+      "executable": false
+    },
+    "tests/fixtures/privacy-data.mjs": {
+      "sha256": "b2ed9dcfb155208623f840ac8e19b4609657479524b06766fa163b480e3aea37",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {
@@ -6516,7 +6524,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "c4e82a4c9029b84412ad10544ce0481a8cb208ba818b74b85e8262c76d9bf7f7",
+      "sha256": "4ae32abea645e402b69e34d415eab6257226f2e5d9f03eb98acd9552176cf219",
       "executable": false
     },
     "tests/runtime.mjs": {
