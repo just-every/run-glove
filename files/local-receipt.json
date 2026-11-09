@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f171",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f171",
+  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "main": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+  "recordedAt": "2026-11-09T00:55:03.941005+00:00",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 --test-name-pattern='ordinary tax|private chunked' tests/api/tax-evidence.test.mjs",
+      "tree": "origin/main with the new public-door assertions",
+      "exit": 1,
+      "expectedReproduction": true,
+      "observed": "Office check relabelled tax as Stripe collected; certificate integration read returned 200 instead of 404",
+      "log": "reproduce-main.log"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/tax-evidence.test.mjs",
+      "exit": 0,
+      "passed": 4,
+      "log": "final-tax-api.log",
+      "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+      "receipt": "final-tax-api-receipt.json"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/money.test.mjs tests/api/fixed-monthly-reports.test.mjs",
+      "exit": 0,
+      "passed": 3,
+      "log": "retained-money-api.log"
+    },
+    {
+      "command": "node --test --test-concurrency=1 --test-name-pattern='Stripe-hosted card and ACH settle once' tests/api/payments.test.mjs",
+      "exit": 0,
+      "passed": 1,
+      "log": "stripe-api.log"
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/tax-evidence.spec.ts",
+      "exit": 0,
+      "passed": 1,
+      "widths": [
+        1440,
+        390
+      ],
+      "chromium": "/usr/bin/chromium",
+      "log": "browser.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write && node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "generatedViewsCommitted": false,
+      "log": "views.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock && node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "migration-ledger check",
+      "exit": 0,
+      "applicable": false,
+      "reason": "No migrations changed"
+    },
+    {
+      "command": "node tests/browser/run.mjs tests/browser/receivables.spec.ts --grep 'confirmed payment and ACH return'",
+      "exit": 0,
+      "passed": 1,
+      "log": "retained-stripe-browser.log",
+      "widths": [
+        1440,
+        390
+      ]
+    },
+    {
+      "command": "node tests/portable.mjs",
+      "exit": 0,
+      "log": "portable.log",
+      "proof": "actual export and import into fresh installations, source and restored multi-chunk certificate reads, replaced original retention, old-session refusal and erasure journal"
+    }
+  ],
+  "pending": [
+    "exact-SHA Verify",
+    "fleet publication scan",
+    "guarded landing and Run site"
+  ],
+  "files": [
+    {
+      "path": "reproduce-main.log",
+      "bytes": 2370,
+      "sha256": "bcdf8a049e500e635f1904dd62e271c84f2ce5468b009777c46f95c57465898b"
+    },
+    {
+      "path": "tax-api.log",
+      "bytes": 721,
+      "sha256": "a2817c845f48fafa6436e0c841ef73da61ad3eae696f51d1f410e83263208c7c"
+    },
+    {
+      "path": "retained-money-api.log",
+      "bytes": 974,
+      "sha256": "07c98dfca4b8065846433c31e941d2cee9c30d000300247e7715d6c847f03f13"
+    },
+    {
+      "path": "stripe-api.log",
+      "bytes": 437,
+      "sha256": "a0023648fad4ca0b6fbc6058920fa83fd796f7c3f03236512e31354999c681f7"
+    },
+    {
+      "path": "browser.log",
+      "bytes": 1253,
+      "sha256": "154aed17e0cb1ea606ce2f30485014d9084eeb464dd7556647cc00fe680a541f"
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 196,
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    },
+    {
+      "path": "first-party.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "views.log",
+      "bytes": 60,
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    },
+    {
+      "path": "retained-stripe-browser.log",
+      "bytes": 1085,
+      "sha256": "4c8d3e85f7f70e407623ec818244122d4d7a0aec0c9543c7dd55d4a6a21d3f86"
+    },
+    {
+      "path": "final-tax-api.log",
+      "bytes": 721,
+      "sha256": "6aa8b0d09b5041b58fc6228a70138633ca4c9a478b8c068b99dbeb5943e884e4"
+    },
+    {
+      "path": "final-tax-api-receipt.json",
+      "bytes": 226,
+      "sha256": "a18eb2df55044b71fcf241d159721a1d7610c5d976d5e783a5eba4e4b702febe"
+    },
+    {
+      "path": "tree-receipt.json",
+      "bytes": 1011,
+      "sha256": "22b6e47c238220d6bf3b6059bdb738caafaeab440e67ca0ecf34e29f994d1755"
+    },
+    {
+      "path": "mechanical-receipt.json",
+      "bytes": 409,
+      "sha256": "ad27559b8078d923662136de3146cbac4fed387f85329e6608f381f3621c3bc3"
+    },
+    {
+      "path": "portable.log",
+      "bytes": 1843,
+      "sha256": "10e9ea1c26c55db3127bcffb5d8b73af8a20e57cf0ddd3d500727d85d078deb2"
+    }
+  ],
+  "relevantProofUnchangedSinceBrowserAndArchiveStart": "sources.lock.json\ntests/api/tax-evidence.test.mjs"
+}

@@ -1,0 +1,160 @@
+{
+  "files": [
+    {
+      "blob": "8e480709c6186739fcc709a9a24f8fbb1147d823",
+      "bytes": 16392,
+      "path": "REPORT.md",
+      "sha256": "c9a310b4b960d6616ba9eb070e87622fe2b195b13fe450477340bf91ac4d53a1"
+    },
+    {
+      "blob": "b1f373c75d045a45fb573570e3fa2a76b9992278",
+      "bytes": 1253,
+      "path": "browser.log",
+      "sha256": "154aed17e0cb1ea606ce2f30485014d9084eeb464dd7556647cc00fe680a541f"
+    },
+    {
+      "blob": "27da94d18437a7cffdcd9bcc1ca68bf186148a3e",
+      "bytes": 274,
+      "path": "candidate-ci-discovery.json",
+      "sha256": "c7e6eeac381b82026cec05cea00a901a41417d1a47c6164a11c06a6fb400721c"
+    },
+    {
+      "blob": "cf364370f73f3dd33ef4447c1d2a4b3600a19c71",
+      "bytes": 379,
+      "path": "ci-watch.json",
+      "sha256": "ec9b4b786831e301efade9290412f092e1c54b0f5b47259649cd7adccf4406d7"
+    },
+    {
+      "blob": "be4fe45b6f864920522496917427e5cd11a16590",
+      "bytes": 521,
+      "path": "custody-receipt.json",
+      "sha256": "9cbe39c8897f46cd1bd28a311c1a518daf3ff836d59802aff70bb220845243c6"
+    },
+    {
+      "blob": "cac4b6e8cab0799a0cc21b9df6ff39f8ec6ea95c",
+      "bytes": 226,
+      "path": "final-tax-api-receipt.json",
+      "sha256": "a18eb2df55044b71fcf241d159721a1d7610c5d976d5e783a5eba4e4b702febe"
+    },
+    {
+      "blob": "41ad3a379903ef2fbb7ba1b532ce359c74fcdf98",
+      "bytes": 721,
+      "path": "final-tax-api.log",
+      "sha256": "6aa8b0d09b5041b58fc6228a70138633ca4c9a478b8c068b99dbeb5943e884e4"
+    },
+    {
+      "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "bytes": 0,
+      "path": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "blob": "1b81c21c45ac35892343f867cc47a7ae47dbcc30",
+      "bytes": 5284,
+      "path": "local-receipt.json",
+      "sha256": "c0ecbef8eece14ad3e0fbd18f1700629429a75cf460c93d777d765ad672ac7d5"
+    },
+    {
+      "blob": "e296841a1efa50b721c58c9497ca276955d1eda5",
+      "bytes": 1143,
+      "path": "main-ci.json",
+      "sha256": "4f1f5d506e7781aba14b761ee1963812791cbc8d20f212192ba57bd20637ab47"
+    },
+    {
+      "blob": "25116a40f22149f22002ae0750fb0669abd2ec53",
+      "bytes": 409,
+      "path": "mechanical-receipt.json",
+      "sha256": "ad27559b8078d923662136de3146cbac4fed387f85329e6608f381f3621c3bc3"
+    },
+    {
+      "blob": "afa0c111e1ef768d7332475351e0a745d4d4f264",
+      "bytes": 362,
+      "path": "portable-receipt.json",
+      "sha256": "2475e1d5067d78d91c831e0b2f1eb2b2e8f3fc7521d194ad8cec216ffaa70335"
+    },
+    {
+      "blob": "337eea6de8deca0dfe9b03e54c4436c03885a2e0",
+      "bytes": 1843,
+      "path": "portable.log",
+      "sha256": "10e9ea1c26c55db3127bcffb5d8b73af8a20e57cf0ddd3d500727d85d078deb2"
+    },
+    {
+      "blob": "82170ebee099e62043f13860b7fce7f6e036b13f",
+      "bytes": 2370,
+      "path": "reproduce-main.log",
+      "sha256": "bcdf8a049e500e635f1904dd62e271c84f2ce5468b009777c46f95c57465898b"
+    },
+    {
+      "blob": "070ed6ceb58d1d7e1baae6a513e40ea569743d54",
+      "bytes": 974,
+      "path": "retained-money-api.log",
+      "sha256": "07c98dfca4b8065846433c31e941d2cee9c30d000300247e7715d6c847f03f13"
+    },
+    {
+      "blob": "6ae41821c70c45e08e38c539ec5695354a38be84",
+      "bytes": 1085,
+      "path": "retained-stripe-browser.log",
+      "sha256": "4c8d3e85f7f70e407623ec818244122d4d7a0aec0c9543c7dd55d4a6a21d3f86"
+    },
+    {
+      "blob": "2423eb6b0772bfcf2671d356a250f13b217a4e09",
+      "bytes": 124604,
+      "path": "screenshots/1440-tax-approved-invoices.png",
+      "sha256": "849a8ab79140e7335aa187697277a076819d7a1b62b007867a2bb24a2919be3d"
+    },
+    {
+      "blob": "bb716cdba198dc1fc0199f4853ced1d9621623dc",
+      "bytes": 130700,
+      "path": "screenshots/1440-tax-ordinary-payment.png",
+      "sha256": "8d5f82115321fdffbdf6b861940cd7f07ed2e71e5c70f2fa9bc830b1b07d87d2"
+    },
+    {
+      "blob": "6d209527286ab2b57ae134525e6c67addaf60fb1",
+      "bytes": 56308,
+      "path": "screenshots/390-tax-approved-invoices.png",
+      "sha256": "9f83f07048410c017e580dea7e489251a46486d748b34468271739d6f464b95d"
+    },
+    {
+      "blob": "1b79020026c5ed6bd7791793467ae947ae8e95dc",
+      "bytes": 60007,
+      "path": "screenshots/390-tax-ordinary-payment.png",
+      "sha256": "4bd128836185a99866b9e282241b5dc7618f57eff3ddb0ee5e4cdc778fee4a32"
+    },
+    {
+      "blob": "c993e39814668fc07eed7829b37684ff2574f926",
+      "bytes": 437,
+      "path": "stripe-api.log",
+      "sha256": "a0023648fad4ca0b6fbc6058920fa83fd796f7c3f03236512e31354999c681f7"
+    },
+    {
+      "blob": "bd252e48af9af4753ee95ed025154a3088eca669",
+      "bytes": 721,
+      "path": "tax-api.log",
+      "sha256": "a2817c845f48fafa6436e0c841ef73da61ad3eae696f51d1f410e83263208c7c"
+    },
+    {
+      "blob": "9ac6ad46540bc0368aca6f816598cfe772bff279",
+      "bytes": 1011,
+      "path": "tree-receipt.json",
+      "sha256": "22b6e47c238220d6bf3b6059bdb738caafaeab440e67ca0ecf34e29f994d1755"
+    },
+    {
+      "blob": "efe89d89a2736fffdd8b24c7d1cf84fc84f2779b",
+      "bytes": 196,
+      "path": "typecheck.log",
+      "sha256": "90202a9f80593a3b0149f29abf1c3d948845d7dcdb452ab3c172ba728ff5537c"
+    },
+    {
+      "blob": "7f08ad713eb644515ca188ca96c07a87314528b5",
+      "bytes": 60,
+      "path": "views.log",
+      "sha256": "cdada4f46860989b6e41904b5bffd1be7976cfde8b8dba1b4a7dcf41c522fcda"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f171",
+  "product_head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "ref": "refs/heads/evidence/sx-glove-c-f171",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f171"
+}

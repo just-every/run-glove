@@ -1,0 +1,54 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart (3090.244945ms)
+✖ MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences (5059.990093ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9080.225634
+
+✖ failing tests:
+
+test at tests/api/tax-evidence.test.mjs:61:1
+✖ MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart (3090.244945ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'Stripe test mode: tax collected from confirmed payments, net of returns; tips excluded'
+  - 'tax on approved invoices; Glove records no payments yet'
+  
+      at report (file:///workspace/run-glove/tests/api/tax-evidence.test.mjs:85:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/tax-evidence.test.mjs:102:20)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Stripe test mode: tax collected from confirmed payments, net of returns; tips excluded',
+    expected: 'tax on approved invoices; Glove records no payments yet',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/api/tax-evidence.test.mjs:126:1
+✖ MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences (5059.990093ms)
+  AssertionError [ERR_ASSERTION]: Integration
+  
+  200 !== 404
+  
+      at TestContext.<anonymous> (file:///workspace/run-glove/tests/api/tax-evidence.test.mjs:156:13)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

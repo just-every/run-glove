@@ -1,0 +1,23 @@
+{
+  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "at": "2026-11-09T00:56:43.991875+00:00",
+  "checks": [
+    {
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0
+    }
+  ],
+  "migrationsChanged": false
+}

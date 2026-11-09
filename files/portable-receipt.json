@@ -1,0 +1,9 @@
+{
+  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "command": "node tests/portable.mjs",
+  "exit": 0,
+  "completedAt": "2026-11-09T00:59:54.223259+00:00",
+  "startedFrom": "fc42c3c54ef3d50c96368ed147a45b802a1a28b7",
+  "relevantSourceAndPortableTestUnchanged": true,
+  "portableSha256": "4d2b5f226604e25ef853b3fbd717369e1c8fff44017f23138e977e4cbdd14bae"
+}

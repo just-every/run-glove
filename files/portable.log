@@ -1,0 +1,11 @@
+DISP-008 real archive passed: both provider credentials, pending work and mappings absent; import, startup, replay and restart silent; explicit reconnection required
+CUST-006 real archive passed: both keys absent, push history retained, restored replay sends nothing, explicit reconnection required
+DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position
+MOVE-003 / MOVE-004 source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door
+PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job
+QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only
+DISP-011 real archive passed: exact proposal metadata and appointments retained, Maps reconnection required, stale acceptance refused, erasure and later journal fence visit references
+DATA-001 real rer import passed: older backup refused; anonymous invoice/tax totals restore and originals stay erased
+PAY-002 real archive passed: confirmed funds, pending ACH, uncertain reservations, balances, aging and attributable history retained; keys and private Checkout material excluded; sessions, replay, reconnection and later-erasure journal fenced
+PAY-008 real archive passed: distinct permission history retained, credentials absent, reconnection grants no authority, fresh confirmation required, later erasure journal fences old evidence
+Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore

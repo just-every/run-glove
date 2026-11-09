@@ -1,0 +1,18 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f171",
+  "head": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "remoteHead": "eaf8dac6aa9455043c2903f08e67209787f0db9f",
+  "checkoutClean": true,
+  "fullHistory": true,
+  "allCandidateIdentitiesFleet": true,
+  "trailers": [],
+  "main": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+  "verifyRun": 42542947910,
+  "publicationScan": {
+    "status": "NOT_RUN_CLOUD_EXEMPTION",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null
+  }
+}
