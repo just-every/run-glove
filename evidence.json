@@ -13,16 +13,16 @@
       "sha256": "a065e019cf2f8e197b3cd8e2cd8ffe2775dd1b0739ebaa4472d7ea5d5c35a3c3"
     },
     {
-      "blob": "78aef5809f58708e639411286a61793a2af2aa7d",
-      "bytes": 5025,
+      "blob": "77d34a13f26889237d7466d5c691666651667e02",
+      "bytes": 5168,
       "path": "RECEIPT.json",
-      "sha256": "879434587ea03f818414e2affc418fa614fb8e322e4ba35763f56662b5b6385e"
+      "sha256": "50f0bcbfd977cfbf32e9131635cfdf6309e913ae4c4c46aedff080fea96ffb05"
     },
     {
-      "blob": "d191744c978ecf7d8bf88ad7d3e1a75c5b59e33c",
-      "bytes": 15175,
+      "blob": "4028318890b0ad8e79b805799bc639ffabb4126f",
+      "bytes": 15522,
       "path": "REPORT.md",
-      "sha256": "802c34c36ca5b3c8b591edf8733f72cd285503f8ae07747d41c0534c0d1b61ef"
+      "sha256": "4e37b3ce51cf8b851a0f62a1699cf014cea6191e934c786701c7c7a3a26a484c"
     },
     {
       "blob": "106d532f510fba6aa719a6b803c5dfb3d53ec37e",
@@ -77,6 +77,12 @@
       "bytes": 223,
       "path": "candidate-ci.json",
       "sha256": "36c5efd439e0705a2fb49545a77bd68c00d6a921658f85d37873321153165b62"
+    },
+    {
+      "blob": "df45149568f780de93f2dbfedda03492379d289f",
+      "bytes": 175,
+      "path": "ci-status.json",
+      "sha256": "9067324d2399472637b58b4a64111ce1be7c978e3cb81389fbc0939af5847d75"
     },
     {
       "blob": "82acd6309a7071db04776f6857342a80ced8b70a",
