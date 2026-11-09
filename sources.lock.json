@@ -5856,7 +5856,7 @@
       "executable": false
     },
     "tests/browser/crew-board.spec.ts": {
-      "sha256": "9169dc572aa687023d332702756a561c0f14879b8db09011d6df980c3258877e",
+      "sha256": "b4ed06a789dc7e1585c24066a2feaa86da2bb588559e4a35b2d3c649765c1597",
       "executable": false
     },
     "tests/browser/custom-roles.spec.ts": {

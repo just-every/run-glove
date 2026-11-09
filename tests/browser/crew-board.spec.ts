@@ -194,6 +194,8 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
         await view(name)
         await board.scrollIntoViewIfNeeded()
         await expect(chip(board)).toHaveCount(name === 'Day' ? 1 : 3)
+        await chip(board).first().scrollIntoViewIfNeeded()
+        await expect(chip(board).first()).toBeInViewport()
         await screen(page, name.toLowerCase())
       }
     })
