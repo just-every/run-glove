@@ -163,6 +163,7 @@ test('QUOTE-009 fragment links use only Authorization for real customer reads an
 
       // QUOTE-012: the office reads both actual customer responses through
       // each durable business door, rather than only an empty projection.
+      await h.setTime('2030-03-12T14:00:00Z')
       const history = await (await h.request(`/api/glove/sites/${site.id}/history`)).json()
       expect(history.entries).toEqual(expect.arrayContaining([
         expect.objectContaining({ kind: 'quote response', label: expect.stringContaining(message) }),

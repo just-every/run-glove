@@ -5708,7 +5708,7 @@
       "executable": false
     },
     "tests/api/quote-link-records.test.mjs": {
-      "sha256": "206da89f07aa7f3d99d46dd43092d262b39952b872b422402358b67375d82df0",
+      "sha256": "56076912a0bb089f22fd6ff89ca61738ff2a9c0fed1b4ba8506d30a11badaa68",
       "executable": false
     },
     "tests/api/records.test.mjs": {
@@ -5924,7 +5924,7 @@
       "executable": false
     },
     "tests/browser/quote-link-custody.spec.ts": {
-      "sha256": "e598c55ab33bf99d2a20ad88029c08871f153990d4379ac64453961f00651127",
+      "sha256": "e9140bea7f83bc05ff6bfded563ced87e01caced15ad3755f48c67222ad25b1c",
       "executable": false
     },
     "tests/browser/receivables.spec.ts": {
