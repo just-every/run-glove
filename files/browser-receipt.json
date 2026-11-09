@@ -1,0 +1,66 @@
+{
+  "sourceHead": "d509c2e03bac64e12bd970ff96436044d391a1aa",
+  "installation": "actual local rer dev Worker and D1 with native owner and technician sessions; no request interception or fake application responses",
+  "registrationAdded": false,
+  "screenshots": [
+    "1440-timesheets.png",
+    "390-timesheets.png"
+  ],
+  "downloads": [
+    {
+      "width": 1440,
+      "kind": "adp-run",
+      "control": "ADP RUN pay data CSV",
+      "filename": "1440-adp-run.csv",
+      "suggestedFilename": "glove-payroll-adp-run-2026-11-02-2026-11-08.csv",
+      "bytes": 331,
+      "sha256": "b92ac52b5fb646979f1b4605e1fd3ff391d1626ee237f799a53472f58f77d74b"
+    },
+    {
+      "width": 1440,
+      "kind": "gusto",
+      "control": "Gusto hours CSV",
+      "filename": "1440-gusto.csv",
+      "suggestedFilename": "glove-payroll-gusto-2026-11-02-2026-11-08.csv",
+      "bytes": 196,
+      "sha256": "f334a536cda1fc4890a21ff5b67a7e75d594b2864e4daeebe0f120feeb18c1ae"
+    },
+    {
+      "width": 1440,
+      "kind": "quickbooks",
+      "control": "QuickBooks Payroll timesheet CSV",
+      "filename": "1440-quickbooks.csv",
+      "suggestedFilename": "glove-payroll-quickbooks-2026-11-02-2026-11-08.csv",
+      "bytes": 225,
+      "sha256": "3832bab76947f9a971d6c96dfc8cf531f94fa393279e1e9b2d45ed94e3d8baae"
+    },
+    {
+      "width": 390,
+      "kind": "adp-run",
+      "control": "ADP RUN pay data CSV",
+      "filename": "390-adp-run.csv",
+      "suggestedFilename": "glove-payroll-adp-run-2026-11-02-2026-11-08.csv",
+      "bytes": 331,
+      "sha256": "b92ac52b5fb646979f1b4605e1fd3ff391d1626ee237f799a53472f58f77d74b"
+    },
+    {
+      "width": 390,
+      "kind": "gusto",
+      "control": "Gusto hours CSV",
+      "filename": "390-gusto.csv",
+      "suggestedFilename": "glove-payroll-gusto-2026-11-02-2026-11-08.csv",
+      "bytes": 196,
+      "sha256": "f334a536cda1fc4890a21ff5b67a7e75d594b2864e4daeebe0f120feeb18c1ae"
+    },
+    {
+      "width": 390,
+      "kind": "quickbooks",
+      "control": "QuickBooks Payroll timesheet CSV",
+      "filename": "390-quickbooks.csv",
+      "suggestedFilename": "glove-payroll-quickbooks-2026-11-02-2026-11-08.csv",
+      "bytes": 225,
+      "sha256": "3832bab76947f9a971d6c96dfc8cf531f94fa393279e1e9b2d45ed94e3d8baae"
+    }
+  ],
+  "result": "passed"
+}

@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-c-f191",
+  "branch": "cloud/sx-glove-c-f191",
+  "head": "b7637133f4cac50e561b59c3a3d2da114af5b595",
+  "baseMain": "c270566732b115a5514cdab4b9f22cbc9f12fe4a",
+  "productFiles": [
+    "tests/api/payroll-files.test.mjs",
+    "sources.lock.json"
+  ],
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/payroll-files.test.mjs tests/api/payroll.test.mjs",
+      "exit": 0,
+      "head": "b7637133f4cac50e561b59c3a3d2da114af5b595",
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "output": "payroll-tests.tap"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "head": "b7637133f4cac50e561b59c3a3d2da114af5b595",
+      "output": "typecheck.txt"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "head": "b7637133f4cac50e561b59c3a3d2da114af5b595",
+      "output": "first-party.txt"
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "sourceHead": "d509c2e03bac64e12bd970ff96436044d391a1aa",
+      "sourceAndTestsUnchangedOnCandidate": true,
+      "output": "build.txt"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "output": "contract-views.txt",
+      "generatedFilesCommitted": false
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true,
+      "lockSha256": "dc455be4993136ce3f230ba55521568a71920054a0c7b1ff92ad2432614fc79f"
+    },
+    {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 0,
+      "total": 192,
+      "limit": 200,
+      "output": "test-inventory.json"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "browser": {
+    "receipt": "browser-receipt.json",
+    "downloads": 6,
+    "widths": [
+      1440,
+      390
+    ],
+    "sourceHead": "d509c2e03bac64e12bd970ff96436044d391a1aa",
+    "sourceAndTestsUnchangedOnCandidate": true,
+    "actualDevWorker": true,
+    "requestInterception": false,
+    "newRegistration": false
+  },
+  "contract": {
+    "statusChanged": false,
+    "acceptanceChanged": false,
+    "before": {
+      "done": 31,
+      "partial": 203,
+      "missing": 29
+    },
+    "after": {
+      "done": 31,
+      "partial": 203,
+      "missing": 29
+    },
+    "proposedAfterLanding": {
+      "done": 32,
+      "partial": 202,
+      "missing": 29
+    },
+    "separatelyQualifiedPointsBefore": 0,
+    "separatelyQualifiedPointsAfter": 5
+  },
+  "verify": {
+    "id": 42568552290,
+    "event": "push",
+    "head": "b7637133f4cac50e561b59c3a3d2da114af5b595",
+    "status": "in_progress",
+    "conclusion": null,
+    "url": "https://github.com/just-every/run-glove/actions/runs/42568552290"
+  },
+  "baselineCI": {
+    "head": "c270566732b115a5514cdab4b9f22cbc9f12fe4a",
+    "verify": 42566672074,
+    "verifyConclusion": "success",
+    "runSite": 42566672055,
+    "runSiteConclusion": "success"
+  },
+  "publicationScan": {
+    "commit": "b7637133f4cac50e561b59c3a3d2da114af5b595",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "state": "not run in cloud; guarded fleet landing required"
+  },
+  "mainEquality": false,
+  "candidateRunSite": "not run; main-only workflow belongs to guarded landing",
+  "pr": null,
+  "blockers": [],
+  "fieldProofUnclaimed": [
+    "R-15 real Gusto upload acceptance",
+    "R-16 real ADP RUN upload acceptance",
+    "R-17 real QuickBooks Payroll upload acceptance"
+  ]
+}

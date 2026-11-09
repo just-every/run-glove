@@ -1,0 +1,14 @@
+{
+  "head": "b7637133f4cac50e561b59c3a3d2da114af5b595",
+  "protectedFilesUnchangedAgainstMain": true,
+  "newFixtureContainsEmailLiteral": false,
+  "packetPrivateValuesFound": 0,
+  "productDiffPaths": [
+    "sources.lock.json",
+    "tests/api/payroll-files.test.mjs"
+  ],
+  "candidateMessagesInspected": true,
+  "authorsAndCommitters": "fleet identity",
+  "aiTrailers": 0,
+  "publicationScan": "deferred to fleet; this private-value check is not a full publication scan"
+}

@@ -1,0 +1,27 @@
+{
+  "head": "c270566732b115a5514cdab4b9f22cbc9f12fe4a",
+  "source": "Initial exact-main gh api Actions runs response observed during this task; one REST call before candidate discovery.",
+  "runs": [
+    {
+      "id": 42566672074,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42566672055,
+      "name": "Run site",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 42564957100,
+      "name": "Verify",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}
