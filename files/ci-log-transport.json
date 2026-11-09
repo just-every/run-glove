@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "command": "gh run view 42616113091 --repo just-every/run-glove --job 129156614417 --log-failed",
+  "run": 42616113091,
+  "job": 129156614417,
+  "head": "35785ba0a677a6aa5f603871419bd643df9e883e",
+  "status": "failed to obtain archive",
+  "error": "failed to get run log: stream error: stream ID 1; INTERNAL_ERROR; received from peer",
+  "httpStatus": "not supplied",
+  "exit": "not captured separately from following diagnostic formatter",
+  "retry": "none; one archive invocation only"
+}

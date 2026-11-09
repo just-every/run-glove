@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "head": "f866b9fdcbba9eb2462a92d1cf1557bf6351ce08",
+  "started": "2026-11-09T12:13:28.754Z",
+  "ended": "2026-11-09T12:17:07.124Z",
+  "command": [
+    "playwright",
+    "test",
+    "--config",
+    "tests/browser/playwright.config.ts",
+    "--workers=1",
+    "tests/browser/journey.spec.ts",
+    "tests/browser/conversation.spec.ts",
+    "--grep",
+    "COST-001 / COST-002|COMM-007 desk"
+  ],
+  "exit": 0,
+  "widths": [
+    1440,
+    390
+  ],
+  "chromium": "/usr/bin/chromium"
+}

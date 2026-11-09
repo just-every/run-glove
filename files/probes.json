@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "clause": "TEAM-006",
+  "probes": [
+    {
+      "point": 1,
+      "door": "/api/glove/reports/payroll.json?from=2026-11-02&to=2026-11-22",
+      "observed": {
+        "before": "0.00",
+        "after": "61.73",
+        "approvalUnchanged": true,
+        "sold": [
+          {
+            "date": "2026-11-04",
+            "rate": "5%",
+            "amount": "61.73"
+          },
+          {
+            "date": "2026-11-09",
+            "rate": "10%",
+            "amount": "30.01"
+          },
+          {
+            "date": "2026-11-16",
+            "rate": "10%",
+            "amount": "40.00"
+          }
+        ]
+      }
+    },
+    {
+      "point": 2,
+      "door": "three payroll CSV routes",
+      "observed": {
+        "rows": {
+          "gusto": 7,
+          "adp-run": 8,
+          "quickbooks": 14
+        },
+        "commissionOnlyWeek": "80.00",
+        "adpDefault": "COMM",
+        "blankPayHours": true
+      }
+    },
+    {
+      "point": 3,
+      "door": "/api/glove/reports/payroll.json?from=2026-11-02&to=2026-11-22",
+      "observed": {
+        "people": [
+          "Priya N.",
+          "Tom B."
+        ],
+        "left": [
+          {
+            "name": "Synthetic Glove No Time",
+            "reason": "commissions of $60.00 but no approved time in the period"
+          },
+          {
+            "name": "Synthetic Glove Contractor",
+            "reason": "1099 subcontractor: paid through the 1099-NEC totals, not payroll"
+          }
+        ]
+      }
+    },
+    {
+      "point": 4,
+      "door": "/api/glove/reports/payroll.json?from=2026-11-02&to=2026-11-22",
+      "observed": [
+        {
+          "name": "Priya N.",
+          "sold": {
+            "revenue": "1934.55",
+            "amount": "131.74"
+          },
+          "completed": {
+            "revenue": "50.01",
+            "amount": "25.01"
+          },
+          "agreements": {
+            "count": 2,
+            "amount": "65.00"
+          },
+          "total": "221.75",
+          "items": 6
+        },
+        {
+          "name": "Tom B.",
+          "sold": {
+            "revenue": "800.20",
+            "amount": "70.02"
+          },
+          "completed": {
+            "revenue": "50.00",
+            "amount": "25.00"
+          },
+          "agreements": {
+            "count": 1,
+            "amount": "40.00"
+          },
+          "total": "135.02",
+          "items": 5
+        }
+      ]
+    },
+    {
+      "point": 5,
+      "door": "payroll reads and actual Worker restart",
+      "observed": {
+        "payments": 0,
+        "businessStateUnchanged": true,
+        "jsonIdentical": true,
+        "files": {
+          "gusto": {
+            "sha256": "abdd458868f2938509e6b644432123e77822ca0615482abbd81d0096dcda5832",
+            "bytes": 461
+          },
+          "adp-run": {
+            "sha256": "131275cdc4d3e0db47b819e12eec40b3c242321e8e4477ee7c39b83f9efadff9",
+            "bytes": 500
+          },
+          "quickbooks": {
+            "sha256": "47b3a3e6c236c7d74c4ebcac2ec5ffe93c2d849f1c78c83e2c82af51107672fd",
+            "bytes": 514
+          }
+        },
+        "providerAcceptance": "not run"
+      }
+    }
+  ],
+  "exit": 0
+}

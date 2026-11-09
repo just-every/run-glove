@@ -1,0 +1,53 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:4924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/browser/conversation.spec.ts:26:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (59.2s)
+(node:4924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/browser/journey.spec.ts:866:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (28.7s)
+
+
+  1) tests/browser/journey.spec.ts:866:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('region', { name: 'Time', exact: true }).getByRole('status')
+    Expected pattern: /^On the clock since .*M$/
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('region', { name: 'Time', exact: true }).getByRole('status') with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Time', exact: true }).getByRole('status')
+
+
+      912 |         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
+      913 |         await page.reload()
+    > 914 |         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
+          |                                                ^
+      915 |         expect((await h.request(`/api/glove/timesheets?week=${currentWeek}`, { as }).then((r: Response) => r.json())).timesheets.map((x: any) => [x.technicianId, x.onTheClock])).toEqual([[b.priya.id, true]])
+      916 |         await shot(page, width, 'first-shift-on-clock')
+      917 |         await time.getByRole('button', { name: 'Clock out', exact: true }).click()
+        at /workspace/run-glove/tests/browser/journey.spec.ts:914:48
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f215/browser-current/journey-COST-001-COST-002--81547-is-assigned-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/journey.spec.ts:866:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 
+  1 passed (1.6m)

@@ -1,0 +1,7 @@
+{
+  "command": "node --input-type=module - calling messageOutcomes",
+  "result": "interrupted during fixture setup without a test verdict",
+  "signal": "SIGKILL after SIGTERM did not finish",
+  "reason": "stdin invocation stalled; repeated as a named script file using the same assertions",
+  "claimedPassing": false
+}

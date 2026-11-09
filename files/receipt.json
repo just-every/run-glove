@@ -1,0 +1,447 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f215",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f215",
+  "head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "mainObserved": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "mainEqualsCandidate": false,
+  "mainIsAncestor": true,
+  "pr": null,
+  "statusRows": {
+    "partial": 193,
+    "done": 41,
+    "missing": 29
+  },
+  "contractChanged": false,
+  "generatedViewsChanged": false,
+  "productionPathsChanged": false,
+  "inventory": {
+    "before": 202,
+    "after": 200,
+    "limit": 200
+  },
+  "mainCi": {
+    "Verify": 42611312391,
+    "VerifyConclusion": "success",
+    "Run site": 42611312355,
+    "RunSiteConclusion": "success",
+    "sha": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8"
+  },
+  "candidateCi": {
+    "head_sha": "643c64323dee88c18e5b2fc542f1da730c92112f",
+    "status": "unobserved",
+    "conclusion": null,
+    "runId": null,
+    "reason": "ten GitHub calls exhausted; ordinary push entry point is configured"
+  },
+  "local": {
+    "payrollFiles": {
+      "exit": 0,
+      "log": "payroll-files.log",
+      "points": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "nativeProbes": {
+      "exit": 0,
+      "receipt": "probes.json"
+    },
+    "mechanical": [
+      {
+        "command": [
+          "node",
+          "scripts/contract-docs.mjs",
+          "write",
+          "--clauses",
+          "TEAM-006"
+        ],
+        "exit": 0,
+        "log": "mechanical-1.log",
+        "node": "22.20.0"
+      },
+      {
+        "command": [
+          "node",
+          "scripts/contract-docs.mjs",
+          "check"
+        ],
+        "exit": 0,
+        "log": "mechanical-2.log",
+        "node": "22.20.0"
+      },
+      {
+        "command": [
+          "git",
+          "checkout",
+          "origin/main",
+          "--",
+          "ACCEPTANCE.md",
+          "docs/CLAIMS.md"
+        ],
+        "exit": 0,
+        "log": "mechanical-3.log",
+        "node": "22.20.0"
+      },
+      {
+        "command": [
+          "node",
+          "scripts/edition-authoring/cli.mjs",
+          "lock"
+        ],
+        "exit": 0,
+        "log": "mechanical-4.log",
+        "node": "22.20.0"
+      },
+      {
+        "command": [
+          "node",
+          "scripts/edition-authoring/cli.mjs",
+          "check"
+        ],
+        "exit": 0,
+        "log": "mechanical-5.log",
+        "node": "22.20.0"
+      },
+      {
+        "command": [
+          "pnpm",
+          "typecheck"
+        ],
+        "exit": 0,
+        "log": "mechanical-6.log",
+        "node": "22.20.0"
+      },
+      {
+        "command": [
+          "node",
+          "tests/inventory.mjs"
+        ],
+        "exit": 0,
+        "log": "mechanical-7.log",
+        "node": "22.20.0"
+      },
+      {
+        "command": [
+          "npx",
+          "-y",
+          "@runeditrun/rer",
+          "check",
+          "--profile",
+          "first-party"
+        ],
+        "exit": 0,
+        "log": "mechanical-8.log",
+        "node": "22.20.0"
+      }
+    ],
+    "broaderEmail": {
+      "candidateNode24": {
+        "exit": 1,
+        "log": "api.log",
+        "error": "200 != 401 for future SNS timestamp"
+      },
+      "mainNode24": {
+        "exit": 1,
+        "log": "email-main.log",
+        "error": "401 != 429 at rejected-IP threshold"
+      },
+      "candidateNode22": {
+        "exit": 1,
+        "log": "api-pinned.log",
+        "error": "401 != 429 at same rejected-IP threshold"
+      },
+      "classification": "pre-existing shared test failure also observed on main; no mail repair",
+      "mainNode22": {
+        "schema": 1,
+        "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+        "command": [
+          "node",
+          "--test",
+          "--test-concurrency=1",
+          "tests/api/email.test.mjs"
+        ],
+        "node": "22.20.0",
+        "started": "2026-11-09T12:42:50.000215+00:00",
+        "ended": "2026-11-09T12:46:03.085115+00:00",
+        "exit": 0,
+        "log": "email-main-pinned.log"
+      }
+    },
+    "browser": {
+      "schema": 1,
+      "head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+      "started": "2026-11-09T13:09:47.150Z",
+      "ended": "2026-11-09T13:11:44.871Z",
+      "command": [
+        "playwright",
+        "test",
+        "--config",
+        "tests/browser/playwright.config.ts",
+        "--workers=1",
+        "tests/browser/journey.spec.ts",
+        "--grep",
+        "COST-001 / COST-002"
+      ],
+      "exit": 0,
+      "widths": [
+        1440,
+        390
+      ],
+      "chromium": "/usr/bin/chromium",
+      "log": "browser-current.log",
+      "screenshotsAndDownloads": [
+        "screenshots/1440-commission-adp-run.csv",
+        "screenshots/1440-commission-gusto.csv",
+        "screenshots/1440-commission-quickbooks.csv",
+        "screenshots/1440-desk-commission-downloads.png",
+        "screenshots/1440-desk-commission-timesheets.png",
+        "screenshots/390-commission-adp-run.csv",
+        "screenshots/390-commission-gusto.csv",
+        "screenshots/390-commission-quickbooks.csv",
+        "screenshots/390-desk-commission-downloads.png",
+        "screenshots/390-desk-commission-timesheets.png"
+      ]
+    },
+    "sourceLockFinalExit": 0,
+    "contractViewsFinalExit": 0,
+    "payrollExact": {
+      "schema": 1,
+      "head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/payroll-files.test.mjs"
+      ],
+      "started": "2026-11-09T13:08:05.331322+00:00",
+      "ended": "2026-11-09T13:09:03.396267+00:00",
+      "exit": 0,
+      "node": "22.20.0",
+      "log": "payroll-exact.log"
+    },
+    "diffHygiene": {
+      "schema": 1,
+      "head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+      "addedEmailShapedStrings": 0,
+      "contractDeltaBytes": 0,
+      "productionDeltaBytes": 0,
+      "diffCheckExit": 0,
+      "publicationScanner": "not run; fleet responsibility"
+    },
+    "mainPlan010": {
+      "schema": 1,
+      "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+      "command": [
+        "node",
+        "--test",
+        "--test-name-pattern",
+        "^PLAN-010 bearer custody survives restart",
+        "tests/api/due-visit-offers.test.mjs"
+      ],
+      "node": "22.20.0",
+      "started": "2026-11-09T12:48:33.333482+00:00",
+      "ended": "2026-11-09T12:48:53.622467+00:00",
+      "exit": 0,
+      "log": "ci-main-probe.log"
+    },
+    "messageOutcomesClockRepair": {
+      "command": [
+        "node",
+        "/home/agent/rer-consolidation/work/sx-glove-c-f215/message-outcomes-check.mjs"
+      ],
+      "exit": 0,
+      "node": "22.20.0",
+      "ended": "2026-11-09T13:05:34.690660+00:00",
+      "sourcesMatchCandidate": true,
+      "sourceSha256": {
+        "tests/api/harness.mjs": "79dd49bc5f48a62a4bb2d0c263c790d78dfc661da9831f3f089f0b66478364b6",
+        "tests/api/message-outcomes.test.mjs": "57e6d2287b125b12ae1c8c5eaf5a3671d2159e9fc943dce9800cd7570375fd17"
+      }
+    }
+  },
+  "publicationScan": {
+    "commit": "643c64323dee88c18e5b2fc542f1da730c92112f",
+    "complete": false,
+    "historyScanned": false,
+    "findings": null,
+    "status": "NOT RUN IN CLOUD",
+    "responsibility": "fleet guarded lander",
+    "fullHistory": true
+  },
+  "claim": {
+    "clause": "TEAM-006",
+    "status": "PARTIAL",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "judgmentWrite": "guarded lander only",
+    "pending": "Final aggregate Verify unobserved; native acceptance points 1 through 5 locally proven"
+  },
+  "reportedAt": "2026-11-09T13:09:45.758609+00:00",
+  "failedJobs": [
+    {
+      "id": 129156614417,
+      "name": "shards (api-2)",
+      "conclusion": "failure"
+    }
+  ],
+  "logTransport": {
+    "schema": 1,
+    "command": "gh run view 42616113091 --repo just-every/run-glove --job 129156614417 --log-failed",
+    "run": 42616113091,
+    "job": 129156614417,
+    "head": "35785ba0a677a6aa5f603871419bd643df9e883e",
+    "status": "failed to obtain archive",
+    "error": "failed to get run log: stream error: stream ID 1; INTERNAL_ERROR; received from peer",
+    "httpStatus": "not supplied",
+    "exit": "not captured separately from following diagnostic formatter",
+    "retry": "none; one archive invocation only"
+  },
+  "rerun": {
+    "schema": 1,
+    "command": "gh api -X POST repos/just-every/run-glove/actions/runs/42616113091/rerun-failed-jobs",
+    "head": "35785ba0a677a6aa5f603871419bd643df9e883e",
+    "run": 42616113091,
+    "exit": 0,
+    "stdout": "{}",
+    "stderr": "",
+    "reason": "Exact api-2 replay encountered a fetch-failed transport error in unchanged PLAN-010 restart test; that test passes on main. One failed-job rerun only; no product repair. Remote assertion unavailable.",
+    "requestedAt": "2026-11-09T12:49:44.618606+00:00"
+  },
+  "priorCandidateCi": {
+    "id": 42616113091,
+    "event": "push",
+    "conclusion": "failure",
+    "head_sha": "35785ba0a677a6aa5f603871419bd643df9e883e",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42616113091",
+    "status": "completed"
+  },
+  "terminalCustody": "PUSHED",
+  "repairReproduction": {
+    "head": "35785ba0a677a6aa5f603871419bd643df9e883e",
+    "job": "shards (api-2), 129156614417",
+    "command": "CI=true GLOVE_VERIFY_SHARD=api-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 node scripts/verify-ci.mjs api-2",
+    "test": "COMM-016 enclosing COMM-010 points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events",
+    "exit": 124,
+    "failure": "Expected authenticated unmatched response [200,{ok:true}], received [401,{ok:false,error:{code:MAIL_EVENT}}] at tests/api/message-outcomes.test.mjs:168",
+    "boundedReplay": "20-minute timeout after two observed failures; whole shard did not complete",
+    "remoteAssertion": "unknown because archive transport failed",
+    "otherObservedFailure": "PLAN-010 bearer custody test: TypeError: fetch failed"
+  },
+  "gitHubCalls": 10,
+  "priorRerunJobs": {
+    "jobs": [
+      {
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"
+        ],
+        "id": 129170205297,
+        "name": "shards (api-2)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170205530,
+        "name": "build",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "failed_steps": [],
+        "id": 129170205902,
+        "name": "light",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170206773,
+        "name": "shards (browser-2)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170207055,
+        "name": "shards (browser-1)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170207082,
+        "name": "shards (api-1)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170207159,
+        "name": "shards (foundation)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170207392,
+        "name": "shards (portable)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170207699,
+        "name": "shards (browser-3)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170208125,
+        "name": "shards (browser-4)",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "failed_steps": [],
+        "id": 129170255730,
+        "name": "plan",
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "failed_steps": [
+          "Require the selected coverage and its proof"
+        ],
+        "id": 129170416587,
+        "name": "verify",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "failed_steps": [],
+        "id": 129170418030,
+        "name": "nightly-proof",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "failed_steps": [],
+        "id": 129170418454,
+        "name": "full-push-proof",
+        "status": "completed"
+      }
+    ]
+  }
+}

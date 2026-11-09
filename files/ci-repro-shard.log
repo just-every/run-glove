@@ -1,0 +1,493 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /workspace/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --test --test-concurrency=1 'tests/api/arrival-windows.test.mjs' 'tests/api/booking-offer-history.test.mjs' 'tests/api/branches.test.mjs' 'tests/api/calendar-sync.test.mjs' 'tests/api/companycam.test.mjs' 'tests/api/costing.test.mjs' 'tests/api/csv.test.mjs' 'tests/api/customers.test.mjs' 'tests/api/discounts.test.mjs' 'tests/api/documents.test.mjs' 'tests/api/due-visit-offers.test.mjs' 'tests/api/email.test.mjs' 'tests/api/expenses.test.mjs' 'tests/api/fixed-monthly-reports.test.mjs' 'tests/api/forms.test.mjs' 'tests/api/instant-payouts.test.mjs' 'tests/api/live-locations.test.mjs' 'tests/api/merge.test.mjs' 'tests/api/money.test.mjs' 'tests/api/movein.test.mjs' 'tests/api/options.test.mjs' 'tests/api/payout-reconciliation.test.mjs' 'tests/api/payroll.test.mjs' 'tests/api/postmark-custody.test.mjs' 'tests/api/privacy.test.mjs' 'tests/api/push.test.mjs' 'tests/api/quote-link-custody.test.mjs' 'tests/api/records.test.mjs' 'tests/api/refunds.test.mjs' 'tests/api/reports.test.mjs' 'tests/api/routing.test.mjs' 'tests/api/schedule-push.test.mjs' 'tests/api/segments.test.mjs' 'tests/api/service-reports.test.mjs' 'tests/api/servicetitan-memberships.test.mjs' 'tests/api/stock.test.mjs' 'tests/api/subcontractor-field.test.mjs' 'tests/api/tax-evidence.test.mjs' 'tests/api/tokens.test.mjs' 'tests/api/xero.test.mjs'
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: Arrival windows and automatic assignment preserve boundaries, eligibility and refusal state
+ok 1 - Arrival windows and automatic assignment preserve boundaries, eligibility and refusal state
+  ---
+  duration_ms: 45919.587278
+  type: 'test'
+  ...
+# Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes
+# Approved dispatch and move proposals retain exact windows and changed promises require a person
+# Desk requests, crew moves and assessments keep attributable promises through review, replay and Worker restart
+# Series creation, dated revisions and the clock-pinned rolling horizon never create arrival promises
+# Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure
+ok 2 - PLAN-011 lifecycle events retain exact historical attribution after Worker restart without replay disclosure
+  ---
+  duration_ms: 14229.417047
+  type: 'test'
+  ...
+# Subtest: PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states
+ok 3 - PLAN-011 emails one transactional on-record link, refuses unsafe issuance and retains authenticated provider states
+  ---
+  duration_ms: 7379.726805
+  type: 'test'
+  ...
+# Subtest: PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site
+ok 4 - PLAN-011 property histories show exact offer, outside-send, use, revoke and provider message rows only at their own site
+  ---
+  duration_ms: 6494.455747
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings
+ok 5 - TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings
+  ---
+  duration_ms: 79895.511321
+  type: 'test'
+  ...
+# TEAM-004 point 1: every booking door enforces branch and owner area rules without writes on refusal
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 booking root: Main business
+# TEAM-004 booking root: Raleigh
+# TEAM-004 booking root: Phoenix
+# TEAM-004 point 5: cross-branch customer merges preserve every record and same-branch merges succeed
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 point 4: branch-local midnight boundaries and every revenue CSV row survive Worker restart
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 point 6: every populated current report transport selects exactly one branch or main without writes
+# TEAM-004 fixture: starting Worker
+# TEAM-004 fixture: Worker ready
+# TEAM-004 fixture: main business ready
+# TEAM-004 report seed: Main business
+# TEAM-004 report seed: Raleigh
+# TEAM-004 report seed: Phoenix
+# TEAM-004 report read: Main business revenue.json
+# TEAM-004 report read: Main business revenue.csv
+# TEAM-004 report read: Main business technicians.json
+# TEAM-004 report read: Main business technicians.csv
+# TEAM-004 report read: Main business sources.json
+# TEAM-004 report read: Main business sources.csv
+# TEAM-004 report read: Main business quotes.json
+# TEAM-004 report read: Main business quotes.csv
+# TEAM-004 report read: Main business margins.json
+# TEAM-004 report read: Main business margins.csv
+# TEAM-004 report read: Main business tax.json
+# TEAM-004 report read: Main business tax.csv
+# TEAM-004 report read: Main business agreements.json
+# TEAM-004 report read: Main business agreements.csv
+# TEAM-004 report read: Main business receivables.json
+# TEAM-004 report read: Main business receivables.csv
+# TEAM-004 report read: Main business 1099.json
+# TEAM-004 report read: Main business 1099.csv
+# TEAM-004 report read: Main business payroll.json
+# TEAM-004 report read: Main business payroll-gusto.csv
+# TEAM-004 report read: Main business payroll-adp-run.csv
+# TEAM-004 report read: Main business payroll-quickbooks.csv
+# TEAM-004 report read: Main business costing
+# TEAM-004 report read: Main business warranties
+# TEAM-004 report read: Main business refrigerant
+# TEAM-004 report read: Main business sources
+# TEAM-004 report read: Raleigh revenue.json
+# TEAM-004 report read: Raleigh revenue.csv
+# TEAM-004 report read: Raleigh technicians.json
+# TEAM-004 report read: Raleigh technicians.csv
+# TEAM-004 report read: Raleigh sources.json
+# TEAM-004 report read: Raleigh sources.csv
+# TEAM-004 report read: Raleigh quotes.json
+# TEAM-004 report read: Raleigh quotes.csv
+# TEAM-004 report read: Raleigh margins.json
+# TEAM-004 report read: Raleigh margins.csv
+# TEAM-004 report read: Raleigh tax.json
+# TEAM-004 report read: Raleigh tax.csv
+# TEAM-004 report read: Raleigh agreements.json
+# TEAM-004 report read: Raleigh agreements.csv
+# TEAM-004 report read: Raleigh receivables.json
+# TEAM-004 report read: Raleigh receivables.csv
+# TEAM-004 report read: Raleigh 1099.json
+# TEAM-004 report read: Raleigh 1099.csv
+# TEAM-004 report read: Raleigh payroll.json
+# TEAM-004 report read: Raleigh payroll-gusto.csv
+# TEAM-004 report read: Raleigh payroll-adp-run.csv
+# TEAM-004 report read: Raleigh payroll-quickbooks.csv
+# TEAM-004 report read: Raleigh costing
+# TEAM-004 report read: Raleigh warranties
+# TEAM-004 report read: Raleigh refrigerant
+# TEAM-004 report read: Raleigh sources
+# TEAM-004 report read: Phoenix revenue.json
+# TEAM-004 report read: Phoenix revenue.csv
+# TEAM-004 report read: Phoenix technicians.json
+# TEAM-004 report read: Phoenix technicians.csv
+# TEAM-004 report read: Phoenix sources.json
+# TEAM-004 report read: Phoenix sources.csv
+# TEAM-004 report read: Phoenix quotes.json
+# TEAM-004 report read: Phoenix quotes.csv
+# TEAM-004 report read: Phoenix margins.json
+# TEAM-004 report read: Phoenix margins.csv
+# TEAM-004 report read: Phoenix tax.json
+# TEAM-004 report read: Phoenix tax.csv
+# TEAM-004 report read: Phoenix agreements.json
+# TEAM-004 report read: Phoenix agreements.csv
+# TEAM-004 report read: Phoenix receivables.json
+# TEAM-004 report read: Phoenix receivables.csv
+# TEAM-004 report read: Phoenix 1099.json
+# TEAM-004 report read: Phoenix 1099.csv
+# TEAM-004 report read: Phoenix payroll.json
+# TEAM-004 report read: Phoenix payroll-gusto.csv
+# TEAM-004 report read: Phoenix payroll-adp-run.csv
+# TEAM-004 report read: Phoenix payroll-quickbooks.csv
+# TEAM-004 report read: Phoenix costing
+# TEAM-004 report read: Phoenix warranties
+# TEAM-004 report read: Phoenix refrigerant
+# TEAM-004 report read: Phoenix sources
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing
+ok 6 - DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing
+  ---
+  duration_ms: 29793.037536
+  type: 'test'
+  ...
+# Subtest: DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent
+ok 7 - DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent
+  ---
+  duration_ms: 17048.316667
+  type: 'test'
+  ...
+# Subtest: DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees
+ok 8 - DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees
+  ---
+  duration_ms: 12326.051657
+  type: 'test'
+  ...
+# Subtest: DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed
+ok 9 - DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed
+  ---
+  duration_ms: 24729.748111
+  type: 'test'
+  ...
+# Subtest: DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately
+ok 10 - DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately
+  ---
+  duration_ms: 30205.140961
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+ok 11 - DATA-002, DATA-009, DATA-010 / API-004, API-008 CompanyCam project photos flow both ways once, with address checks, private keys and honest uncertain outcomes
+  ---
+  duration_ms: 13792.316562
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COST-004 a $1,850 job retains frozen estimates and approved revenue through actual costs and restart
+ok 12 - COST-004 a $1,850 job retains frozen estimates and approved revenue through actual costs and restart
+  ---
+  duration_ms: 8483.419771
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: CUST-003: a 500-row customer CSV previews, commits, undoes, and the export re-imports unchanged
+ok 13 - CUST-003: a 500-row customer CSV previews, commits, undoes, and the export re-imports unchanged
+  ---
+  duration_ms: 29183.027723
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: CUST-001: each property has its whole history, and a business customer bills apart from its sites
+ok 14 - CUST-001: each property has its whole history, and a business customer bills apart from its sites
+  ---
+  duration_ms: 55292.897718
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: Owner discounts retain exact rounding, boundaries, ordered allocation, authority and downstream figures
+ok 15 - Owner discounts retain exact rounding, boundaries, ordered allocation, authority and downstream figures
+  ---
+  duration_ms: 104866.390856
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images
+ok 16 - QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images
+  ---
+  duration_ms: 10304.969314
+  type: 'test'
+  ...
+# QUOTE-005, QUOTE-015 customer quote documents freeze branding, owner templates, line descriptions and only their scoped original images
+# QUOTE-005, QUOTE-015 desk invoice and agreement projections use identity and descriptions without granting public or technician access
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-010 desk issuance enforces slot bounds, current permissions and outstanding entitlement state while preserving included ordinals
+ok 17 - PLAN-010 desk issuance enforces slot bounds, current permissions and outstanding entitlement state while preserving included ordinals
+  ---
+  duration_ms: 12813.033989
+  type: 'test'
+  ...
+# Subtest: PLAN-010 bearer custody survives restart, expires at the runtime boundary and ends atomically on use or staff revocation
+not ok 18 - PLAN-010 bearer custody survives restart, expires at the runtime boundary and ends atomically on use or staff revocation
+  ---
+  duration_ms: 24477.805276
+  type: 'test'
+  location: '[REDACTED]/tests/api/due-visit-offers.test.mjs:130:1'
+  failureType: 'testCodeFailure'
+  error: 'fetch failed'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    Object.processResponse ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+    [REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+    node:internal/process/task_queues:151:7
+    AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:148:8)
+    [REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+    async MessagePort.<anonymous> ([worker eval]:32:22)
+  ...
+# Subtest: PLAN-010 customer choices use live offering authority and refuse deactivation, role withdrawal, branch exclusion and erased replay
+ok 19 - PLAN-010 customer choices use live offering authority and refuse deactivation, role withdrawal, branch exclusion and erased replay
+  ---
+  duration_ms: 18682.156431
+  type: 'test'
+  ...
+# Subtest: PLAN-010 public reads and choices repeat conflicts, disclose only remaining offers and keep exhausted visits due
+ok 20 - PLAN-010 public reads and choices repeat conflicts, disclose only remaining offers and keep exhausted visits due
+  ---
+  duration_ms: 8184.039122
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+not ok 21 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+  ---
+  duration_ms: 231760.298996
+  type: 'test'
+  location: '[REDACTED]/tests/api/email.test.mjs:20:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+    +   401,
+    -   200,
+        {
+    +     error: {
+    +       code: 'MAIL_EVENT',
+    +       message: 'Not accepted: the signature, the event form or the message it names did not match.'
+    +     },
+    +     ok: false
+    -     ok: true
+        }
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 200
+    1:
+      ok: true
+  actual:
+    0: 401
+    1:
+      ok: false
+      error:
+        code: 'MAIL_EVENT'
+        message: 'Not accepted: the signature, the event form or the message it names did not match.'
+  operator: 'deepStrictEqual'
+  stack: |-
+    file://[REDACTED]/tests/api/message-outcomes.test.mjs:168:16
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async scenario (file://[REDACTED]/tests/fixtures/scenario.mjs:8:5)
+    async file://[REDACTED]/tests/api/message-outcomes.test.mjs:162:5
+    async scenario (file://[REDACTED]/tests/fixtures/scenario.mjs:8:5)
+    async messageOutcomes (file://[REDACTED]/tests/api/message-outcomes.test.mjs:12:3)
+    async TestContext.<anonymous> (file://[REDACTED]/tests/api/email.test.mjs:483:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+# COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 SES and SNS pins topic, region, configuration set and tag, verifies signatures v1 and v2, certificates and freshness before effects or subscription fetches, and deduplicates both IDs
+# COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart
+# point 6: independent address warnings survive other-address delivery, refusal and failed attempts until same-address delivery or an address change
+# points 1 and 2: SendGrid sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: SendGrid authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: SendGrid failures retain exact user text, next steps and attributable provider references
+# point 7: SendGrid messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Resend sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Resend authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Resend failures retain exact user text, next steps and attributable provider references
+# point 7: Resend messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Postmark sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Postmark authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# points 3 and 5: Postmark failures retain exact user text, next steps and attributable provider references
+# point 7: Postmark messages read as outbound conversation entries with their author, recipient and provider state
+# points 1 and 2: Amazon SES sends committed quote, invoice, purchase order and booking link exactly once with safe message metadata
+# points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: COST-003 a billable supply-house receipt with 20% markup and a non-billable permit fee reach the invoice draft and job cost
+ok 22 - COST-003 a billable supply-house receipt with 20% markup and a non-billable permit fee reach the invoice draft and job cost
+  ---
+  duration_ms: 6441.205419
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+ok 23 - REPORT-004 fixed-monthly reports freeze three local period ends across approval, correction, export and Worker restart
+  ---
+  duration_ms: 18211.325718
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: FIELD-002 an HVAC inspection form with a conditional question and a reading range flags an out-of-range reading on the job and the equipment
+ok 24 - FIELD-002 an HVAC inspection form with a conditional question and a reading range flags an out-of-range reading on the job and the equipment
+  ---
+  duration_ms: 8293.019739
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PAY-026 Owner Instant Payout qualification, reservation and reconciliation
+ok 25 - PAY-026 Owner Instant Payout qualification, reservation and reconciliation
+  ---
+  duration_ms: 71044.697785
+  type: 'test'
+  ...
+# PAY-026 point 1: Owner pricing, independent cent boundaries and unsafe previews
+# PAY-026 point 2: explicit amounts and exact clock expiry recheck every mutable prerequisite
+# PAY-026 point 3: durable reservation and retained key precede one concurrent request
+# PAY-026 point 4: lost and unreachable answers remain reserved through replay, cron and Worker restart
+# PAY-026 point 5: confirmed sources cannot enter another preview, confirmation or manual allocation
+# PAY-026 point 6: actual debit, original allocation and fee must match the confirmed preview on every inspection
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart
+ok 26 - DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart
+  ---
+  duration_ms: 9763.824501
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position
+ok 27 - DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position
+  ---
+  duration_ms: 10491.173628
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing
+ok 28 - DISP-005 point 3: only the linked technician current built-in session changes consent and every missing work condition stores nothing
+  ---
+  duration_ms: 7810.72041
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers
+ok 29 - DISP-005 point 5: only unscoped owner connects one numeric Samsara vehicle and explicit fixed-host reads refuse missing work or provider answers
+  ---
+  duration_ms: 6544.09516
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix
+ok 30 - DISP-005 point 6: stale, premature, future and withdrawn-authority captures refuse without replacing the current fix
+  ---
+  duration_ms: 5526.779644
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions
+ok 31 - DISP-005 point 7: latest-only storage survives restart, older fixes lose and every expiry or work withdrawal removes transient positions
+  ---
+  duration_ms: 5145.689519
+  type: 'test'
+  ...
+# Subtest: DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export
+ok 32 - DISP-005 point 8: attributable consent, fleet and capture history survives restart without coordinates or keys in state, outcomes, logs or business export
+  ---
+  duration_ms: 5720.429528
+  type: 'test'
+  ...
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+ok 33 - CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+  ---
+  duration_ms: 11310.386837
+  type: 'test'
+  ...
+# CUST-005: nine customers sharing a phone are flagged, merged into one and unmerged
+# CUST-005: the move-in preview flags incoming customers that duplicate Glove customers
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+ok 34 - DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+  ---
+  duration_ms: 22824.473618
+  type: 'test'
+  ...
+# DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports
+# MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+ ELIFECYCLE  Command failed.

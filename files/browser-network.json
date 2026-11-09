@@ -1,0 +1,5336 @@
+[
+  {
+    "path": "/__dev/key",
+    "status": 200,
+    "ms": 203
+  },
+  {
+    "path": "/rer-theme.css",
+    "status": 200,
+    "ms": 9
+  },
+  {
+    "path": "/fonts/fonts.css",
+    "status": 200,
+    "ms": 9
+  },
+  {
+    "path": "/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 9
+  },
+  {
+    "path": "/brand/mark.svg",
+    "status": 200,
+    "ms": 121
+  },
+  {
+    "path": "/fonts/figtree/figtree-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 122
+  },
+  {
+    "path": "/__dev/key",
+    "status": 204,
+    "ms": 108
+  },
+  {
+    "path": "/__dev/key",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "path": "/auth/dev/enter",
+    "status": 303,
+    "ms": 74
+  },
+  {
+    "path": "/app",
+    "status": 200,
+    "ms": 105
+  },
+  {
+    "path": "/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 0
+  },
+  {
+    "path": "/fonts/fonts.css",
+    "status": 304,
+    "ms": 8
+  },
+  {
+    "path": "/@id/virtual:tanstack-start-dev-client-entry",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/rer-theme.css",
+    "status": 304,
+    "ms": 12
+  },
+  {
+    "path": "/@tanstack-start/styles.css",
+    "status": 200,
+    "ms": 127
+  },
+  {
+    "path": "/fonts/figtree/figtree-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 0
+  },
+  {
+    "path": "/@react-refresh",
+    "status": 200,
+    "ms": 35
+  },
+  {
+    "path": "/@vite/client",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/vite@8.2.2_@types+node@22.18.6_esbuild@0.28.1_jiti@2.7.0/node_modules/vite/dist/client/env.mjs",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/src/client.tsx",
+    "status": 200,
+    "ms": 24
+  },
+  {
+    "path": "/brand/favicon-32.svg",
+    "status": 200,
+    "ms": 1
+  },
+  {
+    "path": "/node_modules/.vite/deps/react.js",
+    "status": 200,
+    "ms": 18
+  },
+  {
+    "path": "/node_modules/.vite/deps/rolldown-runtime-BvCyGRYZ.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/esm/client.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/src/base/hydration/report.ts",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-dev-runtime.js",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/index.js",
+    "status": 200,
+    "ms": 19
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/StartClient.js",
+    "status": 200,
+    "ms": 9
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/hydrateStart.js",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/index.js",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.dev.js",
+    "status": 200,
+    "ms": 20
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-runtime.js",
+    "status": 200,
+    "ms": 20
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/hydrateStart.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/utils.js",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom_client.js",
+    "status": 200,
+    "ms": 186
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouter.js",
+    "status": 200,
+    "ms": 13
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/awaited.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/CatchBoundary.js",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ClientOnly.js",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useMatch.js",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderData.js",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderDeps.js",
+    "status": 200,
+    "ms": 27
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useParams.js",
+    "status": 200,
+    "ms": 29
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouteContext.js",
+    "status": 200,
+    "ms": 23
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useSearch.js",
+    "status": 200,
+    "ms": 24
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useNavigate.js",
+    "status": 200,
+    "ms": 25
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/link.js",
+    "status": 200,
+    "ms": 29
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/route.js",
+    "status": 200,
+    "ms": 29
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/fileRoute.js",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/lazyRouteComponent.js",
+    "status": 200,
+    "ms": 32
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScriptOnce.js",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Match.js",
+    "status": 200,
+    "ms": 40
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 40
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/router.js",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/RouterProvider.js",
+    "status": 200,
+    "ms": 45
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScrollRestoration.js",
+    "status": 200,
+    "ms": 48
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLocation.js",
+    "status": 200,
+    "ms": 54
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouterState.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useCanGoBack.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useBlocker.js",
+    "status": 200,
+    "ms": 66
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Asset.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/headContentUtils.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Scripts.js",
+    "status": 200,
+    "ms": 71
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.js",
+    "status": 200,
+    "ms": 77
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/ServerFunctionSerializationAdapter.js",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/empty-plugin-adapters.js",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/plugin/default-entry/start.ts",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.dev.js",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/client.js",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/router.tsx",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/isServer/development.js",
+    "status": 200,
+    "ms": 102
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerContext.js",
+    "status": 200,
+    "ms": 105
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom.js",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/nonRouteComponentContext.js",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/matchContext.js",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/index.js",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/renderRouteNotFound.js",
+    "status": 200,
+    "ms": 78
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.vite/deps/@tanstack_react-router_n_@tanstack_react-store.js",
+    "status": 200,
+    "ms": 119
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerStores.js",
+    "status": 200,
+    "ms": 82
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.js",
+    "status": 200,
+    "ms": 49
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Transitioner.js",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+history@1.162.4/node_modules/@tanstack/history/dist/esm/index.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/createClientRpc.js",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/constants.js",
+    "status": 200,
+    "ms": 37
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-client.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/makeSerovalPlugin.js",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/headers.js",
+    "status": 200,
+    "ms": 59
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/json.js",
+    "status": 200,
+    "ms": 59
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/seroval-plugins.js",
+    "status": 200,
+    "ms": 59
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamRPCPlugin.js",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/src/routeTree.gen.ts",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/utils.js",
+    "status": 200,
+    "ms": 73
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/invariant.js",
+    "status": 200,
+    "ms": 73
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/path.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-server.js",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/root.js",
+    "status": 200,
+    "ms": 77
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/qss.js",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchParams.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/redirect.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/stores.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/rewrite.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/defer.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/manifest.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/config.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/router.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/route.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/bodyScripts.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/link.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchMiddleware.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/transformer.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration-script/client.js",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getStartOptions.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStream.js",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/serverFnFetcher.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/ssr-match-id.js",
+    "status": 200,
+    "ms": 45
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/ShallowErrorPlugin.js",
+    "status": 200,
+    "ms": 47
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web.js",
+    "status": 200,
+    "ms": 67
+  },
+  {
+    "path": "/node_modules/.pnpm/cookie-es@3.1.1/node_modules/cookie-es/dist/index.mjs",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamJSONPlugin.js",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/src/routes/__root.tsx",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/src/routes/book.tsx",
+    "status": 200,
+    "ms": 71
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval@1.6.7/node_modules/seroval/dist/dev/index.js",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/routes/document.tsx",
+    "status": 200,
+    "ms": 73
+  },
+  {
+    "path": "/src/routes/email-preferences.tsx",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/src/routes/report.tsx",
+    "status": 200,
+    "ms": 88
+  },
+  {
+    "path": "/src/routes/technician-photo.tsx",
+    "status": 200,
+    "ms": 88
+  },
+  {
+    "path": "/src/routes/request.tsx",
+    "status": 200,
+    "ms": 88
+  },
+  {
+    "path": "/src/routes/quote.tsx",
+    "status": 200,
+    "ms": 88
+  },
+  {
+    "path": "/src/routes/visit.tsx",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getDefaultSerovalPlugins.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/await-signal.js",
+    "status": 200,
+    "ms": 65
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/sieve-cache.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/frame-decoder.js",
+    "status": 200,
+    "ms": 66
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/new-process-route-tree.js",
+    "status": 200,
+    "ms": 66
+  },
+  {
+    "path": "/src/base/font-head.ts",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/rawStreamCodec.js",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/src/base/page-style.ts",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/src/base/hydration/intro-guard.ts",
+    "status": 200,
+    "ms": 34
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web-CWqRG00W.js",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/src/base/select-style.ts",
+    "status": 200,
+    "ms": 1
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/rolldown-runtime-D7D4PA-g.js",
+    "status": 200,
+    "ms": 2
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/src/base/hydration/unit.tsx",
+    "status": 200,
+    "ms": 7
+  },
+  {
+    "path": "/src/ui/app.tsx",
+    "status": 200,
+    "ms": 9
+  },
+  {
+    "path": "/src/ui/website-requests.tsx",
+    "status": 200,
+    "ms": 47
+  },
+  {
+    "path": "/src/ui/sms-inbox.tsx",
+    "status": 200,
+    "ms": 47
+  },
+  {
+    "path": "/src/ui/api.ts",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/src/ui/controls.tsx",
+    "status": 200,
+    "ms": 51
+  },
+  {
+    "path": "/src/ui/glyphs.tsx",
+    "status": 200,
+    "ms": 51
+  },
+  {
+    "path": "/src/ui/dispatch.tsx",
+    "status": 200,
+    "ms": 50
+  },
+  {
+    "path": "/src/ui/quotes.tsx",
+    "status": 200,
+    "ms": 51
+  },
+  {
+    "path": "/src/ui/jobs.tsx",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/src/ui/invoices.tsx",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/src/ui/customers.tsx",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/src/ui/movein.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/ui/reports.tsx",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/src/ui/activity.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/ui/team.tsx",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/ui/stock.tsx",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/ui/today.tsx",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/ui/offline-day.ts",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/style/index.ts",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/push.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/rules.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/technician.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/costing.tsx",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/ui/roles.ts",
+    "status": 200,
+    "ms": 67
+  },
+  {
+    "path": "/src/ui/icon-button.tsx",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/src/ui/document-image.tsx",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/src/ui/privacy-cache.ts",
+    "status": 200,
+    "ms": 71
+  },
+  {
+    "path": "/src/ui/route-optimization.tsx",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/src/ui/dispatch-cards.tsx",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/src/ui/dispatch-board.tsx",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/src/ui/branches.tsx",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/src/ui/due-visits.tsx",
+    "status": 200,
+    "ms": 82
+  },
+  {
+    "path": "/src/ui/visit-panel.tsx",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/src/ui/dispatch-map.tsx",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/src/ui/quote-followup-tasks.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/ui/source-notes.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/ui/documents.tsx",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/src/ui/financing.tsx",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/ui/quote-deposit.tsx",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/src/ui/lead-connections.tsx",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/src/ui/quote-links.tsx",
+    "status": 200,
+    "ms": 103
+  },
+  {
+    "path": "/src/ui/document-email.tsx",
+    "status": 200,
+    "ms": 103
+  },
+  {
+    "path": "/src/ui/service-call.tsx",
+    "status": 200,
+    "ms": 103
+  },
+  {
+    "path": "/src/ui/options.tsx",
+    "status": 200,
+    "ms": 107
+  },
+  {
+    "path": "/src/ui/assessment.tsx",
+    "status": 200,
+    "ms": 110
+  },
+  {
+    "path": "/src/ui/visit-response.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/service-report-links.tsx",
+    "status": 200,
+    "ms": 132
+  },
+  {
+    "path": "/src/ui/companycam.tsx",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/src/ui/expenses.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/forms.tsx",
+    "status": 200,
+    "ms": 133
+  },
+  {
+    "path": "/src/ui/series.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/clock.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/conversation.tsx",
+    "status": 200,
+    "ms": 145
+  },
+  {
+    "path": "/src/ui/nameplates.tsx",
+    "status": 200,
+    "ms": 146
+  },
+  {
+    "path": "/src/ui/custom-fields.tsx",
+    "status": 200,
+    "ms": 153
+  },
+  {
+    "path": "/src/ui/quickbooks.tsx",
+    "status": 200,
+    "ms": 142
+  },
+  {
+    "path": "/src/ui/invoice-progress.tsx",
+    "status": 200,
+    "ms": 146
+  },
+  {
+    "path": "/src/ui/payouts.tsx",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/src/ui/quickbooks-payload.tsx",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/src/ui/invoice-payments.tsx",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/src/ui/invoice-batch.tsx",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/src/ui/tax-totals.tsx",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/src/ui/lines.tsx",
+    "status": 200,
+    "ms": 146
+  },
+  {
+    "path": "/src/ui/discount.tsx",
+    "status": 200,
+    "ms": 149
+  },
+  {
+    "path": "/src/ui/customer-hub-preview.tsx",
+    "status": 200,
+    "ms": 149
+  },
+  {
+    "path": "/src/ui/customer-sms.tsx",
+    "status": 200,
+    "ms": 142
+  },
+  {
+    "path": "/src/ui/tax-exemption.tsx",
+    "status": 200,
+    "ms": 142
+  },
+  {
+    "path": "/src/ui/tax-settings.tsx",
+    "status": 200,
+    "ms": 151
+  },
+  {
+    "path": "/src/ui/equipment.tsx",
+    "status": 200,
+    "ms": 151
+  },
+  {
+    "path": "/src/ui/privacy.tsx",
+    "status": 200,
+    "ms": 152
+  },
+  {
+    "path": "/src/ui/property-history.tsx",
+    "status": 200,
+    "ms": 152
+  },
+  {
+    "path": "/src/ui/duplicates.tsx",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/src/ui/agreements.tsx",
+    "status": 200,
+    "ms": 162
+  },
+  {
+    "path": "/src/ui/csv-import.tsx",
+    "status": 200,
+    "ms": 161
+  },
+  {
+    "path": "/src/ui/field-invoices.tsx",
+    "status": 200,
+    "ms": 162
+  },
+  {
+    "path": "/src/ui/receivables.tsx",
+    "status": 200,
+    "ms": 172
+  },
+  {
+    "path": "/src/ui/subcontract.tsx",
+    "status": 200,
+    "ms": 172
+  },
+  {
+    "path": "/src/ui/timesheets.tsx",
+    "status": 200,
+    "ms": 173
+  },
+  {
+    "path": "/src/ui/calendar-sync.tsx",
+    "status": 200,
+    "ms": 176
+  },
+  {
+    "path": "/src/ui/customer-email.tsx",
+    "status": 200,
+    "ms": 177
+  },
+  {
+    "path": "/src/ui/message-templates.tsx",
+    "status": 200,
+    "ms": 179
+  },
+  {
+    "path": "/src/ui/custom-roles.tsx",
+    "status": 200,
+    "ms": 180
+  },
+  {
+    "path": "/src/ui/tax-lookup.tsx",
+    "status": 200,
+    "ms": 183
+  },
+  {
+    "path": "/src/ui/integration-tokens.tsx",
+    "status": 200,
+    "ms": 183
+  },
+  {
+    "path": "/src/ui/availability.tsx",
+    "status": 200,
+    "ms": 191
+  },
+  {
+    "path": "/src/ui/agent-grants.tsx",
+    "status": 200,
+    "ms": 193
+  },
+  {
+    "path": "/src/ui/price-book.tsx",
+    "status": 200,
+    "ms": 196
+  },
+  {
+    "path": "/src/ui/morning-brief.tsx",
+    "status": 200,
+    "ms": 202
+  },
+  {
+    "path": "/src/ui/style/shell.css",
+    "status": 200,
+    "ms": 191
+  },
+  {
+    "path": "/src/ui/identity.tsx",
+    "status": 200,
+    "ms": 202
+  },
+  {
+    "path": "/src/ui/purchasing.tsx",
+    "status": 200,
+    "ms": 227
+  },
+  {
+    "path": "/src/ui/style/controls.css",
+    "status": 200,
+    "ms": 216
+  },
+  {
+    "path": "/src/ui/style/records.css",
+    "status": 200,
+    "ms": 216
+  },
+  {
+    "path": "/src/ui/style/technician.css",
+    "status": 200,
+    "ms": 218
+  },
+  {
+    "path": "/src/ui/style/dispatch.css",
+    "status": 200,
+    "ms": 218
+  },
+  {
+    "path": "/src/ui/outbox.ts",
+    "status": 200,
+    "ms": 216
+  },
+  {
+    "path": "/src/ui/photos.ts",
+    "status": 200,
+    "ms": 216
+  },
+  {
+    "path": "/src/ui/phone-location.tsx",
+    "status": 200,
+    "ms": 218
+  },
+  {
+    "path": "/src/ui/visit-status-notices.tsx",
+    "status": 200,
+    "ms": 217
+  },
+  {
+    "path": "/src/ui/technician-portrait.tsx",
+    "status": 200,
+    "ms": 217
+  },
+  {
+    "path": "/src/glove/document-format.ts",
+    "status": 200,
+    "ms": 181
+  },
+  {
+    "path": "/src/glove/mercator.ts",
+    "status": 200,
+    "ms": 183
+  },
+  {
+    "path": "/src/ui/documents.css",
+    "status": 200,
+    "ms": 182
+  },
+  {
+    "path": "/src/ui/quote-signing.tsx",
+    "status": 200,
+    "ms": 166
+  },
+  {
+    "path": "/src/ui/service-report.tsx",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/src/ui/booking-offers.tsx",
+    "status": 200,
+    "ms": 189
+  },
+  {
+    "path": "/src/ui/decline-visit.tsx",
+    "status": 200,
+    "ms": 189
+  },
+  {
+    "path": "/src/ui/field-invoices.css",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/src/ui/saved-card-payment.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/glove/recurrence.ts",
+    "status": 200,
+    "ms": 130
+  },
+  {
+    "path": "/src/ui/quickbooks-review.tsx",
+    "status": 200,
+    "ms": 108
+  },
+  {
+    "path": "/src/glove/csv-format.ts",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/src/ui/review-email.tsx",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/src/glove/model.ts",
+    "status": 200,
+    "ms": 0
+  },
+  {
+    "path": "/src/ui/saved-card-registration.tsx",
+    "status": 200,
+    "ms": 1
+  },
+  {
+    "path": "/api/glove/state",
+    "status": 200,
+    "ms": 110
+  },
+  {
+    "path": "/brand/mark.svg",
+    "status": 304,
+    "ms": 3
+  },
+  {
+    "path": "/app",
+    "status": 200,
+    "ms": 110
+  },
+  {
+    "path": "/fonts/fonts.css",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/rer-theme.css",
+    "status": 200,
+    "ms": 19
+  },
+  {
+    "path": "/@id/virtual:tanstack-start-dev-client-entry",
+    "status": 200,
+    "ms": 22
+  },
+  {
+    "path": "/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 29
+  },
+  {
+    "path": "/@tanstack-start/styles.css",
+    "status": 200,
+    "ms": 123
+  },
+  {
+    "error": "TypeError: performance.addEventListener is not a function"
+  },
+  {
+    "path": "/@react-refresh",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/@vite/client",
+    "status": 200,
+    "ms": 28
+  },
+  {
+    "path": "/node_modules/.pnpm/vite@8.2.2_@types+node@22.18.6_esbuild@0.28.1_jiti@2.7.0/node_modules/vite/dist/client/env.mjs",
+    "status": 200,
+    "ms": 5
+  },
+  {
+    "path": "/src/client.tsx",
+    "status": 200,
+    "ms": 21
+  },
+  {
+    "path": "/brand/favicon-32.svg",
+    "status": 200,
+    "ms": 25
+  },
+  {
+    "path": "/node_modules/.vite/deps/react.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/esm/client.js",
+    "status": 200,
+    "ms": 110
+  },
+  {
+    "path": "/src/base/hydration/report.ts",
+    "status": 200,
+    "ms": 110
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-dev-runtime.js",
+    "status": 200,
+    "ms": 115
+  },
+  {
+    "path": "/node_modules/.vite/deps/rolldown-runtime-BvCyGRYZ.js",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/index.js",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/hydrateStart.js",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/StartClient.js",
+    "status": 200,
+    "ms": 17
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/index.js",
+    "status": 200,
+    "ms": 8
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.dev.js",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-runtime.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom_client.js",
+    "status": 200,
+    "ms": 202
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/utils.js",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouter.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ClientOnly.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/awaited.js",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/hydrateStart.js",
+    "status": 200,
+    "ms": 65
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/CatchBoundary.js",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useMatch.js",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderData.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderDeps.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useParams.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useSearch.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useNavigate.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouteContext.js",
+    "status": 200,
+    "ms": 51
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/link.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/route.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/fileRoute.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/lazyRouteComponent.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScriptOnce.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Match.js",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 71
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/router.js",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScrollRestoration.js",
+    "status": 200,
+    "ms": 77
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/RouterProvider.js",
+    "status": 200,
+    "ms": 77
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouterState.js",
+    "status": 200,
+    "ms": 82
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useBlocker.js",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLocation.js",
+    "status": 200,
+    "ms": 88
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useCanGoBack.js",
+    "status": 200,
+    "ms": 99
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Asset.js",
+    "status": 200,
+    "ms": 99
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/headContentUtils.js",
+    "status": 200,
+    "ms": 102
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Scripts.js",
+    "status": 200,
+    "ms": 102
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.dev.js",
+    "status": 200,
+    "ms": 105
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.js",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/isServer/development.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerContext.js",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom.js",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/ServerFunctionSerializationAdapter.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/index.js",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/plugin/default-entry/start.ts",
+    "status": 200,
+    "ms": 97
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/client.js",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/empty-plugin-adapters.js",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/src/router.tsx",
+    "status": 200,
+    "ms": 142
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/nonRouteComponentContext.js",
+    "status": 200,
+    "ms": 142
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/renderRouteNotFound.js",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/matchContext.js",
+    "status": 200,
+    "ms": 132
+  },
+  {
+    "path": "/node_modules/.vite/deps/@tanstack_react-router_n_@tanstack_react-store.js",
+    "status": 200,
+    "ms": 132
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Transitioner.js",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerStores.js",
+    "status": 200,
+    "ms": 108
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.js",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/constants.js",
+    "status": 200,
+    "ms": 56
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-server.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+history@1.162.4/node_modules/@tanstack/history/dist/esm/index.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/createClientRpc.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/utils.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/invariant.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/path.js",
+    "status": 200,
+    "ms": 67
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 67
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 67
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/qss.js",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/root.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchParams.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/redirect.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/rewrite.js",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/stores.js",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/link.js",
+    "status": 200,
+    "ms": 99
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/defer.js",
+    "status": 200,
+    "ms": 99
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/bodyScripts.js",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/router.js",
+    "status": 200,
+    "ms": 104
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/manifest.js",
+    "status": 200,
+    "ms": 108
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-client.js",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/config.js",
+    "status": 200,
+    "ms": 118
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/route.js",
+    "status": 200,
+    "ms": 118
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchMiddleware.js",
+    "status": 200,
+    "ms": 118
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/transformer.js",
+    "status": 200,
+    "ms": 118
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/makeSerovalPlugin.js",
+    "status": 200,
+    "ms": 118
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStream.js",
+    "status": 200,
+    "ms": 121
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/seroval-plugins.js",
+    "status": 200,
+    "ms": 116
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/headers.js",
+    "status": 200,
+    "ms": 117
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/json.js",
+    "status": 200,
+    "ms": 117
+  },
+  {
+    "path": "/src/routeTree.gen.ts",
+    "status": 200,
+    "ms": 86
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamRPCPlugin.js",
+    "status": 200,
+    "ms": 129
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration-script/client.js",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getStartOptions.js",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/await-signal.js",
+    "status": 200,
+    "ms": 100
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/serverFnFetcher.js",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/sieve-cache.js",
+    "status": 200,
+    "ms": 45
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/ssr-match-id.js",
+    "status": 200,
+    "ms": 46
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/new-process-route-tree.js",
+    "status": 200,
+    "ms": 46
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/ShallowErrorPlugin.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamJSONPlugin.js",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval@1.6.7/node_modules/seroval/dist/dev/index.js",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/routes/__root.tsx",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/cookie-es@3.1.1/node_modules/cookie-es/dist/index.mjs",
+    "status": 200,
+    "ms": 108
+  },
+  {
+    "path": "/src/routes/book.tsx",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/src/routes/email-preferences.tsx",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/src/routes/document.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/routes/report.tsx",
+    "status": 200,
+    "ms": 103
+  },
+  {
+    "path": "/src/routes/request.tsx",
+    "status": 200,
+    "ms": 103
+  },
+  {
+    "path": "/src/routes/quote.tsx",
+    "status": 200,
+    "ms": 104
+  },
+  {
+    "path": "/src/routes/technician-photo.tsx",
+    "status": 200,
+    "ms": 104
+  },
+  {
+    "path": "/src/routes/visit.tsx",
+    "status": 200,
+    "ms": 102
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getDefaultSerovalPlugins.js",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/frame-decoder.js",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/src/base/font-head.ts",
+    "status": 200,
+    "ms": 13
+  },
+  {
+    "path": "/src/base/page-style.ts",
+    "status": 200,
+    "ms": 17
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/rawStreamCodec.js",
+    "status": 200,
+    "ms": 38
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web-CWqRG00W.js",
+    "status": 200,
+    "ms": 48
+  },
+  {
+    "path": "/src/base/hydration/intro-guard.ts",
+    "status": 200,
+    "ms": 20
+  },
+  {
+    "path": "/src/base/select-style.ts",
+    "status": 200,
+    "ms": 4
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/rolldown-runtime-D7D4PA-g.js",
+    "status": 200,
+    "ms": 5
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 6
+  },
+  {
+    "path": "/src/base/hydration/unit.tsx",
+    "status": 200,
+    "ms": 7
+  },
+  {
+    "path": "/src/ui/app.tsx",
+    "status": 200,
+    "ms": 13
+  },
+  {
+    "path": "/src/ui/website-requests.tsx",
+    "status": 200,
+    "ms": 35
+  },
+  {
+    "path": "/src/ui/sms-inbox.tsx",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/src/ui/controls.tsx",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/src/ui/api.ts",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/src/ui/glyphs.tsx",
+    "status": 200,
+    "ms": 35
+  },
+  {
+    "path": "/src/ui/dispatch.tsx",
+    "status": 200,
+    "ms": 38
+  },
+  {
+    "path": "/src/ui/jobs.tsx",
+    "status": 200,
+    "ms": 49
+  },
+  {
+    "path": "/src/ui/quotes.tsx",
+    "status": 200,
+    "ms": 61
+  },
+  {
+    "path": "/src/ui/invoices.tsx",
+    "status": 200,
+    "ms": 56
+  },
+  {
+    "path": "/src/ui/team.tsx",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/src/ui/movein.tsx",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/src/ui/activity.tsx",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/src/ui/customers.tsx",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/src/ui/stock.tsx",
+    "status": 200,
+    "ms": 60
+  },
+  {
+    "path": "/src/ui/today.tsx",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/src/ui/reports.tsx",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/src/ui/offline-day.ts",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/src/ui/push.tsx",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/src/ui/rules.tsx",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/src/ui/style/index.ts",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/ui/costing.tsx",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/src/ui/document-image.tsx",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/src/ui/roles.ts",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/src/ui/privacy-cache.ts",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/src/ui/icon-button.tsx",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/src/ui/technician.tsx",
+    "status": 200,
+    "ms": 103
+  },
+  {
+    "path": "/src/ui/route-optimization.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/ui/branches.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/ui/dispatch-board.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/ui/dispatch-cards.tsx",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/ui/due-visits.tsx",
+    "status": 200,
+    "ms": 97
+  },
+  {
+    "path": "/src/ui/visit-response.tsx",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/src/ui/service-report-links.tsx",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/src/ui/dispatch-map.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/visit-panel.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/companycam.tsx",
+    "status": 200,
+    "ms": 82
+  },
+  {
+    "path": "/src/ui/expenses.tsx",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/src/ui/clock.tsx",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/src/ui/forms.tsx",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/src/ui/custom-fields.tsx",
+    "status": 200,
+    "ms": 117
+  },
+  {
+    "path": "/src/ui/series.tsx",
+    "status": 200,
+    "ms": 117
+  },
+  {
+    "path": "/src/ui/nameplates.tsx",
+    "status": 200,
+    "ms": 115
+  },
+  {
+    "path": "/src/ui/conversation.tsx",
+    "status": 200,
+    "ms": 120
+  },
+  {
+    "path": "/src/ui/source-notes.tsx",
+    "status": 200,
+    "ms": 121
+  },
+  {
+    "path": "/src/ui/quote-followup-tasks.tsx",
+    "status": 200,
+    "ms": 121
+  },
+  {
+    "path": "/src/ui/documents.tsx",
+    "status": 200,
+    "ms": 121
+  },
+  {
+    "path": "/src/ui/financing.tsx",
+    "status": 200,
+    "ms": 130
+  },
+  {
+    "path": "/src/ui/lead-connections.tsx",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/src/ui/quote-deposit.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/quote-links.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/options.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/document-email.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/assessment.tsx",
+    "status": 200,
+    "ms": 136
+  },
+  {
+    "path": "/src/ui/service-call.tsx",
+    "status": 200,
+    "ms": 136
+  },
+  {
+    "path": "/src/ui/invoice-progress.tsx",
+    "status": 200,
+    "ms": 133
+  },
+  {
+    "path": "/src/ui/quickbooks.tsx",
+    "status": 200,
+    "ms": 139
+  },
+  {
+    "path": "/src/ui/payouts.tsx",
+    "status": 200,
+    "ms": 141
+  },
+  {
+    "path": "/src/ui/invoice-payments.tsx",
+    "status": 200,
+    "ms": 141
+  },
+  {
+    "path": "/src/ui/invoice-batch.tsx",
+    "status": 200,
+    "ms": 143
+  },
+  {
+    "path": "/src/ui/tax-totals.tsx",
+    "status": 200,
+    "ms": 145
+  },
+  {
+    "path": "/src/ui/quickbooks-payload.tsx",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/src/ui/lines.tsx",
+    "status": 200,
+    "ms": 154
+  },
+  {
+    "path": "/src/ui/discount.tsx",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/ui/field-invoices.tsx",
+    "status": 200,
+    "ms": 152
+  },
+  {
+    "path": "/src/ui/calendar-sync.tsx",
+    "status": 200,
+    "ms": 152
+  },
+  {
+    "path": "/src/ui/customer-email.tsx",
+    "status": 200,
+    "ms": 153
+  },
+  {
+    "path": "/src/ui/customer-sms.tsx",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/src/ui/message-templates.tsx",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/src/ui/agreements.tsx",
+    "status": 200,
+    "ms": 166
+  },
+  {
+    "path": "/src/ui/tax-settings.tsx",
+    "status": 200,
+    "ms": 166
+  },
+  {
+    "path": "/src/ui/custom-roles.tsx",
+    "status": 200,
+    "ms": 166
+  },
+  {
+    "path": "/src/ui/tax-lookup.tsx",
+    "status": 200,
+    "ms": 170
+  },
+  {
+    "path": "/src/ui/agent-grants.tsx",
+    "status": 200,
+    "ms": 170
+  },
+  {
+    "path": "/src/ui/integration-tokens.tsx",
+    "status": 200,
+    "ms": 170
+  },
+  {
+    "path": "/src/ui/availability.tsx",
+    "status": 200,
+    "ms": 189
+  },
+  {
+    "path": "/src/ui/price-book.tsx",
+    "status": 200,
+    "ms": 189
+  },
+  {
+    "path": "/src/ui/subcontract.tsx",
+    "status": 200,
+    "ms": 189
+  },
+  {
+    "path": "/src/ui/timesheets.tsx",
+    "status": 200,
+    "ms": 190
+  },
+  {
+    "path": "/src/ui/identity.tsx",
+    "status": 200,
+    "ms": 196
+  },
+  {
+    "path": "/src/ui/csv-import.tsx",
+    "status": 200,
+    "ms": 197
+  },
+  {
+    "path": "/src/ui/customer-hub-preview.tsx",
+    "status": 200,
+    "ms": 197
+  },
+  {
+    "path": "/src/ui/privacy.tsx",
+    "status": 200,
+    "ms": 225
+  },
+  {
+    "path": "/src/ui/tax-exemption.tsx",
+    "status": 200,
+    "ms": 226
+  },
+  {
+    "path": "/src/ui/property-history.tsx",
+    "status": 200,
+    "ms": 226
+  },
+  {
+    "path": "/src/ui/morning-brief.tsx",
+    "status": 200,
+    "ms": 223
+  },
+  {
+    "path": "/src/ui/purchasing.tsx",
+    "status": 200,
+    "ms": 226
+  },
+  {
+    "path": "/src/ui/duplicates.tsx",
+    "status": 200,
+    "ms": 231
+  },
+  {
+    "path": "/src/ui/equipment.tsx",
+    "status": 200,
+    "ms": 232
+  },
+  {
+    "path": "/src/ui/style/shell.css",
+    "status": 200,
+    "ms": 234
+  },
+  {
+    "path": "/src/ui/receivables.tsx",
+    "status": 200,
+    "ms": 266
+  },
+  {
+    "path": "/src/ui/style/controls.css",
+    "status": 200,
+    "ms": 295
+  },
+  {
+    "path": "/src/ui/style/records.css",
+    "status": 200,
+    "ms": 365
+  },
+  {
+    "path": "/src/ui/style/technician.css",
+    "status": 200,
+    "ms": 364
+  },
+  {
+    "path": "/src/ui/outbox.ts",
+    "status": 200,
+    "ms": 365
+  },
+  {
+    "path": "/src/ui/photos.ts",
+    "status": 200,
+    "ms": 377
+  },
+  {
+    "path": "/src/ui/style/dispatch.css",
+    "status": 200,
+    "ms": 387
+  },
+  {
+    "path": "/src/ui/phone-location.tsx",
+    "status": 200,
+    "ms": 376
+  },
+  {
+    "path": "/src/ui/visit-status-notices.tsx",
+    "status": 200,
+    "ms": 376
+  },
+  {
+    "path": "/src/ui/technician-portrait.tsx",
+    "status": 200,
+    "ms": 376
+  },
+  {
+    "path": "/src/ui/booking-offers.tsx",
+    "status": 200,
+    "ms": 356
+  },
+  {
+    "path": "/src/ui/decline-visit.tsx",
+    "status": 200,
+    "ms": 356
+  },
+  {
+    "path": "/src/ui/service-report.tsx",
+    "status": 200,
+    "ms": 353
+  },
+  {
+    "path": "/src/glove/document-format.ts",
+    "status": 200,
+    "ms": 301
+  },
+  {
+    "path": "/src/glove/mercator.ts",
+    "status": 200,
+    "ms": 352
+  },
+  {
+    "path": "/src/glove/recurrence.ts",
+    "status": 200,
+    "ms": 316
+  },
+  {
+    "path": "/src/ui/quote-signing.tsx",
+    "status": 200,
+    "ms": 299
+  },
+  {
+    "path": "/src/ui/documents.css",
+    "status": 200,
+    "ms": 302
+  },
+  {
+    "path": "/src/ui/quickbooks-review.tsx",
+    "status": 200,
+    "ms": 295
+  },
+  {
+    "path": "/src/ui/saved-card-payment.tsx",
+    "status": 200,
+    "ms": 292
+  },
+  {
+    "path": "/src/ui/field-invoices.css",
+    "status": 200,
+    "ms": 274
+  },
+  {
+    "path": "/src/ui/review-email.tsx",
+    "status": 200,
+    "ms": 270
+  },
+  {
+    "path": "/src/glove/csv-format.ts",
+    "status": 200,
+    "ms": 230
+  },
+  {
+    "path": "/src/glove/model.ts",
+    "status": 200,
+    "ms": 7
+  },
+  {
+    "path": "/src/ui/saved-card-registration.tsx",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/api/glove/state",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/brand/mark.svg",
+    "status": 200,
+    "ms": 104
+  },
+  {
+    "path": "/fonts/figtree/figtree-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/api/glove/reports/payroll.json",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/api/glove/reports/revenue.json",
+    "status": 200,
+    "ms": 118
+  },
+  {
+    "path": "/api/glove/timesheets",
+    "status": 200,
+    "ms": 119
+  },
+  {
+    "path": "/api/glove/reports/receivables.json",
+    "status": 200,
+    "ms": 182
+  },
+  {
+    "path": "/api/glove/reports/receivables.json",
+    "status": 200,
+    "ms": 213
+  },
+  {
+    "path": "/api/glove/reports/payroll.json",
+    "status": 200,
+    "ms": 214
+  },
+  {
+    "path": "/api/glove/timesheets",
+    "status": 200,
+    "ms": 217
+  },
+  {
+    "path": "/api/glove/reports/revenue.json",
+    "status": 200,
+    "ms": 213
+  },
+  {
+    "path": "/api/glove/timesheets",
+    "status": 200,
+    "ms": 29
+  },
+  {
+    "path": "/api/glove/reports/payroll.json",
+    "status": 200,
+    "ms": 136
+  },
+  {
+    "path": "/__dev/key",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/rer-theme.css",
+    "status": 200,
+    "ms": 5
+  },
+  {
+    "path": "/fonts/fonts.css",
+    "status": 200,
+    "ms": 20
+  },
+  {
+    "path": "/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 20
+  },
+  {
+    "path": "/brand/mark.svg",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/fonts/figtree/figtree-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 86
+  },
+  {
+    "path": "/__dev/key",
+    "status": 204,
+    "ms": 64
+  },
+  {
+    "path": "/__dev/key",
+    "failure": "net::ERR_ABORTED"
+  },
+  {
+    "path": "/auth/dev/enter",
+    "status": 303,
+    "ms": 106
+  },
+  {
+    "path": "/app",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 0
+  },
+  {
+    "path": "/rer-theme.css",
+    "status": 304,
+    "ms": 0
+  },
+  {
+    "path": "/fonts/fonts.css",
+    "status": 304,
+    "ms": 1
+  },
+  {
+    "path": "/@id/virtual:tanstack-start-dev-client-entry",
+    "status": 200,
+    "ms": 1
+  },
+  {
+    "path": "/@tanstack-start/styles.css",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/fonts/figtree/figtree-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 0
+  },
+  {
+    "path": "/@react-refresh",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/@vite/client",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/node_modules/.pnpm/vite@8.2.2_@types+node@22.18.6_esbuild@0.28.1_jiti@2.7.0/node_modules/vite/dist/client/env.mjs",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/src/client.tsx",
+    "status": 200,
+    "ms": 9
+  },
+  {
+    "path": "/node_modules/.vite/deps/react.js",
+    "status": 200,
+    "ms": 27
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/esm/client.js",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/brand/favicon-32.svg",
+    "status": 200,
+    "ms": 55
+  },
+  {
+    "path": "/node_modules/.vite/deps/rolldown-runtime-BvCyGRYZ.js",
+    "status": 200,
+    "ms": 47
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-dev-runtime.js",
+    "status": 200,
+    "ms": 77
+  },
+  {
+    "path": "/src/base/hydration/report.ts",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/index.js",
+    "status": 200,
+    "ms": 13
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/hydrateStart.js",
+    "status": 200,
+    "ms": 13
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/StartClient.js",
+    "status": 200,
+    "ms": 13
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/index.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.dev.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-runtime.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom_client.js",
+    "status": 200,
+    "ms": 186
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/utils.js",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/hydrateStart.js",
+    "status": 200,
+    "ms": 77
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/CatchBoundary.js",
+    "status": 200,
+    "ms": 10
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/awaited.js",
+    "status": 200,
+    "ms": 19
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ClientOnly.js",
+    "status": 200,
+    "ms": 20
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouter.js",
+    "status": 200,
+    "ms": 20
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderDeps.js",
+    "status": 200,
+    "ms": 19
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderData.js",
+    "status": 200,
+    "ms": 23
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useParams.js",
+    "status": 200,
+    "ms": 23
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useMatch.js",
+    "status": 200,
+    "ms": 26
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useNavigate.js",
+    "status": 200,
+    "ms": 25
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useSearch.js",
+    "status": 200,
+    "ms": 25
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouteContext.js",
+    "status": 200,
+    "ms": 25
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 26
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/route.js",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/link.js",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/lazyRouteComponent.js",
+    "status": 200,
+    "ms": 31
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScriptOnce.js",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/fileRoute.js",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Match.js",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/router.js",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/RouterProvider.js",
+    "status": 200,
+    "ms": 54
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScrollRestoration.js",
+    "status": 200,
+    "ms": 54
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 55
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useBlocker.js",
+    "status": 200,
+    "ms": 56
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useCanGoBack.js",
+    "status": 200,
+    "ms": 56
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouterState.js",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLocation.js",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Asset.js",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/headContentUtils.js",
+    "status": 200,
+    "ms": 61
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Scripts.js",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.js",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.dev.js",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/isServer/development.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/ServerFunctionSerializationAdapter.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/plugin/default-entry/start.ts",
+    "status": 200,
+    "ms": 56
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/client.js",
+    "status": 200,
+    "ms": 56
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/empty-plugin-adapters.js",
+    "status": 200,
+    "ms": 56
+  },
+  {
+    "path": "/src/router.tsx",
+    "status": 200,
+    "ms": 57
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/nonRouteComponentContext.js",
+    "status": 200,
+    "ms": 53
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/index.js",
+    "status": 200,
+    "ms": 53
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerContext.js",
+    "status": 200,
+    "ms": 45
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/matchContext.js",
+    "status": 200,
+    "ms": 43
+  },
+  {
+    "path": "/node_modules/.vite/deps/@tanstack_react-router_n_@tanstack_react-store.js",
+    "status": 200,
+    "ms": 43
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 14
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerStores.js",
+    "status": 200,
+    "ms": 14
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/renderRouteNotFound.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Transitioner.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.js",
+    "status": 200,
+    "ms": 25
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+history@1.162.4/node_modules/@tanstack/history/dist/esm/index.js",
+    "status": 200,
+    "ms": 28
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/createClientRpc.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/makeSerovalPlugin.js",
+    "status": 200,
+    "ms": 40
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-server.js",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/constants.js",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/headers.js",
+    "status": 200,
+    "ms": 44
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/json.js",
+    "status": 200,
+    "ms": 43
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/seroval-plugins.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamRPCPlugin.js",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-client.js",
+    "status": 200,
+    "ms": 46
+  },
+  {
+    "path": "/src/routeTree.gen.ts",
+    "status": 200,
+    "ms": 43
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/utils.js",
+    "status": 200,
+    "ms": 45
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/invariant.js",
+    "status": 200,
+    "ms": 47
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/path.js",
+    "status": 200,
+    "ms": 49
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 53
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/qss.js",
+    "status": 200,
+    "ms": 54
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/root.js",
+    "status": 200,
+    "ms": 54
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchParams.js",
+    "status": 200,
+    "ms": 55
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/redirect.js",
+    "status": 200,
+    "ms": 55
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/stores.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/rewrite.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/defer.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/link.js",
+    "status": 200,
+    "ms": 65
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/router.js",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/manifest.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/bodyScripts.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/config.js",
+    "status": 200,
+    "ms": 77
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/route.js",
+    "status": 200,
+    "ms": 78
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchMiddleware.js",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/transformer.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration-script/client.js",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStream.js",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getStartOptions.js",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/serverFnFetcher.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/await-signal.js",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/node_modules/.pnpm/cookie-es@3.1.1/node_modules/cookie-es/dist/index.mjs",
+    "status": 200,
+    "ms": 70
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamJSONPlugin.js",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web.js",
+    "status": 200,
+    "ms": 78
+  },
+  {
+    "path": "/src/routes/__root.tsx",
+    "status": 200,
+    "ms": 80
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/ShallowErrorPlugin.js",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/ssr-match-id.js",
+    "status": 200,
+    "ms": 82
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval@1.6.7/node_modules/seroval/dist/dev/index.js",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/routes/book.tsx",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/routes/document.tsx",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/routes/email-preferences.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/routes/quote.tsx",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/routes/report.tsx",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/src/routes/request.tsx",
+    "status": 200,
+    "ms": 200
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/sieve-cache.js",
+    "status": 200,
+    "ms": 171
+  },
+  {
+    "path": "/src/routes/visit.tsx",
+    "status": 200,
+    "ms": 200
+  },
+  {
+    "path": "/src/routes/technician-photo.tsx",
+    "status": 200,
+    "ms": 208
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/new-process-route-tree.js",
+    "status": 200,
+    "ms": 179
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getDefaultSerovalPlugins.js",
+    "status": 200,
+    "ms": 162
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/frame-decoder.js",
+    "status": 200,
+    "ms": 162
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/rawStreamCodec.js",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/src/base/font-head.ts",
+    "status": 200,
+    "ms": 130
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web-CWqRG00W.js",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/src/base/page-style.ts",
+    "status": 200,
+    "ms": 129
+  },
+  {
+    "path": "/src/base/hydration/intro-guard.ts",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/rolldown-runtime-D7D4PA-g.js",
+    "status": 200,
+    "ms": 5
+  },
+  {
+    "path": "/src/base/select-style.ts",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/src/base/hydration/unit.tsx",
+    "status": 200,
+    "ms": 2
+  },
+  {
+    "path": "/src/ui/app.tsx",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/src/ui/sms-inbox.tsx",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/src/ui/controls.tsx",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/src/ui/glyphs.tsx",
+    "status": 200,
+    "ms": 12
+  },
+  {
+    "path": "/src/ui/website-requests.tsx",
+    "status": 200,
+    "ms": 17
+  },
+  {
+    "path": "/src/ui/api.ts",
+    "status": 200,
+    "ms": 17
+  },
+  {
+    "path": "/src/ui/jobs.tsx",
+    "status": 200,
+    "ms": 22
+  },
+  {
+    "path": "/src/ui/quotes.tsx",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/src/ui/dispatch.tsx",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/src/ui/customers.tsx",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/src/ui/invoices.tsx",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/src/ui/movein.tsx",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/src/ui/activity.tsx",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/src/ui/stock.tsx",
+    "status": 200,
+    "ms": 45
+  },
+  {
+    "path": "/src/ui/team.tsx",
+    "status": 200,
+    "ms": 48
+  },
+  {
+    "path": "/src/ui/today.tsx",
+    "status": 200,
+    "ms": 49
+  },
+  {
+    "path": "/src/ui/offline-day.ts",
+    "status": 200,
+    "ms": 49
+  },
+  {
+    "path": "/src/ui/push.tsx",
+    "status": 200,
+    "ms": 50
+  },
+  {
+    "path": "/src/ui/reports.tsx",
+    "status": 200,
+    "ms": 73
+  },
+  {
+    "path": "/src/ui/style/index.ts",
+    "status": 200,
+    "ms": 78
+  },
+  {
+    "path": "/src/ui/rules.tsx",
+    "status": 200,
+    "ms": 78
+  },
+  {
+    "path": "/src/ui/costing.tsx",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/src/ui/roles.ts",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/src/ui/technician.tsx",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/src/ui/document-image.tsx",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/src/ui/visit-response.tsx",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/ui/privacy-cache.ts",
+    "status": 200,
+    "ms": 104
+  },
+  {
+    "path": "/src/ui/service-report-links.tsx",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/ui/companycam.tsx",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/ui/branches.tsx",
+    "status": 200,
+    "ms": 91
+  },
+  {
+    "path": "/src/ui/clock.tsx",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/src/ui/expenses.tsx",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/src/ui/series.tsx",
+    "status": 200,
+    "ms": 92
+  },
+  {
+    "path": "/src/ui/forms.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/custom-fields.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/nameplates.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/quote-followup-tasks.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/lead-connections.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/source-notes.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/documents.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/conversation.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/financing.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/quote-links.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/quote-deposit.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/document-email.tsx",
+    "status": 200,
+    "ms": 105
+  },
+  {
+    "path": "/src/ui/assessment.tsx",
+    "status": 200,
+    "ms": 107
+  },
+  {
+    "path": "/src/ui/options.tsx",
+    "status": 200,
+    "ms": 107
+  },
+  {
+    "path": "/src/ui/service-call.tsx",
+    "status": 200,
+    "ms": 107
+  },
+  {
+    "path": "/src/ui/icon-button.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/route-optimization.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/dispatch-board.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/dispatch-cards.tsx",
+    "status": 200,
+    "ms": 107
+  },
+  {
+    "path": "/src/ui/due-visits.tsx",
+    "status": 200,
+    "ms": 111
+  },
+  {
+    "path": "/src/ui/visit-panel.tsx",
+    "status": 200,
+    "ms": 112
+  },
+  {
+    "path": "/src/ui/customer-hub-preview.tsx",
+    "status": 200,
+    "ms": 111
+  },
+  {
+    "path": "/src/ui/customer-sms.tsx",
+    "status": 200,
+    "ms": 112
+  },
+  {
+    "path": "/src/ui/privacy.tsx",
+    "status": 200,
+    "ms": 111
+  },
+  {
+    "path": "/src/ui/tax-exemption.tsx",
+    "status": 200,
+    "ms": 114
+  },
+  {
+    "path": "/src/ui/dispatch-map.tsx",
+    "status": 200,
+    "ms": 121
+  },
+  {
+    "path": "/src/ui/tax-settings.tsx",
+    "status": 200,
+    "ms": 117
+  },
+  {
+    "path": "/src/ui/equipment.tsx",
+    "status": 200,
+    "ms": 117
+  },
+  {
+    "path": "/src/ui/agreements.tsx",
+    "status": 200,
+    "ms": 124
+  },
+  {
+    "path": "/src/ui/property-history.tsx",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/src/ui/duplicates.tsx",
+    "status": 200,
+    "ms": 131
+  },
+  {
+    "path": "/src/ui/invoice-progress.tsx",
+    "status": 200,
+    "ms": 127
+  },
+  {
+    "path": "/src/ui/quickbooks.tsx",
+    "status": 200,
+    "ms": 127
+  },
+  {
+    "path": "/src/ui/payouts.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/invoice-payments.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/quickbooks-payload.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/tax-totals.tsx",
+    "status": 200,
+    "ms": 135
+  },
+  {
+    "path": "/src/ui/lines.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/invoice-batch.tsx",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/ui/discount.tsx",
+    "status": 200,
+    "ms": 157
+  },
+  {
+    "path": "/src/ui/purchasing.tsx",
+    "status": 200,
+    "ms": 153
+  },
+  {
+    "path": "/src/ui/csv-import.tsx",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/ui/field-invoices.tsx",
+    "status": 200,
+    "ms": 154
+  },
+  {
+    "path": "/src/ui/calendar-sync.tsx",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/src/ui/customer-email.tsx",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/src/ui/custom-roles.tsx",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/src/ui/message-templates.tsx",
+    "status": 200,
+    "ms": 157
+  },
+  {
+    "path": "/src/ui/tax-lookup.tsx",
+    "status": 200,
+    "ms": 157
+  },
+  {
+    "path": "/src/ui/agent-grants.tsx",
+    "status": 200,
+    "ms": 163
+  },
+  {
+    "path": "/src/ui/subcontract.tsx",
+    "status": 200,
+    "ms": 167
+  },
+  {
+    "path": "/src/ui/integration-tokens.tsx",
+    "status": 200,
+    "ms": 167
+  },
+  {
+    "path": "/src/ui/price-book.tsx",
+    "status": 200,
+    "ms": 167
+  },
+  {
+    "path": "/src/ui/availability.tsx",
+    "status": 200,
+    "ms": 167
+  },
+  {
+    "path": "/src/ui/timesheets.tsx",
+    "status": 200,
+    "ms": 167
+  },
+  {
+    "path": "/src/ui/identity.tsx",
+    "status": 200,
+    "ms": 167
+  },
+  {
+    "path": "/src/ui/morning-brief.tsx",
+    "status": 200,
+    "ms": 169
+  },
+  {
+    "path": "/src/ui/receivables.tsx",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/src/ui/style/shell.css",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/src/ui/style/controls.css",
+    "status": 200,
+    "ms": 164
+  },
+  {
+    "path": "/src/ui/style/records.css",
+    "status": 200,
+    "ms": 164
+  },
+  {
+    "path": "/src/ui/style/technician.css",
+    "status": 200,
+    "ms": 164
+  },
+  {
+    "path": "/src/ui/style/dispatch.css",
+    "status": 200,
+    "ms": 166
+  },
+  {
+    "path": "/src/ui/outbox.ts",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/ui/photos.ts",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/ui/phone-location.tsx",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/ui/technician-portrait.tsx",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/ui/service-report.tsx",
+    "status": 200,
+    "ms": 124
+  },
+  {
+    "path": "/src/ui/visit-status-notices.tsx",
+    "status": 200,
+    "ms": 158
+  },
+  {
+    "path": "/src/glove/recurrence.ts",
+    "status": 200,
+    "ms": 120
+  },
+  {
+    "path": "/src/glove/document-format.ts",
+    "status": 200,
+    "ms": 116
+  },
+  {
+    "path": "/src/ui/documents.css",
+    "status": 200,
+    "ms": 116
+  },
+  {
+    "path": "/src/ui/quote-signing.tsx",
+    "status": 200,
+    "ms": 111
+  },
+  {
+    "path": "/src/ui/booking-offers.tsx",
+    "status": 200,
+    "ms": 107
+  },
+  {
+    "path": "/src/ui/decline-visit.tsx",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/ui/saved-card-payment.tsx",
+    "status": 200,
+    "ms": 53
+  },
+  {
+    "path": "/src/ui/quickbooks-review.tsx",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/glove/csv-format.ts",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/src/glove/mercator.ts",
+    "status": 200,
+    "ms": 99
+  },
+  {
+    "path": "/src/ui/field-invoices.css",
+    "status": 200,
+    "ms": 46
+  },
+  {
+    "path": "/src/ui/review-email.tsx",
+    "status": 200,
+    "ms": 47
+  },
+  {
+    "path": "/src/glove/model.ts",
+    "status": 200,
+    "ms": 14
+  },
+  {
+    "path": "/src/ui/saved-card-registration.tsx",
+    "status": 200,
+    "ms": 5
+  },
+  {
+    "path": "/api/glove/state",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/brand/mark.svg",
+    "status": 304,
+    "ms": 0
+  },
+  {
+    "path": "/app",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/fonts/fonts.css",
+    "status": 200,
+    "ms": 1
+  },
+  {
+    "path": "/rer-theme.css",
+    "status": 200,
+    "ms": 1
+  },
+  {
+    "path": "/@id/virtual:tanstack-start-dev-client-entry",
+    "status": 200,
+    "ms": 2
+  },
+  {
+    "path": "/fonts/instrument-sans/instrument-sans-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 3
+  },
+  {
+    "path": "/@tanstack-start/styles.css",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "error": "TypeError: performance.addEventListener is not a function"
+  },
+  {
+    "path": "/@react-refresh",
+    "status": 200,
+    "ms": 14
+  },
+  {
+    "path": "/@vite/client",
+    "status": 200,
+    "ms": 19
+  },
+  {
+    "path": "/node_modules/.pnpm/vite@8.2.2_@types+node@22.18.6_esbuild@0.28.1_jiti@2.7.0/node_modules/vite/dist/client/env.mjs",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/src/client.tsx",
+    "status": 200,
+    "ms": 27
+  },
+  {
+    "path": "/brand/favicon-32.svg",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.vite/deps/react.js",
+    "status": 200,
+    "ms": 25
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/esm/client.js",
+    "status": 200,
+    "ms": 49
+  },
+  {
+    "path": "/src/base/hydration/report.ts",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-dev-runtime.js",
+    "status": 200,
+    "ms": 53
+  },
+  {
+    "path": "/node_modules/.vite/deps/rolldown-runtime-BvCyGRYZ.js",
+    "status": 200,
+    "ms": 29
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/index.js",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/hydrateStart.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start-client@1.168.39_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-start-client/dist/esm/StartClient.js",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/index.js",
+    "status": 200,
+    "ms": 5
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.dev.js",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/node_modules/.vite/deps/react_jsx-runtime.js",
+    "status": 200,
+    "ms": 11
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/utils.js",
+    "status": 200,
+    "ms": 16
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/hydrateStart.js",
+    "status": 200,
+    "ms": 39
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/awaited.js",
+    "status": 200,
+    "ms": 5
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/CatchBoundary.js",
+    "status": 200,
+    "ms": 6
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ClientOnly.js",
+    "status": 200,
+    "ms": 9
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom_client.js",
+    "status": 200,
+    "ms": 142
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouter.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderData.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useMatch.js",
+    "status": 200,
+    "ms": 30
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLoaderDeps.js",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useParams.js",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useSearch.js",
+    "status": 200,
+    "ms": 37
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/link.js",
+    "status": 200,
+    "ms": 39
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useNavigate.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouteContext.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/route.js",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/fileRoute.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/lazyRouteComponent.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScriptOnce.js",
+    "status": 200,
+    "ms": 66
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 66
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Match.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/router.js",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/ScrollRestoration.js",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/RouterProvider.js",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useBlocker.js",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useCanGoBack.js",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useRouterState.js",
+    "status": 200,
+    "ms": 72
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/useLocation.js",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Asset.js",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Scripts.js",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/headContentUtils.js",
+    "status": 200,
+    "ms": 74
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/index.js",
+    "status": 200,
+    "ms": 82
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/isServer/development.js",
+    "status": 200,
+    "ms": 82
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client/ServerFunctionSerializationAdapter.js",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-start@1.168.60_esbuild@0.28.1_react-dom@19.2.8_react@19.2.8__react@19.2_d5f99136b294d54c6ff200f072728d37/node_modules/@tanstack/react-start/dist/plugin/default-entry/start.ts",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/client.js",
+    "status": 200,
+    "ms": 81
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.dev.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/empty-plugin-adapters.js",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/router.tsx",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/nonRouteComponentContext.js",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerContext.js",
+    "status": 200,
+    "ms": 52
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/index.js",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/node_modules/.vite/deps/react-dom.js",
+    "status": 200,
+    "ms": 65
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/matchContext.js",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 59
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/routerStores.js",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/renderRouteNotFound.js",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/HeadContent.js",
+    "status": 200,
+    "ms": 51
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+react-router@1.170.41_react-dom@19.2.8_react@19.2.8__react@19.2.8/node_modules/@tanstack/react-router/dist/esm/Transitioner.js",
+    "status": 200,
+    "ms": 62
+  },
+  {
+    "path": "/node_modules/.vite/deps/@tanstack_react-router_n_@tanstack_react-store.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/constants.js",
+    "status": 200,
+    "ms": 60
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+history@1.162.4/node_modules/@tanstack/history/dist/esm/index.js",
+    "status": 200,
+    "ms": 66
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/createClientRpc.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-server.js",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/makeSerovalPlugin.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/headers.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/seroval-plugins.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/json.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamRPCPlugin.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/utils.js",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/invariant.js",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/src/routeTree.gen.ts",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/load-client.js",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/not-found.js",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/qss.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/path.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration.js",
+    "status": 200,
+    "ms": 69
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/redirect.js",
+    "status": 200,
+    "ms": 73
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/root.js",
+    "status": 200,
+    "ms": 73
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchParams.js",
+    "status": 200,
+    "ms": 76
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/rewrite.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/stores.js",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/manifest.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/Matches.js",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/defer.js",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/link.js",
+    "status": 200,
+    "ms": 86
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/bodyScripts.js",
+    "status": 200,
+    "ms": 88
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/router.js",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/route.js",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/config.js",
+    "status": 200,
+    "ms": 97
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/searchMiddleware.js",
+    "status": 200,
+    "ms": 97
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/transformer.js",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/scroll-restoration-script/client.js",
+    "status": 200,
+    "ms": 79
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStream.js",
+    "status": 200,
+    "ms": 100
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getStartOptions.js",
+    "status": 200,
+    "ms": 57
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/serverFnFetcher.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/await-signal.js",
+    "status": 200,
+    "ms": 84
+  },
+  {
+    "path": "/node_modules/.pnpm/cookie-es@3.1.1/node_modules/cookie-es/dist/index.mjs",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval@1.6.7/node_modules/seroval/dist/dev/index.js",
+    "status": 200,
+    "ms": 83
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/ShallowErrorPlugin.js",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/RawStreamJSONPlugin.js",
+    "status": 200,
+    "ms": 97
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web.js",
+    "status": 200,
+    "ms": 100
+  },
+  {
+    "path": "/src/routes/book.tsx",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/src/routes/__root.tsx",
+    "status": 200,
+    "ms": 90
+  },
+  {
+    "path": "/src/routes/email-preferences.tsx",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/routes/document.tsx",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/routes/quote.tsx",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/routes/report.tsx",
+    "status": 200,
+    "ms": 112
+  },
+  {
+    "path": "/src/routes/request.tsx",
+    "status": 200,
+    "ms": 112
+  },
+  {
+    "path": "/src/routes/technician-photo.tsx",
+    "status": 200,
+    "ms": 113
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/ssr-match-id.js",
+    "status": 200,
+    "ms": 118
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/getDefaultSerovalPlugins.js",
+    "status": 200,
+    "ms": 57
+  },
+  {
+    "path": "/src/routes/visit.tsx",
+    "status": 200,
+    "ms": 119
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/sieve-cache.js",
+    "status": 200,
+    "ms": 98
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+start-client-core@1.170.34/node_modules/@tanstack/start-client-core/dist/esm/client-rpc/frame-decoder.js",
+    "status": 200,
+    "ms": 60
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/new-process-route-tree.js",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/node_modules/.pnpm/@tanstack+router-core@1.171.34/node_modules/@tanstack/router-core/dist/esm/ssr/serializer/rawStreamCodec.js",
+    "status": 200,
+    "ms": 44
+  },
+  {
+    "path": "/src/base/font-head.ts",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/src/base/page-style.ts",
+    "status": 200,
+    "ms": 43
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/web-CWqRG00W.js",
+    "status": 200,
+    "ms": 43
+  },
+  {
+    "path": "/src/base/hydration/intro-guard.ts",
+    "status": 200,
+    "ms": 45
+  },
+  {
+    "path": "/src/base/select-style.ts",
+    "status": 200,
+    "ms": 6
+  },
+  {
+    "path": "/node_modules/.pnpm/seroval-plugins@1.6.7_seroval@1.6.7/node_modules/seroval-plugins/dist/dev/rolldown-runtime-D7D4PA-g.js",
+    "status": 200,
+    "ms": 6
+  },
+  {
+    "path": "/src/routes/app.tsx",
+    "status": 200,
+    "ms": 10
+  },
+  {
+    "path": "/src/base/hydration/unit.tsx",
+    "status": 200,
+    "ms": 6
+  },
+  {
+    "path": "/src/ui/app.tsx",
+    "status": 200,
+    "ms": 10
+  },
+  {
+    "path": "/src/ui/sms-inbox.tsx",
+    "status": 200,
+    "ms": 33
+  },
+  {
+    "path": "/src/ui/api.ts",
+    "status": 200,
+    "ms": 42
+  },
+  {
+    "path": "/src/ui/glyphs.tsx",
+    "status": 200,
+    "ms": 41
+  },
+  {
+    "path": "/src/ui/controls.tsx",
+    "status": 200,
+    "ms": 50
+  },
+  {
+    "path": "/src/ui/website-requests.tsx",
+    "status": 200,
+    "ms": 55
+  },
+  {
+    "path": "/src/ui/dispatch.tsx",
+    "status": 200,
+    "ms": 54
+  },
+  {
+    "path": "/src/ui/quotes.tsx",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/ui/jobs.tsx",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/ui/invoices.tsx",
+    "status": 200,
+    "ms": 85
+  },
+  {
+    "path": "/src/ui/movein.tsx",
+    "status": 200,
+    "ms": 86
+  },
+  {
+    "path": "/src/ui/activity.tsx",
+    "status": 200,
+    "ms": 86
+  },
+  {
+    "path": "/src/ui/team.tsx",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/ui/customers.tsx",
+    "status": 200,
+    "ms": 99
+  },
+  {
+    "path": "/src/ui/today.tsx",
+    "status": 200,
+    "ms": 100
+  },
+  {
+    "path": "/src/ui/stock.tsx",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/ui/offline-day.ts",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/ui/reports.tsx",
+    "status": 200,
+    "ms": 110
+  },
+  {
+    "path": "/src/ui/roles.ts",
+    "status": 200,
+    "ms": 61
+  },
+  {
+    "path": "/src/ui/style/index.ts",
+    "status": 200,
+    "ms": 119
+  },
+  {
+    "path": "/src/ui/push.tsx",
+    "status": 200,
+    "ms": 119
+  },
+  {
+    "path": "/src/ui/costing.tsx",
+    "status": 200,
+    "ms": 126
+  },
+  {
+    "path": "/src/ui/technician.tsx",
+    "status": 200,
+    "ms": 127
+  },
+  {
+    "path": "/src/ui/rules.tsx",
+    "status": 200,
+    "ms": 127
+  },
+  {
+    "path": "/src/ui/icon-button.tsx",
+    "status": 200,
+    "ms": 44
+  },
+  {
+    "path": "/src/ui/privacy-cache.ts",
+    "status": 200,
+    "ms": 63
+  },
+  {
+    "path": "/src/ui/document-image.tsx",
+    "status": 200,
+    "ms": 64
+  },
+  {
+    "path": "/src/ui/route-optimization.tsx",
+    "status": 200,
+    "ms": 58
+  },
+  {
+    "path": "/src/ui/branches.tsx",
+    "status": 200,
+    "ms": 59
+  },
+  {
+    "path": "/src/ui/dispatch-board.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/dispatch-cards.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/quote-followup-tasks.tsx",
+    "status": 200,
+    "ms": 89
+  },
+  {
+    "path": "/src/ui/dispatch-map.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/due-visits.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/visit-panel.tsx",
+    "status": 200,
+    "ms": 96
+  },
+  {
+    "path": "/src/ui/source-notes.tsx",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/ui/lead-connections.tsx",
+    "status": 200,
+    "ms": 93
+  },
+  {
+    "path": "/src/ui/documents.tsx",
+    "status": 200,
+    "ms": 95
+  },
+  {
+    "path": "/src/ui/quote-deposit.tsx",
+    "status": 200,
+    "ms": 100
+  },
+  {
+    "path": "/src/ui/financing.tsx",
+    "status": 200,
+    "ms": 101
+  },
+  {
+    "path": "/src/ui/quote-links.tsx",
+    "status": 200,
+    "ms": 102
+  },
+  {
+    "path": "/src/ui/document-email.tsx",
+    "status": 200,
+    "ms": 102
+  },
+  {
+    "path": "/src/ui/options.tsx",
+    "status": 200,
+    "ms": 106
+  },
+  {
+    "path": "/src/ui/service-call.tsx",
+    "status": 200,
+    "ms": 107
+  },
+  {
+    "path": "/src/ui/assessment.tsx",
+    "status": 200,
+    "ms": 116
+  },
+  {
+    "path": "/src/ui/visit-response.tsx",
+    "status": 200,
+    "ms": 119
+  },
+  {
+    "path": "/src/ui/companycam.tsx",
+    "status": 200,
+    "ms": 121
+  },
+  {
+    "path": "/src/ui/service-report-links.tsx",
+    "status": 200,
+    "ms": 129
+  },
+  {
+    "path": "/src/ui/expenses.tsx",
+    "status": 200,
+    "ms": 129
+  },
+  {
+    "path": "/src/ui/clock.tsx",
+    "status": 200,
+    "ms": 134
+  },
+  {
+    "path": "/src/ui/forms.tsx",
+    "status": 200,
+    "ms": 137
+  },
+  {
+    "path": "/src/ui/custom-fields.tsx",
+    "status": 200,
+    "ms": 139
+  },
+  {
+    "path": "/src/ui/nameplates.tsx",
+    "status": 200,
+    "ms": 140
+  },
+  {
+    "path": "/src/ui/conversation.tsx",
+    "status": 200,
+    "ms": 140
+  },
+  {
+    "path": "/src/ui/series.tsx",
+    "status": 200,
+    "ms": 144
+  },
+  {
+    "path": "/src/ui/invoice-progress.tsx",
+    "status": 200,
+    "ms": 152
+  },
+  {
+    "path": "/src/ui/payouts.tsx",
+    "status": 200,
+    "ms": 152
+  },
+  {
+    "path": "/src/ui/invoice-payments.tsx",
+    "status": 200,
+    "ms": 153
+  },
+  {
+    "path": "/src/ui/quickbooks.tsx",
+    "status": 200,
+    "ms": 153
+  },
+  {
+    "path": "/src/ui/invoice-batch.tsx",
+    "status": 200,
+    "ms": 153
+  },
+  {
+    "path": "/src/ui/quickbooks-payload.tsx",
+    "status": 200,
+    "ms": 157
+  },
+  {
+    "path": "/src/ui/tax-totals.tsx",
+    "status": 200,
+    "ms": 157
+  },
+  {
+    "path": "/src/ui/discount.tsx",
+    "status": 200,
+    "ms": 173
+  },
+  {
+    "path": "/src/ui/lines.tsx",
+    "status": 200,
+    "ms": 174
+  },
+  {
+    "path": "/src/ui/calendar-sync.tsx",
+    "status": 200,
+    "ms": 176
+  },
+  {
+    "path": "/src/ui/field-invoices.tsx",
+    "status": 200,
+    "ms": 176
+  },
+  {
+    "path": "/src/ui/csv-import.tsx",
+    "status": 200,
+    "ms": 200
+  },
+  {
+    "path": "/src/ui/customer-email.tsx",
+    "status": 200,
+    "ms": 200
+  },
+  {
+    "path": "/src/ui/customer-sms.tsx",
+    "status": 200,
+    "ms": 202
+  },
+  {
+    "path": "/src/ui/message-templates.tsx",
+    "status": 200,
+    "ms": 202
+  },
+  {
+    "path": "/src/ui/agreements.tsx",
+    "status": 200,
+    "ms": 204
+  },
+  {
+    "path": "/src/ui/tax-settings.tsx",
+    "status": 200,
+    "ms": 204
+  },
+  {
+    "path": "/src/ui/custom-roles.tsx",
+    "status": 200,
+    "ms": 209
+  },
+  {
+    "path": "/src/ui/tax-lookup.tsx",
+    "status": 200,
+    "ms": 209
+  },
+  {
+    "path": "/src/ui/agent-grants.tsx",
+    "status": 200,
+    "ms": 209
+  },
+  {
+    "path": "/src/ui/integration-tokens.tsx",
+    "status": 200,
+    "ms": 210
+  },
+  {
+    "path": "/src/ui/availability.tsx",
+    "status": 200,
+    "ms": 220
+  },
+  {
+    "path": "/src/ui/subcontract.tsx",
+    "status": 200,
+    "ms": 240
+  },
+  {
+    "path": "/src/ui/timesheets.tsx",
+    "status": 200,
+    "ms": 240
+  },
+  {
+    "path": "/src/ui/tax-exemption.tsx",
+    "status": 200,
+    "ms": 240
+  },
+  {
+    "path": "/src/ui/customer-hub-preview.tsx",
+    "status": 200,
+    "ms": 240
+  },
+  {
+    "path": "/src/ui/equipment.tsx",
+    "status": 200,
+    "ms": 251
+  },
+  {
+    "path": "/src/ui/property-history.tsx",
+    "status": 200,
+    "ms": 251
+  },
+  {
+    "path": "/src/ui/price-book.tsx",
+    "status": 200,
+    "ms": 252
+  },
+  {
+    "path": "/src/ui/identity.tsx",
+    "status": 200,
+    "ms": 252
+  },
+  {
+    "path": "/src/ui/privacy.tsx",
+    "status": 200,
+    "ms": 252
+  },
+  {
+    "path": "/src/ui/morning-brief.tsx",
+    "status": 200,
+    "ms": 252
+  },
+  {
+    "path": "/src/ui/duplicates.tsx",
+    "status": 200,
+    "ms": 259
+  },
+  {
+    "path": "/src/ui/purchasing.tsx",
+    "status": 200,
+    "ms": 259
+  },
+  {
+    "path": "/src/ui/style/shell.css",
+    "status": 200,
+    "ms": 243
+  },
+  {
+    "path": "/src/ui/receivables.tsx",
+    "status": 200,
+    "ms": 258
+  },
+  {
+    "path": "/src/ui/style/dispatch.css",
+    "status": 200,
+    "ms": 243
+  },
+  {
+    "path": "/src/ui/style/records.css",
+    "status": 200,
+    "ms": 252
+  },
+  {
+    "path": "/src/ui/style/controls.css",
+    "status": 200,
+    "ms": 252
+  },
+  {
+    "path": "/src/ui/outbox.ts",
+    "status": 200,
+    "ms": 251
+  },
+  {
+    "path": "/src/ui/style/technician.css",
+    "status": 200,
+    "ms": 252
+  },
+  {
+    "path": "/src/ui/photos.ts",
+    "status": 200,
+    "ms": 251
+  },
+  {
+    "path": "/src/ui/phone-location.tsx",
+    "status": 200,
+    "ms": 255
+  },
+  {
+    "path": "/src/ui/technician-portrait.tsx",
+    "status": 200,
+    "ms": 256
+  },
+  {
+    "path": "/src/ui/visit-status-notices.tsx",
+    "status": 200,
+    "ms": 256
+  },
+  {
+    "path": "/src/ui/decline-visit.tsx",
+    "status": 200,
+    "ms": 196
+  },
+  {
+    "path": "/src/ui/booking-offers.tsx",
+    "status": 200,
+    "ms": 196
+  },
+  {
+    "path": "/src/glove/mercator.ts",
+    "status": 200,
+    "ms": 197
+  },
+  {
+    "path": "/src/ui/documents.css",
+    "status": 200,
+    "ms": 189
+  },
+  {
+    "path": "/src/glove/document-format.ts",
+    "status": 200,
+    "ms": 190
+  },
+  {
+    "path": "/src/ui/service-report.tsx",
+    "status": 200,
+    "ms": 162
+  },
+  {
+    "path": "/src/glove/recurrence.ts",
+    "status": 200,
+    "ms": 157
+  },
+  {
+    "path": "/src/ui/quote-signing.tsx",
+    "status": 200,
+    "ms": 200
+  },
+  {
+    "path": "/src/ui/saved-card-payment.tsx",
+    "status": 200,
+    "ms": 146
+  },
+  {
+    "path": "/src/ui/field-invoices.css",
+    "status": 200,
+    "ms": 105
+  },
+  {
+    "path": "/src/ui/quickbooks-review.tsx",
+    "status": 200,
+    "ms": 151
+  },
+  {
+    "path": "/src/glove/csv-format.ts",
+    "status": 200,
+    "ms": 105
+  },
+  {
+    "path": "/src/glove/model.ts",
+    "status": 200,
+    "ms": 6
+  },
+  {
+    "path": "/src/ui/review-email.tsx",
+    "status": 200,
+    "ms": 109
+  },
+  {
+    "path": "/src/ui/saved-card-registration.tsx",
+    "status": 200,
+    "ms": 15
+  },
+  {
+    "path": "/api/glove/state",
+    "status": 200,
+    "ms": 68
+  },
+  {
+    "path": "/brand/mark.svg",
+    "status": 200,
+    "ms": 36
+  },
+  {
+    "path": "/fonts/figtree/figtree-latin-wght-normal.woff2",
+    "status": 200,
+    "ms": 54
+  },
+  {
+    "path": "/api/glove/reports/receivables.json",
+    "status": 200,
+    "ms": 51
+  },
+  {
+    "path": "/api/glove/reports/payroll.json",
+    "status": 200,
+    "ms": 94
+  },
+  {
+    "path": "/api/glove/timesheets",
+    "status": 200,
+    "ms": 87
+  },
+  {
+    "path": "/api/glove/reports/payroll.json",
+    "status": 200,
+    "ms": 143
+  },
+  {
+    "path": "/api/glove/reports/revenue.json",
+    "status": 200,
+    "ms": 147
+  },
+  {
+    "path": "/api/glove/reports/receivables.json",
+    "status": 200,
+    "ms": 145
+  },
+  {
+    "path": "/api/glove/timesheets",
+    "status": 200,
+    "ms": 150
+  },
+  {
+    "path": "/api/glove/reports/revenue.json",
+    "status": 200,
+    "ms": 156
+  },
+  {
+    "path": "/api/glove/timesheets",
+    "status": 200,
+    "ms": 75
+  },
+  {
+    "path": "/api/glove/reports/payroll.json",
+    "status": 200,
+    "ms": 75
+  }
+]

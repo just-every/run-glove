@@ -1,0 +1,68 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+Customer email callback rejected
+✖ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay (160816.809329ms)
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+ℹ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+ℹ COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 163408.688798
+
+✖ failing tests:
+
+test at tests/api/email.test.mjs:19:1
+✖ COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay (160816.809329ms)
+  AssertionError [ERR_ASSERTION]: {"ok":false,"error":{"code":"MAIL_EVENT","message":"Not accepted: the signature, the event form or the message it names did not match."}}
+  
+  401 !== 429
+  
+      at assertRejected (file:///workspace/glove-main-proof/tests/api/email.test.mjs:499:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async file:///workspace/glove-main-proof/tests/api/email.test.mjs:296:3
+      at async scenario (file:///workspace/glove-main-proof/tests/fixtures/scenario.mjs:8:5)
+      at async TestContext.<anonymous> (file:///workspace/glove-main-proof/tests/api/email.test.mjs:263:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 401,
+    expected: 429,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

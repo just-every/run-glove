@@ -1,0 +1,6 @@
+##GENERIC## V1.0
+IID,Pay Frequency,Pay Period Start Date,Pay Period End Date,Employee ID,Earnings Code,Pay Hours,Dollars,Separate Check,Worked In Dept,Rate Code
+GLOVE23,B,11/02/2026,11/08/2026,305,REG,2.00,,0,,BASE
+GLOVE23,B,11/02/2026,11/08/2026,304,REG,8.00,,0,,BASE
+GLOVE23,B,11/02/2026,11/08/2026,305,COMM,,35.01,0,,BASE
+GLOVE23,B,11/02/2026,11/08/2026,304,COMM,,111.74,0,,BASE

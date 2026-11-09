@@ -1,0 +1,6 @@
+Employee,Date,Pay item,Hours,Amount
+Tom B.,11/03/2026,Regular,2.00,
+Priya N.,11/02/2026,Regular,8.00,
+Tom B.,11/04/2026,Commission,,25.00
+Tom B.,11/08/2026,Commission,,10.01
+Priya N.,11/04/2026,Commission,,111.74

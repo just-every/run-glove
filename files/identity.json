@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "scope": "origin/main..HEAD includes all parents",
+  "candidate": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "commits": [
+    {
+      "head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "35785ba0a677a6aa5f603871419bd643df9e883e",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "f866b9fdcbba9eb2462a92d1cf1557bf6351ce08",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "ba1f31fdf0579e9ef10940edc47b38a2e169cac3",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "5d1e3654c3ba4d27f7a869e7228f80a891982847",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "7a53356bfa8f7aecaef8357ff101f29ddd67e313",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "4a3a4dcaeb34be557c9839fb4d07d0e042b8aa56",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "b63fa85a696950f1bbd347e8271f09d386cb29c1",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "cf1e80ee30a83b46e60f69571c2de82baeefb0f9",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "e77c0d378cbcaa0034aa73caf5d1957dbdb1bf57",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "a234ab09af67bc4df3a30f525da652dd74838951",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "496c5552cc3eebf6c051826a1b34a78a66457c2f",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "f05714630794e925d17e35a1759a2cea5df1f971",
+      "identityAllowed": true,
+      "trailers": []
+    },
+    {
+      "head": "7d90c8bf36257b925af27c570b27baf434c87bd5",
+      "identityAllowed": true,
+      "trailers": []
+    }
+  ],
+  "errors": [],
+  "exit": 0
+}

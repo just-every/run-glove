@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "head": "643c64323dee88c18e5b2fc542f1da730c92112f",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/payroll-files.test.mjs"
+  ],
+  "started": "2026-11-09T13:08:05.331322+00:00",
+  "ended": "2026-11-09T13:09:03.396267+00:00",
+  "exit": 0,
+  "node": "22.20.0"
+}

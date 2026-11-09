@@ -1,0 +1,88 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/contract-docs.mjs",
+      "write",
+      "--clauses",
+      "TEAM-006"
+    ],
+    "exit": 0,
+    "log": "mechanical-1.log",
+    "node": "22.20.0"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/contract-docs.mjs",
+      "check"
+    ],
+    "exit": 0,
+    "log": "mechanical-2.log",
+    "node": "22.20.0"
+  },
+  {
+    "command": [
+      "git",
+      "checkout",
+      "origin/main",
+      "--",
+      "ACCEPTANCE.md",
+      "docs/CLAIMS.md"
+    ],
+    "exit": 0,
+    "log": "mechanical-3.log",
+    "node": "22.20.0"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "exit": 0,
+    "log": "mechanical-4.log",
+    "node": "22.20.0"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "check"
+    ],
+    "exit": 0,
+    "log": "mechanical-5.log",
+    "node": "22.20.0"
+  },
+  {
+    "command": [
+      "pnpm",
+      "typecheck"
+    ],
+    "exit": 0,
+    "log": "mechanical-6.log",
+    "node": "22.20.0"
+  },
+  {
+    "command": [
+      "node",
+      "tests/inventory.mjs"
+    ],
+    "exit": 0,
+    "log": "mechanical-7.log",
+    "node": "22.20.0"
+  },
+  {
+    "command": [
+      "npx",
+      "-y",
+      "@runeditrun/rer",
+      "check",
+      "--profile",
+      "first-party"
+    ],
+    "exit": 0,
+    "log": "mechanical-8.log",
+    "node": "22.20.0"
+  }
+]

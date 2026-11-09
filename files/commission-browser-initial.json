@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "head": "f866b9fdcbba9eb2462a92d1cf1557bf6351ce08",
+  "started": "2026-11-09T12:08:52.729Z",
+  "ended": "2026-11-09T12:09:13.801Z",
+  "command": "run commissionDownloads directly without a new registration",
+  "exit": 1,
+  "error": "Error: expect(locator).toHaveAttribute(expected) failed\n\nLocator:  locator('.glove-app')\nExpected: \"false\"\nReceived: \"true\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveAttribute\" locator('.glove-app') with timeout 5000ms\n  - waiting for locator('.glove-app')\n    9 × locator resolved to <main aria-busy=\"true\" class=\"glove-app loading\">…</main>\n      - unexpected value \"true\"\n",
+  "widths": [
+    1440,
+    390
+  ]
+}

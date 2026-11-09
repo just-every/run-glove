@@ -1,0 +1,95 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Customer email callback rejected
+# Subtest: COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+not ok 1 - COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+  ---
+  duration_ms: 162604.59919
+  type: 'test'
+  location: '/workspace/run-glove/tests/api/email.test.mjs:20:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    {"ok":false,"error":{"code":"MAIL_EVENT","message":"Not accepted: the signature, the event form or the message it names did not match."}}
+    
+    401 !== 429
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 429
+  actual: 401
+  operator: 'strictEqual'
+  stack: |-
+    assertRejected (file:///workspace/run-glove/tests/api/email.test.mjs:501:10)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async file:///workspace/run-glove/tests/api/email.test.mjs:297:3
+    async scenario (file:///workspace/run-glove/tests/fixtures/scenario.mjs:8:5)
+    async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/email.test.mjs:264:3)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 the owner's morning brief email is sent once per business-local date and records the provider outcome
+# COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 a quote, an invoice and a purchase order emailed through the owner's provider record delivered and bounced from signed provider events
+# COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 callback boundary authenticates before lookup, ignores unmatched without IDs, refuses whole wrong-recipient batches and limits only rejected IP traffic
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: tests/api/message-outcomes.test.mjs
+ok 2 - tests/api/message-outcomes.test.mjs
+  ---
+  duration_ms: 2746.797614
+  type: 'test'
+  ...
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: COST-007 payroll files qualify provider rows, approved workweeks, privacy and export authority
+ok 3 - COST-007 payroll files qualify provider rows, approved workweeks, privacy and export authority
+  ---
+  duration_ms: 29727.998939
+  type: 'test'
+  ...
+# COST-007 point 1: ADP RUN exact layout, owner codes, setup refusals and unmatched payroll IDs
+# COST-007 point 2: Gusto exact employee columns and first-word names
+# COST-007 point 3: three workweeks retain each approved week and its own overtime and refuse invalid periods
+# COST-007 point 4: an offered SSN never enters state, business export or payroll files
+# COST-007 point 5: QuickBooks daily pay items, all file permissions and actual Worker restart
+# TEAM-006 point 1: reads recompute earnings after hours approval under the rule on each sale date
+# TEAM-006 point 2: every provider row matches two technicians over three workweeks with both ADP commission codes
+# TEAM-006 point 3: credited people without approved time and subcontractors never enter any file
+# TEAM-006 point 4: JSON enumerates sold, completed and agreement credits including the shared invoice cent remainder
+# TEAM-006 point 5: reads make no payment or provider confirmation and remain identical after actual Worker restart
+# TEAM-006 provider account acceptance remains unrun; Glove pays no one and files nothing. Period from=2026-11-02&to=2026-11-22
+1..3
+# tests 3
+# suites 0
+# pass 2
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 202556.494367

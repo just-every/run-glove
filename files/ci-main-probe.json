@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern",
+    "^PLAN-010 bearer custody survives restart",
+    "tests/api/due-visit-offers.test.mjs"
+  ],
+  "node": "22.20.0",
+  "started": "2026-11-09T12:48:33.333482+00:00",
+  "ended": "2026-11-09T12:48:53.622467+00:00",
+  "exit": 0
+}

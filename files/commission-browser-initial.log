@@ -1,0 +1,17 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+Error: expect(locator).toHaveAttribute(expected) failed
+
+Locator:  locator('.glove-app')
+Expected: "false"
+Received: "true"
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveAttribute" locator('.glove-app') with timeout 5000ms
+  - waiting for locator('.glove-app')
+    9 × locator resolved to <main aria-busy="true" class="glove-app loading">…</main>
+      - unexpected value "true"
+
+TEAM-006 Timesheets downloads exit=1

@@ -1,0 +1,11 @@
+{
+  "head": "35785ba0a677a6aa5f603871419bd643df9e883e",
+  "job": "shards (api-2), 129156614417",
+  "command": "CI=true GLOVE_VERIFY_SHARD=api-2 WRANGLER_SEND_METRICS=false PLAYWRIGHT_SKIP_BROWSER_GC=1 GLOVE_CI_PREBUILT=1 node scripts/verify-ci.mjs api-2",
+  "test": "COMM-016 enclosing COMM-010 points 3 and 4: Amazon SES authenticated facts deduplicate, unmatched messages have no effect, and final outcomes resist late and equal-time non-final events",
+  "exit": 124,
+  "failure": "Expected authenticated unmatched response [200,{ok:true}], received [401,{ok:false,error:{code:MAIL_EVENT}}] at tests/api/message-outcomes.test.mjs:168",
+  "boundedReplay": "20-minute timeout after two observed failures; whole shard did not complete",
+  "remoteAssertion": "unknown because archive transport failed",
+  "otherObservedFailure": "PLAN-010 bearer custody test: TypeError: fetch failed"
+}

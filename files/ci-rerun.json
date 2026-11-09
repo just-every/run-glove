@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "command": "gh api -X POST repos/just-every/run-glove/actions/runs/42616113091/rerun-failed-jobs",
+  "head": "35785ba0a677a6aa5f603871419bd643df9e883e",
+  "run": 42616113091,
+  "exit": 0,
+  "stdout": "{}",
+  "stderr": "",
+  "reason": "Exact api-2 replay encountered a fetch-failed transport error in unchanged PLAN-010 restart test; that test passes on main. One failed-job rerun only; no product repair. Remote assertion unavailable.",
+  "requestedAt": "2026-11-09T12:49:44.618606+00:00"
+}

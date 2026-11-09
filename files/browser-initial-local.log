@@ -1,0 +1,85 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 2 tests using 1 worker
+
+(node:4347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4347) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/conversation.spec.ts:26:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations (35.8s)
+(node:4526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/browser/journey.spec.ts:866:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (1.2m)
+
+
+  1) tests/browser/conversation.spec.ts:26:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Finish setup', exact: true })
+        - locator resolved to <button type="submit">Finish setup</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - performing click action
+        - click action done
+        - waiting for scheduled navigations to finish
+
+
+      43 |     try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      44 |     if (new URL(page.url()).pathname === '/setup') {
+    > 45 |       await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+         |                                                                                                                       ^
+      46 |       await page.waitForURL(u => u.pathname === '/app')
+      47 |     }
+      48 |     // The UI uses the real Worker and signed-in desk session. Delay a read only
+        at /workspace/run-glove/tests/browser/conversation.spec.ts:45:119
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f215/browser-current/conversation-COMM-007-desk-76a1e-te-or-refused-conversations/error-context.md
+
+  2) tests/browser/journey.spec.ts:866:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('region', { name: 'On the clock', exact: true })
+    Expected substring: "0 technicians"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByRole('region', { name: 'On the clock', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'On the clock', exact: true })
+
+
+      1044 |       as = h.owner()
+      1045 |       await page.goto(`${origin}/app#today`)
+    > 1046 |       await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
+           |                                                                                     ^
+      1047 |       await proof('time-desk-clock')
+      1048 |       for (const [i, travel, jobMinutes] of [[0, 10, 21], [1, 11, 3]]) {
+      1049 |         await page.goto(`${origin}/app#jobs/${jobs[i].job.id}`)
+        at /workspace/run-glove/tests/browser/journey.spec.ts:1046:85
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f215/browser-current/journey-COST-001-COST-002--81547-is-assigned-at-1440-and-390/error-context.md
+
+  2 failed
+    tests/browser/conversation.spec.ts:26:1 › COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations 
+    tests/browser/journey.spec.ts:866:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 

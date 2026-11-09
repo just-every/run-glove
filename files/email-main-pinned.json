@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/email.test.mjs"
+  ],
+  "node": "22.20.0",
+  "started": "2026-11-09T12:42:50.000215+00:00",
+  "ended": "2026-11-09T12:46:03.085115+00:00",
+  "exit": 0
+}
