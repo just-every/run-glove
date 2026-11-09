@@ -37,7 +37,14 @@ for (const source of ['fieldpulse','workiz','servicetitan']) test(`${source === 
       await business(h)
       if (system === 'servicetitan') {
         await h.setTime('2026-11-09T12:00:00.000Z')
-        await page.clock.install({ time: new Date('2026-11-09T12:00:00.000Z') })
+        await page.addInitScript(at => {
+          const NativeDate = Date
+          globalThis.Date = new Proxy(NativeDate, {
+            construct: (target, args) => Reflect.construct(target, args.length ? args : [at]),
+            apply: () => new NativeDate(at).toString(),
+            get: (target, key) => key === 'now' ? () => at : Reflect.get(target, key),
+          })
+        }, Date.parse('2026-11-09T12:00:00.000Z'))
       }
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
       try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app','/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }

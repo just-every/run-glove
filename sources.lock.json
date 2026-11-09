@@ -5772,7 +5772,7 @@
       "executable": false
     },
     "tests/api/servicetitan-memberships.test.mjs": {
-      "sha256": "61f0a994d54c88ed6333ba059617b590deaa1b9d4e848cc23fdb05ea818323c9",
+      "sha256": "aae09b4d19fc13737ff8c9bfbc87ddbdfbd5bb02feeee1a09a18f0d52c9ef19e",
       "executable": false
     },
     "tests/api/ses-sns-custody.test.mjs": {
@@ -5912,7 +5912,7 @@
       "executable": false
     },
     "tests/browser/movein.spec.ts": {
-      "sha256": "7784d4f8fddf54258e445012cf6559d67b372ffae9c8664e403b39cbdce49082",
+      "sha256": "077a2eaace6171d94de7e2f95a20038b636ba0994420b10fbcd86522eda94134",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
