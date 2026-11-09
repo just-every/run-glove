@@ -211,4 +211,213 @@ test('BOOK-014 leads match exactly one live customer and retain source, sites an
     assert.equal((await post(h, 'yelp', erasedLead.body, connections.yelp.password)).status, 200)
     assert.deepEqual(await h.state(), tombstone, 'replayed intake after erasure and restart resurrects nothing')
   })
+  // One Reserve intake journey shares its durable installation across all eight points.
+  const receipt = '2030-03-10T12:00:00.000Z'
+  const h = await installation({ at: receipt })
+  t.after(() => h.close())
+  await h.command('business.save', { name: 'Synthetic Reserve business', timezone: 'America/Chicago' })
+  // Fix only the fixture clock; the recorded Booking factory itself remains unchanged.
+  const booking = id => {
+    const clock = t.mock.method(Date, 'now', () => Date.parse('2030-03-14T12:00:00.000Z'))
+    try { return recorded.reserveGoogle(id) } finally { clock.mock.restore() }
+  }
+  const first = booking('synthetic-glove-601')
+  let connection, original
+  const received = async () => (await h.state()).enquiries.filter(e => e.source === 'reserve-google')
+  const noEffects = s => [s.jobs, s.visits, s.messages, s.pushes]
+  const expectedBooking = {
+    merchantId: 'synthetic-glove-21', serviceId: 'synthetic-glove-22',
+    startAt: '2030-03-15T12:00:00.000Z', durationSeconds: 3600, sourceStatus: 'CONFIRMED',
+  }
+
+  await scenario(t, 'BOOK-017 point 1: the authenticated Booking door admits one request and refuses wrong, absent and disconnected credentials without writes', async () => {
+    const disconnected = await h.state()
+    assert.equal((await post(h, 'reserve-google', first, 'synthetic-glove-602')).status, 404)
+    assert.deepEqual(await h.state(), disconnected)
+    connection = await h.command('lead.connect', { provider: 'reserve-google', respondWithinMinutes: 37 })
+    assert.deepEqual(connection.callback, { url: h.origin + '/api/glove/leads/reserve-google', user: 'glove' })
+    assert.ok(connection.password)
+    const before = await h.state()
+    const failures = [
+      await post(h, 'reserve-google', first, 'synthetic-glove-603'),
+      await h.request('/api/glove/leads/reserve-google', { method: 'POST', as: '', body: first, headers: { authorization: `Basic ${Buffer.from(`someone:${connection.password}`).toString('base64')}` } }),
+      await h.request('/api/glove/leads/reserve-google', { method: 'POST', as: '', body: first }),
+    ]
+    for (const response of failures) {
+      assert.equal(response.status, 401)
+      assert.deepEqual(await response.json(), { ok: false, error: { code: 'LEAD', message: 'Not accepted: the credentials or the lead did not match.' } })
+    }
+    assert.deepEqual(await h.state(), before)
+    const outbound = h.outbound.attempts, emails = h.email.sent.length
+    const response = await post(h, 'reserve-google', first, connection.password)
+    assert.equal(response.status, 200)
+    assert.deepEqual(await response.json(), { ok: true }, 'an intake receipt grants no booking-server result')
+    const requests = await received()
+    assert.equal(requests.length, 1)
+    original = requests[0]
+    assert.deepEqual([original.source, original.lead.providerLeadId, original.status], ['reserve-google', 'synthetic-glove-601', 'new'])
+    const customer = (await h.state()).customers.find(c => c.id === original.customerId)
+    assert.deepEqual([customer.name, customer.phone, customer.email], ['Mei Lin', '+1 312-555-0100', first.user_information.email])
+    assert.deepEqual(noEffects(await h.state()), noEffects(before))
+    assert.deepEqual([h.outbound.attempts, h.email.sent.length], [outbound, emails])
+  })
+
+  await scenario(t, 'BOOK-017 point 2: only a signed-in unscoped Owner issues a relay credential and intake makes no Google server or notification claim', async () => {
+    const office = await h.person('Reserve Office', 'office')
+    const dispatcher = await h.person('Reserve Dispatcher', 'dispatcher')
+    const scopedOwner = await h.person('Reserve Scoped Owner', 'owner')
+    await h.command('branch.limit', { operatorId: scopedOwner.id, branchId: 'main' })
+    const role = await h.command('role.save', { name: 'Reserve custom desk', permissions: ['enquiry.acknowledged'] })
+    const custom = await h.person('Reserve Custom', `custom:${role.id}`)
+    const token = await h.command('token.issue', { name: 'Reserve integration', role: 'office' })
+    assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${token.token}` } })).status, 200)
+    const before = await h.state()
+    const payload = { provider: 'reserve-google' }
+    for (const person of [office, dispatcher, scopedOwner, custom]) {
+      await person.run('lead.connect', payload, { error: 'FORBIDDEN' })
+      assert.deepEqual(await h.state(), before)
+    }
+    for (const [headers, status] of [[{}, 401], [{ authorization: `Bearer ${token.token}` }, 403]]) {
+      const response = await h.request('/api/glove/commands', { method: 'POST', as: '', headers, body: { commandId: crypto.randomUUID(), type: 'lead.connect', payload } })
+      assert.equal(response.status, status)
+      const result = await response.json()
+      assert.equal(result.ok, false)
+      assert.equal(result.result, undefined)
+      assert.deepEqual(await h.state(), before)
+    }
+    // Only the successful Owner call in point 1 issued this credential; all refusals leave it usable.
+    assert.equal((await post(h, 'reserve-google', first, connection.password)).status, 200)
+    const { activity } = await assertTrail(h, ['lead.connected', 'lead.received'])
+    assert.ok(!/BookingNotification|CreateBooking|booking server|live integration/i.test(JSON.stringify({ requests: await received(), activity })))
+    assert.equal((await received()).length, 1)
+  })
+
+  await scenario(t, 'BOOK-017 point 3: exact source facts survive a real Worker restart without a visit, job, calendar write, reply, message or push', async () => {
+    const before = await h.state(), outbound = h.outbound.attempts, emails = h.email.sent.length
+    assert.deepEqual(original.lead.booking, expectedBooking)
+    assert.equal(original.lead.providerTime, null)
+    assert.equal(original.lead.providerLeadId, 'synthetic-glove-601')
+    assert.equal(original.siteId, null)
+    assert.deepEqual([before.jobs, before.visits, before.messages], [[], [], []])
+    assert.equal(h.calendarSync.calls.length, 0)
+    assert.equal(h.pushes.sent.length, 0)
+    await h.restart()
+    assert.deepEqual(await h.state(), before)
+    assert.deepEqual((await received())[0], original)
+    assert.deepEqual([h.outbound.attempts, h.email.sent.length, h.calendarSync.calls.length, h.pushes.sent.length], [outbound, emails, 0, 0])
+    assert.equal(emails, 0)
+  })
+
+  let pending
+  await scenario(t, 'BOOK-017 point 4: neither admitted status invents a lead cost from slot or user fields', async () => {
+    const before = await h.state(), outbound = h.outbound.attempts, emails = h.email.sent.length
+    pending = { ...booking('synthetic-glove-604'), status: 'PENDING_MERCHANT_CONFIRMATION' }
+    assert.equal((await post(h, 'reserve-google', pending, connection.password)).status, 200)
+    const requests = await received()
+    assert.equal(requests.length, 2)
+    assert.deepEqual(noEffects(await h.state()), noEffects(before))
+    assert.deepEqual([h.outbound.attempts, h.email.sent.length], [outbound, emails])
+    assert.deepEqual(requests.map(e => e.lead.booking.sourceStatus).sort(), ['CONFIRMED', 'PENDING_MERCHANT_CONFIRMATION'])
+    for (const request of requests) {
+      assert.equal(request.leadCost, undefined)
+      assert.equal(request.lead.booking.durationSeconds, 3600)
+      assert.equal(request.lead.booking.serviceId, 'synthetic-glove-22')
+      assert.equal(request.lead.booking.merchantId, 'synthetic-glove-21')
+    }
+    const { activity, exported } = await assertTrail(h, ['lead.received'])
+    assert.ok(!activity.some(e => e.kind === 'enquiry.cost'))
+    for (const request of requests) {
+      assert.equal(exported.enquiries.find(e => e.id === request.id).leadCost, undefined)
+      const fact = exported.timeline.find(e => e.kind === 'lead.received' && e.subject_id === request.id)
+      assert.equal(JSON.parse(fact.data).cost, null)
+    }
+  })
+
+  await scenario(t, 'BOOK-017 point 5: cancellations and unsupported statuses refuse all writes and changed-slot updates retain the first record', async () => {
+    const before = await h.state()
+    for (const status of ['CANCELED', 'CANCELLED', 'DECLINED', 'PENDING', 'STATUS_UNSPECIFIED', '']) {
+      const response = await post(h, 'reserve-google', { ...booking('synthetic-glove-605'), status }, connection.password)
+      assert.equal(response.status, 401)
+      assert.equal((await response.json()).error.code, 'LEAD')
+      assert.deepEqual(await h.state(), before)
+    }
+    assert.equal((await post(h, 'reserve-google', { ...first, status: 'CANCELED' }, connection.password)).status, 401)
+    const changed = { ...first, status: 'PENDING_MERCHANT_CONFIRMATION', slot: { ...first.slot, merchant_id: 'synthetic-glove-606', service_id: 'synthetic-glove-607', start_sec: String(Number(first.slot.start_sec) + 86400), duration_sec: '7200' } }
+    assert.equal((await post(h, 'reserve-google', changed, connection.password)).status, 200)
+    assert.deepEqual(await h.state(), before)
+    assert.deepEqual((await received()).find(e => e.id === original.id), original)
+  })
+
+  await scenario(t, 'BOOK-017 point 6: retry, concurrent deliveries and restart replay land one request and one receipt fact per booking identity', async () => {
+    const concurrent = booking('synthetic-glove-608')
+    const before = await h.state(), outbound = h.outbound.attempts
+    assert.deepEqual(await Promise.all([1, 2].map(async () => (await post(h, 'reserve-google', concurrent, connection.password)).status)), [200, 200])
+    const settled = await h.state(), request = settled.enquiries.find(e => e.lead?.providerLeadId === 'synthetic-glove-608')
+    assert.equal(settled.enquiries.length, before.enquiries.length + 1)
+    assert.equal(settled.enquiries.filter(e => e.lead?.providerLeadId === 'synthetic-glove-608').length, 1)
+    assert.deepEqual(request.lead.booking, expectedBooking)
+    assert.equal(settled.events.filter(e => e.kind === 'lead.received' && e.subjectId === request.id).length, 1)
+    assert.deepEqual(noEffects(settled), noEffects(before))
+    assert.equal((await post(h, 'reserve-google', concurrent, connection.password)).status, 200)
+    assert.deepEqual(await h.state(), settled)
+    await h.restart()
+    for (const body of [concurrent, { ...concurrent, slot: { ...concurrent.slot, duration_sec: '9000' } }, first]) assert.equal((await post(h, 'reserve-google', body, connection.password)).status, 200)
+    assert.deepEqual(await h.state(), settled)
+    assert.equal(h.outbound.attempts, outbound)
+    const { activity, exported } = await assertTrail(h, ['lead.received'])
+    for (const lead of await received()) {
+      assert.equal(activity.filter(e => e.kind === 'lead.received' && e.subjectId === lead.id).length, 1)
+      assert.equal(exported.timeline.filter(e => e.kind === 'lead.received' && e.subject_id === lead.id).length, 1)
+    }
+  })
+
+  await scenario(t, 'BOOK-017 point 7: a slot five days ahead keeps creation and acknowledgment deadline at Glove receipt', async () => {
+    const requests = await received()
+    assert.equal(requests.length, 3)
+    for (const request of requests) {
+      assert.equal(request.createdAt, receipt)
+      assert.equal(request.lead.receivedAt, receipt)
+      assert.equal(request.lead.providerTime, null)
+      assert.equal(request.lead.booking.startAt, '2030-03-15T12:00:00.000Z')
+      assert.equal(request.acknowledgment.dueBy, '2030-03-10T12:37:00.000Z')
+      assert.equal(request.acknowledgment.status, 'queued')
+    }
+    assert.deepEqual([h.email.sent.length, h.pushes.sent.length], [0, 0])
+  })
+
+  await scenario(t, 'BOOK-017 point 8: Activity and business export attribute intake to the Reserve feed and exclude the door password', async () => {
+    const { activity, exported } = await assertTrail(h, ['lead.connected', 'lead.received'])
+    for (const request of await received()) {
+      const fact = activity.find(e => e.kind === 'lead.received' && e.subjectId === request.id)
+      assert.deepEqual([fact.actorId, fact.actorName, fact.actorRole, fact.subjectKind], ['lead:reserve-google', 'Reserve with Google lead feed', 'provider', 'enquiry'])
+      assert.equal(fact.at, receipt)
+      assert.ok(fact.summary.includes('Reserve with Google'))
+      const kept = exported.timeline.find(e => e.id === fact.id)
+      const data = JSON.parse(kept.data)
+      assert.equal(data.provider, 'reserve-google')
+      assert.equal(data.providerLeadId, request.lead.providerLeadId)
+      assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.subject_id, kept.command_id, kept.summary], [fact.actorId, fact.actorName, fact.actorRole, fact.at, request.id, fact.commandId, fact.summary])
+      assert.deepEqual(exported.enquiries.find(e => e.id === request.id), request)
+    }
+    assert.ok(!JSON.stringify({ state: await h.state(), activity, exported }).includes(connection.password))
+    // A replaced credential and an erased person's already accepted capture cannot reopen intake or resurrect data.
+    const replacement = await h.command('lead.connect', { provider: 'reserve-google' })
+    const before = await h.state()
+    assert.equal((await post(h, 'reserve-google', booking('synthetic-glove-609'), connection.password)).status, 401)
+    assert.deepEqual(await h.state(), before)
+    const customer = before.customers.find(c => c.id === original.customerId)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    const erased = await h.state()
+    assert.ok(erased.customers.find(c => c.id === customer.id).erasedAt)
+    await h.restart()
+    for (const body of [first, pending, booking('synthetic-glove-608')]) assert.equal((await post(h, 'reserve-google', body, replacement.password)).status, 200)
+    assert.deepEqual(await h.state(), erased)
+    const after = await assertTrail(h, ['lead.received'])
+    for (const secret of [connection.password, replacement.password]) assert.ok(!JSON.stringify({ state: await h.state(), ...after }).includes(secret))
+    await h.command('lead.connect', { provider: 'reserve-google', disconnect: true })
+    const disconnected = await h.state()
+    assert.equal((await post(h, 'reserve-google', booking('synthetic-glove-610'), replacement.password)).status, 404)
+    assert.deepEqual(await h.state(), disconnected)
+  })
 })
