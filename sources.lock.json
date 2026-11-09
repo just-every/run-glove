@@ -2096,7 +2096,7 @@
       "executable": false
     },
     "src/glove/costing.ts": {
-      "sha256": "9a900ae65138643147bae93db9c1055efee86442745abe3b863c45f4fa626664",
+      "sha256": "3839d57df0fd763b021ff85d0085b34bbd2c417f6fdeabc3cc21a5d5eece0d0b",
       "executable": false
     },
     "src/glove/csv-format.ts": {
@@ -2324,7 +2324,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "6e314bc028f7035480a7595063ffdbaf722c73be59a4bbc5895614dbe3d7cc5d",
+      "sha256": "eb6b9fa265d728c1c142102621dbbbb652d7ce21d8ef5d0b95573cdc67390afc",
       "executable": false
     },
     "src/glove/progress-invoices.ts": {
@@ -6240,7 +6240,7 @@
       "executable": false
     },
     "tests/fixtures/privacy-data.mjs": {
-      "sha256": "b657a5dcb22b83de2fd4516e329aa3ea72737adf5e27fea740ec5c4a7d274e4a",
+      "sha256": "75811d60b1929998b5904c23fbd0b9b2e97a9cc83a7a98993ec2e332e942addf",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {

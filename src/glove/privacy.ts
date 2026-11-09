@@ -90,10 +90,16 @@ export const privacy: Handler = async (c, type, p, db) => {
   } else {
     if (p.confirm !== 'ERASE') fail('CONSENT', 'Confirm ERASE to permanently erase this merged customer group.', null, 400)
     if (p.fingerprint !== preview.fingerprint) fail('STALE_PREVIEW', 'Prepare and review a current erasure preview before confirming.', null, 409)
+    const retainedMaterials = new Map<string, Record<string, unknown>[]>()
+    for (const r of scope.records.captures) if (r.kind === 'material') {
+      const entries = retainedMaterials.get(r.jobId) ?? []
+      entries.push({ quantity: r.quantity, unit: scope.redact(r.unit), serviceId: r.serviceId ?? null })
+      retainedMaterials.set(r.jobId, entries)
+    }
     const keeps: Record<string, (r: Row) => Row> = {
       customers: r => ({ id: r.id, version: r.version + 1, name: 'Erased customer', erasedAt: c.now, branchId: r.branchId ?? null }),
       sites: r => ({ id: r.id, ...pick(r, ['id', 'customerId', 'branchId']), version: r.version + 1, address: 'Erased address', erasedAt: c.now }),
-      jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [] }),
+      jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [], ...(retainedMaterials.has(r.id) ? { retainedMaterials: retainedMaterials.get(r.id) } : {}) }),
       invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt', 'dates', 'approvalAt', 'recurring', 'openingBalance']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
       payments: r => ({ id: r.id, ...pick(r, ['invoiceId', 'invoiceNumber', 'jobId', 'customerId', 'branchId', 'createdAt', 'currency', 'amount', 'tip', 'technicianIds', 'fee', 'status', 'confirmedAt', 'taxBreakdown', 'taxTotalAmount', 'kind', 'method', 'mode']), effects: (r.effects ?? []).map((e: Row) => pick(e, ['at', 'amountCents', 'tipCents', 'invoiceId'])), version: r.version + 1, erasedAt: c.now }),
       times: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'technicianId', 'kind', 'startAt', 'endAt']), version: r.version + 1 }),
@@ -112,12 +118,7 @@ export const privacy: Handler = async (c, type, p, db) => {
         if (kind === 'proposals' && r.payoutId && (scope.matches(r) || payoutIds.has(r.payoutId))) return []
         if (kind === 'payouts' && payoutIds.has(r.id)) return [{ ...scope.redact(r), sourceDetailsErasedAt: c.now, ...(r.reference !== undefined ? { reference: payoutScope.redact(r.reference) } : {}), id: r.id, version: r.version + 1, ...(r.items ? { items: r.items.map((i: Row) => scope.ids.has(i.paymentId) ? { ...scope.redact(i), providerReference: null } : i) } : {}) }]
         if (kind === 'routes' && scope.matches(r)) return [{ ...scope.redact(r), id: r.id, version: r.version + 1, ...(['queued', 'running', 'ready'].includes(r.status) ? { status: 'discarded', reason: 'Customer personal data erased; prepare a new route.' } : {}) }]
-        if (scope.selected.has(`${kind}:${r.id}`)) {
-          // Costing still needs the quantity and catalogue association. Retire
-          // the field capture identity and all person, visit and text evidence.
-          if (kind === 'captures' && r.kind === 'material') return [{ id: newId(), version: 1, jobId: r.jobId, kind: 'material', quantity: r.quantity, unit: scope.redact(r.unit), serviceId: r.serviceId ?? null, description: 'Retained material', erasedAt: c.now }]
-          return keeps[kind] ? [keeps[kind](r)] : []
-        }
+        if (scope.selected.has(`${kind}:${r.id}`)) return keeps[kind] ? [keeps[kind](r)] : []
         return !importedPeers.has(r.id) && scope.matches(r) ? [{ ...scope.redact(r), id: r.id, version: r.version + 1 }] : [r]
       })
     }
