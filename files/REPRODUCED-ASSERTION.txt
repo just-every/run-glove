@@ -1,0 +1,39 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✖ MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule (5443.439434ms)
+ℹ MOVE-003 point 1: documented V2 files preview without effects and require the exact reviewed fingerprint
+ℹ MOVE-003 point 2: owner commits source history; imported estimates refuse every customer action and native decisions require a new quote
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8027.880368
+
+✖ failing tests:
+
+test at tests/api/servicetitan-memberships.test.mjs:59:1
+✖ MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule (5443.439434ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'draft'
+  - 'imported'
+  
+      at file:///workspace/run-glove/tests/api/servicetitan-memberships.test.mjs:272:12
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async scenario (file:///workspace/run-glove/tests/fixtures/scenario.mjs:8:5)
+      at async qualifyServiceTitan (file:///workspace/run-glove/tests/api/servicetitan-memberships.test.mjs:268:3)
+      at async TestContext.<anonymous> (file:///workspace/run-glove/tests/api/servicetitan-memberships.test.mjs:60:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'draft',
+    expected: 'imported',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

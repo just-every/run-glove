@@ -1,0 +1,106 @@
+Owned checkout runtime ready on loopback.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 1 test using 1 worker
+
+(node:4544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:4544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/browser/movein.spec.ts:31:62 › MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 (3.0m)
+
+
+  1) tests/browser/movein.spec.ts:31:62 › MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 › MOVE-003: review every source exception, commit read-only history and undo the reviewed snapshot 
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.waitForResponse: Test ended.
+
+      11 | const origin = process.env.GLOVE_BASE_URL || '[URL]
+      12 | async function send(page: Page, button: Locator) {
+    > 13 |   const response = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
+         |                         ^
+      14 |   await button.click()
+      15 |   const body = await (await response).json()
+      16 |   expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
+        at send (/workspace/run-glove/tests/browser/movein.spec.ts:13:25)
+        at /workspace/run-glove/tests/browser/movein.spec.ts:152:34
+        at /workspace/run-glove/tests/browser/movein.spec.ts:148:9
+
+    Error: browserContext.close: Target page, context or browser has been closed
+
+      415 |       }
+      416 |       expect(errors).toEqual([])
+    > 417 |     } finally { await context.close(); await h.close() }
+          |                 ^
+      418 |   }
+      419 | })
+      420 |
+        at /workspace/run-glove/tests/browser/movein.spec.ts:417:17
+
+    Error Context: ../../home/agent/rer-consolidation/work/sx-glove-c-f207/browser/results/owned-checkout/movein-MOVE-003-MOVE-009-s-53bde--and-undoes-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/movein.spec.ts:31:62 › MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390 
+
+ur proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.129.1 (update available 4.158.0)
+───────────────────────────────────────────────
+Resource location: local 
+
+Use --remote if you want to access the remote instance.
+
+✅ No migrations to apply!
+Starting your application on this computer
+Starting your application on this computer
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Using secrets defined in .dev.vars
+Starting your application on this computer (waiting for the bound internal listener): Still starting (30 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (31 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (32 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (33 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (34 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (35 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (36 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (37 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (38 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (39 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (40 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (41 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (42 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (43 s)
+Starting your application on this computer (waiting for the bound internal listener): Still starting (44 s)
+  ➜  Local:   [URL]
+Opening your application
+Your application is running locally
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Open your app, already signed in on this computer: [URL]
+Help and public site preview (secondary): [URL]
+App address (without sign-in): [URL]
+Keep the sign-in link private.
+Downloads this run (archive payloads): Node installer: not measured; rer installer: not measured.
+Other downloads: project Node, clone and dependencies: not measured. Package-manager caches and metadata are not included in archive counts.
+Disk use now (allocated space, not download sizes): rer: 11132928 bytes; clone (Git objects): 11145216 bytes; dependencies: 512172032 bytes.
+Details for tools and troubleshooting:
+RER_READY [URL]
+RER_SIGNED_IN fleet@runeditrun.com
+[private runtime entry]
+RER_SITE [URL]
+Running the scheduled trigger locally: */15 * * * *
+10:05:33 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:05:34 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+10:05:34 AM [vite] (client) [console.error] Encountered two children with the same key, `servicetitan-sites-4b227777d4dd1fc61c6f884f1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+

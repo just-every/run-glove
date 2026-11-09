@@ -1,0 +1,23 @@
+{
+  "head": "db35289a917e7bdcb4a69f23306a3565e198f286",
+  "main_at_merge": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+  "full_history": true,
+  "source_contract_diff": "",
+  "source_diff_files": [
+    "sources.lock.json",
+    "src/glove/movein/servicetitan.ts",
+    "tests/api/servicetitan-memberships.test.mjs",
+    "tests/browser/movein.spec.ts",
+    "tests/fixtures/movein.mjs",
+    "tests/fixtures/servicetitan-movein/qualification/README.md",
+    "tests/fixtures/servicetitan-movein/qualification/appointment-assignments.json",
+    "tests/fixtures/servicetitan-movein/qualification/appointments.json",
+    "tests/fixtures/servicetitan-movein/qualification/contacts.json",
+    "tests/fixtures/servicetitan-movein/qualification/customers.json",
+    "tests/fixtures/servicetitan-movein/qualification/estimates.json",
+    "tests/fixtures/servicetitan-movein/qualification/job-attachments-7.json",
+    "tests/fixtures/servicetitan-movein/qualification/jobs.json",
+    "tests/fixtures/servicetitan-movein/qualification/locations.json",
+    "tests/fixtures/servicetitan-movein/qualification/technicians.json"
+  ]
+}

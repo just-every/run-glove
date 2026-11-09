@@ -1,0 +1,21 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule (71128.91994ms)
+ℹ MOVE-003 point 1: documented V2 files preview without effects and require the exact reviewed fingerprint
+ℹ MOVE-003 point 2: owner commits source history; imported estimates refuse every customer action and native decisions require a new quote
+ℹ MOVE-003 point 3: independently enumerated identities, contacts, assignments, timed notes, exact attachment bytes and warranties remain linked
+ℹ MOVE-003 point 4: dated remaining balances cannot be approved, exported or reported as new sales
+ℹ MOVE-003 point 5: stage, commit, replay, actual Worker restart and guarded undo cause no outbound or billing effects
+ℹ MOVE-003 point 6: unknown fields, missing bytes, an unassigned appointment and rejected parents are named with exact source retained
+ℹ Point 1: fixed and ongoing memberships keep exactly one identity and independently enumerated site-specific events
+ℹ Point 2: labelled source billing amounts confer no payment authority through replay or actual Worker restart
+ℹ Point 3: monthly and weekly proposals need explicit people, exact future dates and original ends; unsafe changes leave records unchanged
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 73906.680792
