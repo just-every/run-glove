@@ -1,5 +1,6 @@
 import { scenario } from '../fixtures/scenario.mjs'
 import { depositBatchQualification } from './deposit-batches.mjs'
+import { receiptCreditQualification } from './receipt-credit.mjs'
 import { connectMail, receipt as mailReceipt } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -10,6 +11,7 @@ import { connectPayments, paidInvoice, paymentEvent, instantFunding } from '../f
 const read = async (h, path) => { const response = await h.request(path), body = await response.json(); assert.equal(response.status, 200, JSON.stringify(body)); return body }
 
 test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
+  await receiptCreditQualification(t)
   await scenario(t, 'PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York', taxSettings: { jurisdictions: [{ id: 'synthetic-glove-tax', name: 'Combined sales tax', rate: '8.25', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-tax' } })
