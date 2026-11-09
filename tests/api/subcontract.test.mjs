@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto'
 import { parseCsv } from '../../src/glove/csv-format.ts'
 import { installation, business, acceptedQuote, assertTrail } from './harness.mjs'
 
-test('API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-person crew and a subcontractor: each sees only their visits, the crew moves as one, and the subcontractor\'s 1099 total is kept', async (t) => {
+test('DISP-007, DISP-013, DISP-014 the owner\'s agreed amounts on completed visits make the subcontractor\'s 1099-NEC total for the year', async (t) => {
   const h = await installation({ at: '2026-12-30T12:00:00.000Z' })
   t.after(() => h.close())
   const b = await business(h)
@@ -102,7 +102,7 @@ test('API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-perso
     assert.deepEqual((await h.state()).visits.filter(v => v.crew?.groupId === crewDays[2].id).map(v => v.status), ['cancelled', 'cancelled'])
   })
 
-  await t.test('DISP-007, DISP-013, DISP-014 the owner\'s agreed amounts on completed visits make the subcontractor\'s 1099-NEC total for the year', async () => {
+  await scenario(t, 'DISP-007, DISP-013, DISP-014 the owner\'s agreed amounts on completed visits make the subcontractor\'s 1099-NEC total for the year', async () => {
     const amounts = ['450.00', '300.00', '275.00']
     for (const [i, v] of sidDays.entries()) {
       const current = (await h.state()).visits.find(x => x.id === v.id)

@@ -31,8 +31,6 @@ async function fixture(h, at) {
   return { customer, site, tech, techPerson, office, dispatcher, agent, material, job, repeat, complete }
 }
 
-
-
 test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
   await scenario(t, 'PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, later approval-based due date and historical corrections across aging, tax, CSV and QuickBooks', async t => {
   const h = await installation({ at: '2026-01-01T18:00:00Z' }); t.after(() => h.close())
@@ -258,11 +256,8 @@ test('PLAN-005, PLAN-012, PLAN-013 monthly approval keeps period-end issuance, l
   assert.equal(h.email.sent.length, 0)
   await assertTrail(h, ['series.billingReminder', 'series.billingMissed', 'invoice.autoApproved'])
 })
-})
 
-
-
-test('PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
+  await scenario(t, 'PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bind customer permission to a monthly rule and cap, settle once, and stop on withdrawal or rule change', async t => {
   const { connectPayments, paymentEvent } = await import('../fixtures/payment-journey.mjs')
   const { savedCardsEdge, registerSavedCard, savedCardIntent, confirmSavedCard } = await import('../fixtures/saved-cards.mjs')
   const h = await installation(); t.after(() => h.close())
@@ -482,4 +477,5 @@ test('PAY-008, PAY-027, PAY-028, PAY-029, PAY-030 explicit Owner test charges bi
   const recovered = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: replay.commandId, type: 'payment.autopayCharge', payload: replay.payload } }).then(r => r.json())
   assert.equal(recovered.error.code, 'ERASED', 'erasure removes the personal saved result')
   assert.equal(posts(), count)
+})
 })

@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // Authority is enforced by every command handler and read door, not by the
 // screens: each role is sent every command directly over HTTP.
 import test, { after, describe } from 'node:test'
@@ -47,7 +48,8 @@ describe('API-001 every command and read door checks the current session and rol
   const people = { owner: { run: h.command, cookie: h.owner() }, dispatcher: b.dispatcher, technician: b.priyaPerson, office: b.office, agent: b.agent, viewer, csr: csrPerson }
   const holders = (type) => [...allowed[type], ...(csr.includes(type) ? ['csr'] : [])]
 
-  test('each role, built-in or custom, is refused exactly the commands it does not hold', async () => {
+  test("Current built-in and custom roles fence every command and read door, including role withdrawal and unknown commands", async t => {
+    await scenario(t, 'each role, built-in or custom, is refused exactly the commands it does not hold', async () => {
     for (const type of Object.keys(allowed)) for (const [role, person] of Object.entries(people)) {
       const res = await h.request('/api/glove/commands', { method: 'POST', as: person.cookie, body: { commandId: randomUUID(), type, payload: {} } })
       const body = await res.json()
@@ -56,7 +58,7 @@ describe('API-001 every command and read door checks the current session and rol
     }
   })
 
-  test('inherited command names receive the same safe refusal as an unknown name', async () => {
+    await scenario(t, 'inherited command names receive the same safe refusal as an unknown name', async () => {
     const send = type => h.request('/api/glove/commands', {
       method: 'POST', as: b.dispatcher.cookie,
       body: { commandId: randomUUID(), type, payload: {} },
@@ -83,7 +85,7 @@ describe('API-001 every command and read door checks the current session and rol
     assert.equal(body.ok === true && body.result?.name === name, true, 'The registered handler saves the customer')
   })
 
-  test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
+    await scenario(t, 'PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request', async () => {
     const { job } = await completedJob(h, b)
     await b.office.run('expense.record', { jobId: job.id, category: 'supply-house purchase', vendor: 'Supply Co', description: 'Capacitor', amount: '42.00', billable: true, markupPercent: '20' })
     const read = async (door, person) => (await h.request(doors[door].replace('{job}', job.id), { as: person.cookie })).status
@@ -152,8 +154,10 @@ describe('API-001 every command and read door checks the current session and rol
     assert.ok(!(await h.state()).customers.some(c => c.name === 'Refused as viewer'))
     await h.command('role.set', { operatorId: (await h.state()).actor.id, role: 'viewer' }, { error: 'OWN_ROLE' })
   })
+  })
 
-  test('signed-out, revoked and cross-origin requests change nothing', async () => {
+  test("Command session and identity custody refuses signed-out, revoked, cross-origin and cross-person replay requests", async t => {
+    await scenario(t, 'signed-out, revoked and cross-origin requests change nothing', async () => {
     assert.equal((await h.request('/api/glove/state', { as: '' })).status, 401)
     const crossOrigin = await h.request('/api/glove/commands', { method: 'POST', headers: { origin: 'https://attacker.example' }, body: { commandId: randomUUID(), type: 'customer.save', payload: { name: 'Injected' } } })
     assert.equal(crossOrigin.status, 403)
@@ -165,7 +169,7 @@ describe('API-001 every command and read door checks the current session and rol
     assert.ok(!(await h.state()).customers.some(c => /Injected|After revoke/.test(c.name)))
   })
 
-  test('a command identity replays its outcome only for the same person and content', async () => {
+    await scenario(t, 'a command identity replays its outcome only for the same person and content', async () => {
     const commandId = randomUUID()
     const first = await h.command('customer.save', { name: 'Once only' }, { commandId })
     assert.deepEqual(await h.command('customer.save', { name: 'Once only' }, { commandId }), first)
@@ -174,6 +178,8 @@ describe('API-001 every command and read door checks the current session and rol
     await desk.run('customer.save', { name: 'Once only' }, { commandId, error: 'IDEMPOTENCY' })
     assert.equal((await h.state()).customers.filter(c => c.name === 'Once only').length, 1)
   })
+  })
+
 })
 
 test('a technician never reads a price, in records or in the timeline', async (t) => {
