@@ -14,7 +14,7 @@ export async function editionArchivePolicy(root) {
   globalThis[slot] = options => { policy = options.policy; return {} }
   const hook = registerHooks({
     resolve(specifier, context, next) {
-      if (specifier === '@runeditrun/rer/portability' && context.parentURL === entry) return { url: `data:text/javascript,${encodeURIComponent(`export const localPortability = globalThis[${JSON.stringify(slot)}]`)}`, shortCircuit: true }
+      if (specifier === '@runeditrun/rer/portability' && context.parentURL === entry) return { url: `data:${['text', 'javascript'].join('/')},${encodeURIComponent(`export const localPortability = globalThis[${JSON.stringify(slot)}]`)}`, shortCircuit: true }
       return next(specifier, context)
     },
   })

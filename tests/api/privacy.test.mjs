@@ -7,7 +7,7 @@ import { createPortability } from '@runeditrun/rer/modules/portability'
 import { createHash } from 'node:crypto'
 import { readArchive } from '@runeditrun/rer/modules/portability/format'
 import { readFile, readdir } from 'node:fs/promises'
-import { Miniflare } from 'miniflare'
+import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
 import { editionArchivePolicy } from '../fixtures/edition-archive-policy.mjs'
 
@@ -26,7 +26,7 @@ async function snapshot(h) {
   return { records, service }
 }
 async function emptyArchiveDestination(t) {
-  const mf = new Miniflare({ modules: true, script: 'export default { fetch() { return new Response(null, { status: 404 }) } }', compatibilityDate: '2026-09-08', d1Databases: { DB: 'synthetic-glove-empty-archive' } })
+  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch() { return new Response(null, { status: 404 }) } }', compatibilityDate: '2026-09-08', d1Databases: { DB: 'synthetic-glove-empty-archive' } }))
   t.after(() => mf.dispose())
   const db = await mf.getD1Database('DB')
   for (const file of (await readdir('migrations/core')).filter(f => f.endsWith('.sql')).sort()) await db.batch(unstable_splitSqlQuery(await readFile('migrations/core/' + file, 'utf8')).map(sql => db.prepare(sql)))

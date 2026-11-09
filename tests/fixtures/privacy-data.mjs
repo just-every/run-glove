@@ -22,10 +22,13 @@ export async function dataPrivacyQualification(t) {
   t.after(() => h.close())
   const b = await business(h), graphs = [], secrets = [], originals = []
   let merged, before, exportPayload, exportId, exportEvents, download, receipt, epoch, transfer, taxBefore
+  const costsBefore = new Map()
   const current = async (kind, key) => (await h.state())[kind].find(r => r.id === key)
   const json = async path => { const response = await h.request(path); assert.equal(response.status, 200); return response.json() }
   await scenario(t, 'DATA-001 point 1: independently seeded merged histories and a peer contain operational, financial and original evidence', async () => {
     await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'Synthetic explicit signing disclosure', accept: true })
+    b.service = await h.command('service.save', { ...b.service, unitCost: '45.00' })
+    const material = await h.command('service.save', { code: 'SYNTHETIC-MATERIAL', name: 'Synthetic costed material', kind: 'material', unit: 'each', unitCost: '11.00', unitPrice: '22.00', tax: 'GST' })
     const mail = await h.command('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-mail', fromEmail: email('synthetic-glove-office') })
     for (const [n, customer, site] of [
       [1, b.customer, b.site],
@@ -41,8 +44,9 @@ export async function dataPrivacyQualification(t) {
       const booked = await h.command('visit.book', { jobId: job.id, technicianId: b.priya.id, date: `2026-10-${20 + n}`, start: '09:00', end: '10:00' })
       await b.priyaPerson.run('visit.arrive', { visitId: booked.id, deviceTime: booked.startAt })
       for (const item of job.checklist.filter(i => i.required)) await b.priyaPerson.run('visit.capture', { visitId: booked.id, deviceTime: booked.startAt, kind: 'checklist', itemId: item.id, result: 'done' })
+      const materialCapture = await b.priyaPerson.run('visit.capture', { visitId: booked.id, deviceTime: booked.startAt, kind: 'material', serviceId: material.id, quantity: '2', description: `Synthetic private material evidence ${n}` })
       await b.priyaPerson.run('visit.complete', { visitId: booked.id, deviceTime: booked.endAt, summary: `Synthetic completion ${n}`, signoff: { absentReason: 'Customer away' } })
-      const work = { job, visit: booked }
+      const work = { job, visit: booked, material: materialCapture }
       const photo = await b.priyaPerson.run('visit.capture', { visitId: work.visit.id, deviceTime: work.visit.endAt, kind: 'photo', caption: `Synthetic private photo ${n}`, photo: { mediaType: 'image/jpeg', base64: jpeg } })
       const notePayload = { visitId: work.visit.id, deviceTime: work.visit.endAt, kind: 'note', text: `Synthetic private visit note ${n}` }, noteCommandId = id()
       const note = await b.priyaPerson.run('visit.capture', notePayload, { commandId: noteCommandId })
@@ -75,11 +79,13 @@ export async function dataPrivacyQualification(t) {
       const signJob = await h.command('job.create', { customerId: customer.id, siteId: property.id, title: `Synthetic signoff job ${n}` })
       const visit = await h.command('visit.book', { jobId: signJob.id, technicianId: b.priya.id, date: `2026-10-${24 + n}`, start: '09:00', end: '10:00' })
       await b.priyaPerson.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
-      await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: `Synthetic private completion ${n}`, signoff: { customerName: customer.name, signature: { mediaType: 'image/png', base64: png } } })
-      graphs.push({ customer, site: property, enquiry, ...work, photo, note, notePayload, noteCommandId, unit, conversation, invoice, payment, refund, message, expense, pending, booking, quote: q, link, signedDoor, signedBytes, signJob, signVisit: visit })
+      const signedVisit = await b.priyaPerson.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: `Synthetic private completion ${n}`, signoff: { customerName: customer.name, signature: { mediaType: 'image/png', base64: png } } })
+      graphs.push({ customer, site: property, enquiry, ...work, photo, note, notePayload, noteCommandId, unit, conversation, invoice, payment, refund, message, expense, pending, booking, quote: q, link, signedDoor, signedBytes, signJob, signVisit: signedVisit })
       if (n < 3) {
         secrets.push(customer.name, customer.email, customer.phone, customer.contact, customer.billingAddress, property.address, property.contact, property.contactPhone, booking.token, link.token)
-        originals.push([photo.file.fileId, jpeg], [unit.photos[0].fileId, jpeg])
+        secrets.push(...['Synthetic private request', 'Synthetic private photo', 'Synthetic private visit note', 'Synthetic private unit location', 'Synthetic private conversation', 'Synthetic private refund', 'Synthetic private vendor', 'Synthetic private material', 'Synthetic private completion', 'Synthetic signed quote', 'Synthetic booking job', 'Synthetic signoff job'].map(prefix => `${prefix} ${n}`), `synthetic-glove-private-unit-${n}`, `synthetic-glove-private-payment-${n}`)
+        secrets.push(`Synthetic private material evidence ${n}`)
+        originals.push([photo.file.fileId, jpeg], [unit.photos[0].fileId, jpeg], [signedVisit.completion.signoff.signature.fileId, png])
       }
     }
     let customer = await h.command('customer.save', { ...b.customer, contacts: [{ name: 'Synthetic certificate contact', email: email('synthetic-glove-contact'), phone: '02 9555 0505' }], taxExemption: { certificateNumber: 'synthetic-glove-private-certificate', expires: '2028-12-31' } })
@@ -117,7 +123,7 @@ export async function dataPrivacyQualification(t) {
       assert.deepEqual(result.customerIds, ids)
       download = JSON.parse(result.download)
       assert.deepEqual(download.customerIds, ids)
-      for (const g of graphs.slice(0, 2)) for (const [kind, record] of [['sites', g.site], ['enquiries', g.enquiry], ['quotes', g.quote], ['jobs', g.job], ['visits', g.visit], ['captures', g.note], ['equipment', g.unit], ['invoices', g.invoice], ['payments', g.payment], ['payments', g.refund], ['messages', g.message], ['conversations', g.conversation]]) assert.ok(download.records[kind].some(r => r.id === record.id), `group export includes ${kind} from both identities`)
+      for (const g of graphs.slice(0, 2)) for (const [kind, record] of [['sites', g.site], ['enquiries', g.enquiry], ['quotes', g.quote], ['jobs', g.job], ['visits', g.visit], ['captures', g.note], ['captures', g.material], ['equipment', g.unit], ['invoices', g.invoice], ['payments', g.payment], ['payments', g.refund], ['messages', g.message], ['conversations', g.conversation]]) assert.ok(download.records[kind].some(r => r.id === record.id), `group export includes ${kind} from both identities`)
     }
   })
   await scenario(t, 'DATA-001 point 4: full timeline and byte-exact originals are shown once and excluded from replay, Activity, stored outcomes and Worker logs', async () => {
@@ -130,7 +136,9 @@ export async function dataPrivacyQualification(t) {
     for (const g of graphs.slice(0, 2)) assert.equal(download.files.find(f => f.id === `${g.quote.id}:signed`).bytes, g.signedBytes)
     const events = exportEvents
     for (const g of graphs.slice(0, 2)) {
-      const expected = events.filter(e => [g.customer.id, g.site.id, g.enquiry.id, g.job.id, g.visit.id, g.quote.id].some(key => JSON.stringify(e).includes(key)))
+      const related = [g.customer, g.site, g.enquiry, g.job, g.visit, g.photo, g.note, g.unit, g.conversation, g.invoice, g.payment, g.refund, g.message, g.expense, g.pending, g.booking, g.quote, g.link, g.signJob, g.signVisit].map(r => r.id)
+      related.push(g.job.quoteId)
+      const expected = events.filter(e => related.some(key => JSON.stringify(e).includes(key)))
       assert.ok(expected.length > 10)
       for (const event of expected) assert.deepEqual(download.timeline.find(e => e.id === event.id), event, 'complete related timeline is exported')
     }
@@ -143,6 +151,13 @@ export async function dataPrivacyQualification(t) {
     before = await h.state()
     taxBefore = await json('/api/glove/reports/tax.json?from=2000-01-01&to=2099-01-01')
     assert.ok(taxBefore.jurisdictions.some(j => Number(j.tax) > 0), 'tax retention is checked with nonzero tax evidence')
+    for (const g of graphs.slice(0, 2)) {
+      const cost = (await json(`/api/glove/jobs/${g.job.id}/cost`)).costing
+      assert.equal(cost.estimate.cost, '45.00')
+      assert.equal(cost.actual.materials, '22.00')
+      assert.equal(cost.actual.cost, '34.00')
+      costsBefore.set(g.job.id, cost)
+    }
     const customer = await current('customers', b.customer.id)
     const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
     // An actual in-progress snapshot must be invalidated with the erasure.
@@ -159,6 +174,7 @@ export async function dataPrivacyQualification(t) {
       assert.equal((await h.request(g.signedDoor)).status, 404)
       for (const [path, token] of [['quote', g.link.token], ['booking', g.booking.token]]) assert.equal((await h.request(`/api/glove/public/${path}`, { as: '', headers: { authorization: `Bearer ${token}` } })).status, 404)
       await b.priyaPerson.run('visit.capture', g.notePayload, { commandId: g.noteCommandId, error: 'ERASED' })
+      await b.priyaPerson.run('visit.capture', { visitId: g.visit.id, deviceTime: g.visit.startAt, kind: 'material', serviceId: g.material.serviceId, quantity: '2', description: g.material.description }, { commandId: g.material.id, error: 'ERASED' })
     }
     const stores = await tables(h), content = [JSON.stringify(stores), storedText(stores), JSON.stringify(await json('/api/glove/activity')), JSON.stringify(await json('/api/glove/export')), JSON.stringify(h.logs)]
     for (const value of secrets.filter(Boolean)) for (const text of content) assert.ok(!text.includes(value), `erased identifier absent from every table, Activity, export and captured logs: ${value}`)
@@ -171,6 +187,13 @@ export async function dataPrivacyQualification(t) {
     for (const kind of ['customers', 'sites', 'jobs', 'visits', 'captures', 'equipment', 'quotes', 'invoices', 'payments', 'expenses', 'conversations']) for (const row of before[kind].filter(r => r.id === peer.customer.id || r.customerId === peer.customer.id || r.siteId === peer.site.id || [peer.job.id, peer.signJob.id, peer.pending.id].includes(r.jobId))) assert.deepEqual(after[kind].find(r => r.id === row.id), row, `peer ${kind} stays unchanged`)
     for (const g of graphs.slice(0, 2)) {
       const oldInvoice = before.invoices.find(r => r.id === g.invoice.id), invoice = after.invoices.find(r => r.id === g.invoice.id)
+      const financialCost = cost => ({ ...cost, actual: { ...cost.actual, materialEntries: cost.actual.materialEntries.map(({ captureId, description, ...money }) => money) } })
+      assert.deepEqual(financialCost((await json(`/api/glove/jobs/${g.job.id}/cost`)).costing), financialCost(costsBefore.get(g.job.id)), 'the public job costing door retains exact estimate and actual costs')
+      const material = after.captures.filter(r => r.jobId === g.job.id && r.kind === 'material')
+      assert.equal(material.length, 1)
+      assert.notEqual(material[0].id, g.material.id, 'the personal capture identity is retired')
+      assert.deepEqual(Object.keys(material[0]).sort(), ['id', 'version', 'jobId', 'kind', 'quantity', 'unit', 'serviceId', 'description', 'erasedAt'].sort())
+      assert.equal(material[0].description, 'Retained material')
       for (const key of ['number', 'createdAt', 'status', 'dates', 'issuedAt', 'dueAt']) assert.deepEqual(invoice[key], oldInvoice[key])
       assert.deepEqual(invoice.revisions.map(r => r.totals), oldInvoice.revisions.map(r => r.totals))
       assert.deepEqual(after.jobs.find(r => r.id === g.job.id).totals, before.jobs.find(r => r.id === g.job.id).totals)
