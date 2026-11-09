@@ -338,7 +338,23 @@ test('AGENT-016 points 1–4: opened briefs preserve state and show exact financ
     const before = await snapshot(h), attempts = h.outbound.attempts
     assert.equal((await h.request(`/api/glove/brief?at=${financialAt}`, { as: scoped.cookie })).status, 403)
     assert.deepEqual(await snapshot(h), before); assert.equal(h.outbound.attempts, attempts)
+    const currentCustomer = (await h.state()).customers.find(c => c.id === customer.id)
+    const preview = await h.command('privacy.preview', { customerId: customer.id, version: currentCustomer.version })
+    await h.command('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    const erasedBrief = await pureBrief(h, financialAt)
+    assert.deepEqual(ordered(erasedBrief.sections.overdue), ordered(overdue.map(row => ({ ...row, text: row.text.replace(customer.name, 'Erased customer') }))), 'erasure retains exact anonymous financial balances without exposing the customer name')
+    assert.ok(!JSON.stringify(erasedBrief).includes(customer.name))
+    const erased = await snapshot(h), erasedAttempts = h.outbound.attempts, erasedCalls = h.stripePayments.calls.length
+    const priorIntent = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+    assert.equal((await paymentEvent(h, priorIntent, 'payment_intent.succeeded', { id: `synthetic-glove-brief-event-${pendingOriginal.id}`, at: Date.parse(financialAt) / 1000 })).status, 200)
+    assert.deepEqual(await snapshot(h), erased, 'a replayed capture cannot restore an erased identity or change anonymous balances')
+    const readbacks = h.stripePayments.calls.slice(erasedCalls)
+    assert.ok(readbacks.every(c => c.method === 'GET'), 'capture replay may verify the provider outcome but cannot make a money-changing request')
+    assert.equal(h.outbound.attempts - erasedAttempts, readbacks.length, 'capture replay performs only provider readback, with no mail or push')
+    await h.restart()
+    assert.deepEqual(await pureBrief(h, financialAt), erasedBrief, 'Worker restart cannot resurrect erased brief data')
     diagnostic('PROBE AGENT-016 2: eleven invoices with manual receipts, TEST installment, allocation, credit and confirmed or pending refunds -> four overdue items totaling 240.25 USD; branch Owner sees only 75.25 USD; aging and tile total 440.25 USD')
+    diagnostic('PROBE AGENT-016 2 custody: customer erasure -> same anonymous overdue cents; replayed capture and Worker restart preserve erasure with provider readback only and no money-changing request')
   })
 
   await scenario(t, 'point 3: due included visits retain agreement and Dispatch links, booked labels and exact completion and decline exclusions', async ({ after, diagnostic }) => {
