@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // DISP-007 crews and subcontractors through the command, state, file,
 // timeline and report doors: a crew is booked, moved and canceled as one; a
 // subcontractor sees and records only their own visits; and the owner's
@@ -34,14 +35,14 @@ test('API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-perso
   const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
   const photo = await b.priyaPerson.run('visit.capture', { visitId: priyaDay1.id, deviceTime: '2026-11-01T21:10:00Z', kind: 'photo', caption: 'Old air handler', photo: { mediaType: 'image/jpeg', base64: jpeg } })
 
-  await t.test('DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own', async () => {
+  await scenario(t, 'DISP-007, DISP-013, DISP-014 the crew is booked as one: one visit per member each day, and each member sees only their own', async () => {
     assert.deepEqual(crewDays.map(g => g.visits.map(v => [v.technicianId, v.local.date, v.crew.name]).sort()), days.map(d => [[b.priya.id, d, 'Install crew'], [b.tom.id, d, 'Install crew']].sort()))
     const mine = async person => (await person.state()).visits.filter(v => v.jobId === job.id).map(v => v.id).sort()
     assert.deepEqual(await mine(b.priyaPerson), crewDays.map(g => g.visits.find(v => v.technicianId === b.priya.id).id).sort())
     assert.deepEqual(await mine(b.tomPerson), crewDays.map(g => g.visits.find(v => v.technicianId === b.tom.id).id).sort())
   })
 
-  await t.test('DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people\'s work', async () => {
+  await scenario(t, 'DISP-007, DISP-013, DISP-014 the subcontractor sees only their own visits on the job, without money or other people\'s work', async () => {
     const s = await sub.state()
     assert.deepEqual(s.visits.map(v => v.id).sort(), sidDays.map(v => v.id).sort())
     assert.deepEqual(s.jobs.map(j => [j.id, j.title, j.lines.length]), [[job.id, 'Three-day system install', 0]])
@@ -55,7 +56,7 @@ test('API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-perso
     for (const path of [`/api/glove/jobs/${job.id}/callback`, '/api/glove/parts?date=2026-11-02', '/api/glove/reports/1099.json?year=2026', '/api/glove/dashboard']) assert.equal((await h.request(path, { as: sub.cookie })).status, 403, path)
   })
 
-  await t.test('DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in', async () => {
+  await scenario(t, 'DISP-007, DISP-013, DISP-014 the subcontractor records arrival, checklist, notes and completion on their visits only, and cannot clock in', async () => {
     await sub.run('visit.arrive', { visitId: priyaDay1.id, deviceTime: '2026-11-01T21:05:00Z' }, { error: 'FORBIDDEN' })
     await sub.run('clock.in', { deviceTime: '2026-11-01T21:00:00Z' }, { error: 'FORBIDDEN' })
     await sub.run('visit.capture', { visitId: sidDays[0].id, deviceTime: '2026-11-01T21:10:00Z', kind: 'refrigerant', refrigerant: { type: 'R-410A', added: '1' } }, { error: 'FORBIDDEN' })
@@ -71,7 +72,7 @@ test('API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-perso
     assert.ok(s.captures.every(x => x.technicianId === sid.id))
   })
 
-  await t.test('DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking', async () => {
+  await scenario(t, 'DISP-007, DISP-013, DISP-014 a note recorded before arrival prevents cancelling any member of the crew booking', async () => {
     const captured = memberVisit(1, b.priya), otherMember = memberVisit(1, b.tom)
     await b.priyaPerson.run('visit.capture', { visitId: captured.id, deviceTime: captured.startAt, kind: 'note', text: 'Equipment delivered before arrival' })
     const before = await h.state()
@@ -87,7 +88,7 @@ test('API-001 / DISP-007, DISP-013, DISP-014 a three-day install for a two-perso
     }
   })
 
-  await t.test('DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member\'s visit, after one conflict review', async () => {
+  await scenario(t, 'DISP-007, DISP-013, DISP-014 moving or canceling a crew visit moves or cancels every member\'s visit, after one conflict review', async () => {
     const tomOwn = await book(b.tom.id, '2026-11-06')
     const day3 = memberVisit(2, b.priya)
     const at = async id => (await h.state()).visits.find(v => v.id === id)

@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // FIELD-006 equipment nameplate capture through the command, state, file and
 // export doors, with the owner's model provider faked at the network edge.
 import test from 'node:test'
@@ -40,7 +41,7 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
   const rheem = await read(plates.rheem)
   await b.tomPerson.run('nameplate.read', { visitId: visit.id, photo: { mediaType: 'image/jpeg', base64: plates.trane.photo } }, { error: 'FORBIDDEN' })
 
-  await t.test('FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread', () => {
+  await scenario(t, 'FIELD-006, FIELD-011 the proposed fields are what the nameplate shows, and an unreadable date stays unread', () => {
     assert.deepEqual(trane.proposed, { make: 'Trane', model: 'XR14', serial: '19243KX1F', manufactured: '2019-06' })
     assert.deepEqual([carrier.proposed, carrier.unread], [{ make: 'Carrier', model: '59TP6', serial: '', manufactured: '2014' }, ['serial']])
     assert.deepEqual([rheem.proposed.manufactured, rheem.unread], ['', ['manufactured']], '"June 2018" is not a date as printed to a precision, so it is left unread')
@@ -55,7 +56,7 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
     }
   })
 
-  await t.test('FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms', async () => {
+  await scenario(t, 'FIELD-006, FIELD-011 nothing is saved to equipment until the technician confirms', async () => {
     const before = await h.state()
     assert.deepEqual(before.equipment.map(e => [e.type, e.make ?? '', e.model ?? '', e.serial ?? '']), [['AC condenser', '', '', '']])
     assert.equal(before.nameplates.length, 3)
@@ -67,7 +68,7 @@ test('FIELD-006, FIELD-011 a technician photographs three nameplates; the model 
     await b.dispatcher.run('nameplate.confirm', { readingId: trane.id, version: trane.version, ...trane.proposed }, { error: 'FORBIDDEN' })
   })
 
-  await t.test('FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact', async () => {
+  await scenario(t, 'FIELD-006, FIELD-011 confirmation retains exact fields and date precision through refusal, replay and restart; library attachment and discard remain intact', async () => {
     const unit = await b.priyaPerson.run('nameplate.confirm', { readingId: trane.id, version: trane.version, ...trane.proposed, serial: '19243KX1G' })
     assert.deepEqual([unit.id, unit.make, unit.model, unit.serial, unit.manufacturedOn, unit.location], [condenser.id, 'Trane', 'XR14', '19243KX1G', '2019-06', 'Roof'])
     assert.deepEqual(unit.manual, { manualId: manual.id, title: 'Trane XR14 installer guide', url: 'https://manuals.example.test/trane-xr14.pdf' })
