@@ -1,0 +1,27 @@
+diff --git a/sources.lock.json b/sources.lock.json
+index ceed7aa..3414783 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -5904,7 +5904,7 @@
+       "executable": false
+     },
+     "tests/browser/document-print.spec.ts": {
+-      "sha256": "631517aa63d9565f64ac081f1b39ee8968b8bbb1934a3cf3cda08b0eb394fed6",
++      "sha256": "8efac1feddf89df300420726dc13ba99b5584c1ba7c345b57abb027bb39fe4cc",
+       "executable": false
+     },
+     "tests/browser/documents.spec.ts": {
+diff --git a/tests/browser/document-print.spec.ts b/tests/browser/document-print.spec.ts
+index 2ea3548..48f151d 100644
+--- a/tests/browser/document-print.spec.ts
++++ b/tests/browser/document-print.spec.ts
+@@ -190,6 +190,9 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
+     await scenario(steps, 'point 4: unsigned quote and recorded desk facts remain honest after actual Worker restart', async () => {
+       for (const kind of ['open', 'invoice', 'agreement']) {
+         await page.goto(urls[kind]); await expect(page.locator('.printable-document')).toBeVisible()
++        // Visibility precedes original-image fetches. Finish them before the
++        // real Worker restart closes its connections.
++        await loadedOriginals(page)
+         await expect(page.getByRole('region', { name: 'Signed approval', exact: true })).toHaveCount(0)
+         await expect(page.getByRole('button', { name: 'Sign and approve selected work' })).toHaveCount(0)
+         const text = allTexts[`1440-${kind}`]

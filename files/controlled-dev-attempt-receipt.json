@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "experiment": "before/after print journey with controlled original-file request overlap",
+  "command": "GLOVE_BROWSER_OUTPUT=/tmp/glove-controlled-baseline node /tmp/glove-owned-loop.mjs 20",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "browser": "Chromium 154.0.8037.57 at /usr/bin/chromium",
+  "parallel_workers": 1,
+  "timing_control": "Temporary test Worker adapter waits 300 ms before the unchanged production original-file route. This widens the real request/disposal race; it neither fabricates a reset nor changes product handlers.",
+  "runner": "Same repository runtime helpers and Playwright config against owned Vite dev",
+  "assertions": "Original test unchanged, apart from synchronous lifecycle/result diagnostics.",
+  "status": "interrupted before twenty repeats; local Vite page-load timeouts prevented reaching disposal",
+  "notes": "The complete twenty-run controlled comparison moves to the built production frontend to avoid unrelated Vite cold/hydration timeouts."
+}

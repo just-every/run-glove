@@ -1,0 +1,2 @@
+{"event":"result","status":"timedOut","points":[],"errors":["\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"]}
+{"event":"result","status":"interrupted","points":[],"errors":[]}

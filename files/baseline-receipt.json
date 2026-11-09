@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "experiment": "twenty repeat baseline with lifecycle diagnostics",
+  "base_head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium GLOVE_BROWSER_OUTPUT=/tmp/glove-baseline node tests/browser/run.mjs tests/browser/document-print.spec.ts --repeat-each=20",
+  "runner": "repository fresh-install browser runner",
+  "node": "24.19.0 top-level; rer setup/dev select the project Node 22.20.0",
+  "pnpm": "10.12.4",
+  "browser": "/usr/bin/chromium, --no-sandbox (repository Playwright launch options)",
+  "parallel_workers": 1,
+  "source_sha256": "ed241a6b2d29c70ab3db22ea41c4a72ad3cb72dac40d65ec44f115a39a3a9396",
+  "instrumentation": "record active h.request paths, consume response bodies, record active requests before h.restart and transport failures; no retry or assertion changes",
+  "status": "interrupted to replace natural timing with a controlled 300 ms original-file scheduling probe",
+  "notes": "Two initial cold Vite page-load assertions failed before the disposal boundary. This exploratory attempt is not the twenty-run controlled before/after comparison.",
+  "terminal_tail": "ment', exact: true }) with timeout 5000ms\n      - waiting for getByRole('article', { name: 'invoice document', exact: true })\n      - Protocol error (Runtime.evaluate): Internal server error, session closed.\n\n\n      178 |     await scenario(steps, 'point 1: customer and desk built pages use their actual scoped document doors', async () => {\n      179 |       await page.goto(urls.open)\n    > 180 |       await expect(page.getByRole('heading', { name: 'Open heating proposal', exact: true })).toBeVisible()\n          |                                                                                                            ^\n      181 |       const wrong = await page.evaluate(async token => (await fetch('/api/glove/public/reports', { headers: { authorization: `Bearer ${token}` } })).status, f.open.link.token)\n      182 |       expect(wrong).toBe(404)\n      183 |       await page.goto(urls.report)\n        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:180:166\n        at scenario (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/fixtures/scenario.mjs:8:5)\n        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:173:5\n\n  2 failed\n    tests/browser/document-print.spec.ts:118:1 \u203a QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 \n    tests/browser/document-print.spec.ts:118:1 \u203a QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 \n  1 interrupted\n    tests/browser/document-print.spec.ts:118:1 \u203a QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 \n  15 did not run\n  2 passed (5.6m)\n\n",
+  "source_hash_note": "Filesystem source snapshot during exploratory diagnostics, not a per-attempt Playwright loader-cache identity; this interrupted exploration is not the controlled twenty-attempt comparison."
+}

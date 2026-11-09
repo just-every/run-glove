@@ -1,0 +1,10 @@
+{
+  "selected_regular_files": 45,
+  "all_packet_files_explicitly_selected": true,
+  "no_selected_symlinks": true,
+  "no_injected_credential_values_found": true,
+  "no_private_key_blocks_found": true,
+  "product_head": "625733332a6b3c9ee4fdd979b371d4f5ce5813e8",
+  "destination": "refs/heads/evidence/sx-glove-quote015-cause-1",
+  "note": "This checks report selection only; it is not the fleet product publication scan."
+}

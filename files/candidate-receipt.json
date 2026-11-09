@@ -1,0 +1,41 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-quote015-cause-1",
+  "head": "625733332a6b3c9ee4fdd979b371d4f5ce5813e8",
+  "commits": [
+    "625733332a6b3c9ee4fdd979b371d4f5ce5813e8 chore: lock the deterministic document restart journey",
+    "02c64d7c81f4983e529e30cad78a0b12f7263ce0 test: await document originals before restarting Worker [skip ci]"
+  ],
+  "main_at_candidate": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "main_integration": "git fetch origin main; git merge --no-edit origin/main -> already up to date",
+  "push": "successful through fleet cloud-push.py",
+  "candidate_checks": {
+    "typecheck": "passed",
+    "source_lock": "passed",
+    "diff_check": "passed"
+  },
+  "ci_run": 42618440388,
+  "ci_status": "completed",
+  "clauses_changed": [],
+  "product_code_changed": false,
+  "pr": null,
+  "files": [
+    "sources.lock.json",
+    "tests/browser/document-print.spec.ts"
+  ],
+  "original_assertion_lines_identical": true,
+  "ci_conclusion": "failure",
+  "target_browser_job": {
+    "id": 129164409049,
+    "name": "shards (browser-2)",
+    "conclusion": "success"
+  },
+  "blocker": {
+    "job": 129164408974,
+    "test": "tests/api/message-outcomes.test.mjs:168",
+    "clause": "COMM-010",
+    "actual": "401 MAIL_EVENT",
+    "expected": "200 {ok:true}",
+    "scope": "unchanged, outside QUOTE-015 task"
+  }
+}

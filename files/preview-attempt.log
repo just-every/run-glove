@@ -1,0 +1,51 @@
+Owned production preview ready; public page modules warm.
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+Running 20 tests using 1 worker
+
+(node:5784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (4.0m)
+(node:5993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:5993) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (5.5s)
+
+
+  1) tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    Test timeout of 240000ms exceeded.
+
+    Error: page.waitForURL: Test ended.
+    =========================== logs ===========================
+    waiting for navigation until "load"
+    ============================================================
+
+      161 |     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+      162 |     await page.goto(process.env.GLOVE_OPEN)
+    > 163 |     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
+          |                ^
+      164 |     if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+      165 |     await context.route(`${origin}/api/glove/**`, async route => {
+      166 |       const request = route.request(), url = new URL(request.url()), publicDoor = url.pathname.startsWith('/api/glove/public/')
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:163:16
+
+    Error Context: ../../../../../../tmp/glove-preview-baseline/document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390/error-context.md
+
+  1 failed
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+  1 interrupted
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+  18 did not run
+

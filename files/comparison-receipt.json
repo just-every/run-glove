@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "experiment": "twenty before / twenty after controlled print journey",
+  "command": "GLOVE_BROWSER_OUTPUT=/tmp/glove-final-ab GLOVE_LOCAL_CONFIG=/tmp/glove-local.config.ts node /tmp/glove-owned-loop.mjs 20",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "browser": "Chromium 154.0.8037.57 at /usr/bin/chromium",
+  "workers": 2,
+  "fixture_isolation": "Each test owns a separate real Miniflare Worker and persisted D1. Both use the same owned frontend server. Branch CI retains the original one-worker config.",
+  "timing_control": "Only the agreement's attached original requested in point 4 before restart receives a test-only header. The Worker adapter holds that request for ten seconds before invoking the unchanged production route. The fixed variant waits for loadedOriginals(page) before leaving each document and before restart.",
+  "local_timing_profile": "30 second polling, 600 second journey deadline for slow VM hydration. No published timeout/config changes; all original assertion expressions remain identical.",
+  "status": "completed",
+  "variants": {
+    "before": {
+      "source_sha256": "f13d71d27f1b75f4f8c726d368f8f9792ba315783296020ef6a38a9828f8e331",
+      "results": {
+        "failed": 20
+      },
+      "restarts": 19,
+      "restarts_with_pending": 19,
+      "transport_failures": 40,
+      "attempts": 20,
+      "reset_journey_failures": 19,
+      "other_journey_failures": 1
+    },
+    "after": {
+      "source_sha256": "3a2fcffb2c4db80ed716c2ad55621cfd970b9e3795895ef407ad4cb0702f3acc",
+      "results": {
+        "passed": 19,
+        "failed": 1
+      },
+      "restarts": 19,
+      "restarts_with_pending": 0,
+      "transport_failures": 0,
+      "attempts": 20,
+      "reset_journey_failures": 0,
+      "other_journey_failures": 1
+    }
+  },
+  "candidate_behavior_matches_after_variant_after_removing_diagnostics": true,
+  "candidate_test_sha256": "8efac1feddf89df300420726dc13ba99b5584c1ba7c345b57abb027bb39fe4cc",
+  "resource_profile": {
+    "cpu_quota": "400000 100000",
+    "memory_limit_bytes": 17179869184,
+    "artificial_cpu_or_memory_load": false
+  },
+  "terminal_log_note": "The existing repository command helper reports the last 6000 characters on nonzero exit; comparison-diagnostics.jsonl retains every attempt and its errors.",
+  "diagnostics_sha256": "338d42e8a9ff1d1e96fc70f114f238241e398182b24617e3d99132de90592c89",
+  "note": "All twenty attempts per version are reported. Page-load failures before restart are separate from reset failures; no repeats were retried or dropped."
+}

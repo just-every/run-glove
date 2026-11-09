@@ -1,0 +1,170 @@
+{
+  "budget": 10,
+  "calls": [
+    {
+      "number": 1,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42605493250/jobs --jq '.jobs[] | {id,name,conclusion}'",
+      "result": "browser-2 failure job 129120601174; other shard jobs succeeded"
+    },
+    {
+      "number": 2,
+      "command": "gh run view 42605493250 --repo just-every/run-glove --job 129120601174 --log-failed",
+      "result": "completed failing job archive read successfully"
+    },
+    {
+      "number": 3,
+      "command": "gh run view 42599653161 --repo just-every/run-glove --job 129101114984 --log-failed",
+      "result": "exit 0, no failed log output returned"
+    },
+    {
+      "number": 4,
+      "command": "gh api repos/just-every/run-glove/actions/runs?head_sha=625733332a6b3c9ee4fdd979b371d4f5ce5813e8&per_page=100",
+      "at": "2026-11-09T12:37:28.734400+00:00",
+      "result": [
+        {
+          "id": 42618440388,
+          "name": "Verify",
+          "head_branch": "cloud/sx-glove-quote015-cause-1",
+          "head_sha": "625733332a6b3c9ee4fdd979b371d4f5ce5813e8",
+          "event": "push",
+          "status": "in_progress",
+          "conclusion": null,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42618440388 --jq {status,conclusion,head_sha,html_url}",
+      "at": "2026-11-09T12:45:36.422362+00:00",
+      "result": {
+        "conclusion": null,
+        "head_sha": "625733332a6b3c9ee4fdd979b371d4f5ce5813e8",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388",
+        "status": "in_progress"
+      }
+    },
+    {
+      "number": 6,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42618440388 --jq {status,conclusion,head_sha,html_url}",
+      "at": "2026-11-09T12:51:37.267758+00:00",
+      "result": {
+        "conclusion": "failure",
+        "head_sha": "625733332a6b3c9ee4fdd979b371d4f5ce5813e8",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388",
+        "status": "completed"
+      }
+    },
+    {
+      "number": 7,
+      "command": "gh api repos/just-every/run-glove/actions/runs/42618440388/jobs",
+      "at": "2026-11-09T12:52:21.080542+00:00",
+      "result": [
+        {
+          "id": 129164085049,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164085049",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "plan"
+        },
+        {
+          "id": 129164149985,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164149985",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "build"
+        },
+        {
+          "id": 129164151717,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164151717",
+          "status": "completed",
+          "conclusion": "skipped",
+          "name": "light"
+        },
+        {
+          "id": 129164408909,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164408909",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "shards (foundation)"
+        },
+        {
+          "id": 129164408974,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164408974",
+          "status": "completed",
+          "conclusion": "failure",
+          "name": "shards (api-1)"
+        },
+        {
+          "id": 129164408988,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164408988",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "shards (browser-1)"
+        },
+        {
+          "id": 129164408994,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164408994",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "shards (browser-4)"
+        },
+        {
+          "id": 129164409005,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164409005",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "shards (portable)"
+        },
+        {
+          "id": 129164409018,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164409018",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "shards (browser-3)"
+        },
+        {
+          "id": 129164409049,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164409049",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "shards (browser-2)"
+        },
+        {
+          "id": 129164409124,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129164409124",
+          "status": "completed",
+          "conclusion": "success",
+          "name": "shards (api-2)"
+        },
+        {
+          "id": 129170413272,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129170413272",
+          "status": "completed",
+          "conclusion": "skipped",
+          "name": "nightly-proof"
+        },
+        {
+          "id": 129170414031,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129170414031",
+          "status": "completed",
+          "conclusion": "failure",
+          "name": "verify"
+        },
+        {
+          "id": 129170414401,
+          "html_url": "https://github.com/just-every/run-glove/actions/runs/42618440388/job/129170414401",
+          "status": "completed",
+          "conclusion": "skipped",
+          "name": "full-push-proof"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "command": "gh run view 42618440388 --repo just-every/run-glove --job 129164408974 --log-failed",
+      "at": "2026-11-09T12:52:41.696352+00:00",
+      "result": "archive read once; saved sanitized failed-job log"
+    }
+  ]
+}

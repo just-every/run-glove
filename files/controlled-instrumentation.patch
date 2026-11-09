@@ -1,0 +1,51 @@
+diff --git a/tests/api/worker.ts b/tests/api/worker.ts
+index 6db7a39..2b9125b 100644
+--- a/tests/api/worker.ts
++++ b/tests/api/worker.ts
+@@ -54,6 +54,7 @@ export default {
+     const headers = new Headers(request.headers)
+     headers.set('host', new URL(request.url).host)
+     request = new Request(request, { headers })
++    if (new URL(request.url).pathname.includes('/files/')) await new Promise(resolve => setTimeout(resolve, 300));
+     return (await gloveResponse(request, env)) ?? (await authResponse(request, env)) ?? new Response('Not found', { status: 404 })
+   },
+   scheduled(controller: { scheduledTime: number }, env: any, execution: { waitUntil(p: Promise<unknown>): void }) {
+diff --git a/tests/browser/document-print.spec.ts b/tests/browser/document-print.spec.ts
+index 2ea3548..a15029b 100644
+--- a/tests/browser/document-print.spec.ts
++++ b/tests/browser/document-print.spec.ts
+@@ -1,5 +1,6 @@
+ import { test, expect, type Page } from '@playwright/test'
+ import assert from 'node:assert/strict'
++import { appendFileSync } from 'node:fs'
+ import { mkdir, writeFile } from 'node:fs/promises'
+ import { join } from 'node:path'
+ // @ts-expect-error Native Worker fixture.
+@@ -114,8 +115,27 @@ async function buttonPdf(page: Page, expected: string[], name: string, width: nu
+   return text
+ }
+ 
++test.afterEach(async ({}, info) => {
++  appendFileSync('/tmp/glove-controlled-diagnostics.jsonl', JSON.stringify({ event: 'result', status: info.status, points: info.annotations, errors: info.errors.map(e => String(e.message).replace(/https?:\/\/[^\s"<>]+/g, '[URL]').replace(/(?:token|rer-dev|password|secret|key)\s*[=:]\s*[^\s"&<>]+/gi, '[private value]')) }) + '\n')
++})
++
+ test('QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390', async ({ browser }) => {
+   const h = await installation({ at: fixedAt }), f = await presentationFixture(h)
++  const pending = new Set<string>()
++  const hRequest = h.request
++  h.request = async (path, options) => {
++    pending.add(path)
++    try { return await hRequest(path, options) }
++    catch (error) {
++      appendFileSync('/tmp/glove-controlled-diagnostics.jsonl', JSON.stringify({ event: 'fetch-failed', code: error.cause?.code }) + '\n')
++      throw error
++    } finally { pending.delete(path) }
++  }
++  const hRestart = h.restart
++  h.restart = async () => {
++    appendFileSync('/tmp/glove-controlled-diagnostics.jsonl', JSON.stringify({ event: 'restart', pending: [...pending].map(p => p.split('?')[0]) }) + '\n')
++    await hRestart()
++  }
+   const context = await browser.newContext(), page = await context.newPage()
+   const steps = { diagnostic: (name: string) => test.info().annotations.push({ type: 'point', description: name }), after: () => {} }
+   const allTexts: Record<string, string> = {}

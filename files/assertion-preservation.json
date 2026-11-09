@@ -1,0 +1,8 @@
+{
+  "original_assertion_lines": 35,
+  "fixed_assertion_lines": 35,
+  "original_assertion_lines_identical": true,
+  "additional_barrier": "loadedOriginals(page) asserts all originals loaded before leaving each of the three pre-restart documents",
+  "test_registrations_before": 1,
+  "test_registrations_after": 1
+}

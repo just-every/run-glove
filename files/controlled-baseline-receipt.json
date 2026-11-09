@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "experiment": "before/after print journey with controlled original-file request overlap",
+  "command": "GLOVE_BROWSER_OUTPUT=/tmp/glove-delayed-baseline GLOVE_LOCAL_CONFIG=/tmp/glove-local.config.ts node /tmp/glove-owned-loop.mjs 20",
+  "node": "22.20.0",
+  "pnpm": "10.12.4",
+  "browser": "Chromium 154.0.8037.57 at /usr/bin/chromium",
+  "parallel_workers": 1,
+  "timing_control": "Temporary test Worker adapter waits 300 ms before the unchanged production original-file route. This widens the real request/disposal race; it neither fabricates a reset nor changes product handlers.",
+  "runner": "Repository owned Vite dev/Playwright runner helpers; one worker; same assertions",
+  "assertions": "Original test unchanged, apart from synchronous lifecycle/result diagnostics.",
+  "status": "superseded by comparison-receipt.json; earlier local timing exploration was stopped",
+  "notes": "Production preview attempt did not complete initial owner entry. Earlier Vite runs hit page hydration timeouts. Both are reported separately; controlled before/after runs use the same local timing profile.",
+  "local_timeout_profile": "30 second local polling deadline rather than repository default 5 seconds; no product or committed timeout changes"
+}

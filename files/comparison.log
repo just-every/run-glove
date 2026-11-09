@@ -1,0 +1,54 @@
+Owned dev ready; public page modules warm.
+e-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:170:24
+    [cause]: SocketError: other side closed
+        at TLSSocket.onHttpSocketEnd (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+
+    Error Context: ../../../../../../tmp/glove-final-ab/document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390-repeat18/error-context.md
+
+  21) tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    TypeError: fetch failed
+
+      128 |     pending.add(path)
+      129 |     const held = restartWindow && path.endsWith('/' + f.agreement.documentPhotos[0].file.fileId)
+    > 130 |     try { return await hRequest(path, held ? { ...options, headers: { ...options.headers, 'x-synthetic-glove-delay-original': '1' } } : options) }
+          |                  ^
+      131 |     catch (error) {
+      132 |       appendFileSync('/tmp/glove-ab-diagnostics.jsonl', JSON.stringify({ variant: 'before', event: 'fetch-failed', code: error.cause?.code }) + '\n')
+      133 |       throw error
+        at Object.processResponse (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at fetch4 (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+        at _Miniflare.dispatchFetch (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+        at Object.h.request (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:130:18)
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:170:24
+    [cause]: SocketError: other side closed
+        at TLSSocket.onHttpSocketEnd (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+
+    Error Context: ../../../../../../tmp/glove-final-ab/document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390-repeat19/error-context.md
+
+  21 failed
+    tests/browser/document-print-fixed.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+  19 passed (53.3m)
+

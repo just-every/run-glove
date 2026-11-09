@@ -1,0 +1,9 @@
+{"event":"restart","pending":[]}
+{"event":"result","status":"passed","points":[{"type":"point","description":"point 1: customer and desk built pages use their actual scoped document doors"},{"type":"point","description":"point 2: independent US date and phone expectations preserve legacy address and frozen zone"},{"type":"point","description":"point 3: real print button and Chromium renderer omit controls and bearer while retaining all content at both widths"},{"type":"point","description":"point 4: unsigned quote and recorded desk facts remain honest after actual Worker restart"}],"errors":[]}
+{"event":"restart","pending":["/api/glove/files/e121111c-a0a1-477e-8518-95ec9e1e18dc","/api/glove/files/3500ac61-18d9-49fb-85b9-6f5722b89ab5"]}
+{"event":"fetch-failed","code":"UND_ERR_SOCKET"}
+{"event":"result","status":"failed","points":[{"type":"point","description":"point 1: customer and desk built pages use their actual scoped document doors"},{"type":"point","description":"point 2: independent US date and phone expectations preserve legacy address and frozen zone"},{"type":"point","description":"point 3: real print button and Chromium renderer omit controls and bearer while retaining all content at both widths"},{"type":"point","description":"point 4: unsigned quote and recorded desk facts remain honest after actual Worker restart"}],"errors":["TypeError: fetch failed"]}
+{"event":"fetch-failed","code":"UND_ERR_SOCKET"}
+{"event":"fetch-failed","code":"UND_ERR_SOCKET"}
+{"event":"fetch-failed","code":"UND_ERR_SOCKET"}
+{"event":"result","status":"interrupted","points":[{"type":"point","description":"point 1: customer and desk built pages use their actual scoped document doors"},{"type":"point","description":"point 2: independent US date and phone expectations preserve legacy address and frozen zone"}],"errors":[]}

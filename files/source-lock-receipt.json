@@ -1,0 +1,6 @@
+{
+  "command": "node scripts/edition-authoring/cli.mjs lock && node scripts/edition-authoring/cli.mjs check",
+  "ok": true,
+  "files": 1602,
+  "lock_sha256": "81fd48cabfc257550d15768389e4a5cb0225fcbe0517d57bd28b2d2cc2ea8ffa"
+}

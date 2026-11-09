@@ -1,0 +1,19 @@
+shards (browser-2)	Run this shard	2026-11-09T11:01:37.7445003Z > node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/branches.spec.ts' 'tests/browser/custom-roles.spec.ts' 'tests/browser/document-print.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/phone-location.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/routing.spec.ts' 'tests/browser/tax-evidence.spec.ts'
+shards (browser-2)	Run this shard	2026-11-09T11:02:37.1714580Z [verify progress] Running 16 tests using 1 worker
+shards (browser-2)	Run this shard	2026-11-09T11:03:19.0889293Z [verify progress]   ✘   3 tests/browser/document-print.spec.ts:117:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (20.1s)
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.1083728Z [verify progress]   1 failed
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.1084225Z [verify progress]   15 passed (4.7m)
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6628848Z Running 16 tests using 1 worker
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6632364Z   ✘   3 tests/browser/document-print.spec.ts:117:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (20.1s)
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6650944Z   1) tests/browser/document-print.spec.ts:117:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6651536Z     TypeError: fetch failed
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6656339Z         at Object.processResponse ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6658604Z         at fetch4 ([REDACTED]/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6659407Z         at _Miniflare.dispatchFetch ([REDACTED]/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6659987Z         at [REDACTED]/tests/browser/document-print.spec.ts:147:24
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6660303Z     [cause]: SocketError: other side closed
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6660813Z         at TLSSocket.onHttpSocketEnd ([REDACTED]/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6661653Z     Error Context: ../../../../../tmp/glove-browser-evidence/results/journeys/document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390/error-context.md
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6662341Z   1 failed
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6663345Z     tests/browser/document-print.spec.ts:117:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+shards (browser-2)	Run this shard	2026-11-09T11:07:15.6663907Z   15 passed (4.7m)

@@ -1,0 +1,92 @@
+Owned dev ready; public page modules warm.
+for fetch requests.[0m
+
+
+
+Running 20 tests using 1 worker
+
+(node:6514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:6514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6514) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (2.2m)
+(node:6857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:6857) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (1.2m)
+(node:7145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+(node:7145) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (43.7s)
+
+
+  1) tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    TypeError: fetch failed
+
+      126 |   h.request = async (path, options) => {
+      127 |     pending.add(path)
+    > 128 |     try { return await hRequest(path, options) }
+          |                  ^
+      129 |     catch (error) {
+      130 |       appendFileSync('/tmp/glove-controlled-diagnostics.jsonl', JSON.stringify({ event: 'fetch-failed', code: error.cause?.code }) + '\n')
+      131 |       throw error
+        at Object.processResponse (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:237:16)
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/web/fetch/index.js:1081:19
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/index.js:157:7
+        at fetch4 (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/http/fetch.ts:87:19)
+        at _Miniflare.dispatchFetch (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/miniflare@5.20260907.0-alpha_@types+node@22.18.6/node_modules/miniflare/src/index.ts:3058:20)
+        at Object.h.request (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:128:18)
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:167:24
+    [cause]: SocketError: other side closed
+        at TLSSocket.onHttpSocketEnd (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/node_modules/.pnpm/undici@7.29.1/node_modules/undici/lib/dispatcher/client-h1.js:959:22)
+
+    Error Context: ../../../../../../tmp/glove-delayed-baseline/document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390-repeat1/error-context.md
+
+  2) tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+
+    Test was interrupted.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.document-identity')
+    Expected substring: "020 7946 0958 ext 7"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" locator('.document-identity') with timeout 30000ms
+      - waiting for locator('.document-identity')
+      - Protocol error (Runtime.callFunctionOn): Internal server error, session closed.
+
+
+      187 |         await h.command('business.save', { ...(await h.state()).business[0], logo: undefined, phone, timezone: 'Australia/Sydney' })
+      188 |         await page.goto(urls.invoice)
+    > 189 |         await expect(page.locator('.document-identity')).toContainText(shown)
+          |                                                          ^
+      190 |         await buttonPdf(page, [shown, legacyAddress, 'Due Mar 14, 2030'], 'invoice', 1440)
+      191 |       }
+      192 |       await page.goto(urls.open)
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:189:58
+        at scenario (/home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/fixtures/scenario.mjs:8:5)
+        at /home/agent/rer-consolidation/work/sx-glove-quote015-cause-1/run-glove/tests/browser/document-print.spec.ts:180:5
+
+  1 failed
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+  1 interrupted
+    tests/browser/document-print.spec.ts:122:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 
+  17 did not run
+  1 passed (4.4m)
+
