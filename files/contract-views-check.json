@@ -1,0 +1,16 @@
+{
+  "name": "contract-views-check",
+  "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+  "command": [
+    "node",
+    "scripts/contract-docs.mjs",
+    "check",
+    "--clauses",
+    "TEAM-005"
+  ],
+  "exit": 0,
+  "startedAt": "2026-11-09T03:33:03.434525+00:00",
+  "seconds": 0.319,
+  "log": "contract-views-check.log",
+  "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+}

@@ -1,0 +1,247 @@
+{
+  "tag": "sx-glove-c-f178",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f178",
+  "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+  "mergedMain": "63bfd0d1a155d7be44561e579d643f895fabded3",
+  "createdAt": "2026-11-09T03:39:11.476911+00:00",
+  "claim": {
+    "clause": "TEAM-005",
+    "status": "DONE",
+    "points": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "qualification": "local behavioral proof; CI and guarded landing remain independent gates"
+  },
+  "checks": [
+    {
+      "name": "touched-api",
+      "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/branch-authority.test.mjs",
+        "tests/api/branches.test.mjs",
+        "tests/api/security.test.mjs"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:32:03.751894+00:00",
+      "seconds": 45.015,
+      "log": "touched-api.log",
+      "sha256": "3e160b6ef1d48e29afd3c1ec4d6c6316bdb72477944897df972eb5809488fcbe"
+    },
+    {
+      "name": "typecheck",
+      "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:32:48.956357+00:00",
+      "seconds": 0.531,
+      "log": "typecheck.log",
+      "sha256": "06db0255d62cd9e96947a5f7fc9032b1b3bce48a56b202f5a7156dbf92470c66"
+    },
+    {
+      "name": "first-party",
+      "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:32:49.568630+00:00",
+      "seconds": 1.403,
+      "log": "first-party.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "contract-views-write",
+      "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "--clauses",
+        "TEAM-005"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:33:03.079624+00:00",
+      "seconds": 0.277,
+      "log": "contract-views-write.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "name": "contract-views-check",
+      "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check",
+        "--clauses",
+        "TEAM-005"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:33:03.434525+00:00",
+      "seconds": 0.319,
+      "log": "contract-views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "name": "source-lock",
+      "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:39:09.497373+00:00",
+      "seconds": 0.488,
+      "log": "source-lock.log",
+      "sha256": "e419d261d94a69d2d0a5a0ee81ad70ff00943fe0f9f2bf47294cc463e210f51e"
+    },
+    {
+      "name": "browser",
+      "head": "153707788ec9f81c9ad08ba2b6218a6afe5312c6",
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1200; exec @ARGV",
+        "--",
+        "env",
+        "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium",
+        "GLOVE_BROWSER_OUTPUT=/tmp/glove-f178-final-browser",
+        "GLOVE_SCREENSHOTS=/tmp/glove-f178-final-browser/screenshots",
+        "node",
+        "tests/browser/run.mjs",
+        "tests/browser/branches.spec.ts"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:28:42.069979+00:00",
+      "seconds": 117.48,
+      "log": "browser.log",
+      "sha256": "df6d4214d7d00c24fe9bc429d9af14e6c84388f3f763619c4e35645288e215a8"
+    },
+    {
+      "name": "product-push",
+      "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "command": [
+        "python3",
+        "/home/agent/rer-consolidation/.tools/cloud-push.py",
+        "origin",
+        "cloud/sx-glove-c-f178"
+      ],
+      "exit": 0,
+      "startedAt": "2026-11-09T03:33:18.877134+00:00",
+      "seconds": 2.764,
+      "log": "product-push.log",
+      "sha256": "c2a64ee62493c2b54817e7574c9e074787de0c19d940fb216344d72f07bcffc6"
+    }
+  ],
+  "workflowRuns": [
+    {
+      "id": 42557042792,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42557042792"
+    }
+  ],
+  "sourceJudgments": {
+    "done": 28,
+    "partial": 206,
+    "missing": 29
+  },
+  "testInventory": {
+    "main": 215,
+    "candidate": 215,
+    "cap": 200,
+    "inheritedOverrun": 15,
+    "registrationsBefore": 211,
+    "registrationsAfter": 211,
+    "netNewRegistrations": 0
+  },
+  "screenshots": [
+    {
+      "file": "screenshots/1440-branches-dispatcher-main.png",
+      "sha256": "0b6abe88917ecea589fe66c07d959bc094d59bf822c4495c087fa26d21ef7588",
+      "bytes": 178681
+    },
+    {
+      "file": "screenshots/1440-branches-dispatcher-restored.png",
+      "sha256": "753f447d57e3f6d73a9e06324684f8ce89c026ccb30d4531a8da126bdaaa01d6",
+      "bytes": 178697
+    },
+    {
+      "file": "screenshots/1440-branches-dispatcher-limited.png",
+      "sha256": "1a490b568238bf77d58ac8dd29ed709ee6420142dab01cf1d442c32ff5ce610a",
+      "bytes": 178789
+    },
+    {
+      "file": "screenshots/390-branches-dispatcher-main.png",
+      "sha256": "35cd58da4afeeacc509f6f35588e78ec65ced86c503e865fba33d40ac997aa97",
+      "bytes": 57704
+    },
+    {
+      "file": "screenshots/390-branches-dispatcher-restored.png",
+      "sha256": "251cfcf8ecfcfba22ae113078d8107fdc65a0bb2950603c11776fb6b0ad7807a",
+      "bytes": 57386
+    },
+    {
+      "file": "screenshots/390-branches-dispatcher-limited.png",
+      "sha256": "c5fa423296f61e4e23a899a54ab26b06f9e94917272ab25c795ca7e2af897bd4",
+      "bytes": 57075
+    }
+  ],
+  "publicationScan": {
+    "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+    "status": "assigned-to-Mac-lander",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null
+  },
+  "mainEqualsCandidate": false,
+  "runSiteAtCandidate": "not run: main-only lander duty",
+  "pr": null,
+  "sourceLockRegeneration": {
+    "name": "source-lock-write",
+    "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+    "command": [
+      "node",
+      "scripts/edition-authoring/cli.mjs",
+      "lock"
+    ],
+    "exit": 0,
+    "startedAt": "2026-11-09T03:39:08.941750+00:00",
+    "seconds": 0.482,
+    "log": "source-lock-write.log",
+    "sha256": "2610474fdb559e4661bda94ccdac2280430a2a5737e3840186af515ba978d33e"
+  },
+  "inventoryCheck": {
+    "name": "inventory",
+    "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+    "command": [
+      "node",
+      "tests/inventory.mjs",
+      "--json"
+    ],
+    "exit": 1,
+    "startedAt": "2026-11-09T03:39:10.062578+00:00",
+    "seconds": 1.345,
+    "log": "inventory.log",
+    "sha256": "0a2e80daabaefafdaa7ef845c309b9210ea8de76acc6893188c2da217593153a"
+  }
+}

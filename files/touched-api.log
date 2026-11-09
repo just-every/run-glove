@@ -1,0 +1,33 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ TEAM-005 current branch authority fences every read, shared write, replay and commit across restart (18422.368255ms)
+ℹ TEAM-005 point 1: only the unscoped Owner limits named and main branches and removes limits with exact versions and attributable facts
+ℹ TEAM-005 point 2: the installation owner cannot be limited by either Owner and retains every branch while another Owner is scoped
+ℹ TEAM-005 point 3: independent main and branch records are fenced at every read door and live authority governs replay, rules and the commit guard
+ℹ TEAM-005 point 3: approved payroll and completed contractor work stay scoped in every report format
+ℹ TEAM-005 point 4: shared references remain readable and immutable while cross-branch operational edits answer NOT_FOUND
+ℹ TEAM-005 point 5: scoped operational creations inherit their branch and matching numbers and survive actual Worker restart and replay
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ TEAM-002, TEAM-004, TEAM-005 branches retain independent zones, areas and numbers across quoting, service calls, assessments and recurring bookings (10041.618364ms)
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ API-001 every command and read door checks the current session and role
+  ✔ each role, built-in or custom, is refused exactly the commands it does not hold (5998.065948ms)
+  ℹ inherited command names receive the same safe refusal as an unknown name
+  ✔ PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / TEAM-001 a custom role reads only the doors its permissions name, and its edits apply on the next request (972.329917ms)
+  ✔ signed-out, revoked and cross-origin requests change nothing (56.90053ms)
+  ✔ a command identity replays its outcome only for the same person and content (102.420172ms)
+✔ API-001 every command and read door checks the current session and role (7152.191095ms)
+✔ a technician never reads a price, in records or in the timeline (2577.207ms)
+ℹ tests 7
+ℹ suites 1
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44917.669398

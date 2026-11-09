@@ -1,0 +1,17 @@
+{
+  "name": "touched-api",
+  "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/branch-authority.test.mjs",
+    "tests/api/branches.test.mjs",
+    "tests/api/security.test.mjs"
+  ],
+  "exit": 0,
+  "startedAt": "2026-11-09T03:32:03.751894+00:00",
+  "seconds": 45.015,
+  "log": "touched-api.log",
+  "sha256": "3e160b6ef1d48e29afd3c1ec4d6c6316bdb72477944897df972eb5809488fcbe"
+}

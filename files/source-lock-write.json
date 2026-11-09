@@ -1,0 +1,14 @@
+{
+  "name": "source-lock-write",
+  "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "lock"
+  ],
+  "exit": 0,
+  "startedAt": "2026-11-09T03:39:08.941750+00:00",
+  "seconds": 0.482,
+  "log": "source-lock-write.log",
+  "sha256": "2610474fdb559e4661bda94ccdac2280430a2a5737e3840186af515ba978d33e"
+}

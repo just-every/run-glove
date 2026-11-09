@@ -1,0 +1,26 @@
+{
+  "head": "7015b4f7e38507905ab1f5ffddd9659e517f1a18",
+  "main": "63bfd0d1a155d7be44561e579d643f895fabded3",
+  "assertions": [
+    {
+      "file": "tests/api/security.test.mjs",
+      "before": 40,
+      "after": 40,
+      "missingAssertions": []
+    },
+    {
+      "file": "tests/browser/branches.spec.ts",
+      "before": 14,
+      "after": 23,
+      "missingAssertions": []
+    }
+  ],
+  "combinedBranchJourneyUnchanged": true,
+  "harnessUnchanged": true,
+  "contractAndViewsUnchanged": true,
+  "browser": {
+    "head": "153707788ec9f81c9ad08ba2b6218a6afe5312c6",
+    "relevantInputsUnchanged": true
+  },
+  "productionDiff": ""
+}

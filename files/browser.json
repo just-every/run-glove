@@ -1,0 +1,22 @@
+{
+  "name": "browser",
+  "head": "153707788ec9f81c9ad08ba2b6218a6afe5312c6",
+  "command": [
+    "perl",
+    "-e",
+    "alarm 1200; exec @ARGV",
+    "--",
+    "env",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium",
+    "GLOVE_BROWSER_OUTPUT=/tmp/glove-f178-final-browser",
+    "GLOVE_SCREENSHOTS=/tmp/glove-f178-final-browser/screenshots",
+    "node",
+    "tests/browser/run.mjs",
+    "tests/browser/branches.spec.ts"
+  ],
+  "exit": 0,
+  "startedAt": "2026-11-09T03:28:42.069979+00:00",
+  "seconds": 117.48,
+  "log": "browser.log",
+  "sha256": "df6d4214d7d00c24fe9bc429d9af14e6c84388f3f763619c4e35645288e215a8"
+}
