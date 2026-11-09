@@ -228,6 +228,7 @@ test('COST-007 payroll files qualify provider rows, approved workweeks, privacy 
         assert.equal((await json()).people.find(x => x.technicianId === f.priya.id).commission.total, '0.00')
         await f.sold('2026-11-04', f.priya, '1234.50', '5%', '61.73')
         assert.notEqual(await read('gusto'), before)
+        assert.ok((await read('gusto')).split('\r\n').includes('N.,Priya,304,2026-11-02 - 2026-11-08,8.00,0.00,0.00,61.73'), 'the next file read credits the already-approved workweek')
         assert.equal((await json()).people.find(x => x.technicianId === f.priya.id).commission.total, '61.73')
         assert.deepEqual(await sheet(), approval, 'a credited sale neither changes approved hours nor reapproves the sheet')
         assert.equal((await sheet()).status, 'approved')
