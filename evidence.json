@@ -943,6 +943,12 @@
       "sha256": "dabd03c7f96f9d81f8b8535688f140cac1e72640e542e7211084e2ef8bfdc83a"
     },
     {
+      "blob": "52c53c3467cdf509c8a7ee2b4385803d7813d639",
+      "bytes": 910,
+      "path": "terminal-custody.json",
+      "sha256": "deb014927483cf9b9e46a90db7225753330388f861c66df4914f07b2e4408722"
+    },
+    {
       "blob": "35892f7b36fdbf09904e29d084110f2121e038f3",
       "bytes": 382,
       "path": "typecheck-candidate.json",

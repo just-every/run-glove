@@ -1,0 +1,14 @@
+{
+  "product_head": "30350fbcb64c3457c9b890ee88f354473121d919",
+  "product_branch": "cloud/sx-glove-f201fix1",
+  "evidence_line": "EVIDENCE repo=just-every/run-glove ref=refs/heads/evidence/sx-glove-f201fix1 head=86c3fcada0906acab7a4969bfd000751e3892ad3",
+  "evidence_files": 167,
+  "remote_refs_verified": {
+    "refs/heads/cloud/sx-glove-f201fix1": "30350fbcb64c3457c9b890ee88f354473121d919",
+    "refs/heads/evidence/sx-glove-f201fix1": "86c3fcada0906acab7a4969bfd000751e3892ad3"
+  },
+  "expected_local_only_main_generated_view": "ACCEPTANCE.md; never committed",
+  "checkout_disposal": "authorized after successful product/evidence pushes; all product work remotely preserved",
+  "observed_at": "2026-11-09T13:50:14.655027+00:00",
+  "note": "Verification of the first evidence publication. A subsequent report-only commit includes this receipt; its exact evidence head is returned in the final message."
+}
