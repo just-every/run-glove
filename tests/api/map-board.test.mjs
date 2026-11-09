@@ -86,6 +86,7 @@ qualify('DISP-002 Maps key custody allows only the current unscoped signed-in Ow
   for (const value of [key, null]) {
     const response = await h.request('/api/glove/commands', { method: 'POST', as: '', headers: { authorization: `Bearer ${token.token}` }, body: { commandId: crypto.randomUUID(), type: 'maps.connect', payload: { key: value } } })
     assert.equal(response.status, 403)
+    assert.equal((await h.db.prepare("SELECT COUNT(*) AS n FROM glove_provider_keys WHERE provider='maps'").first()).n, 0)
   }
   const connectId = crypto.randomUUID()
   noSecret(await h.command('maps.connect', { key }, { commandId: connectId }), key)
@@ -151,6 +152,7 @@ qualify('DISP-002 site placement sends only the changed street address, saves no
   const payload = { siteIds: [unplaced.id, secondUnplaced.id] }, commandId = crypto.randomUUID()
   const placed = await f.dispatcher.run('site.locate', payload, { commandId })
   assert.deepEqual(placed.results, [{ siteId: unplaced.id, location: { lat: 41.333333, lng: -87.444444 } }, { siteId: secondUnplaced.id, location: { lat: 41.555555, lng: -87.666666 } }])
+  assert.deepEqual(h.maps.calls.map(c => [c.api, c.address]), [address, changed, missingAddress, secondUnplaced.address, '204 Refused Street', '205 Refused Street', missingAddress, secondUnplaced.address].map(address => ['geocode', address]))
   const calls = h.maps.calls.length, after = await h.state()
   await h.restart()
   assert.deepEqual(await f.dispatcher.run('site.locate', payload, { commandId }), placed)
@@ -173,8 +175,17 @@ qualify('DISP-002 zone editing accepts boundary polygons and refuses invalid sha
     await h.command('technician.zones', { technicianId: tech.id, version: saved.version, zones: invalid }, { error: 'INPUT' })
     assert.deepEqual(await currentTech(h, tech.id), retained)
   }
-  for (const who of [f.dispatcher, f.people[0], await h.person('Zone Office', 'office')]) {
+  const office = await h.person('Zone Office', 'office'), sub = await h.person('Zone Subcontractor', 'subcontractor')
+  const role = await h.command('role.save', { name: 'Zone custom', permissions: ['technician.save'] })
+  const custom = await h.person('Zone Custom', `custom:${role.id}`)
+  for (const who of [f.dispatcher, f.people[0], office, sub, custom]) {
     await who.run('technician.zones', { technicianId: tech.id, version: saved.version, zones: [] }, { error: 'FORBIDDEN' })
+    assert.deepEqual(await currentTech(h, tech.id), retained)
+  }
+  const token = await h.command('token.issue', { name: 'Zone integration', role: 'dispatcher' })
+  for (const headers of [{}, { authorization: `Bearer ${token.token}` }]) {
+    const response = await h.request('/api/glove/commands', { method: 'POST', as: '', headers, body: { commandId: crypto.randomUUID(), type: 'technician.zones', payload: { technicianId: tech.id, version: saved.version, zones: [] } } })
+    assert.equal(response.status, headers.authorization ? 403 : 401)
     assert.deepEqual(await currentTech(h, tech.id), retained)
   }
   await h.restart()

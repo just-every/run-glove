@@ -5628,7 +5628,7 @@
       "executable": false
     },
     "tests/api/map-board.test.mjs": {
-      "sha256": "02ecd699088a3488fd2ce2d6c3ebf0daf65a2fbab20276e4ffd3eccfa0c33684",
+      "sha256": "395447b623517e11f63fc874fdd9162fe4a018734fb5dbd98cd077a827fb96fa",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
