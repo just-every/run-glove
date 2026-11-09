@@ -5,10 +5,12 @@ import { extendSeries } from './commands/series'
 import { canonicalJson, sha256 } from '../modules/import-kit/src/d1/index'
 import { load, commit } from './storage'
 import type { Actor, Context } from './model'
+import type { Bindings } from '../auth.server'
+import { notify } from './push'
 
 /** Standing owner rules, with current owner/branch authority at every commit.
  * No browser session or a different person's consent is borrowed by cron. */
-export async function runRecurringBilling(db: D1Database, at: string) {
+export async function runRecurringBilling(db: D1Database, at: string, env: Bindings) {
   const initial = await load(db)
   const owners = [...new Set(initial.jobs.flatMap(j => (j.series?.billing?.revisions ?? []).map((r: any) => r.by.id)))] as string[]
   for (const id of owners) {
@@ -25,6 +27,8 @@ export async function runRecurringBilling(db: D1Database, at: string) {
       // A concurrent pass or person won the snapshot. Nothing was published by
       // this attempt; the next ordinary cron sees the remaining occurrences.
       if ((await load(db)).version === before.version) throw error
+      continue
     }
+    await notify(env, before, c)
   }
 }
