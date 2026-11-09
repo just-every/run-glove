@@ -653,7 +653,7 @@ async function customerEmailPoints(t) {
   const secrets = [], bodies = [], replays = [], connections = [], messages = [], callbacks = []
   let n = 0, instant = Date.now()
   const read = async path => { const r = await h.request(path); assert.equal(r.status, 200); return r.json() }
-  const businessSnapshot = async () => ({ state: Object.fromEntries(Object.entries(await h.state()).filter(([key]) => !['integrationTokens', 'actor'].includes(key))), activity: await read('/api/glove/activity'), exported: await read('/api/glove/export') })
+  const businessSnapshot = async () => ({ state: Object.fromEntries(Object.entries(await h.state()).filter(([key]) => !['integrationTokens', 'actor'].includes(key))), timeline: await read(`/api/glove/jobs/${job.id}/timeline`), activity: await read('/api/glove/activity'), exported: await read('/api/glove/export') })
   async function refuse(actor, type, payload, error) {
     const before = await businessSnapshot(), count = h.email.sent.length
     await actor.run(type, payload, { error })
@@ -700,7 +700,7 @@ async function customerEmailPoints(t) {
   }
   await scenario(t, 'COMM-001 point 1: document messages and signed replayed outcomes retain exact timeline states and customer bounce warnings after Worker restart', async () => {
     for (const provider of Object.keys(providers)) {
-      const edge = await connect(provider), po = await order(), sent = []
+      const edge = await connect(provider), po = await order(), sent = [], providerCallbacks = []
       for (const [kind, record] of [['quote', quote], ['invoice', invoice], ['purchaseOrder', po]]) {
         const m = await send(b.office, kind, record)
         assert.equal(h.email.sent.at(-1).provider, provider)
@@ -708,7 +708,7 @@ async function customerEmailPoints(t) {
         sent.push(m)
         for (const [i, outcome] of ['delivered', 'bounced'].entries()) {
           const event = edge.callback(m, outcome, new Date(instant + 1000 + i * 1000).toISOString())
-          callbacks.push(event)
+          callbacks.push(event); providerCallbacks.push(event)
           assert.equal((await postEvents(h, event)).status, 200)
           const kept = await businessSnapshot()
           assert.equal((await postEvents(h, event)).status, 200)
@@ -726,7 +726,9 @@ async function customerEmailPoints(t) {
       assert.deepEqual(warning, { messageId: sent[1].id, to: customer.apEmail, status: 'bounced', at: invoiceState.at, text: invoiceState.text, next: 'Check the address with the customer, correct it on their record and send again.' })
       const before = await businessSnapshot(), count = h.email.sent.length
       await h.restart()
-      assert.deepEqual(await businessSnapshot(), before, 'actual Worker restart retains exact messages, facts and warnings')
+      assert.deepEqual(await businessSnapshot(), before, 'actual Worker restart retains exact messages, job timeline, facts and warnings')
+      for (const event of providerCallbacks) assert.equal((await postEvents(h, event)).status, 200)
+      assert.deepEqual(await businessSnapshot(), before, 'replaying every signed outcome after restart retains the exact populated timelines and warning')
       assert.equal(h.email.sent.length, count)
     }
   })
@@ -800,6 +802,8 @@ async function customerEmailPoints(t) {
       const message = await send(actor, 'quote', quote), q = await current('quote', quote)
       assert.equal(message.to, customer.email)
       assert.deepEqual([q.status, q.sent.at(-1).messageId, q.sent.at(-1).revision], ['sent', message.id, 1])
+      const retained = (await h.state()).messages.find(m => m.id === q.sent.at(-1).messageId)
+      assert.deepEqual([retained.kind, retained.subjectId, retained.to, retained.by.role], ['quote', q.id, customer.email, actor === owner ? 'owner' : actor === b.dispatcher ? 'dispatcher' : 'office'])
     }
     for (const actor of [b.priyaPerson, b.mailSpecialist, b.mailToken]) await refuse(actor, 'email.send', { kind: 'quote', id: quote.id, version: (await current('quote', quote)).version }, 'FORBIDDEN')
     const rows = [{ description: 'Current reviewed filter', quantity: '1', unitPrice: '200.00', tax: 'FREE' }]
@@ -836,7 +840,7 @@ async function customerEmailPoints(t) {
     }
     const plan = await h.command('plan.save', { name: 'Transactional care', price: '100.00', termMonths: 12, includedVisits: 1, visitServiceId: b.service.id })
     const agreement = await b.office.run('agreement.sell', { customerId: customer.id, siteId: b.site.id, planId: plan.id, via: 'phone', startDate: '2026-11-01' })
-    const date = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+    const date = new Date(instant + 86400000).toISOString().slice(0, 10)
     const offer = await b.office.run('agreement.offer', { agreementId: agreement.id, index: 0, email: true, to: address('outsider'), slots: [{ technicianId: b.tom.id, date, start: '09:00', end: '10:00' }] })
     assert.equal(h.email.sent.at(-1).to, customer.email)
     assert.ok(providerText(h.email.sent.at(-1)).includes(offer.token))
@@ -846,7 +850,17 @@ async function customerEmailPoints(t) {
   await scenario(t, 'COMM-001 point 6: document and booking emails contain only their transactional content and other send kinds are refused', async () => {
     await h.command('token.revoke', { tokenId: b.mailTokenId })
     for (let attempt = 0; attempt < 2; attempt++) await refuse(b.mailToken, 'email.send', { kind: 'quote', id: quote.id, version: (await current('quote', quote)).version }, 'AUTH')
-    for (const body of bodies) assert.doesNotMatch(body, new RegExp('unsubscribe|marketing|promotion|special offer|newsletter', 'i'))
+    const unapproved = 'Synthetic unrelated private customer notes'
+    for (const provider of Object.keys(providers)) {
+      await connect(provider)
+      const message = await send(owner, 'quote', quote, { to: address('outsider'), subject: unapproved, text: unapproved, html: `<p>${unapproved}</p>` })
+      const request = h.email.sent.at(-1), content = JSON.stringify(request.body)
+      assert.equal(message.to, customer.email, 'a document email cannot redirect the customer document')
+      assert.ok(!content.includes(unapproved), 'arbitrary subject, text and HTML cannot replace or supplement the approved document')
+      assert.match(providerText(request), /Callback authentication[\s\S]*Service × 1 at \$189\.00/)
+      assert.doesNotMatch(content, /unsubscribe|marketing|promotion|special offer|newsletter/i)
+    }
+    for (const body of bodies) assert.doesNotMatch(body, /unsubscribe|marketing|promotion|special offer|newsletter/i)
     for (const kind of ['marketing', 'newsletter', 'receipt', 'bookingLink']) await refuse(owner, 'email.send', { kind, id: quote.id, version: (await current('quote', quote)).version }, 'INPUT')
     const visible = JSON.stringify(await businessSnapshot()) + JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results) + JSON.stringify(h.logs)
     for (const secret of secrets) assert.ok(!visible.includes(secret), 'no API or event key in state, saved outcomes, audit, export or captured Worker log')
