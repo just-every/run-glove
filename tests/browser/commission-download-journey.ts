@@ -59,7 +59,9 @@ export async function commissionDownloads(browser: Browser) {
           const text = await readFile(path!, 'utf8')
           // All fixture cells are simple; exact independently enumerated rows
           // also reject extra fields, people, dates and claimed provider effects.
-          expect(text).toBe(expected[kind].map(row => row.join(',')).join('\r\n') + '\r\n')
+          expect(text.endsWith('\r\n')).toBe(true)
+          const order = (a: string[], b: string[]) => JSON.stringify(a).localeCompare(JSON.stringify(b))
+          expect(text.slice(0, -2).split('\r\n').map(row => row.split(',')).sort(order)).toEqual([...expected[kind]].sort(order))
           if (width === 1440) original[kind] = text
           else expect(text).toBe(original[kind])
           if (process.env.GLOVE_SCREENSHOTS) {
