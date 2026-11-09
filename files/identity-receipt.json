@@ -1,0 +1,23 @@
+{
+  "base": "a81559508ceab2126d0259be3a06afb7f647ec77",
+  "head": "aff06fe30b880ca9733da3f5fd9cbbcd041810eb",
+  "all_parents_included": true,
+  "count": 2,
+  "passed": true,
+  "commits": [
+    {
+      "head": "aff06fe30b880ca9733da3f5fd9cbbcd041810eb",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "message": "Merge current main for fresh PAY-021 Verify",
+      "trailers": ""
+    },
+    {
+      "head": "6a1b172ef52994689af4a5463eac96e94646b946",
+      "author": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "committer": "Run Edit Run fleet <fleet@runeditrun.com>",
+      "message": "Qualify PAY-021 receipt and credit allocation through public commands",
+      "trailers": ""
+    }
+  ]
+}

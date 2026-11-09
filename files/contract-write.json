@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "scripts/contract-docs.mjs",
+    "write",
+    "--clauses",
+    "COMM-001"
+  ],
+  "started_at": "2026-11-09T15:54:56.473911+00:00",
+  "elapsed_seconds": 0.983,
+  "exit_code": 0,
+  "log": "contract-write.log"
+}

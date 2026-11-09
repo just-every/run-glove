@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/api/payments.test.mjs"
+  ],
+  "started_at": "2026-11-09T15:56:29.396025+00:00",
+  "elapsed_seconds": 194.243,
+  "exit_code": 0,
+  "log": "payments-test.log"
+}

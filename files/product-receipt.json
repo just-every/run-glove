@@ -1,0 +1,17 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f220-pc1",
+  "head": "aff06fe30b880ca9733da3f5fd9cbbcd041810eb",
+  "parents": [
+    "6a1b172ef52994689af4a5463eac96e94646b946",
+    "a81559508ceab2126d0259be3a06afb7f647ec77"
+  ],
+  "origin_main": "a81559508ceab2126d0259be3a06afb7f647ec77",
+  "remote_head": "aff06fe30b880ca9733da3f5fd9cbbcd041810eb",
+  "push_attempts": 1,
+  "pushed": true,
+  "working_tree_clean": true,
+  "product_diff_from_main": "sources.lock.json            |   6 +-\n tests/api/payments.test.mjs  |   2 +\n tests/api/receipt-credit.mjs | 302 +++++++++++++++++++++++++++++++++++++++++++\n 3 files changed, 309 insertions(+), 1 deletion(-)",
+  "no_force_push": true,
+  "pr_created": false
+}

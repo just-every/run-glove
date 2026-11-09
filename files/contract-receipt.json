@@ -1,0 +1,29 @@
+{
+  "predecessor_counts": {
+    "total": 263,
+    "statuses": {
+      "partial": 193,
+      "done": 41,
+      "missing": 29
+    }
+  },
+  "merged_counts": {
+    "total": 263,
+    "statuses": {
+      "partial": 192,
+      "done": 42,
+      "missing": 29
+    }
+  },
+  "status_changes": [
+    {
+      "clause": "COMM-001",
+      "before": "partial",
+      "after": "done"
+    }
+  ],
+  "contract_identical_to_main": true,
+  "claims_changed_by_builder": false,
+  "conflicts": [],
+  "migration_collisions": []
+}

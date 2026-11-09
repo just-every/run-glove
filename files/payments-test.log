@@ -1,0 +1,44 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+ok 1 - PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+  ---
+  duration_ms: 117012.109749
+  type: 'test'
+  ...
+# PAY-021 point 1: exact installment boundaries and current Owner-only TEST Checkout refuse unsafe amounts without a request
+# PAY-021 point 2: Owner and Office cash and check references remain attributable staff records and unauthorized or unapproved receipts change nothing
+# PAY-021 point 3: a check exceeding the remaining balance retains exactly the excess on its source invoice
+# PAY-021 point 4: explicit credit allocations enforce customer, currency, branch, source and target limits with no money movement
+# PAY-021 point 5: only the Owner records a reasoned non-cash credit
+# PAY-021 point 6: every invoice, customer, aging bucket and CSV cell, Today tile and linked overdue item matches the independent cent ledger after every allowed and refused step
+# PAY-021 point 7: Stripe revenue and technician tips exclude staff receipts and allocations, with identical restart, replay, Activity and business export
+# PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH settle once, a return reopens aging, tips stay separate and receipts retain provider outcomes
+# PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 rejects invalid callbacks and unauthorized requests without effects, fences reconnects and never retries an uncertain Checkout
+# PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 payment custody follows customer merge and undo and erasure preserves anonymous financial effects
+# PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact
+# PAY-004, PAY-021, PAY-022, PAY-023 refunds reserve uncertain funds once, refuse excess and stale writes, and confirm pending original-method outcomes explicitly
+# Subtest: PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+ok 2 - PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly; missing source is named; explicit Instant Payout fee and cash/check batches never duplicate
+  ---
+  duration_ms: 61822.18026
+  type: 'test'
+  ...
+# PAY-025 point 1: exact refunded totals, selection boundaries, concurrent claims and restarted batch recording passed
+# PAY-025 point 2: populated state, Activity, business export and saved outcomes honor current role, branch and token authority
+# PAY-025 point 3: preview, erasure, replay fences and restarted anonymous bank history passed with peer receipts intact
+# Subtest: FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+ok 3 - FIELD-008, FIELD-012 saved test cards require customer authorization and desk authority, reserve once, and pay only on authenticated Stripe confirmation
+  ---
+  duration_ms: 8917.269201
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 194144.89406

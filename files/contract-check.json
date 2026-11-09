@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "scripts/contract-docs.mjs",
+    "check",
+    "--clauses",
+    "COMM-001"
+  ],
+  "started_at": "2026-11-09T15:54:57.555026+00:00",
+  "elapsed_seconds": 0.455,
+  "exit_code": 0,
+  "log": "contract-check.log"
+}

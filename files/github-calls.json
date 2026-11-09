@@ -1,0 +1,54 @@
+[
+  {
+    "call": 1,
+    "timestamp": 1794240016.6277442,
+    "time": "2026-11-09T16:00:16.628067+00:00",
+    "arguments": [
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=aff06fe30b880ca9733da3f5fd9cbbcd041810eb&per_page=100",
+      "--jq",
+      "{total_count,workflow_runs:[.workflow_runs[]|{id,name,event,status,conclusion,head_sha,head_branch,html_url}]}"
+    ],
+    "receipt": "ci-discovery.json",
+    "exit_code": 0
+  },
+  {
+    "call": 2,
+    "timestamp": 1794240317.9668324,
+    "time": "2026-11-09T16:05:17.970278+00:00",
+    "arguments": [
+      "api",
+      "repos/just-every/run-glove/actions/runs/42650273977",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "receipt": "ci-poll-1.json",
+    "exit_code": 0
+  },
+  {
+    "call": 3,
+    "timestamp": 1794240619.0295844,
+    "time": "2026-11-09T16:10:19.029799+00:00",
+    "arguments": [
+      "api",
+      "repos/just-every/run-glove/actions/runs/42650273977",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "receipt": "ci-poll-2.json",
+    "exit_code": 0
+  },
+  {
+    "call": 4,
+    "timestamp": 1794240920.171356,
+    "time": "2026-11-09T16:15:20.172645+00:00",
+    "arguments": [
+      "api",
+      "repos/just-every/run-glove/actions/runs/42650273977",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "receipt": "ci-poll-3.json",
+    "exit_code": 0
+  }
+]

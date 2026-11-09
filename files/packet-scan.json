@@ -1,0 +1,148 @@
+{
+  "passed": true,
+  "selected": [
+    {
+      "file": "REPORT.md",
+      "bytes": 6118,
+      "sha256": "08f3d935d99ac79e5fbc7db43ecb7f8fb47e30da5634bc80afadc63ba8f57493"
+    },
+    {
+      "file": "RESULT.json",
+      "bytes": 2928,
+      "sha256": "8d01057ee9c94c887e9b3ae5684d8489c33b0e0fda293a641cb685437418d59a"
+    },
+    {
+      "file": "contract-receipt.json",
+      "bytes": 505,
+      "sha256": "97893bdb6258d0e9343ff528506d96dc666a5d8b252c02eeb31bed1262272c5b"
+    },
+    {
+      "file": "merge-preflight.json",
+      "bytes": 605,
+      "sha256": "896f29c1d08b9f18a317d16fedffa21ab623e763cca7d4e04703cfe56aac94d8"
+    },
+    {
+      "file": "contract-write.json",
+      "bytes": 242,
+      "sha256": "42762cef4b4bb7229bab4689ed9762125d6f27ced842e64b682b283d7629b018"
+    },
+    {
+      "file": "contract-write.log",
+      "bytes": 28,
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "file": "contract-check.json",
+      "bytes": 242,
+      "sha256": "e93441b723898686a178c17ee95c3423b251de4f0f9f536c3a24f3ea7a2ad4fd"
+    },
+    {
+      "file": "contract-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "file": "source-lock.json",
+      "bytes": 213,
+      "sha256": "5dfb159032368395dd9b980517d02b3db5864984eeb0494c771848bd5f7a86f6"
+    },
+    {
+      "file": "source-lock.log",
+      "bytes": 268301,
+      "sha256": "ab518ab82bd3e4b4a552bb351917bd3d76468d9331299a16d855e1e623b4f499"
+    },
+    {
+      "file": "source-lock-check.json",
+      "bytes": 220,
+      "sha256": "ed243d9795ec5c5523462ac5098b984870bd3e45b8da7b4acfbfecf8dc1b2c6e"
+    },
+    {
+      "file": "source-lock-check.log",
+      "bytes": 268315,
+      "sha256": "3cf8c055aff2e4c0886c756babf7b828daa5d1b0635a5838140103fade40683a"
+    },
+    {
+      "file": "typecheck.json",
+      "bytes": 176,
+      "sha256": "32788f1594d704555a2a7dbaf56264e12d415db93f001fd3ea66a6c72567c394"
+    },
+    {
+      "file": "typecheck.log",
+      "bytes": 134,
+      "sha256": "45d9a2cd0d384a844dc54bf97d485a50f6ed79a42a7dcbeac412c41d5347735c"
+    },
+    {
+      "file": "payments-test.json",
+      "bytes": 241,
+      "sha256": "a1df7877ddccd07050a7931bbe5c7bed3755eaaca9b4ca74fd008cb74d8edac2"
+    },
+    {
+      "file": "payments-test.log",
+      "bytes": 3566,
+      "sha256": "34ce4e85b59050266f7bab3bc08e9a67ea82e9a7d0be921cb50a0387a9af0f08"
+    },
+    {
+      "file": "dependencies.log",
+      "bytes": 2439,
+      "sha256": "0760bb8a2bc0c18f3843940c07afb94548ff369b9e9f8353819c7a93ba7c4a56"
+    },
+    {
+      "file": "node-install.log",
+      "bytes": 25,
+      "sha256": "e3390f2c5ded517eb1f2d9d8c22b88f3eb3281639f68ca94ff85c9b9495afdea"
+    },
+    {
+      "file": "identity-log.txt",
+      "bytes": 170,
+      "sha256": "c9f719ac04ee5a87f887bd38a32e08c08cd63abd5a2deb8c3e01856328b8b56d"
+    },
+    {
+      "file": "identity-receipt.json",
+      "bytes": 782,
+      "sha256": "617a2cb957d3bfbeed358d26d8962cc2f0bc3561fd94769e8ed95545e74d07ea"
+    },
+    {
+      "file": "push.log",
+      "bytes": 918,
+      "sha256": "e4c0b8fb65b8df21a997a6319c5c1dbd704622713031221c05460ae65848759b"
+    },
+    {
+      "file": "product-receipt.json",
+      "bytes": 734,
+      "sha256": "70580084691571f0cad91723701e82aa60527f3ec558548978180dcff49e391f"
+    },
+    {
+      "file": "github-calls.json",
+      "bytes": 1413,
+      "sha256": "e73e1ac34b546d252a3f7b7e59751f40d4f36e787c12b02ab1bfe6d972ac7ac7"
+    },
+    {
+      "file": "ci-discovery.json",
+      "bytes": 301,
+      "sha256": "7c85aac56a1dc6aeadf40ec7ae4c4a56f38425b7a806874132acd8e8f094ecc8"
+    },
+    {
+      "file": "ci-poll-1.json",
+      "bytes": 175,
+      "sha256": "fdb02885779d1ae0f492fc10f49cb6506cde26cc34902ffd1741d84610ae169a"
+    },
+    {
+      "file": "ci-poll-2.json",
+      "bytes": 175,
+      "sha256": "fdb02885779d1ae0f492fc10f49cb6506cde26cc34902ffd1741d84610ae169a"
+    },
+    {
+      "file": "ci-poll-3.json",
+      "bytes": 178,
+      "sha256": "77a5a7a9935aa83953941dfa1445af2196db292d19a7c9ca6f25fcb6e0a0f584"
+    },
+    {
+      "file": "ci-result.json",
+      "bytes": 220,
+      "sha256": "aac1f758909ff5ab42f2b58e5cc5d13089208c1369597454ba420fe75e0ad496"
+    }
+  ],
+  "symlinks": false,
+  "injected_values_present": false,
+  "credential_patterns_present": false
+}

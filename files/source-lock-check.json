@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "check"
+  ],
+  "started_at": "2026-11-09T15:54:58.753463+00:00",
+  "elapsed_seconds": 0.987,
+  "exit_code": 0,
+  "log": "source-lock-check.log"
+}
