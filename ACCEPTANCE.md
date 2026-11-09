@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 35 | 186 | 16 | 237 |
+| Core | 36 | 185 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 35 | 199 | 29 | 263 |
+| Full target | 36 | 198 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1160,7 +1160,7 @@ Core · target · **partial**
 
 #### DISP-007 — Multi-day jobs, crews and subcontractors
 
-Core · target · **partial** · From DISP-007
+Core · target · **done** · From DISP-007
 
 **Requirement.** Multi-day jobs, crews and subcontractors supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations. Recorded decisions: RL-8.
 
@@ -1173,8 +1173,8 @@ Core · target · **partial** · From DISP-007
 6. Canceling cancels them all, and is refused while a member has recorded evidence on theirs.
 7. The dispatch board's Rows choice shows crews instead of technicians in the day, week and month, one chip per crew booking, dragged or moved by keyboard as one.
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture books a three-day install for a two-person crew and a subcontractor, checks each sees only their visits, and checks the subcontractor's total in the 1099 export; a browser journey drags the crew's visit to another day on the DISP-001 week board by crew.; point 2 — A job holds any number of visits over any days.; point 3 — The owner (acting for "admin") names crews of 2 to 10 active technicians or subcontractors; changing a crew changes only later bookings.; point 4 — Booking a crew books one visit per member at the same date and times in one command, after one review of every member's conflicts.; point 5 — Moving any visit of that booking moves every member's visit in it that is not completed or canceled to the same date and times, never to another technician, after one review.; point 6 — Canceling cancels them all, and is refused while a member has recorded evidence on theirs.; point 7 — The dispatch board's Rows choice shows crews instead of technicians in the day, week and month, one chip per crew booking, dragged or moved by keyboard as one. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/crews.test.mjs` (DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart); `tests/browser/crew-board.spec.ts` (DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor)
+**Gap.** None.
 
 #### DISP-013 — Subcontractor field access
 
