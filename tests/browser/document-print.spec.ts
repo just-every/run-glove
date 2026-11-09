@@ -58,10 +58,15 @@ const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 const normalize = (text: string) => text.replace(/\s+/g, ' ').trim()
 const hiddenPrintText = ['Print / Save PDF', 'Choose Save as PDF', 'Choose Standard service', 'Choose Extended service', 'Add Filter pack', 'Review selected work', 'Contact the office about this quote', 'Your name', 'Your capacity', 'Request changes', 'Decline quote', 'Ask for an updated quote', 'Approve the selected work', 'Sign and approve selected work', 'Type my signature', 'Draw my signature']
 
+async function loadedOriginals(page: Page) {
+  await expect(page.getByText('Loading image…', { exact: true })).toHaveCount(0)
+  await expect.poll(() => page.locator('.printable-document img').evaluateAll(imgs => imgs.length > 0 && imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0))).toBe(true)
+}
+
 let printNumber = 0
 async function buttonPdf(page: Page, expected: string[], name: string, width: number) {
   await expect(page.getByRole('button', { name: 'Print / Save PDF', exact: true })).toBeVisible()
-  await expect.poll(() => page.locator('.printable-document img').evaluateAll(imgs => imgs.length > 0 && imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0))).toBe(true)
+  await loadedOriginals(page)
   const originalUrl = page.url(), token = new URLSearchParams(new URL(originalUrl).hash.slice(1)).get('token')
   let bytes: Buffer | undefined, invocation = ''
   let resolvePrint: () => void, rejectPrint: (error: unknown) => void
@@ -176,6 +181,7 @@ test('QUOTE-015 scoped documents print complete facts without controls or bearer
           await page.goto(url); await expect(page.locator('.printable-document')).toBeVisible()
           if (kind === 'open') { await page.getByRole('radio', { name: 'Choose Extended service', exact: true }).check(); await page.getByRole('checkbox', { name: 'Add Filter pack', exact: true }).check() }
           if (width === 1440) expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+          await loadedOriginals(page)
           if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-${kind}.png`), fullPage: true }) }
           allTexts[`${width}-${kind}`] = await buttonPdf(page, expected[kind], kind, width)
         }
