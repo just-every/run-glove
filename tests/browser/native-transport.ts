@@ -40,7 +40,15 @@ export async function nativeTransport(h: any, frontend: string, as?: string) {
       if (head.length) upstream.write(head)
       upstream.pipe(socket); socket.pipe(upstream)
     })
-    upstream.on('error', () => socket.destroy()); socket.on('close', () => upstream.destroy())
+    // A browser reload cancels this upgraded Vite HMR connection with a TCP
+    // reset. HTTP/API requests never use this channel, so closing both peers
+    // cannot lose a Worker reply. Retain every other socket error for idle/close.
+    const failed = (error: NodeJS.ErrnoException) => {
+      if (error.code !== 'ECONNRESET') failures.push(error)
+      upstream.destroy(); socket.destroy()
+    }
+    upstream.on('error', failed); socket.on('error', failed)
+    socket.on('close', () => upstream.destroy()); upstream.on('close', () => socket.destroy())
   })
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve))
   const origin = `http://127.0.0.1:${(server.address() as { port: number }).port}`

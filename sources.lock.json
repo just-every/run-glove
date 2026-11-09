@@ -5964,7 +5964,7 @@
       "executable": false
     },
     "tests/browser/native-transport.ts": {
-      "sha256": "c31daae14e3427199953e8c37f752d1bf2874f001d5bb7fba2466b1b8691d194",
+      "sha256": "73f9d5369189c925d413612f60b72e175b231f263eeeafa9096c2ea8ab48ecf9",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
