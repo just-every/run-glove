@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f176",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f176",
+  "head": "69086f3f92012d6cd58b67a4b6fb3994a84087ab",
+  "main_at_final_push": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+  "product_push": {
+    "status": "success",
+    "attempts": 1,
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f176"
+  },
+  "pr": null,
+  "local_checks": [
+    {
+      "command": "node --test tests/api/companycam.test.mjs",
+      "exit": 0,
+      "result": "one existing registration plus all three focused scenarios passed",
+      "log": "api.log"
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium node tests/browser/run.mjs tests/browser/companycam.spec.ts",
+      "exit": 0,
+      "result": "one browser journey passed; actual screenshots at 1440 and 390",
+      "log": "browser.log"
+    },
+    {
+      "command": "node tests/portable.mjs",
+      "exit": 0,
+      "result": "complete real archive script passed, including CompanyCam and unchanged payment and erasure journeys",
+      "log": "portable.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write; node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "result": "Wrote 0 contract documents. Contract documents are current. Generated views restored from origin/main."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock; node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "exit": 1,
+      "total": 203,
+      "main_total": 203,
+      "cap": 200,
+      "introduced": false,
+      "log": "inventory.log",
+      "baseline_log": "main-inventory.log"
+    }
+  ],
+  "contract_changes": false,
+  "production_changes": false,
+  "counts": {
+    "before": {
+      "done": 24,
+      "partial": 210,
+      "missing": 29
+    },
+    "after": {
+      "done": 24,
+      "partial": 210,
+      "missing": 29
+    }
+  },
+  "clauses": {
+    "API-008": {
+      "points_proven": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "policy_default": null,
+      "status_judgment_edited": false
+    }
+  },
+  "publication_scan": {
+    "status": "not_run_in_cloud",
+    "commit": "69086f3f92012d6cd58b67a4b6fb3994a84087ab",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "owner": "guarded fleet lander"
+  },
+  "landing": {
+    "status": "pending_guarded_lander",
+    "main_equals_candidate": false
+  },
+  "ci": {
+    "github_calls": 4,
+    "candidate_discovery": "no runs yet at immediate discovery",
+    "exact_sha_verify": {
+      "id": 42544494847,
+      "name": "Verify",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "69086f3f92012d6cd58b67a4b6fb3994a84087ab",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42544494847"
+    },
+    "baseline_runs": [
+      {
+        "conclusion": "skipped",
+        "event": "push",
+        "head_sha": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+        "id": 42541507379,
+        "name": "Run demo",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+        "id": 42541507336,
+        "name": "Verify",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+        "id": 42541507337,
+        "name": "Run site",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "dynamic",
+        "head_sha": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+        "id": 42541507077,
+        "name": "Push on main",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "91f64e494b7e2f4c29f47457a92ca24e8b5b3dde",
+        "id": 42539585336,
+        "name": "Verify",
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "event": "push",
+        "head_sha": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+        "id": 42542974706,
+        "name": "Run demo",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+        "id": 42542974673,
+        "name": "Run site",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+        "id": 42542975207,
+        "name": "Verify",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "dynamic",
+        "head_sha": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+        "id": 42542974903,
+        "name": "Push on main",
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+        "id": 42541766580,
+        "name": "Verify",
+        "status": "completed"
+      }
+    ],
+    "push_discovery_note": "Merged main contains fc2c10e with skip-ci marker; if no exact-SHA run appears at bounded rediscovery, dispatch Verify once.",
+    "observed_at": "2026-11-09T01:19:30.261281+00:00"
+  },
+  "screenshots": [
+    {
+      "file": "screenshots/1440-companycam-activity.png",
+      "bytes": 180602,
+      "sha256": "c59413240cc9d4c9ee2f60b349d5e161ea5299900b150a2bf31cac31c0649307"
+    },
+    {
+      "file": "screenshots/1440-companycam-confirmed.png",
+      "bytes": 153506,
+      "sha256": "a89b6f4107209c8da276ff0b974fca5a5492e03f6d18d8eb341ed8762192c8fd"
+    },
+    {
+      "file": "screenshots/1440-companycam-import-errors-after-restart.png",
+      "bytes": 173854,
+      "sha256": "a234e89586164525ddd745fc173a2a6ef65c5ab9a38e7f31f5136017e9f42ce9"
+    },
+    {
+      "file": "screenshots/1440-companycam-later-valid-original.png",
+      "bytes": 148084,
+      "sha256": "d87d06d8a33f291b5c1ea0a88d3b202a9ecab4e6ad77401e197c9e62c65f419c"
+    },
+    {
+      "file": "screenshots/1440-companycam-sent.png",
+      "bytes": 154349,
+      "sha256": "095076310c2a3e21a42a2eb10fc17a9a651ec659f414c54a91d4d6fad27ba4bd"
+    },
+    {
+      "file": "screenshots/1440-companycam-settings.png",
+      "bytes": 131052,
+      "sha256": "58eb1950b1f39dc1cb4a11d54f80f9f42e553d55d43d73e540eca1c50afd5267"
+    },
+    {
+      "file": "screenshots/1440-companycam-unknown.png",
+      "bytes": 147574,
+      "sha256": "36a2a1833c1491e3da0cb8e4af888d367e33cf274354b5592ed6995c48938456"
+    },
+    {
+      "file": "screenshots/390-companycam-activity.png",
+      "bytes": 91358,
+      "sha256": "0808e11d90a524f51660a1bd700d8cc6b5d3095d1a941cef76da1d703762eab7"
+    },
+    {
+      "file": "screenshots/390-companycam-confirmed.png",
+      "bytes": 84318,
+      "sha256": "ee4b6a30bdccdb4616daa50ed302327ac6f556589c4d51d0e3f5388a80e279db"
+    },
+    {
+      "file": "screenshots/390-companycam-import-errors-after-restart.png",
+      "bytes": 95603,
+      "sha256": "f84e9faa02aaee3e01ecaf67a65ff1fde6e48de39d3fba1209112ed928bd619d"
+    },
+    {
+      "file": "screenshots/390-companycam-later-valid-original.png",
+      "bytes": 49569,
+      "sha256": "72c8215177c980a275b37bfc296a7865a5f07041de5e2455f698ef672fe6ab3f"
+    },
+    {
+      "file": "screenshots/390-companycam-sent.png",
+      "bytes": 81778,
+      "sha256": "8679de0a603488959993827eff5123d73e351c089b9f30799dc306b777965259"
+    },
+    {
+      "file": "screenshots/390-companycam-settings.png",
+      "bytes": 70259,
+      "sha256": "a610d8f06015f6c9a95cd4b7326bb43fd113fa50d414184659392aacd25b9f9b"
+    },
+    {
+      "file": "screenshots/390-companycam-unknown.png",
+      "bytes": 79394,
+      "sha256": "329e46a4ca9664e0911315b22b7716c47fbe1d0a3d930babe342989cb0a7ce82"
+    }
+  ],
+  "created_at": "2026-11-09T01:15:02.447328+00:00",
+  "local_runtime": {
+    "driver_node": "24.19.0",
+    "native_rer_node_pin": "22.20.0",
+    "pnpm": "10.12.4",
+    "rer": "0.2.87",
+    "chromium": "/usr/bin/chromium",
+    "chromium_args": [
+      "--no-sandbox"
+    ]
+  },
+  "browser_attempts": [
+    {
+      "result": "launch_failed",
+      "reason": "default Playwright Chromium binary absent",
+      "repair": "use supplied /usr/bin/chromium",
+      "product_test_weakened": false
+    },
+    {
+      "result": "passed",
+      "reason": "final screenshots scrolled to changed states"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "files": [
+    {
+      "blob": "7670f9b04575a47ce4a568eef266cc1f3b79f85b",
+      "bytes": 2290,
+      "path": "PLAN.md",
+      "sha256": "ddc1771430af9e7273aaf79c461ef744b83dabb254f106276aa5e75f720b1329"
+    },
+    {
+      "blob": "ca1d61b985867f62c79237bfb803f642909917ca",
+      "bytes": 8776,
+      "path": "RECEIPT.json",
+      "sha256": "2884510fd5c25fc343f8e98cddf993964308d6bb6b754ca3598185ce9d351f81"
+    },
+    {
+      "blob": "3d3eda2349fade9a65fef4b76fe7ed56d8dcb220",
+      "bytes": 12878,
+      "path": "REPORT.md",
+      "sha256": "37011f5da0124923852ef4f80fd83b6e93eefec54042e689bffe9fbc93b33229"
+    },
+    {
+      "blob": "b150937fe8989f66100134b287935900adfbe82c",
+      "bytes": 788,
+      "path": "TREE.json",
+      "sha256": "b0cb31e9b6ac8f21b8bd9043f3708861cf145bcdb9e82784e4b11256856c4d93"
+    },
+    {
+      "blob": "7182e62fb9226c6f700885642c96ea4503bfc342",
+      "bytes": 4148,
+      "path": "api.log",
+      "sha256": "4eaed9ebb3d6cb6ed8593fcdb114e8ff678cffa2e0457eee16373d3df714aec0"
+    },
+    {
+      "blob": "0f318c73f60259e852425aee8737e6072656598c",
+      "bytes": 1252,
+      "path": "browser.log",
+      "sha256": "8b6ce7523eeebf0e328106b87dc199b391e7297ca36ab1e507042b02edc7df00"
+    },
+    {
+      "blob": "84171d1b968d222132d21f202fa4c06cc2306c0c",
+      "bytes": 69,
+      "path": "inventory.log",
+      "sha256": "4a61add991c57fad1448d24ed04a6b49273bcad3cd5d3ad79d3f9e3bab05964a"
+    },
+    {
+      "blob": "9b55389a8e0fbdd1a7224db9c7bc74e990e7c442",
+      "bytes": 76,
+      "path": "main-inventory.log",
+      "sha256": "a03873f804d5a8386e36e9fb44512e6076c194a756097aff83c304437ffd2c3e"
+    },
+    {
+      "blob": "5e7375f6520f8279ed1ee4b35cc87e2d6aab13c2",
+      "bytes": 1986,
+      "path": "portable.log",
+      "sha256": "ce3fe427c1052a05b7e2adfc0dca4933da8b5d77a661b9c85de57b4663bfdb94"
+    },
+    {
+      "blob": "61612e88761785c8ef0859b3833574cad1448d08",
+      "bytes": 180602,
+      "path": "screenshots/1440-companycam-activity.png",
+      "sha256": "c59413240cc9d4c9ee2f60b349d5e161ea5299900b150a2bf31cac31c0649307"
+    },
+    {
+      "blob": "ecadf06785f505504535e2a4190f0635f1106e46",
+      "bytes": 153506,
+      "path": "screenshots/1440-companycam-confirmed.png",
+      "sha256": "a89b6f4107209c8da276ff0b974fca5a5492e03f6d18d8eb341ed8762192c8fd"
+    },
+    {
+      "blob": "072242fe5c1140dea2a459ca69f4e5c18e274b93",
+      "bytes": 173854,
+      "path": "screenshots/1440-companycam-import-errors-after-restart.png",
+      "sha256": "a234e89586164525ddd745fc173a2a6ef65c5ab9a38e7f31f5136017e9f42ce9"
+    },
+    {
+      "blob": "cf7cc3db6b8d075ab906971a52ffae0a801ee610",
+      "bytes": 148084,
+      "path": "screenshots/1440-companycam-later-valid-original.png",
+      "sha256": "d87d06d8a33f291b5c1ea0a88d3b202a9ecab4e6ad77401e197c9e62c65f419c"
+    },
+    {
+      "blob": "fccbcb3691d08a5689a443c86e970d0e2aa28730",
+      "bytes": 154349,
+      "path": "screenshots/1440-companycam-sent.png",
+      "sha256": "095076310c2a3e21a42a2eb10fc17a9a651ec659f414c54a91d4d6fad27ba4bd"
+    },
+    {
+      "blob": "fb2314aac3a3c263aab2dfb9369dd4bac4ca723c",
+      "bytes": 131052,
+      "path": "screenshots/1440-companycam-settings.png",
+      "sha256": "58eb1950b1f39dc1cb4a11d54f80f9f42e553d55d43d73e540eca1c50afd5267"
+    },
+    {
+      "blob": "bad4a790e45de1ae62fe8d5b37b43415f7ebb6cb",
+      "bytes": 147574,
+      "path": "screenshots/1440-companycam-unknown.png",
+      "sha256": "36a2a1833c1491e3da0cb8e4af888d367e33cf274354b5592ed6995c48938456"
+    },
+    {
+      "blob": "336367a53e1a1c2237586a736a4d6466a38df5a8",
+      "bytes": 91358,
+      "path": "screenshots/390-companycam-activity.png",
+      "sha256": "0808e11d90a524f51660a1bd700d8cc6b5d3095d1a941cef76da1d703762eab7"
+    },
+    {
+      "blob": "49bafe23b83d103426778962a597d3795a2e9649",
+      "bytes": 84318,
+      "path": "screenshots/390-companycam-confirmed.png",
+      "sha256": "ee4b6a30bdccdb4616daa50ed302327ac6f556589c4d51d0e3f5388a80e279db"
+    },
+    {
+      "blob": "ac2d772fcf5f39bbfa0ef43dd4c5247b4efe1bdd",
+      "bytes": 95603,
+      "path": "screenshots/390-companycam-import-errors-after-restart.png",
+      "sha256": "f84e9faa02aaee3e01ecaf67a65ff1fde6e48de39d3fba1209112ed928bd619d"
+    },
+    {
+      "blob": "dbbd7646b5afe0e2dba598626ed16072206fe10b",
+      "bytes": 49569,
+      "path": "screenshots/390-companycam-later-valid-original.png",
+      "sha256": "72c8215177c980a275b37bfc296a7865a5f07041de5e2455f698ef672fe6ab3f"
+    },
+    {
+      "blob": "67e711076910e70799f55c446b12eb0c34b0e118",
+      "bytes": 81778,
+      "path": "screenshots/390-companycam-sent.png",
+      "sha256": "8679de0a603488959993827eff5123d73e351c089b9f30799dc306b777965259"
+    },
+    {
+      "blob": "f70c827dbd18d47420b5333a82b3b6195ca434ac",
+      "bytes": 70259,
+      "path": "screenshots/390-companycam-settings.png",
+      "sha256": "a610d8f06015f6c9a95cd4b7326bb43fd113fa50d414184659392aacd25b9f9b"
+    },
+    {
+      "blob": "dc12525b8c658dca6759e918890ab605a94447a3",
+      "bytes": 79394,
+      "path": "screenshots/390-companycam-unknown.png",
+      "sha256": "329e46a4ca9664e0911315b22b7716c47fbe1d0a3d930babe342989cb0a7ce82"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f176",
+  "product_head": "69086f3f92012d6cd58b67a4b6fb3994a84087ab",
+  "ref": "refs/heads/evidence/sx-glove-c-f176",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f176"
+}

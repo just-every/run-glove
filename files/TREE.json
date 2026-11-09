@@ -1,0 +1,12 @@
+{
+  "head": "69086f3f92012d6cd58b67a4b6fb3994a84087ab",
+  "files": {
+    "tests/api/companycam-export.test.mjs": "cde45c4e3bdeaa9fb6d03c7fb6650af3498633067b250d902036fdff8d8ccee4",
+    "tests/api/companycam.test.mjs": "8aec321f843a067578a952954509fa86b6769056c938d8ae23541651888830c3",
+    "tests/api/harness.mjs": "1187bff988c3e92154a57d7a1ea5340a2579da9452191c35629c9d5b57e73284",
+    "tests/browser/companycam.spec.ts": "4e2114dac336e9eba51c6ac26651fafdfaadeaac56bfb3d0f9bd33672b5efff0",
+    "tests/fixtures/companycam.mjs": "5dccf2e26695d3410e62546b472aa5b38df69c4a6a7a23a86ba8b1a54729f394",
+    "tests/portable.mjs": "bb2c016b0e96f80c1b7c1256be0d6bd2eb19e60ecbd2c3cc38c07eac3986571d",
+    "sources.lock.json": "ed3cf830b4809563d5a7ec482d3db11253cc4dc4364fa8613499ac913ebad248"
+  }
+}
