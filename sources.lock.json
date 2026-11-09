@@ -5688,7 +5688,7 @@
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
-      "sha256": "1e8fb29876d721bf6e4af8af490fcff591372b6dd8e67971f886a66b1166d66f",
+      "sha256": "d47ba62310f061446410c677140ae21c4eca312a15058e13cd62451ce442ae20",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -6041,10 +6041,6 @@
     },
     "tests/fixtures/collection.mjs": {
       "sha256": "76e69a832f00df79c6779d1a8b2345d4446507b43e8bf817c4dd038f6c550c31",
-      "executable": false
-    },
-    "tests/fixtures/commission-payroll-proof.mjs": {
-      "sha256": "f050e80cca38ba088a7e390557ab6e35a0bb76a2f2ef9a67a0982d0ccbc5171c",
       "executable": false
     },
     "tests/fixtures/companycam-unit.jpg": {
