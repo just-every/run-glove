@@ -5528,7 +5528,7 @@
       "executable": false
     },
     "tests/api/branches.test.mjs": {
-      "sha256": "6138a15c0bc4cbc32ee0023fe46bdabd831dd8996e10a2a499aedcfda4cd9beb",
+      "sha256": "51f39e7702b8c9cb46286e8c62eded01cce3bfc7d475a7fca67e6d463fbbc43e",
       "executable": false
     },
     "tests/api/calendar-delivery.test.mjs": {
@@ -5868,7 +5868,7 @@
       "executable": false
     },
     "tests/browser/branches.spec.ts": {
-      "sha256": "aa29b36448aa96808a868e702dd195d24e565c5121b10ef708b1b248329afded",
+      "sha256": "5382754d16f1a7f8c0177b540b07ec3a5eeb09783e32867322207de56ca1a42b",
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
@@ -6033,6 +6033,10 @@
     },
     "tests/email-link.mjs": {
       "sha256": "affd47892b073fbfe76586e4e6f8626a8712775eeb27ed3b86bdfa5644dce98f",
+      "executable": false
+    },
+    "tests/fixtures/branch-projections.mjs": {
+      "sha256": "e9f9129dbafe8489f7f4245ac9cdb5d2c8a3aff6cc739621170ac4aa78fcdc7e",
       "executable": false
     },
     "tests/fixtures/calendar.mjs": {
