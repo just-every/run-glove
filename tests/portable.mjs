@@ -303,6 +303,8 @@ try {
   const visit = await owner.cmd('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-10-15', start: '09:00', end: '10:30' })
   await priya.cmd('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:03:00Z' })
   const photo = await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: jpeg } })
+  const retainedMaterial = await owner.cmd('service.save', { code: 'SYNTHETIC-ARCHIVE-MATERIAL', name: 'Synthetic archive material', kind: 'material', unit: 'each', unitCost: '7.00', unitPrice: '14.00', tax: 'GST' })
+  await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:11:00Z', kind: 'material', serviceId: retainedMaterial.id, quantity: '2', description: 'Synthetic portable private material' })
   const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
   let batch = await owner.cmd('import.stage', { files })
   batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
@@ -699,7 +701,7 @@ try {
   const laterCheckpoint = JSON.parse(latestBytes.toString('utf8').split('\n')[0])
   assert.equal(laterCheckpoint.sourceIdentity, olderCheckpoint.sourceIdentity)
   assert.ok(laterCheckpoint.epoch > olderCheckpoint.epoch, 'DATA-001 point 7: the real edition archive carries the committed redaction checkpoint')
-  for (const value of ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate']) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
+  for (const value of ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
   // Keep a destination with the newer checkpoint. Its own fence must refuse
   // the old archive even when no external journal was supplied.
   {
@@ -747,6 +749,7 @@ try {
   assert.doesNotMatch(JSON.stringify(peerPreview), /Harbourview Dental|Customer-facing restored inspection|Permitted restored model/)
 
   assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
+  assert.equal((await running.owner.get(`/api/glove/jobs/${job.id}/cost`)).costing.actual.materials, '14.00', 'DATA-001 point 7: real anonymous archive restore retains material costs without personal capture evidence')
   assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'erased signed-copy bytes stay erased across backup/restore')
