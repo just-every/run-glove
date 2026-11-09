@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Locator } from '@playwright/test'
+import { test, expect, type Page, type Locator, type Route } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production Worker, durable D1 and native signed-in people.
@@ -244,11 +244,16 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
       await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
       await page.waitForURL(u => u.pathname === '/app')
     }
-    await page.route(`${origin}/api/glove/**`, async route => {
+    const proxy = async (route: Route) => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
-      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
-    })
+      const body = Buffer.from(await response.arrayBuffer())
+      // Navigation can cancel the browser request while the independent
+      // harness fetch is still reading. Only a live request needs a reply.
+      if (page.isClosed() || req.failure()) return
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body })
+    }
+    await page.route(`${origin}/api/glove/**`, proxy)
     const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })
     const warning = panel.getByRole('alert')
     async function customerPage() {
@@ -272,7 +277,13 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
     await expect(email).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
     await expect(email).toContainText('Check the address and send again.')
     await screens(page, 'message-failures', email)
+    // Drain proxy callbacks before disposing their Worker, then park the old
+    // document so it cannot start another read during the restart. Reattach
+    // the same real-Worker proxy before opening the persisted customer record.
+    await page.unrouteAll({ behavior: 'wait' })
+    await page.goto('about:blank')
     await h.restart()
+    await page.route(`${origin}/api/glove/**`, proxy)
     await customerPage()
     await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
     await send('quote', quote.id, { RecordType: 'SpamComplaint' })
