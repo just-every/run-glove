@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // AGENT-005 quote drafted from the request through the command and state
 // doors, with the owner's model provider faked at the network edge.
 import test from 'node:test'
@@ -20,7 +21,7 @@ test('API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent dr
   h.models.answer = () => answer
 
   await b.office.run('quote.suggest', { enquiryId: request.id }, { error: 'FORBIDDEN' })
-  await t.test('AGENT-005, AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry', async () => {
+  await scenario(t, 'AGENT-005, AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry', async () => {
     const invalid = []
     const change = (label, edit) => { const value = structuredClone(answer); edit(value); invalid.push([label, value]) }
     change('extra root field', value => { value.approved = true })
@@ -53,7 +54,7 @@ test('API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent dr
   h.models.answer = () => answer
   const quote = await b.agent.run('quote.suggest', { enquiryId: request.id })
 
-  await t.test('AGENT-005, AGENT-014 three options from the price book at its prices, each with the model\'s reason', () => {
+  await scenario(t, 'AGENT-005, AGENT-014 three options from the price book at its prices, each with the model\'s reason', () => {
     const options = quote.revisions[0].options
     assert.deepEqual(options.map(o => [o.name, o.lines.map(l => [l.serviceId, l.quantity, l.unitPrice])]), [
       ['Good', [[tune.id, '1', '149.00']]],
@@ -65,7 +66,7 @@ test('API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent dr
     assert.deepEqual([quote.title, quote.enquiryId, quote.revisions[0].preparedBy.role], ['Furnace short-cycling', request.id, 'agent'])
   })
 
-  await t.test('AGENT-005, AGENT-014 the model saw the request, the furnace\'s age and history and the price book, never costs or who and where the customer is', () => {
+  await scenario(t, 'AGENT-005, AGENT-014 the model saw the request, the furnace\'s age and history and the price book, never costs or who and where the customer is', () => {
     const call = h.models.calls.at(-1)
     assert.equal(call.body.store, false)
     const sent = JSON.parse(call.body.messages[1].content)
@@ -77,7 +78,7 @@ test('API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent dr
     assert.doesNotMatch(call.body.messages[1].content, /unitCost|2100|Harbourview|Harbour St|9555|Mei Lin|harbourview\.example|Priya|Tom B/)
   })
 
-  await t.test('AGENT-005, AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices', async () => {
+  await scenario(t, 'AGENT-005, AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices', async () => {
     assert.equal(quote.status, 'draft')
     await b.agent.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 }, { error: 'FORBIDDEN' })
     await b.agent.run('quote.markSent', { quoteId: quote.id, version: quote.version, revision: 1, channel: 'email' }, { error: 'FORBIDDEN' })

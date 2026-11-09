@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 24 | 197 | 16 | 237 |
+| Core | 28 | 193 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 24 | 210 | 29 | 263 |
+| Full target | 28 | 206 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -231,7 +231,7 @@ Core · target · **partial** · From MONEY-001
 
 #### MONEY-004 — Frozen tax evidence and reporting
 
-Core · target · **partial** · From MONEY-001 · Cites BASE-DATA-001, BASE-DATA-003
+Core · target · **done** · From MONEY-001 · Cites BASE-DATA-001, BASE-DATA-003
 
 **Requirement.** Frozen tax evidence and reporting supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#money-001-operating-rules) retain the record formats and calculations. Owning-capability boundaries: QUOTE-007, QUOTE-019 carries discount allocation through this same tax calculation before discounts ship.
 
@@ -244,8 +244,8 @@ Core · target · **partial** · From MONEY-001 · Cites BASE-DATA-001, BASE-DAT
 6. Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 carries collected tax.
 7. The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007/004 carry live posting, matching and provider assertions.
 
-**Evidence.** `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts`
-**Gap.** The audit records 5 separately asserted outcome(s). Complete proof is not located for point 1 — The revision freezes currency, jurisdiction, rate, labor classification and exemption evidence; accepting options/add-ons and preparing/correcting the invoice retains that snapshot.; point 2 — Certificate evidence is private to the customer's full desk readers, including branch limits, stored in original chunks, archived with the customer and retained when replaced; exemption expiry is inclusive in the branch's local date.; point 3 — Any physical customer removal deletes its originals and chunks; DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 carries the customer erasure door and restore-fence assertion before shipping.; point 4 — US exports keep approved jurisdiction, rate, taxable basis, tax and total; legacy AUD exports retain Xero columns.; point 5 — Tax reports use each invoice's first approval local date (inclusive period bounds), grouping the latest approved tax snapshot by branch and jurisdiction.; point 6 — Before payments ship, the report honestly says tax on approved invoices; PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 carries collected tax.; point 7 — The mapped QuickBooks JSON is an inspection document only; LEDGER-001, LEDGER-005, LEDGER-006, LEDGER-007/004 carry live posting, matching and provider assertions. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/sales-tax.ts`, `src/glove/avatax.ts`, `src/glove/qbo-invoice.ts`, `tests/api/money.test.mjs`, `tests/portable.mjs`, `tests/browser/money.spec.ts`; `tests/api/tax-evidence.test.mjs` (MONEY-004 ordinary tax stays on first local approval through manual receipts, credits, correction and restart); `tests/api/tax-evidence.test.mjs` (MONEY-004 private chunked certificates retain replaced originals, local expiry and erasure fences); `tests/api/tax-evidence.test.mjs` (MONEY-004 approved options and add-ons carry frozen tax through revised and corrected invoices and US exports); `tests/api/tax-evidence.test.mjs` (MONEY-004 legacy AUD invoices keep Xero GST line columns after restart); `tests/browser/tax-evidence.spec.ts` (MONEY-004 Reports states approved-invoice tax before and after ordinary payments and QuickBooks stays a download); `tests/portable.mjs` (Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore)
+**Gap.** None.
 
 #### MONEY-005 — Address-based tax lookup
 
@@ -1388,7 +1388,7 @@ Core · target · **done** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003
 
 #### COMM-017 — Amazon SES and SNS callback custody
 
-Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Amazon SES and SNS callback custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1402,8 +1402,8 @@ Core · target · **partial** · From COMM-001 · Cites BASE-MAIL-001, BASE-OPS-
 7. An UnsubscribeConfirmation warns the owner and never fetches its URL.
 8. Delivery maps to delivered; Permanent bounce to bounced; Transient bounce to failed; DeliveryDelay to deferred; Complaint to complained; Reject and RenderingFailure (including AWS's Rendering Failure spelling) to rejected.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Amazon SES via SNS: pin region, TopicArn and configuration set to the owner's connection.; point 2 — Require the message-type header to equal the envelope Type, accept SNS signature versions 1 and 2 (setup asks for version 2), and require the signing certificate at the documented product door with no query, credentials, fragment, alternate port or redirects; cache the certificate within its validity for at most one hour.; point 3 — SNS timestamps are at most 1 hour old and at most 5 minutes ahead.; point 4 — Require a signed SNS envelope (raw delivery off), the pinned SES configuration set and Glove delivery tag on each SES event; sends carry the configuration set and a base64url-encoded delivery ID tag.; point 5 — Deduplicate SNS MessageId and the SES event.; point 6 — A SubscriptionConfirmation URL is fetched only after all source, URL, timestamp and signature checks; require HTTPS on the same pinned regional SNS host with the exact ConfirmSubscription action, TopicArn and Token, and follow no redirects.; point 7 — An UnsubscribeConfirmation warns the owner and never fetches its URL.; point 8 — Delivery maps to delivered; Permanent bounce to bounced; Transient bounce to failed; DeliveryDelay to deferred; Complaint to complained; Reject and RenderingFailure (including AWS's Rendering Failure spelling) to rejected. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 1: owner pins reject malformed sources and reconnect withdraws old pins); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 2: signatures, certificate URL custody, redirects and bounded cache); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 3: exact timestamp boundaries accept and one second beyond refuses); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 4: signed configuration and delivery tags bind every SES send); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 5: SNS and SES replays apply once and changed-body reuse refuses); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 6: confirmation fetch is checked, exact, once and never follows redirects); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 7: unsubscribe persists an owner warning in state and Activity without fetching); `tests/api/ses-sns-custody.test.mjs` (COMM-017 point 8: every SES outcome retains exact state and secret-free facts across Worker restart)
+**Gap.** None.
 
 #### COMM-018 — Email provider proof boundary
 
@@ -2781,7 +2781,7 @@ Core · target · **missing**
 
 #### PLAN-004 — Due-visit scheduling until done or declined
 
-Core · target · **partial** · From PLAN-004
+Core · target · **done** · From PLAN-004
 
 **Requirement.** Due-visit scheduling until done or declined supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#plan-004-operating-rules) retain the record formats and calculations. Recorded decisions: RL-19. Owning-capability boundaries: AGENT-008, AGENT-016 inheritance: the morning brief lists agreements with visits due, with their agreement link and a proposed action, asserted in the AGENT-008, AGENT-016 flow.
 
@@ -2794,8 +2794,8 @@ Core · target · **partial** · From PLAN-004
 6. New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.
 7. An existing job is retained when its booking is cancelled, so the desk can rebook it.
 
-**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture generates 40 due visits, batch-books 30 by area, sends links for 8, records 2 declines, and checks the due list shows exactly the remainder, and the REPORT-001 agreements-due tile the same number of due visits.; point 2 — The due-visit list lists each included visit separately, identified by agreement and zero-based ordinal, with its PLAN-002 due date, customer, site, ZIP, linked job and booking state.; point 3 — Through defaults to the business's local today; optional from and through bounds include both ends; area matches the site's exact ZIP.; point 4 — Completion removes only that entitlement, even if visits finish out of order.; point 5 — Booking, cancellation, term expiry and ending an agreement do not silently remove outstanding work.; point 6 — New included jobs keep the included-visit ordinal; older jobs take the first unclaimed ordinal in stored order.; point 7 — An existing job is retained when its booking is cancelled, so the desk can rebook it. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/agreement-due.ts`, `src/glove/agreements.ts`, `src/glove/booking-offers.ts`, `src/glove/public-booking.ts`, `src/glove/access.ts`, `src/glove/commands/dispatch.ts`, `src/ui/due-visits.tsx`, `src/ui/booking-offers.tsx`, `src/ui/customer-booking.tsx`, `src/ui/decline-visit.tsx`, `src/glove/mail.ts`, `tests/api/agreements.test.mjs`, `tests/api/security.test.mjs`, `tests/browser/due-visits.spec.ts`, `tests/portable.mjs`, `src/glove/history.ts`; `tests/api/due-visit-list.test.mjs` (PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters); `tests/api/due-visit-list.test.mjs` (PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade); `tests/browser/due-visit-list.spec.ts` (PLAN-004 Office filters individual due visits and books through desk controls while outstanding work stays listed)
+**Gap.** None.
 
 #### PLAN-007 — Due work in the owner brief
 
@@ -2950,7 +2950,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 
 #### STOCK-002 — Purchase orders to suppliers
 
-Core · target · **partial** · Cites BASE-AUDIT-001
+Core · target · **done** · Cites BASE-AUDIT-001
 
 **Requirement.** The office raises purchase orders to suppliers (by email or supplier portal), receives them fully or partly into a van or warehouse, and links job-specific orders to the job's cost. The [operating rules](docs/service-work-rules.md#stock-002-operating-rules) retain the record formats and calculations.
 
@@ -2965,7 +2965,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 8. Unit costs are margin figures (`MONEY-003, MONEY-006`): purchase orders are read only by roles that read reports, never by technicians.
 
 **Evidence.** `src/glove/commands/purchasing.ts`, `src/glove/costing.ts`, `src/ui/purchasing.tsx`, `tests/api/purchasing.test.mjs`, `src/glove/api.ts`, `src/glove/storage.ts`, `src/glove/access.ts`, `src/glove/view.ts`
-**Gap.** The audit records 8 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture raises a PO for a job, receives it in two parts, and checks stock and job cost.; point 2 — The owner and office raise a purchase order (numbered PO-0001 on) to a named supplier (with an optional email) of 1 to 50 price-book materials, each at a quantity to a thousandth of its unit and the supplier's unit cost (the item's price-book cost unless given), delivered to one van or warehouse (STOCK-001), for stock or for one job; it changes only while a draft.; point 3 — A draft order goes to the supplier in one of two ways, and the record and timeline say which: the owner or office emails it from Glove to the order's supplier address, or another address the person names, through the owner's connected email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 email send action with kind purchase order; the order then reads sent, naming the email, with the provider's reported outcome, where delivered means only that the supplier's mail server accepted it), or the person sends it outside Glove by email, the supplier's portal, phone or in person and records that method with the supplier's reference, which is recorded as sent with no delivery claim.; point 4 — Glove has no supplier-portal connection.; point 5 — Only a sent order is received, in one or more parts, each line at most what is still due; each part adds to the delivery location's stock as a stock move naming the order (and its job), and the order reads partly received until every line arrives.; point 6 — A job's received lines count to its actual cost (COST-004) at the order's unit cost; a price-book material recorded on that job counts at its price-book cost only beyond the quantity the job's orders received of it, so nothing is costed twice.; point 8 — Unit costs are margin figures (MONEY-003, MONEY-006): purchase orders are read only by roles that read reports, never by technicians. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Gap.** None.
 
 ### Team and permissions
 

@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import { enableXeroPolicy } from '../fixtures/xero-business.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -16,6 +17,7 @@ function records(h) {
 }
 
 test('Xero Owner discovers every page, reviews verified existing links and preserves authority and customer privacy without accounting writes', async t => {
+  await scenario(t, 'Xero Owner discovers every page, reviews verified existing links and preserves authority and customer privacy without accounting writes', async t => {
   const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' })
   records(h)
@@ -145,9 +147,7 @@ test('Xero Owner discovers every page, reviews verified existing links and prese
   await h.command('xero.discover', { customerId: live.id }, { error: 'XERO_SETUP' })
   assert.equal(h.xero.calls.length, beforeMissingCredentials, 'retained links never recreate installation credentials')
 })
-
-
-test('Xero company policy defaults to no effects and isolates allow, review, approve and block decisions', async t => {
+  await scenario(t, 'Xero company policy defaults to no effects and isolates allow, review, approve and block decisions', async t => {
   const h = await installation({ at: '2026-11-01T12:00:00Z' }); t.after(() => h.close())
   const b = await business(h, { currency: 'USD' }); records(h); await connect(h)
   const connection = (await h.state()).business[0].xeroInspection.connectionId
@@ -187,4 +187,5 @@ test('Xero company policy defaults to no effects and isolates allow, review, app
   await h.command('xero.connect', { version: (await h.state()).business[0].version, tenant: '00000000-0000-4000-8000-000000000002', token })
   assert.notEqual((await h.state()).business[0].xeroInspection.connectionId, connection)
   assert.equal((await h.command('xero.pull', {})).allowed, false)
+})
 })
