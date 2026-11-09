@@ -5944,7 +5944,7 @@
       "executable": false
     },
     "tests/browser/harness-route.ts": {
-      "sha256": "0836c748ac2f2e650a1b41594bc5ba1d586feae3389e4146e42a648002c6e1a5",
+      "sha256": "47d374dcbf3b70c694aae0e89fe9d1be24854b38ff0a6e0068aff1aa5f26e9dd",
       "executable": false
     },
     "tests/browser/invoice-batch.spec.ts": {
