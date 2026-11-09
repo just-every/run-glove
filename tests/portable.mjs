@@ -116,6 +116,32 @@ export function portableCalendars(worker) {
     const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
     await writeFile(entry, "import { portableCalendars } from './portable-calendars.mjs'\n" + code.replace('export default portableMarketing(', 'export default portableCalendars(portableMarketing(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))'))
   }
+  if (name.startsWith('companycam-')) {
+    // Replace only CompanyCam transport in these owned installation copies.
+    await cp(join(root, 'tests/fixtures/companycam.mjs'), join(root, 'src/companycam-edge.mjs'))
+    await writeFile(join(root, 'src/portable-companycam.mjs'), `
+import { companycamEdge } from './companycam-edge.mjs'
+export function portableCompanycam(worker) {
+  const upstream = globalThis.fetch, edge = companycamEdge()
+  edge.projects.set('42', { id: '42', name: 'Portable project', address: { street_address_1: '14 Harbour St', city: 'Balmain', state: 'NSW', postal_code: '2041' } })
+  globalThis.fetch = async (input, options) => {
+    const request = new Request(input, options), host = new URL(request.url).hostname
+    if (!['api.companycam.com', 'static.companycam.com'].includes(host)) return upstream(input, options)
+    await upstream(${JSON.stringify(recorderOrigin + '/' + name)}, { method: 'POST' })
+    return await edge.answer(request) ?? upstream(input, options)
+  }
+  return { ...worker, async fetch(request, env, context) {
+    if (new URL(request.url).pathname === '/__portable/companycam') {
+      if (request.method === 'POST') edge.loseUploadResponse = (await request.json()).lost === true
+      return Response.json({ calls: edge.calls.map(({ method, path }) => ({ method, path })) })
+    }
+    return worker.fetch(request, env, context)
+  } }
+}
+`)
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(entry, "import { portableCompanycam } from './portable-companycam.mjs'\n" + code.replace('export default ', 'const portableInner = ') + '\nexport default portableCompanycam(portableInner)\n')
+  }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
   return root
@@ -278,7 +304,68 @@ async function calendarRestore() {
   await running.close(); running = null
 }
 
+async function companycamRestore() {
+  const source = await copy('companycam-source'), destination = await copy('companycam-destination')
+  running = await install(source)
+  const owner = running.owner
+  await owner.cmd('business.save', { name: 'Portable photo business', currency: 'AUD', timezone: 'Australia/Sydney' })
+  const customer = await owner.cmd('customer.save', { name: 'Portable photo customer' })
+  const site = await owner.cmd('site.save', { customerId: customer.id, address: '14 Harbour St, Balmain NSW 2041' })
+  const member = await running.persona('member')
+  const operator = (await owner.get('/api/glove/state')).operators.find(o => o.email === ['member', 'dev.localhost'].join('@'))
+  await owner.cmd('role.set', { operatorId: operator.id, role: 'technician' })
+  const tech = await owner.cmd('technician.save', { name: 'Portable photo technician', operatorId: operator.id })
+  const job = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Portable photo job' })
+  const visit = await owner.cmd('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-10-15', start: '09:00', end: '10:00' })
+  const image = await readFile('tests/fixtures/companycam-unit.jpg')
+  const captures = []
+  for (const caption of ['Confirmed portable photo', 'Unknown portable photo']) captures.push(await member.cmd('visit.capture', { visitId: visit.id, kind: 'photo', deviceTime: '2026-10-15T09:00:00Z', caption, photo: { mediaType: 'image/jpeg', base64: Buffer.concat([image, Buffer.from(caption)]).toString('base64') } }))
+  const payload = async capture => ({ jobId: job.id, version: (await running.owner.get('/api/glove/state')).jobs.find(j => j.id === job.id).version, captureId: capture.id })
+  await owner.cmd('companycam.connect', { key: 'synthetic-glove-808' })
+  await owner.cmd('companycam.link', { ...await payload(captures[0]), projectId: '42' })
+  const replays = []
+  for (const [i, capture] of captures.entries()) {
+    await running.request('/__portable/companycam', 'POST', { lost: i === 1 })
+    const fields = await payload(capture), commandId = randomUUID()
+    const result = await owner.cmd('companycam.send', fields, commandId)
+    assert.equal(result.phase, i ? 'unknown' : 'complete')
+    replays.push({ fields, commandId, result })
+  }
+  const before = await owner.get('/api/glove/export')
+  assert.equal(before.companycamUploads.length, 2)
+  assert.equal(before.jobs.find(j => j.id === job.id).companycam.projectId, '42')
+  assert.ok(!JSON.stringify(before).includes('synthetic-glove-808'))
+  await running.close(); running = null
+  const archive = join(parent, 'companycam-installation.rer')
+  await command(source, ['export', '--output', archive])
+  const raw = await readFile(archive), manifest = JSON.parse(raw.toString('utf8').split('\n')[0])
+  assert.ok(manifest.tables.some(t => t.name === 'glove_companycam_uploads'))
+  assert.ok(!manifest.tables.some(t => t.name === 'glove_provider_keys'))
+  assert.ok(!raw.includes(Buffer.from('synthetic-glove-808')))
+  await command(destination, ['import', '--input', archive, '--yes'])
+  assert.equal(stripePosts.get('companycam-destination') ?? 0, 0, 'import makes no CompanyCam request')
+  running = await install(destination)
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401)
+  const after = await running.owner.get('/api/glove/export')
+  assert.deepEqual(after.companycamUploads, before.companycamUploads)
+  for (const key of ['jobs', 'captures', 'files', 'timeline']) assert.deepEqual(after[key], before[key], 'photo references and attributable outcomes survive the real archive')
+  assert.equal((await running.owner.get('/api/glove/state')).companycamConfigured, false)
+  for (const r of replays) assert.deepEqual(await running.owner.cmd('companycam.send', r.fields, r.commandId), r.result)
+  for (const type of ['companycam.pull', 'companycam.send', 'companycam.reconcile']) {
+    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type, payload: { ...await payload(captures[1]), photoId: '1002' } }, running.owner.cookie)
+    assert.equal((await response.json()).error.code, 'COMPANYCAM')
+  }
+  assert.equal(stripePosts.get('companycam-destination') ?? 0, 0, 'startup, replay and disconnected actions make no CompanyCam request')
+  await running.owner.cmd('companycam.connect', { key: 'synthetic-glove-809' })
+  for (const r of replays) assert.deepEqual(await running.owner.cmd('companycam.send', await payload(captures.find(c => c.id === r.fields.captureId))), r.result)
+  assert.equal(stripePosts.get('companycam-destination') ?? 0, 0, 'reconnection never resends either restored reservation')
+  assert.deepEqual((await running.owner.get('/api/glove/export')).companycamUploads, before.companycamUploads)
+  await running.close(); running = null
+  console.log('API-008 real archive passed: references and confirmed or unknown reservations retained; token absent; reconnect required; replay never resends')
+}
+
 try {
+  await companycamRestore()
   await calendarRestore()
   const source = await copy('source'), destination = await copy('destination')
   running = await install(source)

@@ -5539,6 +5539,10 @@
       "sha256": "c6a6615f9fd32db94c1a5c769f49279e6c0d65111ab86014806cb226f0528def",
       "executable": false
     },
+    "tests/api/companycam-export.test.mjs": {
+      "sha256": "97f7e16ba3c8521bcbab3b5fe310314d648b0e7df7f2331f6bcd2ab965224e42",
+      "executable": false
+    },
     "tests/api/companycam.test.mjs": {
       "sha256": "89a01712a0ded5e411992c7ab55b17bebbaaca99ee6d4cb4788caae4e20ed803",
       "executable": false
@@ -5812,7 +5816,7 @@
       "executable": false
     },
     "tests/browser/companycam.spec.ts": {
-      "sha256": "170e03074b2510188f334104c2dd10cd4640588aafb377dada718eda3a1683f5",
+      "sha256": "07ec238639a3f9e8fa0f8ae7db8a8c55833a1c890ab573fadef90ddfec9c0c5f",
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
@@ -5972,7 +5976,7 @@
       "executable": false
     },
     "tests/fixtures/companycam.mjs": {
-      "sha256": "e6f57995e2c82b79e3e8e9d8f3fb34efe73450ef317f6c0b42d02422183ba390",
+      "sha256": "5dccf2e26695d3410e62546b472aa5b38df69c4a6a7a23a86ba8b1a54729f394",
       "executable": false
     },
     "tests/fixtures/document-images.mjs": {
@@ -6352,7 +6356,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "9b69d542b155552d93cb02965df4c6e9dc0bed7b2ef0a844924f51717d073e2d",
+      "sha256": "bb2c016b0e96f80c1b7c1256be0d6bd2eb19e60ecbd2c3cc38c07eac3986571d",
       "executable": false
     },
     "tests/runtime.mjs": {
