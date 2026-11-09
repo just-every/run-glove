@@ -2,7 +2,10 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 // @ts-expect-error Production Worker, durable D1 and native signed-in people.
-import { installation } from '../api/harness.mjs'
+import { installation, business, completedJob } from '../api/harness.mjs'
+
+// @ts-expect-error Provider edge helpers drive the real callback door.
+import { connectMail, postmarkCallback } from '../fixtures/mail-providers.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
@@ -196,6 +199,104 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
   } finally {
     // A delayed transport is always released before shutting down its Worker.
     releaseHeld?.()
+    await page.unrouteAll({ behavior: 'wait' })
+    await context.close(); await h.close()
+  }
+})
+
+test('COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart', async ({ browser }) => {
+  const h = await installation({ at: '2026-11-09T12:00:00.000Z' })
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  const address = (name: string) => [name, 'example.test'].join('@')
+  try {
+    const b = await business(h, { timezone: 'UTC' })
+    let customer = await h.command('customer.save', { ...b.customer, kind: 'business', email: address('synthetic-glove-main'), apEmail: address('synthetic-glove-ap') })
+    const { job } = await completedJob(h, b)
+    const draft = await b.office.run('invoice.prepare', { jobId: job.id })
+    const invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+    const q = await h.command('quote.draft', { customerId: customer.id, siteId: b.site.id, title: 'Warning recovery', lines: [{ serviceId: b.service.id, description: 'Service', quantity: '1', unitPrice: '189.00' }] })
+    const quote = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+    const edge = await connectMail(h, 'postmark')
+    const connected = await h.command('mail.connect', edge.connection)
+    let second = 0
+    async function send(kind: string, id: string, details: Record<string, unknown> | null) {
+      const at = `2026-11-09T12:00:${String(++second).padStart(2, '0')}.000Z`
+      await h.setTime(at)
+      const record = (await h.state())[kind === 'quote' ? 'quotes' : 'invoices'].find((r: { id: string }) => r.id === id)
+      const m = await b.office.run('email.send', { kind, id, version: record.version })
+      m.receipt = `pm-receipt-${h.email.sent.length}`
+      if (details) expect((await h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', ...(() => {
+        const signed = postmarkCallback(m, connected.callbackPassword, { at, id: `synthetic-glove-browser-${second}`, details })
+        return { headers: { 'content-type': 'application/json', ...signed.headers }, body: signed.raw }
+      })() })).status).toBe(200)
+      return m
+    }
+    const bounced = await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'HardBounce' })
+    await send('quote', quote.id, { RecordType: 'Delivery' })
+    h.email.status[customer.apEmail] = 400
+    await send('invoice', invoice.id, null)
+    delete h.email.status[customer.apEmail]
+    await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'SoftBounce', Inactive: true })
+    expect((await h.state()).emailWarnings[customer.id].messageId).toBe(bounced.id)
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') {
+      await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
+      await page.waitForURL(u => u.pathname === '/app')
+    }
+    await page.route(`${origin}/api/glove/**`, async route => {
+      const req = route.request(), url = new URL(req.url())
+      const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
+      await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
+    })
+    const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })
+    const warning = panel.getByRole('alert')
+    async function customerPage() {
+      await page.goto(`${origin}/app#customers`)
+      await page.getByRole('button', { name: customer.name, exact: true }).click()
+      await expect(panel).toBeVisible()
+    }
+    await customerPage()
+    await expect(warning).toHaveText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark). Check the address with the customer, correct it on their record and send again.`)
+    const conversation = page.getByRole('region', { name: 'Customer conversation', exact: true })
+    await expect(conversation).toContainText(`Delivered to ${customer.email}'s mail server (reported by Postmark)`)
+    await expect(conversation).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
+    await screens(page, 'address-bounce', panel)
+    await page.goto(`${origin}/app#invoices`)
+    await page.getByRole('button', { name: invoice.number, exact: true }).click()
+    const email = page.getByRole('region', { name: `Email ${invoice.number}`, exact: true })
+    await expect(email).toContainText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark)`)
+    await expect(email).toContainText('Check the address with the customer, correct it on their record and send again.')
+    await expect(email).toContainText('Not sent: Postmark refused it')
+    await expect(email).toContainText('Check the email connection and the address, then send again.')
+    await expect(email).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
+    await expect(email).toContainText('Check the address and send again.')
+    await screens(page, 'message-failures', email)
+    await h.restart()
+    await customerPage()
+    await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
+    await send('quote', quote.id, { RecordType: 'SpamComplaint' })
+    await page.reload()
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toHaveText(`Marked as spam by ${customer.email} (reported by Postmark). Do not email them again until they ask for it; call them instead.`)
+    await screens(page, 'address-complaint', panel)
+    await send('quote', quote.id, { RecordType: 'Delivery' })
+    await page.reload()
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
+    await send('invoice', invoice.id, { RecordType: 'Delivery' })
+    await page.reload()
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toHaveCount(0)
+    await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'HardBounce' })
+    await page.reload()
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toContainText(customer.apEmail)
+    await panel.getByLabel('Accounts-payable email', { exact: true }).fill(address('synthetic-glove-new-ap'))
+    await panel.getByRole('button', { name: 'Save changes', exact: true }).click()
+    await expect(warning).toHaveCount(0)
+    expect((await h.state()).customers.find((c: { id: string }) => c.id === customer.id).apEmail).toBe(address('synthetic-glove-new-ap'))
+  } finally {
     await page.unrouteAll({ behavior: 'wait' })
     await context.close(); await h.close()
   }
