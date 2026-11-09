@@ -11,7 +11,7 @@ A claim is done when every clause behind it is done, missing when every one is m
 | 3 | books the job | `GLOVE-05` partial; `BOOK-002` partial; `BOOK-011` partial; `BOOK-012` partial; `BOOK-013` partial; `BOOK-005` partial | partial |
 | 4 | sends the tech | `GLOVE-05` partial | partial |
 | 5 | takes payment on site | `PAY-003` missing | missing |
-| 6 | keeps every maintenance plan on schedule | `PLAN-004` done; `PLAN-007` done; `PLAN-008` partial; `PLAN-009` partial; `PLAN-010` done; `PLAN-011` done; `AGENT-007` partial; `AGENT-015` partial | partial |
+| 6 | keeps every maintenance plan on schedule | `PLAN-004` partial; `PLAN-007` done; `PLAN-008` partial; `PLAN-009` partial; `PLAN-010` done; `PLAN-011` done; `AGENT-007` partial; `AGENT-015` partial | partial |
 | 7 | 100% free, open source alternative to Jobber, Housecall Pro and ServiceTitan | `DATA-004` partial | partial |
 | 8 | Hero cards: New call 7:42 am · Booked 11:00 am; Dispatch · Luis · Van 3 · ETA 10:52 am; Quote $1,850 · Accepted; Part on backorder · Rebooked Thu, Oct 22 · Customer texted; Paid on site · $412.00 · card; Maintenance plan · 1 visit left · next Apr 3 | `AGENT-001` missing; `GLOVE-05` partial; `DISP-005` done; `DISP-012` partial; `GLOVE-04` done; `AGENT-003` partial; `AGENT-010` partial; `STOCK-002` partial; `COMM-003` partial; `COMM-019` partial; `COMM-020` partial; `PAY-003` missing; `PLAN-002` done | partial |
 | 9 | 7:42 am · Front office: answers the first ring, says it is an automated assistant, asks what a good dispatcher would ask and books a real open slot | `AGENT-001` missing; `BOOK-002` partial; `BOOK-011` partial; `BOOK-012` partial; `BOOK-013` partial | partial |
