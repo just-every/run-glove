@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 36 | 185 | 16 | 237 |
+| Core | 37 | 184 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 36 | 198 | 29 | 263 |
+| Full target | 37 | 197 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -890,7 +890,7 @@ Core · target · **partial** · From QUOTE-005
 
 #### QUOTE-015 — Document presentation and print
 
-Core · target · **partial** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROLE-001
+Core · target · **done** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROLE-001
 
 **Requirement.** Document presentation and print supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-005-operating-rules) retain the record formats and calculations.
 
@@ -900,8 +900,8 @@ Core · target · **partial** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROL
 3. Print / Save PDF invokes the browser’s print renderer after removing a bearer fragment, restores the link after printing, includes the whole document and hides response controls.
 4. No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013/006 retain their owner-disclosure gate and COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 inherits the same document and original-file restrictions.
 
-**Evidence.** `tests/browser/documents.spec.ts`, `tests/api/documents.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Existing role, branch, revision and original-file guards apply.; point 2 — Dates use US calendar presentation and ten-digit phones use US punctuation; saved legacy addresses and time zones remain as recorded.; point 3 — Print / Save PDF invokes the browser’s print renderer after removing a bearer fragment, restores the link after printing, includes the whole document and hides response controls.; point 4 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013/006 retain their owner-disclosure gate and COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 inherits the same document and original-file restrictions. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/documents.spec.ts`, `tests/api/documents.test.mjs`; `tests/api/document-presentation.test.mjs` (QUOTE-015 document presentation preserves scoped originals, calendar facts and honest states after Worker restart); `tests/browser/document-print.spec.ts` (QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390)
+**Gap.** None.
 
 #### QUOTE-006 — Field quotes and change orders, offline
 
