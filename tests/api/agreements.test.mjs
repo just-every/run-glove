@@ -15,7 +15,8 @@ import { parseCsv } from '../../src/glove/csv-format.ts'
 
 const monthsBefore = (date, n) => { const [y, m, d] = date.split('-').map(Number), t = y * 12 + m - 1 - n; return `${Math.floor(t / 12)}-${String(t % 12 + 1).padStart(2, '0')}-${String(Math.min(d, 28)).padStart(2, '0')}` }
 
-test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async (t) => {
+test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async t => {
+  await scenario(t, 'PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async (t) => {
   // UTC is November 6; the business is still on November 5.
   const at = '2026-11-06T00:30:00.000Z'
   const h = await installation({ at })
@@ -229,7 +230,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   assert.ok(ended)
 })
 
-test('Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart', async t => {
+  await scenario(t, 'Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart', async t => {
   const h = await installation(); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'CLUB', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -367,7 +368,7 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   await interruptedBooking()
 })
 
-test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
+  await scenario(t, 'PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
   const h = await installation({ at: '2030-01-01T12:00:00Z' }); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'LINK', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -537,6 +538,7 @@ test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, B
     assert.equal(JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results).includes(value), false)
   }
 
+})
 })
 
 // Extend the existing included-visit completion flow without another registration.

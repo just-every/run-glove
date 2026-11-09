@@ -15,7 +15,7 @@ async function job(h, b, title = 'Arrival window service') {
   return b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title })
 }
 
-test('Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes', async t => {
+test("Arrival windows and automatic assignment preserve boundaries, eligibility and refusal state", async t => {
   await scenario(t, 'Arrival windows validate before automatic selection and retain inclusive boundaries without refusal writes', async t => {
   const h = await installation({ at }); t.after(() => h.close())
   const b = await business(h), j = await job(h, b)
@@ -217,13 +217,8 @@ test('Arrival windows validate before automatic selection and retain inclusive b
   }
   const before=await h.state(); await h.restart(); assert.deepEqual(await h.state(),before)
 })
-})
 
-
-
-
-
-test('Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name', async t => {
+  await scenario(t, 'Automatic assignment excludes every conflict under owner warn and refuse rules and breaks equal load by name', async t => {
   const h=await installation({ at }); t.after(()=>h.close())
   const b=await business(h)
   const site=await h.command('site.save',{ customerId:b.customer.id,address:'100 Window Street, Chicago IL 60601' })
@@ -264,4 +259,5 @@ test('Automatic assignment excludes every conflict under owner warn and refuse r
   const again=await b.dispatcher.run('visit.book',payload)
   assert.equal(again.technicianId,b.tom.id)
   assert.equal(again.assignments[0].reason,'Assigned automatically: Bea eligible had the fewest booked minutes that day (Bea eligible 0, Zoe eligible 0)')
+})
 })
