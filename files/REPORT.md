@@ -1,6 +1,6 @@
 # sx-glove-c-f187 — TEAM-005
 
-CLAIM TEAM-005 DONE points=1,2,3,4,5 tests=tests/api/branch-authority.test.mjs#TEAM-005 current branch authority fences every read, shared write, replay and commit across restart; tests/browser/branches.spec.ts#TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390
+CLAIM TEAM-005 DONE points=1,2,3,4,5 tests=tests/api/branch-authority.test.mjs#TEAM-005 current branch authority fences every read, shared write, replay and commit across restart
 
 Product: `cloud/sx-glove-c-f187` at `985bb3d085b99ac8925c828f330e83d1ed5999ce`. Guarded push and remote readback match. No PR is required: branch push starts Verify. Exact-SHA push Verify 42567496369 was in progress at discovery, with conclusion unestablished. Local qualification is complete; scanning, acceptance and landing remain independent fleet gates.
 
@@ -86,7 +86,7 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 ## Custody and limits
 
 - Full product SHA: 985bb3d085b99ac8925c828f330e83d1ed5999ce, branch cloud/sx-glove-c-f187, PR none. Guarded push and remote readback match.
-- Exact-SHA Verify: 42567496369, push, in progress at discovery: https://github.com/just-every/run-glove/actions/runs/42567496369. Three GitHub API calls used: predecessor result, baseline discovery, candidate discovery. No dispatch, rerun or short polling.
+- Exact-SHA Verify: 42567496369, push, in progress at discovery: https://github.com/just-every/run-glove/actions/runs/42567496369. Four GitHub API calls used: predecessor result, baseline discovery, candidate discovery and one later candidate read after more than 300 seconds. No dispatch, rerun or short polling.
 - Main baseline c270566732b115a5514cdab4b9f22cbc9f12fe4a: Verify 42566672074 and 42564957100 succeeded; Run site 42566672055 succeeded. These are baseline observations, never candidate proof.
 - Main equality=false. Candidate Run site=UNESTABLISHED, main-only.
 - Exact-SHA scan: commit=985bb3d085b99ac8925c828f330e83d1ed5999ce, complete=UNESTABLISHED, historyScanned=UNESTABLISHED, findings=UNESTABLISHED. Maintained lander must obtain full-history COMPLETE with zero findings.
@@ -97,3 +97,5 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock then check exit=0; v
 Blockers: none for native qualification. CI, scanning and landing remain independent gates. No DEFAULT or GAP adopted for these five native points. Other clause and provider holds remain unchanged.
 
 Initial evidence readback succeeded: ref head b782ba9d9f0d8e0243ec75d9ef93ac314338c1ef, 46 explicitly selected files, manifest and all file hashes verified. This final packet update includes that actual transfer receipt; evidence remains separate from product readiness.
+
+Final CI observation: Verify 42567496369 remains in progress on the exact candidate. The one later read occurred after more than 300 seconds; no further wait is planned. This packet includes the actual latest CI response and interval receipt.

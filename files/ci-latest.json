@@ -1,0 +1,5 @@
+{
+  "elapsed_since_discovery": 315.918873,
+  "exit": 0,
+  "command": "gh api repos/just-every/run-glove/actions/runs/42567496369 --jq {status,conclusion,head_sha,html_url}"
+}
