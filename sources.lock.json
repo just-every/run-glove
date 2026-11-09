@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "be12b7307966f2eb99ed150d5838288556b961eda521f57531272b0643862ee3",
+      "sha256": "22a8ac19603341cf9e7eb55f02a500298b0d3598bcb094fe9b6ea5aec4c77d29",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "58cd6a5917f1213dd5e1eee0419a5d25149a2da5537b55bba2a9ee8061ce722e",
+      "sha256": "80eea20a0282e4db1d5b2548c7db5586b2ccbadaf8a7fa3e4285b976d8ad92af",
       "executable": false
     },
     "DEMO.md": {
@@ -5648,7 +5648,7 @@
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "7cd6b3eef404a030ae6c525b00b8fb301a58f0779abe34a1a03d10829a3da34d",
+      "sha256": "bc83660e4c127a2e4fed3614ad6249184f525f4d07ddcbcd1cad911b742c6eca",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
