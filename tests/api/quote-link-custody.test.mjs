@@ -6,6 +6,7 @@ import { readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import { installation, business, assertTrail, mailEvents } from './harness.mjs'
 import { textOf } from '../fixtures/mail-providers.mjs'
+import { documentPhoto } from '../fixtures/document-images.mjs'
 
 const at = '2030-02-28T18:00:00.000Z'
 const lines = [{ description: 'Condenser inspection', quantity: '1', unitPrice: '189.00', tax: 'FREE' }]
@@ -241,5 +242,99 @@ test('QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment 
   const view = await (await read(h, link.token)).json()
   assert.equal(view.document.revision, 2); assert.equal(view.documentHash, link.documentHash)
   await assertTrail(h, ['quote.revised', 'quote.approved', 'quote.linkIssued'])
+})
+  await scenario(t, 'QUOTE-013 point 3: reissue for an accepted or declined quote is read-only and keeps the document the decision was made on', async t => {
+  const h = await installation({ at, captureLogs: true }); t.after(() => h.close()); const b = await business(h)
+  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-232', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['office', 'example.test'].join('@') })
+  await h.command('quote.consent', { version: (await h.state()).business[0].version, accept: true, text: 'Synthetic owner disclosure: the chosen work and claimed signature are recorded; identity is unverified.' })
+  const line = (description, unitPrice) => ({ description, quantity: '2', unitPrice, tax: 'FREE' })
+  const options = [{ name: 'Good', lines: [line('Good inspection', '80.00')] }, { name: 'Better', lines: [line('Better inspection', '101.23')] }]
+  const addOns = [{ name: 'Filter', lines: [{ description: 'Filter pack', quantity: '3', unitPrice: '12.34', tax: 'FREE' }] }]
+  const choice = { optionId: 'option-2', addOnIds: ['addon-1'] }
+  const drawn = { kind: 'drawn', width: 600, height: 200, strokes: [[[20, 80], [70, 30], [100, 100], [180, 50]]] }
+  const photo = caption => ({ mediaType: 'image/png', base64: documentPhoto, caption })
+  const staffAnswer = async (type, q, extra) => h.command(type, { quoteId: q.id, version: (await quote(h, q.id)).version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin', ...extra })
+  const deciders = {
+    'online signature': { status: 'accepted', run: async (q, earlier) => {
+      const selection = await (await respond(h, earlier.token, 'choose', { choice })).json()
+      const signed = await respond(h, earlier.token, 'approve', { choice, documentHash: earlier.documentHash, selectionHash: selection.selection.hash, consent: { version: selection.disclosure.version, hash: selection.disclosure.hash, affirmed: true }, signature: drawn })
+      assert.equal(signed.status, 200) } },
+    'staff acceptance': { status: 'accepted', run: q => staffAnswer('quote.accept', q, { choice, note: 'Accepted by phone' }) },
+    'customer decline': { status: 'declined', run: async (q, earlier) => assert.equal((await respond(h, earlier.token, 'decline', { message: 'Too expensive' })).status, 200) },
+    'staff decline': { status: 'declined', run: q => staffAnswer('quote.decline', q, { note: 'Going elsewhere' }) },
+  }
+  const tokens = [], decided = []
+  for (const [name, flow] of Object.entries(deciders)) {
+    let q = await h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: `Decided by ${name}`, options, addOns })
+    q = await h.command('document.photo', { kind: 'quote', id: q.id, version: q.version, photo: photo('Original condenser photo') })
+    const earlier = await issue(h, await approve(h, q)); tokens.push(earlier.token)
+    await flow.run(q, earlier)
+    const kept = await quote(h, q.id), copy = kept.acceptance?.signing ? await (await h.request('/api/glove/public/quote/signed', { as: '', headers: { authorization: `Bearer ${earlier.token}` } })).text() : null
+    assert.equal(kept.status, flow.status, name)
+    decided.push({ name, id: q.id, status: flow.status, earlier, copy, jobs: (await h.state()).jobs.length })
+  }
+  // The business then edits everything a rebuilt customer document would read.
+  let state = await h.state()
+  await h.command('business.save', { ...state.business[0], name: 'Later business identity', legalName: 'Later Legal Pty', phone: '02 9000 0000', address: '1 Later Street, Sydney NSW 2000' })
+  await h.command('site.save', { ...state.sites.find(x => x.id === b.site.id), address: '99 Later Road, Newtown NSW 2042' })
+  await h.command('service.save', { ...state.services.find(x => x.id === b.service.id), name: 'Later service name', unitPrice: '999.00', description: 'Later price book description' })
+  await h.command('document.template', { kind: 'quote', version: (await h.state()).business[0].version, heading: 'Later heading', terms: 'Later document terms', footer: 'Later footer' })
+  for (const d of decided) await h.command('document.photo', { kind: 'quote', id: d.id, version: (await quote(h, d.id)).version, photo: photo('Later photo added after the decision') })
+  state = await h.state()
+  assert.deepEqual([state.business[0].name, state.sites.find(x => x.id === b.site.id).address], ['Later business identity', '99 Later Road, Newtown NSW 2042'])
+  const people = [['Olivia Owner', 'owner', (type, payload, opts) => h.command(type, payload, opts)], ['Sam Ortiz', 'dispatcher', b.dispatcher.run], ['Olu Office', 'office', b.office.run]]
+  const customerActions = ['choose', 'changes', 'decline', 'update', 'approve']
+  for (const d of decided) {
+    const original = await quote(h, d.id), issued = [], frozenView = d.earlier.document
+    let previous = d.earlier.token
+    for (const [name, role, run] of people) for (const email of [false, true]) {
+      const before = await quote(h, d.id), sentBefore = h.email.sent.length, commandId = randomUUID()
+      const payload = { quoteId: d.id, version: before.version, ...(email ? { email: true } : {}) }
+      const link = await run('quote.link', payload, { commandId }); tokens.push(link.token)
+      const label = `${d.name} reissued by ${role}${email ? ' with email' : ''}`
+      assert.equal(h.email.sent.length, sentBefore + (email ? 1 : 0), label)
+      assert.deepEqual(link.document, frozenView, `${label} keeps the decided document`); assert.equal(link.documentHash, d.earlier.documentHash, label)
+      const view = await (await read(h, link.token)).json()
+      assert.deepEqual([view.state, view.decision, view.signingAvailable, view.documentHash], ['decided', d.status, false, d.earlier.documentHash], label)
+      assert.deepEqual(view.document, frozenView, `${label} reads the document the decision was made on`)
+      assert.notEqual(view.document.business.name, 'Later business identity'); assert.notEqual(view.document.site.address, '99 Later Road, Newtown NSW 2042')
+      assert.equal(view.document.photos.length, 1, `${label} omits the photo added after the decision`)
+      assert.equal((await read(h, previous)).status, 404, `${label} revokes the earlier live link`)
+      assert.equal((await respond(h, previous, 'update')).status, 404)
+      const after = await quote(h, d.id)
+      assert.deepEqual([after.status, after.revisions, after.acceptance, after.declined, after.customerRequests], [original.status, original.revisions, original.acceptance, original.declined, original.customerRequests], `${label} leaves the decision records unchanged`)
+      assert.equal(after.revisions.length, 1); assert.equal((await h.state()).jobs.length, d.jobs)
+      const copy = await h.request('/api/glove/public/quote/signed', { as: '', headers: { authorization: `Bearer ${link.token}` } })
+      if (d.copy) { assert.equal(copy.status, 200); assert.equal(await copy.text(), d.copy, `${label} serves the exact signed copy`) } else assert.equal(copy.status, 404)
+      const snapshot = await exportBusiness(h)
+      for (const action of customerActions) {
+        const answered = await respond(h, link.token, action, { message: 'A late answer', choice: { optionId: 'option-1', addOnIds: [] } })
+        assert.equal(answered.status, 200, `${label} ${action}`)
+        const result = await answered.json()
+        assert.deepEqual([result.state, result.decision, result.documentHash], ['decided', d.status, d.earlier.documentHash], `${label} ${action}`)
+        assert.deepEqual(await exportBusiness(h), snapshot, `${label}: ${action} changes no quote, revision, acceptance, signature, signed copy or request record`)
+      }
+      issued.push({ payload, commandId, link, name, role, run }); previous = link.token
+    }
+    const last = issued.at(-1).link, persisted = await exportBusiness(h), lastView = await (await read(h, last.token)).json(), emails = h.email.sent.length
+    await h.restart()
+    assert.deepEqual(await (await read(h, last.token)).json(), lastView, `${d.name}: the decided page is identical after a Worker restart`)
+    for (const earlierIssue of issued) {
+      const replay = await earlierIssue.run('quote.link', earlierIssue.payload, { commandId: earlierIssue.commandId })
+      assert.equal(replay.token, undefined); assert.equal(replay.id, earlierIssue.link.id)
+    }
+    assert.equal(h.email.sent.length, emails, 'issuance replay sends no second email')
+    assert.deepEqual(await exportBusiness(h), persisted, `${d.name}: command replay recreates and changes nothing`)
+    assert.equal((await read(h, last.token)).status, 200)
+    for (const dropped of issued.slice(0, -1)) assert.equal((await read(h, dropped.link.token)).status, 404, `${d.name}: a replay cannot revive a revoked reissue`)
+    const { exported: trail } = await assertTrail(h, ['quote.linkIssued'])
+    const mine = trail.timeline.filter(e => e.kind === 'quote.linkIssued' && e.subject_id === d.id).slice(1)
+    assert.deepEqual(mine.map(e => [e.actor_name, e.actor_role]), issued.map(i => [i.name, i.role]), `${d.name}: every reissue is attributable in Activity and export`)
+    assert.deepEqual(mine.map(e => JSON.parse(e.data).documentHash), issued.map(() => d.earlier.documentHash))
+  }
+  const { activity, exported } = await assertTrail(h, ['quote.linkIssued', 'quote.accepted', 'quote.declined', 'quote.customer.approve', 'quote.customer.decline', 'document.photo'])
+  assert.equal(activity.filter(e => e.kind === 'quote.linkIssued').length, 4 * 7)
+  for (const [surface, value] of Object.entries({ activity, exported, state: await h.state(), commands: (await h.db.prepare('SELECT * FROM glove_commands').all()).results, records: (await h.db.prepare('SELECT * FROM glove_records').all()).results, events: (await h.db.prepare('SELECT * FROM glove_events').all()).results, mail: h.email.sent.map(textOf).map(m => m.replace(/#token=glq_[A-Za-z0-9_-]{43}/g, '#token=') ) })) for (const token of tokens) withoutBearer(value, token, surface)
+  for (const token of tokens) withoutBearer(h.logs, token, 'captured Worker logs')
 })
 })
