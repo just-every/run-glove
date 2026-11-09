@@ -5671,6 +5671,10 @@
       "sha256": "f14d6e6d9c424d4cf24ac4dd279168cc502d81fc2e271f2c178b1a1dec030c3f",
       "executable": false
     },
+    "tests/api/payroll-files.test.mjs": {
+      "sha256": "58b52626a020c75dcc7918ac7c06e67fe0791099fdef75524ef7a0c20d5819a7",
+      "executable": false
+    },
     "tests/api/payroll.test.mjs": {
       "sha256": "3aa3c0f3b03461e1fb443940b78b4f5e7ddb3d5762d56ae5fe9da3c8b56c02d1",
       "executable": false
