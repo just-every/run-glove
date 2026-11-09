@@ -78,3 +78,9 @@ Exact-SHA publication scan: commit=c0578470df599d2d38efe96b2010b0e45d088dfa comp
 Main equality: false. Candidate branch custody was confirmed by ls-remote at c0578470df599d2d38efe96b2010b0e45d088dfa; main was 63bfd0d1a155d7be44561e579d643f895fabded3. Main Verify=42554943349 and Run site=42554943436 are green only for that main SHA. Candidate Verify=42555779210, push event, initially in progress. No known real product failure or external dependency blocked the scoped work. The full clause retains the explicitly held COMM-012 remainder.
 
 Complete runtime probes are in probes.txt and api-test.log. Actual command receipts, exact product provenance, checked boundaries and all selected report files accompany receipt.json. Evidence publication provides report custody only and does not signal landing, acceptance or product READY.
+
+## Transport recovery
+
+The separate evidence entrypoint initially failed twice at Git ls-remote, exit 128, with invalid username or token; Git supplied no HTTP status. A subsequent exact-SHA REST read returned HTTP 401 Bad credentials and established no new workflow state. The injected fleet bundle was refreshed and the prescribed helper setup repeated; no alternate credential was sought or used. The third evidence publication attempt succeeded at 2026-11-09T03:27:07Z. See evidence-recovery.log and ci-read-error.json. These transport errors are not product or test failures.
+
+A supplemental recovery bundle outside the product clone was created and verified: /home/agent/rer-consolidation/work/sx-glove-c-f182/product-c0578470df599d2d.bundle, SHA-256 4a458c983900fd1b70df9460d51abc69e0cb918ed6976f5704928eb27265eabe. It retains candidate c0578470df599d2d38efe96b2010b0e45d088dfa and requires base 63bfd0d1a155d7be44561e579d643f895fabded3. Product custody is the already successful remote branch push, not this bundle.

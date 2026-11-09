@@ -70,8 +70,16 @@
     "status": "PARTIAL"
   },
   "count_note": "The rebase retained a concurrent STOCK-002 lander judgment; this candidate changes no judgment.",
+  "evidence_transport": {
+    "attempts": 3,
+    "first_published_head": "c0414a23c00bfd3e41baa6b07cf0e6083e01d1a4",
+    "first_two_errors": "Git ls-remote failed exit=128; HTTP unknown; invalid username or token",
+    "log": "evidence-recovery.log",
+    "refresh": "re-read injected fleet bundle and reinstall fleet Git setup; no alternate credential used",
+    "status": "recovered"
+  },
   "existing_assertions_preserved": true,
-  "github_api_calls": 2,
+  "github_api_calls": 3,
   "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
   "held_files_unchanged": [
     "tests/api/harness.mjs",
@@ -116,6 +124,13 @@
     "historyScanned": null,
     "status": "NOT RUN in cloud; required independent Mac lander gate"
   },
+  "recovery_bundle": {
+    "head": "c0578470df599d2d38efe96b2010b0e45d088dfa",
+    "path": "/home/agent/rer-consolidation/work/sx-glove-c-f182/product-c0578470df599d2d.bundle",
+    "requires_base": "63bfd0d1a155d7be44561e579d643f895fabded3",
+    "sha256": "4a458c983900fd1b70df9460d51abc69e0cb918ed6976f5704928eb27265eabe",
+    "verified": true
+  },
   "registration_count": {
     "after": 2,
     "before": 1,
@@ -146,6 +161,13 @@
     "id": 42555779210,
     "observed_at": "2026-11-09T03:20:13Z",
     "status": "in_progress",
+    "subsequent_read": {
+      "error": "Bad credentials",
+      "http": 401,
+      "note": "No newer workflow status established; this was not a workflow failure.",
+      "observed_after": "2026-11-09T03:25:20Z",
+      "status": "unavailable"
+    },
     "url": "https://github.com/just-every/run-glove/actions/runs/42555779210"
   }
 }
