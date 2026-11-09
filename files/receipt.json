@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f174",
+  "head": "c8db50453f95e058921f9a842e8b9c2e8244227e",
+  "mainAtIntegration": "a81e93dc401029a20f3bf38570b4b2fefd637246",
+  "createdAt": "2026-11-09T01:11:13.763358+00:00",
+  "checks": [
+    {
+      "command": "node --test --test-concurrency=1 tests/api/due-visit-list.test.mjs tests/api/flows.test.mjs",
+      "node": "22.20.0",
+      "exit": 0,
+      "tests": 13,
+      "failures": 0,
+      "log": "api.txt"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.txt"
+    },
+    {
+      "command": "npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party.txt"
+    },
+    {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 0,
+      "total": 200,
+      "limit": 200,
+      "log": "inventory.json"
+    }
+  ],
+  "productPush": {
+    "status": "pushed",
+    "remoteHead": "c8db50453f95e058921f9a842e8b9c2e8244227e",
+    "log": "product-push.txt"
+  },
+  "browser": {
+    "status": "passed",
+    "head": "c8db50453f95e058921f9a842e8b9c2e8244227e",
+    "exit": 0,
+    "tests": 1,
+    "assertionWidth": 1440,
+    "proofWidths": [
+      1440,
+      390
+    ],
+    "command": "perl -e 'alarm 1200; exec @ARGV' -- node tests/browser/run.mjs tests/browser/due-visit-list.spec.ts",
+    "log": "browser.txt",
+    "screenshots": [
+      {
+        "path": "screenshots/1440-due-visit-list.png",
+        "bytes": 106547,
+        "sha256": "1707d439b281d85477b5bd173160b7ed18eba7b8b409cc4dc87a824a9f086417"
+      },
+      {
+        "path": "screenshots/390-due-visit-list.png",
+        "bytes": 110520,
+        "sha256": "64af06f107e4303fd0d1e2893c083271892b5cf154da262356e608e394725c00"
+      }
+    ]
+  },
+  "publicationScan": {
+    "commit": "c8db50453f95e058921f9a842e8b9c2e8244227e",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "NOT RUN: fleet lander performs the full-history scan"
+  },
+  "landing": {
+    "status": "branch-only",
+    "mainEqualsCandidate": false,
+    "runSite": null
+  },
+  "protectedFilesChangedAgainstMain": false,
+  "statusTableChangedAgainstMain": false,
+  "completedAt": "2026-11-09T01:17:39.468274+00:00",
+  "ci": {
+    "runId": 42544696977,
+    "status": "pending",
+    "conclusion": null,
+    "event": "push",
+    "head": "c8db50453f95e058921f9a842e8b9c2e8244227e",
+    "url": "https://github.com/just-every/run-glove/actions/runs/42544696977"
+  }
+}

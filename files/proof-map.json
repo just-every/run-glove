@@ -1,0 +1,58 @@
+{
+  "head": "c8db50453f95e058921f9a842e8b9c2e8244227e",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f174",
+  "points": [
+    {
+      "point": 1,
+      "path": "tests/api/due-visit-list.test.mjs",
+      "line": 46,
+      "name": "PLAN-004 point 1: forty due visits retain the exact remainder after thirty bookings, eight emailed offers, two declines and Worker restart"
+    },
+    {
+      "point": 2,
+      "path": "tests/api/due-visit-list.test.mjs",
+      "line": 114,
+      "name": "PLAN-004 point 2: every due entry retains its agreement, ordinal, clamped calendar date, customer, site, ZIP, job and booking state"
+    },
+    {
+      "point": 3,
+      "path": "tests/api/due-visit-list.test.mjs",
+      "line": 127,
+      "name": "PLAN-004 point 3: local today differs from UTC and date bounds and ZIP filters are exact and inclusive"
+    },
+    {
+      "point": 4,
+      "path": "tests/api/due-visit-list.test.mjs",
+      "line": 148,
+      "name": "PLAN-004 point 4: completing the later entitlement first removes only that visit and attributes the worker completion"
+    },
+    {
+      "point": 5,
+      "path": "tests/api/due-visit-list.test.mjs",
+      "line": 170,
+      "name": "PLAN-004 point 5: booking, cancellation, actual term expiry and agreement end retain outstanding work"
+    },
+    {
+      "point": 6,
+      "path": "tests/api/due-visit-list.test.mjs",
+      "line": 183,
+      "name": "PLAN-004 point 6: a Worker upgrade maps older stored jobs to first unclaimed ordinals while new jobs keep their chosen ordinal"
+    },
+    {
+      "point": 7,
+      "path": "tests/api/due-visit-list.test.mjs",
+      "line": 204,
+      "name": "PLAN-004 point 7: a cancelled job is rebooked without duplication and due reads enforce desk branch authority without writes"
+    }
+  ],
+  "browser": {
+    "file": "tests/browser/due-visit-list.spec.ts",
+    "line": 9,
+    "assertionWidth": 1440,
+    "screenshots": [
+      1440,
+      390
+    ]
+  }
+}

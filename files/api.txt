@@ -1,0 +1,112 @@
+TAP version 13
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters
+ok 1 - PLAN-004 points 1 to 3: forty-visit campaign, complete due rows and exact local calendar filters
+  ---
+  duration_ms: 14259.340018
+  type: 'test'
+  ...
+# PLAN-004 point 1: forty due visits retain the exact remainder after thirty bookings, eight emailed offers, two declines and Worker restart
+# PLAN-004 point 2: every due entry retains its agreement, ordinal, clamped calendar date, customer, site, ZIP, job and booking state
+# PLAN-004 point 3: local today differs from UTC and date bounds and ZIP filters are exact and inclusive
+# Subtest: PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade
+ok 2 - PLAN-004 points 4 to 7: entitlement identity survives completion, cancellation, term end and Worker upgrade
+  ---
+  duration_ms: 15652.825778
+  type: 'test'
+  ...
+# PLAN-004 point 4: completing the later entitlement first removes only that visit and attributes the worker completion
+# PLAN-004 point 5: booking, cancellation, actual term expiry and agreement end retain outstanding work
+# PLAN-004 point 6: a Worker upgrade maps older stored jobs to first unclaimed ordinals while new jobs keep their chosen ordinal
+# PLAN-004 point 7: a cancelled job is rebooked without duplication and due reads enforce desk branch authority without writes
+# ▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+# Subtest: API-001 Glove first release: quote to booked visit to field evidence to invoice export
+    # Subtest: 03 an enquiry becomes a quote whose exact revision a person prices and approves
+    ok 1 - 03 an enquiry becomes a quote whose exact revision a person prices and approves
+      ---
+      duration_ms: 2662.945299
+      type: 'test'
+      ...
+    # 01 owner sets up the business, price book, team and roles
+    # 02 desk records a customer and the sites where work happens
+    # 03 an enquiry becomes a quote whose exact revision a person prices and approves
+    # Subtest: 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+    ok 2 - 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions
+      ---
+      duration_ms: 3535.892198
+      type: 'test'
+      ...
+    # Subtest: 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+    ok 3 - 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+      ---
+      duration_ms: 7356.593956
+      type: 'test'
+      ...
+    # 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone
+    # 06 the technician captures checklist, notes, photos and materials through a connectivity interruption
+    # 07 a dispatch change needs conflict review and keeps late evidence for review
+    # 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing
+    # 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+    # Subtest: 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+    ok 4 - 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded
+      ---
+      duration_ms: 227.278606
+      type: 'test'
+      ...
+    # Subtest: 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+    ok 5 - 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo
+      ---
+      duration_ms: 498.184648
+      type: 'test'
+      ...
+    # Subtest: 12 the job timeline names every step and person, and the business export carries it
+    ok 6 - 12 the job timeline names every step and person, and the business export carries it
+      ---
+      duration_ms: 109.873359
+      type: 'test'
+      ...
+    1..6
+ok 3 - API-001 Glove first release: quote to booked visit to field evidence to invoice export
+  ---
+  duration_ms: 14402.174528
+  type: 'suite'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+ok 4 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+  ---
+  duration_ms: 6010.791771
+  type: 'test'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+ok 5 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+  ---
+  duration_ms: 3788.984391
+  type: 'test'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+ok 6 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission
+  ---
+  duration_ms: 4037.407548
+  type: 'test'
+  ...
+# Subtest: PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+ok 7 - PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure
+  ---
+  duration_ms: 4110.556241
+  type: 'test'
+  ...
+# Subtest: AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+ok 8 - AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money
+  ---
+  duration_ms: 7966.398918
+  type: 'test'
+  ...
+1..8
+# tests 13
+# suites 1
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 76747.723341

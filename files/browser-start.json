@@ -1,0 +1,10 @@
+{
+  "head": "c8db50453f95e058921f9a842e8b9c2e8244227e",
+  "startedAt": "2026-11-09T01:14:21.947721+00:00",
+  "widths": [
+    1440,
+    390
+  ],
+  "chromium": "/usr/bin/chromium",
+  "timeoutSeconds": 1200
+}
