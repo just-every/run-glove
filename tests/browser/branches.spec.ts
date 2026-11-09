@@ -66,8 +66,6 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
     const mainInvoice = await h.command('invoice.prepare', { jobId: mainWork.id })
     await h.command('invoice.approve', { invoiceId: mainInvoice.id, version: mainInvoice.version, revision: 1 })
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
-    page.setDefaultTimeout(15_000)
-    page.setDefaultNavigationTimeout(30_000)
     let as: string | undefined
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private rer dev owner entry required.')
