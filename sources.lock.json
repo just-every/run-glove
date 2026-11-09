@@ -5752,7 +5752,7 @@
       "executable": false
     },
     "tests/api/ses-sns-custody.test.mjs": {
-      "sha256": "9ea2e3575aeed5188aaac11db7c69e7d09d8d953afb2221db075ef43970a272e",
+      "sha256": "b70624ce6f8acca9b141cd6a8242f857b888bd2cae7ad5b2df22e530d7454887",
       "executable": false
     },
     "tests/api/sms-inbox-flow.mjs": {
