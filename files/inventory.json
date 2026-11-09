@@ -1,0 +1,13 @@
+{
+  "name": "inventory",
+  "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+  "command": [
+    "node",
+    "tests/inventory.mjs",
+    "--json"
+  ],
+  "started": "2026-11-09T05:27:23.815433+00:00",
+  "finished": "2026-11-09T05:27:25.701039+00:00",
+  "exit": 0,
+  "log": "inventory.log"
+}

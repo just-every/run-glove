@@ -1,0 +1,15 @@
+{
+  "name": "views-check-exact",
+  "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+  "command": [
+    "node",
+    "scripts/contract-docs.mjs",
+    "check",
+    "--clauses",
+    "TEAM-005"
+  ],
+  "started": "2026-11-09T05:27:40.304129+00:00",
+  "finished": "2026-11-09T05:27:40.680339+00:00",
+  "exit": 0,
+  "log": "views-check-exact.log"
+}

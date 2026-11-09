@@ -1,0 +1,17 @@
+{
+  "name": "browser",
+  "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+  "command": [
+    "perl",
+    "-e",
+    "alarm 1200; exec @ARGV",
+    "--",
+    "node",
+    "tests/browser/run.mjs",
+    "tests/browser/branches.spec.ts"
+  ],
+  "started": "2026-11-09T05:26:32.766269+00:00",
+  "finished": "2026-11-09T05:28:46.780727+00:00",
+  "exit": 0,
+  "log": "browser.log"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "pre-push-lock",
+  "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+  "command": [
+    "node",
+    "scripts/edition-authoring/cli.mjs",
+    "check"
+  ],
+  "started": "2026-11-09T05:28:10.546879+00:00",
+  "finished": "2026-11-09T05:28:11.185562+00:00",
+  "exit": 0,
+  "log": "pre-push-lock.log"
+}

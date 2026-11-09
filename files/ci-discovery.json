@@ -1,0 +1,16 @@
+{
+  "name": "ci-discovery",
+  "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+  "command": [
+    "python3",
+    "/tmp/fleet-gh.py",
+    "api",
+    "repos/just-every/run-glove/actions/runs?head_sha=985bb3d085b99ac8925c828f330e83d1ed5999ce&per_page=100",
+    "--jq",
+    ".workflow_runs | map({id,name,event,status,conclusion,head_sha,html_url})"
+  ],
+  "started": "2026-11-09T05:28:44.207981+00:00",
+  "finished": "2026-11-09T05:28:45.730080+00:00",
+  "exit": 0,
+  "log": "ci-discovery.log"
+}

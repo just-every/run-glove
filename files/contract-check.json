@@ -1,0 +1,15 @@
+{
+  "name": "contract-check",
+  "head": "12760bcb62f4a5590f2d7e9b401a5f13ff6f03a3",
+  "command": [
+    "node",
+    "scripts/contract-docs.mjs",
+    "check",
+    "--clauses",
+    "TEAM-005"
+  ],
+  "started": "2026-11-09T05:26:13.150830+00:00",
+  "finished": "2026-11-09T05:26:13.444527+00:00",
+  "exit": 0,
+  "log": "contract-check.log"
+}

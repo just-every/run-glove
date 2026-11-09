@@ -1,0 +1,273 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f187",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f187",
+  "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+  "recorded": "2026-11-09T05:32:05.645755+00:00",
+  "baseline": {
+    "head": "c270566732b115a5514cdab4b9f22cbc9f12fe4a",
+    "Verify": [
+      42566672074,
+      42564957100
+    ],
+    "Run site": 42566672055,
+    "conclusion": "success",
+    "source": "Observed by gh api at the baseline SHA; not candidate proof"
+  },
+  "ci": {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42567496369",
+    "id": 42567496369,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  "checks": {
+    "touched-api": {
+      "name": "touched-api",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "tests/api/branch-authority.test.mjs",
+        "tests/api/branches.test.mjs"
+      ],
+      "started": "2026-11-09T05:26:32.844788+00:00",
+      "finished": "2026-11-09T05:27:20.230120+00:00",
+      "exit": 0,
+      "log": "touched-api.log"
+    },
+    "typecheck": {
+      "name": "typecheck",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "pnpm",
+        "typecheck"
+      ],
+      "started": "2026-11-09T05:27:20.314202+00:00",
+      "finished": "2026-11-09T05:27:20.989402+00:00",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    "first-party": {
+      "name": "first-party",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "npx",
+        "-y",
+        "@runeditrun/rer",
+        "check",
+        "--profile",
+        "first-party"
+      ],
+      "started": "2026-11-09T05:27:21.078847+00:00",
+      "finished": "2026-11-09T05:27:23.107568+00:00",
+      "exit": 0,
+      "log": "first-party.log"
+    },
+    "source-lock": {
+      "name": "source-lock",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "started": "2026-11-09T05:27:23.170058+00:00",
+      "finished": "2026-11-09T05:27:23.774335+00:00",
+      "exit": 0,
+      "log": "source-lock.log"
+    },
+    "inventory": {
+      "name": "inventory",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "node",
+        "tests/inventory.mjs",
+        "--json"
+      ],
+      "started": "2026-11-09T05:27:23.815433+00:00",
+      "finished": "2026-11-09T05:27:25.701039+00:00",
+      "exit": 0,
+      "log": "inventory.log"
+    },
+    "views-write-exact": {
+      "name": "views-write-exact",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "write",
+        "--clauses",
+        "TEAM-005"
+      ],
+      "started": "2026-11-09T05:27:39.973150+00:00",
+      "finished": "2026-11-09T05:27:40.262620+00:00",
+      "exit": 0,
+      "log": "views-write-exact.log"
+    },
+    "views-check-exact": {
+      "name": "views-check-exact",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "node",
+        "scripts/contract-docs.mjs",
+        "check",
+        "--clauses",
+        "TEAM-005"
+      ],
+      "started": "2026-11-09T05:27:40.304129+00:00",
+      "finished": "2026-11-09T05:27:40.680339+00:00",
+      "exit": 0,
+      "log": "views-check-exact.log"
+    },
+    "browser": {
+      "name": "browser",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "perl",
+        "-e",
+        "alarm 1200; exec @ARGV",
+        "--",
+        "node",
+        "tests/browser/run.mjs",
+        "tests/browser/branches.spec.ts"
+      ],
+      "started": "2026-11-09T05:26:32.766269+00:00",
+      "finished": "2026-11-09T05:28:46.780727+00:00",
+      "exit": 0,
+      "log": "browser.log"
+    },
+    "product-push": {
+      "name": "product-push",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "python3",
+        "/home/agent/rer-consolidation/.tools/cloud-push.py",
+        "origin",
+        "cloud/sx-glove-c-f187"
+      ],
+      "started": "2026-11-09T05:28:11.265725+00:00",
+      "finished": "2026-11-09T05:28:13.993643+00:00",
+      "exit": 0,
+      "log": "product-push.log"
+    },
+    "pre-push-lock": {
+      "name": "pre-push-lock",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "command": [
+        "node",
+        "scripts/edition-authoring/cli.mjs",
+        "check"
+      ],
+      "started": "2026-11-09T05:28:10.546879+00:00",
+      "finished": "2026-11-09T05:28:11.185562+00:00",
+      "exit": 0,
+      "log": "pre-push-lock.log"
+    }
+  },
+  "screenshots": [
+    {
+      "file": "screenshots/1440-branches-dispatcher-main.png",
+      "bytes": 178677,
+      "sha256": "ce9df9931146444de4677c1e215cff767d98213b3a8c787e40078cf7db7f2a7f",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 1440
+    },
+    {
+      "file": "screenshots/1440-branches-dispatcher-restored.png",
+      "bytes": 178692,
+      "sha256": "58f1ced9e9e284d0bb748e67d2033a265cd7ba9370fab21d56e3fc8d0cad1be7",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 1440
+    },
+    {
+      "file": "screenshots/1440-branches-dispatcher-limited.png",
+      "bytes": 178786,
+      "sha256": "d1a8cf7588719532a10474658b446f5d025105240a389bada9043fdfdfb957d2",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 1440
+    },
+    {
+      "file": "screenshots/1440-branches-office-main.png",
+      "bytes": 183911,
+      "sha256": "db56f4032932f5fb1a182e1798677a91790c7c1bce87ff952fe1a2374249d36b",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 1440
+    },
+    {
+      "file": "screenshots/1440-branches-office-restored.png",
+      "bytes": 183850,
+      "sha256": "318c12b454c9c79ae8dfdf9dd285403fe636b0cad5a911abd6bfb63d120e2c44",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 1440
+    },
+    {
+      "file": "screenshots/390-branches-dispatcher-main.png",
+      "bytes": 57704,
+      "sha256": "35cd58da4afeeacc509f6f35588e78ec65ced86c503e865fba33d40ac997aa97",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 390
+    },
+    {
+      "file": "screenshots/390-branches-dispatcher-restored.png",
+      "bytes": 57386,
+      "sha256": "251cfcf8ecfcfba22ae113078d8107fdc65a0bb2950603c11776fb6b0ad7807a",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 390
+    },
+    {
+      "file": "screenshots/390-branches-dispatcher-limited.png",
+      "bytes": 57075,
+      "sha256": "c5fa423296f61e4e23a899a54ab26b06f9e94917272ab25c795ca7e2af897bd4",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 390
+    },
+    {
+      "file": "screenshots/390-branches-office-main.png",
+      "bytes": 58569,
+      "sha256": "4b0c2d45403bd8f19108e197ea2b7574b901db3673f4049b49a4e08b994f3841",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 390
+    },
+    {
+      "file": "screenshots/390-branches-office-restored.png",
+      "bytes": 58265,
+      "sha256": "dbb221601760c16b9b1226ede13c21bdb1042ef47e7d10bd296775355e00d3e4",
+      "head": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+      "width": 390
+    }
+  ],
+  "counts": {
+    "source_before": {
+      "done": 31,
+      "partial": 203,
+      "missing": 29
+    },
+    "source_after": {
+      "done": 31,
+      "partial": 203,
+      "missing": 29
+    },
+    "separately_qualified_points_before": 0,
+    "separately_qualified_points_after": 5
+  },
+  "inventory": {
+    "main": 191,
+    "candidate": 192,
+    "limit": 200
+  },
+  "publication_scan": {
+    "commit": "985bb3d085b99ac8925c828f330e83d1ed5999ce",
+    "complete": "UNESTABLISHED",
+    "historyScanned": "UNESTABLISHED",
+    "findings": "UNESTABLISHED"
+  },
+  "main_equals_candidate": false,
+  "pr": null,
+  "blockers": [],
+  "product_ref": "985bb3d085b99ac8925c828f330e83d1ed5999ce\trefs/heads/cloud/sx-glove-c-f187"
+}
