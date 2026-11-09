@@ -1284,7 +1284,8 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       const response = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/reserve-google`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Basic ${Buffer.from(`glove:${connected.password}`).toString('base64')}` }, body: JSON.stringify(booking) })
       expect(response.status).toBe(200)
       await page.goto(`${origin}/app#quotes`)
-      await page.reload()
+      // The request read starts after hydration; observe it before asserting the rendered receipt.
+      await page.reload({ waitUntil: 'networkidle' })
       const pipeline = page.getByRole('region', { name: 'Request pipeline', exact: true })
       await expect(pipeline).toContainText('No Glove visit booked.')
       await expect(pipeline).toContainText('Acknowledgment queued')
@@ -1304,7 +1305,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       h.leads.yelp.set('synthetic-glove-90', recorded.yelpLead('synthetic-glove-90'))
       const yelpResponse = await h.mf.dispatchFetch(`${h.origin}/api/glove/leads/yelp`, { method: 'POST', headers: { 'content-type': ['application','json'].join('/'), authorization: `Basic ${Buffer.from(`glove:${yelp.password}`).toString('base64')}` }, body: JSON.stringify(recorded.yelpNotice('synthetic-glove-90')) })
       expect(yelpResponse.status).toBe(200)
-      await page.reload()
+      await page.reload({ waitUntil: 'networkidle' })
       const replyButton = pipeline.getByRole('button', { name: 'Email Yelp acknowledgment', exact: true })
       await expect(replyButton).toBeDisabled()
       await pipeline.getByRole('checkbox', { name: 'I approve this Yelp reply', exact: true }).check()
