@@ -1,3 +1,5 @@
+// @ts-expect-error Named scenarios add no test registrations.
+import { scenario } from '../fixtures/scenario.mjs'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -37,8 +39,30 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Inspected rooftop equipment', signoff: { absentReason: 'Manager at another property' } })
       const inv = await b.office.run('invoice.prepare', { jobId: job.id })
       await b.office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 })
-      branches.push(branch)
+      branches.push({ ...branch, customer, site, tech })
     }
+    const mainPerson = await h.person('Main Field', 'technician')
+    const mainTech = await h.command('technician.save', { name: 'Main Field', operatorId: mainPerson.id })
+    const boardRoots = [{ id: '', name: 'Main business', timezone: 'Australia/Sydney', customer: b.customer, site: b.site, tech: mainTech }, ...branches]
+    for (const root of boardRoots) {
+      const helper = await h.command('technician.save', { name: `${root.name} Helper`, ...(root.id ? { branchId: root.id } : {}) })
+      const crew = await h.command('crew.save', { name: `${root.name} Team`, memberIds: [root.tech.id, helper.id] })
+      const make = (title: string) => h.command('job.create', { customerId: root.customer.id, siteId: root.site.id, title, lines: [{ description: 'Inspection', quantity: '1', unitPrice: '20.00', tax: 'FREE' }] })
+      const booked = await make(`${root.name} booked work`)
+      await h.command('visit.book', { jobId: booked.id, technicianId: root.tech.id, date: '2026-11-05', start: '11:00', end: '12:00' })
+      const crewJob = await make(`${root.name} crew work`)
+      await h.command('visit.book', { jobId: crewJob.id, crewId: crew.id, date: '2026-11-05', start: '13:00', end: '14:00' })
+      await make(`${root.name} waiting work`)
+      const q = await h.command('quote.draft', { customerId: root.customer.id, siteId: root.site.id, title: `${root.name} accepted waiting quote`, lines: [{ description: 'Inspection', quantity: '1', unitPrice: '20.00', tax: 'FREE' }] })
+      const approved = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+      await h.command('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: 'Facilities manager' })
+    }
+    const mainWork = await h.command('job.create', { customerId: b.customer.id, siteId: b.site.id, title: 'Main completed inspection', lines: [{ description: 'Inspection', quantity: '1', unitPrice: '55.00', tax: 'FREE' }] })
+    const mainVisit = await h.command('visit.book', { jobId: mainWork.id, technicianId: mainTech.id, date: '2026-11-05', start: '09:00', end: '10:00' })
+    await mainPerson.run('visit.arrive', { visitId: mainVisit.id, deviceTime: mainVisit.startAt })
+    await mainPerson.run('visit.complete', { visitId: mainVisit.id, deviceTime: mainVisit.endAt, summary: 'Inspected', signoff: { absentReason: 'Customer away' } })
+    const mainInvoice = await h.command('invoice.prepare', { jobId: mainWork.id })
+    await h.command('invoice.approve', { invoiceId: mainInvoice.id, version: mainInvoice.version, revision: 1 })
     const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
     let as: string | undefined
     try {
@@ -51,6 +75,54 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
         const req = route.request(), u = new URL(req.url())
         const r = await h.request(u.pathname + u.search, { method: req.method(), ...(as ? { as } : {}), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: r.status, contentType: r.headers.get('content-type') ?? 'application/json', body: Buffer.from(await r.arrayBuffer()) })
+      })
+      const steps = { diagnostic: (name: string) => test.info().annotations.push({ type: 'scenario', description: name }) }
+      await scenario(steps, 'TEAM-004 point 2: Dispatch selects only its branch technicians, booked and waiting work, crews and local times, clearing selected work', async () => {
+        await page.goto(`${origin}/app#dispatch`)
+        await page.getByLabel('Day', { exact: true }).fill('2026-11-05')
+        const branchChoice = page.getByLabel('Branch', { exact: true })
+        const waiting = page.locator('section.waiting')
+        const board = page.getByRole('region', { name: 'Board', exact: true })
+        for (const [i, root] of boardRoots.entries()) {
+          await page.setViewportSize({ width: 1440, height: 1050 })
+          await branchChoice.selectOption(root.id)
+          await expect(page.locator('.visit-panel')).toHaveCount(0)
+          await expect(page.locator('.book-form')).toHaveCount(0)
+          await expect(board.locator('.techrow')).toHaveCount(2)
+          await expect(board).toContainText(root.tech.name)
+          await expect(board).toContainText(`${root.name} Helper`)
+          await expect(board.getByRole('button', { name: new RegExp(`${root.name} booked work,.*11:00 to 12:00`) })).toHaveCount(1)
+          await expect(waiting).toContainText(`${root.name} waiting work`)
+          await expect(waiting).toContainText(`${root.name} accepted waiting quote`)
+          for (const other of boardRoots.filter(x => x.id !== root.id)) {
+            await expect(board).not.toContainText(other.tech.name)
+            await expect(board).not.toContainText(`${other.name} booked work`)
+            await expect(waiting).not.toContainText(`${other.name} waiting work`)
+            await expect(waiting).not.toContainText(`${other.name} accepted waiting quote`)
+          }
+          await board.getByRole('button', { name: new RegExp(`${root.name} booked work,`) }).click()
+          await expect(page.locator('.visit-panel .visit-meta')).toContainText('11:00 AM')
+          const next = boardRoots[(i + 1) % boardRoots.length]
+          await branchChoice.selectOption(next.id)
+          await expect(page.locator('.visit-panel')).toHaveCount(0)
+          await branchChoice.selectOption(root.id)
+          await page.getByRole('button', { name: 'Book visit', exact: true }).first().click()
+          await expect(page.locator('.book-form')).toContainText(`Times are in ${root.timezone}`)
+          await expect(page.locator('.book-form').getByLabel('Technician', { exact: true }).locator('option')).toHaveText(['Assign automatically', root.tech.name, `${root.name} Helper`, `Crew ${root.name} Team`])
+          await branchChoice.selectOption(next.id)
+          await expect(page.locator('.book-form')).toHaveCount(0)
+          await branchChoice.selectOption(root.id)
+          await page.getByLabel('Rows', { exact: true }).selectOption('crews')
+          await expect(board.locator('.techrow')).toHaveCount(1)
+          await expect(board).toContainText(`Crew ${root.name} Team`)
+          await expect(board.getByRole('button', { name: new RegExp(`${root.name} crew work,.*13:00 to 14:00`) })).toHaveCount(1)
+          for (const other of boardRoots.filter(x => x.id !== root.id)) await expect(board).not.toContainText(`Crew ${other.name} Team`)
+          await shot(page, 1440, `dispatch-${i}`)
+          await page.setViewportSize({ width: 390, height: 1050 })
+          await shot(page, 390, `dispatch-${i}`)
+          await page.setViewportSize({ width: 1440, height: 1050 })
+          await page.getByLabel('Rows', { exact: true }).selectOption('technicians')
+        }
       })
       await page.goto(`${origin}/app#team`)
       const limit = page.getByLabel(`Branch access for ${b.dispatcher.name}`, { exact: true })
@@ -106,6 +178,7 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
       await tokens.getByRole('button', { name: 'Revoke', exact: true }).click()
       await expect(tokens.getByText('Revoked', { exact: true })).toBeVisible()
       for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await tokens.scrollIntoViewIfNeeded(); await shot(page, width, 'token-revoked') }
+      await scenario(steps, 'TEAM-004 point 6: Reports branch choice selects each populated root and main at desktop and phone sizes', async () => {
       await page.goto(`${origin}/app#reports`)
       await page.getByLabel('From', { exact: true }).fill('2026-01-01')
       await page.getByLabel('To', { exact: true }).fill('2027-12-31')
@@ -117,6 +190,21 @@ test('TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a di
         await expect(page.getByLabel('Report branch', { exact: true })).toHaveValue(branches[0].id)
         for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await page.getByLabel('Report', { exact: true }).scrollIntoViewIfNeeded(); await shot(page, width, kind) }
       }
+      await page.setViewportSize({ width: 1440, height: 1050 })
+      await page.getByLabel('Report', { exact: true }).selectOption('revenue')
+      await page.getByLabel('Report branch', { exact: true }).selectOption(branches[1].id)
+      await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('$275.00')
+      await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Raleigh')
+      await page.getByLabel('Report branch', { exact: true }).selectOption('main')
+      await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('$55.00')
+      await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Raleigh')
+      await expect(page.locator('section[aria-labelledby="report-title"] .table')).not.toContainText('Phoenix')
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await shot(page, width, 'reports-main') }
+      await page.getByLabel('Report branch', { exact: true }).selectOption('')
+      await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('Raleigh')
+      await expect(page.locator('section[aria-labelledby="report-title"] .table')).toContainText('Phoenix')
+      for (const width of [1440, 390]) { await page.setViewportSize({ width, height: 1050 }); await shot(page, width, 'reports-all-branches') }
+      })
       as = b.dispatcher.cookie
       await page.goto(`${origin}/app#jobs`)
       await expect(page.getByRole('heading', { name: 'Jobs', exact: true, level: 1 })).toBeVisible()
