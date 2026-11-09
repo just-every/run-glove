@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 42 | 179 | 16 | 237 |
+| Core | 41 | 180 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 42 | 192 | 29 | 263 |
+| Full target | 41 | 193 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1258,7 +1258,7 @@ Core · target · **partial** · Cites BASE-ROLE-001
 
 #### COMM-001 — Customer email with delivery status
 
-Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-DATA-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Customer email with delivery status supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations. Recorded decisions: RL-9. Owning-capability boundaries: COMM-007 inheritance: its sent and received messages (or agent conversations) appear in the COMM-007 stream in order, with direction, channel and author.
 
@@ -1271,8 +1271,8 @@ Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-DATA-0
 6. Every email Glove sends today is transactional; no marketing email is sent.
 7. Replies go to the business email when one is set.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/email.test.mjs` (COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay); `tests/portable.mjs` (COMM-001 point 3: the actual archive excludes the Postmark API key)
-**Gap.** None.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture sends a quote, an invoice and a purchase order to its supplier (provider fake), replays delivered and bounced events, and checks each message's state on the timeline and the bounce warning on the customer.; point 2 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the business export, including provider outcomes and references without secrets.; point 3 — The owner connects customer email (mail connect action): SendGrid or Resend through Base's mail adapter, or Postmark or Amazon SES through fixed provider endpoints, a from-address and optional name, the provider API key and, for SendGrid/Resend, its event-webhook verification key (SendGrid's Signed Event Webhook public key or Resend's whsec_ signing secret), kept as installation secrets that are never shown again, exported or archived; {provider: null} disconnects.; point 4 — Glove does not check the sending domain itself: the provider refuses mail from a domain it has not verified, and that refusal shows on the message.; point 5 — The desk emails what each person may already record as sent (email send action): an approved quote's current revision to the customer's email (owner, dispatcher, office; the quote is then sent, naming the email), an approved or exported invoice to the customer's accounts-payable address, else their email (owner, office), and a draft purchase order to its supplier's address (owner, office; the order is then sent); agreement offer action with email: true emails a PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 booking link to the customer's own email address.; point 6 — Every email Glove sends today is transactional; no marketing email is sent.; point 7 — Replies go to the business email when one is set. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### COMM-010 — Message outcomes and customer warnings
 
