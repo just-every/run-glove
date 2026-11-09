@@ -88,7 +88,13 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     }
     async function open(url: string) {
       await park()
-      await page.goto(url)
+      // A document's load event can precede its proxied initial state reply.
+      // Give that reply the same deadline as the navigation, then assert UI.
+      const [state] = await Promise.all([
+        page.waitForResponse(response => response.url() === `${origin}/api/glove/state`, { timeout: 30_000 }),
+        page.goto(url),
+      ])
+      await state.finished()
       await page.locator('.glove-app[aria-busy="false"]').waitFor({ state: 'visible' })
       if (new URL(url).hash.startsWith('#jobs/')) {
         const conversation = page.getByRole('region', { name: 'Job conversation', exact: true })
@@ -302,7 +308,13 @@ test('COMM-010 points 5–7: desk sees independent address warnings and exact me
     }
     async function open(url: string) {
       await park()
-      await page.goto(url)
+      // A document's load event can precede its proxied initial state reply.
+      // Give that reply the same deadline as the navigation, then assert UI.
+      const [state] = await Promise.all([
+        page.waitForResponse(response => response.url() === `${origin}/api/glove/state`, { timeout: 30_000 }),
+        page.goto(url),
+      ])
+      await state.finished()
       await page.locator('.glove-app[aria-busy="false"]').waitFor({ state: 'visible' })
       if (new URL(url).hash.startsWith('#jobs/')) {
         const conversation = page.getByRole('region', { name: 'Job conversation', exact: true })

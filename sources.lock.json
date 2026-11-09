@@ -5880,7 +5880,7 @@
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
-      "sha256": "9cb9aeda2d8164e7dfc5571bdaf96137085cf26b44cdac8a6e80c6d54ff13ff3",
+      "sha256": "b4873b1bb97effc337b8e234a59c2fd654a5d4286e3a953ca01c46185499b456",
       "executable": false
     },
     "tests/browser/crew-board.spec.ts": {
