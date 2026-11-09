@@ -184,6 +184,11 @@ export async function dataPrivacyQualification(t) {
   await scenario(t, 'DATA-001 point 6: peer histories and anonymous financial dates, classifications, costs and tax totals stay exact while edits and unmerge are refused', async () => {
     const after = await h.state(), peer = graphs[2]
     assert.deepEqual(await json('/api/glove/reports/tax.json?from=2000-01-01&to=2099-01-01'), taxBefore, 'the public tax report retains exact anonymous classifications and totals')
+    for (const [path, bytes] of [[`/api/glove/files/${peer.photo.file.fileId}`, jpeg], [`/api/glove/files/${peer.unit.photos[0].fileId}`, jpeg], [`/api/glove/files/${peer.signVisit.completion.signoff.signature.fileId}`, png], [peer.signedDoor, peer.signedBytes]]) {
+      const response = await h.request(path)
+      assert.equal(response.status, 200, 'the independent peer retains every original file door')
+      assert.equal(Buffer.from(await response.arrayBuffer()).toString('base64'), bytes, 'the peer original remains byte-exact after erasure')
+    }
     for (const kind of ['customers', 'sites', 'jobs', 'visits', 'captures', 'equipment', 'quotes', 'invoices', 'payments', 'expenses', 'conversations']) for (const row of before[kind].filter(r => r.id === peer.customer.id || r.customerId === peer.customer.id || r.siteId === peer.site.id || [peer.job.id, peer.signJob.id, peer.pending.id].includes(r.jobId))) assert.deepEqual(after[kind].find(r => r.id === row.id), row, `peer ${kind} stays unchanged`)
     for (const g of graphs.slice(0, 2)) {
       const oldInvoice = before.invoices.find(r => r.id === g.invoice.id), invoice = after.invoices.find(r => r.id === g.invoice.id)
