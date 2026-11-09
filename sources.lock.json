@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "900bdfc5959359bc1acaf2b0023b0b64cd8a73930500a08cb55cfc5ec122c53b",
+      "sha256": "83743948cb877a911bc7701940aa4f1a4adee1759b66b175d05c6b2b1a57254c",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "8bdacaa9cd8871a7fa6ec38994e8c1cc0590fb8591873e6f82f684635f99fdb0",
+      "sha256": "8e4746c8b22351bfcc154380cfae78f63e53dae6b53987b51e08347ed31c55fa",
       "executable": false
     },
     "DEMO.md": {
