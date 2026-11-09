@@ -709,9 +709,12 @@ try {
     const { getPlatformProxy } = await import('wrangler')
     const { selectLocalState } = await import('@runeditrun/rer/local/state')
     const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: await selectLocalState(destination) } })
+    // Wrangler's API takes the versioned directory; its CLI takes the parent.
+    const state = await selectLocalState(destination)
+    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(state, 'v3') }, remoteBindings: false })
     try {
       const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
+      assert.deepEqual(await db.prepare('SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first(), { source_identity: laterCheckpoint.sourceIdentity, epoch: laterCheckpoint.epoch }, 'DATA-001 point 7: the fence probe opens the installation holding the actual newer checkpoint')
       assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
       const service = await createPortability({ db, policy })
       const records = []
