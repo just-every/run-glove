@@ -1,5 +1,6 @@
 import { scenario } from '../fixtures/scenario.mjs'
 import { depositBatchQualification } from './deposit-batches.mjs'
+import { receiptCreditQualification } from './receipt-credit.mjs'
 import { connectMail, receipt as mailReceipt } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -209,6 +210,7 @@ test('PAY-002, PAY-017, PAY-018, PAY-019, PAY-020 Stripe-hosted card and ACH set
   assert.doesNotMatch(JSON.stringify(exported), /synthetic-glove-intent|synthetic-glove-custody-charge|accounts@harbourview\.example/)
 })
 
+  await receiptCreditQualification(t)
   await scenario(t, 'PAY-004, PAY-021, PAY-022, PAY-023 three installments, original-card refund, cash/check overpayment and customer credit keep invoice, aging, brief and receipts exact', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h, { currency: 'USD', timezone: 'America/New_York' })

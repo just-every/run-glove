@@ -59,7 +59,7 @@ export function delayWatch(s: State, actor: Actor, now: string): Risk[] {
       for (const other of s.technicians.filter(t => t.active && t.id !== v.technicianId)) {
         if (feasible(c, job, candidate(v, other.id, 0), v)) r.options.push({ technicianId: other.id, date: v.local.date, start: v.local.start, end: v.local.end, customer: 'unchanged', note: `${other.name} is free at the same time.` })
       }
-      const shift = Math.ceil((free - Date.parse(v.startAt)) / (15 * minute)) * 15, own = candidate(v, v.technicianId, shift)
+      const shift = (Math.ceil(free / (15 * minute)) * 15 * minute - Date.parse(v.startAt)) / minute, own = candidate(v, v.technicianId, shift)
       const inside = own && v.arrivalWindow && own.local.start >= v.arrivalWindow.start && own.local.start <= v.arrivalWindow.end
       if (own && feasible(c, job, own, v)) r.options.push({ technicianId: v.technicianId, date: own.local.date, start: own.local.start, end: own.local.end, customer: inside ? 'unchanged' : 'customer not yet asked', note: inside ? `${tech.name} later, inside the arrival window.` : `${tech.name} later; outside any promised window.` })
     }
