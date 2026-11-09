@@ -4,7 +4,7 @@ import { dirname } from 'node:path'
 import { scenario } from '../fixtures/scenario.mjs'
 import { connectPayments, paymentEvent } from '../fixtures/payment-journey.mjs'
 import assert from 'node:assert/strict'
-import { installation, morningBriefFixture, morningBriefAt, mailEvents, assertTrail, fixedMonthlyReports } from './harness.mjs'
+import { installation, morningBriefFixture, morningBriefAt, mailEvents, postEvents, assertTrail, fixedMonthlyReports } from './harness.mjs'
 
 const read = async (h, at = morningBriefAt, options = {}) => {
   const response = await h.request(`/api/glove/brief?at=${at}`, options)
@@ -175,11 +175,22 @@ const overdueItem = (inv, customer, balance, due, currency = 'USD') => item('ove
 // All records enter through production commands; only provider answers and
 // the pre-PLAN-013 approval implementation are substituted at their boundaries.
 test('AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades', async t => {
-  await scenario(t, 'point 1: opening at several business-local instants is read only even when morning email is enabled', async ({ after, diagnostic }) => {
+  await scenario(t, 'point 1: opening is read only and only Owner opt-in permits one provider-confirmed morning email per local date', async ({ after, diagnostic }) => {
     const h = await installation({ at: financialAt }); after(() => h.close())
     await h.command('business.save', { name: 'Brief business', timezone: 'America/Chicago' })
+    const office = await h.person('Brief mail Office', 'office')
+    const ownerEmail = ['owner', 'example.test'].join('@')
     const signer = mailEvents('sendgrid')
+    assert.deepEqual((await pureBrief(h, financialAt)).emailed, { enabled: false })
+    const offAttempts = h.outbound.attempts
+    await h.scheduled(financialAt)
+    assert.equal(h.outbound.attempts, offAttempts, 'cron cannot send before the owner enables morning email')
     await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-brief-read', eventKey: signer.eventKey, fromEmail: ['brief', 'example.test'].join('@') })
+    assert.deepEqual((await pureBrief(h, financialAt)).emailed, { enabled: false }, 'connecting email never opts the owner into morning delivery')
+    await h.scheduled(financialAt)
+    assert.equal(h.email.sent.length, 0)
+    await office.run('mail.morning', { enabled: true, time: '07:00' }, { error: 'FORBIDDEN' })
+    assert.deepEqual((await pureBrief(h, financialAt)).emailed, { enabled: false })
     await h.command('mail.morning', { enabled: true, time: '07:00' })
     const baseline = await snapshot(h), attempts = h.outbound.attempts
     for (const restarted of [false, true]) {
@@ -192,7 +203,50 @@ test('AGENT-016 points 1–4: opened briefs preserve state and show exact financ
     assert.deepEqual(await snapshot(h), baseline)
     assert.equal(h.outbound.attempts, attempts)
     assert.deepEqual([h.email.sent.length, h.pushes.sent.length], [0, 0])
-    diagnostic('PROBE AGENT-016 1: four brief instants with morning email enabled, before and after restart -> zero provider attempts and identical state, events and outcomes')
+    diagnostic('PROBE AGENT-016 1 read: four brief instants with morning email enabled, before and after restart -> zero provider attempts and identical state, events and outcomes')
+    await h.setTime('2026-11-09T12:59:59.999Z')
+    await h.scheduled('2026-11-09T12:59:59.999Z')
+    assert.equal(h.email.sent.length, 0, 'before 07:00 Chicago there is no delivery')
+    const sendAt = '2026-11-09T13:00:00.000Z'
+    await h.setTime(sendAt)
+    await Promise.all([h.scheduled(sendAt), h.scheduled(sendAt)])
+    assert.equal(h.email.sent.length, 1)
+    const sent = h.email.sent[0], deliveryId = 'brief:2026-11-09'
+    assert.deepEqual([sent.to, sent.body.subject, sent.body.custom_args.rer_delivery_id], [ownerEmail, 'Morning brief for 2026-11-09 from Brief business', deliveryId])
+    assert.equal((await pureBrief(h, sendAt)).emailed.status, 'accepted', 'provider acceptance alone never claims delivery')
+    const at = Date.parse(sendAt) / 1000
+    const event = { email: ownerEmail, timestamp: at, event: 'delivered', sg_event_id: 'synthetic-glove-brief-delivered', sg_message_id: 'sg-receipt-1.filter0001', rer_delivery_id: deliveryId }
+    const unsigned = await snapshot(h)
+    assert.equal((await postEvents(h, { raw: JSON.stringify([event]), headers: {} })).status, 401)
+    assert.deepEqual(await snapshot(h), unsigned, 'an unsigned delivery cannot create a provider fact')
+    assert.equal((await postEvents(h, signer.signed([{ ...event, email: ['wrong', 'example.test'].join('@') }], { at }))).status, 401)
+    assert.deepEqual(await snapshot(h), unsigned, 'even a signed wrong-recipient delivery changes nothing')
+    const callback = signer.signed([event], { at })
+    assert.equal((await postEvents(h, callback)).status, 200)
+    const delivered = await snapshot(h)
+    assert.equal((await postEvents(h, callback)).status, 200)
+    assert.deepEqual(await snapshot(h), delivered, 'replaying a confirmed outcome creates no second fact')
+    const outcome = (await pureBrief(h, sendAt)).emailed
+    assert.deepEqual([outcome.date, outcome.to, outcome.status], ['2026-11-09', ownerEmail, 'delivered'])
+    await h.restart()
+    for (const instant of ['2026-11-09T14:00:00.000Z', '2026-11-10T05:59:59.999Z', '2026-11-10T06:00:00.000Z']) {
+      await h.setTime(instant); await h.scheduled(instant)
+      assert.equal(h.email.sent.length, 1, 'restart, later UTC date and next local midnight do not send again')
+    }
+    const nextAt = '2026-11-10T13:00:00.000Z'
+    await h.setTime(nextAt)
+    await Promise.all([h.scheduled(nextAt), h.scheduled(nextAt)])
+    assert.equal(h.email.sent.length, 2)
+    assert.equal(h.email.sent[1].body.custom_args.rer_delivery_id, 'brief:2026-11-10')
+    assert.equal((await pureBrief(h, nextAt)).emailed.status, 'accepted')
+    await h.command('mail.morning', { enabled: false })
+    await h.setTime('2026-11-11T13:00:00.000Z'); await h.scheduled('2026-11-11T13:00:00.000Z')
+    assert.equal(h.email.sent.length, 2, 'turning delivery off stops the next local date')
+    assert.deepEqual((await pureBrief(h, '2026-11-11T13:00:00.000Z')).emailed, { enabled: false })
+    assert.equal(h.pushes.sent.length, 0)
+    const { exported } = await assertTrail(h, ['mail.morning', 'email.queued', 'email.accepted', 'email.delivered'])
+    assert.deepEqual(exported.timeline.filter(e => e.subject_kind === 'brief').map(e => [e.subject_id, e.kind]), [[deliveryId, 'email.queued'], [deliveryId, 'email.accepted'], [deliveryId, 'email.delivered'], ['brief:2026-11-10', 'email.queued'], ['brief:2026-11-10', 'email.accepted']])
+    diagnostic('PROBE AGENT-016 1 delivery: off by default and Office refused; explicit Owner opt-in -> one accepted email per Chicago date, signed recipient-bound delivery, unchanged callback replay, restart deduplication, disable stops and zero pushes')
   })
 
   await scenario(t, 'point 2: overdue balances include only passed due dates and confirmed net money in the current Owner branch', async ({ after, diagnostic }) => {

@@ -5648,7 +5648,7 @@
       "executable": false
     },
     "tests/api/morning-brief.test.mjs": {
-      "sha256": "7cd6b3eef404a030ae6c525b00b8fb301a58f0779abe34a1a03d10829a3da34d",
+      "sha256": "128517bfad3d51f9c38f3fb40c8f53e806fbe003903128786581ba42f7ce08d0",
       "executable": false
     },
     "tests/api/movein.test.mjs": {
