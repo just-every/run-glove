@@ -1,0 +1,130 @@
+{
+  "files": [
+    {
+      "blob": "53023bb3f7ef655c9e5f8c19af32faabb6e74e7d",
+      "bytes": 1872,
+      "path": "PLAN.md",
+      "sha256": "9dc52a22c5dd409de4286209456e0fc06e02e24ef3588c5a998c4425b47a0388"
+    },
+    {
+      "blob": "a8f1f46f10ed1f9b7f632c40b073730ae50dbbc2",
+      "bytes": 4923,
+      "path": "REPORT.md",
+      "sha256": "9436ed4622b00b7c8307ea7d614d1d74f1fdef413e9dabd54168bebfa0982bf3"
+    },
+    {
+      "blob": "d7b519ea4a47dd7712a88ce66a847fee1d5bf87e",
+      "bytes": 94,
+      "path": "artifact-validation.log",
+      "sha256": "22343e6ceb976c77f2852c39896bfbd2850589e7d9f6d194ca9c8b67c72e74a9"
+    },
+    {
+      "blob": "94710f2f23b2429c8b51e70e9c034ba5a8e6eee7",
+      "bytes": 256,
+      "path": "ci-receipt.json",
+      "sha256": "2d18567ce1401c1bbaca2ddac92594ac7e33b18b6fddde903e455ff515e940bb"
+    },
+    {
+      "blob": "b45fc58b9cc46b6de4afef3fcaf0a7b19b6607c9",
+      "bytes": 260,
+      "path": "clause-counts.json",
+      "sha256": "76d7fc904ab7ba757e7d544754a3b9d14614c82ca3e411337c00e3c51580b30b"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "contract-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    },
+    {
+      "blob": "58dd21c218846e90dd798f1845377f7422e45cac",
+      "bytes": 28,
+      "path": "contract-write.log",
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2"
+    },
+    {
+      "blob": "0a47bae725c2c878ea0645c7eecfd4ab8d4685db",
+      "bytes": 3267,
+      "path": "dependency-install.log",
+      "sha256": "cf13a8fdc54cd5386d0282b4a48a15ee190b883eef58e295a1066927cf3e17c1"
+    },
+    {
+      "blob": "e2d0e2a1c35f51122b8b441fb991d92565874d37",
+      "bytes": 223,
+      "path": "github-call-1-stdout.txt",
+      "sha256": "43fc4e55c67068e28d1d9b8212b46ae3de83dea980d3e25dd65b5e1f9494e4db"
+    },
+    {
+      "blob": "3715e316c2323b271e1550be260703fce149df02",
+      "bytes": 175,
+      "path": "github-call-2-stdout.txt",
+      "sha256": "d2ec7ada809c57d06ec95828274c7dc0f2a3ad52711ab588a38bc261d86a4f72"
+    },
+    {
+      "blob": "3715e316c2323b271e1550be260703fce149df02",
+      "bytes": 175,
+      "path": "github-call-3-stdout.txt",
+      "sha256": "d2ec7ada809c57d06ec95828274c7dc0f2a3ad52711ab588a38bc261d86a4f72"
+    },
+    {
+      "blob": "f1f56aead70e027ef2f056263d3dd9906bf5f420",
+      "bytes": 178,
+      "path": "github-call-4-stdout.txt",
+      "sha256": "ff31f680d6aefdc8e84881aa6b5e9e045cca4084b1f910d7b857c05901033a3c"
+    },
+    {
+      "blob": "577dc52abb024fddf50e4fb5e681ed60483853c3",
+      "bytes": 1194,
+      "path": "github-calls.json",
+      "sha256": "f7d707ef718a8734c8ebd50c6f847c332b5ff669fcb4cbc4029fa1b496f54e36"
+    },
+    {
+      "blob": "f69538846e40b869e8e9beb3f3d8b09280a1a3ab",
+      "bytes": 378,
+      "path": "identity-scan.log",
+      "sha256": "5efb0d0efda961b1182613ac5b2bf2dc35505482da398e2fe8bd0dfdb4bcf173"
+    },
+    {
+      "blob": "404be3a81e4e589efc566d6c651591ed6d56e862",
+      "bytes": 1532,
+      "path": "product-diff.patch",
+      "sha256": "255320cab439542847f719c617a964d1875d910290637bdd63ff122e5c1d2f86"
+    },
+    {
+      "blob": "ea079eb2aa09c421dcbb0ecffc0b9002c7c7e1ff",
+      "bytes": 973,
+      "path": "product-push.log",
+      "sha256": "cecc2cf748d7e0c8f12235c5d66eebb4aed05e484cef379dba46b6c555ddc6f8"
+    },
+    {
+      "blob": "352dcb9dfc62a8ed85592b5d963060d0e1f8fa77",
+      "bytes": 1954,
+      "path": "product-receipt.json",
+      "sha256": "47df07bee1d5eae51db827fba765639b99ef217d6d4b659aeb4067c1e0ad6ade"
+    },
+    {
+      "blob": "a57dbd336584d13735a40f6faccd3184ecb99b77",
+      "bytes": 245,
+      "path": "source-lock-receipt.json",
+      "sha256": "5afbf631c8de9c0c2ced2b7c483e0965a06793229364b5b9398cf2fdd77a6a5d"
+    },
+    {
+      "blob": "14c43bc018b05896321a7dbabb917ac13bb96ad5",
+      "bytes": 251,
+      "path": "typecheck.log",
+      "sha256": "1c7e1775dd7b65c303a043ea8252ed8fbfaf4b887e886e443eae1a47f9ffc978"
+    },
+    {
+      "blob": "b0acc2fec908093483e5c18d4206c6a4b21256b6",
+      "bytes": 65,
+      "path": "workflow-check.log",
+      "sha256": "583e7a3ffe4b1e3f8e379d6cda554de637ea7883ce31fb780858c381e2022890"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-verify-artifact-1-pc1",
+  "product_head": "c733d90241c295eb6bd6ddda3e0d45a1c7af7e3a",
+  "ref": "refs/heads/evidence/sx-glove-verify-artifact-1-pc1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-verify-artifact-1-pc1"
+}

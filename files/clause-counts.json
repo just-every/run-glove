@@ -1,0 +1,16 @@
+{
+  "before": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "after": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "status_changes": [],
+  "contract_identical_to_candidate_and_main": true
+}

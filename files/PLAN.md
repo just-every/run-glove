@@ -1,0 +1,9 @@
+# Plan — sx-glove-verify-artifact-1-pc1
+
+1. Apply fleet identity, launcher credential helper, preserved repository hooks and cloud toolchain. Clone only just-every/run-glove using --filter=blob:none without --depth.
+2. Fetch main and cloud/sx-glove-verify-artifact-1. Require the published candidate to equal fbe722edd702638d028db96e1d1cf6bd85c28fec and main to contain the synthetic SNS certificate clock repair. Verify the workflow repair remains absent from main.
+3. Create cloud/sx-glove-verify-artifact-1-pc1 at the published candidate. Merge origin/main without rebasing or rewriting history. Retain main's contract judgments, ID map and generated views. Resolve no unrelated work and preserve all tests and CLAIM lines.
+4. Run the documented contract generator and check, restore main's ACCEPTANCE.md and docs/CLAIMS.md, then regenerate sources.lock.json last and check it. Run typecheck and the candidate's touched tests once (the original candidate touches no tests); validate the touched workflow permissions and artifact names.
+5. Commit the nonempty merge with fleet identity and active hooks, inspect every commit including side parents, and push only the named product branch through cloud-push.py. No PR is requested by this continuation brief.
+6. Under the cloud adaptation, discover and poll the exact-SHA Verify through gh REST with one watcher, no more than one call per 300 seconds per run and ten total GitHub calls. Report exact-SHA results, never another commit's green run. The cloud adaptation takes precedence over the historical brief's instruction not to wait.
+7. Save the complete non-secret report, receipts and selected validation logs outside the product checkout. Publish only those explicit files with cloud_evidence.py to evidence/sx-glove-verify-artifact-1-pc1. Return evidence custody, sx POST line and the required terminal status.

@@ -1,0 +1,50 @@
+[
+  {
+    "time": 1794233407.8371725,
+    "utc": "2026-11-09T14:10:07.837202+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=c733d90241c295eb6bd6ddda3e0d45a1c7af7e3a&per_page=100",
+      "--jq",
+      ".workflow_runs[] | {id,name,status,conclusion,head_sha,html_url,event}"
+    ],
+    "exit_code": 0
+  },
+  {
+    "time": 1794233708.9023817,
+    "utc": "2026-11-09T14:15:08.902387+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42631966460",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit_code": 0
+  },
+  {
+    "time": 1794234009.988326,
+    "utc": "2026-11-09T14:20:09.988333+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42631966460",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit_code": 0
+  },
+  {
+    "time": 1794234311.0836136,
+    "utc": "2026-11-09T14:25:11.083619+00:00",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42631966460",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit_code": 0
+  }
+]

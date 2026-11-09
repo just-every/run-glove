@@ -1,0 +1,9 @@
+{
+  "lock_command": "node scripts/edition-authoring/cli.mjs lock",
+  "lock_exit": 0,
+  "check_command": "node scripts/edition-authoring/cli.mjs check",
+  "check_exit": 0,
+  "ok": true,
+  "edition": "just-every/run-glove",
+  "file_count": 1606
+}

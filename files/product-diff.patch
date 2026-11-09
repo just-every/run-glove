@@ -1,0 +1,38 @@
+diff --git a/.github/workflows/verify.yml b/.github/workflows/verify.yml
+index 18f45c4..82349e9 100644
+--- a/.github/workflows/verify.yml
++++ b/.github/workflows/verify.yml
+@@ -87,9 +87,10 @@ jobs:
+         run: tar -czf "$RUNNER_TEMP/verify-build.tar.gz" dist
+       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+         with:
+-          name: verify-build-${{ github.run_id }}-${{ github.run_attempt }}
++          name: verify-build-${{ github.run_id }}
+           path: ${{ runner.temp }}/verify-build.tar.gz
+           if-no-files-found: error
++          overwrite: true
+           retention-days: 1
+ 
+   shards:
+@@ -176,7 +177,7 @@ jobs:
+           done
+       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+         with:
+-          name: verify-build-${{ github.run_id }}-${{ github.run_attempt }}
++          name: verify-build-${{ github.run_id }}
+           path: ${{ runner.temp }}/verify-build
+       - name: Restore this run's production build
+         run: tar -xzf "$RUNNER_TEMP/verify-build/verify-build.tar.gz"
+diff --git a/sources.lock.json b/sources.lock.json
+index e1ab94f..f12a9ed 100644
+--- a/sources.lock.json
++++ b/sources.lock.json
+@@ -144,7 +144,7 @@
+       "executable": false
+     },
+     ".github/workflows/verify.yml": {
+-      "sha256": "b0f1540f50531019dfedb9c30645af25ba714a47a813eabe83ba8bc53fcb4a78",
++      "sha256": "1264b36e2ab481a78ca8bcd29fe0f2bb1578f4bdd76f92cb0d198dfb2fcda413",
+       "executable": false
+     },
+     ".gitignore": {

@@ -1,0 +1,71 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-verify-artifact-1-pc1",
+  "head": "c733d90241c295eb6bd6ddda3e0d45a1c7af7e3a",
+  "parents": [
+    "fbe722edd702638d028db96e1d1cf6bd85c28fec",
+    "643c64323dee88c18e5b2fc542f1da730c92112f"
+  ],
+  "changed_files_relative_to_main": [
+    ".github/workflows/verify.yml",
+    "sources.lock.json"
+  ],
+  "product_pushes": 1,
+  "push_result": "success",
+  "force_push": false,
+  "rebased": false,
+  "tests_touched_by_original_candidate": [],
+  "clause_status_changes": [],
+  "claims_changed": false,
+  "contract_and_generated_views_equal_main": true,
+  "worktree_clean": true,
+  "checks": {
+    "dependency_install": {
+      "exit": 0,
+      "command": "pnpm install --frozen-lockfile"
+    },
+    "contract_write": {
+      "exit": 0,
+      "command": "node scripts/contract-docs.mjs write",
+      "documents_changed": 0
+    },
+    "contract_check": {
+      "exit": 0,
+      "command": "node scripts/contract-docs.mjs check"
+    },
+    "source_lock": {
+      "exit": 0,
+      "command": "node scripts/edition-authoring/cli.mjs lock"
+    },
+    "source_lock_check": {
+      "exit": 0,
+      "command": "node scripts/edition-authoring/cli.mjs check"
+    },
+    "typecheck": {
+      "exit": 0,
+      "command": "pnpm typecheck",
+      "node": "24.19.0",
+      "pnpm": "10.12.4"
+    },
+    "workflow_permissions": {
+      "exit": 0,
+      "command": "node scripts/verify-ci.mjs --check-workflows"
+    },
+    "artifact_validation": {
+      "exit": 0,
+      "description": "matching run-stable artifact names and overwrite true"
+    },
+    "diff_whitespace": {
+      "exit": 0,
+      "command": "git diff --check; git diff --cached --check"
+    }
+  },
+  "pr": null,
+  "blockers": [],
+  "ci_run_id": 42631966460,
+  "ci_url": "https://github.com/just-every/run-glove/actions/runs/42631966460",
+  "ci_state": "completed",
+  "ci_conclusion": "success",
+  "custody": "READY",
+  "github_calls_used": 4
+}
