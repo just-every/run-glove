@@ -16,5 +16,23 @@
     "id": 42616161595,
     "name": "Verify",
     "status": "in_progress"
+  },
+  {
+    "conclusion": null,
+    "event": "push",
+    "head_sha": "8efd317b006b25dd25c3745b65e917f58a892af4",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42616161595",
+    "id": 42616161595,
+    "name": "Verify",
+    "status": "in_progress"
+  },
+  {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "8efd317b006b25dd25c3745b65e917f58a892af4",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42616161595",
+    "id": 42616161595,
+    "name": "Verify",
+    "status": "completed"
   }
 ]

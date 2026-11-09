@@ -110,9 +110,12 @@
     "event": "push",
     "head": "8efd317b006b25dd25c3745b65e917f58a892af4",
     "latest": "ci-status-history.json",
-    "status": "in_progress",
+    "status": "completed",
     "pollIntervalSeconds": 301,
-    "githubCallsBeforeWatcher": 2
+    "githubCallsBeforeWatcher": 2,
+    "conclusion": "success",
+    "url": "https://github.com/just-every/run-glove/actions/runs/42616161595",
+    "githubCallsUsed": 5
   },
   "baselineMain": {
     "head": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
@@ -122,5 +125,18 @@
     "RunSiteConclusion": "success"
   },
   "generatedViewsCommitted": false,
-  "contractJudgmentEdits": false
+  "contractJudgmentEdits": false,
+  "riders": {
+    "1": "PASS",
+    "2": "PASS",
+    "3": "PASS exact-SHA push Verify 42616161595 success",
+    "4": "PASS",
+    "5": "PASS INSPECTED",
+    "6": "PASS mechanical, status judgment remains with lander",
+    "7": "PASS",
+    "8": "PASS",
+    "9": "PASS field proof boundary retained",
+    "10": "not applicable; no policy default",
+    "11": "PENDING guarded landing and publication scan"
+  }
 }

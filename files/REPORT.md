@@ -35,35 +35,35 @@ Initial new-test corrections fixed export timestamp comparison, documented newes
 
 Every row is exercised through the real Worker HTTP doors with only provider network edges faked. Each named `COMM-001 point N:` step is in `tests/api/email.test.mjs` under the existing registration `COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay`.
 
-| Row | Clause outcome | Public-door evidence | Local result |
-| --- | --- | --- | --- |
-| R1 | Quote, invoice and supplier order sends; signed delivered and bounced events; message timeline states and customer warning | Point 1, lines 701–732: all four providers; command and callback replay; populated job timelines and quote event timeline; exact text, reference and next-step assertions; actual Worker disposal and recreation with complete state, Activity and export equality | PASS |
-| R2 | Every new fact is attributable in Activity and export without secrets | Point 2, lines 733–750, plus point 7's complete paginated Activity comparison: every connection, queue fact, provider answer and matched event; actor identity, role, command, subject, summary and provider reference | PASS |
-| R3 | Owner-only secret connection and disconnect for all four providers | Point 3, lines 751–780: native roles, custom role, branch-limited Owner and integration token refused unchanged; input refusals; SES JSON and SNS pins; original and identical replay responses; saved outcomes, state, Activity, export and captured Worker logs; disconnected sends refused with MAIL and every previously valid callback returns 404. `tests/portable.mjs` line 481 asserts the API key absent from actual archive bytes, next to existing callback password and hash exclusion assertions | PASS |
-| R4 | Arbitrary from domain accepted locally; provider refusal visible with next step and no retry | Point 4, lines 781–797: SendGrid fake HTTP 400, exact not-sent label and corrective next step, exported provider rejection and Activity identity, command replay and restart with no extra provider attempt. Inherited COMM-010 scheduled replay proof remains in the combined registration | PASS |
-| R5 | Approved current quote and exact desk authority; approved or exported invoice and recipient fallback; draft order and named supplier; own-customer booking email | Point 5, lines 798–845: allowed and forbidden native roles, custom role and integration token; draft, unapproved new revision, declined and stale quote refusals; revision 2 body; invoice draft refusal, AP address, fallback and missing-address refusal; draft-only supplier orders, alternate named recipient and recorded sent address; extra booking recipient ignored in favor of on-record customer | PASS |
-| R6 | Only transactional document and booking-link content; other kinds refused | Point 6, lines 846 onward, plus the provider-request document assertions in the shared send helper and actual booking token text. Revoked credential refuses repeated requests unchanged. Complete retained projections contain no credential, booking bearer or email body | PASS |
-| R7 | Business Reply-To present only when set | Point 7, lines 854–886, all four providers, both business-email states: SendGrid `reply_to` object, Resend `reply_to` string, Postmark `ReplyTo`, SES `ReplyToAddresses`; absent field when unset | PASS |
+| Row | Clause outcome | Public-door evidence | Local result | Exact-SHA Verify |
+| --- | --- | --- | --- | --- |
+| R1 | Quote, invoice and supplier order sends; signed delivered and bounced events; message timeline states and customer warning | Point 1, lines 701–732: all four providers; command and callback replay; populated job timelines and quote event timeline; exact text, reference and next-step assertions; actual Worker disposal and recreation with complete state, Activity and export equality | PASS | push 42616161595: success |
+| R2 | Every new fact is attributable in Activity and export without secrets | Point 2, lines 733–750, plus point 7's complete paginated Activity comparison: every connection, queue fact, provider answer and matched event; actor identity, role, command, subject, summary and provider reference | PASS | push 42616161595: success |
+| R3 | Owner-only secret connection and disconnect for all four providers | Point 3, lines 751–780: native roles, custom role, branch-limited Owner and integration token refused unchanged; input refusals; SES JSON and SNS pins; original and identical replay responses; saved outcomes, state, Activity, export and captured Worker logs; disconnected sends refused with MAIL and every previously valid callback returns 404. `tests/portable.mjs` line 481 asserts the API key absent from actual archive bytes, next to existing callback password and hash exclusion assertions | PASS | push 42616161595: success |
+| R4 | Arbitrary from domain accepted locally; provider refusal visible with next step and no retry | Point 4, lines 781–797: SendGrid fake HTTP 400, exact not-sent label and corrective next step, exported provider rejection and Activity identity, command replay and restart with no extra provider attempt. Inherited COMM-010 scheduled replay proof remains in the combined registration | PASS | push 42616161595: success |
+| R5 | Approved current quote and exact desk authority; approved or exported invoice and recipient fallback; draft order and named supplier; own-customer booking email | Point 5, lines 798–845: allowed and forbidden native roles, custom role and integration token; draft, unapproved new revision, declined and stale quote refusals; revision 2 body; invoice draft refusal, AP address, fallback and missing-address refusal; draft-only supplier orders, alternate named recipient and recorded sent address; extra booking recipient ignored in favor of on-record customer | PASS | push 42616161595: success |
+| R6 | Only transactional document and booking-link content; other kinds refused | Point 6, lines 846 onward, plus the provider-request document assertions in the shared send helper and actual booking token text. Revoked credential refuses repeated requests unchanged. Complete retained projections contain no credential, booking bearer or email body | PASS | push 42616161595: success |
+| R7 | Business Reply-To present only when set | Point 7, lines 854–886, all four providers, both business-email states: SendGrid `reply_to` object, Resend `reply_to` string, Postmark `ReplyTo`, SES `ReplyToAddresses`; absent field when unset | PASS | push 42616161595: success |
 
 ## Inherited duties
 
-| Duty | Proof | Result |
-| --- | --- | --- |
-| BASE-AUDIT-001 | R2 and complete paginated Activity at R7; full historical actor, command, subject and provider-reference comparison | PASS |
-| BASE-DATA-001 | R1 actual Worker restart; real installation export and import in `tests/portable.mjs`, including absent provider keys and absent callback credentials | PASS locally |
-| BASE-MAIL-001 | R1 and R4 plus inherited COMM-010 provider outcomes and honest unknown-state proof | PASS |
-| BASE-OPS-003 | Replayed command and signed callbacks add no attempt or fact; retained exact state after actual restart | PASS |
-| BASE-OPS-004 | Exact rejected message label and next step at R4; warning and provider-state next steps at R1 | PASS |
-| BASE-SECRET-001 | R3, R6 and R7 inspect populated responses, replays, state, saved outcomes, Activity, export and captured logs; actual archive bytes exclude key and callback credential | PASS locally |
+| Duty | Proof | Result | Exact-SHA Verify |
+| --- | --- | --- | --- |
+| BASE-AUDIT-001 | R2 and complete paginated Activity at R7; full historical actor, command, subject and provider-reference comparison | PASS | push 42616161595: success |
+| BASE-DATA-001 | R1 actual Worker restart; real installation export and import in `tests/portable.mjs`, including absent provider keys and absent callback credentials | PASS locally | push 42616161595: success |
+| BASE-MAIL-001 | R1 and R4 plus inherited COMM-010 provider outcomes and honest unknown-state proof | PASS | push 42616161595: success |
+| BASE-OPS-003 | Replayed command and signed callbacks add no attempt or fact; retained exact state after actual restart | PASS | push 42616161595: success |
+| BASE-OPS-004 | Exact rejected message label and next step at R4; warning and provider-state next steps at R1 | PASS | push 42616161595: success |
+| BASE-SECRET-001 | R3, R6 and R7 inspect populated responses, replays, state, saved outcomes, Activity, export and captured logs; actual archive bytes exclude key and callback credential | PASS locally | push 42616161595: success |
 
 ## DONE riders and pre-ready review
 
 | Rider | Result | Evidence or honest boundary |
 | --- | --- | --- |
-| 1 | PASS locally; exact-head Verify pending | R1–R7 perform every native acceptance outcome through real public doors. No live delivery qualification is inferred. |
+| 1 | PASS | R1–R7 perform every native acceptance outcome through real public doors. No live delivery qualification is inferred. |
 | 2 | PASS | Populated documents and events; allowed sends complete; unsafe roles, versions, states, inputs and revoked credentials refuse with no queued work or business change. |
-| 3 | Pending CI | Existing push Verify loads the API registration, portable script and existing email browser journey. Exact-head run will be recorded in the receipt. |
-| 4 | PASS locally | Final source and test hashes and exact-head browser receipt recorded with validation. The preliminary browser run changed no product source. |
+| 3 | PASS | Exact-SHA push Verify 42616161595 completed successfully and loads the API registration, portable script and existing email browser journey. |
+| 4 | PASS | Final source and test hashes and exact-head browser receipt recorded with validation. The preliminary browser run changed no product source. |
 | 5 | PASS by inspection | COMM-001 meta line already cites all six Base duties above. No inheritance text changed. |
 | 6 | PASS mechanical; judgments remain with lander | Contract generator write and check pass; generated views restored whole from main. No Status, Gap or Evidence cell edited. |
 | 7 | PASS | No acceptance sentence changed and no old assertion removed, narrowed, skipped or hidden. No ruling or coverage rewrite needed. |
@@ -99,3 +99,13 @@ The complete existing email registration passed in 129.7 seconds with the final 
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses COMM-001 and check exit=0, generated files restored whole from main; ledger=none exit=0.
 
 Verify push run 42616161595 is bound to this exact candidate; its latest observed status is in `ci-status-history.json`. No candidate Run site or publication scan is claimed before guarded landing.
+
+## Final CI and handoff
+
+Exact-SHA push Verify 42616161595 completed successfully for `8efd317b006b25dd25c3745b65e917f58a892af4`: https://github.com/just-every/run-glove/actions/runs/42616161595. All acceptance and inherited-duty rows above pass in that recorded event. Riders 1 through 9 pass (5 and the unchanged acceptance text in 7 are also inspected); 10 is not applicable; 11 remains the guarded lander's publication scan, main equality and resulting Run site receipt. No product blocker remains. No PR was needed.
+
+Publication scan receipt: commit=8efd317b006b25dd25c3745b65e917f58a892af4 complete=false historyScanned=false findings=unestablished status=NOT_RUN_IN_CLOUD. No scan result or candidate main equality is fabricated. Main writes, release and account activation remain unauthorized.
+
+CLAIM COMM-001 DONE points=1,2,3,4,5,6,7 tests=tests/api/email.test.mjs#COMM-016 Postmark outcomes retain exact message states and attributable facts across restart and replay; tests/portable.mjs#COMM-001 point 3: the actual archive excludes the Postmark API key
+
+POST lanes/sx/INBOX.md: sx-glove-c-f217 COMM-001 native points 1–7 qualified, claim DONE; branch cloud/sx-glove-c-f217 head 8efd317b006b25dd25c3745b65e917f58a892af4; exact-SHA push Verify 42616161595 success; source counts unchanged 41 DONE, 193 PARTIAL, 29 MISSING; contract judgments remain with lander.
