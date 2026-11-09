@@ -7,10 +7,9 @@ import { installation, business } from '../api/harness.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
-const short = (date: string) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }).format(new Date(`${date}T00:00:00Z`))
+const short = (date: string) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' }).formatToParts(new Date(`${date}T00:00:00Z`)).filter(p => p.type !== 'literal').map(p => p.value).join(' ')
 type Row = Record<string, any>
 type AuditAction = { commandId: string; kind: string; actor: Row; subjects: string[] }
-test.use({ actionTimeout: 15_000 })
 
 async function send(page: Page, button: Locator, type: string) {
   const answer = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST' && r.request().postDataJSON().type === type)
@@ -31,6 +30,7 @@ async function screen(page: Page, name: string) {
 test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor', async ({ browser }, info) => {
   const h = await installation({ at: '2026-11-01T12:00:00.000Z' })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } })
+  context.setDefaultTimeout(15_000)
   const page = await context.newPage()
   const step = (name: string, run: () => Promise<void>) => test.step(name, () => scenario({ diagnostic: (message: string) => info.annotations.push({ type: 'scenario', description: message }) }, name, run))
   try {
@@ -105,7 +105,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
     await step('DISP-007 point 7: Day and week replace technician rows and member chips with one crew row and one chip per booking', async () => {
       await page.getByLabel('Day', { exact: true }).fill(dates[0])
       for (const member of [b.priya, b.tom, sid]) await expect(board.getByRole('region', { name: member.name, exact: true })).toBeVisible()
-      await page.getByLabel('Rows', { exact: true }).selectOption('crews')
+      await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('crews')
       for (const date of dates) {
         await page.getByLabel('Day', { exact: true }).fill(date)
         await expect(board.getByRole('region', { name: `Crew ${crew.name}`, exact: true })).toHaveCount(1)
@@ -152,16 +152,16 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
     await step('DISP-007 point 7: Month filters crew bookings by crew, and the crew screens fit a 390px phone', async () => {
       await view('Month')
       await expect(chip(board)).toHaveCount(3)
-      const filter = board.getByLabel('Crew', { exact: true })
+      const filter = board.getByRole('combobox', { name: 'Crew', exact: true })
       await expect(filter).toBeVisible()
       expect(await filter.locator('option').evaluateAll(options => options.map(o => (o as HTMLOptionElement).value).filter(Boolean))).toEqual([crew.id])
       await filter.selectOption(crew.id)
       for (const date of ['2026-11-03', '2026-11-04', '2026-11-06']) await expect(chip(board.getByRole('gridcell', { name: short(date), exact: true }))).toHaveCount(1)
       for (const label of await chip(board).evaluateAll(chips => chips.map(c => c.getAttribute('aria-label')))) expect(label).toContain(`Crew ${crew.name}`)
-      await page.getByLabel('Rows', { exact: true }).selectOption('technicians')
-      await board.getByLabel('Technician', { exact: true }).selectOption(b.priya.id)
+      await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('technicians')
+      await board.getByRole('combobox', { name: 'Technician', exact: true }).selectOption(b.priya.id)
       await expect(chip(board)).toHaveCount(3)
-      await page.getByLabel('Rows', { exact: true }).selectOption('crews')
+      await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('crews')
       await expect(chip(board)).toHaveCount(3)
       await screen(page, 'month')
       await page.setViewportSize({ width: 390, height: 1050 })
@@ -174,7 +174,7 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       acting = b.dispatcher.cookie
       await page.goto(`${origin}/app#dispatch`)
       await page.getByLabel('Day', { exact: true }).fill('2026-11-06')
-      await page.getByLabel('Rows', { exact: true }).selectOption('crews')
+      await page.getByRole('combobox', { name: 'Rows', exact: true }).selectOption('crews')
       for (const name of ['Day', 'Week', 'Month']) {
         await view(name)
         await board.scrollIntoViewIfNeeded()
@@ -214,6 +214,6 @@ test('DISP-007 points 1 and 7: crew bookings stay single on every board and drag
       await screen(page, 'activity')
     })
   } finally {
-    try { await context.close() } finally { await h.close() }
+    try { if (!page.isClosed()) await context.close() } finally { await h.close() }
   }
 })
