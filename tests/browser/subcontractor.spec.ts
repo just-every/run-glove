@@ -1,4 +1,4 @@
-import { gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
+import { closeHarnessContext, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 import { test, expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'

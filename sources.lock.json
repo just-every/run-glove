@@ -5884,7 +5884,7 @@
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
-      "sha256": "7e9850c254c2e6f3d8cdc8085fc1efdf3956439eb5ebacafb296c8e7055c6516",
+      "sha256": "283a5d331649d0606b457b3501d029bccc3500c9df9a9829e25d7713615f9781",
       "executable": false
     },
     "tests/browser/crew-board.spec.ts": {
@@ -6028,7 +6028,7 @@
       "executable": false
     },
     "tests/browser/subcontractor.spec.ts": {
-      "sha256": "0cd9aaa63c6aad9e7deaf3210fab1766949451864f0f8666a7883f1f6b0bb78e",
+      "sha256": "3bddb6978f7165c79697c7fa49393adb75b367244a965c3f9dc438940a68d620",
       "executable": false
     },
     "tests/browser/tax-evidence.spec.ts": {

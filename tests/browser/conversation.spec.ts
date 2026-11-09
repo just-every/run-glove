@@ -187,7 +187,12 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await h.command('branch.limit', { operatorId: desk.id, branchId: 'main' })
     unavailableQuery = `customerId=${river.id}`
     const beforeFailedRead = await domain()
+    // Revalidation first reads installation state, then issues the dependent
+    // conversation request. Assert the UI only after the intended transport
+    // failure reached the browser, rather than timing that two-request chain.
+    const failedRead = page.waitForEvent('requestfailed', { predicate: request => new URL(request.url()).pathname === '/api/glove/conversation' && new URL(request.url()).searchParams.toString() === unavailableQuery, timeout: 30_000 })
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await failedRead
     await expect(customerPanel.getByRole('alert')).toContainText(/fetch/i)
     await expect(rows(customerPanel)).toHaveCount(0)
     expect(await domain()).toEqual(beforeFailedRead)
