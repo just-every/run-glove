@@ -90,10 +90,16 @@ export const privacy: Handler = async (c, type, p, db) => {
   } else {
     if (p.confirm !== 'ERASE') fail('CONSENT', 'Confirm ERASE to permanently erase this merged customer group.', null, 400)
     if (p.fingerprint !== preview.fingerprint) fail('STALE_PREVIEW', 'Prepare and review a current erasure preview before confirming.', null, 409)
+    const retainedMaterials = new Map<string, Record<string, unknown>[]>()
+    for (const r of scope.records.captures) if (r.kind === 'material') {
+      const entries = retainedMaterials.get(r.jobId) ?? []
+      entries.push({ quantity: r.quantity, unit: scope.redact(r.unit), serviceId: r.serviceId ?? null })
+      retainedMaterials.set(r.jobId, entries)
+    }
     const keeps: Record<string, (r: Row) => Row> = {
       customers: r => ({ id: r.id, version: r.version + 1, name: 'Erased customer', erasedAt: c.now, branchId: r.branchId ?? null }),
       sites: r => ({ id: r.id, ...pick(r, ['id', 'customerId', 'branchId']), version: r.version + 1, address: 'Erased address', erasedAt: c.now }),
-      jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [] }),
+      jobs: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'siteId', 'branchId', 'createdAt', 'completedAt', 'status']), version: r.version + 1, title: 'Erased customer job', lines: r.lines.map(line), totals: totals(r.totals), erasedAt: c.now, checklist: [], forms: [], ...(retainedMaterials.has(r.id) ? { retainedMaterials: retainedMaterials.get(r.id) } : {}) }),
       invoices: r => ({ id: r.id, ...pick(r, ['id', 'number', 'customerId', 'jobId', 'branchId', 'createdAt', 'status', 'issuedAt', 'dueAt', 'issuedDate', 'dueDate', 'firstApprovedAt', 'dates', 'approvalAt', 'recurring', 'openingBalance']), version: r.version + 1, revisions: r.revisions.map(revision), erasedAt: c.now }),
       payments: r => ({ id: r.id, ...pick(r, ['invoiceId', 'invoiceNumber', 'jobId', 'customerId', 'branchId', 'createdAt', 'currency', 'amount', 'tip', 'technicianIds', 'fee', 'status', 'confirmedAt', 'taxBreakdown', 'taxTotalAmount', 'kind', 'method', 'mode']), effects: (r.effects ?? []).map((e: Row) => pick(e, ['at', 'amountCents', 'tipCents', 'invoiceId'])), version: r.version + 1, erasedAt: c.now }),
       times: r => ({ id: r.id, ...pick(r, ['id', 'jobId', 'technicianId', 'kind', 'startAt', 'endAt']), version: r.version + 1 }),

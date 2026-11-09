@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, unrouteHarness } from './harness-route'
 // @ts-expect-error Deterministic synthetic image originals.
 import { documentPhoto, documentLogo, documentSignature } from '../fixtures/document-images.mjs'
 import { test, expect, type Page, type Locator } from '@playwright/test'
@@ -71,10 +72,10 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
     let quote = await b.dispatcher.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Water heater replacement', lines: [{ serviceId: item.id, description: item.name, quantity: '1', unitPrice: item.unitPrice }], terms: 'Work begins after your recorded acceptance.' })
     quote = await b.dispatcher.run('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    await page.goto(process.env.GLOVE_OPEN)
+    await gotoHarness(page, process.env.GLOVE_OPEN)
     await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-    await context.route(`${origin}/api/glove/**`, async route => {
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url()), publicDoor = url.pathname.startsWith('/api/glove/public/')
       const response = await h.request(url.pathname + url.search, { method: req.method(), as: publicDoor ? '' : h.owner(), headers: publicDoor ? { authorization: req.headers().authorization ?? '' } : {}, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -82,14 +83,14 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
     const identity = ['Synthetic Glove LLC', 'Synthetic Trade', '12-3456789', 'synthetic-glove-12', 'synthetic-glove-13', 'Synthetic Insurer']
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1000 })
-      await page.goto(`${origin}/app#team`); await page.reload()
+      await gotoHarness(page, `${origin}/app#team`); await reloadHarness(page)
       const templates = page.getByRole('region', { name: 'Document templates', exact: true })
       await templates.getByLabel('Document heading').fill('Your service proposal')
       await templates.getByLabel('Document terms').fill('Payment due in 14 days. Thank you for choosing our team.')
       await templates.getByLabel('Document footer').fill('Synthetic customer service footer')
       await send(page, templates.getByRole('button', { name: 'Save document template' }))
       await shot(page, width, 'document-template', templates)
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await page.getByRole('button', { name: `${quote.number} · ${quote.title}`, exact: true }).click()
       const photos = page.getByRole('region', { name: 'Customer document photos', exact: true })
       if (width === 1440) {
@@ -101,7 +102,7 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
       await expect(photos.getByText('Existing water heater site photo', { exact: true })).toBeVisible()
       await shot(page, width, 'document-photo', photos)
       const result = await send(page, page.getByRole('button', { name: 'Create customer link', exact: true }))
-      await page.goto(`${origin}/quote#token=${result.token}`)
+      await gotoHarness(page, `${origin}/quote#token=${result.token}`)
       await expect(page.getByRole('heading', { name: `Your service proposal ${quote.number}`, exact: true })).toBeVisible()
       const quotePage = page.getByRole('region', { name: 'Your quote', exact: true })
       for (const value of [...identity, item.description, 'Existing water heater site photo', 'Payment due in 14 days. Thank you for choosing our team.']) await expect(quotePage.getByText(value, { exact: false }).first()).toBeVisible()
@@ -109,14 +110,14 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
       await shot(page, width, 'branded-quote')
       await pdf(page, width, 'quote', [...identity, item.description, 'Existing water heater site photo', 'Payment due in 14 days.'], 2)
       for (const [kind, id] of [['invoice', invoice.id], ['agreement', agreement.id]]) {
-        await page.goto(`${origin}/document?kind=${kind}&id=${id}`)
+        await gotoHarness(page, `${origin}/document?kind=${kind}&id=${id}`)
         const document = page.getByRole('article', { name: `${kind} document`, exact: true })
         for (const value of identity) await expect(document.getByText(value, { exact: false }).first()).toBeVisible()
         await expect(document.getByRole('img')).toHaveCount(kind === 'invoice' ? 2 : 1)
         await shot(page, width, `branded-${kind}`)
         await pdf(page, width, kind, [...identity, kind === 'invoice' ? item.description : '2 included visits'], kind === 'invoice' ? 2 : 1)
       }
-      await page.goto(`${origin}/report#token=${reportLink.token}`)
+      await gotoHarness(page, `${origin}/report#token=${reportLink.token}`)
       const reportPage = page.getByRole('article', { name: 'Service report', exact: true })
       const reportFields = [...identity, job.number, 'Harbourview Dental', b.site.address, 'Priya', 'Completed the heater inspection', 'High water pressure', 'Completed Nov 3, 2026', 'Water heater inspection', 'Unit running?', 'Yes', 'Water pressure', '95 psi', 'Out of range', 'expected 40–80 psi', 'Inspection notes', 'Expansion tank needs attention', 'Water heater installation', 'Copper fitting', '2 each', 'Dr Mei Lin', 'Pressure regulator', 'Fit a regulator before the next service']
       for (const value of reportFields) await expect(reportPage.getByText(value, { exact: false }).first()).toBeVisible()
@@ -125,5 +126,5 @@ test('QUOTE-005, QUOTE-015 branded templates, quote HTML and PDF, invoice, immut
       await shot(page, width, 'branded-report')
       await pdf(page, width, 'report', reportFields, 3)
     }
-  } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+  } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
 })

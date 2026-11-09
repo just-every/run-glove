@@ -21,7 +21,7 @@ export function customerPlanEntries(plan: ImportPlan, scope: ReturnType<typeof p
       || e.source.kind === 'companycontact' && companies.has(p.company_uuid)
       || e.source.kind === 'job' && jobs.has(e.source.sourceId)
       || ['jobpayment', 'jobmaterial', 'jobactivity'].includes(e.source.kind) && jobs.has(p.job_uuid)
-      || e.source.kind === 'attachment' && (attachmentIds.has(e.source.sourceId) || p.related_object === 'job' && jobs.has(p.related_object_uuid) || p.related_object === 'jobpayment' && paymentIds.has(p.related_object_uuid))
+      || e.source.kind === 'attachment' && (attachmentIds.has(e.source.sourceId) || p.related_object === 'company' && companies.has(p.related_object_uuid) || p.related_object === 'job' && jobs.has(p.related_object_uuid) || p.related_object === 'jobpayment' && paymentIds.has(p.related_object_uuid))
   })
 }
 
@@ -46,6 +46,7 @@ export async function customerImportData(db: D1Database, scope: ReturnType<typeo
     const plan = plans.get(row.id)!
     const mine = customerPlanEntries(plan, scope)
     const safe = mine.filter(e => e.effects.every(effect => scope.ids.has(effect.targetId)))
+    const foreignAttachments = sourceAttachmentNames(plan.entries.filter(e => !e.erased && !safe.includes(e)))
     for (const e of mine) if (!safe.includes(e)) omissions.push({ jobId: row.id, sourceIdentity: e.identity, reason: 'Shared source record requires owner review; peer data withheld.' })
     custody.push({ jobId: row.id, records: safe.map(e => ({ source: e.source, unmapped: e.unmapped, rejection: e.rejection })) })
     for (const e of safe) for (const effect of e.effects) if (effect.attachment) originals.push({ jobId: row.id, kind: 'attachment', targetId: effect.targetId, mediaType: effect.attachment.mediaType, sha256: effect.attachment.sha256, bytes: effect.attachment.base64, projection: false })
@@ -59,14 +60,13 @@ export async function customerImportData(db: D1Database, scope: ReturnType<typeo
       if (value.bytes?.status !== 'retained' || attachmentNames.has(value.bytes.artifact)) continue
       attachmentNames.add(value.bytes.artifact)
       const artifact = plan.source.artifacts.find(a => a.name === value.bytes.artifact && a.sha256 === value.bytes.sha256)
-      if (!artifact || artifact.original?.status !== 'available') {
-        omissions.push({ jobId: row.id, artifact: value.bytes.artifact, sourceSha256: value.bytes.sha256, reason: 'The retained attachment original is unavailable or was withdrawn for customer privacy.' })
+      if (!artifact || artifact.original?.status !== 'available' || foreignAttachments.has(artifact.name)) {
+        omissions.push({ jobId: row.id, artifact: value.bytes.artifact, sourceSha256: value.bytes.sha256, reason: foreignAttachments.has(value.bytes.artifact) ? 'Shared source attachment requires owner review; peer data withheld.' : 'The retained attachment original is unavailable or was withdrawn for customer privacy.' })
         continue
       }
       originals.push({ jobId: row.id, kind: 'attachment', name: artifact.name, targetId: effect.targetId, sha256: artifact.sha256, size: artifact.size, projection: false, bytes: artifact.original.base64 })
       }
     }
-    const foreignAttachments = sourceAttachmentNames(plan.entries.filter(e => !e.erased && !safe.includes(e)))
     for (const name of sourceAttachmentNames(safe)) {
       if (attachmentNames.has(name)) continue
       const artifact = plan.source.artifacts.find(a => a.name === name)

@@ -158,6 +158,11 @@ export async function mergeProjection(t) {
   const duplicate = await h.command('customer.save', { name: 'Raleigh second account' })
   const site = await h.command('site.save', { customerId: duplicate.id, address: '2 Raleigh St, Raleigh NC 27601', branchId: r.id })
   const work = await h.command('job.create', { customerId: duplicate.id, siteId: site.id, title: 'Same-branch history', lines: [{ description: 'Repair', quantity: '1', unitPrice: '75.00', tax: 'FREE' }] })
+  const visit = await h.command('visit.book', { jobId: work.id, technicianId: r.tech.id, date: '2026-11-03', start: '11:00', end: '12:00' })
+  await r.person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+  await r.person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Same-branch repair complete', signoff: { absentReason: 'Customer away' } })
+  const draft = await h.command('invoice.prepare', { jobId: work.id })
+  const invoice = await h.command('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
   const before = await h.state()
   const versions = Object.fromEntries(before.customers.map(c => [c.id, c.version]))
   const merged = await h.command('customer.merge', { survivorId: r.customer.id, mergedIds: [duplicate.id], versions })
@@ -166,7 +171,14 @@ export async function mergeProjection(t) {
   assert.equal(after.customers.find(c => c.id === duplicate.id).mergedInto, r.customer.id)
   assert.equal(after.sites.find(s => s.id === site.id).customerId, r.customer.id)
   assert.equal(after.jobs.find(j => j.id === work.id).customerId, r.customer.id)
-  assert.deepEqual(after.invoices, before.invoices, 'an allowed merge leaves unrelated invoices intact')
+  assert.deepEqual(after.invoices.find(i => i.id === invoice.id), { ...before.invoices.find(i => i.id === invoice.id), customerId: r.customer.id, version: invoice.version + 1 }, 'same-branch merge moves the approved invoice without changing its money or branch')
+  assert.deepEqual(after.invoices.filter(i => i.id !== invoice.id), before.invoices.filter(i => i.id !== invoice.id), 'an allowed merge leaves unrelated invoices intact')
+  const response = await h.request(`/api/glove/reports/receivables.json?asOf=2026-11-05&branchId=${r.id}`)
+  assert.equal(response.status, 200)
+  const receivables = await response.json()
+  assert.deepEqual(receivables.customers.map(c => [c.customerId, c.total, c.invoices.map(i => i.id).sort()]), [[r.customer.id, '175.00', [before.invoices.find(i => i.customerId === r.customer.id).id, invoice.id].sort()]], 'the branch report retains both approved balances under the survivor')
+  await h.restart()
+  assert.deepEqual(await h.state(), after, 'the allowed merge and all refused branch merges retain exact records after Worker restart')
 }
 
 // Deliberately independent CSV reader: assertions inspect every exported row,
@@ -302,13 +314,13 @@ export async function reportsProjection(t) {
       if (door.endsWith('.csv')) {
         const data = result.slice(1)
         if (kind === 'revenue') assert.deepEqual(data, [['month', '2026-11', '1', r.net], ['job type', 'Uncategorized', '1', r.net], ['branch', r.name, '1', r.net], ['total', '', '1', r.net]])
-        if (kind === 'technicians') assert.deepEqual(data.map(x => [x[0], x[1], x[2], x[5]]).sort(), [[r.tech.name, `${(roots.indexOf(r) + 1) * 50}.00`, '1', '1.0'], [r.sub.name, `${(roots.indexOf(r) + 1) * 50}.00`, '1', '0.0']].sort())
+        if (kind === 'technicians') assert.deepEqual(data.sort(), [[r.tech.name, `${(roots.indexOf(r) + 1) * 50}.00`, '1', '0', '0.0', '1.0', '0', '0', ''], [r.sub.name, `${(roots.indexOf(r) + 1) * 50}.00`, '1', '0', '0.0', '0.0', '0', '0', '']].sort())
         if (kind === 'sources') assert.deepEqual(data, [[r.source, '1', '1', '100.0', r.gross, r.gross], ['total', '1', '1', '100.0', r.gross, r.gross]])
         if (kind === 'quotes') assert.deepEqual(data, [['1', '1', '0', '100.0', r.gross]])
         if (kind === 'margins') assert.deepEqual(data, [['Uncategorized', '1', r.net, '0.00', '0.00', '100.0', '100.0'], ['total', '1', r.net, '0.00', '0.00', '100.0', '100.0']])
         if (kind === 'tax') assert.deepEqual(data, [[r.name, "GST (the business's tax)", '2026-11', '1', r.tax], [r.name, "GST (the business's tax)", 'total', '1', r.tax]])
         if (kind === 'agreements') assert.deepEqual(data, [[`${r.name} Care`, '1'], ['total sold', '1'], ['active at period end', '1'], ['churn', '0'], ['sold value', r.net]])
-        if (kind === 'receivables') assert.deepEqual(data.map(x => [x[0], x[2], x[9]]), [[r.customer.name, r.invoice.number, r.gross]])
+        if (kind === 'receivables') assert.deepEqual(data, [[r.customer.name, 'AUD', r.invoice.number, '1', '2026-11-05', '2026-11-19', 'terms frozen at first approval', '0', 'current', r.gross, 'No reminders scheduled', `#invoices/${r.invoice.id}`]])
         if (kind === '1099') assert.deepEqual(data, [[`${r.name} Contracting`, `100${roots.indexOf(r)}`, '1', '75.00', 'no', 'Totals for your filing, not a filed 1099']])
         if (kind === 'payroll-gusto') { const [first, ...last] = r.tech.name.split(' '); assert.deepEqual(data, [[last.join(' '), first, r.tech.payrollId, '2026-11-02 - 2026-11-08', '1.00', '0.00', '0.00', '0.00']]) }
         if (kind === 'payroll-adp-run') assert.deepEqual(result.slice(2), [['G3X', 'W', '11/02/2026', '11/08/2026', r.tech.payrollId, 'REG', '1.00', '', '0', '', 'BASE']])
