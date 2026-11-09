@@ -5824,7 +5824,7 @@
       "executable": false
     },
     "tests/api/suggest.test.mjs": {
-      "sha256": "f7d51e7c4d891e6ae3089c3940c05f51090282ce6fc42d49c6ccd69d2283ca0a",
+      "sha256": "5a0bf704e0923e5b064047d65aa9d015cdbc83454676383b1a94d0263c68c7b5",
       "executable": false
     },
     "tests/api/tax-evidence.test.mjs": {
