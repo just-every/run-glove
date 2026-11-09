@@ -1,0 +1,30 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f218-pc1",
+  "base_candidate": "d2eb4c0cb800e603bcaa98a0319d483c1f2f46e1",
+  "merged_main": "a81559508ceab2126d0259be3a06afb7f647ec77",
+  "merge_base": "fcfafa4d17d1ff83fcd75fd89b929a29780397f8",
+  "conflicts": [],
+  "migration_collision": false,
+  "candidate_test_unchanged": true,
+  "contract_matches_main": true,
+  "views_match_main": true,
+  "diff_vs_main": "sources.lock.json          |   2 +-\n tests/api/suggest.test.mjs | 327 +++++++++++++++++++++++++++++++++++++++++++--\n 2 files changed, 314 insertions(+), 15 deletions(-)",
+  "counts_candidate": {
+    "done": 41,
+    "partial": 193,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_merged": {
+    "done": 42,
+    "partial": 192,
+    "missing": 29,
+    "total": 263
+  },
+  "clause_status_changes": {
+    "COMM-001": "partial -> done, inherited from main",
+    "AGENT-005": "partial -> partial, preserved"
+  },
+  "source_lock_last": true
+}

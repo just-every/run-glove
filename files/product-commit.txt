@@ -1,0 +1,8 @@
+commit 6df155d633bb0e955e39b9cb99f5822e93d512bd
+Merge: d2eb4c0 a815595
+Author:     Run Edit Run fleet <fleet@runeditrun.com>
+AuthorDate: Mon Nov 9 15:38:02 2026 +0000
+Commit:     Run Edit Run fleet <fleet@runeditrun.com>
+CommitDate: Mon Nov 9 15:38:02 2026 +0000
+
+    Merge current main into quote suggestion proof candidate

@@ -1,0 +1,4 @@
+{
+  "command": "gh run view 42646655767 --repo just-every/run-glove --job 129270406985 --log-failed",
+  "exit_code": 0
+}

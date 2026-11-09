@@ -1,0 +1,114 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f218-pc1",
+  "head": "6df155d633bb0e955e39b9cb99f5822e93d512bd",
+  "parents": [
+    "d2eb4c0cb800e603bcaa98a0319d483c1f2f46e1",
+    "a81559508ceab2126d0259be3a06afb7f647ec77"
+  ],
+  "product_push": "success",
+  "product_push_attempts": 1,
+  "product_push_guard": "cloud-push.py",
+  "default_branch_pushed": false,
+  "force_push": false,
+  "history_rewritten": false,
+  "worktree_clean": true,
+  "pr_created": false,
+  "checks": {
+    "typecheck": 0,
+    "suggest_tests": 0,
+    "contract_generation": 0,
+    "source_lock": 0,
+    "diff_check": 0
+  },
+  "ci": {
+    "conclusion": "failure",
+    "head_sha": "6df155d633bb0e955e39b9cb99f5822e93d512bd",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/42646655767",
+    "status": "completed",
+    "run_id": 42646655767,
+    "polled_at": 1794239604.9211414
+  },
+  "ci_head_sha": "6df155d633bb0e955e39b9cb99f5822e93d512bd",
+  "terminal_state": "BLOCKED",
+  "ci_jobs": [
+    {
+      "id": 129261595914,
+      "name": "plan",
+      "conclusion": "success"
+    },
+    {
+      "id": 129261695543,
+      "name": "build",
+      "conclusion": "success"
+    },
+    {
+      "id": 129261698704,
+      "name": "light",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 129262022077,
+      "name": "shards (foundation)",
+      "conclusion": "success"
+    },
+    {
+      "id": 129262022111,
+      "name": "shards (api-2)",
+      "conclusion": "success"
+    },
+    {
+      "id": 129262022117,
+      "name": "shards (portable)",
+      "conclusion": "success"
+    },
+    {
+      "id": 129262022175,
+      "name": "shards (browser-3)",
+      "conclusion": "success"
+    },
+    {
+      "id": 129262022205,
+      "name": "shards (browser-2)",
+      "conclusion": "success"
+    },
+    {
+      "id": 129262022279,
+      "name": "shards (browser-4)",
+      "conclusion": "success"
+    },
+    {
+      "id": 129262022321,
+      "name": "shards (api-1)",
+      "conclusion": "success"
+    },
+    {
+      "id": 129262022345,
+      "name": "shards (browser-1)",
+      "conclusion": "failure"
+    },
+    {
+      "id": 129270406985,
+      "name": "verify",
+      "conclusion": "failure"
+    },
+    {
+      "id": 129270408126,
+      "name": "nightly-proof",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 129270409617,
+      "name": "full-push-proof",
+      "conclusion": "skipped"
+    }
+  ],
+  "blocker": "Exact-SHA Verify 42646655767 failed in shards (browser-1), job 129262022345: REPORT-002/REPORT-004 revenue journey, tests/browser/revenue.spec.ts:170, route.fulfill: Route is already handled!",
+  "failed_aggregate_job_id": 129270406985,
+  "failed_source_matches_merged_main": true,
+  "generated_view_exception_applies": false,
+  "no_ready_claim": true,
+  "no_unpushed_product_work": true,
+  "github_call_count": 7,
+  "pr_url": null
+}

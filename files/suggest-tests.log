@@ -1,0 +1,33 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ API-001 / DATA-002, DATA-009, DATA-010 / AGENT-005, AGENT-014 the agent drafts good, better and best for a 15-year-old furnace from the price book, held as a draft until a person approves (25341.173427ms)
+ℹ AGENT-005 point 3: exact permitted evidence and strict schema across business-local midnight
+ℹ PROBE AGENT-005 3: two native units and completed histories at Sydney 23:59 and 00:01 -> exact evidence, install-preferred ages 14 to 15 and manufacture fallback 9 to 10, store false and strict schema
+ℹ AGENT-005 point 7: AGENT-014 any extra, missing or malformed answer field refuses the whole draft without repair or retry
+ℹ PROBE AGENT-005 7 shape: 43 malformed or inactive-code answers -> whole refusal, every record unchanged, exactly one model call each
+ℹ AGENT-005 point 6: AGENT-014 three options from the price book at its prices, each with the model's reason
+ℹ AGENT-005 point 4: AGENT-014 the model saw the request, the furnace's age and history and the price book, never costs or who and where the customer is
+ℹ PROBE AGENT-005 4: populated costs, category markup, identity, contacts, addresses, serials, archived item and other-site history -> absent everywhere in provider body
+ℹ AGENT-005 point 8: current prices, exact label and reasons survive command replay and actual Worker restart
+ℹ PROBE AGENT-005 8: saved draft command replay and actual Worker restart -> identical quote, reasons, exact label and quoted request; zero additional provider calls
+ℹ AGENT-005 point 1: AGENT-014 the draft waits for a person: the agent cannot approve or send it; a dispatcher approves the prices
+ℹ PROBE AGENT-005 1: Agent approval and sending refused; Sam Ortiz approves -> Agent retained as preparer and exact Office, Agent and Dispatcher attribution in Activity and export without the model key
+ℹ AGENT-005 point 2: current roles and request prerequisites admit only authorized new or contacted drafts
+ℹ PROBE AGENT-005 2: six allowed role and state combinations -> drafts; excluded roles, token, branch, pause, terminal states, no site, empty book and disconnected provider -> refusal, no model call, all records unchanged
+ℹ AGENT-005 point 6: positive quantities through three decimals use only active price-book codes
+ℹ PROBE AGENT-005 6: one-line and twenty-line options with positive three-decimal quantities -> exact lines, quantities and reasons saved
+ℹ AGENT-005 point 7: HTTP error, redirect and unreachable provider refuse once with secret-free outcome facts
+ℹ PROBE AGENT-005 7: HTTP 503, redirect 307 and broken model connection -> MODEL, one provider attempt, unchanged records, one bounded model.outcome in Activity and export
+ℹ AGENT-005 point 8: a changed price book supplies current prices instead of earlier draft prices
+ℹ PROBE AGENT-005 8 prices: price book 149.00 to 159.00 -> new draft uses 159.00 while prior approved revision keeps 149.00
+ℹ AGENT-005 point 8: erasure fences persisted suggestion replay after actual Worker restart
+ℹ PROBE AGENT-005 8 custody: erased request and quote -> old successful command returns ERASED before and after Worker restart; no model call or resurrection
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28143.637481

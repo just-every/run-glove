@@ -1,0 +1,4 @@
+{
+  "command": "node --test --test-concurrency=1 tests/api/suggest.test.mjs",
+  "exit_code": 0
+}

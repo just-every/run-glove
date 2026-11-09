@@ -1,0 +1,10 @@
+{
+  "id": 42646655767,
+  "name": "Verify",
+  "event": "push",
+  "status": "in_progress",
+  "conclusion": null,
+  "head_sha": "6df155d633bb0e955e39b9cb99f5822e93d512bd",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42646655767",
+  "discovery_note": "The sanitization wrapper truncated the raw discovery JSON after the first run identity and status fields. These fields precede the truncation; subsequent exact-run REST polling supplies a valid complete status response. No retry or additional discovery call was made."
+}
