@@ -3,6 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
 import { phoneKeys, vapid, decrypt } from '../fixtures/push-service.mjs'
+import { commissionDownloads } from './commission-download-journey'
 
 // The first-release cycle through the real screens: the owner sets up and
 // quotes, the dispatcher books with conflict review, the technician records
@@ -1060,6 +1061,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await proof('time-corrected')
     } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
   } finally { await h.close() }
+  await commissionDownloads(browser)
 })
 
 

@@ -5604,7 +5604,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "3ff24937ce4ee2f4f4f8738624013e63cb8e2f8c6e706f7940fd3eab539b5ea5",
+      "sha256": "1a8f22399ba99b420fb42a3088f88105c952f12007da2dbf8e82912a4f91ec00",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
@@ -5660,7 +5660,7 @@
       "executable": false
     },
     "tests/api/message-outcomes.test.mjs": {
-      "sha256": "459fd0694837015ba1dd7fa7f0f802f09cba264650c4ebe446c1a0401be6809c",
+      "sha256": "ac37806d1c4cc7373f41551519e6da28b556e8f5cfa493a62ac13b5f9fee058f",
       "executable": false
     },
     "tests/api/money.test.mjs": {
@@ -5692,7 +5692,7 @@
       "executable": false
     },
     "tests/api/payroll-files.test.mjs": {
-      "sha256": "58b52626a020c75dcc7918ac7c06e67fe0791099fdef75524ef7a0c20d5819a7",
+      "sha256": "1ae883714cc5a15b55c4b5fb22845ae5f49058b59d2b5e0d48c093b466550ac2",
       "executable": false
     },
     "tests/api/payroll.test.mjs": {
@@ -5871,12 +5871,16 @@
       "sha256": "5382754d16f1a7f8c0177b540b07ec3a5eeb09783e32867322207de56ca1a42b",
       "executable": false
     },
+    "tests/browser/commission-download-journey.ts": {
+      "sha256": "6cdb91b107e0f2de4e14731c2856d62bf75fd1199196d46026afbfe49fbbf6b2",
+      "executable": false
+    },
     "tests/browser/companycam.spec.ts": {
       "sha256": "170e03074b2510188f334104c2dd10cd4640588aafb377dada718eda3a1683f5",
       "executable": false
     },
     "tests/browser/conversation.spec.ts": {
-      "sha256": "22bfa3d9ef98f6708f27e8e9617d27c08de54c1f6230cef0a99caa547a43d468",
+      "sha256": "220af51a1dae59ee98fffac9cb09feade320c8235f586def6660c1475c2da5e3",
       "executable": false
     },
     "tests/browser/crew-board.spec.ts": {
@@ -5936,7 +5940,7 @@
       "executable": false
     },
     "tests/browser/journey.spec.ts": {
-      "sha256": "84c64a24bf83db451305b55f7f63418d782b6c39874d43091a7446e28f1dc95d",
+      "sha256": "3970b52139751e4ddc111da393c69055fafa15d2b7eacb4ac867f0e98216e2eb",
       "executable": false
     },
     "tests/browser/money.spec.ts": {
@@ -5949,6 +5953,10 @@
     },
     "tests/browser/movein.spec.ts": {
       "sha256": "35c0dce3dcabc6346bf55e9e96817d5587a52ace658b239e6a03124e17c5803e",
+      "executable": false
+    },
+    "tests/browser/native-transport.ts": {
+      "sha256": "c31daae14e3427199953e8c37f752d1bf2874f001d5bb7fba2466b1b8691d194",
       "executable": false
     },
     "tests/browser/phone-desk.ts": {
@@ -6205,6 +6213,14 @@
     },
     "tests/fixtures/payment-journey.mjs": {
       "sha256": "c25358ac1facd46ce97b61fa6962942d2a4834115279fa5deb8c0f8a0171293e",
+      "executable": false
+    },
+    "tests/fixtures/payroll-commissions.mjs": {
+      "sha256": "848ee12beab1a4fcf0824404e7e022543b81a302dfd65e67131cd4b85acde93f",
+      "executable": false
+    },
+    "tests/fixtures/payroll-installation.mjs": {
+      "sha256": "3f477d308a9209a82a6eb02b8e6d4b18f9d65bb3fef08bb98dd44446a381abd7",
       "executable": false
     },
     "tests/fixtures/portable-maps.mjs": {
