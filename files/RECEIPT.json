@@ -227,7 +227,7 @@
   "product_push_receipt": "PUSH.txt",
   "ci": {
     "head": "db35289a917e7bdcb4a69f23306a3565e198f286",
-    "github_calls_used": 8,
+    "github_calls_used": 10,
     "discovered_at_epoch": 1794219388.252856,
     "runs": [
       {
@@ -241,12 +241,24 @@
         "created_at": "2026-11-09T10:16:15Z"
       }
     ],
-    "last_checked_at_epoch": 1794220016.0371583,
+    "last_checked_at_epoch": 1794220344.1597226,
     "latest": {
-      "conclusion": null,
+      "conclusion": "failure",
       "head_sha": "db35289a917e7bdcb4a69f23306a3565e198f286",
       "html_url": "https://github.com/just-every/run-glove/actions/runs/42599653161",
-      "status": "in_progress"
+      "status": "completed"
+    },
+    "archive_command": "gh run view 42599653161 --repo just-every/run-glove --log-failed",
+    "failed_job": "shards (browser-2)",
+    "failure": {
+      "test": "QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390",
+      "path": "tests/browser/document-print.spec.ts:147",
+      "error": "TypeError: fetch failed; cause SocketError: other side closed",
+      "command": "node scripts/verify-ci.mjs browser-2"
     }
-  }
+  },
+  "terminal_disposition": "BLOCKED: original Verify socket failure was not reproduced; main comparison could not start; no guessed repair",
+  "ci_triage_receipt": "CI-TRIAGE.json",
+  "source_lock_terminal_check_exit": 0,
+  "contract_views_terminal_check_exit": 0
 }

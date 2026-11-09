@@ -39,7 +39,7 @@ This is a PARTIAL claim, with only the six requested native points qualified. It
 | --- | --- | --- |
 | 1 | PASS locally for points 1–6; point 7 held | The six named public-door scenarios and the existing ServiceTitan browser case reach the enumerated outcomes above. |
 | 2 | PASS | Nonempty independent fixture expectations; allowed import and native quote creation; unsafe approval, sending, file access and destructive undo refused unchanged. |
-| 3 | CI receipt recorded separately | Both test files are loaded by existing push Verify globs. Exact-SHA run state is in `CI.json`; no earlier SHA is substituted. |
+| 3 | FAIL: Verify red | Exact-SHA push Verify 42599653161 completed with failure in the existing browser-2 document-print test. Native MOVE-003 local proof passes; the branch is blocked for CI triage. |
 | 4 | PASS for tested bytes | Final focused API and browser commands are recorded with the candidate head. The earlier combined regression is supplemental; its adapter and fixture inputs remain unchanged. |
 | 5 | INSPECTED | MOVE-003 names its owner import duties and inherits MOVE-001 through its existing operating rules; no new inheritance or contract text is added. |
 | 6 | Mechanical PASS; judgment owned by lander | Generator write and check pass, generated views are restored whole from main, and the source contract is unchanged. The builder leaves the old audit cell intact for the lane. |
@@ -70,4 +70,19 @@ Plan row proposed for the lane: MOVE-003 native points 1–6 qualified; retain P
 
 MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses MOVE-003 and check, then restore main views exit=0; ledger=none exit=0. Inventory is separately 202/200 exit=1, inherited from merged main with zero added registrations.
 
-Exact-SHA Verify: push event, run 42599653161, head db35289a917e7bdcb4a69f23306a3565e198f286, latest observed status in_progress with no conclusion. No earlier-SHA green is claimed. The cloud handoff leaves its completion, publication scan and guarded landing with the fleet.
+Exact-SHA Verify: push event, run 42599653161, head db35289a917e7bdcb4a69f23306a3565e198f286, completed with failure. The failing job is shards (browser-2), test QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390, at tests/browser/document-print.spec.ts:147: TypeError: fetch failed, caused by SocketError: other side closed. No earlier-SHA green is claimed.
+
+
+## Terminal CI triage and blocker
+
+BLOCKED branch=cloud/sx-glove-c-f207 head=db35289a917e7bdcb4a69f23306a3565e198f286 reason=unreproduced_Verify_socket_failure_requires_CI_triage
+
+The archive was read once with `gh run view 42599653161 --repo just-every/run-glove --log-failed`. The last remaining GitHub call was used for the whole failed-job archive; the numeric job ID was not retrieved. The job name is recorded exactly, and no additional API or workflow rerun was attempted after the ten-call budget. The sanitized archive omits environment listings and URL queries.
+
+Before any repair, the candidate's exact failed command was run with browser-2, CI mode, the prebuilt Worker, Node 22.20.0 and Chromium with the required sandbox flags: `node scripts/verify-ci.mjs browser-2`, under the required 1200-second bound. It reached the same document-print test but failed with a different error: `.printable-document` was not visible within 5000 ms. The slower cloud run reached 10 of 16 tests before the alarm. Its actual exit was 242 (the subreaper returns the alarm-terminated child's negative signal status through the shell). Orphaned child test processes were stopped by their known owned PIDs. No production or test assertion was changed in response.
+
+The same document-print test was then attempted on candidate-parent main a49572307a6e66f53dc1fd39b0260c2c5a1b6361 on the same cloud runner. Native app listener readiness failed before the test opened, exit 1. This does not establish the original socket failure on main. The brief explicitly requires stopping BLOCKED when the failed assertion does not reproduce; a speculative fix or a claim of green would be incorrect.
+
+VERIFY_NOT_REPRODUCED {"head":"db35289a917e7bdcb4a69f23306a3565e198f286","job":"shards (browser-2)","command":"node scripts/verify-ci.mjs browser-2","test":"QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390","exit":242,"failure":"local visibility timeouts and 1200-second bound; original CI SocketError not reproduced"}
+
+Product work remains pushed, all six focused native steps and the ServiceTitan owner browser journey passed on the final SHA, and no contract judgment was changed. Recovery data is also retained outside both worktrees: product-recovery.bundle, SHA-256 97c6c28e30960dbeb4e3d16314ffd57e142bef8c46a87a746b2ecd67fb3164f0. It is verified and requires the three main prerequisite commits listed in CI-TRIAGE.json; it is recovery data, not proof of READY or landing. The complete plan and actual terminal outputs remain in this packet. FV must triage the red browser job before the fleet can land this branch.

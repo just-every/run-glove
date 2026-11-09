@@ -1,0 +1,11 @@
+{
+  "repository": "just-every/run-glove",
+  "ref": "refs/heads/evidence/sx-glove-c-f207",
+  "evidence_head": "4f3ca41b3959fb9ebe70a82abe99fdc747eb61ea",
+  "product_head": "db35289a917e7bdcb4a69f23306a3565e198f286",
+  "files_verified": 46,
+  "exact_bytes_and_sha256": true,
+  "product_checkout_unchanged": true,
+  "method": "Git fetch and show; compare every manifested file with actual packet and SHA-256",
+  "verified_at": "2026-11-09T10:31:55.498655+00:00"
+}

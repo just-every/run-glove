@@ -1,0 +1,47 @@
+{
+  "head": "db35289a917e7bdcb4a69f23306a3565e198f286",
+  "ci_run": 42599653161,
+  "job": "shards (browser-2)",
+  "ci_failure": "TypeError: fetch failed; SocketError: other side closed at tests/browser/document-print.spec.ts:147",
+  "reproduction_command": "perl -e 'alarm 1200; exec @ARGV' -- node scripts/verify-ci.mjs browser-2",
+  "reproduction_exit": 242,
+  "reproduction_timed_out": true,
+  "completed_tests": 10,
+  "local_assertions": [
+    {
+      "case": "document-print-QUOTE-015-s-90743-r-fragments-at-1440-and-390",
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: locator('.printable-document')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" locator('.printable-document') with timeout 5000ms\n  - waiting for locator('.printable-document')"
+    },
+    {
+      "case": "due-visits-BOOK-002-BOOK-0-58c00-nance-flags-at-1440-and-390",
+      "error": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('region', { name: 'Choose an included visit', exact: true }).getByRole('alert')\nExpected substring: \"unavailable\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" getByRole('region', { name: 'Choose an included visit', exact: true }).getByRole('alert') with timeout 5000ms\n  - waiting for getByRole('region', { name: 'Choose an included visit', exact: true }).getByRole('alert')"
+    },
+    {
+      "case": "journey-COST-001-COST-002--81547-is-assigned-at-1440-and-390",
+      "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 0\nReceived: 2\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate"
+    }
+  ],
+  "original_socket_failure_reproduced": false,
+  "product_repairs_for_ci": 0,
+  "recovery_bundle": {
+    "path": "/home/agent/rer-consolidation/work/sx-glove-c-f207/product-recovery.bundle",
+    "head": "db35289a917e7bdcb4a69f23306a3565e198f286",
+    "sha256": "97c6c28e30960dbeb4e3d16314ffd57e142bef8c46a87a746b2ecd67fb3164f0",
+    "verified": true,
+    "prerequisites": [
+      "bc96435e1d661752d7638d8e577e37db3eca35bd",
+      "727418aa08e130579dd3a91f6586161b57b26b08",
+      "a49572307a6e66f53dc1fd39b0260c2c5a1b6361"
+    ]
+  },
+  "main_comparison": {
+    "head": "a49572307a6e66f53dc1fd39b0260c2c5a1b6361",
+    "command": "node tests/browser/run.mjs tests/browser/document-print.spec.ts --grep 'QUOTE-015 scoped documents'",
+    "exit": 1,
+    "test_reached": false,
+    "failure": "Application listener handshake and health readiness deadline exceeded",
+    "same_cloud_runner": true
+  },
+  "disposition": "BLOCKED: original Verify socket failure was not reproduced; main comparison could not start; no guessed repair",
+  "github_calls_used": 10
+}

@@ -1,0 +1,31 @@
+> pnpm run verify:app
+
+> @field-service/glove@0.1.1 verify:app /workspace/run-glove
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> node --import ./scripts/verify-progress.mjs tests/browser/run.mjs 'tests/browser/branches.spec.ts' 'tests/browser/custom-roles.spec.ts' 'tests/browser/document-print.spec.ts' 'tests/browser/due-visits.spec.ts' 'tests/browser/journey.spec.ts' 'tests/browser/phone-location.spec.ts' 'tests/browser/recurring-billing.spec.ts' 'tests/browser/routing.spec.ts' 'tests/browser/tax-evidence.spec.ts'
+[verify phase] frozen install: start
+[verify phase] frozen install: exit=0 signal=none elapsed_ms=9924
+[verify phase] rer: start
+[verify phase] rer: exit=0 signal=none elapsed_ms=16818
+[verify phase] site build: start
+[verify phase] site build: exit=0 signal=none elapsed_ms=8296
+[verify phase] native setup: start
+[verify phase] native setup: exit=0 signal=none elapsed_ms=99687
+[verify phase] native dev: start
+[verify phase] browser assertions: start
+[verify progress] Running 16 tests using 1 worker
+[verify progress]   ✓   1 tests/browser/branches.spec.ts:15:1 › TEAM-002, TEAM-004, TEAM-005 + API-002, API-006, API-007 owner limits a dispatcher to a branch and issues a branch token; the board and every report follow the limit at 1440 and 390 (1.6m)
+[verify progress]   ✓   2 tests/browser/custom-roles.spec.ts:16:1 › TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its existing session permission (33.4s)
+[verify progress]   ✘   3 tests/browser/document-print.spec.ts:117:1 › QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390 (36.7s)
+[verify progress]   ✘   4 tests/browser/due-visits.spec.ts:33:1 › BOOK-002, BOOK-011, BOOK-012, BOOK-013 / PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 / AGENT-008, AGENT-016 Office batch books due visits, records declines and outside sends, the customer chooses an offered slot, the owner follows the brief, and Agent prepares source-linked maintenance flags at 1440 and 390 (1.4m)
+[verify progress]   ✓   5 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px (3.3m)
+[verify progress]   ✓   6 tests/browser/journey.spec.ts:188:3 › MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 390px (3.8m)
+[verify progress]   ✘   7 tests/browser/journey.spec.ts:865:1 › COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390 (1.4m)
+[verify progress]   ✓   8 tests/browser/journey.spec.ts:1066:1 › COST-004 uncosted estimate lines are named on the job at 1440 and 390 (53.7s)
+[verify progress]   ✓   9 tests/browser/journey.spec.ts:1104:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and explicitly erases a merged customer with durable outcomes at 1440 and 390 (36.9s)
+[verify progress]   ✓  10 tests/browser/journey.spec.ts:1158:1 › DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects and erases cached originals and queued captures only for explicitly erased visits at 1440 and 390 (57.4s)
+Terminated
+ ELIFECYCLE  Command failed with exit code 143.
+FAILED_SHARD_REPRO_EXIT=242
