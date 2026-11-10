@@ -5500,7 +5500,11 @@
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
-      "sha256": "839d226979b7514d1bbf91727d46704a78b8387b95a89cf39658fc9c119e692c",
+      "sha256": "bcd41f25f3cb45e6334cc7ea353a9d642faad76259adf5cd84e18f270739fe48",
+      "executable": false
+    },
+    "tests/agent-native-parity.mjs": {
+      "sha256": "1a9a0dedf6062bc9ced3b9c2d5e8cb515b592e81976e8f6d406ed272dc330c67",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
