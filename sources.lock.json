@@ -5724,7 +5724,7 @@
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
-      "sha256": "d53d2a871284da3b28c2afffd54edda67a012e4ba1ea0b014ac3a8de61c9e134",
+      "sha256": "35de6911b430fcab49617f38cdc99bb17af80c350ea12f0b0239b4c23d92ff22",
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
@@ -6261,6 +6261,10 @@
     },
     "tests/fixtures/privacy-data.mjs": {
       "sha256": "75811d60b1929998b5904c23fbd0b9b2e97a9cc83a7a98993ec2e332e942addf",
+      "executable": false
+    },
+    "tests/fixtures/privacy-delegation.mjs": {
+      "sha256": "c6e3a5689c464559fd3f4602a3de38dad46a994d3712f5bfee2dc6aafffd5198",
       "executable": false
     },
     "tests/fixtures/push-service.mjs": {

@@ -1,5 +1,6 @@
 import { scenario } from '../fixtures/scenario.mjs'
 import { dataPrivacyQualification } from '../fixtures/privacy-data.mjs'
+import { ownerConfirmationQualification, tokenAgentQualification } from '../fixtures/privacy-delegation.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, completedJob, id } from './harness.mjs'
@@ -42,6 +43,8 @@ async function restore(service, records, later) {
 
 test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
   await scenario(t, 'DATA-001 points 1–7: native privacy qualification through the production Worker', dataPrivacyQualification)
+  await scenario(t, 'DATA-008 point 1: only a signed-in Owner without a branch limit confirms, and the receipt names that Owner', ownerConfirmationQualification)
+  await scenario(t, 'DATA-008 point 4: a token or agent never records a person\'s confirmation', tokenAgentQualification)
   await scenario(t, 'DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h)
