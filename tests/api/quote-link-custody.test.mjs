@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash, randomUUID } from 'node:crypto'
@@ -18,6 +19,7 @@ const quote = async (h, id) => (await h.state()).quotes.find(q => q.id === id)
 const withoutBearer = (value, token, surface) => assert.equal(JSON.stringify(value).includes(token), false, `${surface} excludes the bearer`)
 
 test('QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart', async t => {
+  await scenario(t, 'QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart', async t => {
   const h = await installation({ at, captureLogs: true }); t.after(() => h.close())
   const b = await business(h)
   await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-140', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['office', 'example.test'].join('@') })
@@ -77,8 +79,7 @@ test('QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment 
   assert.deepEqual(await exportBusiness(h), revokedSnapshot, 'a captured issuance cannot recreate a revoked link')
   assert.equal((await respond(h, replacement.token, 'decline')).status, 404, 'replay cannot revive revoked authority')
 })
-
-test('QUOTE-009 superseded links disclose no document and refuse every customer action across restart', async t => {
+  await scenario(t, 'QUOTE-009 superseded links disclose no document and refuse every customer action across restart', async t => {
   const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
   let q = await approve(h, await draft(h, b)), old = await issue(h, q)
   q = await h.command('quote.revise', { quoteId: q.id, version: q.version, lines, validUntil: '2030-03-31' })
@@ -97,8 +98,7 @@ test('QUOTE-009 superseded links disclose no document and refuse every customer 
   assert.equal(live.state, 'open'); assert.equal(live.document.revision, 2)
   await assertTrail(h, ['quote.revised', 'quote.linkIssued'])
 })
-
-test('QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant', async t => {
+  await scenario(t, 'QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant', async t => {
   const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
   const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Inspect condenser', source: 'phone' })
   let q = await approve(h, await draft(h, b, { enquiryId: enquiry.id, validUntil: '2030-02-28' }))
@@ -142,8 +142,7 @@ test('QUOTE-009 expired revisions remain readable with exactly one update until 
   assert.equal(activity.filter(e => e.kind === 'quote.customer.update').length, 2)
   assert.equal(exported.timeline.filter(e => e.kind === 'quote.customer.update').length, 2)
 })
-
-test('QUOTE-009 owner validity boundaries and default changes affect only later revisions', async t => {
+  await scenario(t, 'QUOTE-009 owner validity boundaries and default changes affect only later revisions', async t => {
   const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
   let q = await approve(h, await draft(h, b)), original = structuredClone(q.revisions[0]), link = await issue(h, q)
   assert.equal(original.validUntil, '2030-03-31', 'Sydney March 1 plus the untouched 30-day default')
@@ -170,8 +169,7 @@ test('QUOTE-009 owner validity boundaries and default changes affect only later 
   assert.equal((await h.state()).business[0].quoteValidityDays, 1)
   await assertTrail(h, ['quote.validity', 'quote.revised'])
 })
-
-test('QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window', async t => {
+  await scenario(t, 'QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window', async t => {
   const h = await installation({ at }); t.after(() => h.close()); const b = await business(h)
   const branch = await h.command('branch.save', { name: 'Chicago', prefix: 'CHI', timezone: 'America/Chicago', zips: [] })
   const customer = await h.command('customer.save', { name: 'Chicago Dental' })
@@ -212,8 +210,7 @@ test('QUOTE-009 real dates and frozen Chicago midnight govern approval and the n
   assert.deepEqual(await exportBusiness(h), snapshot, 'expiry refuses without data changes')
   await assertTrail(h, ['quote.customer.approve', 'quote.consentAccepted'])
 })
-
-test('QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link', async t => {
+  await scenario(t, 'QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link', async t => {
   let legacy = true
   const h = await installation({ at, workerPlugins: [{ name: 'pre-validity-quotes', setup(build) {
     // Build the earlier command implementation without its later validity
@@ -244,4 +241,5 @@ test('QUOTE-009 pre-validity Worker upgrade requires revision and fresh price ap
   const view = await (await read(h, link.token)).json()
   assert.equal(view.document.revision, 2); assert.equal(view.documentHash, link.documentHash)
   await assertTrail(h, ['quote.revised', 'quote.approved', 'quote.linkIssued'])
+})
 })

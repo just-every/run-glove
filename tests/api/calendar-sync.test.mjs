@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import test from 'node:test'
 import { randomUUID } from 'node:crypto'
 import { installation, business, assertTrail } from './harness.mjs'
 
@@ -43,6 +44,13 @@ export async function exactCalendarLifecycle() {
       await b.dispatcher.run('visit.cancel', cancelPayload, { commandId: cancelId })
       assert.deepEqual(writes(h).map(c => c.method), ['POST', 'PATCH', 'DELETE'])
       assert.ok(new URL(writes(h)[2].url).pathname.endsWith('/' + eventId))
+      assert.equal(writes(h)[2].body, null, 'cancellation sends no event or contact body')
+      for (const request of h.calendarSync.calls) {
+        const transmitted = JSON.stringify({ url: request.url, body: request.body })
+        assert.doesNotMatch(transmitted, /attendees|organizer|contact|email|phone/i)
+        for (const value of [b.customer.name, b.customer.email, b.customer.phone, b.site.address, b.site.accessNotes]) assert.ok(!transmitted.includes(value), 'default reads and lifecycle writes disclose no customer fact')
+        if (provider === 'google' && request.method !== 'GET') assert.equal(new URL(request.url).searchParams.get('sendUpdates'), 'none')
+      }
       assert.equal(h.calendarSync.events.size, 0)
       assert.deepEqual(await rows(h, 'glove_calendar_events'), [])
       await h.restart()
@@ -218,12 +226,8 @@ export async function independentCalendars() {
   }
 }
 
-// Extend the existing public calendar journey, preserving its original proof
-// and registration budget while qualifying each remaining outcome separately.
-export async function calendarSyncProof() {
-  await exactCalendarLifecycle()
-  await ownerConnectionAuthority()
-  await minimalEventDisclosure()
-  await freshBusyTime()
-  await independentCalendars()
-}
+test('DISP-008 lifecycle: both providers receive exact visit times once and busy bookings change nothing', exactCalendarLifecycle)
+test('DISP-008 authority: only a confirmed unscoped Owner connects one calendar with attributable consent', ownerConnectionAuthority)
+test('DISP-008 disclosure: details are opt-in and requests exclude contact channels and attendees', minimalEventDisclosure)
+test('DISP-008 availability: each booking reads bounded provider pages and unreadable busy time fails closed', freshBusyTime)
+test('DISP-008 independence: private iCal and delegated calendars survive restart and disconnect separately', independentCalendars)

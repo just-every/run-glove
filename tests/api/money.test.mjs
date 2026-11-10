@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation } from './harness.mjs'
@@ -7,6 +8,7 @@ const jurisdiction = (id, name, rate, zip, taxLabor) => ({ id, name, rate, zips:
 const settings = (...jurisdictions) => ({ jurisdictions })
 
 test('DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports', async t => {
+  await scenario(t, 'DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and branch tax, labor rules and certificate expiry remain exact on approved documents, exports, QuickBooks payloads and tax reports', async t => {
   const h = await installation(); t.after(() => h.close())
   const initialSettings = settings(jurisdiction('tx', 'Austin combined', '8.25', '78704', false), jurisdiction('az', 'Phoenix combined', '6.5', '85001', true))
   await h.command('business.save', { name: 'Exact Trade', timezone: 'America/Chicago', taxSettings: initialSettings })
@@ -217,8 +219,7 @@ test('DATA-002, DATA-009, DATA-010 / MONEY-001, MONEY-004, MONEY-005 address and
   }
   assert.deepEqual([h.stripeTax.calls.length, h.avatax.calls.length], providerCalls, 'explicit tax selection makes no tax-provider request')
 })
-
-test('MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%', async t => {
+  await scenario(t, 'MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the service address and two samples with the owner-only sealed key, proposes a rate the owner applies, and reads unavailable rather than 0%', async t => {
   const h = await installation(); t.after(() => h.close())
   const original = settings(jurisdiction('tx', 'Austin manual', '8', '78704', true))
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago', taxSettings: original })
@@ -281,4 +282,5 @@ test('MONEY-001, MONEY-004, MONEY-005 Avalara AvaTax lookup sends only the servi
     assert.ok(exported.timeline.some(e => e.kind === kind && /Avalara AvaTax/.test(e.summary) && e.command_id), `DATA-002 export ${kind}`)
     assert.ok(activity.events.some(e => e.kind === kind && /Avalara AvaTax/.test(e.summary)), `DATA-002 Activity ${kind}`)
   }
+})
 })

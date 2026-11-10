@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 import { calendarDate } from '../fixtures/calendar.mjs'
 import { connectMail, receipt, textOf, deliveryIdOf } from '../fixtures/mail-providers.mjs'
 // PLAN-002 maintenance agreements through the command, agreements, dashboard,
@@ -14,7 +15,8 @@ import { parseCsv } from '../../src/glove/csv-format.ts'
 
 const monthsBefore = (date, n) => { const [y, m, d] = date.split('-').map(Number), t = y * 12 + m - 1 - n; return `${Math.floor(t / 12)}-${String(t % 12 + 1).padStart(2, '0')}-${String(Math.min(d, 28)).padStart(2, '0')}` }
 
-test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async (t) => {
+test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async t => {
+  await scenario(t, 'PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, used, discounted, counted due, reported and segmented', async (t) => {
   // UTC is November 6; the business is still on November 5.
   const at = '2026-11-06T00:30:00.000Z'
   const h = await installation({ at })
@@ -74,7 +76,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   }
   let agreement, ended, tuneJob, tuneEvidence, repairQuote, repairJob
 
-  await t.test('PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term', async () => {
+  await scenario(t, 'PLAN-002 the owner defines the plan and the desk sells it by phone; one agreement per site and term', async () => {
     const before = await records()
     for (const who of [dispatcher, office, ...excluded]) await who.run('plan.save', club, { error: 'FORBIDDEN' })
     assert.deepEqual(await records(), before, 'excluded plan writers change no business record')
@@ -96,7 +98,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.equal((await h.request(`/api/glove/sites/${site.id}/history`, { as: person.cookie })).status, 404, 'a technician with no visit there reads no history')
   })
 
-  await t.test('PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits', async () => {
+  await scenario(t, 'PLAN-002 included visits consume entitlements; AGENT-007, AGENT-015 flags only missing accepted frozen forms on twenty completed visits', async () => {
     const job = await dispatcher.run('job.create', { customerId: ellen.id, siteId: site.id, agreementId: agreement.id, title: 'Spring tune-up' })
     assert.deepEqual([job.agreementId, job.lines.map(l => [l.description, l.total]), job.totals.total, job.forms.map(f => f.name)], [agreement.id, [['AC tune-up (included in Comfort Club)', '0.00']], '0.00', ['Comfort Club inspection']])
     tuneJob = job
@@ -117,7 +119,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual([dash.agreementsDue.count, dash.agreementsDue.list.map(x => [x.customer, x.plan, x.left])], [1, [['Ellen Brooks', 'Comfort Club', 1]]], 'the agreement counts while its second tune-up is due')
   })
 
-  await t.test('PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue', async () => {
+  await scenario(t, 'PLAN-002 / QUOTE-007, QUOTE-019 a repair quote takes the member discount, carried to the job, invoice, CSV, QuickBooks payload and revenue', async () => {
     const q = repairQuote = await dispatcher.run('quote.draft', { customerId: ellen.id, siteId: site.id, title: 'Condenser repair', lines: repair })
     const totals = q.revisions[0].totals
     assert.deepEqual([q.revisions[0].options[0].discount, totals.subtotal, totals.discount.amount, totals.discount.nonTaxable, totals.gst, totals.total], [{ kind: 'percent', value: '15', reason: 'Comfort Club member' }, '700.00', '105.00', '105.00', '33.00', '628.00'], 'the dispatcher holds no discount limit, and the member discount is not refused')
@@ -150,7 +152,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
     assert.deepEqual([call.discount?.reason, call.totals.discount?.amount], ['Comfort Club member', '13.35'], 'a member\'s service call takes the discount too')
   })
 
-  await t.test('PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out', async () => {
+  await scenario(t, 'PLAN-002 the agreement report counts the sold agreement and no churn, and a "no agreement" segment leaves the member out', async () => {
     const period = `from=${start}&to=${today}`
     const r = await read(`/api/glove/reports/agreements.json?${period}`)
     assert.deepEqual([r.sold, r.active, r.churn, r.soldValue, r.byPlan], [1, 1, 0, '228.00', [{ plan: 'Comfort Club', sold: 1 }]])
@@ -228,7 +230,7 @@ test('PLAN-002 a plan with two included tune-ups and 15% off repairs is sold, us
   assert.ok(ended)
 })
 
-test('Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart', async t => {
+  await scenario(t, 'Forty due entitlements and exact owner projections survive bookings, cancellations, completion, declines, delivery and restart', async t => {
   const h = await installation(); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'CLUB', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -366,7 +368,7 @@ test('Forty due entitlements and exact owner projections survive bookings, cance
   await interruptedBooking()
 })
 
-test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
+  await scenario(t, 'PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, BOOK-011, BOOK-012, BOOK-013 booking links offer only real slots, act as the offering person, refuse stale choices and expire or revoke without losing due work', async t => {
   const h = await installation({ at: '2030-01-01T12:00:00Z' }); t.after(() => h.close())
   await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
   const service = await h.command('service.save', { code: 'LINK', name: 'Seasonal tune-up', unitPrice: '149.00', tax: 'TAXABLE' })
@@ -536,6 +538,7 @@ test('PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 and BOOK-002, B
     assert.equal(JSON.stringify((await h.db.prepare('SELECT result FROM glove_commands').all()).results).includes(value), false)
   }
 
+})
 })
 
 // Extend the existing included-visit completion flow without another registration.
