@@ -4,6 +4,8 @@ import { scenario } from '../fixtures/scenario.mjs'
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
 import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
 import { reminderTemplates } from '../fixtures/collection.mjs'
+import { statementPath, readStatement, refusedStatement, untouched, statementWorld, approvedInvoice, checkoutPayment, statementReaders } from '../fixtures/statement-journey.mjs'
+import { exportedFixture } from '../fixtures/movein.mjs'
 import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -1125,6 +1127,226 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 cus
   await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
   assert.equal((await h.request(path, { as: b.office.cookie })).status, 404)
   assert.equal((await h.state()).invoices.length, 2, 'statement reads create no documents or charges')
+
+  const rows = report => report.invoices.map(i => [i.id, i.revision, i.total, i.paid, i.due, i.credit, i.balance])
+  const sums = (total, paid, due, credit, balance, currency = 'USD') => [{ currency, total, paid, due, credit, balance }]
+  await scenario(t, 'PAY-010 point 1: every role and token holding report authority reads the same dated JSON and CSV statement, each CSV column parsing to its JSON row', async ({ after }) => {
+    const x = await installation({ at: '2026-10-10T06:00:00Z' }); after(() => x.close())
+    const w = await statementWorld(x), office = await x.person('Pay Office', 'office')
+    const inv = await approvedInvoice(x, w.utc, { price: '200.00', title: 'Point one', approveAt: '2026-10-10T12:00:00Z', desk: office })
+    await x.setTime('2026-10-11T09:00:00Z')
+    await office.run('payment.record', { invoiceId: inv.id, version: inv.version, method: 'check', amount: '50.00', reference: 'synthetic-glove-point1' })
+    const { allowed } = await statementReaders(x)
+    assert.equal(allowed.length, 11, 'owner, four desk roles, one custom role, and a token for each of those roles hold report authority')
+    const first = await readStatement(x, w.utc.customer.id, '2026-10-10')
+    assert.deepEqual(rows(first), [[inv.id, 1, '200.00', '0.00', '200.00', '0.00', '200.00']])
+    assert.deepEqual(first.totals, sums('200.00', '0.00', '200.00', '0.00', '200.00'))
+    for (const reader of allowed) {
+      assert.deepEqual(await readStatement(x, w.utc.customer.id, '2026-10-10', reader.who), first, `${reader.name} reads the 10 October statement`)
+      const later = await readStatement(x, w.utc.customer.id, '2026-10-11', reader.who)
+      assert.deepEqual(rows(later), [[inv.id, 1, '200.00', '50.00', '150.00', '0.00', '150.00']], `${reader.name} reads the 11 October statement`)
+      assert.deepEqual([later.asOf, later.invoices[0].issuedOn, later.invoices[0].dueOn, later.customer.name, later.invoices[0].openingBalance], ['2026-10-11', '2026-10-10', '2026-10-24', 'Utc statement customer', false])
+    }
+  })
+  await scenario(t, 'PAY-010 point 2: approved revisions, moved-in opening balances and confirmed Office and Checkout payments are dated in each branch’s local day, one total per currency', async ({ after }) => {
+    const x = await installation({ at: '2026-10-10T06:00:00Z' }); after(() => x.close())
+    const w = await statementWorld(x), office = await x.person('Pay Office', 'office')
+    await connectPayments(x)
+    const u1 = await approvedInvoice(x, w.utc, { price: '120.00', title: 'UTC first', approveAt: '2026-10-10T12:00:00Z', desk: office })
+    const u2 = await approvedInvoice(x, w.utc, { price: '80.00', title: 'UTC second', approveAt: '2026-10-11T23:30:00Z', desk: office })
+    await x.setTime('2026-10-12T12:00:00Z')
+    const files = await exportedFixture('servicetitan')
+    await office.run('import.stage', { format: 'servicetitan', files, balanceAsOf: '2026-10-12' }, { error: 'FORBIDDEN' })
+    const staged = await x.command('import.stage', { format: 'servicetitan', files, balanceAsOf: '2026-10-12' })
+    await x.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+    const moved = await x.state(), opening = moved.invoices.find(i => i.openingBalance), mover = moved.customers.find(c => c.id === opening.customerId)
+    assert.deepEqual([mover.name, opening.number, opening.openingBalance.amount, opening.openingBalance.asOf], ['Synthetic ServiceTitan Customer', 'ST-I-901', '76.50', '2026-10-12'])
+    await x.setTime('2026-10-13T12:00:00Z')
+    await office.run('payment.record', { invoiceId: opening.id, version: opening.version, method: 'check', amount: '26.50', reference: 'synthetic-glove-opening' })
+    await x.setTime('2026-10-13T23:59:00Z')
+    await office.run('payment.record', { invoiceId: u1.id, version: u1.version, method: 'check', amount: '20.00', reference: 'synthetic-glove-utc-check' })
+    await checkoutPayment(x, u1, { at: '2026-10-14T00:00:00Z', amount: '30.00' })
+    await x.setTime('2026-10-14T12:00:00Z')
+    await office.run('invoice.export', {})
+    const exported = (await x.state()).invoices.find(i => i.id === u2.id)
+    const corrected = await office.run('invoice.correct', { invoiceId: u2.id, version: exported.version, reason: 'Agreed extra part', lines: [{ description: 'UTC second', quantity: '1', unitPrice: '90.00', tax: 'FREE' }] })
+    await office.run('invoice.approve', { invoiceId: u2.id, version: corrected.version, revision: 2 })
+    const c1 = await approvedInvoice(x, w.chi, { price: '300.00', title: 'Chicago first', approveAt: '2026-10-15T04:30:00Z', desk: office })
+    const c2 = await approvedInvoice(x, w.chi, { price: '60.00', title: 'Chicago second', approveAt: '2026-10-16T04:30:00Z', desk: office })
+    await x.setTime('2026-10-16T04:59:00Z')
+    await office.run('payment.record', { invoiceId: c1.id, version: c1.version, method: 'check', amount: '100.00', reference: 'synthetic-glove-chicago-check' })
+    await checkoutPayment(x, c1, { at: '2026-10-16T05:00:00Z', amount: '50.00' })
+    const zero = '0.00', row = (inv, revision, total, paid, due) => [inv.id, revision, total, paid, due, zero, due]
+    const expectations = [
+      [w.utc, [
+        ['2026-10-09', [], []],
+        ['2026-10-10', [row(u1, 1, '120.00', zero, '120.00')], sums('120.00', zero, '120.00', zero, '120.00')],
+        ['2026-10-12', [row(u1, 1, '120.00', zero, '120.00'), row(u2, 1, '80.00', zero, '80.00')], sums('200.00', zero, '200.00', zero, '200.00')],
+        ['2026-10-13', [row(u1, 1, '120.00', '20.00', '100.00'), row(u2, 1, '80.00', zero, '80.00')], sums('200.00', '20.00', '180.00', zero, '180.00')],
+        ['2026-10-14', [row(u1, 1, '120.00', '50.00', '70.00'), row(u2, 2, '90.00', zero, '90.00')], sums('210.00', '50.00', '160.00', zero, '160.00')],
+      ]],
+      [w.chi, [
+        ['2026-10-13', [], []],
+        ['2026-10-14', [row(c1, 1, '300.00', zero, '300.00')], sums('300.00', zero, '300.00', zero, '300.00')],
+        ['2026-10-15', [row(c1, 1, '300.00', '100.00', '200.00'), row(c2, 1, '60.00', zero, '60.00')], sums('360.00', '100.00', '260.00', zero, '260.00')],
+        ['2026-10-16', [row(c1, 1, '300.00', '150.00', '150.00'), row(c2, 1, '60.00', zero, '60.00')], sums('360.00', '150.00', '210.00', zero, '210.00')],
+      ]],
+      [{ customer: mover }, [
+        ['2026-10-11', [], []],
+        ['2026-10-12', [row(opening, 1, '76.50', zero, '76.50')], sums('76.50', zero, '76.50', zero, '76.50')],
+        ['2026-10-13', [row(opening, 1, '76.50', '26.50', '50.00')], sums('76.50', '26.50', '50.00', zero, '50.00')],
+      ]],
+    ]
+    for (const [who, dates] of expectations) for (const [date, expectedRows, totals] of dates) {
+      const report = await readStatement(x, who.customer.id, date)
+      assert.deepEqual([rows(report), report.totals], [expectedRows, totals], `${who.customer.name} on ${date}`)
+    }
+    const issued = async (who, date) => (await readStatement(x, who.customer.id, date)).invoices.map(i => [i.issuedOn, i.dueOn, i.openingBalance])
+    assert.deepEqual(await issued(w.utc, '2026-10-14'), [['2026-10-10', '2026-10-24', false], ['2026-10-11', '2026-10-25', false]], 'a 23:30 UTC approval is dated in the business day')
+    assert.deepEqual(await issued(w.chi, '2026-10-16'), [['2026-10-14', '2026-10-28', false], ['2026-10-15', '2026-10-29', false]], 'Chicago approvals and receipts are dated by the branch’s local day, not UTC')
+    assert.deepEqual(await issued({ customer: mover }, '2026-10-13'), [['2026-10-01', '2026-10-15', true]], 'an opening balance keeps its source dates')
+    for (const [who, others] of [[w.utc, [c1, c2, opening]], [w.chi, [u1, u2, opening]], [{ customer: mover }, [u1, u2, c1, c2]]]) {
+      const report = await readStatement(x, who.customer.id, '2026-10-16'), text = JSON.stringify(report)
+      for (const other of others) assert.ok(!text.includes(other.id) && !report.invoices.some(i => i.number === other.number), `${who.customer.name} statement carries no ${other.number}`)
+    }
+    // The business currency is chosen once, so no door puts a second currency on an installation.
+    await x.command('business.save', { ...(await x.state()).business[0], currency: 'AUD' })
+    assert.equal((await x.state()).business[0].currency, 'USD')
+    for (const who of [w.utc, w.chi, { customer: mover }]) assert.deepEqual((await readStatement(x, who.customer.id, '2026-10-16')).totals.map(r => r.currency), ['USD'])
+    t.diagnostic('PAY-010 point 2: only USD can be created in a USD installation and only AUD in an AUD one; each installation has exactly one currency total')
+    const aud = await installation({ at: '2026-11-01T10:00:00Z' }); after(() => aud.close())
+    const ab = await business(aud), audInvoice = await paidInvoice(aud, ab, '2026-10-21'), audReport = await readStatement(aud, ab.customer.id, '2026-11-01')
+    assert.deepEqual([audReport.invoices.map(i => i.currency), audReport.totals.map(r => [r.currency, r.total])], [['AUD'], [['AUD', audInvoice.revisions[0].totals.total]]])
+  })
+  await scenario(t, 'PAY-010 point 3: an unapproved correction, pending, failed and returned bank or card payments, an owner-set tip and Stripe fees reduce no balance', async ({ after }) => {
+    const x = await installation({ at: '2026-10-10T06:00:00Z' }); after(() => x.close())
+    const w = await statementWorld(x), office = await x.person('Pay Office', 'office')
+    await connectPayments(x)
+    const make = (price, title) => approvedInvoice(x, w.utc, { price, title, approveAt: '2026-10-10T12:00:00Z', desk: office })
+    const pending = await make('100.00', 'Pending bank'), failed = await make('110.00', 'Failed card'), returned = await make('120.00', 'Returned bank'), tipped = await make('130.00', 'Tipped card'), corrected = await make('140.00', 'Unapproved correction')
+    const at = '2026-10-11T09:00:00Z'
+    assert.equal((await checkoutPayment(x, pending, { at, method: 'ach', outcome: 'processing' })).status, 'pending')
+    assert.equal((await checkoutPayment(x, failed, { at, outcome: 'failed' })).status, 'failed')
+    assert.equal((await checkoutPayment(x, returned, { at, method: 'ach', outcome: 'returned' })).status, 'returned')
+    const card = await checkoutPayment(x, tipped, { at, tip: '15.00', fee: 397 })
+    assert.deepEqual([card.status, card.amount, card.tip, card.fee], ['paid', '130.00', '15.00', '3.97'], 'the owner-set tip and the Stripe fee are retained on the payment')
+    await office.run('invoice.export', {})
+    const exported = (await x.state()).invoices.find(i => i.id === corrected.id)
+    await office.run('invoice.correct', { invoiceId: corrected.id, version: exported.version, reason: 'Draft correction not yet approved', lines: [{ description: 'Unapproved correction', quantity: '1', unitPrice: '175.00', tax: 'FREE' }] })
+    assert.equal((await x.state()).invoices.find(i => i.id === corrected.id).revisions.length, 2)
+    const zero = '0.00', report = await readStatement(x, w.utc.customer.id, '2026-10-11')
+    assert.deepEqual(rows(report), [
+      [pending.id, 1, '100.00', zero, '100.00', zero, '100.00'], [failed.id, 1, '110.00', zero, '110.00', zero, '110.00'], [returned.id, 1, '120.00', zero, '120.00', zero, '120.00'],
+      [tipped.id, 1, '130.00', '130.00', zero, zero, zero], [corrected.id, 1, '140.00', zero, '140.00', zero, '140.00'],
+    ])
+    assert.deepEqual(report.totals, sums('600.00', '130.00', '470.00', zero, '470.00'))
+    const text = JSON.stringify(report) + (await (await x.request(statementPath(w.utc.customer.id, 'csv') + '?asOf=2026-10-11')).text())
+    for (const hidden of ['15.00', '145.00', '3.97', '175.00', '135.03']) assert.ok(!text.includes(hidden), `${hidden} is not on a statement`)
+  })
+  await scenario(t, 'PAY-010 point 4: an overpayment’s credit stays on its invoice until an Owner or Office allocation moves exactly the allocated cents to another invoice of the same customer', async ({ after }) => {
+    const x = await installation({ at: '2026-10-10T06:00:00Z' }); after(() => x.close())
+    const w = await statementWorld(x), office = await x.person('Pay Office', 'office'), dispatcher = await x.person('Pay Dispatcher', 'dispatcher')
+    const first = await approvedInvoice(x, w.utc, { price: '100.00', title: 'Overpaid', approveAt: '2026-10-10T12:00:00Z', desk: office })
+    const second = await approvedInvoice(x, w.utc, { price: '60.00', title: 'Still due', approveAt: '2026-10-10T13:00:00Z', desk: office })
+    const stranger = await approvedInvoice(x, w.peer, { price: '50.00', title: 'Other customer', approveAt: '2026-10-10T14:00:00Z', desk: office })
+    await x.setTime('2026-10-11T09:00:00Z')
+    await office.run('payment.record', { invoiceId: first.id, version: first.version, method: 'check', amount: '130.00', reference: 'synthetic-glove-overpay' })
+    const zero = '0.00', peerBefore = await readStatement(x, w.peer.customer.id, '2026-10-13')
+    const credit = (date) => readStatement(x, w.utc.customer.id, date)
+    const heldRows = [[first.id, 1, '100.00', '130.00', zero, '30.00', '-30.00'], [second.id, 1, '60.00', zero, '60.00', zero, '60.00']]
+    let report = await credit('2026-10-11')
+    assert.deepEqual([rows(report), report.totals], [heldRows, sums('160.00', '130.00', '60.00', '30.00', '30.00')], 'the overpayment is a credit on its own invoice and reduces nothing else')
+    const allocate = (amount, over = {}) => ({ invoiceId: second.id, version: second.version, sourceInvoiceId: first.id, sourceVersion: first.version, amount, ...over })
+    const refuse = async (who, payload, error) => {
+      const before = await x.state()
+      await who.run('payment.allocate', payload, { error })
+      assert.deepEqual(await x.state(), before, `${error} changes nothing`)
+    }
+    await x.setTime('2026-10-12T09:00:00Z')
+    await refuse(dispatcher, allocate('5.00'), 'FORBIDDEN')
+    await refuse(office, allocate('5.00', { invoiceId: stranger.id, version: stranger.version }), 'ALLOCATION')
+    await refuse(office, allocate('30.01'), 'AMOUNT')
+    assert.deepEqual(rows(await credit('2026-10-12')), heldRows, 'refused allocations leave the credit where it was')
+    await office.run('payment.allocate', allocate('20.00'))
+    report = await credit('2026-10-12')
+    assert.deepEqual([rows(report), report.totals], [[[first.id, 1, '100.00', '110.00', zero, '10.00', '-10.00'], [second.id, 1, '60.00', '20.00', '40.00', zero, '40.00']], sums('160.00', '130.00', '40.00', '10.00', '30.00')], 'exactly the allocated 20.00 moved to the other invoice')
+    assert.deepEqual(rows(await credit('2026-10-11')), heldRows, 'the allocation is not backdated')
+    await x.setTime('2026-10-13T09:00:00Z')
+    await refuse(office, allocate('10.01'), 'AMOUNT')
+    await x.command('payment.allocate', allocate('10.00'))
+    report = await credit('2026-10-13')
+    assert.deepEqual([rows(report), report.totals], [[[first.id, 1, '100.00', '100.00', zero, zero, zero], [second.id, 1, '60.00', '30.00', '30.00', zero, '30.00']], sums('160.00', '130.00', '30.00', zero, '30.00')])
+    await refuse(office, allocate('0.01'), 'AMOUNT')
+    assert.deepEqual(await readStatement(x, w.peer.customer.id, '2026-10-13'), peerBefore, 'the other customer’s statement never moved')
+  })
+  await scenario(t, 'PAY-010 point 6: roles and tokens without report authority, signed-out readers and other branches are refused, and an erased customer leaves no value on any statement', async ({ after }) => {
+    const x = await installation({ at: '2026-10-10T06:00:00Z' }); after(() => x.close())
+    const w = await statementWorld(x), office = await x.person('Pay Office', 'office')
+    const utc = await approvedInvoice(x, w.utc, { price: '120.00', title: 'UTC invoice', approveAt: '2026-10-10T12:00:00Z', desk: office })
+    const chi = await approvedInvoice(x, w.chi, { price: '300.00', title: 'Chicago invoice', approveAt: '2026-10-15T04:30:00Z', desk: office })
+    const peer = await approvedInvoice(x, w.peer, { price: '50.00', title: 'Peer invoice', approveAt: '2026-10-10T14:00:00Z', desk: office })
+    const readers = await statementReaders(x), date = '2026-10-16'
+    for (const format of ['json', 'csv']) {
+      for (const who of readers.denied) assert.equal(await refusedStatement(x, w.utc.customer.id, 403, who.who, format), 'FORBIDDEN', `${who.name} is refused the ${format} statement`)
+      assert.equal(await refusedStatement(x, w.utc.customer.id, 401, { cookie: '' }, format), 'AUTH', `a signed-out reader is refused the ${format} statement`)
+      assert.equal(await refusedStatement(x, randomUUID(), 404, {}, format), 'NOT_FOUND')
+    }
+    for (const role of ['owner', 'technician', 'subcontractor']) await x.command('token.issue', { name: `Statement ${role}`, role }, { error: 'INPUT' })
+    const revocable = await x.command('token.issue', { name: 'Statement revocable', role: 'dispatcher' }), bearer = { headers: { authorization: `Bearer ${revocable.token}` } }
+    assert.equal((await readStatement(x, w.utc.customer.id, date, bearer)).invoices.length, 1)
+    await x.command('token.revoke', { tokenId: revocable.id })
+    assert.equal(await refusedStatement(x, w.utc.customer.id, 401, bearer), 'AUTH', 'a revoked token reads no statement')
+    // Branch limits: a limited reader sees only their branch’s customers.
+    const chicagoDesk = await x.person('Chicago desk', 'office'), mainDesk = await x.person('Main desk', 'viewer')
+    await x.command('branch.limit', { operatorId: chicagoDesk.id, branchId: w.chicago.id })
+    await x.command('branch.limit', { operatorId: mainDesk.id, branchId: 'main' })
+    const chicagoToken = { headers: { authorization: `Bearer ${(await x.command('token.issue', { name: 'Chicago statements', role: 'agent', branchId: w.chicago.id })).token}` } }
+    for (const who of [chicagoDesk, chicagoToken]) {
+      assert.deepEqual(rows(await readStatement(x, w.chi.customer.id, date, who)), [[chi.id, 1, '300.00', '0.00', '300.00', '0.00', '300.00']])
+      for (const other of [w.utc, w.peer]) for (const format of ['json', 'csv']) assert.equal(await refusedStatement(x, other.customer.id, 404, who, format), 'NOT_FOUND')
+    }
+    assert.deepEqual(rows(await readStatement(x, w.utc.customer.id, date, mainDesk)), [[utc.id, 1, '120.00', '0.00', '120.00', '0.00', '120.00']])
+    assert.deepEqual(rows(await readStatement(x, w.peer.customer.id, date, mainDesk)), [[peer.id, 1, '50.00', '0.00', '50.00', '0.00', '50.00']])
+    for (const format of ['json', 'csv']) assert.equal(await refusedStatement(x, w.chi.customer.id, 404, mainDesk, format), 'NOT_FOUND')
+    // Erasure: one customer’s values leave their statement; the peer’s two formats are byte for byte unchanged.
+    const raw = async (id, format) => (await x.request(statementPath(id, format) + `?asOf=${date}`)).text()
+    const before = { peerJson: await raw(w.peer.customer.id, 'json'), peerCsv: await raw(w.peer.customer.id, 'csv'), chiJson: await raw(w.chi.customer.id, 'json'), chiCsv: await raw(w.chi.customer.id, 'csv') }
+    const subject = (await x.state()).customers.find(c => c.id === w.utc.customer.id)
+    const preview = await x.command('privacy.preview', { customerId: subject.id, version: subject.version })
+    await x.command('privacy.erase', { customerId: subject.id, version: subject.version, fingerprint: preview.fingerprint, confirm: 'ERASE' })
+    for (const format of ['json', 'csv']) assert.equal(await refusedStatement(x, w.utc.customer.id, 409, {}, format), 'ERASED', `the erased customer’s ${format} statement answers ERASED`)
+    const erased = [await raw(w.utc.customer.id, 'json'), await raw(w.utc.customer.id, 'csv')].join('\n')
+    for (const value of [subject.name, utc.number, utc.id, 'utc-statement', '10 Main Street', '120.00']) assert.ok(!erased.includes(value), `the erased customer’s statement carries no ${value}`)
+    assert.deepEqual({ peerJson: await raw(w.peer.customer.id, 'json'), peerCsv: await raw(w.peer.customer.id, 'csv'), chiJson: await raw(w.chi.customer.id, 'json'), chiCsv: await raw(w.chi.customer.id, 'csv') }, before)
+  })
+  await scenario(t, 'PAY-010 point 7: statement reads issue no credential, Checkout, link, message, invoice or state change, and are identical after an actual Worker restart', async ({ after }) => {
+    const x = await installation({ at: '2026-10-10T06:00:00Z' }); after(() => x.close())
+    const w = await statementWorld(x), office = await x.person('Pay Office', 'office')
+    await connectPayments(x)
+    const first = await approvedInvoice(x, w.utc, { price: '120.00', title: 'UTC invoice', approveAt: '2026-10-10T12:00:00Z', desk: office })
+    const second = await approvedInvoice(x, w.chi, { price: '300.00', title: 'Chicago invoice', approveAt: '2026-10-15T04:30:00Z', desk: office })
+    await office.run('payment.record', { invoiceId: first.id, version: first.version, method: 'check', amount: '20.00', reference: 'synthetic-glove-point7' })
+    await checkoutPayment(x, second, { at: '2026-10-16T05:00:00Z', amount: '50.00' })
+    const { allowed } = await statementReaders(x)
+    const dates = ['2026-10-09', '2026-10-10', '2026-10-15', '2026-10-16', '2026-12-31']
+    const everyRead = async () => {
+      const out = []
+      for (const reader of allowed) for (const who of [w.utc, w.chi, w.peer]) for (const date of dates) {
+        const json = await (await x.request(statementPath(who.customer.id) + `?asOf=${date}`, reader.who.cookie !== undefined ? { as: reader.who.cookie } : reader.who.headers ? { as: '', headers: reader.who.headers } : {})).text()
+        const csv = await (await x.request(statementPath(who.customer.id, 'csv') + `?asOf=${date}`, reader.who.cookie !== undefined ? { as: reader.who.cookie } : reader.who.headers ? { as: '', headers: reader.who.headers } : {})).text()
+        out.push([reader.name, who.customer.id, date, json, csv])
+      }
+      return out
+    }
+    const stripeCalls = x.stripePayments.calls.length, sessions = x.stripePayments.sessions.length
+    let reads
+    await untouched(x, async () => { reads = await everyRead() })
+    assert.equal(reads.length, allowed.length * 3 * dates.length)
+    assert.ok(reads.every(r => r[3].startsWith('{') && r[4].startsWith('Customer,')))
+    assert.deepEqual([x.stripePayments.calls.length, x.stripePayments.sessions.length, x.email.sent.length], [stripeCalls, sessions, 0])
+    await x.restart()
+    await untouched(x, async () => { assert.deepEqual(await everyRead(), reads, 'every statement is identical after the Worker restarts') })
+  })
 })
 
 test('AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money', async t => {
