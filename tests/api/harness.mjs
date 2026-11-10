@@ -33,6 +33,7 @@ globalThis.fetch = async (input, options) => {
   const response = await networkFetch(input, options);
   const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url);
   if ((url.origin === 'https://mango.example.test' || url.origin === 'https://us21.api.mailchimp.com') && response.headers.get('x-synthetic-glove-network-error') === '1') throw new TypeError('Synthetic provider unreachable');
+  if (url.origin === 'https://api.samsara.com' && response.headers.get('x-synthetic-glove-fleet-unreachable') === '1') throw new TypeError('Synthetic fleet unreachable');
   if (['www.googleapis.com', 'graph.microsoft.com'].includes(url.hostname) && response.headers.get('x-synthetic-glove-calendar-timeout') === '1') throw new DOMException('Synthetic calendar timeout', 'TimeoutError');
   return response;
 };` }
@@ -42,7 +43,7 @@ globalThis.fetch = async (input, options) => {
   // port: workerd binds its own, never one released here for another bind to take.
   const origin = 'https://127.0.0.1', setup = randomBytes(32).toString('hex'), mails = [], calendars = new Map(), marketing = []
   // Model provider fake (FIELD-006, AGENT-006): each call is kept; the test's `answer(body)` plays the model.
-  const fleet = { calls: [], status: 200, data: [], beforeReply: null }
+  const fleet = { calls: [], status: 200, data: [], beforeReply: null, unreachable: false }
   const xero = xeroEdge()
   const checkpoints = { qboComplete: null }
   const calendarSync = calendarEdge()
@@ -61,7 +62,7 @@ globalThis.fetch = async (input, options) => {
   // Push service fake (FIELD-004): each push is kept; `pushes.status[endpoint]` makes the service answer otherwise than 201.
   const pushes = { sent: [], status: {} }
   // Customer email fakes (COMM-001): SendGrid's mail send and Resend's emails API; `email.status[to]` makes the provider answer otherwise.
-  const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [] }
+  const email = { sent: [], status: {}, certificates: new Map(), fetches: [], subscriptions: [], snsReply: null }
   const outbound = { attempts: 0 }
   const logs = []
   class CapturedLog extends Log { log(message) { logs.push(message) } }
@@ -80,7 +81,7 @@ globalThis.fetch = async (input, options) => {
         if (new URL(request.url).origin === 'https://api.samsara.com') {
           fleet.calls.push({ url: request.url, method: request.method, authorization: request.headers.get('authorization') })
           if (fleet.beforeReply) await fleet.beforeReply()
-          return Response.json({ data: fleet.data }, { status: fleet.status })
+          return Response.json({ data: fleet.data }, { status: fleet.status, headers: fleet.unreachable ? { 'x-synthetic-glove-fleet-unreachable': '1' } : {} })
         }
         const xeroResponse = await xero.answer(request)
         if (xeroResponse) return xeroResponse
@@ -138,8 +139,12 @@ globalThis.fetch = async (input, options) => {
         }
         if (request.url.startsWith('https://sns.')) {
           email.fetches.push(request.url)
+          const confirmation = new URL(request.url).searchParams.get('Action') === 'ConfirmSubscription'
+          if (confirmation) email.subscriptions.push(request.url)
+          const reply = await email.snsReply?.(request)
+          if (reply) return reply
           if (email.certificates.has(request.url)) return new Response(email.certificates.get(request.url))
-          if (new URL(request.url).searchParams.get('Action') === 'ConfirmSubscription') { email.subscriptions.push(request.url); return new Response('<ConfirmSubscriptionResponse/>') }
+          if (confirmation) return new Response('<ConfirmSubscriptionResponse/>')
           return new Response('Not found', { status: 404 })
         }
         if (request.url === 'https://api.postmarkapp.com/email') {
@@ -374,7 +379,7 @@ export function mailEvents(provider) {
 export const postEvents = (h, { raw, headers }) => h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: raw })
 
 /** COMM-001: SNS signature v1/v2 and real X.509 certificate at the network edge. */
-export function snsEvents(settings, { days = 1 } = {}) {
+export function snsEvents(settings, { days = 1, at = null } = {}) {
   const keys = generateKeyPairSync('rsa', { modulusLength: 2048 })
   const directory = mkdtempSync(join(tmpdir(), 'glove-sns-certificate-'))
   let cert
@@ -382,6 +387,18 @@ export function snsEvents(settings, { days = 1 } = {}) {
     const keyFile = join(directory, 'test-key.pem')
     writeFileSync(keyFile, keys.privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 })
     cert = execFileSync('openssl', ['req', '-new', '-x509', '-key', keyFile, '-subj', `/CN=sns.${settings.region}.amazonaws.com`, '-days', String(days)], { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
+    if (at) {
+      // A clock-pinned Worker needs a provider certificate valid at that clock,
+      // including when the host later runs this historical scenario again.
+      const rootFile = join(directory, 'bootstrap.pem'), requestFile = join(directory, 'request.pem')
+      const configFile = join(directory, 'ca.cnf'), indexFile = join(directory, 'index'), serialFile = join(directory, 'serial')
+      writeFileSync(rootFile, cert)
+      execFileSync('openssl', ['req', '-new', '-key', keyFile, '-subj', `/CN=sns.${settings.region}.amazonaws.com`, '-out', requestFile], { stdio: 'ignore' })
+      writeFileSync(indexFile, ''); writeFileSync(serialFile, '01\n')
+      writeFileSync(configFile, `[ca]\ndefault_ca=signer\n[signer]\ndatabase=${indexFile}\nserial=${serialFile}\nnew_certs_dir=${directory}\ndefault_md=sha256\npolicy=subject\n[subject]\ncommonName=supplied\n`)
+      const epoch = Date.parse(at), stamp = ms => new Date(ms).toISOString().replace(/\D/g, '').slice(0, 14) + 'Z'
+      cert = execFileSync('openssl', ['ca', '-selfsign', '-batch', '-notext', '-keyfile', keyFile, '-cert', rootFile, '-in', requestFile, '-startdate', stamp(epoch - 86_400_000), '-enddate', stamp(epoch + days * 86_400_000), '-config', configFile], { stdio: ['ignore', 'pipe', 'ignore'] }).toString()
+    }
   } finally { rmSync(directory, { recursive: true, force: true }) }
 
   const certUrl = `https://sns.${settings.region}.amazonaws.com/SimpleNotificationService-${randomUUID()}.pem`
@@ -537,3 +554,162 @@ export async function subcontractorFieldFixture(h) {
 }
 export const subcontractorAt = '2026-11-08T12:00:00.000Z'
 export const subcontractorPhoto = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+
+/** Fixed business-local records for the morning brief's public read journeys. */
+export const morningBriefAt = '2026-11-09T13:15:00.000Z'
+export async function morningBriefFixture(h) {
+  await h.command('business.save', { name: 'Pacheco Plumbing & HVAC', timezone: 'America/Chicago' })
+  const labor = await h.command('service.save', { code: 'synthetic-glove-brief', name: 'Repair labor', unitPrice: '200.00', unitCost: '100.00', tax: 'TAXABLE' })
+  const zero = await h.command('service.save', { code: 'synthetic-glove-zero', name: 'Unestimated work', unitPrice: '200.00', unitCost: '0.00', tax: 'TAXABLE' })
+  const crew = async name => { const person = await h.person(name, 'technician'); return { person, tech: await h.command('technician.save', { name, operatorId: person.id }) } }
+  const priya = await crew('Priya Nair'), tom = await crew('Tom Brooks')
+  const job = async (name, service = labor, branchId = null) => {
+    const customer = await h.command('customer.save', { name })
+    const site = await h.command('site.save', { customerId: customer.id, address: `1 ${name} St, Austin TX 78704`, branchId })
+    const q = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: `${name} repair`, lines: [{ description: service.name, serviceId: service.id, quantity: '1', unitPrice: service.unitPrice }] })
+    const approved = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+    await h.command('quote.accept', { quoteId: q.id, version: approved.version, revision: 1, method: 'phone', customerName: name })
+    return { customer, site, job: await h.command('job.create', { quoteId: q.id }) }
+  }
+  const book = async (x, who, start, end, date = '2026-11-09') => ({ ...x, who, visit: await h.command('visit.book', { jobId: x.job.id, technicianId: who.tech.id, date, start, end }) })
+  const finish = async x => {
+    await x.who.person.run('visit.arrive', { visitId: x.visit.id, deviceTime: x.visit.startAt })
+    await x.who.person.run('visit.complete', { visitId: x.visit.id, deviceTime: x.visit.endAt, summary: 'Repaired', signoff: { absentReason: 'Customer away' } })
+  }
+  const late = await book(await job('Late Arrival'), priya, '07:00', '08:00')
+  const arrived = await book(await job('Still Open'), tom, '06:00', '07:15')
+  await tom.person.run('visit.arrive', { visitId: arrived.visit.id, deviceTime: arrived.visit.startAt })
+  const later = await book(await job('Later Today'), priya, '16:00', '17:00')
+  const yesterday = await book(await job('Yesterday'), priya, '07:00', '08:00', '2026-11-08')
+  const tomorrow = await book(await job('Tomorrow'), priya, '07:00', '08:00', '2026-11-10')
+  const cancelled = await book(await job('Cancelled'), priya, '08:00', '09:00')
+  await h.command('visit.cancel', { visitId: cancelled.visit.id, version: cancelled.visit.version, reason: 'Customer cancelled' })
+  const noInvoice = await book(await job('No Invoice'), priya, '10:00', '11:00'); await finish(noInvoice)
+  const draftInvoice = await book(await job('Draft Invoice'), priya, '11:00', '12:00'); await finish(draftInvoice)
+  const draft = await h.command('invoice.prepare', { jobId: draftInvoice.job.id })
+  const billed = await book(await job('Billed'), priya, '12:00', '13:00'); await finish(billed)
+  const invoice = await h.command('invoice.prepare', { jobId: billed.job.id })
+  await h.command('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+  const equal = await job('Equal Cost'), below = await job('Below Cost'), noEstimate = await job('Zero Estimate', zero)
+  for (const [x, amount] of [[late, '150.00'], [equal, '100.00'], [below, '40.00'], [noEstimate, '150.00']]) await h.command('expense.record', { jobId: x.job.id, category: 'permit', vendor: 'City of Austin', amount, billable: false })
+  const lead = async name => {
+    const customer = await h.command('customer.save', { name })
+    const site = await h.command('site.save', { customerId: customer.id, address: `2 ${name} St` })
+    return h.command('enquiry.create', { customerId: customer.id, siteId: site.id, description: `${name} request`, source: 'google' })
+  }
+  await h.setTime('2026-11-07T13:15:00.000Z')
+  const restarted = await lead('Restarted Wait')
+  await h.setTime('2026-11-08T13:15:00.000Z')
+  const waiting = await lead('Waiting Lead'), contacted = await lead('Contacted Lead')
+  await h.command('enquiry.contact', { enquiryId: contacted.id, version: contacted.version, note: 'Left a voicemail' })
+  const quoted = await lead('Quoted Lead')
+  await h.command('quote.draft', { enquiryId: quoted.id, title: 'Quoted repair', lines: [{ description: labor.name, serviceId: labor.id, quantity: '1', unitPrice: labor.unitPrice }] })
+  const won = await lead('Won Lead')
+  await h.command('job.create', { enquiryId: won.id, title: 'Agreed repair' })
+  const lost = await lead('Lost Lead')
+  await h.command('enquiry.close', { enquiryId: lost.id, version: lost.version, reason: 'Customer declined' })
+  await h.setTime('2026-11-08T13:16:00.000Z')
+  const fresh = await lead('Fresh Lead'), freshContacted = await lead('Fresh Contacted Lead')
+  await h.command('enquiry.contact', { enquiryId: freshContacted.id, version: freshContacted.version, note: 'Spoke to customer' })
+  await h.setTime('2026-11-09T13:14:00.000Z')
+  await h.command('enquiry.contact', { enquiryId: restarted.id, version: restarted.version, note: 'Stage starts again now' })
+  await h.setTime(morningBriefAt)
+  return { labor, priya, tom, job, book, late, arrived, later, yesterday, tomorrow, cancelled, noInvoice, draftInvoice, draft, billed, equal, below, noEstimate, waiting, contacted, fresh, freshContacted, restarted, quoted, won, lost }
+}
+
+/** A fixed on-clock dispatch day, using only native commands and provider edges. */
+export async function liveLocationFixture(h) {
+  const b = await business(h, { timezone: 'UTC' })
+  await h.command('maps.connect', { key: 'synthetic-glove-701' })
+  const address = '233 S Wacker Dr, Chicago, IL 60606'
+  h.maps.places.set(address, { lat: 41.8789, lng: -87.6359 })
+  const site = await h.command('site.save', { customerId: b.customer.id, address })
+  const job = await b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: site.id, title: 'Live location service' })
+  const visits = []
+  for (const tech of [b.priya, b.tom]) {
+    visits.push(await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-09', start: '08:00', end: '09:00' }))
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-11-09', start: '10:00', end: '11:00' })
+  }
+  let time = Date.parse('2026-11-09T08:00:00.000Z')
+  const now = () => new Date(time).toISOString()
+  const tick = async (ms = 1000) => { time += ms; await h.setTime(now()); return now() }
+  await h.setTime(now())
+  const start = async (person = b.priyaPerson, visit = visits[0]) => {
+    await person.run('location.consent', { enabled: true })
+    await person.run('clock.in', { deviceTime: now() })
+    await person.run('timer.start', { visitId: visit.id, kind: 'travel', deviceTime: now() })
+  }
+  const point = () => ({ lat: 41.89071, lng: -87.63071, observedAt: now() })
+  const rows = async () => (await h.db.prepare('SELECT * FROM glove_live_locations ORDER BY technician_id').all()).results
+  const board = async () => {
+    const response = await h.request('/api/glove/map?date=2026-11-09&branch=main')
+    assert.equal(response.status, 200)
+    return (await response.json()).technicians
+  }
+  return { b, job, site, visits, now, tick, start, point, rows, board }
+}
+
+/** REPORT-004: native monthly drafts and approvals across three local months. */
+export async function fixedMonthlyReports(h) {
+  await h.command('business.save', { name: 'Monthly service business', currency: 'USD', timezone: 'America/Chicago', paymentTermsDays: 14, taxSettings: { jurisdictions: [{ id: 'synthetic-glove-monthly-tax', name: 'Local sales tax', rate: '10', zips: [], taxLabor: true }], defaultJurisdictionId: 'synthetic-glove-monthly-tax' } })
+  // Invite with genuine current sessions, before the historical billing clock.
+  const office = await h.person('Riley Reports', 'office'), field = await h.person('Robin Reports', 'technician')
+  const customer = await h.command('customer.save', { name: 'Monthly, service customer', billingAddress: '120 Main Street' })
+  const site = await h.command('site.save', { customerId: customer.id, address: '120 Main Street, Austin TX 78701' })
+  const branch = await h.command('branch.save', { name: 'Pacific branch', prefix: 'PAC', timezone: 'America/Los_Angeles', zips: [] })
+  const branchCustomer = await h.command('customer.save', { name: 'Pacific customer', branchId: branch.id })
+  const branchSite = await h.command('site.save', { customerId: branchCustomer.id, address: '20 Pacific Street', branchId: branch.id })
+  const tech = await h.command('technician.save', { name: field.name, operatorId: field.id })
+  const branchTech = await h.command('technician.save', { name: 'Pacific technician', branchId: branch.id })
+  const line = price => ({ description: 'Monthly, preventive service', quantity: '1', unitPrice: price, tax: 'TAXABLE' })
+  await h.setTime('2025-01-01T16:00:00.000Z')
+  const make = (title, price, atSite = site) => h.command('job.create', { customerId: atSite.customerId, siteId: atSite.id, title, lines: [line(price)] })
+  const repeat = (job, mode, price, start, end, technicianId = tech.id) => h.command('series.create', { jobId: job.id, version: job.version, date: '2025-01-15', rule: { unit: 'month', interval: 3 }, technicianId, start, end, horizonDays: 365, until: '2025-03-31', billing: { mode, ...(mode === 'fixed-monthly' ? { lines: [line(price)] } : {}) } })
+  const onTime = await repeat(await make('On-time monthly', '240.00'), 'fixed-monthly', '240.00', '09:00', '10:00')
+  const late = await repeat(await make('Late monthly', '120.00'), 'fixed-monthly', '120.00', '11:00', '12:00')
+  const unapproved = await repeat(await make('Unapproved monthly', '999.00'), 'fixed-monthly', '999.00', '13:00', '14:00')
+  const pacific = await repeat(await make('Pacific monthly', '80.00', branchSite), 'fixed-monthly', '80.00', '09:00', '10:00', branchTech.id)
+  const perVisit = await repeat(await make('Per-visit service', '50.00'), 'per-visit', '50.00', '15:00', '16:00')
+  const ordinary = await make('Ordinary service', '30.00')
+  const ordinaryVisit = await h.command('visit.book', { jobId: ordinary.id, technicianId: tech.id, date: '2025-01-15', start: '17:00', end: '18:00' })
+  await h.setTime('2025-01-15T23:00:00.000Z')
+  for (const visit of [(await h.state()).visits.find(v => v.jobId === perVisit.id), ordinaryVisit]) {
+    await field.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+    await field.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Service complete', signoff: { absentReason: 'Customer away' } })
+  }
+  const ordinaryDraft = await office.run('invoice.prepare', { jobId: ordinary.id })
+  const periods = [
+    { end: '2025-01-31', before: '2025-01-31T05:59:59.999Z', exact: '2025-01-31T06:00:00.000Z', cron: '2025-01-31T08:00:00.000Z', lateAt: '2025-02-03T06:30:00.000Z', due: '2025-02-14', lateOn: '2025-02-03', lateDue: '2025-02-17', pacificOn: '2025-02-02', pacificDue: '2025-02-16' },
+    { end: '2025-02-28', before: '2025-02-28T05:59:59.999Z', exact: '2025-02-28T06:00:00.000Z', cron: '2025-02-28T08:00:00.000Z', lateAt: '2025-03-03T06:30:00.000Z', due: '2025-03-14', lateOn: '2025-03-03', lateDue: '2025-03-17', pacificOn: '2025-03-02', pacificDue: '2025-03-16' },
+    { end: '2025-03-31', before: '2025-03-31T04:59:59.999Z', exact: '2025-03-31T05:00:00.000Z', cron: '2025-03-31T07:00:00.000Z', lateAt: '2025-04-03T05:30:00.000Z', due: '2025-04-14', lateOn: '2025-04-03', lateDue: '2025-04-17', pacificOn: '2025-04-02', pacificDue: '2025-04-16' },
+  ]
+  const approved = [], proposed = [], earlyRefusals = []
+  const approve = (inv, opts = {}) => office.run('invoice.approve', { invoiceId: inv.id, version: inv.version, revision: 1 }, opts)
+  const unchanged = async action => {
+    const before = await h.state()
+    await action()
+    assert.deepEqual(await h.state(), before, 'early approval changes no records')
+  }
+  for (const p of periods) {
+    await h.setTime(p.cron); await h.scheduled(p.cron)
+    const invoices = (await h.state()).invoices
+    const draft = job => invoices.find(i => i.jobId === job.id && i.recurring?.periodEnd === p.end)
+    const current = [onTime, late, pacific, unapproved].map(draft)
+    assert.ok(current.every(Boolean), 'actual Worker cron generated each local month')
+    proposed.push(...current)
+    await h.setTime(p.before)
+    await unchanged(() => approve(draft(onTime), { error: 'BILLING_EARLY' }))
+    earlyRefusals.push(p.before)
+    await h.setTime(p.exact)
+    approved.push({ invoice: await approve(draft(onTime)), period: p, kind: 'onTime', issuedOn: p.end, approvedOn: p.end, approvedAt: p.exact, dueOn: p.due, price: '240.00', gross: '264.00' })
+    await h.setTime(p.lateAt)
+    approved.push({ invoice: await approve(draft(late)), period: p, kind: 'late', issuedOn: p.end, approvedOn: p.lateOn, approvedAt: p.lateAt, dueOn: p.lateDue, price: '120.00', gross: '132.00' })
+    approved.push({ invoice: await approve(draft(pacific)), period: p, kind: 'pacific', issuedOn: p.end, approvedOn: p.pacificOn, approvedAt: p.lateAt, dueOn: p.pacificDue, price: '80.00', gross: '88.00' })
+    if (p === periods[0]) {
+      for (const [inv, kind, price, gross] of [[ordinaryDraft, 'ordinary', '30.00', '33.00'], [invoices.find(i => i.jobId === perVisit.id), 'perVisit', '50.00', '55.00']]) {
+        approved.push({ invoice: await approve(inv), kind, issuedOn: '2025-02-03', approvedOn: '2025-02-03', approvedAt: p.lateAt, dueOn: '2025-02-17', price, gross })
+      }
+    }
+  }
+  return { office, field, customer, site, branch, branchCustomer, branchSite, onTime, late, pacific, unapproved, ordinary, perVisit, line, periods, approved, proposed, earlyRefusals }
+}

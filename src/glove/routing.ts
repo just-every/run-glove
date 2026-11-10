@@ -93,8 +93,9 @@ export async function prepareRoute(db: D1Database, s: State, row: Row, at: strin
   let positions = visits.map((_, i) => i), improved = true
   while (improved && evaluations < MAX_EVALUATIONS && Date.now() < deadline) {
     improved = false
-    for (let x = 0; x < movableIds.length; x++) for (let y = x + 1; y < movableIds.length; y++) {
-      if (++evaluations > MAX_EVALUATIONS || Date.now() >= deadline) break
+    exchanges: for (let x = 0; x < movableIds.length; x++) for (let y = x + 1; y < movableIds.length; y++) {
+      if (evaluations >= MAX_EVALUATIONS || Date.now() >= deadline) break exchanges
+      evaluations++
       const a = movableIds[x], b = movableIds[y], first = options[a][positions[b]], second = options[b][positions[a]]
       if (!first || !second) continue
       const candidate = [...best]; candidate[a] = first; candidate[b] = second

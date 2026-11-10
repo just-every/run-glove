@@ -1,11 +1,14 @@
 // Only Stripe's network boundary is replaced. Test credentials are synthetic.
 export function stripePaymentsEdge() {
-  const sessions = [], intents = new Map(), refunds = new Map(), payouts = new Map(), transactions = new Map(), calls = []
+  const sessions = [], intents = new Map(), refunds = new Map(), payouts = new Map(), transactions = new Map(), balancePages = new Map(), calls = []
   let status = 200, livemode = false, refundStatus = 'succeeded', checkoutResponseLost = false
-  return { sessions, intents, refunds, payouts, transactions, calls, set checkoutResponseLost(value) { checkoutResponseLost = value }, set refundStatus(value) { refundStatus = value }, set livemode(value) { livemode = value }, set status(value) { status = value }, async answer(request) {
+  let instantCards = [{ id: 'synthetic-glove-debit-1', object: 'card', funding: 'debit', currency: 'usd', status: 'new', available_payout_methods: ['instant', 'standard'] }], instantFunds = 1000000, payoutResponseLost = false, beforePayout = null
+  return { sessions, intents, refunds, payouts, transactions, balancePages, calls,
+    get instantCards() { return instantCards }, set instantCards(value) { instantCards = value },
+    set instantFunds(value) { instantFunds = value }, set payoutResponseLost(value) { payoutResponseLost = value }, set beforePayout(value) { beforePayout = value }, set checkoutResponseLost(value) { checkoutResponseLost = value }, set refundStatus(value) { refundStatus = value }, set livemode(value) { livemode = value }, set status(value) { status = value }, async answer(request) {
     const url = new URL(request.url)
     if (url.hostname !== 'api.stripe.com' || !(url.pathname.startsWith('/v1/refunds') || url.pathname.startsWith('/v1/payouts') || url.pathname.startsWith('/v1/accounts/') || url.pathname === '/v1/account' || url.pathname === '/v1/balance_transactions' || url.pathname === '/v1/balance' || url.pathname === '/v1/checkout/sessions' || url.pathname.startsWith('/v1/payment_intents/'))) return null
-    calls.push({ method: request.method, path: url.pathname, idempotencyKey: request.headers.get('idempotency-key') })
+    calls.push({ method: request.method, path: url.pathname, idempotencyKey: request.headers.get('idempotency-key'), ...(url.pathname === '/v1/balance_transactions' ? { payout: url.searchParams.get('payout'), limit: url.searchParams.get('limit'), startingAfter: url.searchParams.get('starting_after') } : {}) })
     if (status !== 200) return Response.json({ error: 'synthetic-glove-1' }, { status })
     if (url.pathname === '/v1/refunds') {
       const form = Object.fromEntries(new URLSearchParams(await request.text()))
@@ -15,16 +18,30 @@ export function stripePaymentsEdge() {
     }
     if (url.pathname.startsWith('/v1/refunds/')) return Response.json(refunds.get(decodeURIComponent(url.pathname.split('/').at(-1))) ?? {})
     if (url.pathname === '/v1/account') return Response.json({ id: 'synthetic-glove-account-1' })
-    if (url.pathname.includes('/external_accounts')) return Response.json({ data: [{ id: 'synthetic-glove-debit-1', object: 'card', funding: 'debit', currency: 'usd', status: 'new', available_payout_methods: ['instant', 'standard'] }], has_more: false })
-    if (url.pathname === '/v1/balance_transactions') return Response.json(transactions.get(url.searchParams.get('payout')) ?? { data: [], has_more: false })
+    if (url.pathname.includes('/external_accounts')) return Response.json({ data: instantCards, has_more: false })
+    if (url.pathname === '/v1/balance_transactions') {
+      const payout = url.searchParams.get('payout'), after = url.searchParams.get('starting_after')
+      // Malformed provider pages can be supplied at this edge, never in domain storage.
+      const pages = balancePages.get(payout)
+      if (pages) return Response.json(pages.get(after) ?? { data: [], has_more: false })
+      const list = transactions.get(payout) ?? { data: [], has_more: false }
+      const limit = Math.min(100, Number(url.searchParams.get('limit') ?? 10))
+      const start = after ? list.data.findIndex(row => row.id === after) + 1 : 0
+      const data = list.data.slice(start, start + limit)
+      return Response.json({ data, has_more: start + data.length < list.data.length || list.has_more })
+    }
     if (url.pathname === '/v1/payouts' && request.method === 'POST') {
       const form = Object.fromEntries(new URLSearchParams(await request.text())), amount = Number(form.amount), fee = Math.round(amount * 0.015)
+      calls.at(-1).form = form
+      if (beforePayout) await beforePayout()
       const id = `synthetic-glove-instant-${payouts.size + 1}`
       const row = { id, amount, currency: 'usd', method: 'instant', automatic: false, destination: form.destination, status: 'paid', livemode, balance_transaction: { id: id + '-debit', type: 'payout', amount: -amount, currency: 'usd', fee, net: -amount - fee } }
-      payouts.set(id, row); return Response.json(row)
+      payouts.set(id, row)
+      if (payoutResponseLost) return new Response(null, { status: 503, headers: { 'x-synthetic-glove-payout-unreachable': '1' } })
+      return Response.json(row)
     }
     if (url.pathname.startsWith('/v1/payouts/')) return Response.json(payouts.get(url.pathname.split('/').at(-1)) ?? {})
-    if (url.pathname === '/v1/balance') return Response.json({ object: 'balance', livemode, instant_available: [{ currency: 'usd', amount: 1000000 }] })
+    if (url.pathname === '/v1/balance') return Response.json({ object: 'balance', livemode, instant_available: [{ currency: 'usd', amount: instantFunds }] })
     if (url.pathname === '/v1/checkout/sessions') {
       const form = Object.fromEntries(new URLSearchParams(await request.text())), n = sessions.length + 1
       const intentId = `synthetic-glove-intent-${n}`

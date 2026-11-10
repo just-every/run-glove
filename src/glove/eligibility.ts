@@ -58,7 +58,7 @@ export function eligibility(c: Context, job: Row, next: Slot) {
   if (!off && hours.length && !hours.some(h => h.day === weekday && h.start <= start && end <= h.end)) found.push({ kind: 'availability', code: `hours:${day}`, message: `${start}–${end} on ${day} is outside ${tech.name}'s working hours.` })
   // Busy time read from the technician's calendar, as of when it was read.
   const busy = [...(tech.calendar?.busy ?? []), ...(tech.calendarSync?.busy ?? [])].find((b: Row) => b.start < next.endAt && next.startAt < b.end)
-  if (busy) found.push({ kind: 'availability', code: `calendar:${busy.start}`, message: `${tech.name}'s calendar shows busy time during ${start}–${end} on ${day} (calendar read ${tech.calendar.readAt}).` })
+  if (busy) found.push({ kind: 'availability', code: `calendar:${busy.start}`, message: `${tech.name}'s calendar shows busy time during ${start}–${end} on ${day} (calendar read ${tech.calendar?.readAt ?? tech.calendarSync?.readAt}).` })
   const branchId = branchIdOf(c.s, job), branch = c.s.branches.find(b => b.id === branchId)
   const zip = site ? site.zip ?? siteZip('', site.address) : ''
   // DISP-002, DISP-010: the service area is the technician's ZIP codes and the zones drawn for them on the map together.

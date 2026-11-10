@@ -1,3 +1,4 @@
+import { scenario } from '../fixtures/scenario.mjs'
 // CUST-002 installed equipment and warranties, and FIELD-007 refrigerant
 // tracking on that equipment, through the command, state, equipment, file and
 // report doors.
@@ -31,7 +32,8 @@ describe('CUST-002 and FIELD-007: equipment, warranties and service history at a
   await h.command('technician.save', { id: b.priya.id, version: b.priya.version, name: b.priya.name, operatorId: b.priyaPerson.id, epa608: '608-UNIV-0042' })
   let condenser, condenserVisit
 
-  await test('CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser', async () => {
+  await test("CUST-002 equipment saved during a condenser visit retains service history, photos and warranty state", async t => {
+    await scenario(t, 'CUST-002 the desk adds a furnace and an AC condenser with their warranties; the technician records a visit against the condenser', async () => {
     const furnace = await b.office.run('equipment.save', { siteId: b.site.id, type: 'Furnace', make: 'Carrier', model: '59TP6', serial: 'F-1120', installedOn: '2014-05-02', location: 'Basement plant room', manufacturerWarrantyUntil: fromToday(400), laborWarrantyUntil: fromToday(400) })
     condenser = await b.dispatcher.run('equipment.save', { siteId: b.site.id, type: 'AC condenser', make: 'Trane', model: 'XR14', serial: 'C-7788', installedOn: '2019-06-11', refrigerant: 'R-410A', location: 'Roof, north side', manufacturerWarrantyUntil: fromToday(30), laborWarrantyUntil: fromToday(-10), photo: { mediaType: 'image/jpeg', base64: jpeg } })
     await b.office.run('equipment.save', { siteId: b.site.id, type: 'Boiler', installedOn: '2019-02-30' }, { error: 'INPUT' })
@@ -52,7 +54,7 @@ describe('CUST-002 and FIELD-007: equipment, warranties and service history at a
     condenserVisit = visit
   })
 
-  await test('CUST-002 the condenser\'s service history and warranty state, the phone\'s records and the expiring-warranty report', async () => {
+    await scenario(t, 'CUST-002 the condenser\'s service history and warranty state, the phone\'s records and the expiring-warranty report', async () => {
     const res = await h.request(`/api/glove/equipment/${condenser.id}`, { as: b.office.cookie })
     assert.equal(res.status, 200)
     const record = await res.json()
@@ -73,6 +75,7 @@ describe('CUST-002 and FIELD-007: equipment, warranties and service history at a
     assert.deepEqual(report.expiring.map(r => [r.serial, r.warranty, r.daysLeft]), [['C-7788-B', 'manufacturer', 30]])
     assert.deepEqual(report.expired.map(r => [r.serial, r.warranty]), [['C-7788-B', 'labor']])
     assert.equal((await h.request('/api/glove/reports/warranties', { as: b.priyaPerson.cookie })).status, 403)
+  })
   })
 
   await test('FIELD-007 refrigerant added and recovered on two visits to the condenser, in its log and the period total', async () => {

@@ -1,8 +1,13 @@
-import { test, expect, type Page, type Locator } from '@playwright/test'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
+import { test, expect, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import { nativeTransport } from './native-transport'
 // @ts-expect-error Production Worker, durable D1 and native signed-in people.
-import { installation } from '../api/harness.mjs'
+import { installation, business, completedJob } from '../api/harness.mjs'
+
+// @ts-expect-error Provider edge helpers drive the real callback door.
+import { connectMail, postmarkCallback } from '../fixtures/mail-providers.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 })
@@ -19,6 +24,42 @@ async function screens(page: Page, name: string, panel: Locator) {
   await page.setViewportSize({ width: 1440, height: 1050 })
 }
 
+// Keep transport lifecycle coverage in the existing journey registration: a
+// delayed real Worker answer survives handler removal, cancellation and restart.
+async function proxyLifecycle(browser: Browser, h: any) {
+  for (const boundary of ['unroute', 'navigation', 'restart']) {
+    const context = await browser.newContext(), page = await context.newPage()
+    let release!: () => void, arrived = false, finished = false, replies = 0
+    const held = new Promise<void>(resolve => { release = resolve })
+    try {
+      await harnessRoute(context, `${origin}/api/glove/state`, async route => {
+        const response = await h.request('/api/glove/state')
+        const body = Buffer.from(await response.arrayBuffer())
+        expect(response.status).toBe(200)
+        arrived = true; await held
+        await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body })
+        replies++
+      })
+      // A transport-only blank document avoids the public lobby's deliberately
+      // restrictive CSP; every API answer still comes from the real Worker.
+      await page.route(`${origin}/__proxy-lifecycle`, route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Proxy lifecycle</title>' }))
+      await gotoHarness(page, `${origin}/__proxy-lifecycle`)
+      await page.evaluate(() => { void fetch('/api/glove/state').then(r => r.json()).then(body => { (window as any).proxyAnswer = body }).catch(() => {}) })
+      await expect.poll(() => arrived).toBe(true)
+      if (boundary === 'navigation') await gotoHarness(page, 'about:blank')
+      const drained = (boundary === 'restart' ? restartHarness(h) : unrouteHarness(context)).then(() => { finished = true })
+      // The pending real reply must hold teardown/restart, even after the page
+      // has cancelled its fetch. A single event-loop turn exposes early return.
+      await new Promise(resolve => setTimeout(resolve, 0))
+      expect(finished).toBe(false)
+      release(); await drained
+      expect(replies).toBe(1)
+      if (boundary !== 'navigation') await expect.poll(() => page.evaluate(() => (window as any).proxyAnswer?.actor?.role)).toBe('owner')
+      expect((await h.state()).actor.role).toBe('owner')
+    } finally { release(); await closeHarnessContext(context) }
+  }
+}
+
 test('COMM-007 desk records two human histories, reads merged jobs after restart, and clears obsolete or refused conversations', async ({ browser }) => {
   const h = await installation({ at: '2030-03-12T12:00:00Z' })
   const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
@@ -26,6 +67,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
   let releaseHeld: (() => void) | undefined
   let unavailableQuery: string | null = null
   try {
+    await test.step('Delayed proxy replies drain before removal, navigation and Worker restart', () => proxyLifecycle(browser, h))
     await h.command('business.save', { name: 'Harbour Service', timezone: 'UTC' })
     const desk = await h.person('Morgan Desk', 'office')
     const branch = await h.command('branch.save', { name: 'River', prefix: 'RIV', timezone: 'UTC', zips: ['10001'] })
@@ -36,14 +78,13 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     const harbourJob = await h.command('job.create', { customerId: harbour.id, siteId: harbourSite.id, title: 'Harbour inspection' })
     const riverJob = await h.command('job.create', { customerId: river.id, siteId: riverSite.id, title: 'River inspection' })
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
     if (new URL(page.url()).pathname === '/setup') {
-      await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(u => u.pathname === '/app')
+      await page.getByRole('checkbox').check(); await finishHarnessSetup(page)
     }
     // The UI uses the real Worker and signed-in desk session. Delay a read only
     // to inspect the ordinary pending state; never fabricate a domain answer.
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       if (url.pathname === '/api/glove/conversation' && url.searchParams.toString() === unavailableQuery) {
         await route.abort('failed'); return
@@ -77,10 +118,10 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
       await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       await expect(panel).toContainText(text)
     }
-    await page.goto(`${origin}/app#jobs/${harbourJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${harbourJob.id}`)
     await log(jobPanel, 'call', 'Harbour called about the filter', 1)
     await log(jobPanel, 'note', 'Harbour needs a washable filter', 3)
-    await page.goto(`${origin}/app#jobs/${riverJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${riverJob.id}`)
     await log(jobPanel, 'call', 'River callback reached voicemail', 2, 'outbound', 'voicemail')
     await log(jobPanel, 'note', 'River needs the back entrance', 4)
     // Switch jobs through the real list while the next populated read waits.
@@ -95,7 +136,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(jobPanel).not.toContainText('River callback reached voicemail')
     jobRelease(); held = null
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
-    await page.goto(`${origin}/app#customers`)
+    await gotoHarness(page, `${origin}/app#customers`)
     await selectCustomer(harbour.name)
     await log(customerPanel, 'note', 'Harbour account contact updated', 5)
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter', 'Harbour account contact updated'])
@@ -120,7 +161,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await expect(rows(customerPanel).nth(0)).toContainText('Outbound call · phone call (logged) · Morgan Desk to River Clinic')
     await expect(rows(customerPanel).nth(0)).toContainText('voicemail, 4 min')
     await screens(page, 'river', customerPanel)
-    await page.reload()
+    await reloadHarness(page)
     await selectCustomer(river.name)
     await expect(customerPanel).toContainText('River needs the back entrance')
 
@@ -145,7 +186,12 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     await h.command('branch.limit', { operatorId: desk.id, branchId: 'main' })
     unavailableQuery = `customerId=${river.id}`
     const beforeFailedRead = await domain()
+    // Revalidation first reads installation state, then issues the dependent
+    // conversation request. Assert the UI only after the intended transport
+    // failure reached the browser, rather than timing that two-request chain.
+    const failedRead = page.waitForEvent('requestfailed', { predicate: request => new URL(request.url()).pathname === '/api/glove/conversation' && new URL(request.url()).searchParams.toString() === unavailableQuery, timeout: 30_000 })
     await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await failedRead
     await expect(customerPanel.getByRole('alert')).toContainText(/fetch/i)
     await expect(rows(customerPanel)).toHaveCount(0)
     expect(await domain()).toEqual(beforeFailedRead)
@@ -166,7 +212,7 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
     expect(await domain()).toEqual(beforeRole)
     await screens(page, 'authority-withdrawn', customerPanel)
     await h.command('role.set', { operatorId: desk.id, role: 'office' })
-    await page.reload()
+    await reloadHarness(page)
     await selectCustomer(river.name)
     await expect(customerPanel).toContainText('River needs the back entrance')
     await h.command('branch.limit', { operatorId: desk.id, branchId: branch.id })
@@ -182,21 +228,119 @@ test('COMM-007 desk records two human histories, reads merged jobs after restart
 
     const s = await h.state()
     await h.command('customer.merge', { survivorId: harbour.id, mergedIds: [river.id], versions: Object.fromEntries(s.customers.filter((c: any) => [harbour.id, river.id].includes(c.id)).map((c: any) => [c.id, c.version])) })
-    await h.restart()
-    await page.reload()
+    await restartHarness(h)
+    await reloadHarness(page)
     await selectCustomer(harbour.name)
     await expect(rows(customerPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'River callback reached voicemail', 'Harbour needs a washable filter', 'River needs the back entrance', 'Harbour account contact updated'])
     await screens(page, 'survivor-after-restart', customerPanel)
-    await page.goto(`${origin}/app#jobs/${harbourJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${harbourJob.id}`)
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['Harbour called about the filter', 'Harbour needs a washable filter'])
     await screens(page, 'harbour-job', jobPanel)
-    await page.goto(`${origin}/app#jobs/${riverJob.id}`)
+    await gotoHarness(page, `${origin}/app#jobs/${riverJob.id}`)
     await expect(rows(jobPanel).locator('.conversation-entry > p:nth-child(2)')).toHaveText(['River callback reached voicemail', 'River needs the back entrance'])
     await screens(page, 'river-job', jobPanel)
   } finally {
     // A delayed transport is always released before shutting down its Worker.
     releaseHeld?.()
-    await page.unrouteAll({ behavior: 'wait' })
-    await context.close(); await h.close()
+    await unrouteHarness(page)
+    await closeHarnessContext(context); await h.close()
   }
+  await test.step('COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart', () => messageOutcomes(browser))
 })
+
+async function messageOutcomes(browser: Browser) {
+  const h = await installation({ at: '2026-11-09T12:00:00.000Z' })
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1050 } }), page = await context.newPage()
+  let transport: Awaited<ReturnType<typeof nativeTransport>> | undefined
+  const address = (name: string) => [name, 'example.test'].join('@')
+  try {
+    const b = await business(h, { timezone: 'UTC' })
+    let customer = await h.command('customer.save', { ...b.customer, kind: 'business', email: address('synthetic-glove-main'), apEmail: address('synthetic-glove-ap') })
+    const { job } = await completedJob(h, b)
+    const draft = await b.office.run('invoice.prepare', { jobId: job.id })
+    const invoice = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+    const q = await h.command('quote.draft', { customerId: customer.id, siteId: b.site.id, title: 'Warning recovery', lines: [{ serviceId: b.service.id, description: 'Service', quantity: '1', unitPrice: '189.00' }] })
+    const quote = await h.command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+    const edge = await connectMail(h, 'postmark')
+    const connected = await h.command('mail.connect', edge.connection)
+    let second = 0
+    async function send(kind: string, id: string, details: Record<string, unknown> | null) {
+      const at = `2026-11-09T12:00:${String(++second).padStart(2, '0')}.000Z`
+      await h.setTime(at)
+      const record = (await h.state())[kind === 'quote' ? 'quotes' : 'invoices'].find((r: { id: string }) => r.id === id)
+      const m = await b.office.run('email.send', { kind, id, version: record.version })
+      m.receipt = `pm-receipt-${h.email.sent.length}`
+      if (details) expect((await h.mf.dispatchFetch(h.origin + '/api/glove/mail/events', { method: 'POST', ...(() => {
+        const signed = postmarkCallback(m, connected.callbackPassword, { at, id: `synthetic-glove-browser-${second}`, details })
+        return { headers: { 'content-type': 'application/json', ...signed.headers }, body: signed.raw }
+      })() })).status).toBe(200)
+      return m
+    }
+    const bounced = await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'HardBounce' })
+    await send('quote', quote.id, { RecordType: 'Delivery' })
+    h.email.status[customer.apEmail] = 400
+    await send('invoice', invoice.id, null)
+    delete h.email.status[customer.apEmail]
+    await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'SoftBounce', Inactive: true })
+    expect((await h.state()).emailWarnings[customer.id].messageId).toBe(bounced.id)
+    if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') {
+      await page.getByRole('checkbox').check(); await finishHarnessSetup(page)
+    }
+    transport = await nativeTransport(h, origin, b.office.cookie)
+    const panel = page.locator('form.panel').filter({ has: page.getByRole('heading', { name: customer.name, exact: true }) })
+    const warning = panel.getByRole('alert')
+    async function customerPage() {
+      await gotoHarness(page, `${transport!.origin}/app#customers`)
+      await page.getByRole('button', { name: customer.name, exact: true }).click()
+      await expect(panel).toBeVisible()
+    }
+    await customerPage()
+    await expect(warning).toHaveText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark). Check the address with the customer, correct it on their record and send again.`)
+    const conversation = page.getByRole('region', { name: 'Customer conversation', exact: true })
+    await expect(conversation).toContainText(`Delivered to ${customer.email}'s mail server (reported by Postmark)`)
+    await expect(conversation).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
+    await screens(page, 'address-bounce', panel)
+    await gotoHarness(page, `${transport!.origin}/app#invoices`)
+    await page.getByRole('button', { name: invoice.number, exact: true }).click()
+    const email = page.getByRole('region', { name: `Email ${invoice.number}`, exact: true })
+    await expect(email).toContainText(`Bounced: ${customer.apEmail} did not accept it (reported by Postmark)`)
+    await expect(email).toContainText('Check the address with the customer, correct it on their record and send again.')
+    await expect(email).toContainText('Not sent: Postmark refused it')
+    await expect(email).toContainText('Check the email connection and the address, then send again.')
+    await expect(email).toContainText(`Not delivered: Postmark gave up on ${customer.apEmail}`)
+    await expect(email).toContainText('Check the address and send again.')
+    await screens(page, 'message-failures', email)
+    await gotoHarness(page, 'about:blank')
+    await transport.idle()
+    await restartHarness(h)
+    await customerPage()
+    await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
+    await send('quote', quote.id, { RecordType: 'SpamComplaint' })
+    await reloadHarness(page)
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toHaveText(`Marked as spam by ${customer.email} (reported by Postmark). Do not email them again until they ask for it; call them instead.`)
+    await screens(page, 'address-complaint', panel)
+    await send('quote', quote.id, { RecordType: 'Delivery' })
+    await reloadHarness(page)
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toContainText(`Bounced: ${customer.apEmail}`)
+    await send('invoice', invoice.id, { RecordType: 'Delivery' })
+    await reloadHarness(page)
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toHaveCount(0)
+    await send('invoice', invoice.id, { RecordType: 'Bounce', Type: 'HardBounce' })
+    await reloadHarness(page)
+    await page.getByRole('button', { name: customer.name, exact: true }).click()
+    await expect(warning).toContainText(customer.apEmail)
+    await panel.getByLabel('Accounts-payable email', { exact: true }).fill(address('synthetic-glove-new-ap'))
+    await panel.getByRole('button', { name: 'Save changes', exact: true }).click()
+    await expect(warning).toHaveCount(0)
+    expect((await h.state()).customers.find((c: { id: string }) => c.id === customer.id).apEmail).toBe(address('synthetic-glove-new-ap'))
+  } finally {
+    await unrouteHarness(page)
+    await closeHarnessContext(context)
+    try { await transport?.close() } finally { await h.close() }
+  }
+}

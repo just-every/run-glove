@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -6,7 +7,7 @@ import { installation, routingDay, assertTrail } from '../api/harness.mjs'
 
 const origin = process.env.GLOVE_BASE_URL || 'http://127.0.0.1:8787'
 async function productionApi(page: Page, h: any, as: string) {
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url())
     const res = await h.request(url.pathname + url.search, { as, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
     await route.fulfill({ status: res.status, contentType: res.headers.get('content-type') ?? 'application/json', body: Buffer.from(await res.arrayBuffer()) })
@@ -26,13 +27,13 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
   try {
     await page.clock.install({ time: new Date(at) })
     if (!process.env.GLOVE_OPEN) throw new Error('A private owner entry from rer dev is required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) }
     catch { throw new Error('Owner entry failed; obtain a fresh entry privately.') }
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
     const { b, day } = await routingDay(h)
     const before = (await h.state()).visits
     await productionApi(page, h, b.dispatcher.cookie)
-    await page.goto(`${origin}/app#dispatch`)
+    await gotoHarness(page, `${origin}/app#dispatch`)
     await page.getByLabel('Day', { exact: true }).fill(day)
     const routes = page.getByRole('region', { name: 'Route optimization', exact: true })
     await expect(routes).toBeVisible()
@@ -41,14 +42,14 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     expect((await h.state()).visits).toEqual(before)
     await h.scheduled(Date.now())
     // Reload the real public state rather than stubbing a job's completion.
-    await page.reload()
+    await reloadHarness(page)
     await expect(routes.getByText(/driving saved/)).toBeVisible()
     expect((await h.state()).visits).toEqual(before)
     const firstProposal = (await h.state()).routes[0]
     await routes.getByRole('button', { name: 'Discard route proposal', exact: true }).click()
     await expect(routes.getByText('Proposal discarded. Visits stayed unchanged.', { exact: true })).toBeVisible()
     expect((await h.state()).visits).toEqual(before)
-    await page.reload()
+    await reloadHarness(page)
     await expect(routes.getByText('Proposal discarded. Visits stayed unchanged.', { exact: true })).toBeVisible()
     expect((await h.state()).routes.find((r: any) => r.id === firstProposal.id).status).toBe('discarded')
     // The next request is a distinct later decision, rather than two routes
@@ -58,7 +59,7 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     await routes.getByRole('button', { name: 'Propose better routes', exact: true }).click()
     await expect(routes.getByText(/Waiting for the background run/)).toBeVisible()
     await h.scheduled(Date.now())
-    await page.reload()
+    await reloadHarness(page)
     await expect(routes.getByText(/driving saved/)).toBeVisible()
     const proposedState = await h.state(), proposal = proposedState.routes.find((r: any) => r.status === 'ready')
     const clock = (value: string) => {
@@ -68,6 +69,10 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     const range = (slot: any) => `${clock(slot.local.start)} – ${clock(slot.local.end)}`
     const label = (slot: any) => `${proposedState.technicians.find((t: any) => t.id === slot.technicianId).name}, ${range(slot)}`
     await expect(routes.getByText(`${(proposal.savedSeconds / 60).toFixed(1)} min driving saved`, { exact: true })).toBeVisible()
+    await expect(routes.getByText(`${(proposal.savedSeconds / 60).toFixed(1)} min driving saved · ${(proposal.beforeSeconds / 60).toFixed(1)} min before → ${(proposal.afterSeconds / 60).toFixed(1)} min proposed.`, { exact: true })).toBeVisible()
+    await expect(routes.getByText(/Driving between visits; travel to and from the depot is excluded/)).toBeVisible()
+    expect(proposal.method).toMatch(/global optimum not guaranteed/i)
+    expect(await routes.innerText()).not.toMatch(/(?:globally optimal|guaranteed optimum|shortest possible|best possible)/i)
     const items = routes.locator('.route-list > li')
     await expect(items).toHaveCount(12)
     for (const [i, move] of proposal.moves.entries()) {
@@ -121,8 +126,8 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
     const events = trail.activity.filter((e: any) => e.commandId === trail.activity.find((e: any) => e.kind === 'route.accepted').commandId)
     expect(events.filter((e: any) => e.kind === 'visit.changed').map((e: any) => e.subjectId).sort()).toEqual(changed.sort())
     for (const event of events) expect([event.actorId, event.actorName, event.actorRole, event.at]).toEqual([b.dispatcher.id, 'Sam Ortiz', 'dispatcher', at])
-    await h.restart()
-    await page.reload()
+    await restartHarness(h)
+    await reloadHarness(page)
     await expect(routes.getByText('Route accepted. Sam Ortiz recorded: Less driving while keeping the promised windows', { exact: true })).toBeVisible()
     expect((await h.state()).visits).toEqual(after)
     const map = page.getByRole('region', { name: 'Route map', exact: true })
@@ -139,5 +144,5 @@ test('DISP-003, DISP-011 the dispatcher discards, sees a provider refusal, then 
       await routes.scrollIntoViewIfNeeded()
       await shot(page, width, 'accepted')
     }
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })

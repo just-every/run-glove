@@ -1,0 +1,101 @@
+{
+  "data": [
+    {
+      "id": 20,
+      "locationRecurringServiceId": 19,
+      "membershipId": 18,
+      "date": "2026-01-15T00:00:00Z",
+      "status": "Completed",
+      "locationRecurringServiceName": "Synthetic source event 20"
+    },
+    {
+      "id": 21,
+      "locationRecurringServiceId": 19,
+      "membershipId": 18,
+      "date": "2026-07-15T00:00:00Z",
+      "status": "Dismissed",
+      "locationRecurringServiceName": "Synthetic source event 21"
+    },
+    {
+      "id": 22,
+      "locationRecurringServiceId": 19,
+      "membershipId": 18,
+      "date": "2026-11-15T00:00:00Z",
+      "status": "NotAttempted",
+      "locationRecurringServiceName": "Synthetic source event 22"
+    },
+    {
+      "id": 27,
+      "locationRecurringServiceId": 26,
+      "membershipId": 18,
+      "date": "2026-02-15T00:00:00Z",
+      "status": "Completed",
+      "locationRecurringServiceName": "Synthetic source event 27"
+    },
+    {
+      "id": 34,
+      "locationRecurringServiceId": 26,
+      "membershipId": 18,
+      "date": "2026-08-15T00:00:00Z",
+      "status": "Dismissed",
+      "locationRecurringServiceName": "Synthetic source event 34"
+    },
+    {
+      "id": 35,
+      "locationRecurringServiceId": 26,
+      "membershipId": 18,
+      "date": "2026-12-22T00:00:00Z",
+      "status": "NotAttempted",
+      "locationRecurringServiceName": "Synthetic source event 35"
+    },
+    {
+      "id": 40,
+      "locationRecurringServiceId": 39,
+      "membershipId": 38,
+      "date": "2026-10-05T00:00:00Z",
+      "status": "Completed",
+      "locationRecurringServiceName": "Synthetic source event 40"
+    },
+    {
+      "id": 41,
+      "locationRecurringServiceId": 39,
+      "membershipId": 38,
+      "date": "2026-10-19T00:00:00Z",
+      "status": "Dismissed",
+      "locationRecurringServiceName": "Synthetic source event 41"
+    },
+    {
+      "id": 42,
+      "locationRecurringServiceId": 39,
+      "membershipId": 38,
+      "date": "2026-11-02T00:00:00Z",
+      "status": "NotAttempted",
+      "locationRecurringServiceName": "Synthetic source event 42"
+    },
+    {
+      "id": 43,
+      "locationRecurringServiceId": 46,
+      "membershipId": 38,
+      "date": "2026-10-05T00:00:00Z",
+      "status": "Completed",
+      "locationRecurringServiceName": "Synthetic source event 43"
+    },
+    {
+      "id": 44,
+      "locationRecurringServiceId": 46,
+      "membershipId": 38,
+      "date": "2026-10-19T00:00:00Z",
+      "status": "Dismissed",
+      "locationRecurringServiceName": "Synthetic source event 44"
+    },
+    {
+      "id": 45,
+      "locationRecurringServiceId": 46,
+      "membershipId": 38,
+      "date": "2026-11-16T00:00:00Z",
+      "status": "NotAttempted",
+      "locationRecurringServiceName": "Synthetic source event 45"
+    }
+  ],
+  "hasMore": false
+}
