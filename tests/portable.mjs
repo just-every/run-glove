@@ -18,8 +18,11 @@ import { createServer } from 'node:http'
 import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
-import { mailEvents, snsEvents } from './api/harness.mjs'
 
+// The flow harness replaces global fetch on import; keep this journey's own network untouched.
+const nativeFetch = globalThis.fetch
+const { mailEvents, snsEvents } = await import('./api/harness.mjs')
+globalThis.fetch = nativeFetch
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
 const clean = s => s.replace(/RER_OPEN[^\n]*/g, 'RER_OPEN [private]').replace(/token=[^\s"&<>]+/g, 'token=[private]').replace(/rer-dev=[^\s"&<>]+/g, 'rer-dev=[private]')
