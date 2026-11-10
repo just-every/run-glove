@@ -10,7 +10,7 @@ import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents } from './harness.mjs'
+import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, fixedMonthlyReports } from './harness.mjs'
 
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 const png = Buffer.from('89504e470d0a1a0a0000000d4948445200000001000000010806000000', 'hex').toString('base64')
@@ -1346,6 +1346,43 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 cus
     assert.deepEqual([x.stripePayments.calls.length, x.stripePayments.sessions.length, x.email.sent.length], [stripeCalls, sessions, 0])
     await x.restart()
     await untouched(x, async () => { assert.deepEqual(await everyRead(), reads, 'every statement is identical after the Worker restarts') })
+  })
+  await scenario(t, 'PAY-010 points 5 and 8: statements keep the period-end issue date, the frozen due-date basis and approval gating of fixed-monthly invoices, and freeze each ordinary invoice’s terms at approval, across a Worker restart', async ({ after }) => {
+    const x = await installation({ at: '2026-11-08T12:00:00Z' }); after(() => x.close())
+    const b = await fixedMonthlyReports(x)
+    const monthlyBasis = 'fixed monthly period end; terms frozen at first approval', lateBasis = monthlyBasis + '; approved after period end, due from approval date'
+    const frozenBasis = 'terms frozen at first approval'
+    // Every expected row is written out: id, issue date, due date, basis and gross, with the approval date it appears from.
+    const byKind = (kind, n) => b.approved.filter(a => a.kind === kind)[n].invoice.id
+    const row = (kind, n, issuedOn, dueOn, basis, total) => [byKind(kind, n), issuedOn, dueOn, basis, total]
+    const jan = [row('onTime', 0, '2025-01-31', '2025-02-14', monthlyBasis, '264.00')]
+    const febThird = [...jan, row('late', 0, '2025-01-31', '2025-02-17', lateBasis, '132.00'), row('ordinary', 0, '2025-02-03', '2025-02-17', frozenBasis, '33.00'), row('perVisit', 0, '2025-02-03', '2025-02-17', frozenBasis, '55.00')]
+    const marThird = [...febThird, row('onTime', 1, '2025-02-28', '2025-03-14', monthlyBasis, '264.00'), row('late', 1, '2025-02-28', '2025-03-17', lateBasis, '132.00')]
+    const aprThird = [...marThird, row('onTime', 2, '2025-03-31', '2025-04-14', monthlyBasis, '264.00'), row('late', 2, '2025-03-31', '2025-04-17', lateBasis, '132.00')]
+    const cases = [['2025-01-30', [], '0.00'], ['2025-01-31', jan, '264.00'], ['2025-02-02', jan, '264.00'], ['2025-02-03', febThird, '484.00'], ['2025-03-03', marThird, '880.00'], ['2025-04-30', aprThird, '1276.00']]
+    const flat = report => report.invoices.map(i => [i.id, i.issuedOn, i.dueOn, i.basis, i.total]).sort((p, q) => p[0].localeCompare(q[0]))
+    const sorted = list => [...list].sort((p, q) => p[0].localeCompare(q[0]))
+    const readAll = async () => {
+      const out = []
+      for (const [asOf, expected, total] of cases) {
+        const report = await readStatement(x, b.customer.id, asOf)
+        assert.deepEqual(flat(report), sorted(expected), `${asOf} holds only approvals dated by then, with their frozen issue, due and basis`)
+        assert.deepEqual(report.totals, expected.length ? sums(total, '0.00', total, '0.00', total) : [], `${asOf} total`)
+        out.push(report)
+      }
+      const pacific = [['2025-02-01', []], ['2025-02-02', [[byKind('pacific', 0), '2025-01-31', '2025-02-16', lateBasis, '88.00']]], ['2025-04-30', [[byKind('pacific', 0), '2025-01-31', '2025-02-16', lateBasis, '88.00'], [byKind('pacific', 1), '2025-02-28', '2025-03-16', lateBasis, '88.00'], [byKind('pacific', 2), '2025-03-31', '2025-04-16', lateBasis, '88.00']]]]
+      for (const [asOf, expected] of pacific) {
+        const report = await readStatement(x, b.branchCustomer.id, asOf)
+        assert.deepEqual(flat(report), sorted(expected), `Pacific ${asOf}`)
+        out.push(report)
+      }
+      return out
+    }
+    const reads = await readAll()
+    const everyRow = reads.flatMap(r => r.invoices).map(i => i.total)
+    assert.ok(!everyRow.includes('1098.90'), 'the never-approved monthly draft appears on no statement')
+    await x.restart()
+    assert.deepEqual(await readAll(), reads, 'the same frozen dates after the Worker restarts')
   })
 })
 
