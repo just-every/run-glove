@@ -6255,6 +6255,10 @@
       "sha256": "75811d60b1929998b5904c23fbd0b9b2e97a9cc83a7a98993ec2e332e942addf",
       "executable": false
     },
+    "tests/fixtures/privacy-delegation.mjs": {
+      "sha256": "c6e3a5689c464559fd3f4602a3de38dad46a994d3712f5bfee2dc6aafffd5198",
+      "executable": false
+    },
     "tests/fixtures/push-service.mjs": {
       "sha256": "aa0033a65df34a42d6f8f7075012cd11eef1e2c10ea6aaf6053b75b63f95e33f",
       "executable": false
