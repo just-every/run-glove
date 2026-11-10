@@ -5620,7 +5620,7 @@
       "executable": false
     },
     "tests/api/fixed-monthly-reports.test.mjs": {
-      "sha256": "10c18eaff559e10a3ad99fee8a351c067a8db8379991b8cf7adaef3b0d313718",
+      "sha256": "45e0db4acf933c49b26435101513b185e01e6909580398ad2a08f73f11735701",
       "executable": false
     },
     "tests/api/flows.test.mjs": {
