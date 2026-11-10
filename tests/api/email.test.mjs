@@ -11,6 +11,9 @@ import { messageOutcomes } from './message-outcomes.test.mjs'
 // receipt.
 import { connectMail, receipt, textOf, postmarkOutcome } from '../fixtures/mail-providers.mjs'
 import test from 'node:test'
+import { createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents, postEvents, snsEvents } from './harness.mjs'
 
@@ -317,6 +320,60 @@ test('COMM-016 Postmark outcomes retain exact message states and attributable fa
   await assertRejected(h, resend.signed({ ...re, data: { email_id: `re-receipt-${h.email.sent.length}`, to: ['outsider@example.test'] } }))
   assert.equal((await postEvents(h, resend.signed({ ...re, data: { email_id: `re-receipt-${h.email.sent.length}`, to: [reSent.to] } }))).status, 200)
 })
+  // COMM-014 point 2: each step owns an installation of two Worker isolates with the minute frozen on both.
+  await scenario(t, 'COMM-014 point 2: twenty rejections from one address alternating between isolates leave both refusing with 429 while another address still receives the generic 401, and the actor is named by the address hash alone', async t => {
+    const rig = await rejectionRig(t, { workerPlugins: [rejectionActorPlugin] })
+    const ip = '192.0.2.140', other = '192.0.2.141', actors = new Set()
+    const refuse = async (view, address, status) => {
+      const response = await postEvents(view, { raw: '{}', headers: { 'cf-connecting-ip': address } })
+      assert.equal(response.status, status)
+      assert.deepEqual(await response.json(), genericRefusal)
+      return response.headers.get('x-synthetic-glove-rejection-actor')
+    }
+    for (let n = 0; n < 20; n++) actors.add(await refuse((await rig.views())[n % 2], ip, 401))
+    const [first, second] = await rig.views()
+    actors.add(await refuse(first, ip, 429)); actors.add(await refuse(second, ip, 429))
+    assert.deepEqual([...actors], [sha256(ip)], 'every rejection addressed the shared actor by the SHA-256 of the source address, never the address itself')
+    assert.equal(await refuse(first, other, 401), sha256(other))
+    assert.equal(await refuse(second, other, 401), sha256(other))
+    const fresh = await postEvents(second, { raw: '{}', headers: {} })
+    assert.equal(fresh.headers.get('x-synthetic-glove-rejection-actor'), sha256('unknown'), 'a request with no source address shares one hashed actor')
+  })
+  await scenario(t, 'COMM-014 point 2: twenty-four rejections change no table, command outcome, Activity entry or export and log only the generic warning, with neither the address nor its hash kept', async t => {
+    const rig = await rejectionRig(t), { h } = rig, ip = '192.0.2.150'
+    await h.command('quote.draft', { customerId: rig.b.customer.id, siteId: rig.b.site.id, title: 'A saved command outcome', lines: [{ description: 'Service', quantity: '1', unitPrice: '10.00', serviceId: rig.b.service.id }] })
+    const picture = async () => JSON.stringify([await durableDump(h), await h.request('/api/glove/activity').then(r => r.json()), await h.request('/api/glove/export').then(r => r.json())])
+    const outcomes = async () => (await h.db.prepare('SELECT * FROM glove_commands').all()).results.length
+    const before = await picture(), saved = await outcomes(), warned = h.logs.length
+    assert.ok(saved > 0, 'a saved command outcome exists to protect')
+    const codes = []
+    for (let n = 0; n < 24; n++) codes.push((await postEvents((await rig.views())[n % 2], { raw: '{}', headers: { 'cf-connecting-ip': ip } })).status)
+    assert.deepEqual(codes, [...Array(20).fill(401), ...Array(4).fill(429)])
+    assert.equal(await picture(), before, 'rejections write no table row, Activity entry or export fact')
+    assert.equal(await outcomes(), saved)
+    // Miniflare's own request lines name method, path and status only; every Worker console line is the generic warning.
+    const added = h.logs.slice(warned).map(String), worker = added.filter(line => !/^\[mf:info\] (GET|POST) \S+ \d{3} /.test(line))
+    assert.deepEqual(worker, Array(24).fill('Customer email callback rejected'))
+    for (const needle of [ip, sha256(ip)]) {
+      assert.ok(!(await picture()).includes(needle), 'no durable surface keeps the address or its hash')
+      assert.ok(!JSON.stringify(await h.state()).includes(needle))
+      assert.ok(!added.join('\n').includes(needle))
+    }
+  })
+  await scenario(t, 'COMM-014 point 2: after an actual Worker restart in the same minute the address is refused with 401 for twenty more attempts before 429 and its verified events keep succeeding', async t => {
+    const rig = await rejectionRig(t), { h } = rig, ip = '192.0.2.160'
+    const attempts = async total => {
+      const codes = []
+      for (let n = 0; n < total; n++) codes.push((await postEvents((await rig.views())[n % 2], { raw: '{}', headers: { 'cf-connecting-ip': ip } })).status)
+      return codes
+    }
+    assert.deepEqual(await attempts(21), [...Array(20).fill(401), 429])
+    await h.restart(); await rig.freeze()
+    assert.deepEqual(await attempts(21), [...Array(20).fill(401), 429], 'the limit counted nothing durable: the restarted actor allows a full 20 again')
+    const verified = rig.signer.signed([rig.event], { at: rig.at / 1000 }); verified.headers['cf-connecting-ip'] = ip
+    assert.equal((await postEvents((await rig.views())[1], verified)).status, 200, 'verified events from a limited address keep succeeding')
+    assert.equal((await h.state()).messageStates[rig.sent.id].status, 'delivered')
+  })
   await scenario(t, 'COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 Postmark generates hash-only Basic credentials, rotates with 24h overlap and revoke, enforces optional pinned IPs, age and replay, and maps delivery outcomes', async t => {
   const h = await installation(); t.after(() => h.close())
   const b = await business(h), q = await emailFixture(h, b), connect = { provider: 'postmark', apiKey: 'test-only-postmark-server-token', fromEmail: 'office@example.test' }
@@ -489,6 +546,41 @@ test('COMM-016 Postmark outcomes retain exact message states and attributable fa
 async function mailSnapshot(h) {
   const tables = (await h.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE 'glove_%' OR name LIKE 'rer_mail_%') ORDER BY name").all()).results
   return JSON.stringify(await Promise.all(tables.map(async ({ name }) => [name, (await h.db.prepare(`SELECT * FROM ${name}`).all()).results.map(r => JSON.stringify(r)).sort()])))
+}
+// COMM-014 point 2 fixtures. The plugin only reports, in a response header, the
+// name the Worker gave to `idFromName`; the rejection path itself is unchanged.
+const sha256 = value => createHash('sha256').update(value).digest('hex')
+const genericRefusal = { ok: false, error: { code: 'MAIL_EVENT', message: 'Not accepted: the signature, the event form or the message it names did not match.' } }
+const rejectionActorPlugin = { name: 'rejection-actor-observer', setup(build) {
+  build.onLoad({ filter: /\/glove\/mail-events\.ts$/ }, async args => {
+    let source = await readFile(args.path, 'utf8')
+    const reply = "const answer = (body: unknown, status = 200) => Response.json(body, { status, headers })", lookup = 'rejectionLimits.idFromName(address)'
+    assert.ok(source.includes(reply) && source.includes(lookup))
+    source = source.replace(reply, "let observedActor = ''\nconst answer = (body: unknown, status = 200) => Response.json(body, { status, headers: { ...headers, 'x-synthetic-glove-rejection-actor': observedActor } })")
+    source = source.replace(lookup, 'rejectionLimits.idFromName((observedActor = address))')
+    return { contents: source, loader: 'ts', resolveDir: dirname(args.path) }
+  })
+} }
+// A connected SendGrid installation with two isolates, and the clock frozen at one minute boundary on both.
+async function rejectionRig(t, options = {}) {
+  const h = await installation({ isolates: 2, captureLogs: true, ...options }); t.after(() => h.close())
+  const b = await business(h), q = await emailFixture(h, b), signer = mailEvents('sendgrid')
+  await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-249', eventKey: signer.eventKey, fromEmail: 'office@example.test' })
+  const sent = await h.command('email.send', { kind: 'quote', id: q.id, version: q.version })
+  const event = { email: sent.to, timestamp: Math.floor(Date.now() / 1000), event: 'delivered', sg_event_id: 'comm-014-delivered', sg_message_id: 'sg-receipt-1', rer_delivery_id: sent.id }
+  const at = Math.ceil(Date.now() / 60_000) * 60_000
+  const freeze = async () => {
+    await clock(h, new Date(at).toISOString())
+    await (await h.mf.getWorker('peer-1')).fetch(h.origin + '/__test/clock', { method: 'POST', body: JSON.stringify({ at: new Date(at).toISOString() }) })
+  }
+  await freeze()
+  // The peer view is rebuilt on each call, so it follows an actual restart.
+  const views = async () => [h, { ...h, mf: { dispatchFetch: (...args) => h.mf.getWorker('peer-1').then(peer => peer.fetch(...args)) } }]
+  return { h, b, sent, event, signer, at, freeze, views }
+}
+async function durableDump(h) {
+  const tables = (await h.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND (name LIKE 'glove_%' OR name LIKE 'rer_%') ORDER BY name").all()).results
+  return Promise.all(tables.map(async ({ name }) => [name, (await h.db.prepare(`SELECT * FROM ${name}`).all()).results.map(r => JSON.stringify(r)).sort()]))
 }
 const clock = (h, at) => h.request('/__test/clock', { method: 'POST', body: { at } })
 const basic = value => ({ authorization: `Basic ${Buffer.from(`glove:${value}`).toString('base64')}` })
