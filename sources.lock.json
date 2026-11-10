@@ -2316,7 +2316,7 @@
       "executable": false
     },
     "src/glove/privacy-scope.ts": {
-      "sha256": "72693677d89536e6fdc953ad294fafee87f6ca5edab78ef4763ffc7e40009cc8",
+      "sha256": "a1722d71ba28523e51f4512fdcea6649019881410577f45c7f55e3709cb22614",
       "executable": false
     },
     "src/glove/privacy-signed-quotes.ts": {
@@ -2324,7 +2324,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "eb6b9fa265d728c1c142102621dbbbb652d7ce21d8ef5d0b95573cdc67390afc",
+      "sha256": "f35eb3a459e7f1cdb4a97cc245e0dbed94b48540bf7d98165dec53c1892aad06",
       "executable": false
     },
     "src/glove/progress-invoices.ts": {
@@ -5720,7 +5720,7 @@
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
-      "sha256": "3b8995ba69e313d57c8dae0769c6be9b4a4e11f1b34b62b6d1723753568ff36d",
+      "sha256": "d53d2a871284da3b28c2afffd54edda67a012e4ba1ea0b014ac3a8de61c9e134",
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
@@ -6241,6 +6241,10 @@
     },
     "tests/fixtures/payroll-installation.mjs": {
       "sha256": "3f477d308a9209a82a6eb02b8e6d4b18f9d65bb3fef08bb98dd44446a381abd7",
+      "executable": false
+    },
+    "tests/fixtures/peer-redaction.mjs": {
+      "sha256": "764a9a195a0a4286d8ce90742a9963990e5da5a939be8b05a178b8974871c3e5",
       "executable": false
     },
     "tests/fixtures/portable-maps.mjs": {
