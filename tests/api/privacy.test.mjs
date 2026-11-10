@@ -374,13 +374,11 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
     const w = await peers.peerWorld(h)
     const calls = () => [h.outbound.attempts, h.email.sent.length, h.twilio.calls.length, h.stripePayments.calls.length]
     const baseline = calls()
-    assert.ok(baseline[1] >= 2 && baseline[3] >= 0)
-    const customer = (await h.state()).customers.find(c => c.id === w.subject.id)
+    assert.ok(baseline[1] >= 2, 'the subject was emailed before erasure, so a provider send would be visible')
     const preview = await peers.preview(h, w)
     assert.deepEqual(calls(), baseline, 'preview')
-    const commandId = id(), payload = { customerId: customer.id, version: customer.version + 1, confirm: 'ERASE', fingerprint: (await peers.preview(h, w)).fingerprint }
     const current = (await h.state()).customers.find(c => c.id === w.subject.id)
-    payload.version = current.version
+    const commandId = id(), payload = { customerId: current.id, version: current.version, confirm: 'ERASE', fingerprint: (await peers.preview(h, w)).fingerprint }
     const erased = await h.command('privacy.erase', payload, { commandId })
     assert.deepEqual(calls(), baseline, 'erasure')
     assert.equal(erased.outcome, 'complete')
