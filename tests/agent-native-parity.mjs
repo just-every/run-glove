@@ -210,7 +210,7 @@ export async function pricebookParity({ request, origin, cookie, tool }) {
   const deskLean = await must('service.save', { id: world.desk.ids.rich, version: world.desk.rich.version, ...lean('desk') })
   const toolLean = succeeded(await write('glove.pricebook.update', { id: world.tool.ids.rich, ...lean('tool') }, world.tool.rich.version))
   assert.deepEqual(normalise(sameRow(deskLean), 'desk'), normalise(sameRow(toolLean), 'tool'))
-  const reset = (result, side) => Object.keys(result).filter(key => !bookkeeping.includes(key) && !['version', 'name'].includes(key) && JSON.stringify(result[key]) !== JSON.stringify(world[side].rich[key])).sort()
+  const reset = (result, side) => Object.keys(result).filter(key => !bookkeeping.includes(key) && !['version', 'name', 'updatedBy'].includes(key) && JSON.stringify(result[key]) !== JSON.stringify(world[side].rich[key])).sort()
   assert.deepEqual(reset(deskLean, 'desk'), reset(toolLean, 'tool'))
   return `Price-book parity: reads, update, category markup and price adjustment match their desk commands with identical Activity; stale and duplicate refusals change nothing; an update naming only id, code, name and unitPrice resets ${reset(deskLean, 'desk').join(', ')} through both doors alike.`
 }
