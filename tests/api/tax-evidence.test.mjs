@@ -141,6 +141,12 @@ test('MONEY-004 private chunked certificates retain replaced originals, local ex
   await h.command('branch.limit', { operatorId: same.id, branchId: west.id })
   await h.command('branch.limit', { operatorId: other.id, branchId: east.id })
   const team = await crew(h, west.id, 'Certificate Technician'), sub = await h.person('Certificate Subcontractor', 'subcontractor')
+  const subcontractor = await h.command('technician.save', { name: 'Certificate Subcontractor', operatorId: sub.id, branchId: west.id, subcontractor: { payeeName: 'Certificate Subcontractor', tinLast4: '0163' } })
+  const assignedJob = await h.command('job.create', { customerId: customer.id, siteId: p.site.id, title: 'Certificate customer field visit', lines: [line()] })
+  for (const [technicianId, start, end] of [[team.technician.id, '09:00', '10:00'], [subcontractor.id, '11:00', '12:00']]) {
+    await h.command('visit.book', { jobId: assignedJob.id, technicianId, date: '2026-10-30', start, end })
+  }
+  for (const person of [team.person, sub]) assert.ok((await person.state()).customers.some(c => c.id === customer.id), 'assigned field readers can see this customer before the private-file refusal')
   const token = await h.command('token.issue', { name: 'Certificate integration', role: 'office', branchId: west.id })
   const path = '/api/glove/files/' + original.fileId
   for (const as of [h.owner(), same.cookie]) {
@@ -263,7 +269,9 @@ test('MONEY-004 approved options and add-ons carry frozen tax through revised an
     assert.deepEqual(document.Line.map(l => l.SalesItemLineDetail.TaxCodeRef.value), f.exempt ? ['NON', 'NON', 'NON'] : ['TAX', 'NON', 'TAX'])
     assert.equal(h.outbound.attempts, outgoing, 'inspection issues no outbound request, including Intuit')
     const batch = await h.command('invoice.export', {})
-    const records = csv(await h.request('/api/glove/exports/' + batch.id + '.csv').then(r => r.text()))
+    const exportPath = '/api/glove/exports/' + batch.id + '.csv'
+    const exportedCsv = await h.request(exportPath).then(r => r.text())
+    const records = csv(exportedCsv)
     const header = records.shift(), rows = records.map(r => Object.fromEntries(header.map((key, i) => [key, r[i]])))
     assert.deepEqual(rows.map(r => [r['*Description'], r['*Quantity'], r['*UnitAmount'], r['*TaxType'], r.Currency]), [
       ['Valve', '2', '100.00', f.exempt ? 'Tax exempt' : 'City, county', 'USD'],
@@ -282,6 +290,12 @@ test('MONEY-004 approved options and add-ons carry frozen tax through revised an
     await h.restart()
     assert.deepEqual(await latest(h, 'invoices', inv.id), beforeRestart)
     assert.deepEqual((await latest(h, 'quotes', f.q.id)).revisions[0], f.frozen)
+    assert.equal(await h.request(exportPath).then(r => r.text()), exportedCsv, 'the earlier approved export stays byte-identical after correction and restart')
+    const afterRestartRequests = h.outbound.attempts
+    const correctedDocument = await h.request('/api/glove/invoices/' + inv.id + '/quickbooks.json' + query).then(r => r.json())
+    assert.deepEqual([correctedDocument.CurrencyRef, correctedDocument.Line, correctedDocument.TxnTaxDetail], [document.CurrencyRef, document.Line, document.TxnTaxDetail])
+    assert.equal(correctedDocument.DocNumber, inv.number + '-R3')
+    assert.equal(h.outbound.attempts, afterRestartRequests, 'restarted inspection still makes no provider request')
   }
   await trail(h, ['quote.approved', 'quote.accepted', 'invoice.prepared', 'invoice.revised', 'invoice.corrected', 'invoice.exported'])
 })

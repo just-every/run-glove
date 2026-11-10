@@ -1,3 +1,4 @@
+import { closeHarnessContext, gotoHarness, reloadHarness, restartHarness, unrouteHarness } from './harness-route'
 import { test, expect, type Page, type Locator } from '@playwright/test'
 // @ts-expect-error Production Worker doors, native sessions and persistent D1.
 import { installation } from '../api/harness.mjs'
@@ -37,7 +38,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     const csrSends: typeof sends = []
     csr.on('request', r => { if (r.url() === `${origin}/api/glove/commands` && r.method() === 'POST') csrSends.push(r.postDataJSON()) })
     page.on('request', r => { if (r.url() === `${origin}/api/glove/commands` && r.method() === 'POST') sends.push(r.postDataJSON()) })
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     const roles = page.locator('section.panel').filter({ has: page.getByRole('heading', { name: 'Custom roles', exact: true }) })
     await roles.getByLabel('Role name', { exact: true }).fill('Narrow CSR')
     await roles.getByRole('checkbox', { name: 'enquiry.contact', exact: true }).check()
@@ -69,7 +70,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     await screens(page, 'assigned', assignment)
 
     await h.setTime(contactedAt)
-    await csr.goto(`${origin}/app#quotes`)
+    await gotoHarness(csr, `${origin}/app#quotes`)
     const pipeline = csr.getByRole('region', { name: 'Request pipeline', exact: true })
     await expect(pipeline).toContainText('synthetic-glove-102')
     await expect(pipeline.getByRole('button', { name: 'Lost', exact: true })).toHaveCount(0)
@@ -77,7 +78,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     expect(contacted).toMatchObject({ id: request.id, version: 2, status: 'contacted', stageAt: contactedAt,
       contacts: [{ note: '', by: { id: person.id, name: person.name, role: `custom:${role.id}` }, at: contactedAt }] })
     expect((await h.state()).enquiries).toEqual([contacted])
-    await csr.reload()
+    await reloadHarness(csr)
     await expect(pipeline).toContainText('Contacted')
     await screens(csr, 'contacted', pipeline)
 
@@ -121,16 +122,16 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     // Withdrawal also fences recovery of the earlier successful command.
     await refused(contactCommand.type, contactCommand.payload, contactCommand.commandId)
     await screens(page, 'withdrawn', roles.getByRole('heading', { name: 'Custom roles', exact: true }))
-    await csr.reload()
+    await reloadHarness(csr)
     await expect(pipeline).toContainText('synthetic-glove-102')
     await expect(pipeline.getByRole('button', { name: 'Contacted', exact: true })).toHaveCount(0)
     expect((await person.state()).actor.commands).toEqual([])
     await refused('enquiry.contact', contactAgain)
     await refused(contactCommand.type, contactCommand.payload, contactCommand.commandId)
     const retained = await snapshot()
-    await h.restart()
+    await restartHarness(h)
     expect(await snapshot()).toEqual(retained)
-    await csr.reload()
+    await reloadHarness(csr)
     await expect(pipeline).toContainText('synthetic-glove-102')
     expect((await person.state()).actor).toMatchObject({ id: person.id, role: `custom:${role.id}`, commands: [] })
     await refused('enquiry.contact', contactAgain)
@@ -157,7 +158,7 @@ test('TEAM-001 Owner builds and assigns a narrow CSR role, then withdraws its ex
     }
     expect(h.mails).toHaveLength(fixtureMailCount)
   } finally {
-    for (const { page, context } of contexts) { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    for (const { page, context } of contexts) { await unrouteHarness(page); await closeHarnessContext(context) }
     await h.close()
   }
 })

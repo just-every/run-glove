@@ -1,0 +1,230 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { createHash, randomUUID } from 'node:crypto'
+import { scenario } from '../fixtures/scenario.mjs'
+import { installation, business, assertTrail, mailEvents } from './harness.mjs'
+
+const at = '2030-03-01T12:00:00.000Z'
+const choice = { optionId: 'option-2', addOnIds: ['addon-1'] }
+const strokes = { kind: 'drawn', width: 600, height: 200, strokes: [[[20, 80], [70, 30], [100, 100], [180, 50]]] }
+const line = (description, unitPrice = '101.23') => ({ description, quantity: '2', unitPrice, tax: 'FREE' })
+const canonical = value => value === null || typeof value !== 'object' ? JSON.stringify(value) : Array.isArray(value) ? `[${value.map(canonical).join(',')}]` : `{${Object.keys(value).sort().map(k => `${JSON.stringify(k)}:${canonical(value[k])}`).join(',')}}`
+const hash = value => createHash('sha256').update(canonical(value)).digest('hex')
+
+test('QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority', async t => {
+  const h = await installation({ at, captureLogs: true }); t.after(() => h.close())
+  const b = await business(h, { currency: 'USD', timezone: 'UTC' }), tokens = []
+  const quote = async id => (await h.state()).quotes.find(q => q.id === id)
+  const exported = async () => (await h.request('/api/glove/export')).json()
+  const read = token => h.request('/api/glove/public/quote', { as: '', headers: { authorization: `Bearer ${token}` } })
+  const respond = (token, action, extra = {}) => h.request('/api/glove/public/quote', { as: '', method: 'POST', headers: { authorization: `Bearer ${token}` }, body: { action, name: 'Mei Lin', capacity: 'Property manager', ...extra } })
+  const ok = async response => { assert.equal(response.status, 200); return response.json() }
+  const approve = q => h.command('quote.approve', { quoteId: q.id, version: q.version, revision: q.revisions.at(-1).n })
+  const issue = async (q, extra = {}, person = null) => {
+    const link = await (person ? person.run : h.command)('quote.link', { quoteId: q.id, version: q.version, ...extra })
+    tokens.push(link.token); return link
+  }
+  const draft = (title, extra = {}) => h.command('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title, lines: [line('Inspection')], ...extra })
+  const answer = view => ({ choice, documentHash: view.documentHash, selectionHash: view.selection.hash, consent: { version: view.disclosure.version, hash: view.disclosure.hash, affirmed: true }, signature: strokes })
+  const selection = token => respond(token, 'choose', { choice }).then(ok)
+  const unchanged = async run => { const before = await exported(); await run(); assert.deepEqual(await exported(), before, 'refusal or replay changes no business records or Activity') }
+  await h.command('quote.consent', { version: (await h.state()).business[0].version, text: 'Synthetic owner disclosure: the chosen work and claimed signature are recorded; identity is unverified.', accept: true })
+  const options = ['Good', 'Better', 'Best'].map((name, i) => ({ name, lines: [line(`${name} inspection`, ['80.00', '101.23', '150.00'][i])] }))
+  const addOns = [{ name: 'Filter', lines: [{ description: 'Filter pack', quantity: '3', unitPrice: '12.34', tax: 'FREE' }] }, { name: 'Cover', lines: [{ description: 'Weather cover', quantity: '1', unitPrice: '40.00', tax: 'FREE' }] }]
+  const rich = title => draft(title, { options, addOns })
+
+  await scenario(t, 'point 1: described price-book choices, revision, drawn approval, exact cents and stale refusal survive restart', async () => {
+    const items = []
+    for (const [i, block] of [...options, ...addOns].entries()) items.push(await h.command('service.save', { code: `synthetic-glove-approval-${i}`, name: block.lines[0].description, description: `Customer description for ${block.name}`, unitPrice: block.lines[0].unitPrice, unitCost: '7.77', tax: 'FREE' }))
+    const pricedOptions = options.map((o, i) => ({ ...o, lines: [{ ...o.lines[0], serviceId: items[i].id }] }))
+    const pricedAddOns = addOns.map((o, i) => ({ ...o, lines: [{ ...o.lines[0], serviceId: items[i + 3].id }] }))
+    const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Choose cooling work', source: 'phone' })
+    let q = await approve(await draft('Described cooling work', { enquiryId: enquiry.id, options: pricedOptions, addOns: pricedAddOns }))
+    const old = await issue(q)
+    let view = await ok(await read(old.token))
+    assert.deepEqual([...view.document.options, ...view.document.addOns].map(o => o.lines[0].customerDescription), items.map(i => i.description))
+    view = await selection(old.token)
+    assert.equal(view.selection.document.totals.total, '239.48', '2 × 101.23 + 3 × 12.34')
+    await ok(await respond(old.token, 'changes', { choice, message: 'Please supply a washable filter.' }))
+    assert.deepEqual((await quote(q.id)).customerRequests[0].choice.addOnIds, ['addon-1'])
+    const revisedAddOns = [{ ...pricedAddOns[0], lines: [{ ...pricedAddOns[0].lines[0], description: 'Washable filter', unitPrice: '13.34' }] }, pricedAddOns[1]]
+    q = await b.dispatcher.run('quote.revise', { quoteId: q.id, version: (await quote(q.id)).version, options: pricedOptions, addOns: revisedAddOns })
+    await h.command('quote.link', { quoteId: q.id, version: q.version }, { error: 'NOT_APPROVED' })
+    q = await approve(q); const link = await issue(q)
+    await h.restart()
+    await unchanged(async () => { const response = await respond(old.token, 'approve'); assert.equal(response.status, 409); assert.equal((await response.json()).error.code, 'REVISION') })
+    view = await selection(link.token)
+    assert.equal(view.selection.document.totals.total, '242.48', '2 × 101.23 + 3 × 13.34')
+    assert.equal(view.selection.hash, hash(view.selection.document))
+    const signed = await ok(await respond(link.token, 'approve', answer(view)))
+    const kept = (await quote(q.id)).acceptance.signing
+    assert.deepEqual(kept.signature, strokes)
+    assert.deepEqual([kept.name, kept.capacity, kept.identity, kept.chosenDocumentHash, kept.revisionDocumentHash], ['Mei Lin', 'Property manager', 'CLAIMED', hash(view.selection.document), link.documentHash])
+    assert.equal(signed.signed.chosenDocumentHash, kept.chosenDocumentHash)
+    const job = await b.dispatcher.run('job.create', { quoteId: q.id })
+    assert.deepEqual(job.lines.map(l => [l.description, l.quantity, l.unitPrice, l.total]), [['Better inspection', '2', '101.23', '202.46'], ['Washable filter', '3', '13.34', '40.02']])
+    assert.deepEqual(job.lines.map(l => l.serviceId), [items[1].id, items[3].id], 'the job retains exactly the chosen price-book items')
+    assert.deepEqual([job.totals.subtotal, job.totals.gst, job.totals.total, job.quoteRevision], ['242.48', '0.00', '242.48', 2])
+    const before = await exported(); await h.restart()
+    assert.deepEqual(await exported(), before)
+    assert.deepEqual((await quote(q.id)).acceptance.signing, kept)
+    assert.equal((await ok(await read(link.token))).decision, 'accepted')
+  })
+
+  await scenario(t, 'point 2: day 31 refuses approval and one update reopens the request with one office notice', async () => {
+    await h.command('quote.validity', { days: 30 })
+    await h.setTime('2030-01-29T12:00:00.000Z')
+    const enquiry = await h.command('enquiry.create', { customerId: b.customer.id, siteId: b.site.id, description: 'Thirty-day quote', source: 'phone' })
+    const q = await approve(await draft('Thirty-day quote', { enquiryId: enquiry.id })), link = await issue(q)
+    assert.equal(q.revisions[0].validUntil, '2030-02-28')
+    await h.command('enquiry.close', { enquiryId: enquiry.id, version: (await h.state()).enquiries.find(e => e.id === enquiry.id).version, reason: 'Awaiting customer return' })
+    await h.setTime(at); await h.restart()
+    const view = await ok(await read(link.token)); assert.equal(view.state, 'expired')
+    await unchanged(async () => { const r = await respond(link.token, 'approve'); assert.equal(r.status, 409); assert.equal((await r.json()).error.code, 'EXPIRED') })
+    for (const r of await Promise.all([respond(link.token, 'update'), respond(link.token, 'update')])) assert.equal((await ok(r)).updateRequested, true)
+    await h.restart()
+    await unchanged(async () => assert.equal((await ok(await respond(link.token, 'update'))).updateRequested, true))
+    const state = await h.state()
+    assert.equal(state.notices.filter(n => n.quoteId === q.id).length, 1)
+    assert.equal(state.quotes.find(x => x.id === q.id).customerRequests.length, 1)
+    assert.equal(state.enquiries.find(x => x.id === enquiry.id).status, 'contacted')
+    await h.setTime(at)
+  })
+
+  await scenario(t, 'point 3: revision bearer delegates only its own read, choice, changes, update, decline and signed approval', async () => {
+    const q = await approve(await rich('Scoped approval')), other = await approve(await rich('Unrelated scope')), link = await issue(q)
+    const otherBefore = await quote(other.id)
+    assert.equal((await ok(await read(link.token))).document.number, q.number)
+    const selected = await selection(link.token)
+    await ok(await respond(link.token, 'changes', { choice, message: 'Confirm the filter.' }))
+    await ok(await respond(link.token, 'update'))
+    await ok(await respond(link.token, 'approve', answer(selected)))
+    assert.deepEqual((await quote(q.id)).customerRequests.map(x => [x.revision, x.action]), [[1, 'changes'], [1, 'update'], [1, 'approve']])
+    assert.deepEqual(await quote(other.id), otherBefore, 'the unrelated revision remains unchanged')
+    assert.equal((await h.request('/api/glove/state', { as: '', headers: { authorization: `Bearer ${link.token}` } })).status, 401)
+    await unchanged(async () => { const r = await respond(link.token, 'choose', { quoteId: other.id, choice }); assert.equal(r.status, 400) })
+    const declining = await approve(await rich('Scoped decline')), declineLink = await issue(declining)
+    await ok(await respond(declineLink.token, 'decline', { choice }))
+    assert.equal((await quote(declining.id)).status, 'declined')
+    const before = await exported(); await h.restart(); assert.deepEqual(await exported(), before)
+    for (const token of [link.token, declineLink.token]) await unchanged(async () => { for (const action of ['choose', 'changes', 'update', 'decline', 'approve']) assert.equal((await ok(await respond(token, action, { choice, message: 'Replay' }))).state, 'decided') })
+  })
+
+  await scenario(t, 'point 4: Agent, Technician, integration and signed-out issuance fail; reissue leaves one live link', async () => {
+    const q = await approve(await rich('Issuance authority')), payload = { quoteId: q.id, version: q.version }
+    const integration = await h.command('token.issue', { name: 'Synthetic quote integration', role: 'dispatcher' })
+    await unchanged(async () => {
+      for (const person of [b.agent, b.priyaPerson]) await person.run('quote.link', payload, { error: 'FORBIDDEN' })
+      for (const token of [null, integration.token]) {
+        const r = await h.request('/api/glove/commands', { as: '', method: 'POST', ...(token ? { headers: { authorization: `Bearer ${token}` } } : {}), body: { commandId: randomUUID(), type: 'quote.link', payload } })
+        assert.ok([401, 403].includes(r.status))
+      }
+    })
+    const first = await issue(q), second = await issue(await quote(q.id))
+    await h.restart()
+    await unchanged(async () => { assert.equal((await read(first.token)).status, 404); assert.equal((await respond(first.token, 'decline')).status, 404) })
+    assert.equal((await read(second.token)).status, 200)
+    assert.deepEqual((await h.state()).quoteLinks.filter(l => l.quoteId === q.id && l.revision === 1 && !l.revokedAt).map(l => l.id), [second.id])
+  })
+
+  await scenario(t, 'point 5: every customer response exposes only its revision and service site without private cost or notes', async () => {
+    const customer = await h.command('customer.save', { name: 'Synthetic unrelated customer', phone: '312 555 0199' })
+    const site = await h.command('site.save', { customerId: customer.id, address: 'Synthetic unrelated site', accessNotes: 'Synthetic unrelated access note' })
+    const other = await h.command('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Synthetic unrelated revision', lines: [line('Unrelated private work')] })
+    await h.command('conversation.log', { customerId: b.customer.id, kind: 'note', text: 'Synthetic private conversation' })
+    const q = await approve(await rich('Public scope')), link = await issue(q)
+    const inspect = view => {
+      if (view.document) { assert.equal(view.document.number, q.number); assert.deepEqual(view.document.site, { address: b.site.address }); assert.equal(view.document.revision, 1) }
+      const text = JSON.stringify(view)
+      for (const privateValue of [customer.name, customer.phone, site.address, site.accessNotes, other.title, other.id, b.customer.email, b.customer.phone, b.site.accessNotes, 'Synthetic private conversation']) assert.equal(text.includes(privateValue), false)
+      assert.doesNotMatch(text, /unitCost|costRate|accessNotes|billingAddress|internalNote/)
+    }
+    inspect(await ok(await read(link.token))); inspect(await selection(link.token))
+    for (const [action, extra] of [['changes', { message: 'Inspect this site only' }], ['update', {}], ['decline', {}]]) inspect(await ok(await respond(link.token, action, extra)))
+    await h.restart(); inspect(await ok(await read(link.token)))
+    const signing = await approve(await rich('Signed public scope')), signingLink = await issue(signing), view = await selection(signingLink.token)
+    const signed = await ok(await respond(signingLink.token, 'approve', answer(view)))
+    assert.deepEqual(signed.signed.document.site, { address: b.site.address })
+    for (const privateValue of [site.address, site.accessNotes, other.title, b.site.accessNotes]) assert.equal(JSON.stringify(signed).includes(privateValue), false)
+    assert.doesNotMatch(JSON.stringify(signed), /unitCost|costRate|accessNotes|internalNote/)
+    const next = await h.command('quote.revise', { quoteId: q.id, version: (await quote(q.id)).version, lines: [line('Never disclose the next revision')] }, { error: 'QUOTE_CLOSED' })
+    assert.equal(next.code, 'QUOTE_CLOSED')
+  })
+
+  await scenario(t, 'point 6: accepted provider email and staff handout retain honest unverified authentication bases', async () => {
+    await h.command('mail.connect', { provider: 'sendgrid', apiKey: 'synthetic-glove-201', eventKey: mailEvents('sendgrid').eventKey, fromEmail: ['office', 'example.test'].join('@') })
+    for (const [email, status, expected] of [[true, 202, 'link sent by Glove to the address on record'], [false, 202, 'link handed out by staff, recipient unverified'], [true, 400, 'link handed out by staff, recipient unverified']]) {
+      h.email.status[b.customer.email] = status
+      const q = await approve(await rich('Claimed authentication')), link = await issue(q, { email }), view = await selection(link.token)
+      if (email) assert.equal((await h.state()).messageStates[link.emailMessageId].status, status === 202 ? 'accepted' : 'rejected')
+      const signed = await ok(await respond(link.token, 'approve', answer(view)))
+      assert.deepEqual([signed.signed.name, signed.signed.capacity, signed.signed.identity, signed.signed.authenticationBasis], ['Mei Lin', 'Property manager', 'CLAIMED', expected])
+      await h.restart()
+      const kept = (await quote(q.id)).acceptance.signing
+      assert.deepEqual([kept.name, kept.capacity, kept.identity, kept.authenticationBasis], ['Mei Lin', 'Property manager', 'CLAIMED', expected])
+    }
+    h.email.status[b.customer.email] = 202
+  })
+
+  await scenario(t, 'point 7: withdrawn role and wrong branch refuse decisions without writes and jobs require accepted approved current work', async () => {
+    for (const mode of ['role', 'branch']) {
+      const issuer = await h.person(`Synthetic issuer ${mode}`, 'dispatcher'), q = await approve(await rich(`Authority ${mode}`)), link = await issue(q, {}, issuer)
+      await selection(link.token)
+      if (mode === 'role') await h.command('role.set', { operatorId: issuer.id, role: 'viewer' })
+      else {
+        const branch = await h.command('branch.save', { name: 'Excluded branch', prefix: 'EXC', timezone: 'UTC', zips: [] })
+        await h.command('branch.limit', { operatorId: issuer.id, branchId: branch.id })
+      }
+      for (const restart of [false, true]) {
+        if (restart) await h.restart()
+        await unchanged(async () => { for (const action of ['choose', 'changes', 'decline', 'update', 'approve']) assert.equal((await respond(link.token, action, { choice, message: 'Must not be written' })).status, 404) })
+      }
+    }
+    const unapproved = await rich('Unapproved job source'), unaccepted = await approve(await rich('Unaccepted job source'))
+    await unchanged(async () => {
+      for (const q of [unapproved, unaccepted]) await h.command('job.create', { quoteId: q.id }, { error: 'NOT_ACCEPTED' })
+      await h.command('quote.accept', { quoteId: unapproved.id, version: unapproved.version, revision: 1, method: 'phone', customerName: 'Mei Lin', choice }, { error: 'NOT_APPROVED' })
+    })
+  })
+
+  await scenario(t, 'point 8: staff and customer race to one frozen decision; either replay is inert across actual Worker restart', async () => {
+    const q = await approve(await rich('Concurrent approval')), link = await issue(q), view = await selection(link.token)
+    const commandId = randomUUID(), payload = { quoteId: q.id, version: q.version, revision: 1, method: 'phone', customerName: 'Staff caller', choice }
+    const staff = () => h.request('/api/glove/commands', { method: 'POST', body: { commandId, type: 'quote.accept', payload } })
+    const responses = await Promise.all([staff(), respond(link.token, 'approve', answer(view))])
+    const outcomes = await Promise.all(responses.map(r => r.json()))
+    assert.equal(responses[1].status, 200)
+    assert.ok(outcomes[0].ok || ['CONFLICT', 'QUOTE_STATE', 'QUOTE_CLOSED'].includes(outcomes[0].error?.code))
+    const accepted = await quote(q.id)
+    assert.equal(accepted.status, 'accepted')
+    assert.equal(accepted.revisions.length, 1)
+    assert.deepEqual([accepted.acceptance.revision, accepted.acceptance.choice.optionId, accepted.acceptance.choice.addOnIds], [1, 'option-2', ['addon-1']])
+    if (outcomes[0].ok) {
+      assert.deepEqual([accepted.acceptance.method, accepted.acceptance.customerName], ['phone', 'Staff caller'])
+      assert.equal(accepted.acceptance.signing, undefined, 'the losing customer signature is not retained')
+    } else {
+      assert.deepEqual([accepted.acceptance.method, accepted.acceptance.customerName], ['customer link', 'Mei Lin'])
+      assert.deepEqual(accepted.acceptance.signing.signature, strokes)
+    }
+    const trail = await assertTrail(h, ['quote.accepted'])
+    assert.equal(trail.activity.filter(e => e.subjectId === q.id && e.kind === 'quote.accepted').length, 1)
+    assert.equal(accepted.customerRequests?.filter(x => x.action === 'approve').length ?? 0, accepted.acceptance.method === 'customer link' ? 1 : 0)
+    for (const restart of [false, true]) {
+      if (restart) await h.restart()
+      await unchanged(async () => { await staff(); assert.equal((await ok(await respond(link.token, 'approve', answer(view)))).decision, 'accepted') })
+      assert.deepEqual(await quote(q.id), accepted)
+      await h.command('quote.revise', { quoteId: q.id, version: accepted.version, lines: [line('Forbidden revision')] }, { error: 'QUOTE_CLOSED' })
+    }
+    const { activity, exported: archive } = await assertTrail(h, ['quote.customer.changes', 'quote.customer.update', 'quote.customer.decline', 'quote.customer.approve', 'quote.linkIssued', 'quote.accepted', 'job.created'])
+    const issued = activity.find(e => e.kind === 'quote.linkIssued')
+    assert.deepEqual([issued.actorName, issued.actorRole, issued.at], ['Olivia Owner', 'owner', at])
+    const customer = activity.find(e => e.kind === 'quote.customer.approve')
+    assert.ok(customer.actorId && customer.actorName && customer.commandId)
+    assert.ok(archive.timeline.some(e => e.id === customer.id && e.actor_id === customer.actorId && e.command_id === customer.commandId))
+    const surfaces = { activity, archive, state: await h.state(), logs: h.logs }
+    for (const table of ['glove_commands', 'glove_records', 'glove_events']) surfaces[table] = (await h.db.prepare(`SELECT * FROM ${table}`).all()).results
+    const chunks = (await h.db.prepare('SELECT bytes FROM glove_quote_signed_chunks').all()).results
+    surfaces.signedCopies = chunks.map(c => Buffer.from(c.bytes).toString('utf8'))
+    for (const [surface, value] of Object.entries(surfaces)) for (const token of tokens) assert.equal(JSON.stringify(value).includes(token), false, `bearer absent from ${surface}`)
+  })
+})

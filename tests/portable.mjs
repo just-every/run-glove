@@ -15,6 +15,9 @@ import { devInstallation } from './dev-installation.mjs'
 import { exportedFixture } from './fixtures/movein.mjs'
 import { randomUUID, createHash, createHmac } from 'node:crypto'
 import { createServer } from 'node:http'
+import { createReadStream } from 'node:fs'
+import { Readable } from 'node:stream'
+import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
@@ -301,6 +304,8 @@ try {
   const visit = await owner.cmd('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-10-15', start: '09:00', end: '10:30' })
   await priya.cmd('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:03:00Z' })
   const photo = await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: jpeg } })
+  const retainedMaterial = await owner.cmd('service.save', { code: 'SYNTHETIC-ARCHIVE-MATERIAL', name: 'Synthetic archive material', kind: 'material', unit: 'each', unitCost: '7.00', unitPrice: '14.00', tax: 'GST' })
+  await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:11:00Z', kind: 'material', serviceId: retainedMaterial.id, quantity: '2', description: 'Synthetic portable private material' })
   const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
   let batch = await owner.cmd('import.stage', { files })
   batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
@@ -401,7 +406,9 @@ try {
   await owner.cmd('location.fleetConnect', { technicianId: tech.id, vehicleId: '12345', key: fleetKey })
   await priya.cmd('clock.in', { deviceTime: locationNow() })
   await priya.cmd('timer.start', { visitId: locationVisit.id, kind: 'job', deviceTime: locationNow() })
-  await priya.cmd('location.phone', { lat: 41.89067, lng: -87.63067, observedAt: locationNow() })
+  const locationCaptureId = randomUUID()
+  const locationCapture = { lat: 41.89067, lng: -87.63067, observedAt: locationNow() }
+  await priya.cmd('location.phone', locationCapture, locationCaptureId)
   const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
   assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
   // COMM-006: populated inspection crosses the real archive boundary as business records only.
@@ -476,11 +483,17 @@ try {
   const archive = join(parent, 'installation.rer')
   await command(source, ['export', '--output', archive])
   const archiveBytes = await readFile(archive)
+  assert.ok(!archiveBytes.includes(Buffer.from('synthetic-glove-52')), 'COMM-001 point 3: the actual archive excludes the Postmark API key')
   assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
   assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
   for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
   assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
   const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  // DISP-005 populated source custody stays transient across an actual installation archive.
+  for (const name of ['glove_live_locations', 'glove_fleet_credentials']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
+  const locationHistory = before.timeline.filter(e => ['location.consent', 'location.received', 'location.fleetConnected'].includes(e.kind))
+  assert.deepEqual(locationHistory.map(e => e.kind).sort(), ['location.consent', 'location.fleetConnected', 'location.received'])
+  for (const e of locationHistory) assert.ok(e.actor_id && e.at && e.command_id)
   assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
   for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
   for (const { result } of sourceQuoteIssues) {
@@ -501,7 +514,10 @@ try {
   assert.equal(restoredPosition.position, null, 'DISP-005 restored installation has no captured position')
   const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
   assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
+  const oldCapture = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.phone', payload: locationCapture }, priya.cookie)
+  assert.equal(oldCapture.status, 401, 'DISP-005 source sign-in cannot write in the restored installation')
   const after = await running.owner.get('/api/glove/export')
+  for (const e of locationHistory) assert.deepEqual(after.timeline.find(x => x.id === e.id), e, 'DISP-005 attributable history survives the real restore without private location material')
   for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
   for (const original of before.quotes) {
     const restoredQuote = after.quotes.find(quote => quote.id === original.id)
@@ -580,6 +596,9 @@ try {
   const reactivated = await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)
   assert.equal(reactivated.status, 200, 'a current Owner explicitly reactivates the restored staff member')
   const restoredMember = await running.persona('member')
+  assert.deepEqual(await restoredMember.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome after explicit staff reactivation')
+  assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
+  console.log('DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position')
   const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
   assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
   for (const batch of sourceBatches) {
@@ -679,6 +698,54 @@ try {
   await running.close(); running = null
   const latest = join(parent, 'post-erasure.rer')
   await command(destination, ['export', '--output', latest])
+  const olderBytes = await readFile(archive), latestBytes = await readFile(latest)
+  const olderCheckpoint = JSON.parse(olderBytes.toString('utf8').split('\n')[0])
+  const laterCheckpoint = JSON.parse(latestBytes.toString('utf8').split('\n')[0])
+  assert.equal(laterCheckpoint.sourceIdentity, olderCheckpoint.sourceIdentity)
+  assert.ok(laterCheckpoint.epoch > olderCheckpoint.epoch, 'DATA-001 point 7: the real edition archive carries the committed redaction checkpoint')
+  const erasedValues = ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']
+  for (const value of erasedValues) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
+  {
+    const { readArchive } = await import('@runeditrun/rer/modules/portability')
+    const cells = []
+    for await (const record of readArchive(Readable.toWeb(createReadStream(latest)))) if (record.kind === 'part') for (const item of record.items) if (item.kind === 'row') {
+      for (const value of Object.values(item.row)) cells.push(value && typeof value === 'object' && typeof value.blob === 'string' ? Buffer.from(value.blob, 'base64').toString('utf8') : typeof value === 'string' ? value : JSON.stringify(value))
+    }
+    const decoded = cells.join('\n')
+    for (const value of erasedValues) assert.ok(!decoded.includes(value), 'DATA-001 point 7: decoded original chunks and archived records contain no erased personal values')
+  }
+  // Keep a destination with the newer checkpoint. Its own fence must refuse
+  // the old archive even when no external journal was supplied.
+  {
+    const { getPlatformProxy } = await import('wrangler')
+    const { selectLocalState } = await import('@runeditrun/rer/local/state')
+    const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
+    // Wrangler's API takes the versioned directory; its CLI takes the parent.
+    const state = await selectLocalState(destination)
+    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(state, 'v3') }, remoteBindings: false })
+    try {
+      const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
+      assert.deepEqual(await db.prepare('SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first(), { source_identity: laterCheckpoint.sourceIdentity, epoch: laterCheckpoint.epoch }, 'DATA-001 point 7: the fence probe opens the installation holding the actual newer checkpoint')
+      assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
+      const service = await createPortability({ db, policy })
+      const records = []
+      for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
+      const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
+      const attempt = await service.imports.create(records[0], 'owner')
+      try {
+        for (const [i, part] of records.filter(r => r.kind === 'part').entries()) await service.imports.uploadPart(attempt, i, part)
+        await assert.rejects(service.imports.finalize(attempt, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash }), /erasure_epoch/, 'DATA-001 point 7: the destination checkpoint independently refuses the old archive without a supplied journal')
+      } finally { await service.imports.abort(attempt) }
+      assert.deepEqual((await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results, stored, 'the refused archive changes no anonymous or peer records')
+    } finally { await proxy.dispose() }
+  }
+  const offlineTarget = await copy('offline-older-backup')
+  await command(offlineTarget, ['import', '--input', archive, '--yes'])
+  running = await install(offlineTarget)
+  const offline = await running.owner.get('/api/glove/export')
+  assert.equal(offline.customers.find(c => c.id === customer.id).name, 'Harbourview Dental', 'DATA-001 point 8: a fresh offline destination with only the older archive cannot discover the later erasure')
+  assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 200, 'DATA-001 point 8: the old archive still contains the original, demonstrating the documented limit')
+  await running.close(); running = null
   const olderTarget = await copy('older-backup')
   await cp(latest, join(olderTarget, 'post-erasure.rer'))
   await assert.rejects(command(olderTarget, ['import', '--input', archive, '--journal', 'post-erasure.rer', '--yes']), /erasure_epoch/, 'DATA-001 older backup cannot resurrect erased personal data with the trusted later journal')
@@ -697,6 +764,7 @@ try {
   assert.doesNotMatch(JSON.stringify(peerPreview), /Harbourview Dental|Customer-facing restored inspection|Permitted restored model/)
 
   assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
+  assert.equal((await running.owner.get(`/api/glove/jobs/${job.id}/cost`)).costing.actual.materials, '14.00', 'DATA-001 point 7: real anonymous archive restore retains material costs without personal capture evidence')
   assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
   assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'erased signed-copy bytes stay erased across backup/restore')
@@ -705,7 +773,7 @@ try {
   assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'peer signed-original withdrawal survives rer restore')
   assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
   assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
-  console.log('DATA-001 real rer import passed: older backup refused; anonymous invoice/tax totals restore and originals stay erased')
+  console.log('DATA-001 points 7 and 8 real rer import passed: later journal and destination checkpoint refuse the old archive; a fresh offline destination without that journal restores it; the new archive retains anonymous totals and no erased originals')
   await running.close(); running = null
   // PAY-008: the real archive retains permission versions, never execution authority.
   const paySource = await copy('payment-source'), payDestination = await copy('payment-destination')

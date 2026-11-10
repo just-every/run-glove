@@ -1,4 +1,4 @@
-import { documentDate } from '../glove/document-format'
+import { documentDate, documentPhone } from '../glove/document-format'
 import { DocumentImage as ReportImage } from './document-image'
 import { DocumentIdentity, DocumentTools, DocumentTerms } from './documents'
 import { useEffect, useState } from 'react'
@@ -17,7 +17,7 @@ export function ServiceReportDocument({ report: r, token }: { report: ServiceRep
     <section aria-label="Customer sign-off"><h2>Customer sign-off</h2>{r.signoff.customerPresent ? <><p>Signed by {r.signoff.customerName}</p>{r.signoff.signature && <ReportImage file={r.signoff.signature} token={token} alt={`Signature of ${r.signoff.customerName}`} />}</> : <p>Customer not present: {r.signoff.absentReason}</p>}</section>
     <section aria-label="Recommendations"><h2>Recommendations</h2>{r.recommendations.length ? r.recommendations.map(r => <div key={r.id}><h3>{r.title}</h3>{r.description && <p style={{ whiteSpace: 'pre-wrap' }}>{r.description}</p>}</div>) : <p>No further work recommended.</p>}</section>
     <DocumentTerms template={r.template} />
-    {(r.business.phone || r.business.email) && <footer><p className="muted">Contact {r.business.name}: {[r.business.phone, r.business.email].filter(Boolean).join(' · ')}</p></footer>}
+    {(r.business.phone || r.business.email) && <footer><p className="muted">Contact {r.business.name}: {[documentPhone(r.business.phone ?? ''), r.business.email].filter(Boolean).join(' · ')}</p></footer>}
   </article>
 }
 

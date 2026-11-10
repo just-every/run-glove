@@ -29,7 +29,11 @@ function capture(c: Context, tech: Row, source: string, p: any) {
 export const locations: Handler = async (c, type, p, db) => {
   if (!type.startsWith('location.')) return
   if (c.actor.token || c.actor.custom) fail('FORBIDDEN', 'Location requires a person using a built-in role.', null, 403)
-  const own = () => c.s.technicians.find(t => t.operatorId === c.actor.id) ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician.', null, 403)
+  const own = () => {
+    const tech = c.s.technicians.find(t => t.operatorId === c.actor.id) ?? fail('TECHNICIAN', 'Your sign-in is not linked to a technician.', null, 403)
+    if (p.technicianId !== undefined && p.technicianId !== tech.id) fail('FORBIDDEN', 'Only your own technician location can be changed.', null, 403)
+    return tech
+  }
   if (type === 'location.consent') {
     const tech = own()
     if (typeof p.enabled !== 'boolean') fail('INPUT', 'Choose whether to share location.', null, 400)
@@ -101,7 +105,7 @@ export async function locationDelayWatch(db: D1Database, s: State, actor: Actor,
   const risks = delayWatch(s, actor, at)
   if (actor.role !== 'owner' || actor.token) return risks
   const dates = [...new Set(risks.map(r => s.visits.find(v => v.id === r.visitId)!.local.date))]
-  const byDate = new Map(await Promise.all(dates.map(async date => [date, await livePositions(db, s, date)] as const)))
+  const byDate = new Map(await Promise.all(dates.map(async date => [date, await livePositions(db, s, date, at)] as const)))
   const describe = (live: Awaited<ReturnType<typeof livePositions>>[number] | undefined) => live?.position ? `${live.position.source} position ${live.position.lat.toFixed(5)}, ${live.position.lng.toFixed(5)}; ${live.eta ? `ETA ${Math.ceil(live.eta.seconds / 60)} min drive` : 'ETA unavailable'}` : 'Location and ETA unavailable'
   return risks.map(r => {
     const date = s.visits.find(v => v.id === r.visitId)!.local.date, positions = byDate.get(date)!
