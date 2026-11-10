@@ -264,4 +264,6 @@ test('PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports a
   await scenario(t, 'PLAN-005 point 7: replay, repeated cron, two racing isolates and a Worker restart never duplicate a key', captures.neverTwice)
 
   await scenario(t, 'PLAN-005 point 8: a capture claimed by one invoice is never billed again after a forward rule change', captures.claimedOnce)
+
+  await scenario(t, 'PLAN-005 point 8: an explicit progress stage claims no unbilled material, so enabling per-visit billing afterwards still bills the $21.00 of filters once', captures.progressStageClaimsNothing)
 })
