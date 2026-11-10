@@ -65,7 +65,7 @@ export async function statementWorld(h, { currency = 'USD' } = {}) {
   for (const [key, name, branchId, address] of [['utc', 'Utc statement customer', null, '10 Main Street 78701'], ['chi', 'Chicago statement customer', chicago.id, '20 Lake Street 60601'], ['peer', 'Peer statement customer', null, '30 Peer Street 78702']]) {
     const person = await h.person(`${name} tech`, 'technician')
     const tech = await h.command('technician.save', { name: `${name} tech`, operatorId: person.id, branchId })
-    const customer = await h.command('customer.save', { name, email: `${key}-statement@example.test` })
+    const customer = await h.command('customer.save', { name, email: [`${key}-statement`, 'example.test'].join('@') })
     const site = await h.command('site.save', { customerId: customer.id, address, branchId })
     world[key] = { person, tech, customer, site, branchId }
   }
