@@ -183,3 +183,30 @@ export async function claimedOnce(t) {
   assert.equal((await claims(toClose.id)).length, 3)
   assert.equal((await claims(around.id)).length, 4)
 }
+
+export async function progressStageClaimsNothing(t) {
+  const s = await shop(); t.after(() => s.h.close())
+  const { h } = s
+  // An explicit progress stage prices only the lines it lists, so the unbilled $21.00 of filters stays billable when the Owner later enables per-visit billing.
+  let quote = await h.command('quote.draft', { customerId: s.customer.id, siteId: s.site.id, title: 'Maintenance contract', lines: [line('80.00')] })
+  quote = await h.command('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+  quote = await h.command('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Pat Manager' })
+  const job = await h.command('job.create', { quoteId: quote.id })
+  await h.command('series.create', { jobId: job.id, version: job.version, date: '2025-01-29', rule: { unit: 'week' }, technicianId: s.technician.id, start: '09:00', end: '10:00', until: '2025-02-05' })
+  const visit = await s.visitOn(job.id, '2025-01-29')
+  await h.setTime(visit.startAt)
+  await s.field.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+  await s.field.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'material', serviceId: s.material.id, quantity: '3' })
+  const stage = await s.office.run('invoice.prepare', { jobId: job.id, progress: { name: 'Initial service stage', final: false }, lines: [line('20.00', 'Initial service stage')] })
+  assert.deepEqual(shape(stage), [['Initial service stage', '1', '20.00']], 'the progress stage lists no filter')
+  const current = (await h.state()).jobs.find(j => j.id === job.id)
+  await h.command('series.billing', { jobId: job.id, version: current.version, from: '2025-01-29', reason: 'Bill future completed visits', billing: { mode: 'per-visit' } })
+  await h.setTime(visit.endAt)
+  await s.field.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Maintenance complete', signoff: { absentReason: 'Manager away' } })
+  await s.cron('2025-01-31T08:00:00.000Z')
+  const [draft, ...others] = await s.drafts(job.id)
+  assert.equal(others.length, 0)
+  assert.deepEqual(shape(draft), [['Preventive maintenance', '1', '80.00'], filter('3')], 'the three filters are billed once, on the visit draft')
+  assert.equal(total(draft), '101.00')
+  assert.equal(draft.recurring.captureIds.length, 1)
+}

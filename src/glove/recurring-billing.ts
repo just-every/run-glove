@@ -4,7 +4,7 @@ import { addCalendarDays, calendarDate } from './receivables'
 import { lines, type Line } from './money'
 import { bump, event, expectVersion, fail, find, newId, oneOf, Problem, put, text, type Context, type Row, type State } from './model'
 import { localParts } from './time'
-import { invoices, prepareRecurringInvoice, suggested } from './commands/invoices'
+import { billableCaptures, invoices, prepareRecurringInvoice, suggested } from './commands/invoices'
 import { expenseLines } from './commands/expenses'
 import type { Handler } from './commands/types'
 
@@ -68,11 +68,8 @@ function occurrences(s: State, job: Row, at: string): Due[] {
   return out.sort((a, b) => a.dueDate.localeCompare(b.dueDate) || a.key.localeCompare(b.key))
 }
 
-/** Captures the job's invoices already carry: a recurring draft names its own; an ordinary GLOVE-09 invoice, prepared under the earlier job-wide workflow, carried every line and material recorded by the time it was prepared. */
-function claimedCaptures(s: State, job: Row): string[] {
-  const own = s.invoices.filter(i => i.jobId === job.id), ordinary = own.filter(i => !i.recurring && !i.openingBalance)
-  return [...own.flatMap(i => i.recurring?.captureIds ?? []), ...s.captures.filter(x => x.jobId === job.id && ordinary.some(i => x.createdAt <= i.createdAt)).map(x => x.id)]
-}
+/** Captures the job's invoices already carry: a recurring draft names its own; an ordinary invoice prepared with default lines names the captures it priced. Explicit-line invoices, progress stages among them, claim none. */
+const claimedCaptures = (s: State, job: Row): string[] => s.invoices.filter(i => i.jobId === job.id).flatMap(i => [...(i.recurring?.captureIds ?? []), ...(i.capturesPriced ?? [])])
 
 const fulfilled = (s: State, due: Due) => s.invoices.some(i => i.recurring?.key === due.key) || s.notices.some(n => n.recurringBillingKey === due.key)
 
@@ -118,7 +115,7 @@ export async function generateRecurringBilling(c: Context) {
           const scoped = due.visitId ? { ...item, s: { ...item.s, expenses: item.s.expenses.filter(e => e.visitId === due.visitId) } } : item
           const extras = due.mode === 'per-visit' || due.mode === 'on-close' ? expenseLines(scoped, currentJob) : []
           const billedCaptures = claimedCaptures(item.s, currentJob)
-          const captureIds = due.mode.startsWith('fixed-') ? [] : item.s.captures.filter(x => x.jobId === job.id && (!due.visitId || x.visitId === due.visitId) && ['line', 'material'].includes(x.kind) && !billedCaptures.includes(x.id)).map(x => x.id)
+          const captureIds = due.mode.startsWith('fixed-') ? [] : billableCaptures(item, currentJob, due.visitId, billedCaptures).map(x => x.id)
           const priced: Line[] = due.mode.startsWith('fixed-') ? rule.lines : lines([...suggested(item, currentJob, due.visitId, rule.lines, billedCaptures), ...extras.map(e => e.line)])
           const metadata = { key: due.key, mode: due.mode, dueDate: due.dueDate, ruleRevision: rule.n, ruleBy: rule.by, captureIds, ...(due.visitId ? { visitId: due.visitId } : {}), ...(due.periodEnd ? { periodStart: due.periodStart, periodEnd: due.periodEnd, proposedIssuedOn: due.periodEnd } : {}) }
           const invoice = prepareRecurringInvoice(item, currentJob, priced, metadata, rule.discount)
