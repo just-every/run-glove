@@ -5720,7 +5720,7 @@
       "executable": false
     },
     "tests/api/privacy.test.mjs": {
-      "sha256": "3b8995ba69e313d57c8dae0769c6be9b4a4e11f1b34b62b6d1723753568ff36d",
+      "sha256": "c1bf393f17f6495f3ff0a44004c7c7f5e474360b3c820b0b1038c2674a7d1f54",
       "executable": false
     },
     "tests/api/purchasing.test.mjs": {
