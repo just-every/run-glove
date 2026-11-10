@@ -5,11 +5,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, acceptedQuote } from './harness.mjs'
+import { seriesRuleProof } from '../fixtures/series-rules.mjs'
 
 const addDays = (date, n) => new Date(Date.parse(`${date}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10)
 
 test('PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the rule from a date, and every generated visit', async (t) => {
-  const h = await installation()
+  const at = '2026-11-10T12:00:00.000Z'
+  const h = await installation({ at })
   t.after(() => h.close())
   const b = await business(h)
   const newJob = async () => b.dispatcher.run('job.create', { quoteId: (await acceptedQuote(h, b)).id })
@@ -68,8 +70,10 @@ test('PLAN-001, PLAN-006 a quarterly series: skip one, move another, change the 
 
   // The rolling horizon: an open-ended weekly series books only through today plus its horizon.
   const weekly = await newJob()
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date(at))
   const rolled = await b.dispatcher.run('series.create', { jobId: weekly.id, version: weekly.version, rule: { unit: 'week' }, date: today, start: '06:00', end: '06:30', technicianId: b.tom.id, horizonDays: 14 })
   assert.equal(rolled.series.through, addDays(today, 14))
   assert.deepEqual((await visitsOf(weekly)).map(v => v[0]), [today, addDays(today, 7), addDays(today, 14)])
+
+  await seriesRuleProof(t, h, b)
 })
