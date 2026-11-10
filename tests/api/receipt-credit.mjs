@@ -1,0 +1,325 @@
+import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
+import { installation, business, assertTrail } from './harness.mjs'
+import { scenario } from '../fixtures/scenario.mjs'
+import { connectPayments, paymentEvent } from '../fixtures/payment-journey.mjs'
+import { serviceM8Balances } from '../fixtures/servicem8-balances.mjs'
+
+const at = '2026-11-09T12:00:00.000Z'
+const money = n => (n / 100).toFixed(2)
+const read = async (h, path) => {
+  const response = await h.request(path)
+  assert.equal(response.status, 200, await response.clone().text())
+  return response.json()
+}
+const csvRows = text => text.trimEnd().split('\r\n').map(line =>
+  [...line.matchAll(/(?:^|,)(?:"((?:[^"]|"")*)"|([^",]*))(?=,|$)/g)]
+    .map(match => match[1] === undefined ? match[2] : match[1].replaceAll('""', '"')))
+
+// Every expectation starts with the agreed work price and the requested cents.
+// No expected balance is taken from a payment effect or a report projection.
+async function nativeInvoice(h, b, price, day, { customer = b.customer, site = b.site, tech = b.priya, person = b.priyaPerson, approve = true } = {}) {
+  const job = await h.command('job.create', { customerId: customer.id, siteId: site.id, title: 'Receipt allocation work', lines: [{ description: 'Completed repair', quantity: '1', unitPrice: money(price), tax: 'FREE' }] })
+  const visit = await h.command('visit.book', { jobId: job.id, technicianId: tech.id, date: day, start: '09:00', end: '10:00' })
+  await person.run('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+  await person.run('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Repair completed', signoff: { absentReason: 'Customer away' } })
+  const draft = await h.command('invoice.prepare', { jobId: job.id })
+  return approve ? h.command('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 }) : draft
+}
+
+function centLedger(h) {
+  const invoices = [], entries = []
+  const add = (invoice, customer, cents, currency = 'USD', dueOn = '2026-11-04') => {
+    invoices.push({ invoice, customer, cents, currency, dueOn })
+    return invoice
+  }
+  const post = (invoice, cents) => entries.push({ id: invoice.id, cents })
+  const check = async (asOf = '2026-11-09') => {
+    const expected = invoices.map(({ invoice, customer, cents, currency }) => {
+      const netCents = cents - entries.filter(e => e.id === invoice.id).reduce((n, e) => n + e.cents, 0)
+      return { id: invoice.id, number: invoice.number, customerId: customer.id, currency, netCents, due: money(Math.max(0, netCents)), credit: money(Math.max(0, -netCents)), href: '#invoices/' + invoice.id }
+    })
+    const balances = await read(h, '/api/glove/balances')
+    const byId = rows => [...rows].sort((a, b) => a.id.localeCompare(b.id))
+    assert.deepEqual(byId(balances.invoices), byId(expected), 'every invoice agrees to the cent with the independent ledger')
+    const keys = [...new Set(expected.map(i => i.customerId + ':' + i.currency))].sort()
+    const customerRows = rows => [...rows].sort((a, b) => (a.customerId + ':' + a.currency).localeCompare(b.customerId + ':' + b.currency))
+    assert.deepEqual(customerRows(balances.customers).map(c => ({ ...c, invoices: byId(c.invoices) })), keys.map(key => {
+      const list = expected.filter(i => i.customerId + ':' + i.currency === key)
+      const due = list.reduce((n, i) => n + Math.max(0, i.netCents), 0), credit = list.reduce((n, i) => n + Math.max(0, -i.netCents), 0)
+      return { customerId: list[0].customerId, currency: list[0].currency, due: money(due), credit: money(credit), balance: money(due - credit), invoices: byId(list) }
+    }))
+    const open = expected.filter(i => i.netCents > 0).map(i => {
+      const source = invoices.find(row => row.invoice.id === i.id)
+      const days = Math.round((Date.parse(asOf) - Date.parse(source.dueOn)) / 86_400_000)
+      const bucket = days <= 0 ? 'current' : days <= 30 ? '1-30' : days <= 60 ? '31-60' : days <= 90 ? '61-90' : 'over90'
+      return { ...i, source, days, bucket }
+    })
+    const buckets = rows => Object.fromEntries(['current', '1-30', '31-60', '61-90', 'over90'].map(bucket => [bucket, money(rows.filter(i => i.bucket === bucket).reduce((n, i) => n + i.netCents, 0))]))
+    const aging = await read(h, '/api/glove/reports/receivables.json?asOf=' + asOf)
+    assert.deepEqual(byId(aging.customers.flatMap(c => c.invoices)).map(i => [i.id, i.balance, i.bucket, i.daysPastDue, i.href]), byId(open).map(i => [i.id, i.due, i.bucket, Math.max(0, i.days), i.href]))
+    assert.deepEqual(customerRows(aging.customers).map(c => [c.customerId, c.currency, c.total, c.buckets]), keys.filter(key => open.some(i => i.customerId + ':' + i.currency === key)).map(key => {
+      const list = open.filter(i => i.customerId + ':' + i.currency === key)
+      return [list[0].customerId, list[0].currency, money(list.reduce((n, i) => n + i.netCents, 0)), buckets(list)]
+    }))
+    const totals = [...new Set(open.map(i => i.currency))].sort().map(currency => {
+      const list = open.filter(i => i.currency === currency)
+      return { currency, buckets: buckets(list), total: money(list.reduce((n, i) => n + i.netCents, 0)) }
+    })
+    assert.deepEqual(aging.totals, totals)
+    const csv = await h.request('/api/glove/reports/receivables.csv?asOf=' + asOf)
+    assert.equal(csv.status, 200)
+    const cells = csvRows(await csv.text())
+    assert.deepEqual(cells[0], ['Customer', 'Currency', 'Invoice', 'Revision', 'Issued', 'Due', 'Date basis', 'Days past due', 'Bucket', 'Balance', 'Reminder state', 'Invoice link'])
+    const sortCells = rows => [...rows].sort((a, b) => a.at(-1).localeCompare(b.at(-1)))
+    assert.deepEqual(sortCells(cells.slice(1)), sortCells(open.map(i => [i.source.customer.name, i.currency, i.number, '1', i.source.invoice.dates.issuedOn, i.source.dueOn, i.source.invoice.dates.basis, String(Math.max(0, i.days)), i.bucket, i.due, 'No reminders scheduled', i.href])), 'every parsed CSV cell, including quoted names, agrees')
+    const dashboard = await read(h, '/api/glove/dashboard')
+    const todayOpen = open.map(i => {
+      const days = Math.round((Date.parse(at.slice(0, 10)) - Date.parse(i.source.dueOn)) / 86_400_000)
+      return { ...i, bucket: days <= 0 ? 'current' : days <= 30 ? '1-30' : days <= 60 ? '31-60' : days <= 90 ? '61-90' : 'over90' }
+    })
+    assert.deepEqual(dashboard.receivables, totals.map(row => ({ ...row, buckets: buckets(todayOpen.filter(i => i.currency === row.currency)) })))
+    const brief = await read(h, '/api/glove/brief?at=' + asOf + 'T12:00:00.000Z')
+    assert.deepEqual(byId(brief.sections.overdue), byId(open.filter(i => i.days > 0).map(i => ({ kind: 'overdue', id: i.id, text: `${i.number} for ${i.source.customer.name}: $${i.due} ${i.currency} overdue since ${i.source.dueOn}`, action: { label: 'Review overdue invoice', href: i.href } }))))
+    return { balances, aging, cells, tile: dashboard.receivables, overdue: brief.sections.overdue }
+  }
+  return { add, post, check }
+}
+
+export async function receiptCreditQualification(t) {
+  const h = await installation({ at: '2026-11-04T12:00:00.000Z' })
+  t.after(() => h.close())
+  const b = await business(h, { currency: 'USD', timezone: 'UTC', paymentTermsDays: 0 }), ledger = centLedger(h)
+  const cardInvoice = ledger.add(await nativeInvoice(h, b, 10003, '2026-09-20'), b.customer, 10003)
+  const source = ledger.add(await nativeInvoice(h, b, 8007, '2026-09-21'), b.customer, 8007)
+  const target = ledger.add(await nativeInvoice(h, b, 5011, '2026-09-22'), b.customer, 5011)
+  const settings = (await h.state()).business[0]
+  await h.command('business.save', { ...settings, paymentTermsDays: 14 })
+  const small = ledger.add(await nativeInvoice(h, b, 503, '2026-09-23'), b.customer, 503, 'USD', '2026-11-18')
+  await h.command('business.save', { ...(await h.state()).business[0], paymentTermsDays: 0 })
+  const peer = await h.command('customer.save', { name: 'Peer, "Quoted" customer' })
+  const site = await h.command('site.save', { customerId: peer.id, address: 'Two Synthetic Road' })
+  const otherCustomer = ledger.add(await nativeInvoice(h, b, 3333, '2026-09-24', { customer: peer, site }), peer, 3333)
+  const branch = await h.command('branch.save', { name: 'Other branch', prefix: 'OTH', timezone: 'UTC', zips: [] })
+  const branchPerson = await h.person('Branch field person', 'technician')
+  const branchTech = await h.command('technician.save', { name: 'Branch field person', operatorId: branchPerson.id, branchId: branch.id })
+  const branchCustomer = await h.command('customer.save', { name: 'Other branch customer' })
+  const branchSite = await h.command('site.save', { customerId: branchCustomer.id, branchId: branch.id, address: 'Three Synthetic Road' })
+  const otherBranch = ledger.add(await nativeInvoice(h, b, 4444, '2026-09-25', { customer: branchCustomer, site: branchSite, tech: branchTech, person: branchPerson }), branchCustomer, 4444)
+  const draft = await nativeInvoice(h, b, 1000, '2026-09-26', { approve: false })
+  const role = await h.command('role.save', { name: 'Receipt observer', permissions: [] })
+  const custom = await h.person('Receipt custom person', 'custom:' + role.id)
+  const token = await h.command('token.issue', { name: 'Receipt integration', role: 'office' })
+  await h.setTime(at)
+  await connectPayments(h)
+  const writes = [], manual = [], cards = []
+  const payload = invoice => ({ invoiceId: invoice.id, version: invoice.version })
+  const run = async (person, type, input, effects = []) => {
+    const calls = h.stripePayments.calls.length
+    const commandId = randomUUID(), row = await person.run(type, input, { commandId })
+    if (type !== 'payment.checkout') assert.equal(h.stripePayments.calls.length, calls, 'staff records and credit entries request no provider action')
+    writes.push({ person, type, input, commandId, id: row.id })
+    for (const [invoice, amount] of effects) ledger.post(invoice, amount)
+    await ledger.check()
+    return row
+  }
+  const owner = { id: (await h.state()).actor.id, name: 'Olivia Owner', run: h.command }
+  const unchanged = async action => {
+    const before = await h.state(), calls = h.stripePayments.calls.length
+    await action()
+    const after = await h.state()
+    for (const key of ['payments', 'invoices', 'events']) assert.deepEqual(after[key], before[key], 'refusal changes no money, invoice or Activity fact')
+    assert.equal(h.stripePayments.calls.length, calls, 'refusal requests nothing from Stripe')
+    await ledger.check()
+  }
+  const tokenRefusal = (type, input, status = 403) => unchanged(async () => {
+    const response = await h.request('/api/glove/commands', { method: 'POST', headers: { authorization: 'Bearer ' + token.token }, body: { commandId: randomUUID(), type, payload: input } })
+    assert.equal(response.status, status, await response.clone().text())
+  })
+  const checkout = async (amount, tip = '0.00') => {
+    const input = { ...payload(cardInvoice), method: 'card', amount, tip }
+    const row = await run(owner, 'payment.checkout', input)
+    assert.match(row.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//)
+    const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
+    assert.equal(pi.amount, Math.round(Number(amount) * 100) + Math.round(Number(tip) * 100))
+    Object.assign(pi, { status: 'succeeded', amount_received: pi.amount, latest_charge: { id: 'synthetic-glove-receipt-charge-' + row.id, created: Date.parse(at) / 1000, status: 'succeeded', balance_transaction: { fee: 1 } } })
+    const eventId = randomUUID()
+    assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded', { id: eventId, at: Date.parse(at) / 1000 })).status, 200)
+    ledger.post(cardInvoice, Math.round(Number(amount) * 100))
+    cards.push({ row, pi, eventId })
+    await ledger.check()
+    return row
+  }
+
+  await scenario(t, 'PAY-021 point 1: exact installment boundaries and current Owner-only TEST Checkout refuse unsafe amounts without a request', async () => {
+    for (const [amount, error] of [['0.00', 'AMOUNT'], ['-0.01', 'MONEY'], ['malformed', 'MONEY'], ['1.001', 'MONEY'], ['100.04', 'AMOUNT']]) await unchanged(() => h.command('payment.checkout', { ...payload(cardInvoice), method: 'card', amount }, { error }))
+    for (const person of [b.office, b.dispatcher]) await unchanged(() => person.run('payment.checkout', { ...payload(cardInvoice), method: 'card', amount: '0.01' }, { error: 'FORBIDDEN' }))
+    await tokenRefusal('payment.checkout', { ...payload(cardInvoice), method: 'card', amount: '0.01' })
+    await checkout('0.01', '15.00')
+    await unchanged(() => h.command('payment.checkout', { ...payload(cardInvoice), method: 'card', amount: '100.03' }, { error: 'AMOUNT' }))
+    await checkout('100.02')
+    assert.equal(h.stripePayments.sessions.length, 2)
+    assert.equal((await ledger.check()).balances.invoices.find(i => i.id === cardInvoice.id).due, '0.00')
+  })
+
+  await scenario(t, 'PAY-021 point 2: Owner and Office cash and check references remain attributable staff records and unauthorized or unapproved receipts change nothing', async () => {
+    const input = { ...payload(source), method: 'cash', amount: '1.01', reference: 'synthetic-glove-receipt-reference' }
+    for (const person of [b.dispatcher, b.priyaPerson, custom]) await unchanged(() => person.run('payment.record', input, { error: 'FORBIDDEN' }))
+    await tokenRefusal('payment.record', input)
+    for (const reference of [undefined, '']) await unchanged(() => h.command('payment.record', { ...input, reference }, { error: 'INPUT' }))
+    await unchanged(() => b.office.run('payment.record', { ...input, ...payload(draft) }, { error: 'INVOICE_STATE' }))
+    for (const [person, method, amount] of [[owner, 'cash', 101], [owner, 'check', 202], [b.office, 'cash', 303], [b.office, 'check', 404]]) {
+      const reference = `synthetic-glove-${method}-reference-${amount}`
+      const row = await run(person, 'payment.record', { ...payload(source), method, amount: money(amount), reference }, [[source, amount]])
+      assert.deepEqual([row.method, row.amount, row.reference, row.status, row.by.id, row.by.name], [method, money(amount), reference, 'paid', person.id, person.name])
+      assert.deepEqual([row.mode, row.connectionId, row.providerReference, row.intentId], [undefined, undefined, undefined, undefined], 'staff entry never becomes a provider-confirmed claim')
+      manual.push(row)
+    }
+    assert.match((await ledger.check()).aging.basis, /Cash and check records/)
+  })
+
+  await scenario(t, 'PAY-021 point 3: a check exceeding the remaining balance retains exactly the excess on its source invoice', async () => {
+    const row = await run(b.office, 'payment.record', { ...payload(source), method: 'check', amount: '90.00', reference: 'synthetic-glove-excess-check' }, [[source, 9000]])
+    manual.push(row)
+    const { balances } = await ledger.check()
+    assert.deepEqual([balances.invoices.find(i => i.id === source.id).due, balances.invoices.find(i => i.id === source.id).credit], ['0.00', '20.03'])
+    assert.ok(balances.invoices.filter(i => i.id !== source.id).every(i => i.credit === '0.00'))
+  })
+
+  await scenario(t, 'PAY-021 point 4: explicit credit allocations enforce customer, currency, branch, source and target limits with no money movement', async inner => {
+    const input = { ...payload(target), sourceInvoiceId: source.id, sourceVersion: source.version, amount: '0.01' }
+    assert.equal(otherCustomer.branchId, source.branchId, 'the other-customer case keeps the source branch')
+    assert.equal(otherCustomer.revisions.at(-1).totals.currency, source.revisions.at(-1).totals.currency)
+    assert.notEqual(otherBranch.branchId, source.branchId)
+    await unchanged(() => h.command('site.save', { customerId: b.customer.id, branchId: branch.id, address: 'Forbidden cross-branch site' }, { error: 'BRANCH' }))
+    const scoped = await h.person('Receipt branch office', 'office')
+    await h.command('branch.limit', { operatorId: scoped.id, branchId: branch.id })
+    await unchanged(() => scoped.run('payment.allocate', input, { error: 'NOT_FOUND' }))
+    await unchanged(() => scoped.run('payment.record', { ...payload(source), method: 'check', amount: '1.00', reference: 'synthetic-glove-cross-branch' }, { error: 'NOT_FOUND' }))
+    for (const invoice of [otherCustomer, otherBranch, source]) await unchanged(() => b.office.run('payment.allocate', { ...input, ...payload(invoice) }, { error: 'ALLOCATION' }))
+    await unchanged(() => b.office.run('payment.allocate', { ...input, amount: '20.04' }, { error: 'AMOUNT' }))
+    await unchanged(() => b.office.run('payment.allocate', { ...input, ...payload(small), amount: '5.04' }, { error: 'AMOUNT' }))
+    for (const person of [b.dispatcher, b.priyaPerson, custom]) await unchanged(() => person.run('payment.allocate', input, { error: 'FORBIDDEN' }))
+    await tokenRefusal('payment.allocate', input)
+    const calls = h.stripePayments.calls.length
+    for (const [person, amount] of [[b.office, 1201], [owner, 802]]) {
+      const row = await run(person, 'payment.allocate', { ...input, amount: money(amount) }, [[source, -amount], [target, amount]])
+      assert.deepEqual([row.kind, row.amount, row.allocatedAmount, row.sourceInvoiceId, row.invoiceId, row.method, row.fee, row.tip], ['allocation', '0.00', money(amount), source.id, target.id, 'credit transfer', '0.00', '0.00'])
+      assert.deepEqual(row.effects.map(e => [e.invoiceId, e.amountCents, e.tipCents]), [[source.id, -amount, 0], [target.id, amount, 0]])
+    }
+    assert.equal(h.stripePayments.calls.length, calls, 'allocation never asks a provider to move money')
+    await unchanged(() => b.office.run('payment.allocate', input, { error: 'AMOUNT' }))
+    await currencyRefusal(inner)
+  })
+
+  await scenario(t, 'PAY-021 point 5: only the Owner records a reasoned non-cash credit', async () => {
+    const input = { ...payload(target), amount: '3.07', reference: 'Owner goodwill for delayed repair' }
+    for (const person of [b.office, b.dispatcher, b.priyaPerson, custom, b.agent]) await unchanged(() => person.run('payment.credit', input, { error: 'FORBIDDEN' }))
+    await tokenRefusal('payment.credit', input)
+    for (const reference of [undefined, '']) await unchanged(() => h.command('payment.credit', { ...input, reference }, { error: 'INPUT' }))
+    const calls = h.stripePayments.calls.length
+    const row = await run(owner, 'payment.credit', input, [[target, 307]])
+    assert.deepEqual([row.kind, row.method, row.amount, row.reference, row.by.id, row.by.role], ['credit', 'credit', '3.07', input.reference, owner.id, 'owner'])
+    assert.equal(h.stripePayments.calls.length, calls)
+  })
+
+  await scenario(t, 'PAY-021 point 6: every invoice, customer, aging bucket and CSV cell, Today tile and linked overdue item matches the independent cent ledger after every allowed and refused step', async () => {
+    const result = await ledger.check()
+    assert.equal(result.balances.invoices.find(i => i.id === target.id).due, '27.01')
+    assert.equal(result.balances.customers.find(c => c.customerId === b.customer.id).balance, '32.04')
+    assert.ok(result.cells.some(row => row[0] === peer.name), 'a nonempty quoted customer row was downloaded and parsed')
+    assert.equal(result.aging.customers.flatMap(c => c.invoices).find(i => i.id === small.id).bucket, 'current')
+    for (const [asOf, bucket] of [['2026-12-04', '1-30'], ['2026-12-05', '31-60'], ['2027-01-03', '31-60'], ['2027-01-04', '61-90'], ['2027-02-02', '61-90'], ['2027-02-03', 'over90']]) {
+      const boundary = await ledger.check(asOf)
+      assert.equal(boundary.aging.customers.flatMap(c => c.invoices).find(i => i.id === target.id).bucket, bucket, 'outstanding principal crosses the exact frozen-date aging boundary')
+    }
+  })
+
+  await scenario(t, 'PAY-021 point 7: Stripe revenue and technician tips exclude staff receipts and allocations, with identical restart, replay, Activity and business export', async () => {
+    for (const row of manual) assert.deepEqual([row.tip, row.fee, row.technicianIds, row.connectionId, row.providerReference], ['0.00', '0.00', [], undefined, undefined])
+    const dashboard = await read(h, '/api/glove/dashboard')
+    assert.deepEqual(dashboard.paidToday, { mode: 'test', total: '100.03', tips: '15.00' })
+    await b.priyaPerson.run('clock.in', { deviceTime: '2026-11-09T09:00:00Z' })
+    await b.priyaPerson.run('clock.out', { deviceTime: '2026-11-09T10:00:00Z' })
+    await h.command('timesheet.approve', { technicianId: b.priya.id, weekStart: '2026-11-09' })
+    const payroll = () => read(h, '/api/glove/reports/payroll.json?from=2026-11-09&to=2026-11-15')
+    assert.equal((await payroll()).people.find(p => p.technicianId === b.priya.id).tips, '15.00')
+    const providerId = 'synthetic-glove-receipt-payout'
+    h.stripePayments.payouts.set(providerId, { id: providerId, amount: 11501, currency: 'usd', method: 'standard', automatic: true, status: 'paid', livemode: false, balance_transaction: { fee: 0 } })
+    h.stripePayments.transactions.set(providerId, { data: cards.map(({ row, pi }) => ({ id: 'synthetic-glove-balance-' + row.id, type: 'charge', source: { id: pi.latest_charge.id }, amount: pi.amount, fee: 1, net: pi.amount - 1, currency: 'usd' })), has_more: false })
+    const payout = await h.command('payout.reconcile', { providerId })
+    assert.equal(payout.reconciled, true)
+    assert.deepEqual(payout.items.map(i => i.paymentId).sort(), cards.map(c => c.row.id).sort())
+    assert.ok(payout.items.every(i => !manual.some(p => p.id === i.paymentId)))
+    const manualProvider = 'synthetic-glove-manual-receipt-payout'
+    h.stripePayments.payouts.set(manualProvider, { id: manualProvider, amount: 101, currency: 'usd', method: 'standard', automatic: false, status: 'paid', livemode: false, balance_transaction: { fee: 0 } })
+    for (const row of manual) {
+      const before = (await h.state()).payments
+      await h.command('payout.allocate', { providerId: manualProvider, paymentIds: [row.id] }, { error: 'PAYOUT_ALLOCATION' })
+      assert.deepEqual((await h.state()).payments, before, 'manual receipt cannot become a Stripe payout source')
+      await ledger.check()
+    }
+    const trail = await assertTrail(h, ['payment.requested', 'payment.checkoutAccepted', 'payment.paid', 'payment.recorded', 'payment.allocated', 'payment.credited'])
+    for (const write of writes) {
+      const events = trail.activity.filter(e => e.commandId === write.commandId)
+      assert.ok(events.length)
+      for (const event of events) {
+        const actor = event.kind === 'payment.checkoutAccepted' ? ['provider:Stripe', 'Stripe', 'provider'] : [write.person.id, write.person.name, write.person === owner ? 'owner' : 'office']
+        assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.at], [...actor, at])
+        const exported = trail.exported.timeline.find(e => e.id === event.id)
+        assert.deepEqual([exported.actor_id, exported.actor_name, exported.actor_role, exported.command_id, exported.at], [event.actorId, event.actorName, event.actorRole, write.commandId, at])
+      }
+      const exported = trail.exported.payments.find(p => p.id === write.id)
+      assert.ok(exported)
+      assert.deepEqual([exported.invoiceId, exported.amount, exported.tip, exported.reference, exported.allocatedAmount, exported.by.id], [write.input.invoiceId, write.type === 'payment.allocate' ? '0.00' : write.input.amount, write.input.tip ?? '0.00', write.input.reference, write.type === 'payment.allocate' ? write.input.amount : undefined, write.person.id], 'the business export retains each exact receipt, reason and allocation with its recording person')
+    }
+    const before = { projections: await ledger.check(), payments: (await h.state()).payments, payroll: await payroll(), trail }
+    const calls = h.stripePayments.calls.length, mailCount = h.email.sent.length
+    await h.restart()
+    for (const write of writes) {
+      const replay = await write.person.run(write.type, write.input, { commandId: write.commandId })
+      assert.equal(replay.id, write.id)
+      assert.equal(replay.checkoutUrl, undefined, 'Checkout bearer is shown once and never replayed')
+      await ledger.check()
+    }
+    for (const { pi, eventId } of cards) {
+      assert.equal((await paymentEvent(h, pi, 'payment_intent.succeeded', { id: eventId, at: Date.parse(at) / 1000 })).status, 200)
+      assert.deepEqual(await ledger.check(), before.projections, 'each duplicate callback preserves every cent projection after restart')
+    }
+    assert.equal(h.stripePayments.calls.slice(calls).filter(c => c.method === 'POST').length, 0)
+    assert.equal(h.email.sent.length, mailCount, 'no receipt email or other message was added')
+    assert.deepEqual({ projections: await ledger.check(), payments: (await h.state()).payments, payroll: await payroll(), trail: await assertTrail(h, ['payment.recorded', 'payment.allocated', 'payment.credited']) }, before)
+    await h.command('token.revoke', { tokenId: token.id })
+    await tokenRefusal('payment.record', { ...payload(target), method: 'cash', amount: '1.00', reference: 'synthetic-glove-revoked' }, 401)
+  })
+}
+
+async function currencyRefusal(t) {
+  const h = await installation({ at: '2026-11-04T12:00:00.000Z' }); t.after(() => h.close())
+  const b = await business(h, { currency: 'AUD', timezone: 'UTC', paymentTermsDays: 0 })
+  const native = await nativeInvoice(h, b, 10000, '2026-09-20')
+  const staged = await h.command('import.stage', { files: await serviceM8Balances(), balanceAsOf: '2026-10-22' })
+  await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
+  let state = await h.state()
+  const imported = state.invoices.find(i => i.source?.system === 'ServiceM8')
+  const customer = state.customers.find(c => c.id === b.customer.id), other = state.customers.find(c => c.id === imported.customerId)
+  await h.command('customer.merge', { survivorId: customer.id, mergedIds: [other.id], versions: { [customer.id]: customer.version, [other.id]: other.version } })
+  state = await h.state()
+  const source = state.invoices.find(i => i.id === native.id), target = state.invoices.find(i => i.id === imported.id)
+  assert.deepEqual([source.customerId, target.customerId, source.branchId ?? null, target.branchId ?? null], [customer.id, customer.id, null, null])
+  const ledger = centLedger(h)
+  ledger.add(source, customer, 10000, 'AUD')
+  ledger.add(target, customer, 7650, 'USD', '2026-10-22')
+  await h.setTime(at)
+  await ledger.check()
+  await h.command('payment.record', { invoiceId: source.id, version: source.version, method: 'check', amount: '150.00', reference: 'synthetic-glove-aud-credit' })
+  ledger.post(source, 15000)
+  await ledger.check()
+  const before = await h.state(), calls = h.stripePayments.calls.length
+  await h.command('payment.allocate', { invoiceId: target.id, version: target.version, sourceInvoiceId: source.id, sourceVersion: source.version, amount: '1.00' }, { error: 'ALLOCATION' })
+  assert.deepEqual(await h.state(), before, 'same customer and branch still cannot cross currencies')
+  assert.equal(h.stripePayments.calls.length, calls)
+  const expected = await ledger.check()
+  await h.restart()
+  assert.deepEqual(await ledger.check(), expected)
+}

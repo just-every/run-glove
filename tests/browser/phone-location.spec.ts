@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness } from './harness-route'
 import { test, expect, type Page } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
@@ -9,17 +10,16 @@ async function open(browser: any, width: number) {
   const context = await browser.newContext({ viewport: { width, height: 1000 } })
   const page = await context.newPage()
   if (!process.env.GLOVE_OPEN) throw new Error('Private local owner entry required')
-  await page.goto(process.env.GLOVE_OPEN)
+  await gotoHarness(page, process.env.GLOVE_OPEN)
   await page.waitForURL((url: URL) => ['/app', '/setup'].includes(url.pathname) && !url.hash.includes('rer-dev'))
   if (new URL(page.url()).pathname === '/setup') {
     await page.getByRole('checkbox').check()
-    await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-    await page.waitForURL((url: URL) => url.pathname === '/app')
+    await finishHarnessSetup(page)
   }
   return { context, page }
 }
 async function api(page: Page, h: any, as?: string, captures: any[] = []) {
-  await page.route(`${origin}/api/glove/**`, async route => {
+  await harnessRoute(page, `${origin}/api/glove/**`, async route => {
     const req = route.request(), url = new URL(req.url()), body = req.postDataJSON()
     if (body?.type === 'location.phone') captures.push(body)
     const response = await h.request(url.pathname + url.search, { method: req.method(), ...(as ? { as } : {}), ...(body ? { body } : {}) })
@@ -49,9 +49,9 @@ test('DISP-005 point 1: owner board displays phone and Samsara fixes with next-s
     await h.command('location.fleetConnect', { technicianId: b.tom.id, vehicleId: '12345', key: 'synthetic-glove-703' })
     h.fleet.data = [{ id: '12345', gps: { time: f.now(), latitude: 41.89172, longitude: -87.63172 } }]
     await h.command('location.fleetRead', { technicianId: b.tom.id })
-    await h.restart()
+    await restartHarness(h)
     await api(page, h)
-    await page.goto(`${origin}/app#dispatch`)
+    await gotoHarness(page, `${origin}/app#dispatch`)
     await page.getByLabel('Day', { exact: true }).fill('2026-11-09')
     const previous = page.getByRole('button', { name: 'Previous day', exact: true })
     await previous.focus()
@@ -71,13 +71,13 @@ test('DISP-005 point 1: owner board displays phone and Samsara fixes with next-s
     await b.tomPerson.run('clock.out', { deviceTime: f.now() })
     await b.priyaPerson.run('location.phone', f.point(), { error: 'LOCATION_STOPPED' })
     await h.command('location.fleetRead', { technicianId: b.tom.id }, { error: 'LOCATION_STOPPED' })
-    await page.reload()
+    await reloadHarness(page)
     await page.getByLabel('Day', { exact: true }).fill('2026-11-09')
     await expect(map.getByRole('img', { name: /live .* position/ })).toHaveCount(0)
     await expect(map.getByText(/^Location stopped or unavailable · ETA unavailable/)).toHaveCount(2)
     expect(await f.rows()).toEqual([])
     expect(h.fleet.calls.length).toBe(calls)
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })
 
 test('DISP-005 points 2, 3 and 4: phone consent requests browser location only during visible online assigned work and never queues offline captures at 390', async ({ browser }) => {
@@ -111,7 +111,7 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     })
     await api(page, h, b.priyaPerson.cookie, captures)
     const load = async () => {
-      await page.goto(`${origin}/app?job=${f.job.id}`)
+      await gotoHarness(page, `${origin}/app?job=${f.job.id}`)
       await expect(page.getByRole('region', { name: 'Location sharing', exact: true })).toBeVisible()
     }
     await load()
@@ -130,7 +130,7 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     expect(await page.evaluate(() => (window as any).locationWatches.starts)).toBe(0)
     expect(await f.rows()).toEqual([])
     await b.priyaPerson.run('clock.in', { deviceTime: now() })
-    await page.reload()
+    await reloadHarness(page)
     await expect(sharing.getByRole('button', { name: 'Stop sharing location', exact: true })).toBeVisible()
     expect(await page.evaluate(() => (window as any).locationWatches.starts)).toBe(0)
     expect(await f.rows()).toEqual([])
@@ -138,7 +138,7 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     // A browser's first mocked fix retains the time set on the context. Give
     // the new watch a fix captured after the shift and timer have started.
     await context.setGeolocation({ latitude: 41.89082, longitude: -87.63082 })
-    await page.reload()
+    await reloadHarness(page)
     await expect.poll(() => page.evaluate(() => (window as any).locationWatches.starts)).toBe(1)
     expect(await page.evaluate(async () => (await navigator.permissions.query({ name: 'geolocation' })).state)).toBe('granted')
     await expect(sharing.getByText('Phone location shared with dispatch', { exact: true })).toBeVisible()
@@ -180,7 +180,7 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     expect(JSON.stringify(captures)).not.toContain('41.89084')
     expect(await page.evaluate(() => (window as any).locationOutboxWrites.flat().filter((item: any) => item.type.startsWith('location.')))).toEqual([])
     await b.priyaPerson.run('timer.stop', { visitId: f.visits[0].id, deviceTime: now() })
-    await page.reload()
+    await reloadHarness(page)
     await expect(sharing.getByText('Location stopped: clock in and start a visit timer', { exact: true })).toBeVisible()
     expect(await f.rows()).toEqual([])
     expect(await page.evaluate(() => (window as any).locationWatches.starts)).toBe(0)
@@ -189,17 +189,17 @@ test('DISP-005 points 2, 3 and 4: phone consent requests browser location only d
     await b.dispatcher.run('visit.cancel', { visitId: f.visits[1].id, version: f.visits[1].version, reason: 'Available for handoff' })
     const visit = (await h.state()).visits.find((v: any) => v.id === f.visits[0].id)
     await b.dispatcher.run('visit.change', { visitId: visit.id, version: visit.version, technicianId: b.tom.id, reason: 'Field handoff' })
-    await page.reload()
+    await reloadHarness(page)
     await expect(sharing.getByText('Location stopped: clock in and start a visit timer', { exact: true })).toBeVisible()
     expect(await page.evaluate(() => (window as any).locationWatches.starts)).toBe(0)
     expect(await f.rows()).toEqual([])
     await b.priyaPerson.run('clock.out', { deviceTime: now() })
-    await page.reload()
+    await reloadHarness(page)
     await expect(sharing.getByText('Location stopped: clock in and start a visit timer', { exact: true })).toBeVisible()
     const withdrawal = page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON()?.type === 'location.consent')
     await sharing.getByRole('button', { name: 'Stop sharing location', exact: true }).click()
     expect((await (await withdrawal).json()).ok).toBe(true)
     await expect(sharing.getByText('Location sharing is off', { exact: true })).toBeVisible()
     expect(await f.rows()).toEqual([])
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 })

@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 30 | 191 | 16 | 237 |
+| Core | 43 | 178 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 30 | 204 | 29 | 263 |
+| Full target | 43 | 191 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -596,19 +596,19 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### BOOK-014 — Lead-source credential custody
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004, BASE-SECRET-001
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004, BASE-SECRET-001
 
 **Requirement.** Lead-source credential custody supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. A lead becomes a request with its provider as source and its provider lead ID, for the one existing customer whose phone (last ten digits) or email equals the lead's, else for a new customer (and site, when the lead names an address) that `CUST-005` flags if it resembles another.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/lead-matching.test.mjs` (BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart)
+**Gap.** None.
 
 #### BOOK-015 — Lead costs and acknowledgments
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Lead costs and acknowledgments supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
@@ -622,20 +622,20 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 7. The command commits one message before sending, and replay or a second command never resends that acknowledgment.
 8. Provider mail acceptance or delivery is shown from the existing mail receipts; neither confirms receipt in the Yelp conversation or meeting Yelp's response window.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/pipeline.test.mjs` (BOOK-003 requests from four sources move through the pipeline into the conversion-by-source report); `tests/browser/journey.spec.ts` (BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390)
+**Gap.** None.
 
 #### BOOK-016 — Explicit lead acknowledgment execution
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Explicit lead acknowledgment execution supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
 **Acceptance.**
 1. No acknowledgment is sent automatically.
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/pipeline.test.mjs` (BOOK-016 point 1: overdue acknowledgments remain queued through rules, scheduled reads, replay and Worker restart until a person acts)
+**Gap.** None.
 
 #### BOOK-017 — Reserve with Google request intake
 
@@ -890,7 +890,7 @@ Core · target · **partial** · From QUOTE-005
 
 #### QUOTE-015 — Document presentation and print
 
-Core · target · **partial** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROLE-001
+Core · target · **done** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROLE-001
 
 **Requirement.** Document presentation and print supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-005-operating-rules) retain the record formats and calculations.
 
@@ -900,8 +900,8 @@ Core · target · **partial** · From QUOTE-005 · Cites BASE-DATA-001, BASE-ROL
 3. Print / Save PDF invokes the browser’s print renderer after removing a bearer fragment, restores the link after printing, includes the whole document and hides response controls.
 4. No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013/006 retain their owner-disclosure gate and COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 inherits the same document and original-file restrictions.
 
-**Evidence.** `tests/browser/documents.spec.ts`, `tests/api/documents.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Existing role, branch, revision and original-file guards apply.; point 2 — Dates use US calendar presentation and ten-digit phones use US punctuation; saved legacy addresses and time zones remain as recorded.; point 3 — Print / Save PDF invokes the browser’s print renderer after removing a bearer fragment, restores the link after printing, includes the whole document and hides response controls.; point 4 — No signing, send or delivery claim is added; QUOTE-002, QUOTE-008, QUOTE-009, QUOTE-010, QUOTE-011, QUOTE-012, QUOTE-013/006 retain their owner-disclosure gate and COMM-006, COMM-022, COMM-023, COMM-024, COMM-025 inherits the same document and original-file restrictions. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/documents.spec.ts`, `tests/api/documents.test.mjs`; `tests/api/document-presentation.test.mjs` (QUOTE-015 document presentation preserves scoped originals, calendar facts and honest states after Worker restart); `tests/browser/document-print.spec.ts` (QUOTE-015 scoped documents print complete facts without controls or bearer fragments at 1440 and 390)
+**Gap.** None.
 
 #### QUOTE-006 — Field quotes and change orders, offline
 
@@ -1160,7 +1160,7 @@ Core · target · **partial**
 
 #### DISP-007 — Multi-day jobs, crews and subcontractors
 
-Core · target · **partial** · From DISP-007
+Core · target · **done** · From DISP-007
 
 **Requirement.** Multi-day jobs, crews and subcontractors supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#disp-007-operating-rules) retain the record formats and calculations. Recorded decisions: RL-8.
 
@@ -1173,8 +1173,8 @@ Core · target · **partial** · From DISP-007
 6. Canceling cancels them all, and is refused while a member has recorded evidence on theirs.
 7. The dispatch board's Rows choice shows crews instead of technicians in the day, week and month, one chip per crew booking, dragged or moved by keyboard as one.
 
-**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture books a three-day install for a two-person crew and a subcontractor, checks each sees only their visits, and checks the subcontractor's total in the 1099 export; a browser journey drags the crew's visit to another day on the DISP-001 week board by crew.; point 2 — A job holds any number of visits over any days.; point 3 — The owner (acting for "admin") names crews of 2 to 10 active technicians or subcontractors; changing a crew changes only later bookings.; point 4 — Booking a crew books one visit per member at the same date and times in one command, after one review of every member's conflicts.; point 5 — Moving any visit of that booking moves every member's visit in it that is not completed or canceled to the same date and times, never to another technician, after one review.; point 6 — Canceling cancels them all, and is refused while a member has recorded evidence on theirs.; point 7 — The dispatch board's Rows choice shows crews instead of technicians in the day, week and month, one chip per crew booking, dragged or moved by keyboard as one. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/commands/dispatch.ts`, `src/glove/subcontract.ts`, `src/glove/view.ts`, `src/ui/dispatch.tsx`, `src/ui/subcontract.tsx`, `tests/api/subcontract.test.mjs`, `tests/browser/journey.spec.ts`, `src/glove/commands/field.ts`; `tests/api/crews.test.mjs` (DISP-007 crews retain multi-day work, authority, atomic review and evidence through restart); `tests/browser/crew-board.spec.ts` (DISP-007 points 1 and 7: crew bookings stay single on every board and drag, keyboard move and cancellation retain the human actor)
+**Gap.** None.
 
 #### DISP-013 — Subcontractor field access
 
@@ -1276,7 +1276,7 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-DAT
 
 #### COMM-010 — Message outcomes and customer warnings
 
-Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
+Core · target · **done** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAIL-001, BASE-OPS-003, BASE-OPS-004, BASE-SECRET-001 · Register R-9
 
 **Requirement.** Message outcomes and customer warnings supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#comm-001-operating-rules) retain the record formats and calculations.
 
@@ -1290,8 +1290,8 @@ Core · target · **partial** · From COMM-001 · Cites BASE-AUDIT-001, BASE-MAI
 7. Each email is in the `COMM-007` stream as an outbound email with its author, recipient and state.
 8. Nothing is retried automatically: the desk sends again, or for a booking link revokes it and makes a new offer.
 
-**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A message record keeps its kind, subject, recipient, from-address, provider and who sent it, never the body, so a booking link's bearer exists only in the email and the one-time command response.; point 2 — After the command commits, Glove makes one send attempt with the message id as the delivery id.; point 3 — The provider's answer (accepted, refused, rate limited or not confirmed) and every authenticated event the provider posts to the mail callback (delivered, deferred, bounced, complained, failed, rejected) are provider facts on the message's timeline, in Activity and in the business export with the provider's reference; Glove authenticates each callback under the rules below (using Base's verifier for SendGrid/Resend), and Base's durable store keeps each matched event once, and applies an event only to a message Glove sent through that provider to exactly that recipient; authenticated unmatched events return 200 without effect.; point 4 — A message's state is the latest of its facts in Base's order: a final fact (delivered, bounced, complained, failed, rejected) is never replaced by a non-final one, and a later final fact (a complaint after delivery) replaces an earlier one. "Delivered" means the recipient's mail server accepted it, as the provider reported; Glove never claims a person read it.; point 5 — Each failure shows on the message with what to do next.; point 6 — A customer whose latest finished email to an address on their record bounced or was marked as spam carries that warning, with what to do next, until a later email to that address finishes delivered or the address changes.; point 7 — Each email is in the COMM-007 stream as an outbound email with its author, recipient and state.; point 8 — Nothing is retried automatically: the desk sends again, or for a booking link revokes it and makes a new offer. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/email.test.mjs`, `tests/api/customer-quotes.test.mjs`, `tests/api/agreements.test.mjs`, `tests/api/payments.test.mjs`, `tests/api/reminders.test.mjs`, `tests/browser/email.spec.ts`, `tests/portable.mjs`; `tests/api/message-outcomes.test.mjs` (COMM-010 points 1–8: committed messages retain honest provider outcomes, address warnings and no resend across Worker restart); `tests/browser/conversation.spec.ts` (COMM-010 points 5–7: desk sees independent address warnings and exact message outcomes after Worker restart)
+**Gap.** None.
 
 #### COMM-011 — Future document-email inheritance
 
@@ -1798,7 +1798,7 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001,
 
 #### FIELD-010 — Schedule-change push outcomes
 
-Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
+Core · target · **done** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001, BASE-ROLE-001, BASE-SECRET-001 · Register R-1, R-2
 
 **Requirement.** Schedule-change push outcomes supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#field-004-operating-rules) retain the record formats and calculations.
 
@@ -1809,8 +1809,8 @@ Core · target · **partial** · From FIELD-004 · Cites BASE-ACCESSIBILITY-001,
 4. The phone list says "Handed to the push service" (not "delivered", which Glove cannot see), "Not sent: the push service answered HTTP <status>" or "Not sent: the push service could not be reached".
 5. A technician manages the phone’s own subscription; committed visit changes trigger the bounded schedule-notification connector.
 
-**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — After every committed change, whoever or whatever made it (a person, a rule, a recurring series, an agent under the owner's grant, a move-in), each technician with a visit that has not ended and was booked to them, moved (its start or end changed), canceled, or handed to another technician gets one push on each subscribed phone: "New visit on your schedule" (also for the technician who receives a handed-over visit), "Visit moved", "Visit canceled" or "Visit moved off your schedule", or "N changes to your schedule" when one change touches several of their visits.; point 2 — A push carries only that line and, when one visit changed, the job's opaque id; never the customer, site, time or a note.; point 3 — Each push is encrypted for the phone (RFC 8291, aes128gcm) and signed with the VAPID key (RFC 8292: a 12-hour token naming the business email, else the installation address), kept by the push service for at most a day, and sent once, never retried.; point 4 — The phone list says "Handed to the push service" (not "delivered", which Glove cannot see), "Not sent: the push service answered HTTP <status>" or "Not sent: the push service could not be reached".; point 5 — A technician manages the phone’s own subscription; committed visit changes trigger the bounded schedule-notification connector. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/push.ts`, `src/glove/commands/push.ts`, `src/ui/push.tsx`, `public/manifest.webmanifest`, `public/glove-sw.js`, `tests/api/push.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/schedule-push.test.mjs` (FIELD-010 points 1–5: every schedule producer sends private once-only phone outcomes with attributable failures and subscription control)
+**Gap.** None.
 
 #### FIELD-005 — Native iOS and Android apps
 
@@ -1949,7 +1949,7 @@ Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
 
 #### COST-007 — Provider payroll file shapes
 
-Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
+Core · target · **done** · From COST-002 · Register R-15, R-16, R-17
 
 **Requirement.** Provider payroll file shapes supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#cost-002-operating-rules) retain the record formats and calculations. Owning-capability boundaries: Inheritance: `TEAM-003, TEAM-006` commissions and spiffs and `PAY-002, PAY-017, PAY-018, PAY-019, PAY-020` technician tips add their amounts to the same payroll files (Gusto's commission and paycheck-tips columns, an ADP RUN earnings code with dollars) for the same approved weeks before either ships.
 
@@ -1960,8 +1960,8 @@ Core · target · **partial** · From COST-002 · Register R-15, R-16, R-17
 4. Glove keeps no SSN and writes no SSN column.
 5. QuickBooks Payroll: Intuit publishes no fixed timesheet columns, only that the custom upload takes one entry per line with the employee and a date plus units, the date format and each column's meaning chosen on upload; Glove's date-and-units file (employee display name, MM/DD/YYYY date, pay item Regular, Overtime or Double time, hours) is a file the owner maps on upload, not a confirmed Intuit layout.
 
-**Evidence.** `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs`, `src/glove/api.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The ADP RUN file matches its published import layout for company, pay frequency, period dates, employee, earnings code, hours, dollars, check selection, department and pay-rate code, with the exact formatting in the operating rules.; point 2 — Gusto: Gusto publishes no fixed employee hours layout outside an account (its template is downloaded inside Gusto, and its Smart Import matches columns on upload); Glove's column names (last name, first name, Gusto employee ID, regular, overtime and double-overtime hours; the first word of the technician's name is the first name) are therefore not confirmed against a Gusto-published layout.; point 3 — The one column Gusto's help names, workweeks, is followed: one row per person and approved workweek, holding that week's date range as the documented refusal beside that week's hours, so Gusto places overtime in the right workweek.; point 4 — Glove keeps no SSN and writes no SSN column.; point 5 — QuickBooks Payroll: Intuit publishes no fixed timesheet columns, only that the custom upload takes one entry per line with the employee and a date plus units, the date format and each column's meaning chosen on upload; Glove's date-and-units file (employee display name, MM/DD/YYYY date, pay item Regular, Overtime or Double time, hours) is a file the owner maps on upload, not a confirmed Intuit layout. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/payroll.ts`, `src/ui/timesheets.tsx`, `tests/api/payroll.test.mjs`, `src/glove/api.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`; `tests/api/payroll-files.test.mjs` (COST-007 payroll files qualify provider rows, approved workweeks, privacy and export authority)
+**Gap.** None.
 
 #### COST-003 — Job expenses and receipts
 
@@ -2346,7 +2346,7 @@ Core · target · **partial** · From PAY-006 · Cites BASE-AUDIT-001 · Registe
 
 #### PAY-007 — Payouts and reconciliation
 
-Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
+Core · target · **done** · From PAY-007 · Cites BASE-AUDIT-001
 
 **Requirement.** Payouts and reconciliation supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2360,8 +2360,8 @@ Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
 7. Stripe does not attribute source payments to manual payouts.
 8. Those require an explicit owner-reviewed books allocation (payout allocate action), never claimed as Stripe source attribution; unreviewed sources remain unmatched.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture replays a payout of six payments, one refund and fees (Stripe fake) and checks the payout reconciles to the cent, with a deliberately missing payment listed as unmatched; an instant payout (Stripe fake) with its fee reconciles the same way.; point 2 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the business export, including provider outcomes and references without secrets.; point 3 — The owner inspects a USD Stripe test payout (payout reconcile action).; point 4 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longer/incomplete list refuses reconciliation) and match confirmed payment/refund references, gross cents and fees; missing, unconfirmed, wrong-amount, wrong-fee/currency and unsupported sources are named.; point 5 — Bank amount plus any payout fee must equal source net exactly, and only provider-paid payouts reconcile.; point 6 — An unavailable payout fee refuses reconciliation; zero is never inferred.; point 7 — Stripe does not attribute source payments to manual payouts.; point 8 — Those require an explicit owner-reviewed books allocation (payout allocate action), never claimed as Stripe source attribution; unreviewed sources remain unmatched. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 4: ten pages reconcile exactly 1000 rows); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 7: a manual payout has no Stripe source attribution before owner review); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched)
+**Gap.** None.
 
 #### PAY-025 — Cash and check deposit batches
 
@@ -2379,7 +2379,7 @@ Core · target · **partial** · From PAY-007 · Cites BASE-DATA-003
 
 #### PAY-026 — Instant payout preview and execution
 
-Core · target · **partial** · From PAY-007 · Cites BASE-SECRET-001
+Core · target · **done** · From PAY-007 · Cites BASE-SECRET-001
 
 **Requirement.** Instant payout preview and execution supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2391,8 +2391,8 @@ Core · target · **partial** · From PAY-007 · Cites BASE-SECRET-001
 5. Sources cannot be allocated to another payout.
 6. Reconciliation checks the actual payout debit, source allocation and actual fee against the confirmed preview; a difference stays unmatched.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — For Instant Payouts, the owner records their account-specific fee schedule (basis points and minimum, labelled owner-recorded and not verified by Glove); a preview checks an existing Stripe debit card's instant eligibility and funds, computes the half-up fee, and requires selected source net to equal the proposed bank amount plus that fee.; point 2 — The owner explicitly confirms both displayed amounts within ten minutes; source availability, current connection, schedule, eligibility and funds are checked again.; point 3 — A durable reservation and Stripe idempotency key precede one request.; point 4 — Replay never resends an unknown outcome.; point 5 — Sources cannot be allocated to another payout.; point 6 — Reconciliation checks the actual payout debit, source allocation and actual fee against the confirmed preview; a difference stays unmatched. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/instant-payouts.test.mjs` (PAY-026 Owner Instant Payout qualification, reservation and reconciliation)
+**Gap.** None.
 
 #### PAY-008 — Saved payment methods and autopay with consent
 
@@ -3019,7 +3019,7 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-RO
 
 #### TEAM-005 — Current branch authority
 
-Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AUDIT-001, BASE-ROLE-001
+Core · target · **done** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AUDIT-001, BASE-ROLE-001
 
 **Requirement.** Current branch authority supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#team-002-operating-rules) retain the record formats and calculations.
 
@@ -3030,8 +3030,8 @@ Core · target · **partial** · From TEAM-002 · Cites BASE-ACCESS-004, BASE-AU
 4. Scoped people read and change only operational records rooted in their branch; shared business reference data remains readable under their existing role and is read-only for them.
 5. New operational records created by a scoped person belong to their branch.
 
-**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The owner limits a person to a named branch or the main business branch, or removes that limit.; point 2 — The installation owner retains all-branch access.; point 3 — Limits apply to every current read and command door, including files, Activity, history, reports, business/CSV exports, saved command outcomes and workflow actions under their creator’s live scope; a changed limit is rechecked in the commit guard.; point 4 — Scoped people read and change only operational records rooted in their branch; shared business reference data remains readable under their existing role and is read-only for them.; point 5 — New operational records created by a scoped person belong to their branch. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/branches.ts`, `src/glove/commands/branches.ts`, `src/ui/branches.tsx`, `tests/api/branches.test.mjs`; `tests/api/branch-authority.test.mjs` (TEAM-005 current branch authority fences every read, shared write, replay and commit across restart)
+**Gap.** None.
 
 #### TEAM-003 — Technician commissions and bonuses
 
@@ -3217,7 +3217,7 @@ Core · target · **partial** · From MOVE-003 · Register R-20
 
 #### MOVE-009 — Imported memberships and recurrence proposals
 
-Core · target · **partial** · From MOVE-003 · Cites BASE-ROLE-001 · Register R-20
+Core · target · **done** · From MOVE-003 · Cites BASE-ROLE-001 · Register R-20
 
 **Requirement.** Imported memberships and recurrence proposals supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#move-003-operating-rules) retain the record formats and calculations.
 
@@ -3226,8 +3226,8 @@ Core · target · **partial** · From MOVE-003 · Cites BASE-ROLE-001 · Registe
 2. Its source billing template is labelled separately from charge permission, and unavailable member benefits are named.
 3. Monthly rules with one day and weekly rules with one weekday matching their anchor map to inactive native proposals; a person explicitly chooses a technician and times before activating a mapped rule strictly after exported events, with its original end date.
 
-**Evidence.** `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — One source membership remains one agreement, including ongoing or multiple-location terms; each source recurring-service event keeps its own site, template SKUs, quantities, exact due date and completed or source-closed state.; point 2 — Its source billing template is labelled separately from charge permission, and unavailable member benefits are named.; point 3 — Monthly rules with one day and weekly rules with one weekday matching their anchor map to inactive native proposals; a person explicitly chooses a technician and times before activating a mapped rule strictly after exported events, with its original end date. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/movein.test.mjs`, `tests/browser/movein.spec.ts`, `tests/portable.mjs`; `tests/api/servicetitan-memberships.test.mjs` (MOVE-009 memberships retain event entitlements and source terms until a person activates an exact imported rule); `tests/browser/movein.spec.ts` (MOVE-003, MOVE-009 servicetitan: owner previews, commits, reads the imported work and balance, and undoes at 1440 and 390)
+**Gap.** None.
 
 #### MOVE-004 — Move in from the recurring-report source system and the additional job source system
 
@@ -3794,7 +3794,7 @@ Core · push-further · **done** · From AGENT-008
 
 #### AGENT-016 — Brief delivery and financial sections
 
-Core · push-further · **partial** · From AGENT-008
+Core · push-further · **done** · From AGENT-008
 
 **Requirement.** Brief delivery and financial sections supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#agent-008-operating-rules) retain the record formats and calculations.
 
@@ -3804,8 +3804,8 @@ Core · push-further · **partial** · From AGENT-008
 3. PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links, asserted in its named flow.
 4. PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis.
 
-**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — The brief is shown when the owner opens Glove and sends nothing by being opened; COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018 emails it to the owner once per business-local date only when the owner turns that on (mail morning action, off by default), with the delivery outcome asserted in its flow, and nothing is pushed.; point 2 — The brief lists overdue invoices with their invoice links and proposed collection action under PAY-004, PAY-021, PAY-022, PAY-023’s balance rules.; point 3 — PLAN-004, PLAN-007, PLAN-008, PLAN-009, PLAN-010, PLAN-011 now lists outstanding due included visits with their agreement and Dispatch links, asserted in its named flow.; point 4 — PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `src/glove/morning-brief.ts`, `tests/api/morning-brief.test.mjs`, `tests/browser/morning-brief.spec.ts`; `tests/api/morning-brief.test.mjs` (AGENT-016 points 1–4: opened briefs preserve state and show exact financial and agreement outcomes across local dates and Worker upgrades)
+**Gap.** None.
 
 #### AGENT-009 — Agent policy and scoped authority
 
