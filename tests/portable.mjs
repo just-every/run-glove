@@ -18,6 +18,7 @@ import { createServer } from 'node:http'
 import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
+import { mailEvents, snsEvents } from './api/harness.mjs'
 
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
@@ -26,7 +27,7 @@ const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 // Keep transport counts outside every installation and its temporary setup
 // Worker; an import or startup attempt must not disappear on the next start.
-const stripePosts = new Map(), marketingCalls = new Map(), calendarCalls = new Map()
+const stripePosts = new Map(), marketingCalls = new Map(), calendarCalls = new Map(), mailCalls = new Map()
 const recorder = createServer((request, response) => {
   const name = new URL(request.url, 'http://localhost').pathname.slice(1)
   if (name.startsWith('calendar-')) {
@@ -36,6 +37,16 @@ const recorder = createServer((request, response) => {
       if (request.method === 'POST') calendarCalls.set(name, [...(calendarCalls.get(name) ?? []), JSON.parse(data)])
       response.setHeader('content-type', 'application/json')
       response.end(JSON.stringify({ calls: calendarCalls.get(name) ?? [] }))
+    })
+    return
+  }
+  if (name.startsWith('mail-')) {
+    let data = ''
+    request.on('data', chunk => { data += chunk })
+    request.on('end', () => {
+      if (request.method === 'POST') mailCalls.set(name, [...(mailCalls.get(name) ?? []), JSON.parse(data)])
+      response.setHeader('content-type', 'application/json')
+      response.end(JSON.stringify({ calls: mailCalls.get(name) ?? [] }))
     })
     return
   }
@@ -119,6 +130,41 @@ export function portableCalendars(worker) {
     const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
     await writeFile(entry, "import { portableCalendars } from './portable-calendars.mjs'\n" + code.replace('export default portableMarketing(', 'export default portableCalendars(portableMarketing(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))'))
   }
+  if (name.startsWith('mail-')) {
+    // COMM-018: only the four email providers' fixed hosts and the pinned SNS certificate host
+    // answer in this owned scratch Worker; the transport is never shipped.
+    await writeFile(join(root, 'src/portable-mail.mjs'), `
+export function portableMail(worker) {
+  const upstream = globalThis.fetch, certificates = new Map()
+  const hosts = { 'api.sendgrid.com': 'sendgrid', 'api.resend.com': 'resend', 'api.postmarkapp.com': 'postmark', 'email.us-east-1.amazonaws.com': 'ses' }
+  globalThis.fetch = async (input, options) => {
+    const request = new Request(input, options), url = new URL(request.url)
+    if (url.hostname === 'sns.us-east-1.amazonaws.com') return certificates.has(request.url) ? new Response(certificates.get(request.url)) : new Response('Not found', { status: 404 })
+    const provider = hosts[url.hostname]
+    if (!provider) return upstream(input, options)
+    const body = await request.json()
+    const to = provider === 'postmark' ? body.To : provider === 'ses' ? body.Destination.ToAddresses[0] : provider === 'sendgrid' ? body.personalizations[0].to[0].email : body.to[0]
+    const recorded = await (await upstream(${JSON.stringify(recorderOrigin + '/mail-' + name)}, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider, host: url.hostname, method: request.method, to }) })).json()
+    const receipt = provider + '-portable-' + recorded.calls.length
+    if (provider === 'sendgrid') return new Response(null, { status: 202, headers: { 'x-message-id': receipt } })
+    if (provider === 'resend') return Response.json({ id: receipt })
+    return Response.json(provider === 'postmark' ? { ErrorCode: 0, MessageID: receipt } : { MessageId: receipt })
+  }
+  return { ...worker, async fetch(request, env, context) {
+    if (new URL(request.url).pathname === '/__portable/mail' && request.method === 'POST') {
+      const { url, pem } = await request.json()
+      certificates.set(url, pem)
+      return Response.json({ ok: true })
+    }
+    // Production terminates TLS before the Worker; the local runtime is plain HTTP, and Postmark's Basic callback requires HTTPS.
+    if (new URL(request.url).pathname === '/api/glove/mail/events') return worker.fetch(new Request(request.url.replace(/^http:/, 'https:'), request), env, context)
+    return worker.fetch(request, env, context)
+  } }
+}
+`)
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(entry, "import { portableMail } from './portable-mail.mjs'\n" + code.replace('export default portableCalendars(', 'export default portableMail(portableCalendars(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))))'))
+  }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
   return root
@@ -180,6 +226,7 @@ async function start(root, port) {
     })
     return {
       request, owner: as(await enter(fragment.get('as'))),
+      events: ({ raw, headers }) => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, ...headers }, body: raw }),
       callback: password => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: '{}' }),
       quoteRespond: (token, body) => fetch(origin + '/api/glove/public/quote', { method: 'POST', headers: { origin, 'content-type': 'application/json', authorization: `Bearer ${token}`, cookie: gate }, body: JSON.stringify(body) }),
       quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
@@ -281,8 +328,112 @@ async function calendarRestore() {
   await running.close(); running = null
 }
 
+// COMM-018 point 1(d): the four email providers through a real archive. The scratch
+// Worker's transport answers only their fixed hosts and the pinned SNS certificate host.
+async function mailRestore() {
+  const source = await copy('mail-source'), destination = await copy('mail-destination'), channel = 'mail-mail-destination'
+  const mailbox = name => [`synthetic-glove-${name}`, 'example.test'].join('@')
+  const hosts = { sendgrid: 'api.sendgrid.com', resend: 'api.resend.com', postmark: 'api.postmarkapp.com', ses: 'email.us-east-1.amazonaws.com' }
+  const sns = { region: 'us-east-1', topicArn: 'arn:aws:sns:us-east-1:123456789012:glove-mail', configurationSet: 'glove-outcomes' }
+  const calls = async name => (await (await fetch(`${recorderOrigin}/${name}`)).json()).calls
+  let counter = 3000
+  running = await install(source)
+  let owner = running.owner
+  await owner.cmd('business.save', { name: 'Portable mail business', currency: 'AUD', timezone: 'Australia/Sydney', email: mailbox('replies') })
+  const customer = await owner.cmd('customer.save', { name: 'Portable mail customer', email: mailbox('customer') })
+  const site = await owner.cmd('site.save', { customerId: customer.id, address: '16 Portable Mail Street' })
+  const draft = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Portable mail quote', lines: [{ description: 'Portable service', quantity: '1', unitPrice: '100.00' }] })
+  await owner.cmd('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+  // Connect one provider with fresh synthetic keys; return its own signed callback form and every secret it holds.
+  async function connect(who, provider) {
+    const apiKey = provider === 'ses' ? JSON.stringify({ accessKeyId: 'SYNTHETICGLOVE0002', secretAccessKey: `synthetic-glove-${++counter}` }) : `synthetic-glove-${++counter}`
+    const connection = { provider, apiKey, fromEmail: mailbox('office') }
+    let signer = null
+    if (provider === 'sendgrid' || provider === 'resend') { signer = mailEvents(provider); connection.eventKey = signer.eventKey }
+    if (provider === 'ses') { signer = snsEvents(sns); connection.sns = sns }
+    const connected = await who.cmd('mail.connect', connection)
+    if (provider === 'ses') assert.equal((await running.request('/__portable/mail', 'POST', { url: signer.certUrl, pem: signer.cert })).status, 200)
+    return { provider, apiKey, secrets: [apiKey, ...(connection.eventKey ? [connection.eventKey] : []), ...(provider === 'ses' ? [JSON.parse(apiKey).secretAccessKey] : []), ...(connected.callbackPassword ? [connected.callbackPassword] : [])], callbackPassword: connected.callbackPassword, callback(m, outcome = 'delivered') {
+      const at = new Date().toISOString(), seconds = Math.floor(Date.now() / 1000)
+      if (provider === 'sendgrid') return signer.signed([{ email: m.to, timestamp: seconds, event: outcome, sg_event_id: `synthetic-glove-event-${m.id}-${outcome}`, sg_message_id: m.receipt, rer_delivery_id: m.id }], { at: seconds })
+      if (provider === 'resend') return signer.signed({ type: `email.${outcome}`, created_at: at, data: { email_id: m.receipt, to: [m.to] } }, { at: seconds })
+      if (provider === 'postmark') return { raw: JSON.stringify({ RecordType: 'Delivery', MessageID: m.receipt, Recipient: m.to, DeliveredAt: at, Metadata: { glove_delivery_id: m.id } }), headers: { authorization: `Basic ${Buffer.from(`glove:${connected.callbackPassword}`).toString('base64')}` } }
+      return signer.signed({ eventType: 'Delivery', mail: { messageId: m.receipt, timestamp: at, destination: [m.to], tags: { 'ses:configuration-set': [sns.configurationSet], glove_delivery_id: [Buffer.from(m.id).toString('base64url')] } }, delivery: { timestamp: at, recipients: [m.to] } }, { Timestamp: at })
+    } }
+  }
+  // One document email: exactly one request at this provider's fixed host, then the provider's own signed callback folds it.
+  async function sendAndFold(who, edge, channelName) {
+    const before = await calls(channelName), state = await who.get('/api/glove/state'), quote = state.quotes.find(q => q.id === draft.id)
+    const commandId = randomUUID(), payload = { kind: 'quote', id: quote.id, version: quote.version }
+    const message = await who.cmd('email.send', payload, commandId)
+    const made = (await calls(channelName)).slice(before.length)
+    assert.deepEqual(made.map(c => [c.provider, c.host, c.to]), [[edge.provider, hosts[edge.provider], customer.email]], 'COMM-018 one document email makes exactly one request at that provider\'s fixed host')
+    const sent = { ...message, receipt: `${edge.provider}-portable-${before.length + 1}`, commandId, payload }
+    assert.equal((await who.get('/api/glove/state')).messageStates[message.id].status, 'accepted')
+    const event = edge.callback(sent)
+    const response = await running.events(event)
+    assert.equal(response.status, 200, `${edge.provider} ${JSON.stringify(sent)} ${await response.text()}`)
+    const folded = (await who.get('/api/glove/state')).messageStates[message.id]
+    assert.deepEqual([folded.status, folded.providerMessageId], ['delivered', sent.receipt])
+    return { ...sent, event }
+  }
+  const sourceEdges = []
+  for (const provider of ['sendgrid', 'resend', 'ses', 'postmark']) {
+    const edge = await connect(owner, provider), sent = await sendAndFold(owner, edge, 'mail-mail-source')
+    sourceEdges.push({ edge, sent })
+  }
+  await owner.cmd('mail.morning', { enabled: true, time: '07:30' })
+  const before = await owner.get('/api/glove/export')
+  const secrets = sourceEdges.flatMap(({ edge }) => edge.secrets)
+  await running.close(); running = null
+  const archive = join(parent, 'mail-installation.rer')
+  await command(source, ['export', '--output', archive])
+  const archiveBytes = await readFile(archive), manifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  for (const table of ['glove_provider_keys', 'glove_mail_callback_auth']) assert.ok(!manifest.tables.some(t => t.name === table), `COMM-018 actual archive omits ${table}`)
+  for (const value of secrets) {
+    assert.ok(!archiveBytes.includes(Buffer.from(value)), 'COMM-018 actual archive holds no provider key, event key or callback password')
+    assert.ok(!archiveBytes.includes(Buffer.from(createHash('sha256').update(value).digest('hex'))), 'COMM-018 actual archive holds no credential hash')
+  }
+  await command(destination, ['import', '--input', archive, '--yes'])
+  running = await install(destination)
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'source sessions never open the restored installation')
+  owner = running.owner
+  const after = await owner.get('/api/glove/export')
+  for (const kind of ['customers', 'quotes', 'messages', 'timeline']) assert.deepEqual(after[kind], before[kind], 'COMM-018 email history survives the actual archive')
+  assert.deepEqual(await calls(channel), [], 'COMM-018 import and setup make no provider request')
+  // Every provider's source callback finds no connection until the Owner reconnects.
+  for (const { edge, sent } of sourceEdges) assert.equal((await running.events(edge.callback(sent))).status, 404, `COMM-018 restored ${edge.provider} callback door is closed`)
+  // A saved command replays only its saved outcome; a fresh send is recorded not connected and reaches no provider.
+  for (const { sent } of sourceEdges) assert.equal((await owner.cmd('email.send', sent.payload, sent.commandId)).id, sent.id)
+  const unsent = await owner.cmd('email.send', { kind: 'quote', id: draft.id, version: (await owner.get('/api/glove/state')).quotes.find(q => q.id === draft.id).version })
+  const restoredState = await owner.get('/api/glove/state')
+  assert.equal(restoredState.messageStates[unsent.id].status, 'rejected')
+  const refusal = (await owner.get('/api/glove/export')).timeline.find(e => e.subject_id === unsent.id && e.kind === 'email.rejected')
+  assert.equal(JSON.parse(refusal.data).code, 'not_connected', 'COMM-018 a restored send is recorded not connected')
+  assert.deepEqual(await calls(channel), [], 'COMM-018 restored sends and saved command replays reach no provider')
+  const port = Number(new URL((await running.request('/api/glove/state')).url).port)
+  await running.close(); running = null
+  running = await start(destination, port)
+  owner = running.owner
+  assert.deepEqual(await calls(channel), [], 'COMM-018 actual restored Worker restart makes no provider request')
+  for (const { edge, sent } of sourceEdges) assert.equal((await running.events(edge.callback(sent))).status, 404)
+  // Reconnecting each provider in turn: one document email reaches exactly that provider's edge and its new signed callback folds it.
+  for (const provider of ['sendgrid', 'resend', 'ses', 'postmark']) {
+    const edge = await connect(owner, provider), old = sourceEdges.find(x => x.edge.provider === provider)
+    const stale = await running.events(old.edge.callback(old.sent))
+    assert.notEqual(stale.status, 200, `COMM-018 the source ${provider} credential cannot authenticate after reconnection`)
+    const sent = await sendAndFold(owner, edge, channel)
+    assert.equal((await calls(channel)).filter(c => c.provider === provider).length, 1)
+    assert.ok(sent.id)
+  }
+  assert.equal((await calls(channel)).length, 4, 'COMM-018 only the four explicit sends after reconnection reached any provider')
+  console.log('COMM-018 real archive passed: four provider keys and callback credentials absent; restored sends recorded not connected; callback doors closed; restart silent; each reconnection reaches only its own edge')
+  await running.close(); running = null
+}
+
 try {
   await calendarRestore()
+  await mailRestore()
   const source = await copy('source'), destination = await copy('destination')
   running = await install(source)
   const owner = running.owner
