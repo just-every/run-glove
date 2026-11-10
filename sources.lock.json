@@ -5604,7 +5604,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "a12cac3674568f08b5a5b3b58dccceaee4c6ab052be8614ea75b1a270581c3df",
+      "sha256": "95c11fd3df2646e034949b47b126dcdd2e54c00fa9dc66d343e9167861aa70fb",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
