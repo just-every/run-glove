@@ -848,7 +848,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
 })
   })
 
-  test('10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded', async () => {
+  test('10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded', async t => {
     const draft = await b.agent.run('quote.draft', { customerId: b.customer.id, siteId: b.site.id, title: 'Agent-prepared service', lines: [{ description: 'Split system service', quantity: '2', unitPrice: '189.00' }] })
     assert.equal(draft.revisions[0].preparedBy.role, 'agent')
     await b.agent.run('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 }, { error: 'FORBIDDEN' })
@@ -868,6 +868,101 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     const second = await b.agent.run('proposal.prepare', { kind: 'dispatch', plan: { jobId: agentJob.id, technicianId: b.tom.id, date: '2026-10-17', start: '08:00', end: '09:00' }, rationale: 'Follow-up' })
     const declined = await b.dispatcher.run('proposal.decline', { proposalId: second.id, version: second.version, reason: 'Customer closed on Saturday' })
     assert.equal(declined.status, 'declined')
+
+    await scenario(t, 'GLOVE-10 point 1: an agent-prepared invoice is decided by named people and the record keeps preparation and decision apart', async () => {
+      const clock = async at => assert.equal((await h.request('/__test/clock', { method: 'POST', body: { at } })).status, 200)
+      t.after(() => clock(null))
+      const work = await completedJob(h, b, '2026-10-26'), next = await completedJob(h, b, '2026-10-27')
+      const second = await h.person('Quinn Reviewer', 'office')
+      const ada = { id: b.agent.id, name: 'Ada Agent', role: 'agent' }
+      const olu = { id: b.office.id, name: 'Olu Office', role: 'office' }, quinn = { id: second.id, name: 'Quinn Reviewer', role: 'office' }
+      const ledger = async () => { const s = await h.state(); return { invoices: s.invoices, exports: s.exports, jobs: s.jobs, approvals: s.approvals, events: s.events } }
+      // One reading of the same decision through the record, the approvals row, the event, Activity and the business download.
+      const readDecision = async (invoiceId, revision) => {
+        const s = await h.state(), inv = s.invoices.find(i => i.id === invoiceId), rev = inv.revisions.find(r => r.n === revision)
+        const row = s.approvals.filter(a => a.subjectKind === 'invoice' && a.subjectId === invoiceId && a.revision === revision)
+        const download = await h.request('/api/glove/export').then(r => r.json())
+        const activity = (await h.request('/api/glove/activity').then(r => r.json())).events.filter(e => e.subjectId === invoiceId)
+        const prepared = activity.find(e => e.kind === 'invoice.prepared'), decided = activity.filter(e => e.kind === 'invoice.approved')
+        const kept = id => download.timeline.find(e => e.id === id)
+        return { number: inv.number, rev, row, prepared, decided, kept, download, activity }
+      }
+
+      await clock('2026-10-28T01:00:00.000Z')
+      const commandId = randomUUID()
+      const draft = await b.agent.run('invoice.prepare', { jobId: work.job.id }, { commandId })
+      assert.equal(draft.status, 'draft')
+      assert.deepEqual([draft.revisions.length, draft.revisions[0].preparedBy, draft.revisions[0].preparedAt, draft.revisions[0].approval, draft.revisions[0].export], [1, ada, '2026-10-28T01:00:00.000Z', null, null], 'the revision names the agent as its preparer and nothing is decided or exported')
+      assert.deepEqual(await b.agent.run('invoice.prepare', { jobId: work.job.id }, { commandId }), draft, 'command replay returns the same draft')
+      await b.agent.run('invoice.prepare', { jobId: work.job.id }, { error: 'DUPLICATE' })
+      assert.equal((await h.state()).invoices.filter(i => i.jobId === work.job.id).length, 1, 'no second draft appears for the job')
+
+      const undecided = await ledger()
+      await b.agent.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 }, { error: 'FORBIDDEN' })
+      await b.agent.run('invoice.export', {}, { error: 'FORBIDDEN' })
+      await b.agent.run('invoice.correct', { invoiceId: draft.id, version: draft.version, reason: 'Agent correction', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '1.00', serviceId: b.service.id }] }, { error: 'FORBIDDEN' })
+      assert.deepEqual(await ledger(), undecided, 'the agent’s approval, export and correction change no record')
+
+      await h.command('role.set', { operatorId: b.agent.id, role: 'office' })
+      const promoted = await ledger()
+      await b.agent.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 }, { error: 'SELF_APPROVAL' })
+      assert.deepEqual(await ledger(), promoted, 'a sign-in given the Office role still cannot approve the revision it prepared')
+      await h.command('role.set', { operatorId: b.agent.id, role: 'agent' })
+
+      await clock('2026-10-28T01:05:00.000Z')
+      const approved = await b.office.run('invoice.approve', { invoiceId: draft.id, version: draft.version, revision: 1 })
+      assert.equal(approved.status, 'approved')
+      const expectSeparated = async (invoiceId, revision, decider, preparedAt, decisionAt) => {
+        const r = await readDecision(invoiceId, revision)
+        const summary = `${r.number} revision ${revision} approved by ${decider.name} (prepared by agent Ada Agent)`
+        assert.deepEqual([r.rev.preparedBy, r.rev.preparedAt, r.rev.approval], [ada, preparedAt, { ...decider, at: decisionAt }])
+        assert.equal(r.row.length, 1, 'one approvals row per decided revision')
+        assert.deepEqual([r.row[0].preparedBy, r.row[0].approvedBy, r.row[0].decision, r.row[0].revision, r.row[0].createdAt], [ada, decider, 'approved', revision, decisionAt])
+        assert.ok(r.row[0].subjectLabel.startsWith(`${r.number} revision ${revision} · `))
+        const event = r.decided.find(e => e.summary === summary)
+        assert.ok(event, `Activity reads: ${summary}`)
+        assert.deepEqual([event.actorId, event.actorName, event.actorRole, event.at], [decider.id, decider.name, decider.role, decisionAt])
+        const preparation = r.activity.find(e => e.kind === 'invoice.prepared' || (e.kind === 'invoice.revised' && e.at === preparedAt))
+        assert.deepEqual([preparation.actorId, preparation.actorName, preparation.actorRole, preparation.at], [ada.id, ada.name, ada.role, preparedAt])
+        const kept = r.kept(event.id)
+        assert.deepEqual([kept.actor_id, kept.actor_name, kept.actor_role, kept.at, kept.summary], [decider.id, decider.name, decider.role, decisionAt, summary], 'the business download keeps the decision event')
+        assert.deepEqual([r.kept(preparation.id).actor_name, r.kept(preparation.id).actor_role], [ada.name, ada.role], 'and the preparation event')
+        assert.deepEqual(r.download.invoices.find(i => i.id === invoiceId).revisions[revision - 1], r.rev, 'and the invoice revision')
+        assert.deepEqual(r.download.approvals.find(a => a.id === r.row[0].id), r.row[0], 'and the approvals row')
+        return r
+      }
+      const decisionAt = '2026-10-28T01:05:00.000Z'
+      await expectSeparated(draft.id, 1, olu, '2026-10-28T01:00:00.000Z', decisionAt)
+
+      // A further agent draft is a later revision that a different person decides.
+      await clock('2026-10-28T02:00:00.000Z')
+      const revised = await b.agent.run('invoice.revise', { invoiceId: draft.id, version: approved.version, reason: 'Add the call-out fee', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: b.service.id }, { description: 'Call-out fee', quantity: '1', unitPrice: '50.00', tax: 'GST' }] })
+      assert.deepEqual([revised.status, revised.revisions.length, revised.revisions[1].preparedBy, revised.revisions[1].preparedAt, revised.revisions[1].approval, revised.revisions[1].totals.total], ['draft', 2, ada, '2026-10-28T02:00:00.000Z', null, '262.90'])
+      assert.deepEqual(revised.revisions[0].approval, { ...olu, at: decisionAt }, 'the earlier revision keeps its own decision')
+      await b.office.run('invoice.approve', { invoiceId: draft.id, version: revised.version, revision: 1 }, { error: 'REVISION' })
+      await clock('2026-10-28T02:10:00.000Z')
+      await second.run('invoice.approve', { invoiceId: draft.id, version: revised.version, revision: 2 })
+      await expectSeparated(draft.id, 2, quinn, '2026-10-28T02:00:00.000Z', '2026-10-28T02:10:00.000Z')
+      await expectSeparated(draft.id, 1, olu, '2026-10-28T01:00:00.000Z', decisionAt)
+
+      // The owner's pause stops agent preparation until a person resumes.
+      await h.command('agents.pause', { paused: true })
+      const paused = await ledger()
+      await b.agent.run('invoice.prepare', { jobId: next.job.id }, { error: 'PAUSED' })
+      await b.agent.run('invoice.prepareBatch', { jobIds: [next.job.id] }, { error: 'PAUSED' })
+      assert.deepEqual(await ledger(), paused, 'a paused agent writes nothing')
+      await h.command('agents.pause', { paused: false })
+      const batch = await b.agent.run('invoice.prepareBatch', { jobIds: [next.job.id] })
+      assert.deepEqual([batch.results[0].ok, batch.results[0].invoice.revisions[0].preparedBy, batch.results[0].invoice.status], [true, ada, 'draft'], 'after a person resumes, the agent prepares again')
+
+      // Everything above reads the same after the actual Worker stops and starts.
+      const reading = async () => ({ ledger: await ledger(), first: (({ kept, download, ...r }) => r)(await readDecision(draft.id, 1)), second: (({ kept, download, ...r }) => r)(await readDecision(draft.id, 2)), exported: (({ exportedAt, ...r }) => r)(await h.request('/api/glove/export').then(r => r.json())) })
+      const before = await reading()
+      await h.restart()
+      assert.deepEqual(await reading(), before, 'preparation, both decisions, Activity and the business download survive a real Worker restart')
+      assert.deepEqual(await b.agent.run('invoice.prepare', { jobId: work.job.id }, { commandId }), draft, 'replay after restart returns the original draft')
+      assert.deepEqual(await ledger(), before.ledger)
+    })
   })
 
   test('11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo', async () => {
