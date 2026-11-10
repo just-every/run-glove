@@ -5624,7 +5624,7 @@
       "executable": false
     },
     "tests/api/flows.test.mjs": {
-      "sha256": "50f112b4336ecd065e22ba1dbcc9586f8a0ec9681cbc3efc02ad3b0eff0eb28c",
+      "sha256": "77d6c78751aed2371693571ead1c6e077c348fd2ae918d76676bfb654c0bcd7f",
       "executable": false
     },
     "tests/api/forms.test.mjs": {
@@ -6465,6 +6465,10 @@
     },
     "tests/fixtures/servicetitan-movein/technicians.json": {
       "sha256": "5d76ee68142d684b6a9931ef038055b4498fadc5694602f58f33f1f64c55db3f",
+      "executable": false
+    },
+    "tests/fixtures/statement-journey.mjs": {
+      "sha256": "d5215538e49195f836c652908257f88b0a07b2b9a8704ef84d03ec5e44ba953b",
       "executable": false
     },
     "tests/fixtures/stripe-payments.mjs": {
