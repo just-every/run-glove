@@ -74,9 +74,12 @@ export async function pricebookParity({ request, origin, cookie, tool }) {
     return found
   }
   // The one business record is shared by both twins, so its versions are held relative to the version read just before the change.
-  const shape = (event, side, businessBefore = 0) => normalise({ kind: event.kind, subjectKind: event.subjectKind, subjectId: event.subjectId, summary: event.summary,
-    changes: event.recordChanges.map(change => ({ kind: change.kind, id: change.id, fields: [...change.fields].sort(),
-      fromVersion: change.id === 'business' ? change.fromVersion - businessBefore : change.fromVersion, toVersion: change.id === 'business' ? change.toVersion - businessBefore : change.toVersion })).sort((a, b) => `${a.kind}${a.id}`.localeCompare(`${b.kind}${b.id}`)) }, side)
+  const shape = (event, side, businessBefore = 0) => {
+    const shaped = normalise({ kind: event.kind, subjectKind: event.subjectKind, subjectId: event.subjectId, summary: event.summary,
+      changes: event.recordChanges.map(change => ({ kind: change.kind, id: change.id, fields: [...change.fields].sort(),
+        fromVersion: change.id === 'business' ? change.fromVersion - businessBefore : change.fromVersion, toVersion: change.id === 'business' ? change.toVersion - businessBefore : change.toVersion })) }, side)
+    return { ...shaped, changes: shaped.changes.sort((a, b) => `${a.kind}${a.id}`.localeCompare(`${b.kind}${b.id}`)) }
+  }
   /** Same event, same changed records and versions; only who acted differs. */
   const actors = (deskEvent, toolEvent, person) => {
     assert.equal(deskEvent.actorRole, 'owner')
