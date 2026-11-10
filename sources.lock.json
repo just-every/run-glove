@@ -2236,7 +2236,7 @@
       "executable": false
     },
     "src/glove/morning-email.ts": {
-      "sha256": "6040239e27cc2b7c88fb17a9417c1b896deb444586de5286e7970a14ee78a964",
+      "sha256": "bf1d7c5e5a3c4a388143f50a5555a7f50d6cef5c47d2672447d847e74fc5cc3c",
       "executable": false
     },
     "src/glove/movein/csv.ts": {
@@ -5604,7 +5604,7 @@
       "executable": false
     },
     "tests/api/email.test.mjs": {
-      "sha256": "7d4b44cac7ec7cb4b9a1877eca94d548ed586505a06fb9971131e6b8b9ee1fc5",
+      "sha256": "a12cac3674568f08b5a5b3b58dccceaee4c6ab052be8614ea75b1a270581c3df",
       "executable": false
     },
     "tests/api/equipment.test.mjs": {
@@ -5653,6 +5653,10 @@
     },
     "tests/api/live-locations.test.mjs": {
       "sha256": "ce73c44af96a519e40c1d913fc9234179d0b54b5c01f3249889f9be2a251e63d",
+      "executable": false
+    },
+    "tests/api/mail-edge.mjs": {
+      "sha256": "aba6c69ec3d83ce46a1295e61a51c972638000d83ad7c37ea0677467ad3ed523",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -6536,7 +6540,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "075903b36d5cb3320cd6bbe3bc3d2036572a8e664cbbfb6bd82fcf1fc8bb09d8",
+      "sha256": "f4eb247568debcdf0f5cb25e53eca59bdbc6cab0cb4eb42f57698a490c346a9c",
       "executable": false
     },
     "tests/runtime.mjs": {
