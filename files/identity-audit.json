@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "commits": [
+    {
+      "sha": "1b12a3e0bbdc1029981dcfbda82ad425ee2b6ce7",
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": ""
+    },
+    {
+      "sha": "44f5bc69836fe1dde3f27c5701c09531b7dcac7f",
+      "author": "James Peter",
+      "author_email": "github@zemaj.com",
+      "committer": "James Peter",
+      "committer_email": "github@zemaj.com",
+      "trailers": "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+    },
+    {
+      "sha": "0d5e3c42357e637e648062ab6dc21c55a6867778",
+      "author": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer": "James Peter",
+      "committer_email": "github@zemaj.com",
+      "trailers": "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "candidate_base": "44f5bc69836fe1dde3f27c5701c09531b7dcac7f",
+  "merged_main": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+  "before": [
+    "| Published | 3 | 10 | 0 | 13 |",
+    "| Target and push further | 42 | 179 | 29 | 250 |",
+    "| All | 45 | 189 | 29 | 263 |"
+  ],
+  "after": [
+    "| Published | 3 | 10 | 0 | 13 |",
+    "| Target and push further | 44 | 177 | 29 | 250 |",
+    "| All | 47 | 187 | 29 | 263 |"
+  ],
+  "main_status_changes": {
+    "COST-001": {
+      "before": "partial",
+      "after": "done"
+    },
+    "SURFACE-015": {
+      "before": "partial",
+      "after": "done"
+    }
+  },
+  "builder_status_changes": {},
+  "quote_013": "partial"
+}

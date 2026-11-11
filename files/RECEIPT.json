@@ -1,0 +1,103 @@
+{
+  "tag": "sx-glove-c-f239-pc2",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f239-pc2",
+  "head": "1b12a3e0bbdc1029981dcfbda82ad425ee2b6ce7",
+  "parents": [
+    "44f5bc69836fe1dde3f27c5701c09531b7dcac7f",
+    "35f1f12f403d924b1a9cd095583fd21d774dfee2"
+  ],
+  "main_at_push": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+  "product_push": "PUSH_OK",
+  "working_tree_clean": true,
+  "preserved_main_files": {
+    "CONTRACT.md": true,
+    "ACCEPTANCE.md": true,
+    "docs/CLAIMS.md": true,
+    "docs/contract/ID-MAP.json": true
+  },
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "note": "executed through cloud_run; private setup output excluded"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses QUOTE-013",
+      "exit": 0,
+      "log": "contract-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses QUOTE-013",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "lock.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "lock-check.log"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log",
+      "runtime": "Node 24.19.0; checkout requests Node 22.20.0; supplied fleet toolchain selected existing newer Node"
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/quote-link-custody.test.mjs",
+      "exit": 0,
+      "tests": 1,
+      "scenarios": 7,
+      "log": "quote-link-custody.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "all candidate author/committer/full-message/trailer audit including side parents",
+      "exit": 0,
+      "commits": 3,
+      "log": "identity-audit.json"
+    }
+  ],
+  "not_run_locally": [
+    "browser suites",
+    "portable suites"
+  ],
+  "reason": "brief explicitly requires CI for these suites because of local Vite listener deadline",
+  "ci": {
+    "id": 43010448925,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "1b12a3e0bbdc1029981dcfbda82ad425ee2b6ce7",
+    "url": "https://github.com/just-every/run-glove/actions/runs/43010448925",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43010448925"
+  },
+  "pr": null,
+  "publication_scan": "Mac fleet only; not run in cloud",
+  "clause_changes_by_builder": [],
+  "created_utc": "2026-11-11T11:16:24.880316+00:00",
+  "verified_remote_head": "1b12a3e0bbdc1029981dcfbda82ad425ee2b6ce7",
+  "preserved_main_file_sha256": {
+    "CONTRACT.md": "dc5b7600332a6c3fed46ae0643322e3f63d646bdb01f57a706113126d1602a8b",
+    "ACCEPTANCE.md": "047bb9876cbe06d3869f09dbef36131409cb13172f64d0ece4baaefd70fa7f16",
+    "docs/CLAIMS.md": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e",
+    "docs/contract/ID-MAP.json": "9d1149cffa862c30a2094bd25b08a4cf97b1d74fd529c03ea6644f1b8fe5d7cc"
+  },
+  "candidate_diff_paths": [
+    "sources.lock.json",
+    "src/glove/quote-links.ts",
+    "tests/api/quote-link-custody.test.mjs"
+  ],
+  "diff_stat": " sources.lock.json                     |  4 +-\n src/glove/quote-links.ts              |  6 ++-\n tests/api/quote-link-custody.test.mjs | 95 +++++++++++++++++++++++++++++++++++\n 3 files changed, 101 insertions(+), 4 deletions(-)\n",
+  "github_calls_used": 3,
+  "terminal_product_custody": "READY",
+  "blockers": [],
+  "finished_utc": "2026-11-11T11:26:11.199664+00:00"
+}

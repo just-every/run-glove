@@ -1,0 +1,42 @@
+[
+  {
+    "call": 1,
+    "time": 1794395741.0864272,
+    "utc": "2026-11-11T11:15:41.086490+00:00",
+    "key": "repos/just-every/run-glove/actions/runs?head_sha=1b12a3e0bbdc1029981dcfbda82ad425ee2b6ce7&per_page=100",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=1b12a3e0bbdc1029981dcfbda82ad425ee2b6ce7&per_page=100"
+    ],
+    "exit": 0
+  },
+  {
+    "call": 2,
+    "time": 1794396041.1146748,
+    "utc": "2026-11-11T11:20:41.114681+00:00",
+    "key": "run:43010448925",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/43010448925",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  },
+  {
+    "call": 3,
+    "time": 1794396341.829566,
+    "utc": "2026-11-11T11:25:41.829570+00:00",
+    "key": "run:43010448925",
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/43010448925",
+      "--jq",
+      "{status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0
+  }
+]

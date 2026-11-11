@@ -1,0 +1,26 @@
+1b12a3e0bbdc1029981dcfbda82ad425ee2b6ce7
+Merge current main for fresh quote-link custody verification
+
+
+44f5bc69836fe1dde3f27c5701c09531b7dcac7f
+Merge origin/main into cloud/sx-glove-c-f239-pc1
+
+CONTRACT.md, ACCEPTANCE.md, docs/CLAIMS.md and docs/contract/ID-MAP.json are
+byte-identical to main (keeps the landed QUOTE-002 and BOOK-017 flips).
+sources.lock.json checked with the edition-authoring lock/check commands.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+
+0d5e3c42357e637e648062ab6dc21c55a6867778
+Keep the decided document on reissue for accepted and declined quotes
+
+quote.link now reuses the frozen document of the link a decision came through
+(else the revision's last link) for accepted or declined quotes, so later
+business, site, price book and photo edits no longer change the decided link.
+Qualifies the reissue path through the public door inside the QUOTE-009 custody
+registration.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+

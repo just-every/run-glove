@@ -1,0 +1,19 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart (28434.085296ms)
+ℹ QUOTE-009 bearer custody: issue once, hash at rest, header only, fragment email and clean durable surfaces after restart
+ℹ QUOTE-009 superseded links disclose no document and refuse every customer action across restart
+ℹ QUOTE-009 expired revisions remain readable with exactly one update until the link expiry instant
+ℹ QUOTE-009 owner validity boundaries and default changes affect only later revisions
+ℹ QUOTE-009 real dates and frozen Chicago midnight govern approval and the ninety-day reading window
+ℹ QUOTE-009 pre-validity Worker upgrade requires revision and fresh price approval before issuing a link
+ℹ QUOTE-013 point 3: reissue for an accepted or declined quote is read-only and keeps the document the decision was made on
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29834.395006
