@@ -1,0 +1,108 @@
+{
+  "tag": "sx-glove-c-f241-fix1-pc1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f241-fix1-pc1",
+  "head": "15012f2d8836c44f6566f826aa64b8196dc8b674",
+  "original_candidate": "d053203e969869d09f1949e8549e3e0b3828d5dd",
+  "merged_main": "7ed9291267dafdd0ed87eaab829eb7af547269a9",
+  "parents": [
+    "d053203e969869d09f1949e8549e3e0b3828d5dd",
+    "7ed9291267dafdd0ed87eaab829eb7af547269a9"
+  ],
+  "clean_worktree": true,
+  "setup": {
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit_code": 0,
+    "private_raw_log_retained_outside_packet": "/tmp/sx-glove-setup.log",
+    "summary": "Fresh local owner setup completed; temporary processes exited under subreaper."
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit_code": 0,
+    "log": "typecheck.log"
+  },
+  "non_browser_tests": {
+    "command": "cloud_run node --test --test-concurrency=1 tests/api/privacy.test.mjs",
+    "exit_code": 0,
+    "top_level_tests": 1,
+    "scenario_results": 28,
+    "pass": 1,
+    "fail": 0,
+    "duration_ms": 129437.219576,
+    "log": "privacy-tests.log"
+  },
+  "browser_and_portable_local": "Not run, as explicitly instructed; covered by exact-SHA Verify.",
+  "source_checks_receipt": "source-checks.json",
+  "contract_parity_receipt": "contract-parity.json",
+  "identity_receipt": "identity-check.json",
+  "preserved_code": [
+    {
+      "path": "src/glove/privacy-imports.ts",
+      "unchanged_from_original_candidate": true
+    },
+    {
+      "path": "src/glove/privacy-preview.ts",
+      "unchanged_from_original_candidate": true
+    },
+    {
+      "path": "tests/fixtures/shared-import-effects.mjs",
+      "unchanged_from_original_candidate": true
+    },
+    {
+      "path": "tests/fixtures/shared-import-preview.mjs",
+      "unchanged_from_original_candidate": true
+    },
+    {
+      "path": "tests/fixtures/shared-import-world.mjs",
+      "unchanged_from_original_candidate": true
+    },
+    {
+      "path": "src/glove/privacy.ts",
+      "kept_batch_fix_unchanged": true,
+      "block_sha256": "c235a07888c15a600bd0aaad698092b0f59500616d4913a61ec79ce86a3a7a47",
+      "other_changes": "Only current main's command/event identity redaction updates were merged."
+    }
+  ],
+  "claim_preservation": {
+    "original_claim_commit": "d053203e969869d09f1949e8549e3e0b3828d5dd",
+    "unchanged_commit_and_claim": true,
+    "new_claim_lines_added": false
+  },
+  "product_push": {
+    "exit_code": 0,
+    "attempts": 1,
+    "log": "product-push.log"
+  },
+  "pr": null,
+  "ci_receipt": "ci-receipt.json",
+  "local_toolchain": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "repository_node_pin": "22.20.0",
+    "note": "Supplied toolchain shim retains a newer host Node; CI selects the exact repository pin."
+  },
+  "remote_custody_receipt": "remote-custody.json",
+  "test_preservation_receipt": "test-preservation.json",
+  "ci": {
+    "run_id": 43003293466,
+    "conclusion": "success",
+    "head_sha": "15012f2d8836c44f6566f826aa64b8196dc8b674",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43003293466",
+    "status": "completed",
+    "github_calls_used": 5,
+    "polling_timing": {
+      "watcher_schedule_seconds": 300,
+      "actual_invocation_intervals_seconds": [
+        300.0156605243683,
+        300.00341176986694,
+        299.9815216064453,
+        300.01260781288147
+      ],
+      "minimum_interval_seconds": 299.9815216064453,
+      "note": "One subprocess invocation interval was 18.5 ms short of 300 s; original timestamps retained."
+    }
+  },
+  "terminal_custody": "READY",
+  "blockers": [],
+  "product_index_sha256": "506eff604359420b5b1e9aeba677f112a7d072afbf24faeb405beb88c49e4a29"
+}

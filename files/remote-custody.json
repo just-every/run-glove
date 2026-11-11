@@ -1,0 +1,9 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f241-fix1-pc1",
+  "local_head": "15012f2d8836c44f6566f826aa64b8196dc8b674",
+  "advertised_remote_head": "15012f2d8836c44f6566f826aa64b8196dc8b674",
+  "advertised_remote_ref": "refs/heads/cloud/sx-glove-c-f241-fix1-pc1",
+  "result": "match",
+  "product_worktree_clean": true
+}

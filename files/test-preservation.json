@@ -1,0 +1,8 @@
+{
+  "file": "tests/api/privacy.test.mjs",
+  "all_original_candidate_lines_retained": true,
+  "all_main_lines_retained": true,
+  "original_lines": 313,
+  "main_lines": 396,
+  "merged_lines": 407
+}

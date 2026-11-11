@@ -1,0 +1,16 @@
+{
+  "checked_commits": [
+    "15012f2d8836c44f6566f826aa64b8196dc8b674",
+    "d053203e969869d09f1949e8549e3e0b3828d5dd",
+    "ae1c81e0883f8878c96bf32187e2bec66a1a08a3",
+    "16f2fd0fc7c0e1df032295f2a721aa39061447a7",
+    "723604e9195e40f2fdd2daebe6d60982028515ff",
+    "7494ce75d5b24c9c245dcb9d610a9e88dc257414"
+  ],
+  "all_side_parents_included": true,
+  "result": "pass",
+  "owner_identity": {
+    "name": "James Peter",
+    "email": "github@zemaj.com"
+  }
+}

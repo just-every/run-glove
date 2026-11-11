@@ -1,0 +1,22 @@
+[
+  {
+    "path": "CONTRACT.md",
+    "matches_main": true,
+    "sha256": "dc5b7600332a6c3fed46ae0643322e3f63d646bdb01f57a706113126d1602a8b"
+  },
+  {
+    "path": "ACCEPTANCE.md",
+    "matches_main": true,
+    "sha256": "047bb9876cbe06d3869f09dbef36131409cb13172f64d0ece4baaefd70fa7f16"
+  },
+  {
+    "path": "docs/CLAIMS.md",
+    "matches_main": true,
+    "sha256": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+  },
+  {
+    "path": "docs/contract/ID-MAP.json",
+    "matches_main": true,
+    "sha256": "9d1149cffa862c30a2094bd25b08a4cf97b1d74fd529c03ea6644f1b8fe5d7cc"
+  }
+]
