@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { installation, business, assertTrail } from './harness.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
+import { installmentJourney, read as readJson } from './installment-ledger.mjs'
 
 const at = '2026-11-09T12:00:00.000Z'
 const read = async (h, path) => {
@@ -266,6 +267,63 @@ await scenario(t, 'PAY-023 point 6: refresh only reads a pending retained refere
   assert.equal(exact.status, 'paid', 'failed reservation releases its principal; unresolved reservation retains its principal')
   assert.equal(await due(h, invoice), '197.90')
   await trail(h, ['refund.refreshRequested', 'refund.paid', 'refund.failed', 'refund.unconfirmed'])
+})
+
+
+await scenario(t, 'PAY-004 point 1: three installments and a $50.00 original-card refund keep invoice, customer balance, aging and the receivables tile on one cent ledger through replay and Worker restart', async t => {
+  const { h, b } = await fixture(t)
+  const journey = await installmentJourney(h, b, { at })
+  const snapshot = async () => ({ payments: (await h.state()).payments, balances: await readJson(h, '/api/glove/balances'), aging: await readJson(h, '/api/glove/reports/receivables.json?asOf=2026-12-20'), dashboard: (await readJson(h, '/api/glove/dashboard')).receivables })
+  const before = await snapshot(), calls = h.stripePayments.calls.length
+  await journey.replay()
+  await journey.verify()
+  assert.deepEqual(await snapshot(), before, 'replayed commands change nothing')
+  assert.equal(h.stripePayments.calls.length, calls, 'replayed commands send no further Stripe request')
+  await h.restart()
+  await journey.replay()
+  await h.scheduled(at)
+  await journey.verify()
+  assert.deepEqual(await snapshot(), before, 'an actual Worker restart changes nothing')
+  assert.equal(h.stripePayments.calls.length, calls, 'restart and cron send no further Stripe request')
+  assert.equal(posts(h).length, 1, 'one refund request in the whole journey')
+})
+
+await scenario(t, 'PAY-004 point 2: every payment, refund and provider outcome of the journey is in Activity and the business export with its actor or provider and reference, without secrets', async t => {
+  const { h, b } = await fixture(t)
+  const { card1, card2, check3, refund, reference } = await installmentJourney(h, b, { at })
+  const { activity, exported } = await assertTrail(h, ['payment.requested', 'payment.checkoutAccepted', 'payment.paid', 'payment.recorded', 'refund.requested', 'refund.pending', 'refund.paid'])
+  const journeyEvents = activity.filter(e => /^(payment|refund)\./.test(e.kind) && e.subjectKind === 'payment')
+  const owner = ['Olivia Owner', 'owner'], stripe = ['Stripe', 'provider'], office = ['Olu Office', 'office']
+  const expected = [
+    [card1, 'payment.requested', owner], [card1, 'payment.checkoutAccepted', stripe], [card1, 'payment.paid', stripe],
+    [card2, 'payment.requested', owner], [card2, 'payment.checkoutAccepted', stripe], [card2, 'payment.paid', stripe],
+    [check3, 'payment.recorded', office],
+    [refund, 'refund.requested', owner], [refund, 'refund.pending', stripe], [refund, 'refund.refreshRequested', owner], [refund, 'refund.paid', stripe],
+  ]
+  assert.equal(journeyEvents.length, expected.length, 'no payment or refund event is missing or duplicated')
+  for (const [row, kind, [actorName, actorRole]] of expected) {
+    const events = journeyEvents.filter(e => e.subjectId === row.id && e.kind === kind)
+    assert.equal(events.length, 1, `${kind} for ${row.id}`)
+    const [event] = events, kept = exported.timeline.find(e => e.id === event.id), data = JSON.parse(kept.data)
+    assert.deepEqual([event.actorName, event.actorRole, kept.actor_name, kept.actor_role, kept.subject_id], [actorName, actorRole, actorName, actorRole, row.id])
+    const stored = exported.payments.find(p => p.id === row.id)
+    if (actorRole === 'provider' && kind !== 'payment.checkoutAccepted') assert.deepEqual([data.provider, data.providerReference], ['Stripe', stored.providerReference], `${kind} carries the provider reference`)
+    if (kind === 'refund.requested') assert.deepEqual([data.originalPaymentId, data.method, data.amount], [card1.id, 'card', '50.00'])
+    if (kind.startsWith('refund.') && kind !== 'refund.requested' && kind !== 'refund.refreshRequested') assert.equal(data.paymentId, card1.id)
+  }
+  // The staff check keeps its reference on the exported payment record; no provider claim is made for it.
+  const exportedCheck = exported.payments.find(p => p.id === check3.id)
+  assert.deepEqual([exportedCheck.reference, exportedCheck.method, exportedCheck.providerReference ?? null], [reference, 'check', null])
+  assert.equal(journeyEvents.filter(e => e.subjectId === check3.id).every(e => e.actorRole === 'office'), true)
+  for (const [row, stripeReference] of [[card1, card1.providerReference], [card2, card2.providerReference], [refund, refund.providerReference]]) {
+    assert.equal(exported.payments.find(p => p.id === row.id).providerReference, stripeReference)
+    const text = JSON.stringify(await readJson(h, `/api/glove/payments/${row.id}/timeline`))
+    assert.match(text, new RegExp(stripeReference))
+    assert.doesNotMatch(text, /synthetic-glove-[12](?![A-Za-z0-9-])|synthetic-glove-session|checkout\.stripe\.com|stripe-signature|Bearer/)
+  }
+  const everything = JSON.stringify({ activity, exported })
+  assert.doesNotMatch(everything, /synthetic-glove-[12](?![A-Za-z0-9-])|synthetic-glove-session|checkout\.stripe\.com|stripe-signature|Bearer|whsec_|sk_test|rk_test/)
+  for (const session of h.stripePayments.sessions) assert.ok(!everything.includes(session.id) && !everything.includes(session.url))
 })
 
 })
