@@ -1,0 +1,172 @@
+import assert from 'node:assert/strict'
+import { chromium } from '@playwright/test'
+import { existsSync } from 'node:fs'
+import { mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+import { harnessRoute, gotoHarness, closeHarnessContext } from './browser/harness-route.ts'
+
+/** SURFACE-022: native price-book audit, overview and Activity keep client work private. */
+export async function pricebookOverview({ request, origin, cookie, tool }) {
+  const json = async path => {
+    const response = await request(origin + path, { headers: { Cookie: cookie } })
+    assert.equal(response.status, 200, path)
+    return response.json()
+  }
+  const command = async (type, payload) => {
+    const response = await request(origin + '/api/glove/commands', { method: 'POST', headers: { Origin: origin, Cookie: cookie, 'Content-Type': 'application/json' }, body: JSON.stringify({ commandId: crypto.randomUUID(), type, payload }) })
+    const body = await response.json()
+    assert.equal(response.status, 200, `${type}: ${body.error?.code}`)
+    assert.equal(body.ok, true, type)
+    return body.result
+  }
+  const activity = async () => (await json('/api/glove/activity')).events
+  // Pagination is necessary: conformance has already made more than one audit page of calls.
+  const audit = async () => {
+    const rows = []
+    let cursor = '0'
+    for (;;) {
+      const page = await json(`/agents/api/audit?after=${encodeURIComponent(cursor)}`)
+      assert.equal(page.differs_from_policy, 0)
+      rows.push(...page.rows)
+      if (!page.cursor || page.cursor === cursor) return rows
+      cursor = page.cursor
+    }
+  }
+  const privateCustomer = {
+    name: 'synthetic-glove-261-customer', email: `synthetic-glove-261-customer${String.fromCharCode(64)}example.invalid`, phone: '202-555-0161',
+    billingAddress: '261 Synthetic Billing Avenue', contact: 'synthetic-glove-261-billing-contact',
+    contacts: [{ name: 'synthetic-glove-261-other-contact', phone: '202-555-0162', email: `synthetic-glove-261-contact${String.fromCharCode(64)}example.invalid` }],
+  }
+  const privateSite = { address: '261 Synthetic Service Avenue', accessNotes: 'synthetic-glove-261-private-access', contact: 'synthetic-glove-261-site-contact', contactPhone: '202-555-0163' }
+  const quoteTitle = 'synthetic-glove-261-private-quote', description = 'synthetic-glove-261-private-work'
+  const category = 'Overview catalogue'
+  const item = await command('service.save', { code: 'OVERVIEW-261', name: 'Overview filter', category, unitPrice: '20.00', unitCost: '5.00' })
+  const customer = await command('customer.save', privateCustomer)
+  const site = await command('site.save', { customerId: customer.id, ...privateSite })
+  const enquiry = await command('enquiry.create', { customerId: customer.id, siteId: site.id, description, source: 'phone' })
+  const draft = await command('quote.draft', { enquiryId: enquiry.id, title: quoteTitle, lines: [{ serviceId: item.id, description, quantity: '1', unitPrice: '20.00' }] })
+  const approved = await command('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+  assert.equal(approved.status, 'approved')
+  assert.equal(approved.revisions[0].lines[0].serviceId, item.id)
+  const seeded = await json('/api/glove/state')
+  assert.equal(seeded.customers.find(row => row.id === customer.id).billingAddress, privateCustomer.billingAddress)
+  assert.equal(seeded.sites.find(row => row.id === site.id).accessNotes, privateSite.accessNotes)
+  const secrets = [...Object.values(privateCustomer).filter(value => typeof value === 'string'), ...Object.values(privateCustomer.contacts[0]), ...Object.values(privateSite),
+    quoteTitle, description, customer.id, site.id, enquiry.id, approved.id, approved.number].filter(value => typeof value === 'string' && value.length > 0)
+  const noClientContent = (value, door) => {
+    const text = typeof value === 'string' ? value : JSON.stringify(value)
+    for (const secret of secrets) assert.ok(!text.includes(secret), `${door} excludes seeded client value`)
+  }
+  const calls = []
+  const call = async (name, args, code = null) => {
+    const before = await activity(), beforeState = await json('/api/glove/state'), beforeAudit = await audit()
+    const answer = await tool(name, args)
+    assert.equal(answer.result?._meta?.['com.runeditrun/error']?.code ?? null, code, name)
+    assert.equal(answer.result.isError, code !== null, name)
+    const after = await activity(), rows = (await audit()).filter(row => !beforeAudit.some(old => old.id === row.id))
+    assert.equal(rows.length, 1, `${name}: exactly one shared audit row per tool call`)
+    const row = rows[0], events = after.filter(event => !before.some(old => old.id === event.id))
+    assert.equal(row.tool, name)
+    assert.equal(row.idempotency_key, args.idempotency_key)
+    assert.equal(row.code, code)
+    assert.equal(row.decision, code ? 'none' : 'autonomous')
+    assert.equal(row.outcome, code ? 'refused' : 'done')
+    assert.deepEqual(row.classes, code ? [] : [{ class: 'standard', facts: { measure: 1 } }])
+    assert.ok(row.agent.id && row.agent.name && row.sponsor.id && row.sponsor.name)
+    assert.equal(row.sponsor.name, 'Avery Chen')
+    assert.equal(row.label, `${row.agent.name} for ${row.sponsor.name}`)
+    if (code) {
+      assert.deepEqual(after, before, `${code} adds no native Activity`)
+      const afterState = await json('/api/glove/state')
+      for (const field of ['version', 'services', 'business', 'customers', 'sites', 'quotes']) assert.deepEqual(afterState[field], beforeState[field], `${code} changes no ${field}`)
+    } else {
+      assert.equal(events.length, 1, `${name}: exactly one native Activity event`)
+      const event = events[0]
+      assert.equal(event.actorRole, 'agent')
+      assert.equal(event.actorId, row.sponsor.id)
+      assert.equal(event.actorName, row.label)
+      assert.equal(event.kind, { 'glove.pricebook.update': 'service.saved', 'glove.pricebook.category': 'pricebook.category', 'glove.pricebook.adjust': 'pricebook.adjusted' }[name])
+      noClientContent(event, 'native Activity')
+    }
+    noClientContent(row, 'shared audit')
+    calls.push({ row, events })
+    return answer.result.structuredContent
+  }
+  const args = { id: item.id, code: item.code, name: 'Overview filter revised', unitPrice: '22.00', unitCost: '5.00', category, expected_revision: item.version, idempotency_key: crypto.randomUUID() }
+  await call('glove.pricebook.update', args)
+  await call('glove.pricebook.update', { ...args, idempotency_key: crypto.randomUUID() }, 'revision_conflict')
+  await call('glove.pricebook.update', { ...args, name: 'Overview changed arguments' }, 'idempotency_conflict')
+  await call('glove.pricebook.update', { ...args, id: 'synthetic-glove-261-unknown', idempotency_key: crypto.randomUUID() }, 'resource_unavailable')
+  const businessRevision = (await json('/api/glove/state')).business[0].version
+  await call('glove.pricebook.category', { name: category, markupPercent: '40', expected_revision: businessRevision, idempotency_key: crypto.randomUUID() })
+  const adjustRevision = (await json('/api/glove/state')).business[0].version
+  await call('glove.pricebook.adjust', { category, percent: '10', expected_revision: adjustRevision, idempotency_key: crypto.randomUUID() })
+  const allRows = await audit(), allEvents = await activity()
+  for (const { row, events } of calls) {
+    assert.deepEqual(allRows.find(item => item.id === row.id), row)
+    for (const event of events) assert.equal(allEvents.filter(item => item.id === event.id).length, 1)
+  }
+  const originalQuote = seeded.quotes.find(row => row.id === approved.id)
+  assert.deepEqual((await json('/api/glove/state')).quotes.find(row => row.id === approved.id), originalQuote, 'catalogue changes never rewrite approved client work')
+  console.log('SURFACE-022: seeded approved client quote; six calls each have one exact shared audit row; three admitted changes have one attributed native event each; three refusals change nothing; audit and Activity exclude client data.')
+
+  const directory = join(tmpdir(), 'glove-agent-overview-browser')
+  await mkdir(directory, { recursive: true })
+  const browser = await chromium.launch({ ...(existsSync('/usr/bin/chromium') ? { executablePath: '/usr/bin/chromium' } : {}), args: ['--no-sandbox'] })
+  const missingClasses = []
+  try {
+    for (const width of [1440, 390]) {
+      const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
+      try {
+        let overviewHtml, clockBefore, clockAfter
+        await harnessRoute(page, origin + '/**', async route => {
+          const req = route.request()
+          const before = Date.now()
+          const response = await request(req.url(), { method: req.method(), headers: { ...req.headers(), Cookie: cookie }, ...(req.postDataBuffer() ? { body: req.postDataBuffer() } : {}) })
+          const body = Buffer.from(await response.arrayBuffer())
+          if (new URL(req.url()).pathname === '/agents') { overviewHtml = body.toString(); clockBefore = before; clockAfter = Date.now() }
+          const headers = Object.fromEntries(response.headers)
+          delete headers['set-cookie']
+          await route.fulfill({ status: response.status, headers, body })
+        })
+        await gotoHarness(page, origin + '/agents', { waitUntil: 'networkidle' })
+        if (width === 1440) {
+          noClientContent(overviewHtml, 'overview HTML')
+          const recent = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Recent activity', exact: true }) })
+          const displayed = await recent.locator('li').allTextContents()
+          const last20 = allRows.slice(-20).reverse()
+          assert.equal(displayed.length, last20.length)
+          for (let index = 0; index < last20.length; index++) {
+            const row = last20[index], text = displayed[index]
+            for (const value of [row.tool, row.agent.name, `for ${row.sponsor.name}`, row.decision, row.outcome, row.code].filter(Boolean)) assert.ok(text.includes(value), `Recent activity contains ${value}`)
+          }
+          for (const { row } of calls) {
+            const text = displayed[last20.findIndex(item => item.id === row.id)]
+            assert.ok(text, 'each new call is present in Recent activity')
+            for (const { class: cls } of row.classes) if (!text.includes(cls)) missingClasses.push({ tool: row.tool, class: cls, decision: row.decision, outcome: row.outcome })
+          }
+          const cells = await page.locator('[data-agents-count]').evaluateAll(nodes => nodes.map(node => ({ class: node.dataset.class, decision: node.dataset.decision, count: Number(node.textContent) })))
+          // Bound the server observation by its request, including a possible UTC week rollover.
+          // No fixed weekday or time-of-day expectation is made.
+          const weekStart = at => { const date = new Date(at); return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() - (date.getUTCDay() + 6) % 7) }
+          const expected = start => {
+            const counts = new Map()
+            for (const row of allRows.filter(row => Date.parse(row.at) >= start && Date.parse(row.at) <= clockAfter)) for (const { class: cls } of row.classes) {
+              const key = `${cls}:${row.decision}`
+              counts.set(key, (counts.get(key) ?? 0) + 1)
+            }
+            return counts
+          }
+          const candidates = [...new Set([weekStart(clockBefore), weekStart(clockAfter)])].map(expected)
+          assert.ok(cells.length > 0)
+          assert.ok(candidates.some(counts => cells.every(cell => cell.count === (counts.get(`${cell.class}:${cell.decision}`) ?? 0)) && [...counts].every(([key, count]) => cells.some(cell => `${cell.class}:${cell.decision}` === key && cell.count === count))), 'This-week cells equal all current UTC-week audit rows by class and decision')
+          console.log('SURFACE-022: Recent activity includes the last 20 audit calls with tool, agent, sponsor, decision, outcome and code; This-week count cells match all paginated current-week audit rows; overview HTML excludes client data.')
+        }
+        await page.screenshot({ path: join(directory, `overview-${width}.png`), fullPage: true })
+      } finally { await closeHarnessContext(context) }
+    }
+  } finally { await browser.close() }
+  assert.deepEqual(missingClasses, [], 'SURFACE-022: Recent activity must show the computed class for each admitted price-book call')
+  return 'SURFACE-022 pricebookOverview: native audit and Activity custody passed.'
+}
