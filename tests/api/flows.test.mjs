@@ -4,11 +4,13 @@ import { scenario } from '../fixtures/scenario.mjs'
 import { connectPayments, paidInvoice, paymentEvent } from '../fixtures/payment-journey.mjs'
 import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
 import { reminderTemplates } from '../fixtures/collection.mjs'
+import { unbilledReminderPoints } from '../fixtures/unbilled-reminders.mjs'
 import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { installation, business, acceptedQuote, completedJob, assertTrail, mailEvents } from './harness.mjs'
+import { eventlessCommandRefused, eventsKeepIdentity, firstEventListsChangedRecords } from '../fixtures/audit-trail.mjs'
 
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 const png = Buffer.from('89504e470d0a1a0a0000000d4948445200000001000000010806000000', 'hex').toString('base64')
@@ -1001,7 +1003,7 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.ok(s.events.some(e => e.kind === 'import.committed') && s.events.some(e => e.kind === 'import.undone'), 'the timeline keeps both')
   })
 
-  test('12 the job timeline names every step and person, and the business export carries it', async () => {
+  test('12 the job timeline names every step and person, and the business export carries it', async t => {
     const s = await h.state()
     const timeline = s.events.filter(e => e.jobId === job.id).reverse().map(e => e.kind)
     for (const kind of ['job.created', 'visit.booked', 'capture.arrival', 'capture.photo', 'visit.changed', 'visit.lateEvidenceReviewed', 'capture.completion', 'job.completed', 'invoice.prepared', 'invoice.exported', 'invoice.corrected']) assert.ok(timeline.includes(kind), `timeline has ${kind}`)
@@ -1013,6 +1015,9 @@ describe('API-001 Glove first release: quote to booked visit to field evidence t
     assert.equal((await h.request('/api/glove/export', { as: b.priyaPerson.cookie })).status, 403)
     const tech = await b.priyaPerson.state()
     assert.ok(tech.events.every(e => e.jobId), 'a technician sees only their jobs\' timeline')
+    await scenario(t, 'DATA-002 point 5: a command that raises no timeline event is refused with AUDIT and changes nothing', ({ after }) => eventlessCommandRefused({ after }))
+    await scenario(t, 'DATA-002 point 6: owner, office, technician, agent and rule events keep identity, role, clock time, command and effect', ({ after }) => eventsKeepIdentity({ after }))
+    await scenario(t, 'DATA-002 point 7: the first event lists changed records by kind, id, versions and field names, never values', ({ after }) => firstEventListsChangedRecords({ after }))
   })
 })
 
@@ -1125,6 +1130,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 cus
   await h.command('branch.limit', { operatorId: b.office.id, branchId: branch.id })
   assert.equal((await h.request(path, { as: b.office.cookie })).status, 404)
   assert.equal((await h.state()).invoices.length, 2, 'statement reads create no documents or charges')
+  await unbilledReminderPoints(t)
 })
 
 test('AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money', async t => {
