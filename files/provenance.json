@@ -1,0 +1,13 @@
+{
+  "tag": "sx-glove-c-f258",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f258",
+  "head": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+  "base": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "productPushed": true,
+  "readback": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+  "commits": [
+    "16676e537fdb756c5013944b35a29440076d7228",
+    "7527cae04cd1e580d479b8b820a3f037eb110adf"
+  ]
+}

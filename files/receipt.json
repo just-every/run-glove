@@ -1,0 +1,173 @@
+{
+  "tag": "sx-glove-c-f258",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f258",
+  "head": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+  "base": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "runtime": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "rer": "0.2.87"
+  },
+  "commands": [
+    {
+      "command": "GLOVE_VERIFY_SHARD=foundation WRANGLER_SEND_METRICS=false timeout 1200 pnpm run verify",
+      "head": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+      "exit": 0,
+      "agentConformance": {
+        "passed": 903,
+        "total": 903
+      },
+      "log": "foundation-final.log"
+    },
+    {
+      "command": "pnpm run typecheck",
+      "head": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+      "exit": 0,
+      "log": "typecheck-final.log"
+    },
+    {
+      "command": "pnpm run check --profile first-party --json",
+      "head": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+      "exit": 0,
+      "log": "first-party-final.jsonl"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses SURFACE-024",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "git checkout origin/main -- ACCEPTANCE.md docs/CLAIMS.md",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "head": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+      "exit": 0
+    },
+    {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 0,
+      "total": 198,
+      "limit": 200
+    }
+  ],
+  "probe": {
+    "point": "SURFACE-024.1",
+    "helper": "tests/agent-native-pause.mjs#pricebookPause",
+    "controls": [
+      "native",
+      "local",
+      "native and local"
+    ],
+    "refusedTools": [
+      "glove.pricebook.read",
+      "glove.pricebook.update",
+      "glove.pricebook.category",
+      "glove.pricebook.adjust"
+    ],
+    "refusal": "agents_paused",
+    "snapshotsUnchanged": true,
+    "combinedReleaseOrders": [
+      "native then local",
+      "local then native"
+    ],
+    "resumedEffects": {
+      "perScenario": {
+        "item": {
+          "nativeVersionSteps": 1,
+          "nativeActivityEvents": 1
+        },
+        "category": {
+          "nativeVersionSteps": 1,
+          "nativeActivityEvents": 1
+        }
+      },
+      "replayExtraEffects": 0
+    },
+    "tokenNativeRefusal": {
+      "http": 403,
+      "code": "FORBIDDEN"
+    },
+    "tokenSharedLocalRefusal": {
+      "http": 403,
+      "code": "person_session_required"
+    },
+    "categoryRevision": "Exact original request after local Pause. Native Pause advances business revisions; old revision refuses, then the original intent and key use the current precondition."
+  },
+  "contractCounts": {
+    "before": {
+      "done": 46,
+      "partial": 188,
+      "missing": 29,
+      "total": 263
+    },
+    "after": {
+      "done": 46,
+      "partial": 188,
+      "missing": 29,
+      "total": 263
+    }
+  },
+  "statusChanges": [],
+  "runtimeRepair": false,
+  "newTestRegistrations": 0,
+  "scan": {
+    "commit": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "NOT RUN in cloud; required fleet gate"
+  },
+  "mainEqualsCandidate": false,
+  "runSiteCandidate": "NOT RUN before landing",
+  "pr": null,
+  "protectedFilesChanged": false,
+  "generatedViewsCommitted": false,
+  "mechanical": "lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; views=node scripts/contract-docs.mjs write --clauses SURFACE-024 and check exit=0; ledger=none exit=0",
+  "productPushed": true,
+  "productRemoteReadback": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+  "publicationInspection": {
+    "candidateIdentities": "fleet only",
+    "candidateCoauthorTrailers": 0,
+    "changedFileEmailFixtures": 0,
+    "diffWhitespaceExit": 0,
+    "workingTreeClean": true
+  },
+  "mainCIContext": {
+    "head": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+    "verifyRuns": [
+      42998019060,
+      42995490841
+    ],
+    "runSite": 42998019057,
+    "conclusion": "success",
+    "candidateProof": false
+  },
+  "firstPartyClauses": {
+    "ok": true,
+    "total": 1573,
+    "failed": 0
+  },
+  "candidateCI": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "7527cae04cd1e580d479b8b820a3f037eb110adf",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/43000612075",
+      "id": 43000612075,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ],
+  "githubAPICalls": 4,
+  "recordedAt": "2026-11-11T10:10:48.064098+00:00"
+}

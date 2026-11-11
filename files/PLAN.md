@@ -1,0 +1,12 @@
+# sx-glove-c-f258 plan and scope
+
+1. Read the shipped plan, rulings and DONE riders, then the current repository instructions, target clause, native handlers and journey helpers.
+2. Preserve the accepted runtime pins and existing parity proof. SURFACE-015 has already landed: main 26ff9e2042a685e409e262fe6ceca9b25b70af0c contains equivalent rebased parity commits 669ae82, f7835cb, b2e1d53 and 0257ddc, followed by the lander judgment 26ff9e2. Do not merge obsolete alternate copies from f254.
+3. Extend the default native journey with one awaited focused helper. Exercise native, shared local and combined Pause through person doors; track all MCP calls using the supplied tool helper. Compare complete native service and business records, state version, native Activity ids and shared pause flags after each refusal.
+4. Exercise both combined release orders and token attempts to set and clear either control, including a valid Owner cookie alongside Authorization. Resume through the person doors and require a once-only update and category effect, each with one native version step and an attributed event. Always resume in cleanup and revoke the disposable integration token.
+5. Preserve current business revision preconditions: native Pause and resume are business writes. Refuse the old category revision, then refresh that precondition without changing its intent or idempotency key. Shared local Pause permits the exact original category request after resume.
+6. Run the focused foundation verification and typecheck at Node 22.20.0, pnpm 10.12.4 and rer 0.2.87. No runtime repair is planned unless a defect is demonstrated; do not modify Base copies or protected files.
+7. Generate and check contract views, restore main's generated files, lock last and check. Keep Status, Gap and Evidence cells unchanged. Preserve the first real commit on the named branch, merge fresh main before the final candidate and inspect every candidate identity and trailer before each push.
+8. Publish only selected non-secret report and receipt files on the separate evidence ref. Report the native subset as qualified, leave Business signed-policy resume and all existing client, provider, spending and custody holds explicit. The fleet owns exact-SHA CI, publication scan and landing.
+
+Plan row affected: SURFACE-024 point 1 native and shared local qualification; PARTIAL remains PARTIAL. No other campaign target is opened because the remaining same-file duties are separately leased or externally held in the shipped extract.
