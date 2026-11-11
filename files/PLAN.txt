@@ -1,0 +1,7 @@
+SURFACE-019 plan
+1. Inspect main and preserve the SURFACE-015 parity helper and its one journey invocation. Main already contains the same helper bytes as the prior parity candidate.
+2. Seed mixed native catalogue items and accepted customer decisions through the signed-in Owner command door.
+3. Assert exact standard class facts through the shared journey tool helper, independent item identities and literal price outcomes. Compare every other native collection before and after each call.
+4. Reproduce catalogue count failure before repairing only the native read classifier. Update only affected declared read journey expectations.
+5. Run pinned structural check, native conformance, typecheck, generator write and check, then restore generated views and regenerate the source lock.
+6. Commit and push only cloud/sx-glove-c-f257, inspect exact-SHA Verify by REST, publish the explicit non-secret report packet to its separate evidence ref, and hand over the branch to the guarded lander.

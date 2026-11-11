@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f257",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f257",
+  "head": "11fd25e0092888ec15c32f309b3ba6ea23be0312",
+  "product_pushed": true,
+  "push_command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f257",
+  "push_attempts": 1,
+  "push_exit": 0,
+  "checks": [
+    {
+      "command": "pnpm run check --profile first-party",
+      "exit": 0,
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "rer": "0.2.87"
+    },
+    {
+      "command": "node /tmp/glove-agent-check.mjs",
+      "phase": "before repair",
+      "exit": 1,
+      "result": "745/746",
+      "failure": "glove.pricebook.read native record count: actual measure 1, expected 25"
+    },
+    {
+      "command": "node /tmp/glove-agent-check.mjs",
+      "phase": "after repair",
+      "exit": 0,
+      "result": "766/766"
+    },
+    {
+      "command": "pnpm run typecheck",
+      "exit": 0
+    },
+    {
+      "command": "CI=true GLOVE_CI_PREBUILT=1 GLOVE_VERIFY_SHARD=foundation node scripts/verify-ci.mjs foundation",
+      "head": "11fd25e0092888ec15c32f309b3ba6ea23be0312",
+      "exit": 0,
+      "result": "verify: complete (exit 0); Agent door conformance: 766/766 points passed."
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write and check",
+      "exit": 0,
+      "generated_views": "restored whole from origin/main; not committed"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock and check",
+      "exit": 0,
+      "exact_head_check_exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "phase": "exact head",
+      "exit": 0
+    },
+    {
+      "command": "node tests/inventory.mjs --json",
+      "exit": 0,
+      "total": 198,
+      "cap": 200
+    }
+  ],
+  "remote_refs": [
+    "11fd25e0092888ec15c32f309b3ba6ea23be0312\trefs/heads/cloud/sx-glove-c-f257",
+    "26ff9e2042a685e409e262fe6ceca9b25b70af0c\trefs/heads/main"
+  ],
+  "pr": null,
+  "source_counts_before": {
+    "done": 46,
+    "partial": 188,
+    "missing": 29
+  },
+  "source_counts_after": {
+    "done": 46,
+    "partial": 188,
+    "missing": 29
+  },
+  "proposed_judgment": {
+    "SURFACE-019": "DONE point 1, subject to independent gate"
+  },
+  "publication_scan": {
+    "head": "11fd25e0092888ec15c32f309b3ba6ea23be0312",
+    "complete": "UNESTABLISHED IN CLOUD",
+    "historyScanned": "UNESTABLISHED IN CLOUD",
+    "findings": "UNESTABLISHED IN CLOUD"
+  },
+  "landing": "PENDING fleet; no default branch written",
+  "blockers": [],
+  "source_files": {
+    "src/glove/agent-door/tools.ts": {
+      "sha256": "13649ce5bb5286b5d9b1b3679036f3fd0fb4f6b39441f30019bb4f4e1a352aa5",
+      "matches_head": true
+    },
+    "tests/agent-native-class-facts.mjs": {
+      "sha256": "2ee095b0396cac6efe35de445edc8e99a7768ecb66dad709ea6d7b03df8194c8",
+      "matches_head": true
+    },
+    "tests/agent-native-journey.mjs": {
+      "sha256": "4e2e838df05d33eb1c28e8c82e76634f540b1f1551ecbed8081005c739c83c62",
+      "matches_head": true
+    },
+    "tests/agent-native-parity.mjs": {
+      "sha256": "1a9a0dedf6062bc9ced3b9c2d5e8cb515b592e81976e8f6d406ed272dc330c67",
+      "matches_head": true
+    },
+    "agent-surface.json": {
+      "sha256": "52b70b20e4df766b7399c239e76258e2fb2f07a199eb5302ddbbf146575944fd",
+      "matches_head": true
+    },
+    "sources.lock.json": {
+      "sha256": "b76f3ed4d80a760d58e2892c57d14bd3f92190f5758984d8254ad1b4aa3e5a3f",
+      "matches_head": true
+    },
+    "package.json": {
+      "sha256": "0f26ba634e6ecd3fc428e6e5fb72b07f9f66585410563c9821b5cf54eeb5bc84",
+      "matches_head": true
+    }
+  },
+  "parity_preserved": true,
+  "full_history": true,
+  "ci": {
+    "observed_unix": 1794392098.0214312,
+    "observed_at": "2026-11-11T10:14:58.021438+00:00",
+    "calls": 3,
+    "run_id": 43000534237,
+    "conclusion": null,
+    "head_sha": "11fd25e0092888ec15c32f309b3ba6ea23be0312",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43000534237",
+    "status": "in_progress"
+  }
+}
