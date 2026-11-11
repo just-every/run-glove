@@ -1832,7 +1832,7 @@
       "executable": false
     },
     "src/glove/activity.ts": {
-      "sha256": "a4c6d0b10844148ab55826b84bf901ce4d7fab049e6eee2ec2892fdd738169e4",
+      "sha256": "d92c72d5c93214767632d29fe3552e83131bf39687e00004910eda81d195ad0e",
       "executable": false
     },
     "src/glove/agent-door/index.ts": {
@@ -5499,8 +5499,12 @@
       "sha256": "36398d67fe599f96351e69d9a681b1e10cf67a3ab7cfbc064901a6a3eaf74893",
       "executable": false
     },
+    "tests/agent-native-attribution.mjs": {
+      "sha256": "e50046b4a88295cba7518697373a07c56d5be7b583f53108f3f5d170563d24f1",
+      "executable": false
+    },
     "tests/agent-native-journey.mjs": {
-      "sha256": "bcd41f25f3cb45e6334cc7ea353a9d642faad76259adf5cd84e18f270739fe48",
+      "sha256": "c3d30884c1fc78a29df1627b0bf0fd772cefb60dda2db4e6ec37ba7ac360da8c",
       "executable": false
     },
     "tests/agent-native-parity.mjs": {

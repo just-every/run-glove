@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { browserProof } from './agent-browser-proof.mjs'
 import { pricebookParity } from './agent-native-parity.mjs'
+import { pricebookAttribution, afterAttributionStep } from './agent-native-attribution.mjs'
 
 /** Only public native and shared doors. No account writer or substituted authority. */
 export default async function ({ request, origin, cookie, tool }) {
@@ -43,6 +44,7 @@ export default async function ({ request, origin, cookie, tool }) {
   await browserProof({ request, origin, cookie })
   // The harness hides journey failures; the parity helper's messages hold only synthetic fixture values.
   console.log(await pricebookParity({ request, origin, cookie, tool }).catch(error => { console.log(`Price-book parity failed: ${error.stack}`); throw error }))
+  await pricebookAttribution({ request, origin, cookie, tool }).catch(error => { console.log(`Price-book attribution failed: ${error.stack}`); throw error })
   console.log('Native price-book journey: revision conflict, argument conflict, once-only replay, native Pause, measured bulk effects and attributable Activity passed.')
 }
 
@@ -67,4 +69,5 @@ export async function afterStep({ request, origin, cookie, phase, step, args, re
   } else if (step.tool === 'glove.pricebook.adjust') {
     for (const item of result.items) assert.equal(item.unitPrice, state.services.find(row => row.id === item.id)?.unitPrice)
   }
+  await afterAttributionStep({ request, origin, cookie, phase, step, args, result }).catch(error => { console.log(`Price-book attribution step failed: ${error.stack}`); throw error })
 }

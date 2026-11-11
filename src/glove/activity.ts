@@ -1,6 +1,6 @@
 import { collections, fail, type Row } from './model'
 
-export const eventColumns = `id,sequence,at,actor_id AS actorId,actor_name AS actorName,actor_role AS actorRole,command_id AS commandId,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.recordChanges') AS recordChanges`
+export const eventColumns = `id,sequence,at,actor_id AS actorId,actor_name AS actorName,actor_role AS actorRole,command_id AS commandId,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.recordChanges') AS recordChanges,json_extract(data,'$.preparedBy') AS preparedBy,json_extract(data,'$.approvers') AS approvers`
 
 /** DATA-002, DATA-009, DATA-010: every older event remains reachable from Activity, without an offset race. */
 export async function activityPage(db: D1Database, before: string | null) {
@@ -13,5 +13,5 @@ export async function activityPage(db: D1Database, before: string | null) {
 /** Audit metadata follows the same current record visibility as the underlying read. */
 export function visibleChanges(events: Row[], view: object, owner: boolean) {
   const allowed = new Map(collections.map(k => [k, new Set(((view as any)[k] ?? []).map((r: Row) => r.id))]))
-  return events.map(e => ({ ...e, recordChanges: (e.recordChanges ? JSON.parse(e.recordChanges) : []).filter((r: any) => owner || allowed.get(r.kind)?.has(r.id)) }))
+  return events.map(({ preparedBy, approvers, ...e }) => ({ ...e, ...(preparedBy ? { preparedBy: JSON.parse(preparedBy), ...(approvers ? { approvers: JSON.parse(approvers) } : {}) } : {}), recordChanges: (e.recordChanges ? JSON.parse(e.recordChanges) : []).filter((r: any) => owner || allowed.get(r.kind)?.has(r.id)) }))
 }
