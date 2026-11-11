@@ -1,0 +1,39 @@
+{
+  "all_parents": true,
+  "range": "origin/main..HEAD",
+  "commits": [
+    {
+      "sha": "a821b4dcf7efe59afd060ce9eda985bff84a61eb",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": ""
+    },
+    {
+      "sha": "00733365e618f6cad0e465f41b5264b53c71c4fa",
+      "author_name": "Run Edit Run fleet",
+      "author_email": "fleet@runeditrun.com",
+      "committer_name": "Run Edit Run fleet",
+      "committer_email": "fleet@runeditrun.com",
+      "trailers": ""
+    },
+    {
+      "sha": "f3c4b53f2a527163a1cff41e0b059a8048d08287",
+      "author_name": "James Peter",
+      "author_email": "github@zemaj.com",
+      "committer_name": "James Peter",
+      "committer_email": "github@zemaj.com",
+      "trailers": "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+    },
+    {
+      "sha": "eded76c34da6a2e8a5dd77e0bbbc777382033d1b",
+      "author_name": "James Peter",
+      "author_email": "github@zemaj.com",
+      "committer_name": "James Peter",
+      "committer_email": "github@zemaj.com",
+      "trailers": "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
+    }
+  ],
+  "result": "pass"
+}

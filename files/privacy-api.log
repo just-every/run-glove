@@ -1,0 +1,47 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# (node:1740) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+ok 1 - DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+  ---
+  duration_ms: 143558.723856
+  type: 'test'
+  ...
+# DATA-001 points 1–7: native privacy qualification through the production Worker
+# DATA-001 point 1: independently seeded merged histories and a peer contain operational, financial and original evidence
+# DATA-001 point 2: every excluded caller is refused export and erasure without changing any record
+# DATA-001 point 3: either merged identity previews and exports the complete group and every receipt names both IDs
+# DATA-001 point 4: full timeline and byte-exact originals are shown once and excluded from replay, Activity, stored outcomes and Worker logs
+# DATA-001 point 5: erasure removes operational content, originals, certificates, credentials and personal event and command copies through every existing storage door
+# DATA-001 point 6: peer histories and anonymous financial dates, classifications, costs and tax totals stay exact while edits and unmerge are refused
+# DATA-001 point 7: the same erasure advances the Base redaction epoch and invalidates the pending archive transfer
+# DATA-008 point 1: only a signed-in Owner without a branch limit confirms, and the receipt names that Owner
+# DATA-008 point 1: a second unscoped Owner previews, exports and confirms erasure, and every record names that Owner
+# DATA-008 point 1: an Owner's confirmation after branch.limit is refused with every record unchanged
+# DATA-008 point 1: an Owner's confirmation after role.set away from Owner between preview and commit is refused with every record unchanged
+# DATA-008 point 1: an Owner's confirmation after sign-out is refused with every record unchanged
+# DATA-008 point 4: a token or agent never records a person's confirmation
+# DATA-008 point 4: Agent, Office and custom tokens, the native Agent and a branch-limited Owner are refused every privacy command and nothing is recorded
+# DATA-008 point 4: reusing the Owner's committed erasure command identity is refused and records nothing; the role door stops a token or Agent first and the stored identity stops another Owner
+# DATA-008 point 4: refusals are identical after an actual Worker restart
+# DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals
+# DATA-001 point 7: the edition archive policy rejects an older checkpoint with a later journal or destination fence and restores an anonymous backup
+# DATA-001 point 8: a fresh offline destination given only the older archive restores personal data and originals, demonstrating the trusted-journal limit
+# DATA-001 point 4: complete customer CSV rows retain unmapped columns and exclude peers; imported erasure removes retained source copies
+# DATA-001 point 4: complete ServiceM8 objects include unmapped fields, exclude peer objects and name mixed-ownership attachment omissions
+# DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 / MOVE-001, MOVE-007 / MOVE-003, MOVE-009 / MOVE-004, MOVE-010 erasing one provider customer keeps another provider with the same numeric source ID and journal intact
+# DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 erasure tombstones one CSV customer while peers retain source projections and exact Undo
+# DATA-007 point 1: every exact typed value in peer and shared records is redacted while other mentions and short-word lookalikes stay
+# DATA-007 point 2: peer and shared records keep their IDs, other fields, original files and place in histories with only the exact values replaced
+# DATA-007 point 3: no table, saved outcome, Activity, export or Worker log keeps a subject value or its unkeyed SHA-256, and client command IDs become random privacy IDs
+# DATA-007 point 4: preview, erasure, command replay and Worker restart send nothing and attempt no remote deletion with email, Stripe test and Maps connected
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 145250.887698

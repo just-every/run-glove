@@ -1,0 +1,74 @@
+{
+  "pc2": {
+    "published": {
+      "partial": 10,
+      "done": 3
+    },
+    "target": {
+      "partial": 169,
+      "done": 38,
+      "missing": 27
+    },
+    "push-further": {
+      "missing": 2,
+      "partial": 12,
+      "done": 2
+    }
+  },
+  "main": {
+    "published": {
+      "partial": 10,
+      "done": 3
+    },
+    "target": {
+      "partial": 165,
+      "done": 42,
+      "missing": 27
+    },
+    "push-further": {
+      "missing": 2,
+      "partial": 12,
+      "done": 2
+    }
+  },
+  "candidate": {
+    "published": {
+      "partial": 10,
+      "done": 3
+    },
+    "target": {
+      "partial": 165,
+      "done": 42,
+      "missing": 27
+    },
+    "push-further": {
+      "missing": 2,
+      "partial": 12,
+      "done": 2
+    }
+  },
+  "main_judgments_preserved": [
+    {
+      "id": "COST-001",
+      "before": "partial",
+      "after": "done"
+    },
+    {
+      "id": "BOOK-017",
+      "before": "partial",
+      "after": "done"
+    },
+    {
+      "id": "QUOTE-002",
+      "before": "partial",
+      "after": "done"
+    },
+    {
+      "id": "SURFACE-015",
+      "before": "partial",
+      "after": "done"
+    }
+  ],
+  "candidate_status_changes_from_main": [],
+  "DATA_008": "partial"
+}

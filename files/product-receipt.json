@@ -1,0 +1,24 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f250-pc3",
+  "head": "a821b4dcf7efe59afd060ce9eda985bff84a61eb",
+  "main_merged": "9a9426a6470e2fa91f0232a527277b34f033d1ff",
+  "pc2_head": "f3c4b53f2a527163a1cff41e0b059a8048d08287",
+  "initial_main": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+  "merge_commits": [
+    "00733365e618f6cad0e465f41b5264b53c71c4fa",
+    "a821b4dcf7efe59afd060ce9eda985bff84a61eb"
+  ],
+  "protected_files_byte_identical_to_main": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    "docs/contract/ID-MAP.json"
+  ],
+  "clean_worktree": true,
+  "source_lock_check_ok": true,
+  "diff_from_main": "sources.lock.json                     |   6 +-\n tests/api/privacy.test.mjs            |   3 +\n tests/fixtures/privacy-delegation.mjs | 157 ++++++++++++++++++++++++++++++++++\n 3 files changed, 165 insertions(+), 1 deletion(-)",
+  "pushed": true,
+  "push_attempts": 1,
+  "pr_created": false
+}

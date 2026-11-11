@@ -1,0 +1,9 @@
+{
+  "contract_write_command": "node scripts/contract-docs.mjs write --clauses DATA-008",
+  "contract_check_command": "node scripts/contract-docs.mjs check --clauses DATA-008",
+  "contract_result": "current; zero view changes",
+  "generated_views_restored_from": "origin/main",
+  "lock_command": "node scripts/edition-authoring/cli.mjs lock",
+  "lock_check_command": "node scripts/edition-authoring/cli.mjs check",
+  "lock_check_ok": true
+}

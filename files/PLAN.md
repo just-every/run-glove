@@ -1,0 +1,10 @@
+# sx-glove-c-f250-pc3 plan
+
+1. Initialize fleet identity, launcher credentials, Git transport guard and commit hooks; use only just-every/run-glove as the product write repository.
+2. Clone with --filter=blob:none and complete history. Fetch main and pc2; require pc2 to equal f3c4b53f2a527163a1cff41e0b059a8048d08287. Create cloud/sx-glove-c-f250-pc3 at that head.
+3. Merge current main without rewriting published history. Resolve contract judgments and ID map to main, retain both sides of tests, and renumber any colliding migration. Restore CONTRACT.md, ACCEPTANCE.md, docs/CLAIMS.md and docs/contract/ID-MAP.json exactly from main.
+4. Regenerate contract documents using documented tooling and check, then restore generated views to main. Regenerate sources.lock.json last and check it. Preserve all existing clause judgments and CLAIM lines.
+5. Install the pinned toolchain/dependencies, then run typecheck and candidate-touched non-browser privacy tests once. Do not run browser or portable suites locally, as directed by the brief.
+6. Fetch main again immediately before publication; merge any movement and refresh protected documents/source lock as necessary. Commit with fleet identity, active hooks and no skip-ci marker on the final head. Audit every commit reachable from HEAD but not origin/main, including side parents, before guarded push to the named cloud branch.
+7. Discover and poll exact-SHA Verify through gh REST, one watcher and at most one call per 300 seconds per run within ten total GitHub calls. Read each failed job log once when necessary. Never push main to obtain CI.
+8. Save complete non-secret actual results and receipts outside the product checkout and publish explicitly selected files only to evidence/sx-glove-c-f250-pc3. Return the exact evidence identity, terminal product provenance, counts/status changes, CI IDs and lane POST line. READY requires exact-SHA success (except documented generated-view-only failure); otherwise report the actual blocker or pending custody status.

@@ -1,0 +1,20 @@
+{
+  "status": "READY",
+  "head": "a821b4dcf7efe59afd060ce9eda985bff84a61eb",
+  "branch": "cloud/sx-glove-c-f250-pc3",
+  "verify": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "cloud/sx-glove-c-f250-pc3",
+    "head_sha": "a821b4dcf7efe59afd060ce9eda985bff84a61eb",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43010666773",
+    "id": 43010666773,
+    "name": "Verify",
+    "run_attempt": 1,
+    "status": "completed"
+  },
+  "reason": null,
+  "publication_scan": "reserved for fleet Mac lander; unavailable in this cloud",
+  "landing": "not performed",
+  "timestamp_utc": "2026-11-11T11:32:28.411759+00:00"
+}
