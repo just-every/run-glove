@@ -1,0 +1,13 @@
+{
+  "branch": "cloud/sx-glove-pricebook-fields-1",
+  "changed_files": [
+    "sources.lock.json",
+    "src/glove/commands/setup.ts",
+    "tests/agent-native-parity.mjs"
+  ],
+  "clean": true,
+  "commit_subject": "Preserve omitted price-book fields on desk and agent edits",
+  "contract_unchanged": true,
+  "head": "5f69e7993d7412aa396bc8b524bdd2957ca4bcf6",
+  "hooks_active": true
+}

@@ -1,0 +1,120 @@
+{
+  "base": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "branch": "cloud/sx-glove-pricebook-fields-1",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "result": "Installed repository-pinned rer 0.2.87 dependencies, built unfixed product and prepared local owner; private setup log excluded"
+    },
+    {
+      "command": "cloud_run node /tmp/glove-pricebook-parity.mjs",
+      "exit": 1,
+      "log": "before-fix.log",
+      "observed": {
+        "pricing": "fixed",
+        "taskTotal": "0.00",
+        "tax": "TAXABLE",
+        "unitCost": "0.00"
+      },
+      "phase": "before fix, updated regression against baseline emitted Worker"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run pnpm run typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run node /tmp/glove-pricebook-parity.mjs",
+      "exit": 0,
+      "log": "after-fix.log",
+      "observed": {
+        "archived": true,
+        "pricing": "markup",
+        "taskTotal": "21.00",
+        "tax": "FREE",
+        "unitCost": "7.00"
+      },
+      "phase": "after fix"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "result": "Contract documents are current"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "result": "ok=true"
+    },
+    {
+      "command": "cloud_run npx -y @runeditrun/rer check --profile first-party",
+      "exit": 0,
+      "log": "first-party-check.log"
+    },
+    {
+      "after": 198,
+      "before": 198,
+      "cap": 200,
+      "command": "node tests/inventory.mjs",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "ci": {
+    "head_sha": "5f69e7993d7412aa396bc8b524bdd2957ca4bcf6",
+    "run_id": 43000536001,
+    "status": "in_progress",
+    "url": "https://github.com/just-every/run-glove/actions/runs/43000536001"
+  },
+  "clauses": {
+    "SURFACE-015": {
+      "after": "done",
+      "before": "done"
+    }
+  },
+  "contract_changes": [],
+  "counts_before_and_after": {
+    "agent_surface": {
+      "done": 1,
+      "missing": 13,
+      "partial": 12,
+      "total": 26
+    },
+    "core": {
+      "done": 45,
+      "missing": 16,
+      "partial": 176,
+      "total": 237
+    },
+    "full_target": {
+      "done": 46,
+      "missing": 29,
+      "partial": 188,
+      "total": 263
+    }
+  },
+  "head": "5f69e7993d7412aa396bc8b524bdd2957ca4bcf6",
+  "local_browser_runs": 0,
+  "local_portable_runs": 0,
+  "pr": null,
+  "product_push": {
+    "attempts": 1,
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-pricebook-fields-1",
+    "exit": 0,
+    "log": "product-push.log"
+  },
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-pricebook-fields-1"
+}

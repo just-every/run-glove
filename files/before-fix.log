@@ -1,0 +1,43 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: desk name-only edit retains pricing, cost, tax and dependent task total
++ actual - expected
+
+  {
++   pricing: 'fixed',
++   taskTotal: '0.00',
++   tax: 'TAXABLE',
++   unitCost: '0.00'
+-   pricing: 'markup',
+-   taskTotal: '21.00',
+-   tax: 'FREE',
+-   unitCost: '7.00'
+  }
+
+    at pricebookParity (file:///workspace/run-glove/tests/agent-native-parity.mjs:219:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///tmp/glove-pricebook-parity.mjs:39:15 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: {
+    pricing: 'fixed',
+    unitCost: '0.00',
+    tax: 'TAXABLE',
+    taskTotal: '0.00'
+  },
+  expected: {
+    pricing: 'markup',
+    unitCost: '7.00',
+    tax: 'FREE',
+    taskTotal: '21.00'
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
