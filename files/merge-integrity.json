@@ -1,0 +1,8 @@
+{
+  "prior_candidate": "507b08f48ccaf3d03fea89b3b01c245ceb1075ba",
+  "statement_fixture_unchanged": true,
+  "statement_fixture_sha256": "d5215538e49195f836c652908257f88b0a07b2b9a8704ef84d03ec5e44ba953b",
+  "PAY-010_statement_test_block_unchanged": true,
+  "PAY-010_test_block_sha256": "cfdd8db35253be7176d40b23beefeee005e37918ae5acf57eda159c9748a9ecf",
+  "main_audit_fixture_retained": true
+}

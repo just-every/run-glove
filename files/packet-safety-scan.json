@@ -1,0 +1,181 @@
+{
+  "status": "passed",
+  "selected_files": [
+    {
+      "path": "PLAN.md",
+      "bytes": 2159,
+      "sha256": "af3a881250da24b078f78aedae5ed6b537710767bd8b8e0984e1dbab89ebce64",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "RECEIPT.json",
+      "bytes": 2357,
+      "sha256": "c047e738ea97afd586431192eedbc008979898e7330d0a948a7d9425205c686c",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 5169,
+      "sha256": "622de47af5509339f3ab53a42a420da65563a5c1656937c2e1fbe21edfe394ea",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "ci-discovery.json",
+      "bytes": 220,
+      "sha256": "1de21b077de5ec672b18efb0ef168af718b3b4c70e58dc3d839ec19d2b8df381",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "ci-observations.jsonl",
+      "bytes": 885,
+      "sha256": "5d52e6864d20d7d982bdc171d3faf87b16c2b5225d6dfe457c7fde5a21a58dda",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "ci-poll-1.json",
+      "bytes": 223,
+      "sha256": "97c8567b78d3edfdbee71a3fbd4c5457210988f90e579a1336de68e611c2a4d4",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "ci-poll-2.json",
+      "bytes": 226,
+      "sha256": "c50e8c48b6d201e27de5ef3914d77b902368ca724a20fd90714eb32f6cb5fd5a",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "contract-check.log",
+      "bytes": 32,
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "contract-counts.json",
+      "bytes": 4914,
+      "sha256": "df91bb808f60acc7b460a71bc1668d4a5cad131959b9ba9b264d91f6406d0f59",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "contract-write.log",
+      "bytes": 28,
+      "sha256": "14cee29b7bd19487e15f4013d4fb85016e022ef21d230676971a6490c88436d2",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "flows-test.log",
+      "bytes": 5565,
+      "sha256": "894f63840425c794f2b4e196a8d53b88ddf0db21ed196ca147f26db3e21b2e95",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "github-calls.json",
+      "bytes": 795,
+      "sha256": "a45400933e58a4b88b852b858f716617164a0c42e79a26cf1b62558f8b77e8eb",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "identity-audit.txt",
+      "bytes": 775,
+      "sha256": "2acffd0d94f870245cc0b422313e4988cc9df9c8cb20b38c09dca08dc3c7ad3f",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "inherited-status-changes.json",
+      "bytes": 138,
+      "sha256": "3a829ab3e26bafbb5bb9e5d1d16f4ff3311759b07370803a9250ac7211969635",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "install.log",
+      "bytes": 2088,
+      "sha256": "e9ce32ebe9ae19dc914c1914b870f4b2240cf204546a7abcb1617bac54c32f5c",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "local-checks.json",
+      "bytes": 45,
+      "sha256": "f95b43c87d121dcccce7ffc8ef35bf3e4e5a55a02e0510f930b3e7481622b100",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "lock-check.log",
+      "bytes": 271042,
+      "sha256": "e2d0150ebe8176d9ae1d3f31d8538871121f0cc98434fab6cb541758b0b03bf2",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "lock.log",
+      "bytes": 271028,
+      "sha256": "417b7644c7adb9c34153b47116e9336add9472aabde773caa3ac9fc871e2e383",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "merge-integrity.json",
+      "bytes": 393,
+      "sha256": "cb86919052d5280c097f79ccb3675725494dab82295f11ce6d42a33fab1d27b3",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "product-diff-stat.txt",
+      "bytes": 240,
+      "sha256": "37d56a61a150c817c1084193d2849d78ba0a86bd9a8b668ef66760fecb004b7d",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "product-head.txt",
+      "bytes": 193,
+      "sha256": "e4b72cd2a8d6b360555459742dfdcabd5e2254d5ca8c9a2b5d321eaf0408dd44",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "product-push.log",
+      "bytes": 918,
+      "sha256": "a347b5cf0216e9fcb4a49076dc9c450b078a132236f6e117e48994ba7a481ec9",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "product-test-diff.patch",
+      "bytes": 38205,
+      "sha256": "0f21fa3e024633bc6470e99becb8adc92a673c0ab6398cb49bdf7a5adefd10f4",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "typecheck.log",
+      "bytes": 240,
+      "sha256": "e8a2775fd16bd86a2226fb54721f6706ef63426028c555e6085e4f363d8cf22b",
+      "regular_file": true,
+      "injected_values_absent": true
+    },
+    {
+      "path": "verify-run.json",
+      "bytes": 255,
+      "sha256": "dcc9ba0e897727715ce90b7644243f75d20fa3ea82fd1fc9cbe9306505e9e6e0",
+      "regular_file": true,
+      "injected_values_absent": true
+    }
+  ],
+  "scope": "explicit non-secret reports, checks and receipts; no environment dumps, credentials, held-out material or symlinks"
+}

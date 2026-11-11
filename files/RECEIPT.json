@@ -1,0 +1,86 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f256-pc2",
+  "head": "a5f203a9f22803ec224ba4fd58e30675c70e3c74",
+  "prior_candidate": "507b08f48ccaf3d03fea89b3b01c245ceb1075ba",
+  "merged_main": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+  "main_files": {
+    "CONTRACT.md": {
+      "matches_main": true,
+      "sha256": "dc5b7600332a6c3fed46ae0643322e3f63d646bdb01f57a706113126d1602a8b"
+    },
+    "ACCEPTANCE.md": {
+      "matches_main": true,
+      "sha256": "047bb9876cbe06d3869f09dbef36131409cb13172f64d0ece4baaefd70fa7f16"
+    },
+    "docs/CLAIMS.md": {
+      "matches_main": true,
+      "sha256": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+    },
+    "docs/contract/ID-MAP.json": {
+      "matches_main": true,
+      "sha256": "9d1149cffa862c30a2094bd25b08a4cf97b1d74fd529c03ea6644f1b8fe5d7cc"
+    }
+  },
+  "typecheck_exit": 0,
+  "flows_exit": 0,
+  "tests": 9,
+  "pass": 9,
+  "fail": 0,
+  "skip": 0,
+  "candidate_commit_audit_count": 7,
+  "browser_portable_local": "not run per brief",
+  "pr": null,
+  "verify": {
+    "conclusion": "success",
+    "event": "push",
+    "head_sha": "a5f203a9f22803ec224ba4fd58e30675c70e3c74",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43010387272",
+    "id": 43010387272,
+    "name": "Verify",
+    "status": "completed"
+  },
+  "product_push": "succeeded on attempt 1; cloud-push.py",
+  "protected_files_diff_against_main": "empty",
+  "working_tree_clean": true,
+  "product_files_vs_main": [
+    "sources.lock.json",
+    "tests/api/flows.test.mjs",
+    "tests/fixtures/statement-journey.mjs"
+  ],
+  "local_runtime": {
+    "node": "v24.19.0",
+    "pnpm": "10.12.4",
+    "declared_node": "22.20.0"
+  },
+  "clause_counts": {
+    "prior": {
+      "done": 45,
+      "partial": 189,
+      "missing": 29,
+      "total": 263
+    },
+    "candidate": {
+      "done": 47,
+      "partial": 187,
+      "missing": 29,
+      "total": 263
+    }
+  },
+  "inherited_main_judgments": {
+    "COST-001": {
+      "before": "partial",
+      "after": "done"
+    },
+    "SURFACE-015": {
+      "before": "partial",
+      "after": "done"
+    }
+  },
+  "task_authored_judgment_changes": 0,
+  "PAY-010": "partial, unchanged",
+  "local_packet_scan": "passed; separate from required fleet publication scan",
+  "github_calls_used": 3,
+  "readiness": "READY",
+  "blockers": []
+}

@@ -1,0 +1,58 @@
+{
+  "prior": {
+    "head": "507b08f48ccaf3d03fea89b3b01c245ceb1075ba",
+    "clauses": 263,
+    "counts": {
+      "partial": 189,
+      "done": 45,
+      "missing": 29
+    },
+    "pay010": {
+      "id": "PAY-010",
+      "title": "Customer statements",
+      "kind": "target",
+      "status": "partial",
+      "evidence": [
+        "src/glove/statements.ts",
+        "src/glove/unbilled-reminders.ts",
+        "src/glove/commands/invoices.ts",
+        "tests/api/flows.test.mjs",
+        "tests/api/email.test.mjs",
+        "tests/browser/invoice-batch.spec.ts"
+      ],
+      "gap": "External invoice delivery on reconnect remains unbuilt; its preparatory reconnect action creates a draft only. Customer-facing payment links remain engineering work under PAY-002 and RL-106. Progress invoices use explicitly priced stages within the frozen accepted gross cap; changed scope requires reviewed reconciliation before later stages. RL-105 resolves the separate field grant and offline approved-invoice custody policy hold.",
+      "area": "Invoicing and payments",
+      "text": "*Tier:* Core · *From:* PAY-001 · *Cites:* BASE-DATA-003, BASE-ROLE-001, BASE-SECRET-001 **Requirement.** Customer statements supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-001-operating-rules) retain the record formats and calculations. **Acceptance.** 1. The desk's existing report authority opens a customer's dated statement as JSON or downloads it as CSV from Customers. 2. Statements include only that customer's approved revisions and retained opening balances through the chosen date, subtract confirmed payment effects through each record's branch-local date, and keep currencies separate. 3. Unapproved corrections and pending, failed or returned payments do not reduce a balance; tips and fees are excluded. 4. Credits stay separate until explicitly allocated. 5. Dates remain frozen under GLOVE-09 and PLAN-005, PLAN-012, PLAN-013. 6. Branch scope, customer erasure and existing report permissions apply at the HTTP boundary. 7. Statements issue no payment credential and send no message. 8. PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis.",
+      "line": 1748,
+      "row": 3814
+    }
+  },
+  "main": {
+    "head": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+    "clauses": 263,
+    "counts": {
+      "partial": 187,
+      "done": 47,
+      "missing": 29
+    },
+    "pay010": {
+      "id": "PAY-010",
+      "title": "Customer statements",
+      "kind": "target",
+      "status": "partial",
+      "evidence": [
+        "src/glove/statements.ts",
+        "src/glove/unbilled-reminders.ts",
+        "src/glove/commands/invoices.ts",
+        "tests/api/flows.test.mjs",
+        "tests/api/email.test.mjs",
+        "tests/browser/invoice-batch.spec.ts"
+      ],
+      "gap": "External invoice delivery on reconnect remains unbuilt; its preparatory reconnect action creates a draft only. Customer-facing payment links remain engineering work under PAY-002 and RL-106. Progress invoices use explicitly priced stages within the frozen accepted gross cap; changed scope requires reviewed reconciliation before later stages. RL-105 resolves the separate field grant and offline approved-invoice custody policy hold.",
+      "area": "Invoicing and payments",
+      "text": "*Tier:* Core · *From:* PAY-001 · *Cites:* BASE-DATA-003, BASE-ROLE-001, BASE-SECRET-001 **Requirement.** Customer statements supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-001-operating-rules) retain the record formats and calculations. **Acceptance.** 1. The desk's existing report authority opens a customer's dated statement as JSON or downloads it as CSV from Customers. 2. Statements include only that customer's approved revisions and retained opening balances through the chosen date, subtract confirmed payment effects through each record's branch-local date, and keep currencies separate. 3. Unapproved corrections and pending, failed or returned payments do not reduce a balance; tips and fees are excluded. 4. Credits stay separate until explicitly allocated. 5. Dates remain frozen under GLOVE-09 and PLAN-005, PLAN-012, PLAN-013. 6. Branch scope, customer erasure and existing report permissions apply at the HTTP boundary. 7. Statements issue no payment credential and send no message. 8. PLAN-005, PLAN-012, PLAN-013 fixed-monthly invoices inherit its ct-approved period-end issue date, separate approval time, later-of-period/approval due-date basis, approval-gated aging and frozen report/export dates; preexisting documents keep their original basis.",
+      "line": 1748,
+      "row": 3814
+    }
+  }
+}

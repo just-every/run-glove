@@ -1,0 +1,32 @@
+[
+  {
+    "number": 1,
+    "at": "2026-11-11T11:15:20.104961+00:00",
+    "args": [
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=a5f203a9f22803ec224ba4fd58e30675c70e3c74&per_page=100",
+      "--jq",
+      "[.workflow_runs[] | {id,name,event,status,conclusion,head_sha,html_url}]"
+    ]
+  },
+  {
+    "number": 2,
+    "at": "2026-11-11T11:20:21.116390+00:00",
+    "args": [
+      "api",
+      "repos/just-every/run-glove/actions/runs/43010387272",
+      "--jq",
+      "{id,name,event,status,conclusion,head_sha,html_url}"
+    ]
+  },
+  {
+    "number": 3,
+    "at": "2026-11-11T11:25:22.120760+00:00",
+    "args": [
+      "api",
+      "repos/just-every/run-glove/actions/runs/43010387272",
+      "--jq",
+      "{id,name,event,status,conclusion,head_sha,html_url}"
+    ]
+  }
+]
