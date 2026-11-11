@@ -1,0 +1,4 @@
+{
+  "command": "pnpm run check --profile first-party",
+  "exit": 0
+}

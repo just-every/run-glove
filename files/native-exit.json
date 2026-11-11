@@ -1,0 +1,5 @@
+{
+  "command": "node node_modules/@runeditrun/rer/cli/agent-door.mjs .",
+  "exit": 1,
+  "head": "6cea228cfc991d229367554229aa4cbf90e3b477"
+}

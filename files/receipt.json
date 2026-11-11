@@ -1,0 +1,153 @@
+{
+  "assertion_width": 1440,
+  "base_main": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+  "branch": "cloud/sx-glove-c-f262",
+  "browser": "system Chromium with --no-sandbox; Playwright browser contexts closed",
+  "browser_widths": [
+    1440,
+    390
+  ],
+  "candidate_verify": {
+    "reason": "preservation commit carries [skip ci]; known real runtime failure, no landing candidate",
+    "runs": []
+  },
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email <fleet address> --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0
+    },
+    {
+      "artifact": "first-party-check.log",
+      "command": "pnpm run check --profile first-party",
+      "exit": 0
+    },
+    {
+      "artifact": "typecheck.log",
+      "command": "pnpm run typecheck",
+      "exit": 0
+    },
+    {
+      "artifact": "native-conformance.log",
+      "command": "node node_modules/@runeditrun/rer/cli/agent-door.mjs .",
+      "exit": 1,
+      "failing_point": "BASE-AGENT-013.native-journey",
+      "failure": "SURFACE-022: Recent activity must show the computed class for each admitted price-book call",
+      "line": 170,
+      "passed": 767,
+      "test": "tests/agent-native-overview.mjs#pricebookOverview",
+      "total": 768
+    },
+    {
+      "artifact": "views-write.log",
+      "command": "node scripts/contract-docs.mjs write --clauses SURFACE-022",
+      "exit": 0
+    },
+    {
+      "artifact": "views-check.log",
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    }
+  ],
+  "claim": {
+    "clause": "SURFACE-022",
+    "points": [],
+    "status": "PARTIAL"
+  },
+  "github_api_calls": 3,
+  "head": "6cea228cfc991d229367554229aa4cbf90e3b477",
+  "main_runs": {
+    "Run site": [
+      43007862807
+    ],
+    "Verify": [
+      43007862828,
+      43002016344
+    ],
+    "conclusion": "success",
+    "head": "35f1f12f403d924b1a9cd095583fd21d774dfee2"
+  },
+  "mechanical": {
+    "ledger": "not applicable; no migration edited",
+    "lock_exit": 0,
+    "views_check_exit": 0,
+    "views_restored_from_main": true,
+    "views_write_exit": 0
+  },
+  "native_observations": {
+    "admitted_changes": 3,
+    "approved_quote_unchanged": true,
+    "audit_rows": 6,
+    "class": "standard",
+    "client_content_excluded": true,
+    "differs_from_policy": 0,
+    "missing_recent_classes": [
+      "glove.pricebook.update",
+      "glove.pricebook.category",
+      "glove.pricebook.adjust"
+    ],
+    "native_events": 3,
+    "refusal_events": 0,
+    "refusals": 3,
+    "weekly_cells_match": true
+  },
+  "new_test_registrations": 0,
+  "parity_blob": "5455130d82e1b7baf5e9f4d40d0d036c10a0a5ce",
+  "parity_predecessor_integrated": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "parity_predecessor_original": "fa752fd050227098935f8a8aabc42ccb2c4b9416",
+  "passing_after_repair": "not applicable: no authorized repair exists inside Glove adapters",
+  "predecessor": "1edb76d696dfc55ecc8064c063f5a65803084055",
+  "product_push": {
+    "attempts": 1,
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f262",
+    "result": "PUSH_OK"
+  },
+  "product_status": "BLOCKED",
+  "production_repairs": 0,
+  "protected_paths_unchanged": [
+    "src/modules/agent-door",
+    "agent-surface.json",
+    "tests/agent-native-parity.mjs",
+    "tests/agent-browser-proof.mjs",
+    "base-copies.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md"
+  ],
+  "publication_scan": {
+    "complete": false,
+    "findings": "not established; scan is deferred to fleet and no READY is claimed",
+    "head": "6cea228cfc991d229367554229aa4cbf90e3b477",
+    "historyScanned": "not established"
+  },
+  "reason": "Base Recent activity omits computed classes for all three admitted price-book calls",
+  "replay": "predecessor changes replayed without its obsolete source lock; lock regenerated on current main",
+  "repository": "just-every/run-glove",
+  "source_lock_sha256": "ad68f44daf8054d6a5ca05b200ff045803cd00c3823252b1c87ce9838163ef1e",
+  "status_counts_after": {
+    "done": 47,
+    "missing": 29,
+    "partial": 187
+  },
+  "status_counts_before": {
+    "done": 47,
+    "missing": 29,
+    "partial": 187
+  },
+  "status_rows": 263,
+  "tag": "sx-glove-c-f262",
+  "timestamp": "2026-11-11T11:16:37.385619+00:00"
+}
