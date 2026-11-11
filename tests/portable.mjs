@@ -19,6 +19,10 @@ import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
 
+// The flow harness replaces global fetch on import; keep this journey's own network untouched.
+const nativeFetch = globalThis.fetch
+const { mailEvents, snsEvents } = await import('./api/harness.mjs')
+globalThis.fetch = nativeFetch
 const workspace = resolve('.'), parent = await mkdtemp(join(tmpdir(), 'glove-portable-')), children = new Set()
 const excluded = new Set(['.git', 'node_modules', '.wrangler', '.rer', '.seed', '.cache', '.tanstack', 'dist', 'exports', 'test-results', 'playwright-report'])
 const clean = s => s.replace(/RER_OPEN[^\n]*/g, 'RER_OPEN [private]').replace(/token=[^\s"&<>]+/g, 'token=[private]').replace(/rer-dev=[^\s"&<>]+/g, 'rer-dev=[private]')
@@ -26,7 +30,7 @@ const fixture = 'tests/fixtures/servicem8-small-hvac/'
 const jpeg = Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9', 'hex').toString('base64')
 // Keep transport counts outside every installation and its temporary setup
 // Worker; an import or startup attempt must not disappear on the next start.
-const stripePosts = new Map(), marketingCalls = new Map(), calendarCalls = new Map()
+const stripePosts = new Map(), marketingCalls = new Map(), calendarCalls = new Map(), mailCalls = new Map()
 const recorder = createServer((request, response) => {
   const name = new URL(request.url, 'http://localhost').pathname.slice(1)
   if (name.startsWith('calendar-')) {
@@ -36,6 +40,16 @@ const recorder = createServer((request, response) => {
       if (request.method === 'POST') calendarCalls.set(name, [...(calendarCalls.get(name) ?? []), JSON.parse(data)])
       response.setHeader('content-type', 'application/json')
       response.end(JSON.stringify({ calls: calendarCalls.get(name) ?? [] }))
+    })
+    return
+  }
+  if (name.startsWith('mail-')) {
+    let data = ''
+    request.on('data', chunk => { data += chunk })
+    request.on('end', () => {
+      if (request.method === 'POST') mailCalls.set(name, [...(mailCalls.get(name) ?? []), JSON.parse(data)])
+      response.setHeader('content-type', 'application/json')
+      response.end(JSON.stringify({ calls: mailCalls.get(name) ?? [] }))
     })
     return
   }
@@ -119,6 +133,41 @@ export function portableCalendars(worker) {
     const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
     await writeFile(entry, "import { portableCalendars } from './portable-calendars.mjs'\n" + code.replace('export default portableMarketing(', 'export default portableCalendars(portableMarketing(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))'))
   }
+  if (name.startsWith('mail-')) {
+    // COMM-018: only the four email providers' fixed hosts and the pinned SNS certificate host
+    // answer in this owned scratch Worker; the transport is never shipped.
+    await writeFile(join(root, 'src/portable-mail.mjs'), `
+export function portableMail(worker) {
+  const upstream = globalThis.fetch, certificates = new Map()
+  const hosts = { 'api.sendgrid.com': 'sendgrid', 'api.resend.com': 'resend', 'api.postmarkapp.com': 'postmark', 'email.us-east-1.amazonaws.com': 'ses' }
+  globalThis.fetch = async (input, options) => {
+    const request = new Request(input, options), url = new URL(request.url)
+    if (url.hostname === 'sns.us-east-1.amazonaws.com') return certificates.has(request.url) ? new Response(certificates.get(request.url)) : new Response('Not found', { status: 404 })
+    const provider = hosts[url.hostname]
+    if (!provider) return upstream(input, options)
+    const body = await request.json()
+    const to = provider === 'postmark' ? body.To : provider === 'ses' ? body.Destination.ToAddresses[0] : provider === 'sendgrid' ? body.personalizations[0].to[0].email : body.to[0]
+    const recorded = await (await upstream(${JSON.stringify(recorderOrigin + '/mail-' + name)}, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ provider, host: url.hostname, method: request.method, to }) })).json()
+    const receipt = provider + '-portable-' + recorded.calls.length
+    if (provider === 'sendgrid') return new Response(null, { status: 202, headers: { 'x-message-id': receipt } })
+    if (provider === 'resend') return Response.json({ id: receipt })
+    return Response.json(provider === 'postmark' ? { ErrorCode: 0, MessageID: receipt } : { MessageId: receipt })
+  }
+  return { ...worker, async fetch(request, env, context) {
+    if (new URL(request.url).pathname === '/__portable/mail' && request.method === 'POST') {
+      const { url, pem } = await request.json()
+      certificates.set(url, pem)
+      return Response.json({ ok: true })
+    }
+    // Production terminates TLS before the Worker; the local runtime is plain HTTP, and Postmark's Basic callback requires HTTPS.
+    if (new URL(request.url).pathname === '/api/glove/mail/events') return worker.fetch(new Request(request.url.replace(/^http:/, 'https:'), request), env, context)
+    return worker.fetch(request, env, context)
+  } }
+}
+`)
+    const entry = join(root, 'src/server.ts'), code = await readFile(entry, 'utf8')
+    await writeFile(entry, "import { portableMail } from './portable-mail.mjs'\n" + code.replace('export default portableCalendars(', 'export default portableMail(portableCalendars(').replace('} satisfies ExportedHandler<Bindings>, { seed: seedDemo }))))', '} satisfies ExportedHandler<Bindings>, { seed: seedDemo })))))'))
+  }
   // Each installation owns its dependencies, so setup cannot touch the source checkout.
   await command(root, ['pnpm', 'install', '--frozen-lockfile'], 'corepack')
   return root
@@ -180,6 +229,7 @@ async function start(root, port) {
     })
     return {
       request, owner: as(await enter(fragment.get('as'))),
+      events: ({ raw, headers }) => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, ...headers }, body: raw }),
       callback: password => fetch(origin + '/api/glove/mail/events', { method: 'POST', headers: { 'content-type': 'application/json', cookie: gate, authorization: `Basic ${Buffer.from(`glove:${password}`).toString('base64')}` }, body: '{}' }),
       quoteRespond: (token, body) => fetch(origin + '/api/glove/public/quote', { method: 'POST', headers: { origin, 'content-type': 'application/json', authorization: `Bearer ${token}`, cookie: gate }, body: JSON.stringify(body) }),
       quote: token => fetch(origin + '/api/glove/public/quote', { headers: { authorization: `Bearer ${token}`, cookie: gate }, redirect: 'manual' }),
@@ -281,713 +331,827 @@ async function calendarRestore() {
   await running.close(); running = null
 }
 
-try {
-  await calendarRestore()
-  const source = await copy('source'), destination = await copy('destination')
+// COMM-018 point 1(d): the four email providers through a real archive. The scratch
+// Worker's transport answers only their fixed hosts and the pinned SNS certificate host.
+async function mailRestore() {
+  const source = await copy('mail-source'), destination = await copy('mail-destination'), channel = 'mail-mail-destination'
+  const mailbox = name => [`synthetic-glove-${name}`, 'example.test'].join('@')
+  const hosts = { sendgrid: 'api.sendgrid.com', resend: 'api.resend.com', postmark: 'api.postmarkapp.com', ses: 'email.us-east-1.amazonaws.com' }
+  const sns = { region: 'us-east-1', topicArn: 'arn:aws:sns:us-east-1:123456789012:glove-mail', configurationSet: 'glove-outcomes' }
+  const calls = async name => (await (await fetch(`${recorderOrigin}/${name}`)).json()).calls
+  let counter = 3000
   running = await install(source)
-  const owner = running.owner
-  await owner.cmd('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', timezone: 'Australia/Sydney' })
-  const service = await owner.cmd('service.save', { code: 'SVC', name: 'Split system service', description: 'Customer-facing restored inspection', unitPrice: '189.00', checklist: [{ label: 'Clean filters', required: true }] })
-  const customer = await owner.cmd('customer.save', { name: 'Harbourview Dental' })
-  const site = await owner.cmd('site.save', { customerId: customer.id, address: '14 Harbour St, Balmain NSW 2041' })
-  // The local member persona is the technician on the visit.
-  const priya = await running.persona('member')
-  const member = (await owner.get('/api/glove/state')).operators.find(o => o.email === 'member@dev.localhost')
-  await owner.cmd('role.set', { operatorId: member.id, role: 'technician' })
-  const tech = await owner.cmd('technician.save', { name: 'Priya N.', operatorId: member.id })
-  // DISP-004: the secret calendar address is a credential and never travels in the archive.
-  await owner.cmd('technician.calendar', { technicianId: tech.id, url: 'https://calendar.google.com/calendar/ical/priya/private-portable-secret/basic.ics' })
-  let quote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
-  quote = await owner.cmd('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
-  quote = await owner.cmd('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
-  const job = await owner.cmd('job.create', { quoteId: quote.id })
-  const visit = await owner.cmd('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-10-15', start: '09:00', end: '10:30' })
-  await priya.cmd('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:03:00Z' })
-  const photo = await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: jpeg } })
-  const retainedMaterial = await owner.cmd('service.save', { code: 'SYNTHETIC-ARCHIVE-MATERIAL', name: 'Synthetic archive material', kind: 'material', unit: 'each', unitCost: '7.00', unitPrice: '14.00', tax: 'GST' })
-  await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:11:00Z', kind: 'material', serviceId: retainedMaterial.id, quantity: '2', description: 'Synthetic portable private material' })
-  const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
-  let batch = await owner.cmd('import.stage', { files })
-  batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
-  // MONEY-001 private exemption originals belong to the customer archive.
-  let certCustomer = (await owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
-  certCustomer = await owner.cmd('customer.save', { ...certCustomer, taxExemption: { certificateNumber: 'PORTABLE-SCHOOL', expires: '2099-12-31' } })
-  const certificateBytes = Buffer.from('%PDF-1.7\nPrivate exemption certificate\n%%EOF')
-  certCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: certificateBytes.toString('base64') } })
-  // MONEY-004: an additive multi-chunk replacement keeps both customer originals.
-  const chunkedCertificateBytes = Buffer.alloc(512 * 1024 + 71, 66)
-  chunkedCertificateBytes.write('%PDF-1.7\nChunked school evidence\n')
-  chunkedCertificateBytes.write('\n%%EOF', chunkedCertificateBytes.length - 6)
-  const chunkedCertificateCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: chunkedCertificateBytes.toString('base64') } })
-  const chunkedCertificate = chunkedCertificateCustomer.taxExemption.certificate
-  assert.equal(chunkedCertificate.sha256, createHash('sha256').update(chunkedCertificateBytes).digest('hex'))
-  const sourceChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, owner.cookie)
-  assert.equal(sourceChunkedCertificate.status, 200)
-  assert.deepEqual(Buffer.from(await sourceChunkedCertificate.arrayBuffer()), chunkedCertificateBytes)
-  await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' })
-  await priya.cmd('visit.complete', { visitId: visit.id, deviceTime: '2026-10-14T23:30:00Z', summary: 'Cleaned filters', findings: 'Coil clean', recommendations: [{ title: 'Annual tune-up' }], signoff: { absentReason: 'Customer away' } })
-  const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
-  const reportLink = await owner.cmd('report.link', { reportId: report.id })
-  assert.equal((await running.report(reportLink.token)).status, 200, 'FIELD-003 link opens before export')
-  // PLAN-004 link metadata is portable; its bearer credential is not.
-  const plan = await owner.cmd('plan.save', { name: 'Maintenance', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id })
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
-  const agreement = await owner.cmd('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: today })
-  const offerPayload = { agreementId: agreement.id, index: 0, slots: [{ technicianId: tech.id, date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), start: '11:00', end: '11:30' }] }
-  const bookingCommandId = randomUUID()
-  const bookingLink = await owner.cmd('agreement.offer', offerPayload, bookingCommandId)
-  assert.equal((await running.booking(bookingLink.token)).status, 200, 'PLAN-004 source booking link works')
-  // QUOTE-002: retain the exact revision document and hash, require a new bearer after restore.
-  const sourceQuoteIssues = []
-  const issueSourceQuote = async payload => {
-    const commandId = randomUUID(), result = await owner.cmd('quote.link', payload, commandId)
-    assert.equal((await running.quote(result.token)).status, 200, 'every captured source bearer initially opens its quote')
-    sourceQuoteIssues.push({ payload, commandId, result })
-    return result
+  let owner = running.owner
+  await owner.cmd('business.save', { name: 'Portable mail business', currency: 'AUD', timezone: 'Australia/Sydney', email: mailbox('replies') })
+  const customer = await owner.cmd('customer.save', { name: 'Portable mail customer', email: mailbox('customer') })
+  const site = await owner.cmd('site.save', { customerId: customer.id, address: '16 Portable Mail Street' })
+  const draft = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Portable mail quote', lines: [{ description: 'Portable service', quantity: '1', unitPrice: '100.00' }] })
+  await owner.cmd('quote.approve', { quoteId: draft.id, version: draft.version, revision: 1 })
+  // Connect one provider with fresh synthetic keys; return its own signed callback form and every secret it holds.
+  async function connect(who, provider) {
+    const apiKey = provider === 'ses' ? JSON.stringify({ accessKeyId: 'SYNTHETICGLOVE0002', secretAccessKey: `synthetic-glove-${++counter}` }) : `synthetic-glove-${++counter}`
+    const connection = { provider, apiKey, fromEmail: mailbox('office') }
+    let signer = null
+    if (provider === 'sendgrid' || provider === 'resend') { signer = mailEvents(provider); connection.eventKey = signer.eventKey }
+    if (provider === 'ses') { signer = snsEvents(sns); connection.sns = sns }
+    const connected = await who.cmd('mail.connect', connection)
+    if (provider === 'ses') assert.equal((await running.request('/__portable/mail', 'POST', { url: signer.certUrl, pem: signer.cert })).status, 200)
+    return { provider, apiKey, secrets: [apiKey, ...(connection.eventKey ? [connection.eventKey] : []), ...(provider === 'ses' ? [JSON.parse(apiKey).secretAccessKey] : []), ...(connected.callbackPassword ? [connected.callbackPassword] : [])], callbackPassword: connected.callbackPassword, callback(m, outcome = 'delivered') {
+      const at = new Date().toISOString(), seconds = Math.floor(Date.now() / 1000)
+      if (provider === 'sendgrid') return signer.signed([{ email: m.to, timestamp: seconds, event: outcome, sg_event_id: `synthetic-glove-event-${m.id}-${outcome}`, sg_message_id: m.receipt, rer_delivery_id: m.id }], { at: seconds })
+      if (provider === 'resend') return signer.signed({ type: `email.${outcome}`, created_at: at, data: { email_id: m.receipt, to: [m.to] } }, { at: seconds })
+      if (provider === 'postmark') return { raw: JSON.stringify({ RecordType: 'Delivery', MessageID: m.receipt, Recipient: m.to, DeliveredAt: at, Metadata: { glove_delivery_id: m.id } }), headers: { authorization: `Basic ${Buffer.from(`glove:${connected.callbackPassword}`).toString('base64')}` } }
+      return signer.signed({ eventType: 'Delivery', mail: { messageId: m.receipt, timestamp: at, destination: [m.to], tags: { 'ses:configuration-set': [sns.configurationSet], glove_delivery_id: [Buffer.from(m.id).toString('base64url')] } }, delivery: { timestamp: at, recipients: [m.to] } }, { Timestamp: at })
+    } }
   }
-  // These links exercise a real wall clock, including signed decisions later
-  // in the journey; keep their frozen validity ahead of the installation date.
-  const quoteValidUntil = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10)
-  const customerQuoteLines = [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', serviceId: service.id }]
-  let customerQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Annual tune-up proposal', lines: customerQuoteLines, validUntil: quoteValidUntil })
-  customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 1 })
-  const revokedQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
-  const earlierQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
-  assert.equal((await running.quote(revokedQuoteLink.token)).status, 404)
-  customerQuote = await owner.cmd('quote.revise', { quoteId: customerQuote.id, version: customerQuote.version, lines: customerQuoteLines, validUntil: quoteValidUntil })
-  customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 2 })
-  const quoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
-  assert.equal((await (await running.quote(earlierQuoteLink.token)).json()).state, 'superseded')
-  assert.equal((await running.quote(quoteLink.token)).status, 200, 'QUOTE-002 source customer link works')
-  // QUOTE-002: the signed artifact and its evidence must survive the actual
-  // archive boundary byte for byte, independently of the revocable bearer.
-  await owner.cmd('quote.consent', { version: (await owner.get('/api/glove/state')).business[0].version, text: 'synthetic-glove-50 disclosure entered and accepted by the portability test owner.', accept: true })
-  let signedQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Signed maintenance proposal', lines: [{ description: 'Signed maintenance work', quantity: '1', unitPrice: '249.00' }], terms: 'synthetic-glove-51 terms retained in the signed artifact.', validUntil: quoteValidUntil })
-  signedQuote = await owner.cmd('quote.approve', { quoteId: signedQuote.id, version: signedQuote.version, revision: 1 })
-  const signedLink = await issueSourceQuote({ quoteId: signedQuote.id, version: signedQuote.version })
-  const choice = { optionId: 'option-1', addOnIds: [] }
-  const selected = await (await running.quoteRespond(signedLink.token, { action: 'choose', choice })).json()
-  const signedResponse = await running.quoteRespond(signedLink.token, { action: 'approve', name: 'Dr Mei Lin', capacity: 'Practice owner', choice, documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { version: selected.disclosure.version, hash: selected.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Dr Mei Lin' } })
-  assert.equal(signedResponse.status, 200, await signedResponse.clone().text())
-  signedQuote = (await owner.get('/api/glove/state')).quotes.find(q => q.id === signedQuote.id)
-  const signedFile = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, owner.cookie)
-  assert.equal(signedFile.status, 200)
-  const signedBytes = Buffer.from(await signedFile.arrayBuffer())
-  assert.equal(createHash('sha256').update(signedBytes).digest('hex'), signedQuote.acceptance.signing.signedCopy.sha256)
-  const peerCustomer = await owner.cmd('customer.save', { name: 'Synthetic kept peer' })
-  const peerSite = await owner.cmd('site.save', { customerId: peerCustomer.id, address: '55 Synthetic Road' })
-  let peerQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'Peer service', terms: `Access coordinated by ${customer.name}`, lines: [{ description: 'Peer service', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
-  peerQuote = await owner.cmd('quote.approve', { quoteId: peerQuote.id, version: peerQuote.version, revision: 1 })
-  const peerLink = await issueSourceQuote({ quoteId: peerQuote.id, version: peerQuote.version })
-  const peerSelection = await (await running.quoteRespond(peerLink.token, { action: 'choose', choice })).json()
-  const peerAnswer = await running.quoteRespond(peerLink.token, { action: 'approve', name: 'Synthetic kept peer', capacity: 'Owner', choice, documentHash: peerSelection.documentHash, selectionHash: peerSelection.selection.hash, consent: { version: peerSelection.disclosure.version, hash: peerSelection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Synthetic kept peer' } })
-  assert.equal(peerAnswer.status, 200)
-  let unrelatedQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'synthetic-glove-191', lines: [{ description: 'synthetic-glove-192', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
-  unrelatedQuote = await owner.cmd('quote.approve', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version, revision: 1 })
-  const unrelatedLink = await issueSourceQuote({ quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
-  // COMM-001: a backup never carries even a callback credential hash.
-  const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-52', fromEmail: 'office@example.test' })
-  const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
-  const smsFixture = twilioEdge()
-  const smsConnection = await owner.cmd('sms.connect', { version: (await owner.get('/api/glove/state')).business[0].version, provider: 'twilio', accountSid: smsFixture.accountSid, authToken: smsFixture.authToken, fromNumber: smsFixture.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
-  assert.equal(smsConnection.sms.enabled, false)
-  const sourceBatches = []
-  for (const format of ['fieldpulse','workiz','servicetitan','jobber']) {
-    const staged = await owner.cmd('import.stage', { format, files: await exportedFixture(format), balanceAsOf: '2026-10-22' })
-    assert.deepEqual(staged.preview.rejections, [])
-    sourceBatches.push(await owner.cmd('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }))
+  // One document email: exactly one request at this provider's fixed host, then the provider's own signed callback folds it.
+  async function sendAndFold(who, edge, channelName) {
+    const before = await calls(channelName), state = await who.get('/api/glove/state'), quote = state.quotes.find(q => q.id === draft.id)
+    const commandId = randomUUID(), payload = { kind: 'quote', id: quote.id, version: quote.version }
+    const message = await who.cmd('email.send', payload, commandId)
+    const made = (await calls(channelName)).slice(before.length)
+    assert.deepEqual(made.map(c => [c.provider, c.host, c.to]), [[edge.provider, hosts[edge.provider], customer.email]], 'COMM-018 one document email makes exactly one request at that provider\'s fixed host')
+    const sent = { ...message, receipt: `${edge.provider}-portable-${before.length + 1}`, commandId, payload }
+    assert.equal((await who.get('/api/glove/state')).messageStates[message.id].status, 'accepted')
+    const event = edge.callback(sent)
+    const response = await running.events(event)
+    assert.equal(response.status, 200, `${edge.provider} ${JSON.stringify(sent)} ${await response.text()}`)
+    const folded = (await who.get('/api/glove/state')).messageStates[message.id]
+    assert.deepEqual([folded.status, folded.providerMessageId], ['delivered', sent.receipt])
+    return { ...sent, event }
   }
-  // DISP-005: populated transient custody must not cross the real archive boundary.
-  const locationNow = () => new Date().toISOString()
-  const fleetKey = 'synthetic-glove-601'
-  const locationJob = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Location custody at backup' })
-  const locationVisit = await owner.cmd('visit.book', { jobId: locationJob.id, technicianId: tech.id, date: '2026-10-16', start: '13:00', end: '14:00' })
-  await priya.cmd('location.consent', { enabled: true })
-  await owner.cmd('location.fleetConnect', { technicianId: tech.id, vehicleId: '12345', key: fleetKey })
-  await priya.cmd('clock.in', { deviceTime: locationNow() })
-  await priya.cmd('timer.start', { visitId: locationVisit.id, kind: 'job', deviceTime: locationNow() })
-  const locationCaptureId = randomUUID()
-  const locationCapture = { lat: 41.89067, lng: -87.63067, observedAt: locationNow() }
-  await priya.cmd('location.phone', locationCapture, locationCaptureId)
-  const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
-  assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
-  // COMM-006: populated inspection crosses the real archive boundary as business records only.
-  let choiceQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Restored chosen inspection', options: [{ name: 'Basic inspection', lines: [{ description: 'Basic service', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] }, { name: 'Complete inspection', lines: [{ description: 'Complete service', quantity: '1', unitPrice: '200.00', tax: 'FREE' }] }], addOns: [{ name: 'Filter', lines: [{ description: 'Restored filter', quantity: '1', unitPrice: '25.00', tax: 'FREE' }] }] })
-  choiceQuote = await owner.cmd('quote.approve', { quoteId: choiceQuote.id, version: choiceQuote.version, revision: 1 })
-  await owner.cmd('quote.accept', { quoteId: choiceQuote.id, version: choiceQuote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin', choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
-  await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Private restored draft', lines: [{ description: 'Private restored draft work', quantity: '1', unitPrice: '15.00' }] })
-  await owner.cmd('conversation.log', { customerId: customer.id, kind: 'note', text: 'Private restored conversation' })
-  await owner.cmd('equipment.save', { siteId: site.id, type: 'Restored heat pump', model: 'Permitted restored model', serial: 'Private restored serial' })
-  // CUST-006 archive custody uses actual provider work and saved command outcomes.
-  const audienceCustomer = await owner.cmd('customer.save', { name: 'Portable audience contact', email: ['synthetic-glove-portable', 'example.test'].join('@') })
-  await owner.cmd('customer.tags', { customerId: audienceCustomer.id, version: audienceCustomer.version, tags: ['Portable audience'] })
-  const audience = await owner.cmd('segment.save', { name: 'Portable service audience', filter: { tagsAll: ['Portable audience'] } })
-  const audienceKeys = ['synthetic-glove-101', 'synthetic-glove-102-us21']
-  const audienceConnections = [
-    { provider: 'mango', url: 'https://mango.example.test', key: audienceKeys[0] },
-    { provider: 'mailchimp', listId: 'synthetic-glove-103', key: audienceKeys[1] },
-  ]
-  const audienceReplays = []
-  for (const [index, connection] of audienceConnections.entries()) {
-    const connectId = `synthetic-glove-portable-connect-${index}`
-    await owner.cmd('marketing.connect', connection, connectId)
-    const payload = { segmentId: audience.id, provider: connection.provider }, commandId = `synthetic-glove-portable-push-${index}`
-    const result = await owner.cmd('segment.push', payload, commandId)
-    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
-    audienceReplays.push({ connection, connectId, payload, commandId, result })
+  const sourceEdges = []
+  for (const provider of ['sendgrid', 'resend', 'ses', 'postmark']) {
+    const edge = await connect(owner, provider), sent = await sendAndFold(owner, edge, 'mail-mail-source')
+    sourceEdges.push({ edge, sent })
   }
-  assert.equal(marketingCalls.get('marketing-source').length, 3, 'real source commands reached both provider edges')
-  for (const surface of [await owner.get('/api/glove/state'), await owner.get('/api/glove/activity'), await owner.get('/api/glove/export')]) for (const key of audienceKeys) assert.ok(!JSON.stringify(surface).includes(key))
-  // DISP-011: ordinary owner commands create a real route, and the actual
-  // scheduled entry prepares it. Only Google Maps transport is replaced.
-  const routeDay = '2026-11-10', mapsKey = 'synthetic-glove-82'
-  await owner.cmd('maps.connect', { key: mapsKey })
-  const routeVisits = []
-  for (let i = 0; i < 2; i++) {
-    const address = `${900 + i} Portable Route Ave, Chicago, IL 60601`
-    await running.request('/__portable/maps', 'POST', { places: [[address, { lat: 41.8 + i * 0.001, lng: -87.63 }]] })
-    const routeSite = await owner.cmd('site.save', { customerId: customer.id, address })
-    const routeJob = await owner.cmd('job.create', { customerId: customer.id, siteId: routeSite.id, title: `Portable route visit ${i + 1}` })
-    routeVisits.push(await owner.cmd('visit.book', { jobId: routeJob.id, technicianId: tech.id, date: routeDay, start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` }))
-  }
-  let route = await owner.cmd('route.optimize', { date: routeDay })
-  await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
-  route = (await owner.get('/api/glove/state')).routes.find(r => r.id === route.id)
-  assert.equal(route.status, 'ready')
-  assert.deepEqual(route.moves.map(m => m.visitId).sort(), routeVisits.map(v => v.id).sort())
-  const queuedRoute = await owner.cmd('route.optimize', { date: routeDay })
-  const inspectionCommandId = randomUUID()
-  const inspection = await owner.cmd('customer.hubPreview', { customerId: customer.id }, inspectionCommandId)
-  assert.ok(inspection.quotes.some(q => q.lines.some(l => l.customerDescription === 'Customer-facing restored inspection')))
-  assert.ok(inspection.reports.some(r => r.summary === 'Cleaned filters'))
-  assert.ok(inspection.equipment.some(e => e.model === 'Permitted restored model'))
-  assert.ok(inspection.agreements.some(a => a.id === agreement.id))
-  const chosenInspection = inspection.quotes.find(q => q.id === choiceQuote.id)
-  assert.deepEqual(chosenInspection.lines.map(l => l.description), ['Complete service', 'Restored filter'])
-  assert.equal(chosenInspection.totals.total, '225.00')
-  assert.deepEqual(chosenInspection.options.map(o => o.totals.total), ['100.00', '200.00'])
-  assert.deepEqual(chosenInspection.addOns.map(a => a.totals.total), ['25.00'])
-  assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
-  const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
+  await owner.cmd('mail.morning', { enabled: true, time: '07:30' })
   const before = await owner.get('/api/glove/export')
-  assert.deepEqual(before.quoteLinks.map(link => link.id).sort(), sourceQuoteIssues.map(issue => issue.result.id).sort(), 'QUOTE-009 captures every issued source link, including replaced and earlier revisions')
-  for (const link of before.quoteLinks) assert.equal(documentHash(link.document), link.documentHash, 'QUOTE-009 source hash independently names the exact stored document')
-  for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(before).includes(issue.result.token), 'QUOTE-009 no issued bearer enters the business export')
-  for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
-  assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
-  assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
-  assert.ok(!JSON.stringify(before).includes(reportLink.token), 'FIELD-003 bearer never enters the export')
-  await running.close()
-  running = null
-
-  const archive = join(parent, 'installation.rer')
+  const secrets = sourceEdges.flatMap(({ edge }) => edge.secrets)
+  await running.close(); running = null
+  const archive = join(parent, 'mail-installation.rer')
   await command(source, ['export', '--output', archive])
-  const archiveBytes = await readFile(archive)
-  assert.ok(!archiveBytes.includes(Buffer.from('synthetic-glove-52')), 'COMM-001 point 3: the actual archive excludes the Postmark API key')
-  assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
-  assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
-  for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
-  assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
-  const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
-  // DISP-005 populated source custody stays transient across an actual installation archive.
-  for (const name of ['glove_live_locations', 'glove_fleet_credentials']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
-  const locationHistory = before.timeline.filter(e => ['location.consent', 'location.received', 'location.fleetConnected'].includes(e.kind))
-  assert.deepEqual(locationHistory.map(e => e.kind).sort(), ['location.consent', 'location.fleetConnected', 'location.received'])
-  for (const e of locationHistory) assert.ok(e.actor_id && e.at && e.command_id)
-  assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
-  for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
-  for (const { result } of sourceQuoteIssues) {
-    assert.ok(!archiveBytes.includes(Buffer.from(result.token)), 'QUOTE-009 plain archive bytes contain no issued quote bearer')
+  const archiveBytes = await readFile(archive), manifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+  for (const table of ['glove_provider_keys', 'glove_mail_callback_auth']) assert.ok(!manifest.tables.some(t => t.name === table), `COMM-018 actual archive omits ${table}`)
+  for (const value of secrets) {
+    assert.ok(!archiveBytes.includes(Buffer.from(value)), 'COMM-018 actual archive holds no provider key, event key or callback password')
+    assert.ok(!archiveBytes.includes(Buffer.from(createHash('sha256').update(value).digest('hex'))), 'COMM-018 actual archive holds no credential hash')
   }
-  assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
-  for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
   await command(destination, ['import', '--input', archive, '--yes'])
   running = await install(destination)
-  assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
-  // COMM-001: the restored installation has no callback credentials and the
-  // old password cannot authenticate, even though ordinary records survived.
-  const oldCallback = await running.callback(postmark.callbackPassword)
-  assert.equal(oldCallback.status, 404, 'COMM-001 restored email must be reconnected')
-  assert.equal((await running.owner.get('/api/glove/state')).mailCallbacks.verifiedAt, null)
-  assert.equal((await running.owner.get('/api/glove/state')).smsConnected, false, 'restored SMS metadata grants no provider authority before reconnect')
-  const restoredPosition = (await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
-  assert.equal(restoredPosition.position, null, 'DISP-005 restored installation has no captured position')
-  const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
-  assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
-  const oldCapture = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.phone', payload: locationCapture }, priya.cookie)
-  assert.equal(oldCapture.status, 401, 'DISP-005 source sign-in cannot write in the restored installation')
-  const after = await running.owner.get('/api/glove/export')
-  for (const e of locationHistory) assert.deepEqual(after.timeline.find(x => x.id === e.id), e, 'DISP-005 attributable history survives the real restore without private location material')
-  for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
-  for (const original of before.quotes) {
-    const restoredQuote = after.quotes.find(quote => quote.id === original.id)
-    assert.deepEqual(restoredQuote, original, 'QUOTE-009 every native and imported quote record survives the real archive')
-    assert.deepEqual(restoredQuote.revisions, original.revisions, 'QUOTE-009 all revisions and their approval or decision evidence survive')
-  }
-  for (const original of before.quoteLinks) {
-    const restoredLink = after.quoteLinks.find(link => link.id === original.id)
-    assert.deepEqual(restoredLink, original, 'QUOTE-009 every current, replaced and earlier-revision link record survives')
-    assert.equal(documentHash(restoredLink.document), original.documentHash, 'QUOTE-009 every restored document independently hashes to its source hash')
-  }
-  for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 no issued source bearer opens the restored installation')
-  for (const { payload, commandId, result } of sourceQuoteIssues) {
-    const { token, ...savedResult } = result
-    const replay = await running.owner.cmd('quote.link', payload, commandId)
-    assert.deepEqual(replay, savedResult, 'QUOTE-009 restored issuance replays only its original saved metadata')
-    assert.equal(replay.token, undefined, 'QUOTE-009 replay never reveals a bearer')
-    for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(replay).includes(issue.result.token))
-  }
-  const { exportedAt: replayReadAt, ...replayedBusiness } = await running.owner.get('/api/glove/export')
-  const { exportedAt: restoredReadAt, ...restoredBusiness } = after
-  assert.deepEqual(replayedBusiness, restoredBusiness, 'QUOTE-009 replaying all imported issuances creates no links, records or Activity')
-  assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
-  assert.deepEqual(after.segments, before.segments)
-  for (const replay of audienceReplays) {
-    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'segment.push', payload: replay.payload }, running.owner.cookie)
-    assert.equal(response.status, 409)
-    assert.equal((await response.json()).error.code, 'MARKETING', 'restored metadata requires explicit reconnection')
-    assert.deepEqual(await running.owner.cmd('segment.push', replay.payload, replay.commandId), replay.result, 'CUST-006 saved push outcome restores exactly without another call')
-    await running.owner.cmd('marketing.connect', replay.connection, replay.connectId)
-    const stillDisconnected = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'segment.push', payload: replay.payload }, running.owner.cookie)
-    assert.equal((await stillDisconnected.json()).error.code, 'MARKETING', 'replaying a saved connect outcome never restores a secret')
-  }
-  assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'import, startup and command replay make no audience request')
-  const restoredRouteVisits = after.visits.filter(v => routeVisits.some(original => original.id === v.id))
-  assert.deepEqual(restoredRouteVisits, routeVisits, 'DISP-011 import and startup move no appointment')
-  assert.deepEqual(after.routes, before.routes, 'DISP-011 all proposal metadata survives real export and import')
-  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false)
-  const callsBeforeReconnect = (await (await running.request('/__portable/maps')).json()).calls
-  const acceptRestored = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'route.accept', payload: { routeId: route.id, version: route.version, reason: 'Restored proposal' } }, running.owner.cookie)
-  assert.equal((await acceptRestored.json()).error.code, 'MAPS', 'DISP-011 restored metadata grants no provider authority')
-  assert.deepEqual((await (await running.request('/__portable/maps')).json()).calls, callsBeforeReconnect)
-  assert.deepEqual((await running.owner.get('/api/glove/state')).routes, after.routes)
-  assert.deepEqual((await running.owner.get('/api/glove/state')).visits, after.visits)
-  await running.owner.cmd('maps.connect', { key: 'synthetic-glove-83' })
-  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, true)
-  const staleRestored = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'route.accept', payload: { routeId: route.id, version: route.version, reason: 'Reconnection does not refresh a proposal' } }, running.owner.cookie)
-  assert.equal((await staleRestored.json()).error.code, 'ROUTE_STALE')
-  assert.deepEqual((await running.owner.get('/api/glove/state')).visits, after.visits)
-  await running.owner.cmd('route.discard', { routeId: queuedRoute.id, version: queuedRoute.version })
-  const freshRoute = await running.owner.cmd('route.optimize', { date: routeDay })
-  await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
-  assert.equal((await running.owner.get('/api/glove/state')).routes.find(r => r.id === freshRoute.id).status, 'ready', 'explicit reconnection permits fresh provider work')
-  for (const [index, replay] of audienceReplays.entries()) await running.owner.cmd('marketing.connect', { ...replay.connection, key: index ? 'synthetic-glove-105-us21' : 'synthetic-glove-104' })
-  assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'explicit reconnection alone never pushes an audience')
-  for (const replay of audienceReplays) {
-    const callsBeforeReplay = marketingCalls.get('marketing-destination')?.length ?? 0
-    await running.owner.cmd('segment.push', replay.payload, replay.commandId)
-    assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, callsBeforeReplay, 'reconnection does not repeat a restored command')
-    const result = await running.owner.cmd('segment.push', replay.payload)
-    assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
-  }
-  assert.deepEqual(marketingCalls.get('marketing-destination'), marketingCalls.get('marketing-source'), 'fresh explicit pushes after reconnection send exactly the retained contact and tags')
-  for (const key of [...audienceKeys, 'synthetic-glove-104', 'synthetic-glove-105-us21']) assert.ok(!JSON.stringify(await running.owner.get('/api/glove/export')).includes(key))
-  console.log('CUST-006 real archive passed: both keys absent, push history retained, restored replay sends nothing, explicit reconnection required')
-  const oldInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, owner.cookie)
-  assert.equal(oldInspection.status, 403)
-  assert.equal((await oldInspection.json()).error.message, 'An Owner without branch limits must sign in to inspect this customer preview')
-  const restoredInspection = await running.owner.cmd('customer.hubPreview', { customerId: customer.id })
-  assert.deepEqual(restoredInspection, inspection, 'COMM-006 reconstructs only the permitted projection under a new current Owner session')
-  assert.ok(Object.values(restoredInspection.actions).every(value => value === false), 'restore creates no customer action authority')
-  const oldTokenInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, '', { authorization: `Bearer ${previewToken.token}` })
-  assert.equal(oldTokenInspection.status, 403, 'restore imports no token authority')
-  const suspendedMember = (await running.owner.get('/api/glove/state')).operators.find(o => o.id === member.id)
-  assert.equal(suspendedMember.status, 'inactive', 'restoration does not silently reactivate staff')
-  const reactivated = await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)
-  assert.equal(reactivated.status, 200, 'a current Owner explicitly reactivates the restored staff member')
-  const restoredMember = await running.persona('member')
-  assert.deepEqual(await restoredMember.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome after explicit staff reactivation')
-  assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
-  console.log('DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position')
-  const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
-  assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
-  for (const batch of sourceBatches) {
-    await running.owner.cmd('import.undo', { batchId: batch.id, version: batch.version, reason: 'Restore preserved source journal and original custody' })
-  }
-  const afterSourceUndo = await running.owner.get('/api/glove/export')
-  assert.ok(!afterSourceUndo.invoices.some(i => i.openingBalance), 'restored source balances undo cleanly')
-  console.log('MOVE-003 / MOVE-004 source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door')
-  assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
-  assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
-  assert.equal((await running.quote(quoteLink.token)).status, 404, 'QUOTE-002 source bearer is not restored')
-  const freshQuoteLink = await running.owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
-  const freshQuoteResponse = await running.quote(freshQuoteLink.token)
-  assert.equal(freshQuoteResponse.status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
-  assert.equal(freshQuoteLink.documentHash, quoteLink.documentHash, 'QUOTE-002 restored document hash is unchanged')
-  const freshQuoteView = await freshQuoteResponse.json()
-  assert.deepEqual(freshQuoteView.document, quoteLink.document)
-  assert.equal(documentHash(freshQuoteView.document), quoteLink.documentHash, 'QUOTE-009 a fresh bearer serves exactly the restored document')
-  assert.equal((await running.quote(signedLink.token)).status, 404, 'signed quote bearer is not restored')
-  const restoredSigned = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)
-  assert.equal(restoredSigned.status, 200)
-  assert.deepEqual(Buffer.from(await restoredSigned.arrayBuffer()), signedBytes, 'QUOTE-002 signed HTML, disclosure and signature survive rer export/import byte for byte')
-  const restoredSignedQuote = after.quotes.find(q => q.id === signedQuote.id)
-  assert.deepEqual(restoredSignedQuote.acceptance.signing, signedQuote.acceptance.signing, 'QUOTE-002 all signature evidence survives the archive')
-  const restoredSignedLink = await running.owner.cmd('quote.link', { quoteId: signedQuote.id, version: restoredSignedQuote.version })
-  assert.equal((await (await running.quote(restoredSignedLink.token)).json()).decision, 'accepted', 'fresh bearer opens the frozen signed decision after restore')
-  assert.equal(restoredSignedLink.documentHash, signedLink.documentHash)
-  const freshUnrelatedLink = await running.owner.cmd('quote.link', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
-  assert.equal((await running.quote(freshUnrelatedLink.token)).status, 200)
-  assert.equal(freshUnrelatedLink.documentHash, unrelatedLink.documentHash)
-  const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
-  assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
-  // PLAN-010: a real archive carries offer evidence, never its execution credential.
-  const { token: sourceBookingToken, ...sourceBookingMetadata } = bookingLink
-  assert.deepEqual(after.bookingOffers.find(o => o.id === bookingLink.id), sourceBookingMetadata, 'PLAN-010 original offer metadata restores exactly')
-  assert.deepEqual(await running.owner.cmd('agreement.offer', offerPayload, bookingCommandId), sourceBookingMetadata, 'PLAN-010 restored command replay reveals only saved metadata')
-  assert.equal((await running.booking(sourceBookingToken)).status, 404, 'PLAN-010 replay cannot resurrect the source bearer')
-  assert.notEqual(freshBookingLink.token, sourceBookingToken)
-  assert.equal(freshBookingLink.jobId, bookingLink.jobId, 'PLAN-010 fresh issuance reuses the restored included job')
-  const freshBookingView = await (await running.booking(freshBookingLink.token)).json()
-  assert.deepEqual(freshBookingView.offer, { business: 'Harbour Air & Electrical', service: 'Split system service', address: site.address, expiresAt: freshBookingLink.expiresAt, slots: freshBookingLink.slots.map(s => ({ id: s.id, ...s.local })) }, 'PLAN-010 fresh bearer exposes only the restored included visit')
-  const restoredOfferExport = await running.owner.get('/api/glove/export')
-  for (const secret of [sourceBookingToken, freshBookingLink.token]) assert.equal(JSON.stringify(restoredOfferExport).includes(secret), false)
-  console.log('PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job')
-
-  const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
-  assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
-  assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
-  const bytes = await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)
-  assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg, 'photo bytes restored')
-  const restoredCertificate = await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)
-  assert.equal(restoredCertificate.status, 200, 'MONEY-001 private certificate remains readable after restore')
-  assert.deepEqual(Buffer.from(await restoredCertificate.arrayBuffer()), certificateBytes, 'MONEY-001 original certificate bytes restored')
-  const restoredChunkedCustomer = after.customers.find(c => c.id === customer.id)
-  assert.deepEqual(restoredChunkedCustomer.taxExemption.certificate, chunkedCertificate, 'MONEY-004 replacement remains attached to the restored customer')
-  const restoredChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, running.owner.cookie)
-  assert.equal(restoredChunkedCertificate.status, 200)
-  assert.deepEqual(Buffer.from(await restoredChunkedCertificate.arrayBuffer()), chunkedCertificateBytes, 'MONEY-004 all original chunks survive real export and import')
-  // The restored installation keeps working, including undo of the restored move-in journal.
-  await running.owner.cmd('customer.save', { name: 'After restore' })
-  const restored = (await running.owner.get('/api/glove/state')).imports.find(i => i.id === batch.id)
-  const undone = await running.owner.cmd('import.undo', { batchId: batch.id, version: restored.version, reason: 'Restore proof' })
-  assert.equal(undone.status, 'undone')
-  // DATA-001: exercise the seed's actual rer import policy, not just a database
-  // service. The latest backup is the trusted later erasure journal.
-  let invoice = await running.owner.cmd('invoice.prepare', { jobId: job.id })
-  invoice = await running.owner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
-  const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
-  const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
-  assert.equal(receipt.outcome, 'complete')
-  for (const link of [freshQuoteLink, restoredSignedLink]) assert.equal((await running.quote(link.token)).status, 404, 'QUOTE-009 erasure immediately closes every new bearer for this restored customer')
-  for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 source bearers remain refused after erasure')
-  const unrelatedAfterErasure = await running.quote(freshUnrelatedLink.token)
-  assert.equal(unrelatedAfterErasure.status, 200, 'QUOTE-009 another customer retains its independent restored link')
-  const unrelatedDocument = (await unrelatedAfterErasure.json()).document
-  assert.deepEqual(unrelatedDocument, unrelatedLink.document)
-  assert.equal(documentHash(unrelatedDocument), unrelatedLink.documentHash)
-  console.log('QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only')
-  const erasedRoutes = (await running.owner.get('/api/glove/state')).routes
-  for (const id of [route.id, freshRoute.id]) {
-    const closed = erasedRoutes.find(r => r.id === id)
-    assert.equal(closed.status, 'discarded', 'DISP-011 erasure closes affected restored proposals')
-    assert.ok(closed.moves.every(m => m.visitId === '[erased]'))
-  }
-  const erasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
-  assert.equal(erasedPreview.status, 404)
-  assert.equal((await erasedPreview.json()).error.message, 'Customer preview unavailable')
-  const erasedInspectionReplay = await running.request('/api/glove/commands', 'POST', { commandId: inspectionCommandId, type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
-  const erasedOutcome = await erasedInspectionReplay.json()
-  assert.equal(erasedOutcome.ok, false)
-  assert.equal(erasedOutcome.error.code, 'ERASED', 'restored personal command outcomes are erased too')
-
-
-  assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'shared signed original is withdrawn without deleting its peer quote')
-  assert.equal((await running.owner.get('/api/glove/state')).quotes.find(q => q.id === peerQuote.id).status, 'accepted')
-  assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'DATA-001 erasure withdraws the signed copy')
+  assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'source sessions never open the restored installation')
+  owner = running.owner
+  const after = await owner.get('/api/glove/export')
+  for (const kind of ['customers', 'quotes', 'messages', 'timeline']) assert.deepEqual(after[kind], before[kind], 'COMM-018 email history survives the actual archive')
+  assert.deepEqual(await calls(channel), [], 'COMM-018 import and setup make no provider request')
+  // Every provider's source callback finds no connection until the Owner reconnects.
+  for (const { edge, sent } of sourceEdges) assert.equal((await running.events(edge.callback(sent))).status, 404, `COMM-018 restored ${edge.provider} callback door is closed`)
+  // A saved command replays only its saved outcome; a fresh send is recorded not connected and reaches no provider.
+  for (const { sent } of sourceEdges) assert.equal((await owner.cmd('email.send', sent.payload, sent.commandId)).id, sent.id)
+  const unsent = await owner.cmd('email.send', { kind: 'quote', id: draft.id, version: (await owner.get('/api/glove/state')).quotes.find(q => q.id === draft.id).version })
+  const restoredState = await owner.get('/api/glove/state')
+  assert.equal(restoredState.messageStates[unsent.id].status, 'rejected')
+  const refusal = (await owner.get('/api/glove/export')).timeline.find(e => e.subject_id === unsent.id && e.kind === 'email.rejected')
+  assert.equal(JSON.parse(refusal.data).code, 'not_connected', 'COMM-018 a restored send is recorded not connected')
+  assert.deepEqual(await calls(channel), [], 'COMM-018 restored sends and saved command replays reach no provider')
+  const port = Number(new URL((await running.request('/api/glove/state')).url).port)
   await running.close(); running = null
-  const latest = join(parent, 'post-erasure.rer')
-  await command(destination, ['export', '--output', latest])
-  const olderBytes = await readFile(archive), latestBytes = await readFile(latest)
-  const olderCheckpoint = JSON.parse(olderBytes.toString('utf8').split('\n')[0])
-  const laterCheckpoint = JSON.parse(latestBytes.toString('utf8').split('\n')[0])
-  assert.equal(laterCheckpoint.sourceIdentity, olderCheckpoint.sourceIdentity)
-  assert.ok(laterCheckpoint.epoch > olderCheckpoint.epoch, 'DATA-001 point 7: the real edition archive carries the committed redaction checkpoint')
-  const erasedValues = ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']
-  for (const value of erasedValues) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
-  {
-    const { readArchive } = await import('@runeditrun/rer/modules/portability')
-    const cells = []
-    for await (const record of readArchive(Readable.toWeb(createReadStream(latest)))) if (record.kind === 'part') for (const item of record.items) if (item.kind === 'row') {
-      for (const value of Object.values(item.row)) cells.push(value && typeof value === 'object' && typeof value.blob === 'string' ? Buffer.from(value.blob, 'base64').toString('utf8') : typeof value === 'string' ? value : JSON.stringify(value))
-    }
-    const decoded = cells.join('\n')
-    for (const value of erasedValues) assert.ok(!decoded.includes(value), 'DATA-001 point 7: decoded original chunks and archived records contain no erased personal values')
+  running = await start(destination, port)
+  owner = running.owner
+  assert.deepEqual(await calls(channel), [], 'COMM-018 actual restored Worker restart makes no provider request')
+  for (const { edge, sent } of sourceEdges) assert.equal((await running.events(edge.callback(sent))).status, 404)
+  // Reconnecting each provider in turn: one document email reaches exactly that provider's edge and its new signed callback folds it.
+  for (const provider of ['sendgrid', 'resend', 'ses', 'postmark']) {
+    const edge = await connect(owner, provider), old = sourceEdges.find(x => x.edge.provider === provider)
+    const stale = await running.events(old.edge.callback(old.sent))
+    assert.notEqual(stale.status, 200, `COMM-018 the source ${provider} credential cannot authenticate after reconnection`)
+    const sent = await sendAndFold(owner, edge, channel)
+    assert.equal((await calls(channel)).filter(c => c.provider === provider).length, 1)
+    assert.ok(sent.id)
   }
-  // Keep a destination with the newer checkpoint. Its own fence must refuse
-  // the old archive even when no external journal was supplied.
-  {
-    const { getPlatformProxy } = await import('wrangler')
-    const { selectLocalState } = await import('@runeditrun/rer/local/state')
-    const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-    // Wrangler's API takes the versioned directory; its CLI takes the parent.
-    const state = await selectLocalState(destination)
-    const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(state, 'v3') }, remoteBindings: false })
-    try {
-      const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
-      assert.deepEqual(await db.prepare('SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first(), { source_identity: laterCheckpoint.sourceIdentity, epoch: laterCheckpoint.epoch }, 'DATA-001 point 7: the fence probe opens the installation holding the actual newer checkpoint')
-      assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
-      const service = await createPortability({ db, policy })
-      const records = []
-      for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
-      const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
-      const attempt = await service.imports.create(records[0], 'owner')
+  assert.equal((await calls(channel)).length, 4, 'COMM-018 only the four explicit sends after reconnection reached any provider')
+  console.log('COMM-018 real archive passed: four provider keys and callback credentials absent; restored sends recorded not connected; callback doors closed; restart silent; each reconnection reaches only its own edge')
+  await running.close(); running = null
+}
+
+// One part per scratch installation family; CI runs the three at once, each with its own
+// scratch folder, recorder and ports. With no part set, one run covers all of them.
+const parts = process.env.GLOVE_PORTABLE_PART?.split(',') ?? ['archives', 'journey', 'payments']
+for (const part of parts) if (!['archives', 'journey', 'payments'].includes(part)) throw Error(`Unknown portable part ${part}`)
+try {
+  if (parts.includes('archives')) {
+    await calendarRestore()
+    await mailRestore()
+  }
+  if (parts.includes('journey')) {
+    const source = await copy('source'), destination = await copy('destination')
+    running = await install(source)
+    const owner = running.owner
+    await owner.cmd('business.save', { name: 'Harbour Air & Electrical', currency: 'AUD', timezone: 'Australia/Sydney' })
+    const service = await owner.cmd('service.save', { code: 'SVC', name: 'Split system service', description: 'Customer-facing restored inspection', unitPrice: '189.00', checklist: [{ label: 'Clean filters', required: true }] })
+    const customer = await owner.cmd('customer.save', { name: 'Harbourview Dental' })
+    const site = await owner.cmd('site.save', { customerId: customer.id, address: '14 Harbour St, Balmain NSW 2041' })
+    // The local member persona is the technician on the visit.
+    const priya = await running.persona('member')
+    const member = (await owner.get('/api/glove/state')).operators.find(o => o.email === 'member@dev.localhost')
+    await owner.cmd('role.set', { operatorId: member.id, role: 'technician' })
+    const tech = await owner.cmd('technician.save', { name: 'Priya N.', operatorId: member.id })
+    // DISP-004: the secret calendar address is a credential and never travels in the archive.
+    await owner.cmd('technician.calendar', { technicianId: tech.id, url: 'https://calendar.google.com/calendar/ical/priya/private-portable-secret/basic.ics' })
+    let quote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Service', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: service.id }] })
+    quote = await owner.cmd('quote.approve', { quoteId: quote.id, version: quote.version, revision: 1 })
+    quote = await owner.cmd('quote.accept', { quoteId: quote.id, version: quote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+    const job = await owner.cmd('job.create', { quoteId: quote.id })
+    const visit = await owner.cmd('visit.book', { jobId: job.id, technicianId: tech.id, date: '2026-10-15', start: '09:00', end: '10:30' })
+    await priya.cmd('visit.arrive', { visitId: visit.id, deviceTime: '2026-10-14T22:03:00Z' })
+    const photo = await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:10:00Z', kind: 'photo', photo: { mediaType: 'image/jpeg', base64: jpeg } })
+    const retainedMaterial = await owner.cmd('service.save', { code: 'SYNTHETIC-ARCHIVE-MATERIAL', name: 'Synthetic archive material', kind: 'material', unit: 'each', unitCost: '7.00', unitPrice: '14.00', tax: 'GST' })
+    await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:11:00Z', kind: 'material', serviceId: retainedMaterial.id, quantity: '2', description: 'Synthetic portable private material' })
+    const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async k => ({ name: `${k}.json`, text: await readFile(`${fixture}${k}.json`, 'utf8') })))
+    let batch = await owner.cmd('import.stage', { files })
+    batch = await owner.cmd('import.commit', { batchId: batch.id, version: batch.version, fingerprint: batch.preview.fingerprint })
+    // MONEY-001 private exemption originals belong to the customer archive.
+    let certCustomer = (await owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
+    certCustomer = await owner.cmd('customer.save', { ...certCustomer, taxExemption: { certificateNumber: 'PORTABLE-SCHOOL', expires: '2099-12-31' } })
+    const certificateBytes = Buffer.from('%PDF-1.7\nPrivate exemption certificate\n%%EOF')
+    certCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: certificateBytes.toString('base64') } })
+    // MONEY-004: an additive multi-chunk replacement keeps both customer originals.
+    const chunkedCertificateBytes = Buffer.alloc(512 * 1024 + 71, 66)
+    chunkedCertificateBytes.write('%PDF-1.7\nChunked school evidence\n')
+    chunkedCertificateBytes.write('\n%%EOF', chunkedCertificateBytes.length - 6)
+    const chunkedCertificateCustomer = await owner.cmd('customer.certificate', { customerId: customer.id, version: certCustomer.version, file: { mediaType: 'application/pdf', base64: chunkedCertificateBytes.toString('base64') } })
+    const chunkedCertificate = chunkedCertificateCustomer.taxExemption.certificate
+    assert.equal(chunkedCertificate.sha256, createHash('sha256').update(chunkedCertificateBytes).digest('hex'))
+    const sourceChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, owner.cookie)
+    assert.equal(sourceChunkedCertificate.status, 200)
+    assert.deepEqual(Buffer.from(await sourceChunkedCertificate.arrayBuffer()), chunkedCertificateBytes)
+    await priya.cmd('visit.capture', { visitId: visit.id, deviceTime: '2026-10-14T22:20:00Z', kind: 'checklist', itemId: job.checklist[0].id, result: 'done' })
+    await priya.cmd('visit.complete', { visitId: visit.id, deviceTime: '2026-10-14T23:30:00Z', summary: 'Cleaned filters', findings: 'Coil clean', recommendations: [{ title: 'Annual tune-up' }], signoff: { absentReason: 'Customer away' } })
+    const report = (await owner.get('/api/glove/state')).serviceReports.find(r => r.visitId === visit.id)
+    const reportLink = await owner.cmd('report.link', { reportId: report.id })
+    assert.equal((await running.report(reportLink.token)).status, 200, 'FIELD-003 link opens before export')
+    // PLAN-004 link metadata is portable; its bearer credential is not.
+    const plan = await owner.cmd('plan.save', { name: 'Maintenance', price: '228.00', termMonths: 12, includedVisits: 2, visitServiceId: service.id })
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Sydney' }).format(new Date())
+    const agreement = await owner.cmd('agreement.sell', { planId: plan.id, customerId: customer.id, siteId: site.id, via: 'phone', startDate: today })
+    const offerPayload = { agreementId: agreement.id, index: 0, slots: [{ technicianId: tech.id, date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10), start: '11:00', end: '11:30' }] }
+    const bookingCommandId = randomUUID()
+    const bookingLink = await owner.cmd('agreement.offer', offerPayload, bookingCommandId)
+    assert.equal((await running.booking(bookingLink.token)).status, 200, 'PLAN-004 source booking link works')
+    // QUOTE-002: retain the exact revision document and hash, require a new bearer after restore.
+    const sourceQuoteIssues = []
+    const issueSourceQuote = async payload => {
+      const commandId = randomUUID(), result = await owner.cmd('quote.link', payload, commandId)
+      assert.equal((await running.quote(result.token)).status, 200, 'every captured source bearer initially opens its quote')
+      sourceQuoteIssues.push({ payload, commandId, result })
+      return result
+    }
+    // These links exercise a real wall clock, including signed decisions later
+    // in the journey; keep their frozen validity ahead of the installation date.
+    const quoteValidUntil = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10)
+    const customerQuoteLines = [{ description: 'Annual tune-up', quantity: '1', unitPrice: '189.00', serviceId: service.id }]
+    let customerQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Annual tune-up proposal', lines: customerQuoteLines, validUntil: quoteValidUntil })
+    customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 1 })
+    const revokedQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
+    const earlierQuoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
+    assert.equal((await running.quote(revokedQuoteLink.token)).status, 404)
+    customerQuote = await owner.cmd('quote.revise', { quoteId: customerQuote.id, version: customerQuote.version, lines: customerQuoteLines, validUntil: quoteValidUntil })
+    customerQuote = await owner.cmd('quote.approve', { quoteId: customerQuote.id, version: customerQuote.version, revision: 2 })
+    const quoteLink = await issueSourceQuote({ quoteId: customerQuote.id, version: customerQuote.version })
+    assert.equal((await (await running.quote(earlierQuoteLink.token)).json()).state, 'superseded')
+    assert.equal((await running.quote(quoteLink.token)).status, 200, 'QUOTE-002 source customer link works')
+    // QUOTE-002: the signed artifact and its evidence must survive the actual
+    // archive boundary byte for byte, independently of the revocable bearer.
+    await owner.cmd('quote.consent', { version: (await owner.get('/api/glove/state')).business[0].version, text: 'synthetic-glove-50 disclosure entered and accepted by the portability test owner.', accept: true })
+    let signedQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Signed maintenance proposal', lines: [{ description: 'Signed maintenance work', quantity: '1', unitPrice: '249.00' }], terms: 'synthetic-glove-51 terms retained in the signed artifact.', validUntil: quoteValidUntil })
+    signedQuote = await owner.cmd('quote.approve', { quoteId: signedQuote.id, version: signedQuote.version, revision: 1 })
+    const signedLink = await issueSourceQuote({ quoteId: signedQuote.id, version: signedQuote.version })
+    const choice = { optionId: 'option-1', addOnIds: [] }
+    const selected = await (await running.quoteRespond(signedLink.token, { action: 'choose', choice })).json()
+    const signedResponse = await running.quoteRespond(signedLink.token, { action: 'approve', name: 'Dr Mei Lin', capacity: 'Practice owner', choice, documentHash: selected.documentHash, selectionHash: selected.selection.hash, consent: { version: selected.disclosure.version, hash: selected.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Dr Mei Lin' } })
+    assert.equal(signedResponse.status, 200, await signedResponse.clone().text())
+    signedQuote = (await owner.get('/api/glove/state')).quotes.find(q => q.id === signedQuote.id)
+    const signedFile = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, owner.cookie)
+    assert.equal(signedFile.status, 200)
+    const signedBytes = Buffer.from(await signedFile.arrayBuffer())
+    assert.equal(createHash('sha256').update(signedBytes).digest('hex'), signedQuote.acceptance.signing.signedCopy.sha256)
+    const peerCustomer = await owner.cmd('customer.save', { name: 'Synthetic kept peer' })
+    const peerSite = await owner.cmd('site.save', { customerId: peerCustomer.id, address: '55 Synthetic Road' })
+    let peerQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'Peer service', terms: `Access coordinated by ${customer.name}`, lines: [{ description: 'Peer service', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
+    peerQuote = await owner.cmd('quote.approve', { quoteId: peerQuote.id, version: peerQuote.version, revision: 1 })
+    const peerLink = await issueSourceQuote({ quoteId: peerQuote.id, version: peerQuote.version })
+    const peerSelection = await (await running.quoteRespond(peerLink.token, { action: 'choose', choice })).json()
+    const peerAnswer = await running.quoteRespond(peerLink.token, { action: 'approve', name: 'Synthetic kept peer', capacity: 'Owner', choice, documentHash: peerSelection.documentHash, selectionHash: peerSelection.selection.hash, consent: { version: peerSelection.disclosure.version, hash: peerSelection.disclosure.hash, affirmed: true }, signature: { kind: 'typed', text: 'Synthetic kept peer' } })
+    assert.equal(peerAnswer.status, 200)
+    let unrelatedQuote = await owner.cmd('quote.draft', { customerId: peerCustomer.id, siteId: peerSite.id, title: 'synthetic-glove-191', lines: [{ description: 'synthetic-glove-192', quantity: '1', unitPrice: '25.00' }], validUntil: quoteValidUntil })
+    unrelatedQuote = await owner.cmd('quote.approve', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version, revision: 1 })
+    const unrelatedLink = await issueSourceQuote({ quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
+    // COMM-001: a backup never carries even a callback credential hash.
+    const postmark = await owner.cmd('mail.connect', { provider: 'postmark', apiKey: 'synthetic-glove-52', fromEmail: 'office@example.test' })
+    const callbackHash = createHash('sha256').update(postmark.callbackPassword).digest('hex')
+    const smsFixture = twilioEdge()
+    const smsConnection = await owner.cmd('sms.connect', { version: (await owner.get('/api/glove/state')).business[0].version, provider: 'twilio', accountSid: smsFixture.accountSid, authToken: smsFixture.authToken, fromNumber: smsFixture.fromNumber, registration: 'a2p10dlc', registered: true, live: true })
+    assert.equal(smsConnection.sms.enabled, false)
+    const sourceBatches = []
+    for (const format of ['fieldpulse','workiz','servicetitan','jobber']) {
+      const staged = await owner.cmd('import.stage', { format, files: await exportedFixture(format), balanceAsOf: '2026-10-22' })
+      assert.deepEqual(staged.preview.rejections, [])
+      sourceBatches.push(await owner.cmd('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint }))
+    }
+    // DISP-005: populated transient custody must not cross the real archive boundary.
+    const locationNow = () => new Date().toISOString()
+    const fleetKey = 'synthetic-glove-601'
+    const locationJob = await owner.cmd('job.create', { customerId: customer.id, siteId: site.id, title: 'Location custody at backup' })
+    const locationVisit = await owner.cmd('visit.book', { jobId: locationJob.id, technicianId: tech.id, date: '2026-10-16', start: '13:00', end: '14:00' })
+    await priya.cmd('location.consent', { enabled: true })
+    await owner.cmd('location.fleetConnect', { technicianId: tech.id, vehicleId: '12345', key: fleetKey })
+    await priya.cmd('clock.in', { deviceTime: locationNow() })
+    await priya.cmd('timer.start', { visitId: locationVisit.id, kind: 'job', deviceTime: locationNow() })
+    const locationCaptureId = randomUUID()
+    const locationCapture = { lat: 41.89067, lng: -87.63067, observedAt: locationNow() }
+    await priya.cmd('location.phone', locationCapture, locationCaptureId)
+    const sourcePosition = (await owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
+    assert.deepEqual([sourcePosition.position.lat, sourcePosition.position.lng], [41.89067, -87.63067])
+    // COMM-006: populated inspection crosses the real archive boundary as business records only.
+    let choiceQuote = await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Restored chosen inspection', options: [{ name: 'Basic inspection', lines: [{ description: 'Basic service', quantity: '1', unitPrice: '100.00', tax: 'FREE' }] }, { name: 'Complete inspection', lines: [{ description: 'Complete service', quantity: '1', unitPrice: '200.00', tax: 'FREE' }] }], addOns: [{ name: 'Filter', lines: [{ description: 'Restored filter', quantity: '1', unitPrice: '25.00', tax: 'FREE' }] }] })
+    choiceQuote = await owner.cmd('quote.approve', { quoteId: choiceQuote.id, version: choiceQuote.version, revision: 1 })
+    await owner.cmd('quote.accept', { quoteId: choiceQuote.id, version: choiceQuote.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin', choice: { optionId: 'option-2', addOnIds: ['addon-1'] } })
+    await owner.cmd('quote.draft', { customerId: customer.id, siteId: site.id, title: 'Private restored draft', lines: [{ description: 'Private restored draft work', quantity: '1', unitPrice: '15.00' }] })
+    await owner.cmd('conversation.log', { customerId: customer.id, kind: 'note', text: 'Private restored conversation' })
+    await owner.cmd('equipment.save', { siteId: site.id, type: 'Restored heat pump', model: 'Permitted restored model', serial: 'Private restored serial' })
+    // CUST-006 archive custody uses actual provider work and saved command outcomes.
+    const audienceCustomer = await owner.cmd('customer.save', { name: 'Portable audience contact', email: ['synthetic-glove-portable', 'example.test'].join('@') })
+    await owner.cmd('customer.tags', { customerId: audienceCustomer.id, version: audienceCustomer.version, tags: ['Portable audience'] })
+    const audience = await owner.cmd('segment.save', { name: 'Portable service audience', filter: { tagsAll: ['Portable audience'] } })
+    const audienceKeys = ['synthetic-glove-101', 'synthetic-glove-102-us21']
+    const audienceConnections = [
+      { provider: 'mango', url: 'https://mango.example.test', key: audienceKeys[0] },
+      { provider: 'mailchimp', listId: 'synthetic-glove-103', key: audienceKeys[1] },
+    ]
+    const audienceReplays = []
+    for (const [index, connection] of audienceConnections.entries()) {
+      const connectId = `synthetic-glove-portable-connect-${index}`
+      await owner.cmd('marketing.connect', connection, connectId)
+      const payload = { segmentId: audience.id, provider: connection.provider }, commandId = `synthetic-glove-portable-push-${index}`
+      const result = await owner.cmd('segment.push', payload, commandId)
+      assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
+      audienceReplays.push({ connection, connectId, payload, commandId, result })
+    }
+    assert.equal(marketingCalls.get('marketing-source').length, 3, 'real source commands reached both provider edges')
+    for (const surface of [await owner.get('/api/glove/state'), await owner.get('/api/glove/activity'), await owner.get('/api/glove/export')]) for (const key of audienceKeys) assert.ok(!JSON.stringify(surface).includes(key))
+    // DISP-011: ordinary owner commands create a real route, and the actual
+    // scheduled entry prepares it. Only Google Maps transport is replaced.
+    const routeDay = '2026-11-10', mapsKey = 'synthetic-glove-82'
+    await owner.cmd('maps.connect', { key: mapsKey })
+    const routeVisits = []
+    for (let i = 0; i < 2; i++) {
+      const address = `${900 + i} Portable Route Ave, Chicago, IL 60601`
+      await running.request('/__portable/maps', 'POST', { places: [[address, { lat: 41.8 + i * 0.001, lng: -87.63 }]] })
+      const routeSite = await owner.cmd('site.save', { customerId: customer.id, address })
+      const routeJob = await owner.cmd('job.create', { customerId: customer.id, siteId: routeSite.id, title: `Portable route visit ${i + 1}` })
+      routeVisits.push(await owner.cmd('visit.book', { jobId: routeJob.id, technicianId: tech.id, date: routeDay, start: `${10 + i * 2}:00`, end: `${10 + i * 2}:30` }))
+    }
+    let route = await owner.cmd('route.optimize', { date: routeDay })
+    await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
+    route = (await owner.get('/api/glove/state')).routes.find(r => r.id === route.id)
+    assert.equal(route.status, 'ready')
+    assert.deepEqual(route.moves.map(m => m.visitId).sort(), routeVisits.map(v => v.id).sort())
+    const queuedRoute = await owner.cmd('route.optimize', { date: routeDay })
+    const inspectionCommandId = randomUUID()
+    const inspection = await owner.cmd('customer.hubPreview', { customerId: customer.id }, inspectionCommandId)
+    assert.ok(inspection.quotes.some(q => q.lines.some(l => l.customerDescription === 'Customer-facing restored inspection')))
+    assert.ok(inspection.reports.some(r => r.summary === 'Cleaned filters'))
+    assert.ok(inspection.equipment.some(e => e.model === 'Permitted restored model'))
+    assert.ok(inspection.agreements.some(a => a.id === agreement.id))
+    const chosenInspection = inspection.quotes.find(q => q.id === choiceQuote.id)
+    assert.deepEqual(chosenInspection.lines.map(l => l.description), ['Complete service', 'Restored filter'])
+    assert.equal(chosenInspection.totals.total, '225.00')
+    assert.deepEqual(chosenInspection.options.map(o => o.totals.total), ['100.00', '200.00'])
+    assert.deepEqual(chosenInspection.addOns.map(a => a.totals.total), ['25.00'])
+    assert.doesNotMatch(JSON.stringify(inspection), /Private restored|accessNotes|files|signature|savedCards/)
+    const previewToken = await owner.cmd('token.issue', { name: 'Portable preview refusal', role: 'office' })
+    const before = await owner.get('/api/glove/export')
+    assert.deepEqual(before.quoteLinks.map(link => link.id).sort(), sourceQuoteIssues.map(issue => issue.result.id).sort(), 'QUOTE-009 captures every issued source link, including replaced and earlier revisions')
+    for (const link of before.quoteLinks) assert.equal(documentHash(link.document), link.documentHash, 'QUOTE-009 source hash independently names the exact stored document')
+    for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(before).includes(issue.result.token), 'QUOTE-009 no issued bearer enters the business export')
+    for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!JSON.stringify(before).includes(value), 'DISP-005 business export excludes coordinates and fleet key')
+    assert.ok(!JSON.stringify(before).includes(quoteLink.token), 'QUOTE-002 bearer never enters the export')
+    assert.ok(!JSON.stringify(before).includes(bookingLink.token), 'PLAN-004 bearer never enters the export')
+    assert.ok(!JSON.stringify(before).includes(reportLink.token), 'FIELD-003 bearer never enters the export')
+    await running.close()
+    running = null
+
+    const archive = join(parent, 'installation.rer')
+    await command(source, ['export', '--output', archive])
+    const archiveBytes = await readFile(archive)
+    assert.ok(!archiveBytes.includes(Buffer.from('synthetic-glove-52')), 'COMM-001 point 3: the actual archive excludes the Postmark API key')
+    assert.ok(!archiveBytes.includes(Buffer.from(postmark.callbackPassword)) && !archiveBytes.includes(Buffer.from(callbackHash)), 'COMM-001 archive excludes the Postmark callback password and its hash')
+    assert.ok(!archiveBytes.includes(Buffer.from(smsFixture.authToken)), 'SMS archive never carries the Twilio auth credential')
+    for (const value of [fleetKey, '41.89067', '-87.63067']) assert.ok(!archiveBytes.includes(Buffer.from(value)), 'DISP-005 archive excludes coordinates and fleet key')
+    assert.ok(!archiveBytes.includes(Buffer.from(mapsKey)), 'DISP-011 archive excludes the Maps credential')
+    const audienceManifest = JSON.parse(archiveBytes.toString('utf8').split('\n')[0])
+    // DISP-005 populated source custody stays transient across an actual installation archive.
+    for (const name of ['glove_live_locations', 'glove_fleet_credentials']) assert.ok(!audienceManifest.tables.some(table => table.name === name), `${name} is excluded from the real archive`)
+    const locationHistory = before.timeline.filter(e => ['location.consent', 'location.received', 'location.fleetConnected'].includes(e.kind))
+    assert.deepEqual(locationHistory.map(e => e.kind).sort(), ['location.consent', 'location.fleetConnected', 'location.received'])
+    for (const e of locationHistory) assert.ok(e.actor_id && e.at && e.command_id)
+    assert.ok(!audienceManifest.tables.some(table => table.name === 'glove_quote_secrets'), 'QUOTE-009 archive omits the separate quote bearer hash table')
+    for (const link of before.quoteLinks) assert.ok(archiveBytes.includes(Buffer.from(link.documentHash)), 'QUOTE-009 retained document hashes are visible in the plain archive used for the credential scan')
+    for (const { result } of sourceQuoteIssues) {
+      assert.ok(!archiveBytes.includes(Buffer.from(result.token)), 'QUOTE-009 plain archive bytes contain no issued quote bearer')
+    }
+    assert.ok(!audienceManifest.tables.some(t => t.name === 'glove_provider_keys'), 'CUST-006 credential table never enters an installation archive')
+    for (const key of audienceKeys) assert.ok(!archiveBytes.includes(Buffer.from(key)), 'CUST-006 actual archive excludes both provider keys')
+    await command(destination, ['import', '--input', archive, '--yes'])
+    running = await install(destination)
+    assert.equal((await running.request('/api/glove/state', 'GET', undefined, owner.cookie)).status, 401, 'a source session does not open the restored installation')
+    // COMM-001: the restored installation has no callback credentials and the
+    // old password cannot authenticate, even though ordinary records survived.
+    const oldCallback = await running.callback(postmark.callbackPassword)
+    assert.equal(oldCallback.status, 404, 'COMM-001 restored email must be reconnected')
+    assert.equal((await running.owner.get('/api/glove/state')).mailCallbacks.verifiedAt, null)
+    assert.equal((await running.owner.get('/api/glove/state')).smsConnected, false, 'restored SMS metadata grants no provider authority before reconnect')
+    const restoredPosition = (await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live
+    assert.equal(restoredPosition.position, null, 'DISP-005 restored installation has no captured position')
+    const restoredFleet = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.fleetRead', payload: { technicianId: tech.id } }, running.owner.cookie)
+    assert.equal((await restoredFleet.json()).error.code, 'FLEET', 'DISP-005 restored installation requires explicit fleet reconnection')
+    const oldCapture = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'location.phone', payload: locationCapture }, priya.cookie)
+    assert.equal(oldCapture.status, 401, 'DISP-005 source sign-in cannot write in the restored installation')
+    const after = await running.owner.get('/api/glove/export')
+    for (const e of locationHistory) assert.deepEqual(after.timeline.find(x => x.id === e.id), e, 'DISP-005 attributable history survives the real restore without private location material')
+    for (const key of ['business', 'customers', 'sites', 'services', 'technicians', 'quotes', 'jobs', 'visits', 'captures', 'approvals', 'imports', 'timeline', 'files', 'serviceReports', 'serviceReportLinks', 'plans', 'agreements', 'bookingOffers', 'quoteLinks', 'enquiries', 'equipment', 'routes']) assert.deepEqual(after[key], before[key], `${key} restored exactly`)
+    for (const original of before.quotes) {
+      const restoredQuote = after.quotes.find(quote => quote.id === original.id)
+      assert.deepEqual(restoredQuote, original, 'QUOTE-009 every native and imported quote record survives the real archive')
+      assert.deepEqual(restoredQuote.revisions, original.revisions, 'QUOTE-009 all revisions and their approval or decision evidence survive')
+    }
+    for (const original of before.quoteLinks) {
+      const restoredLink = after.quoteLinks.find(link => link.id === original.id)
+      assert.deepEqual(restoredLink, original, 'QUOTE-009 every current, replaced and earlier-revision link record survives')
+      assert.equal(documentHash(restoredLink.document), original.documentHash, 'QUOTE-009 every restored document independently hashes to its source hash')
+    }
+    for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 no issued source bearer opens the restored installation')
+    for (const { payload, commandId, result } of sourceQuoteIssues) {
+      const { token, ...savedResult } = result
+      const replay = await running.owner.cmd('quote.link', payload, commandId)
+      assert.deepEqual(replay, savedResult, 'QUOTE-009 restored issuance replays only its original saved metadata')
+      assert.equal(replay.token, undefined, 'QUOTE-009 replay never reveals a bearer')
+      for (const issue of sourceQuoteIssues) assert.ok(!JSON.stringify(replay).includes(issue.result.token))
+    }
+    const { exportedAt: replayReadAt, ...replayedBusiness } = await running.owner.get('/api/glove/export')
+    const { exportedAt: restoredReadAt, ...restoredBusiness } = after
+    assert.deepEqual(replayedBusiness, restoredBusiness, 'QUOTE-009 replaying all imported issuances creates no links, records or Activity')
+    assert.deepEqual(after.pushes, before.pushes, 'CUST-006 exact push counts and provider history survive a real archive')
+    assert.deepEqual(after.segments, before.segments)
+    for (const replay of audienceReplays) {
+      const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'segment.push', payload: replay.payload }, running.owner.cookie)
+      assert.equal(response.status, 409)
+      assert.equal((await response.json()).error.code, 'MARKETING', 'restored metadata requires explicit reconnection')
+      assert.deepEqual(await running.owner.cmd('segment.push', replay.payload, replay.commandId), replay.result, 'CUST-006 saved push outcome restores exactly without another call')
+      await running.owner.cmd('marketing.connect', replay.connection, replay.connectId)
+      const stillDisconnected = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'segment.push', payload: replay.payload }, running.owner.cookie)
+      assert.equal((await stillDisconnected.json()).error.code, 'MARKETING', 'replaying a saved connect outcome never restores a secret')
+    }
+    assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'import, startup and command replay make no audience request')
+    const restoredRouteVisits = after.visits.filter(v => routeVisits.some(original => original.id === v.id))
+    assert.deepEqual(restoredRouteVisits, routeVisits, 'DISP-011 import and startup move no appointment')
+    assert.deepEqual(after.routes, before.routes, 'DISP-011 all proposal metadata survives real export and import')
+    assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false)
+    const callsBeforeReconnect = (await (await running.request('/__portable/maps')).json()).calls
+    const acceptRestored = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'route.accept', payload: { routeId: route.id, version: route.version, reason: 'Restored proposal' } }, running.owner.cookie)
+    assert.equal((await acceptRestored.json()).error.code, 'MAPS', 'DISP-011 restored metadata grants no provider authority')
+    assert.deepEqual((await (await running.request('/__portable/maps')).json()).calls, callsBeforeReconnect)
+    assert.deepEqual((await running.owner.get('/api/glove/state')).routes, after.routes)
+    assert.deepEqual((await running.owner.get('/api/glove/state')).visits, after.visits)
+    await running.owner.cmd('maps.connect', { key: 'synthetic-glove-83' })
+    assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, true)
+    const staleRestored = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'route.accept', payload: { routeId: route.id, version: route.version, reason: 'Reconnection does not refresh a proposal' } }, running.owner.cookie)
+    assert.equal((await staleRestored.json()).error.code, 'ROUTE_STALE')
+    assert.deepEqual((await running.owner.get('/api/glove/state')).visits, after.visits)
+    await running.owner.cmd('route.discard', { routeId: queuedRoute.id, version: queuedRoute.version })
+    const freshRoute = await running.owner.cmd('route.optimize', { date: routeDay })
+    await running.request('/__portable/maps', 'POST', { scheduledAt: '2026-11-06T00:00:00.000Z' })
+    assert.equal((await running.owner.get('/api/glove/state')).routes.find(r => r.id === freshRoute.id).status, 'ready', 'explicit reconnection permits fresh provider work')
+    for (const [index, replay] of audienceReplays.entries()) await running.owner.cmd('marketing.connect', { ...replay.connection, key: index ? 'synthetic-glove-105-us21' : 'synthetic-glove-104' })
+    assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, 0, 'explicit reconnection alone never pushes an audience')
+    for (const replay of audienceReplays) {
+      const callsBeforeReplay = marketingCalls.get('marketing-destination')?.length ?? 0
+      await running.owner.cmd('segment.push', replay.payload, replay.commandId)
+      assert.equal(marketingCalls.get('marketing-destination')?.length ?? 0, callsBeforeReplay, 'reconnection does not repeat a restored command')
+      const result = await running.owner.cmd('segment.push', replay.payload)
+      assert.deepEqual([result.members, result.pushed, result.skippedNoEmail, result.skippedDoNotContact, result.failed], [1, 1, 0, 0, []])
+    }
+    assert.deepEqual(marketingCalls.get('marketing-destination'), marketingCalls.get('marketing-source'), 'fresh explicit pushes after reconnection send exactly the retained contact and tags')
+    for (const key of [...audienceKeys, 'synthetic-glove-104', 'synthetic-glove-105-us21']) assert.ok(!JSON.stringify(await running.owner.get('/api/glove/export')).includes(key))
+    console.log('CUST-006 real archive passed: both keys absent, push history retained, restored replay sends nothing, explicit reconnection required')
+    const oldInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, owner.cookie)
+    assert.equal(oldInspection.status, 403)
+    assert.equal((await oldInspection.json()).error.message, 'An Owner without branch limits must sign in to inspect this customer preview')
+    const restoredInspection = await running.owner.cmd('customer.hubPreview', { customerId: customer.id })
+    assert.deepEqual(restoredInspection, inspection, 'COMM-006 reconstructs only the permitted projection under a new current Owner session')
+    assert.ok(Object.values(restoredInspection.actions).every(value => value === false), 'restore creates no customer action authority')
+    const oldTokenInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, '', { authorization: `Bearer ${previewToken.token}` })
+    assert.equal(oldTokenInspection.status, 403, 'restore imports no token authority')
+    const suspendedMember = (await running.owner.get('/api/glove/state')).operators.find(o => o.id === member.id)
+    assert.equal(suspendedMember.status, 'inactive', 'restoration does not silently reactivate staff')
+    const reactivated = await running.request('/auth/operator/status', 'POST', { operatorId: member.id, status: 'active' }, running.owner.cookie)
+    assert.equal(reactivated.status, 200, 'a current Owner explicitly reactivates the restored staff member')
+    const restoredMember = await running.persona('member')
+    assert.deepEqual(await restoredMember.cmd('location.phone', locationCapture, locationCaptureId), { accepted: true, source: 'phone' }, 'DISP-005 replay retains only its generic historical outcome after explicit staff reactivation')
+    assert.equal((await running.owner.get('/api/glove/map?date=2026-10-16')).technicians.find(t => t.id === tech.id).live.position, null, 'DISP-005 saved-outcome replay resurrects no coordinates')
+    console.log('DISP-005 real archive custody passed: positions and fleet credentials excluded, generic history retained, source sessions refused and replay cannot resurrect a position')
+    const refusedInspection = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, restoredMember.cookie)
+    assert.equal(refusedInspection.status, 403, 'restored staff authority never becomes Owner inspection authority')
+    for (const batch of sourceBatches) {
+      await running.owner.cmd('import.undo', { batchId: batch.id, version: batch.version, reason: 'Restore preserved source journal and original custody' })
+    }
+    const afterSourceUndo = await running.owner.get('/api/glove/export')
+    assert.ok(!afterSourceUndo.invoices.some(i => i.openingBalance), 'restored source balances undo cleanly')
+    console.log('MOVE-003 / MOVE-004 source records, balances, membership entitlements and original custody restore exactly and undo through the normal command door')
+    assert.equal((await running.report(reportLink.token)).status, 404, 'FIELD-003 source bearer is not restored')
+    assert.equal((await running.booking(bookingLink.token)).status, 404, 'PLAN-004 source bearer is not restored')
+    assert.equal((await running.quote(quoteLink.token)).status, 404, 'QUOTE-002 source bearer is not restored')
+    const freshQuoteLink = await running.owner.cmd('quote.link', { quoteId: customerQuote.id, version: customerQuote.version })
+    const freshQuoteResponse = await running.quote(freshQuoteLink.token)
+    assert.equal(freshQuoteResponse.status, 200, 'QUOTE-002 restored revision accepts a newly issued link')
+    assert.equal(freshQuoteLink.documentHash, quoteLink.documentHash, 'QUOTE-002 restored document hash is unchanged')
+    const freshQuoteView = await freshQuoteResponse.json()
+    assert.deepEqual(freshQuoteView.document, quoteLink.document)
+    assert.equal(documentHash(freshQuoteView.document), quoteLink.documentHash, 'QUOTE-009 a fresh bearer serves exactly the restored document')
+    assert.equal((await running.quote(signedLink.token)).status, 404, 'signed quote bearer is not restored')
+    const restoredSigned = await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)
+    assert.equal(restoredSigned.status, 200)
+    assert.deepEqual(Buffer.from(await restoredSigned.arrayBuffer()), signedBytes, 'QUOTE-002 signed HTML, disclosure and signature survive rer export/import byte for byte')
+    const restoredSignedQuote = after.quotes.find(q => q.id === signedQuote.id)
+    assert.deepEqual(restoredSignedQuote.acceptance.signing, signedQuote.acceptance.signing, 'QUOTE-002 all signature evidence survives the archive')
+    const restoredSignedLink = await running.owner.cmd('quote.link', { quoteId: signedQuote.id, version: restoredSignedQuote.version })
+    assert.equal((await (await running.quote(restoredSignedLink.token)).json()).decision, 'accepted', 'fresh bearer opens the frozen signed decision after restore')
+    assert.equal(restoredSignedLink.documentHash, signedLink.documentHash)
+    const freshUnrelatedLink = await running.owner.cmd('quote.link', { quoteId: unrelatedQuote.id, version: unrelatedQuote.version })
+    assert.equal((await running.quote(freshUnrelatedLink.token)).status, 200)
+    assert.equal(freshUnrelatedLink.documentHash, unrelatedLink.documentHash)
+    const freshBookingLink = await running.owner.cmd('agreement.offer', offerPayload)
+    assert.equal((await running.booking(freshBookingLink.token)).status, 200, 'PLAN-004 restored entitlement accepts a newly issued booking link')
+    // PLAN-010: a real archive carries offer evidence, never its execution credential.
+    const { token: sourceBookingToken, ...sourceBookingMetadata } = bookingLink
+    assert.deepEqual(after.bookingOffers.find(o => o.id === bookingLink.id), sourceBookingMetadata, 'PLAN-010 original offer metadata restores exactly')
+    assert.deepEqual(await running.owner.cmd('agreement.offer', offerPayload, bookingCommandId), sourceBookingMetadata, 'PLAN-010 restored command replay reveals only saved metadata')
+    assert.equal((await running.booking(sourceBookingToken)).status, 404, 'PLAN-010 replay cannot resurrect the source bearer')
+    assert.notEqual(freshBookingLink.token, sourceBookingToken)
+    assert.equal(freshBookingLink.jobId, bookingLink.jobId, 'PLAN-010 fresh issuance reuses the restored included job')
+    const freshBookingView = await (await running.booking(freshBookingLink.token)).json()
+    assert.deepEqual(freshBookingView.offer, { business: 'Harbour Air & Electrical', service: 'Split system service', address: site.address, expiresAt: freshBookingLink.expiresAt, slots: freshBookingLink.slots.map(s => ({ id: s.id, ...s.local })) }, 'PLAN-010 fresh bearer exposes only the restored included visit')
+    const restoredOfferExport = await running.owner.get('/api/glove/export')
+    for (const secret of [sourceBookingToken, freshBookingLink.token]) assert.equal(JSON.stringify(restoredOfferExport).includes(secret), false)
+    console.log('PLAN-010 real archive passed: metadata and replay retained, source bearer refused, fresh link reads the same included job')
+
+    const freshReportLink = await running.owner.cmd('report.link', { reportId: report.id })
+    assert.equal((await running.report(freshReportLink.token)).status, 200, 'FIELD-003 restored snapshot accepts a new link')
+    assert.equal((await running.owner.get(`/api/glove/technicians/${tech.id}/calendar`)).url, null, 'the calendar address is not restored')
+    const bytes = await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)
+    assert.equal(Buffer.from(await bytes.arrayBuffer()).toString('base64'), jpeg, 'photo bytes restored')
+    const restoredCertificate = await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)
+    assert.equal(restoredCertificate.status, 200, 'MONEY-001 private certificate remains readable after restore')
+    assert.deepEqual(Buffer.from(await restoredCertificate.arrayBuffer()), certificateBytes, 'MONEY-001 original certificate bytes restored')
+    const restoredChunkedCustomer = after.customers.find(c => c.id === customer.id)
+    assert.deepEqual(restoredChunkedCustomer.taxExemption.certificate, chunkedCertificate, 'MONEY-004 replacement remains attached to the restored customer')
+    const restoredChunkedCertificate = await running.request('/api/glove/files/' + chunkedCertificate.fileId, 'GET', undefined, running.owner.cookie)
+    assert.equal(restoredChunkedCertificate.status, 200)
+    assert.deepEqual(Buffer.from(await restoredChunkedCertificate.arrayBuffer()), chunkedCertificateBytes, 'MONEY-004 all original chunks survive real export and import')
+    // The restored installation keeps working, including undo of the restored move-in journal.
+    await running.owner.cmd('customer.save', { name: 'After restore' })
+    const restored = (await running.owner.get('/api/glove/state')).imports.find(i => i.id === batch.id)
+    const undone = await running.owner.cmd('import.undo', { batchId: batch.id, version: restored.version, reason: 'Restore proof' })
+    assert.equal(undone.status, 'undone')
+    // DATA-001: exercise the seed's actual rer import policy, not just a database
+    // service. The latest backup is the trusted later erasure journal.
+    let invoice = await running.owner.cmd('invoice.prepare', { jobId: job.id })
+    invoice = await running.owner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+    const currentCustomer = (await running.owner.get('/api/glove/state')).customers.find(c => c.id === customer.id)
+    const receipt = await running.owner.cmd('privacy.erase', { customerId: customer.id, version: currentCustomer.version, confirm: 'ERASE', fingerprint: (await running.owner.cmd('privacy.preview', { customerId: customer.id, version: currentCustomer.version })).fingerprint })
+    assert.equal(receipt.outcome, 'complete')
+    for (const link of [freshQuoteLink, restoredSignedLink]) assert.equal((await running.quote(link.token)).status, 404, 'QUOTE-009 erasure immediately closes every new bearer for this restored customer')
+    for (const { result } of sourceQuoteIssues) assert.equal((await running.quote(result.token)).status, 404, 'QUOTE-009 source bearers remain refused after erasure')
+    const unrelatedAfterErasure = await running.quote(freshUnrelatedLink.token)
+    assert.equal(unrelatedAfterErasure.status, 200, 'QUOTE-009 another customer retains its independent restored link')
+    const unrelatedDocument = (await unrelatedAfterErasure.json()).document
+    assert.deepEqual(unrelatedDocument, unrelatedLink.document)
+    assert.equal(documentHash(unrelatedDocument), unrelatedLink.documentHash)
+    console.log('QUOTE-009 real archive passed: every quote, revision, link and document hash retained; all source bearers excluded; replay creates nothing; fresh links preserve documents and customer erasure closes affected links only')
+    const erasedRoutes = (await running.owner.get('/api/glove/state')).routes
+    for (const id of [route.id, freshRoute.id]) {
+      const closed = erasedRoutes.find(r => r.id === id)
+      assert.equal(closed.status, 'discarded', 'DISP-011 erasure closes affected restored proposals')
+      assert.ok(closed.moves.every(m => m.visitId === '[erased]'))
+    }
+    const erasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
+    assert.equal(erasedPreview.status, 404)
+    assert.equal((await erasedPreview.json()).error.message, 'Customer preview unavailable')
+    const erasedInspectionReplay = await running.request('/api/glove/commands', 'POST', { commandId: inspectionCommandId, type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
+    const erasedOutcome = await erasedInspectionReplay.json()
+    assert.equal(erasedOutcome.ok, false)
+    assert.equal(erasedOutcome.error.code, 'ERASED', 'restored personal command outcomes are erased too')
+
+
+    assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'shared signed original is withdrawn without deleting its peer quote')
+    assert.equal((await running.owner.get('/api/glove/state')).quotes.find(q => q.id === peerQuote.id).status, 'accepted')
+    assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'DATA-001 erasure withdraws the signed copy')
+    await running.close(); running = null
+    const latest = join(parent, 'post-erasure.rer')
+    await command(destination, ['export', '--output', latest])
+    const olderBytes = await readFile(archive), latestBytes = await readFile(latest)
+    const olderCheckpoint = JSON.parse(olderBytes.toString('utf8').split('\n')[0])
+    const laterCheckpoint = JSON.parse(latestBytes.toString('utf8').split('\n')[0])
+    assert.equal(laterCheckpoint.sourceIdentity, olderCheckpoint.sourceIdentity)
+    assert.ok(laterCheckpoint.epoch > olderCheckpoint.epoch, 'DATA-001 point 7: the real edition archive carries the committed redaction checkpoint')
+    const erasedValues = ['Harbourview Dental', '14 Harbour St, Balmain NSW 2041', 'PORTABLE-SCHOOL', 'Private exemption certificate', 'Synthetic portable private material']
+    for (const value of erasedValues) assert.ok(!latestBytes.includes(Buffer.from(value)), 'DATA-001 point 7: the actual post-erasure archive contains no erased personal values')
+    {
+      const { readArchive } = await import('@runeditrun/rer/modules/portability')
+      const cells = []
+      for await (const record of readArchive(Readable.toWeb(createReadStream(latest)))) if (record.kind === 'part') for (const item of record.items) if (item.kind === 'row') {
+        for (const value of Object.values(item.row)) cells.push(value && typeof value === 'object' && typeof value.blob === 'string' ? Buffer.from(value.blob, 'base64').toString('utf8') : typeof value === 'string' ? value : JSON.stringify(value))
+      }
+      const decoded = cells.join('\n')
+      for (const value of erasedValues) assert.ok(!decoded.includes(value), 'DATA-001 point 7: decoded original chunks and archived records contain no erased personal values')
+    }
+    // Keep a destination with the newer checkpoint. Its own fence must refuse
+    // the old archive even when no external journal was supplied.
+    {
+      const { getPlatformProxy } = await import('wrangler')
+      const { selectLocalState } = await import('@runeditrun/rer/local/state')
+      const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
+      // Wrangler's API takes the versioned directory; its CLI takes the parent.
+      const state = await selectLocalState(destination)
+      const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(state, 'v3') }, remoteBindings: false })
       try {
-        for (const [i, part] of records.filter(r => r.kind === 'part').entries()) await service.imports.uploadPart(attempt, i, part)
-        await assert.rejects(service.imports.finalize(attempt, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash }), /erasure_epoch/, 'DATA-001 point 7: the destination checkpoint independently refuses the old archive without a supplied journal')
-      } finally { await service.imports.abort(attempt) }
-      assert.deepEqual((await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results, stored, 'the refused archive changes no anonymous or peer records')
-    } finally { await proxy.dispose() }
-  }
-  const offlineTarget = await copy('offline-older-backup')
-  await command(offlineTarget, ['import', '--input', archive, '--yes'])
-  running = await install(offlineTarget)
-  const offline = await running.owner.get('/api/glove/export')
-  assert.equal(offline.customers.find(c => c.id === customer.id).name, 'Harbourview Dental', 'DATA-001 point 8: a fresh offline destination with only the older archive cannot discover the later erasure')
-  assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 200, 'DATA-001 point 8: the old archive still contains the original, demonstrating the documented limit')
-  await running.close(); running = null
-  const olderTarget = await copy('older-backup')
-  await cp(latest, join(olderTarget, 'post-erasure.rer'))
-  await assert.rejects(command(olderTarget, ['import', '--input', archive, '--journal', 'post-erasure.rer', '--yes']), /erasure_epoch/, 'DATA-001 older backup cannot resurrect erased personal data with the trusted later journal')
-  await command(olderTarget, ['import', '--input', latest, '--yes'])
-  running = await install(olderTarget)
-  const anonymous = await running.owner.get('/api/glove/export')
-  assert.equal(anonymous.customers.find(c => c.id === customer.id).name, 'Erased customer')
-  assert.deepEqual(anonymous.routes, erasedRoutes, 'DISP-011 restored erasure metadata never resurrects erased visit references')
-  for (const original of routeVisits) assert.ok(!JSON.stringify(anonymous.routes).includes(original.id))
-  assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false, 'DISP-011 another restore still requires explicit Maps reconnection')
-  console.log('DISP-011 real archive passed: exact proposal metadata and appointments retained, Maps reconnection required, stale acceptance refused, erasure and later journal fence visit references')
-  const laterErasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
-  assert.equal(laterErasedPreview.status, 404, 'COMM-006 later erasure fence prevents reconstruction after restore')
-  const peerPreview = await running.owner.cmd('customer.hubPreview', { customerId: peerCustomer.id })
-  assert.equal(peerPreview.customer.name, peerCustomer.name)
-  assert.doesNotMatch(JSON.stringify(peerPreview), /Harbourview Dental|Customer-facing restored inspection|Permitted restored model/)
+        const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
+        assert.deepEqual(await db.prepare('SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first(), { source_identity: laterCheckpoint.sourceIdentity, epoch: laterCheckpoint.epoch }, 'DATA-001 point 7: the fence probe opens the installation holding the actual newer checkpoint')
+        assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
+        const service = await createPortability({ db, policy })
+        const records = []
+        for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
+        const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
+        const attempt = await service.imports.create(records[0], 'owner')
+        try {
+          for (const [i, part] of records.filter(r => r.kind === 'part').entries()) await service.imports.uploadPart(attempt, i, part)
+          await assert.rejects(service.imports.finalize(attempt, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash }), /erasure_epoch/, 'DATA-001 point 7: the destination checkpoint independently refuses the old archive without a supplied journal')
+        } finally { await service.imports.abort(attempt) }
+        assert.deepEqual((await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results, stored, 'the refused archive changes no anonymous or peer records')
+      } finally { await proxy.dispose() }
+    }
+    const offlineTarget = await copy('offline-older-backup')
+    await command(offlineTarget, ['import', '--input', archive, '--yes'])
+    running = await install(offlineTarget)
+    const offline = await running.owner.get('/api/glove/export')
+    assert.equal(offline.customers.find(c => c.id === customer.id).name, 'Harbourview Dental', 'DATA-001 point 8: a fresh offline destination with only the older archive cannot discover the later erasure')
+    assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 200, 'DATA-001 point 8: the old archive still contains the original, demonstrating the documented limit')
+    await running.close(); running = null
+    const olderTarget = await copy('older-backup')
+    await cp(latest, join(olderTarget, 'post-erasure.rer'))
+    await assert.rejects(command(olderTarget, ['import', '--input', archive, '--journal', 'post-erasure.rer', '--yes']), /erasure_epoch/, 'DATA-001 older backup cannot resurrect erased personal data with the trusted later journal')
+    await command(olderTarget, ['import', '--input', latest, '--yes'])
+    running = await install(olderTarget)
+    const anonymous = await running.owner.get('/api/glove/export')
+    assert.equal(anonymous.customers.find(c => c.id === customer.id).name, 'Erased customer')
+    assert.deepEqual(anonymous.routes, erasedRoutes, 'DISP-011 restored erasure metadata never resurrects erased visit references')
+    for (const original of routeVisits) assert.ok(!JSON.stringify(anonymous.routes).includes(original.id))
+    assert.equal((await running.owner.get(`/api/glove/map?date=${routeDay}`)).connected, false, 'DISP-011 another restore still requires explicit Maps reconnection')
+    console.log('DISP-011 real archive passed: exact proposal metadata and appointments retained, Maps reconnection required, stale acceptance refused, erasure and later journal fence visit references')
+    const laterErasedPreview = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'customer.hubPreview', payload: { customerId: customer.id } }, running.owner.cookie)
+    assert.equal(laterErasedPreview.status, 404, 'COMM-006 later erasure fence prevents reconstruction after restore')
+    const peerPreview = await running.owner.cmd('customer.hubPreview', { customerId: peerCustomer.id })
+    assert.equal(peerPreview.customer.name, peerCustomer.name)
+    assert.doesNotMatch(JSON.stringify(peerPreview), /Harbourview Dental|Customer-facing restored inspection|Permitted restored model/)
 
-  assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
-  assert.equal((await running.owner.get(`/api/glove/jobs/${job.id}/cost`)).costing.actual.materials, '14.00', 'DATA-001 point 7: real anonymous archive restore retains material costs without personal capture evidence')
-  assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
-  assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
-  assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'erased signed-copy bytes stay erased across backup/restore')
-  assert.equal(anonymous.customers.find(c => c.id === peerCustomer.id).name, peerCustomer.name)
-  assert.equal(anonymous.quotes.find(q => q.id === peerQuote.id).acceptance.signing.signedCopy, null)
-  assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'peer signed-original withdrawal survives rer restore')
-  assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
-  assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
-  console.log('DATA-001 points 7 and 8 real rer import passed: later journal and destination checkpoint refuse the old archive; a fresh offline destination without that journal restores it; the new archive retains anonymous totals and no erased originals')
-  await running.close(); running = null
-  // PAY-008: the real archive retains permission versions, never execution authority.
-  const paySource = await copy('payment-source'), payDestination = await copy('payment-destination')
-  running = await install(paySource)
-  const payOwner = running.owner
-  const fixtureClock = at => running.request('/__portable/stripe', 'POST', { at })
-  const providerPosts = async () => (await (await running.request('/__portable/stripe')).json()).posts
-  await payOwner.cmd('business.save', { name: 'Synthetic payment portability', currency: 'USD', timezone: 'UTC' })
-  const payCustomer = await payOwner.cmd('customer.save', { name: 'Synthetic payment customer' })
-  const paySite = await payOwner.cmd('site.save', { customerId: payCustomer.id, address: '80 Synthetic Avenue' })
-  const payMember = await running.persona('member')
-  const payOperator = (await payOwner.get('/api/glove/state')).operators.find(o => o.nativeRole === 'member')
-  await payOwner.cmd('role.set', { operatorId: payOperator.id, role: 'technician' })
-  const payTech = await payOwner.cmd('technician.save', { name: 'Synthetic payment technician', operatorId: payOperator.id })
-  await fixtureClock('2025-01-01T12:00:00Z')
-  const connect = async () => payOwner.cmd('payment.connect', { version: (await payOwner.get('/api/glove/state')).business[0].version, mode: 'test', key: 'synthetic-glove-81', webhookSecret: 'synthetic-glove-82' })
-  await connect()
-  const enroll = async owner => {
-    const c = (await owner.get('/api/glove/state')).customers.find(c => c.id === payCustomer.id)
-    const result = await owner.cmd('payment.savedCardRegister', { customerId: c.id, version: c.version, stripeCustomerId: 'cus_' + c.id, stripeMethodId: 'pm_' + c.id, scope: 'autopay', source: 'synthetic-glove-83', wording: 'Recorded permission for this verified test card.', confirmed: true })
-    return result.savedCards.at(-1)
+    assert.deepEqual(anonymous.invoices.find(i => i.id === invoice.id).revisions[0].totals, invoice.revisions[0].totals)
+    assert.equal((await running.owner.get(`/api/glove/jobs/${job.id}/cost`)).costing.actual.materials, '14.00', 'DATA-001 point 7: real anonymous archive restore retains material costs without personal capture evidence')
+    assert.equal((await running.request(`/api/glove/files/${certCustomer.taxExemption.certificate.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
+    assert.equal((await running.request(`/api/glove/files/${photo.file.fileId}`, 'GET', undefined, running.owner.cookie)).status, 404)
+    assert.equal((await running.request(`/api/glove/quotes/${signedQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'erased signed-copy bytes stay erased across backup/restore')
+    assert.equal(anonymous.customers.find(c => c.id === peerCustomer.id).name, peerCustomer.name)
+    assert.equal(anonymous.quotes.find(q => q.id === peerQuote.id).acceptance.signing.signedCopy, null)
+    assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'peer signed-original withdrawal survives rer restore')
+    assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
+    assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
+    console.log('DATA-001 points 7 and 8 real rer import passed: later journal and destination checkpoint refuse the old archive; a fresh offline destination without that journal restores it; the new archive retains anonymous totals and no erased originals')
+    await running.close(); running = null
   }
-  const payCard = await enroll(payOwner)
-  let payJob = await payOwner.cmd('job.create', { customerId: payCustomer.id, siteId: paySite.id, title: 'Portable monthly permission', lines: [{ description: 'Maintenance', quantity: '1', unitPrice: '240.00', tax: 'FREE' }] })
-  payJob = await payOwner.cmd('series.create', { jobId: payJob.id, version: payJob.version, date: '2025-01-01', rule: { unit: 'month' }, technicianId: payTech.id, start: '10:00', end: '11:00', horizonDays: 90, until: '2025-02-28', billing: { mode: 'fixed-monthly', autoApprove: true } })
-  const permission = { jobId: payJob.id, cardId: payCard.id, maxAmount: '240.00', source: 'synthetic-glove-84', wording: 'First monthly permission exact wording.', confirmed: true }
-  payJob = await payOwner.cmd('payment.autopayAuthorize', { ...permission, version: payJob.version })
-  payJob = await payOwner.cmd('payment.autopayRevoke', { jobId: payJob.id, version: payJob.version, reason: 'synthetic-glove-85 withdrawal' })
-  payJob = await payOwner.cmd('payment.autopayAuthorize', { ...permission, version: payJob.version, source: 'synthetic-glove-86', wording: 'Replacement monthly permission exact wording.' })
-  const payHistory = structuredClone(payJob.series.billing.autopayHistory)
-  await fixtureClock('2025-03-01T12:00:00Z')
-  await payOwner.cmd('series.billingRun', {})
-  const payInvoices = (await payOwner.get('/api/glove/state')).invoices.filter(i => i.jobId === payJob.id).sort((a, b) => a.recurring.periodEnd.localeCompare(b.recurring.periodEnd))
-  assert.equal(payInvoices.length, 2)
-  assert.equal(await providerPosts(), 0, 'billing never invokes preparatory collection')
-  const chargePayload = invoice => ({ invoiceId: invoice.id, version: invoice.version, cardId: payCard.id, amount: '240.00', confirmed: true })
-  const pending = await payOwner.cmd('payment.autopayCharge', chargePayload(payInvoices[0]))
-  assert.equal(await providerPosts(), 1)
-  // PAY-002: create real approved invoices and reserve through the public door.
-  // Stripe alone simulates settlement, pending ACH and a lost Checkout response.
-  const checkoutCases = []
-  for (const [index, amount, method, outcome] of [[0, '100.00', 'card', 'succeeded'], [1, '200.00', 'ach', 'processing'], [2, '300.00', 'card', 'unknown']]) {
-    const work = await payOwner.cmd('job.create', { customerId: payCustomer.id, siteId: paySite.id, title: `Portable Checkout ${outcome}`, lines: [{ description: 'Synthetic repair', quantity: '1', unitPrice: amount, tax: 'FREE' }] })
-    const visit = await payOwner.cmd('visit.book', { jobId: work.id, technicianId: payTech.id, date: '2025-03-01', start: `${14 + index}:00`, end: `${15 + index}:00` })
-    await payMember.cmd('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
-    await payMember.cmd('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Synthetic repair complete', signoff: { absentReason: 'Customer away' } })
-    let invoice = await payOwner.cmd('invoice.prepare', { jobId: work.id })
-    invoice = await payOwner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
-    const commandId = randomUUID(), payload = { invoiceId: invoice.id, version: invoice.version, method }
-    await running.request('/__portable/stripe', 'POST', { checkoutResponseLost: outcome === 'unknown' })
-    const payment = await payOwner.cmd('payment.checkout', payload, commandId)
-    if (outcome === 'unknown') assert.equal(payment.checkoutUrl, undefined)
-    else assert.match(payment.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//)
-    checkoutCases.push({ invoice, payment, commandId, payload })
-  }
-  const postSettlement = async (checkout, secret = 'synthetic-glove-82') => {
-    const at = Date.parse('2025-03-01T12:00:00Z') / 1000
-    const body = { id: `synthetic-glove-event-${checkout.paymentId}`, created: at, type: checkout.intent.status === 'succeeded' ? 'payment_intent.succeeded' : 'payment_intent.processing', data: { object: checkout.intent } }
-    const signature = createHmac('sha256', secret).update(`${at}.${JSON.stringify(body)}`).digest('hex')
-    return running.request('/api/glove/payments/events', 'POST', body, '', { 'stripe-signature': `t=${at},v1=${signature}` })
-  }
-  for (const [index, outcome] of [[0, 'succeeded'], [1, 'processing']]) {
-    const response = await running.request('/__portable/stripe', 'POST', { paymentId: checkoutCases[index].payment.id, outcome })
-    const checkout = (await response.json()).checkouts[index]
-    assert.equal((await postSettlement(checkout)).status, 200)
-    assert.equal((await postSettlement(checkout)).status, 200, 'authenticated replay does not duplicate a financial effect')
-  }
-  const stripeSource = await (await running.request('/__portable/stripe')).json()
-  assert.equal(stripeSource.checkouts.length, 3)
-  assert.equal(await providerPosts(), 4, 'one saved-card request and three Checkout attempts')
-  const assertCheckoutMoney = async owner => {
-    const state = await owner.get('/api/glove/state'), balances = await owner.get('/api/glove/balances')
-    for (const [index, status, due, net, effects] of [[0, 'paid', '0.00', 0, 10000], [1, 'pending', '200.00', 20000, 0], [2, 'reserved', '300.00', 30000, 0]]) {
-      const payment = state.payments.find(p => p.id === checkoutCases[index].payment.id)
-      assert.equal(payment.status, status)
-      assert.equal(payment.amount, ['100.00', '200.00', '300.00'][index])
-      assert.equal(payment.effects.reduce((sum, e) => sum + e.amountCents, 0), effects)
-      assert.equal(payment.effects.length, index === 0 ? 1 : 0, 'only confirmed funds have one financial effect')
-      const balance = balances.invoices.find(i => i.id === checkoutCases[index].invoice.id)
-      assert.deepEqual([balance.due, balance.netCents], [due, net])
+  if (parts.includes('payments')) {
+    // PAY-008: the real archive retains permission versions, never execution authority.
+    const paySource = await copy('payment-source'), payDestination = await copy('payment-destination')
+    running = await install(paySource)
+    const payOwner = running.owner
+    const fixtureClock = at => running.request('/__portable/stripe', 'POST', { at })
+    const providerPosts = async () => (await (await running.request('/__portable/stripe')).json()).posts
+    await payOwner.cmd('business.save', { name: 'Synthetic payment portability', currency: 'USD', timezone: 'UTC' })
+    const payCustomer = await payOwner.cmd('customer.save', { name: 'Synthetic payment customer' })
+    const paySite = await payOwner.cmd('site.save', { customerId: payCustomer.id, address: '80 Synthetic Avenue' })
+    const payMember = await running.persona('member')
+    const payOperator = (await payOwner.get('/api/glove/state')).operators.find(o => o.nativeRole === 'member')
+    await payOwner.cmd('role.set', { operatorId: payOperator.id, role: 'technician' })
+    const payTech = await payOwner.cmd('technician.save', { name: 'Synthetic payment technician', operatorId: payOperator.id })
+    await fixtureClock('2025-01-01T12:00:00Z')
+    const connect = async () => payOwner.cmd('payment.connect', { version: (await payOwner.get('/api/glove/state')).business[0].version, mode: 'test', key: 'synthetic-glove-81', webhookSecret: 'synthetic-glove-82' })
+    await connect()
+    const enroll = async owner => {
+      const c = (await owner.get('/api/glove/state')).customers.find(c => c.id === payCustomer.id)
+      const result = await owner.cmd('payment.savedCardRegister', { customerId: c.id, version: c.version, stripeCustomerId: 'cus_' + c.id, stripeMethodId: 'pm_' + c.id, scope: 'autopay', source: 'synthetic-glove-83', wording: 'Recorded permission for this verified test card.', confirmed: true })
+      return result.savedCards.at(-1)
     }
-    assert.equal(balances.customers.find(c => c.customerId === payCustomer.id).balance, '980.00')
-    const aging = await owner.get('/api/glove/reports/receivables.json?asOf=2025-03-20')
-    const rows = aging.customers.flatMap(c => c.invoices).filter(i => checkoutCases.some(c => c.invoice.id === i.id))
-    assert.deepEqual(rows.map(i => [i.id, i.balance, i.bucket, i.href]), checkoutCases.slice(1).map((c, index) => [c.invoice.id, ['200.00', '300.00'][index], '1-30', `#invoices/${c.invoice.id}`]))
-  }
-  await assertCheckoutMoney(payOwner)
-  const payBefore = await payOwner.get('/api/glove/export')
-  const sourceActivity = await payOwner.get('/api/glove/activity')
-  for (const [index, kinds] of [[0, ['payment.requested', 'payment.checkoutAccepted', 'payment.paid']], [1, ['payment.requested', 'payment.checkoutAccepted', 'payment.pending']], [2, ['payment.requested', 'payment.checkoutUnconfirmed']]]) {
-    for (const kind of kinds) {
-      const e = sourceActivity.events.find(e => e.subjectId === checkoutCases[index].payment.id && e.kind === kind)
-      assert.ok(e, `${kind} appears in Activity for the selected payment`)
-      assert.equal(e.actorRole, kind === 'payment.requested' ? 'owner' : 'provider')
-      assert.ok(e.actorId && e.actorName && e.commandId && e.at && e.summary)
-      const exported = payBefore.timeline.find(row => row.id === e.id)
-      assert.deepEqual([exported.actor_id, exported.actor_name, exported.at, exported.summary], [e.actorId, e.actorName, e.at, e.summary])
+    const payCard = await enroll(payOwner)
+    let payJob = await payOwner.cmd('job.create', { customerId: payCustomer.id, siteId: paySite.id, title: 'Portable monthly permission', lines: [{ description: 'Maintenance', quantity: '1', unitPrice: '240.00', tax: 'FREE' }] })
+    payJob = await payOwner.cmd('series.create', { jobId: payJob.id, version: payJob.version, date: '2025-01-01', rule: { unit: 'month' }, technicianId: payTech.id, start: '10:00', end: '11:00', horizonDays: 90, until: '2025-02-28', billing: { mode: 'fixed-monthly', autoApprove: true } })
+    const permission = { jobId: payJob.id, cardId: payCard.id, maxAmount: '240.00', source: 'synthetic-glove-84', wording: 'First monthly permission exact wording.', confirmed: true }
+    payJob = await payOwner.cmd('payment.autopayAuthorize', { ...permission, version: payJob.version })
+    payJob = await payOwner.cmd('payment.autopayRevoke', { jobId: payJob.id, version: payJob.version, reason: 'synthetic-glove-85 withdrawal' })
+    payJob = await payOwner.cmd('payment.autopayAuthorize', { ...permission, version: payJob.version, source: 'synthetic-glove-86', wording: 'Replacement monthly permission exact wording.' })
+    const payHistory = structuredClone(payJob.series.billing.autopayHistory)
+    await fixtureClock('2025-03-01T12:00:00Z')
+    await payOwner.cmd('series.billingRun', {})
+    const payInvoices = (await payOwner.get('/api/glove/state')).invoices.filter(i => i.jobId === payJob.id).sort((a, b) => a.recurring.periodEnd.localeCompare(b.recurring.periodEnd))
+    assert.equal(payInvoices.length, 2)
+    assert.equal(await providerPosts(), 0, 'billing never invokes preparatory collection')
+    const chargePayload = invoice => ({ invoiceId: invoice.id, version: invoice.version, cardId: payCard.id, amount: '240.00', confirmed: true })
+    const pending = await payOwner.cmd('payment.autopayCharge', chargePayload(payInvoices[0]))
+    assert.equal(await providerPosts(), 1)
+    // PAY-002: create real approved invoices and reserve through the public door.
+    // Stripe alone simulates settlement, pending ACH and a lost Checkout response.
+    const checkoutCases = []
+    for (const [index, amount, method, outcome] of [[0, '100.00', 'card', 'succeeded'], [1, '200.00', 'ach', 'processing'], [2, '300.00', 'card', 'unknown']]) {
+      const work = await payOwner.cmd('job.create', { customerId: payCustomer.id, siteId: paySite.id, title: `Portable Checkout ${outcome}`, lines: [{ description: 'Synthetic repair', quantity: '1', unitPrice: amount, tax: 'FREE' }] })
+      const visit = await payOwner.cmd('visit.book', { jobId: work.id, technicianId: payTech.id, date: '2025-03-01', start: `${14 + index}:00`, end: `${15 + index}:00` })
+      await payMember.cmd('visit.arrive', { visitId: visit.id, deviceTime: visit.startAt })
+      await payMember.cmd('visit.complete', { visitId: visit.id, deviceTime: visit.endAt, summary: 'Synthetic repair complete', signoff: { absentReason: 'Customer away' } })
+      let invoice = await payOwner.cmd('invoice.prepare', { jobId: work.id })
+      invoice = await payOwner.cmd('invoice.approve', { invoiceId: invoice.id, version: invoice.version, revision: 1 })
+      const commandId = randomUUID(), payload = { invoiceId: invoice.id, version: invoice.version, method }
+      await running.request('/__portable/stripe', 'POST', { checkoutResponseLost: outcome === 'unknown' })
+      const payment = await payOwner.cmd('payment.checkout', payload, commandId)
+      if (outcome === 'unknown') assert.equal(payment.checkoutUrl, undefined)
+      else assert.match(payment.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//)
+      checkoutCases.push({ invoice, payment, commandId, payload })
     }
+    const postSettlement = async (checkout, secret = 'synthetic-glove-82') => {
+      const at = Date.parse('2025-03-01T12:00:00Z') / 1000
+      const body = { id: `synthetic-glove-event-${checkout.paymentId}`, created: at, type: checkout.intent.status === 'succeeded' ? 'payment_intent.succeeded' : 'payment_intent.processing', data: { object: checkout.intent } }
+      const signature = createHmac('sha256', secret).update(`${at}.${JSON.stringify(body)}`).digest('hex')
+      return running.request('/api/glove/payments/events', 'POST', body, '', { 'stripe-signature': `t=${at},v1=${signature}` })
+    }
+    for (const [index, outcome] of [[0, 'succeeded'], [1, 'processing']]) {
+      const response = await running.request('/__portable/stripe', 'POST', { paymentId: checkoutCases[index].payment.id, outcome })
+      const checkout = (await response.json()).checkouts[index]
+      assert.equal((await postSettlement(checkout)).status, 200)
+      assert.equal((await postSettlement(checkout)).status, 200, 'authenticated replay does not duplicate a financial effect')
+    }
+    const stripeSource = await (await running.request('/__portable/stripe')).json()
+    assert.equal(stripeSource.checkouts.length, 3)
+    assert.equal(await providerPosts(), 4, 'one saved-card request and three Checkout attempts')
+    const assertCheckoutMoney = async owner => {
+      const state = await owner.get('/api/glove/state'), balances = await owner.get('/api/glove/balances')
+      for (const [index, status, due, net, effects] of [[0, 'paid', '0.00', 0, 10000], [1, 'pending', '200.00', 20000, 0], [2, 'reserved', '300.00', 30000, 0]]) {
+        const payment = state.payments.find(p => p.id === checkoutCases[index].payment.id)
+        assert.equal(payment.status, status)
+        assert.equal(payment.amount, ['100.00', '200.00', '300.00'][index])
+        assert.equal(payment.effects.reduce((sum, e) => sum + e.amountCents, 0), effects)
+        assert.equal(payment.effects.length, index === 0 ? 1 : 0, 'only confirmed funds have one financial effect')
+        const balance = balances.invoices.find(i => i.id === checkoutCases[index].invoice.id)
+        assert.deepEqual([balance.due, balance.netCents], [due, net])
+      }
+      assert.equal(balances.customers.find(c => c.customerId === payCustomer.id).balance, '980.00')
+      const aging = await owner.get('/api/glove/reports/receivables.json?asOf=2025-03-20')
+      const rows = aging.customers.flatMap(c => c.invoices).filter(i => checkoutCases.some(c => c.invoice.id === i.id))
+      assert.deepEqual(rows.map(i => [i.id, i.balance, i.bucket, i.href]), checkoutCases.slice(1).map((c, index) => [c.invoice.id, ['200.00', '300.00'][index], '1-30', `#invoices/${c.invoice.id}`]))
+    }
+    await assertCheckoutMoney(payOwner)
+    const payBefore = await payOwner.get('/api/glove/export')
+    const sourceActivity = await payOwner.get('/api/glove/activity')
+    for (const [index, kinds] of [[0, ['payment.requested', 'payment.checkoutAccepted', 'payment.paid']], [1, ['payment.requested', 'payment.checkoutAccepted', 'payment.pending']], [2, ['payment.requested', 'payment.checkoutUnconfirmed']]]) {
+      for (const kind of kinds) {
+        const e = sourceActivity.events.find(e => e.subjectId === checkoutCases[index].payment.id && e.kind === kind)
+        assert.ok(e, `${kind} appears in Activity for the selected payment`)
+        assert.equal(e.actorRole, kind === 'payment.requested' ? 'owner' : 'provider')
+        assert.ok(e.actorId && e.actorName && e.commandId && e.at && e.summary)
+        const exported = payBefore.timeline.find(row => row.id === e.id)
+        assert.deepEqual([exported.actor_id, exported.actor_name, exported.at, exported.summary], [e.actorId, e.actorName, e.at, e.summary])
+      }
+    }
+    assert.doesNotMatch(JSON.stringify(payBefore), /checkout\.stripe\.com|synthetic-glove-session-|synthetic-glove-8[12]/)
+    await running.close(); running = null
+    const paymentArchive = join(parent, 'payment-history.rer')
+    await command(paySource, ['export', '--output', paymentArchive])
+    assert.equal(stripePosts.get('payment-source'), 4, 'export does not make another provider request')
+    const paymentBytes = await readFile(paymentArchive)
+    const paymentManifest = JSON.parse(paymentBytes.toString('utf8').split('\n')[0])
+    assert.ok(!paymentManifest.tables.some(t => ['glove_provider_keys', 'glove_payment_attempts'].includes(t.name)), 'archive contains neither payment credentials nor execution reservations')
+    for (const secret of ['synthetic-glove-81', 'synthetic-glove-82', ...stripeSource.checkouts.flatMap(c => [c.sessionId, c.url])]) assert.ok(!paymentBytes.includes(Buffer.from(secret)), 'payment credentials are absent from the archive')
+    await command(payDestination, ['import', '--input', paymentArchive, '--yes'])
+    assert.equal(stripePosts.get('payment-destination') ?? 0, 0, 'actual import makes no provider POST')
+    running = await install(payDestination)
+    const restoredOwner = running.owner
+    await fixtureClock('2025-03-01T12:00:00Z')
+    assert.equal((await running.request('/api/glove/state', 'GET', undefined, payOwner.cookie)).status, 401)
+    assert.equal(await providerPosts(), 0, 'import and setup do not charge')
+    const payAfter = await restoredOwner.get('/api/glove/export')
+    assert.deepEqual(payAfter.jobs.find(j => j.id === payJob.id).series.billing.autopayHistory, payHistory)
+    assert.deepEqual(payAfter.payments.find(p => p.id === pending.id), payBefore.payments.find(p => p.id === pending.id))
+    assert.deepEqual(payAfter.timeline, payBefore.timeline, 'attributable permission and provider history survive')
+    await assertCheckoutMoney(restoredOwner)
+    for (const c of checkoutCases) {
+      assert.deepEqual(payAfter.payments.find(p => p.id === c.payment.id), payBefore.payments.find(p => p.id === c.payment.id))
+      const replay = await restoredOwner.cmd('payment.checkout', c.payload, c.commandId)
+      assert.equal(replay.id, c.payment.id)
+      assert.equal(replay.checkoutUrl, undefined, 'a restored saved outcome never reissues its bearer')
+      const timeline = await restoredOwner.get(`/api/glove/payments/${c.payment.id}/timeline`)
+      assert.ok(timeline.events.some(e => e.kind === 'payment.requested' && e.actorRole === 'owner'))
+    }
+    assert.equal(await providerPosts(), 0, 'restored command replay never calls Stripe')
+    assert.equal((await postSettlement(stripeSource.checkouts[0])).status, 404, 'old provider credentials are not restored')
+    const refusedCheckout = async (c, code) => {
+      const before = await restoredOwner.get('/api/glove/balances'), posts = await providerPosts()
+      const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'payment.checkout', payload: c.payload }, restoredOwner.cookie)
+      assert.equal((await response.json()).error.code, code)
+      assert.equal(await providerPosts(), posts)
+      assert.deepEqual(await restoredOwner.get('/api/glove/balances'), before)
+    }
+    await refusedCheckout(checkoutCases[1], 'PAYMENT_SETUP')
+    const refuseCharge = async (payload, code, message) => {
+      const before = await restoredOwner.get('/api/glove/balances'), posts = await providerPosts()
+      const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'payment.autopayCharge', payload }, restoredOwner.cookie)
+      const body = await response.json()
+      assert.equal(body.error.code, code)
+      if (message) assert.equal(body.error.message, message)
+      assert.equal(await providerPosts(), posts)
+      assert.deepEqual(await restoredOwner.get('/api/glove/balances'), before)
+    }
+    await refuseCharge(chargePayload(payInvoices[1]), 'PAYMENT_SETUP')
+    await restoredOwner.cmd('payment.connect', { version: payAfter.business[0].version, mode: 'test', key: 'synthetic-glove-87', webhookSecret: 'synthetic-glove-88' })
+    await running.request('/__portable/stripe', 'POST', { intent: stripeSource.checkouts[0].intent })
+    assert.equal((await postSettlement(stripeSource.checkouts[0])).status, 401, 'old signature cannot authenticate after reconnection')
+    assert.equal((await postSettlement(stripeSource.checkouts[0], 'synthetic-glove-88')).status, 200)
+    for (const c of checkoutCases.slice(1)) await refusedCheckout(c, 'PAYMENT_PENDING')
+    await refusedCheckout(checkoutCases[0], 'PAID')
+    await assertCheckoutMoney(restoredOwner)
+    await restoredOwner.cmd('series.billingRun', {})
+    assert.equal(await providerPosts(), 0, 'reconnection and scheduled billing restore no automatic execution')
+    await refuseCharge(chargePayload(payInvoices[1]), 'SAVED_CARD')
+    const freshCard = await enroll(restoredOwner)
+    await refuseCharge({ ...chargePayload(payInvoices[1]), cardId: freshCard.id }, 'CARD_AUTHORIZATION', 'Fresh customer permission is required for this card and billing rule')
+    payJob = (await restoredOwner.get('/api/glove/state')).jobs.find(j => j.id === payJob.id)
+    payJob = await restoredOwner.cmd('payment.autopayRevoke', { jobId: payJob.id, version: payJob.version, reason: 'Fresh installation requires fresh permission' })
+    payJob = await restoredOwner.cmd('payment.autopayAuthorize', { ...permission, cardId: freshCard.id, version: payJob.version })
+    await refuseCharge({ ...chargePayload(payInvoices[1]), cardId: freshCard.id, confirmed: false }, 'CONSENT')
+    assert.equal(await providerPosts(), 0, 'fresh card and permission still require explicit invoice confirmation')
+    await restoredOwner.cmd('payment.autopayCharge', { ...chargePayload(payInvoices[1]), cardId: freshCard.id })
+    assert.equal(await providerPosts(), 1, 'a new explicit confirmation permits one current test request')
+    const erasedCustomer = (await restoredOwner.get('/api/glove/state')).customers.find(c => c.id === payCustomer.id)
+    const erasePreview = await restoredOwner.cmd('privacy.preview', { customerId: erasedCustomer.id, version: erasedCustomer.version })
+    await restoredOwner.cmd('privacy.erase', { customerId: erasedCustomer.id, version: erasedCustomer.version, confirm: 'ERASE', fingerprint: erasePreview.fingerprint })
+    const anonymousPayments = await restoredOwner.get('/api/glove/export')
+    assert.equal(anonymousPayments.jobs.find(j => j.id === payJob.id).series, undefined)
+    const anonymousText = JSON.stringify(anonymousPayments)
+    assert.doesNotMatch(anonymousText, /Synthetic payment customer|synthetic-glove-intent-|synthetic-glove-portable-charge|synthetic-glove-session-|checkout\.stripe\.com/)
+    for (const c of checkoutCases) {
+      const anonymous = anonymousPayments.payments.find(p => p.id === c.payment.id)
+      assert.ok(anonymous.erasedAt)
+      assert.equal(anonymous.intentId, undefined)
+      assert.equal(anonymous.providerReference, undefined)
+      assert.equal(anonymous.by, undefined)
+      assert.equal(anonymous.effects.reduce((sum, e) => sum + e.amountCents, 0), c === checkoutCases[0] ? 10000 : 0)
+      const replay = await running.request('/api/glove/commands', 'POST', { commandId: c.commandId, type: 'payment.checkout', payload: c.payload }, restoredOwner.cookie)
+      assert.equal((await replay.json()).error.code, 'ERASED')
+    }
+    assert.equal(await providerPosts(), 1, 'erasure and replay cause no additional provider attempt')
+    assert.ok(!anonymousText.includes(permission.wording))
+    assert.ok(!JSON.stringify(anonymousPayments).includes('Replacement monthly permission exact wording.'))
+    await running.close(); running = null
+    const paymentJournal = join(parent, 'payment-erasure.rer')
+    await command(payDestination, ['export', '--output', paymentJournal])
+    const payOlder = await copy('payment-older')
+    await cp(paymentJournal, join(payOlder, 'payment-erasure.rer'))
+    await assert.rejects(command(payOlder, ['import', '--input', paymentArchive, '--journal', 'payment-erasure.rer', '--yes']), /erasure_epoch/, 'later trusted erasure journal refuses old permission evidence')
+    await command(payOlder, ['import', '--input', paymentJournal, '--yes'])
+    running = await install(payOlder)
+    assert.equal((await running.request('/api/glove/state', 'GET', undefined, restoredOwner.cookie)).status, 401, 'the later archive also restores no prior sign-in')
+    const fenced = await running.owner.get('/api/glove/export')
+    assert.equal(fenced.customers.find(c => c.id === payCustomer.id).savedCards, undefined)
+    assert.equal(fenced.jobs.find(j => j.id === payJob.id).series, undefined)
+    assert.ok(!JSON.stringify(fenced).includes(permission.wording))
+    assert.doesNotMatch(JSON.stringify(fenced), /Synthetic payment customer|synthetic-glove-intent-|synthetic-glove-portable-charge|synthetic-glove-session-|checkout\.stripe\.com/)
+    for (const c of checkoutCases) {
+      const payment = fenced.payments.find(p => p.id === c.payment.id)
+      assert.ok(payment.erasedAt)
+      assert.equal(payment.amount, c.payment.amount)
+      assert.equal(payment.effects.reduce((sum, e) => sum + e.amountCents, 0), c === checkoutCases[0] ? 10000 : 0)
+      const replay = await running.request('/api/glove/commands', 'POST', { commandId: c.commandId, type: 'payment.checkout', payload: c.payload }, running.owner.cookie)
+      assert.equal((await replay.json()).error.code, 'ERASED', 'the trusted later journal preserves erasure of saved Checkout outcomes')
+    }
+    assert.deepEqual((await running.owner.get('/api/glove/export')).payments, fenced.payments, 'replaying erased outcomes changes no retained financial record')
+    assert.equal(await providerPosts(), 0)
+    console.log('PAY-002 real archive passed: confirmed funds, pending ACH, uncertain reservations, balances, aging and attributable history retained; keys and private Checkout material excluded; sessions, replay, reconnection and later-erasure journal fenced')
+    console.log('PAY-008 real archive passed: distinct permission history retained, credentials absent, reconnection grants no authority, fresh confirmation required, later erasure journal fences old evidence')
   }
-  assert.doesNotMatch(JSON.stringify(payBefore), /checkout\.stripe\.com|synthetic-glove-session-|synthetic-glove-8[12]/)
-  await running.close(); running = null
-  const paymentArchive = join(parent, 'payment-history.rer')
-  await command(paySource, ['export', '--output', paymentArchive])
-  assert.equal(stripePosts.get('payment-source'), 4, 'export does not make another provider request')
-  const paymentBytes = await readFile(paymentArchive)
-  const paymentManifest = JSON.parse(paymentBytes.toString('utf8').split('\n')[0])
-  assert.ok(!paymentManifest.tables.some(t => ['glove_provider_keys', 'glove_payment_attempts'].includes(t.name)), 'archive contains neither payment credentials nor execution reservations')
-  for (const secret of ['synthetic-glove-81', 'synthetic-glove-82', ...stripeSource.checkouts.flatMap(c => [c.sessionId, c.url])]) assert.ok(!paymentBytes.includes(Buffer.from(secret)), 'payment credentials are absent from the archive')
-  await command(payDestination, ['import', '--input', paymentArchive, '--yes'])
-  assert.equal(stripePosts.get('payment-destination') ?? 0, 0, 'actual import makes no provider POST')
-  running = await install(payDestination)
-  const restoredOwner = running.owner
-  await fixtureClock('2025-03-01T12:00:00Z')
-  assert.equal((await running.request('/api/glove/state', 'GET', undefined, payOwner.cookie)).status, 401)
-  assert.equal(await providerPosts(), 0, 'import and setup do not charge')
-  const payAfter = await restoredOwner.get('/api/glove/export')
-  assert.deepEqual(payAfter.jobs.find(j => j.id === payJob.id).series.billing.autopayHistory, payHistory)
-  assert.deepEqual(payAfter.payments.find(p => p.id === pending.id), payBefore.payments.find(p => p.id === pending.id))
-  assert.deepEqual(payAfter.timeline, payBefore.timeline, 'attributable permission and provider history survive')
-  await assertCheckoutMoney(restoredOwner)
-  for (const c of checkoutCases) {
-    assert.deepEqual(payAfter.payments.find(p => p.id === c.payment.id), payBefore.payments.find(p => p.id === c.payment.id))
-    const replay = await restoredOwner.cmd('payment.checkout', c.payload, c.commandId)
-    assert.equal(replay.id, c.payment.id)
-    assert.equal(replay.checkoutUrl, undefined, 'a restored saved outcome never reissues its bearer')
-    const timeline = await restoredOwner.get(`/api/glove/payments/${c.payment.id}/timeline`)
-    assert.ok(timeline.events.some(e => e.kind === 'payment.requested' && e.actorRole === 'owner'))
-  }
-  assert.equal(await providerPosts(), 0, 'restored command replay never calls Stripe')
-  assert.equal((await postSettlement(stripeSource.checkouts[0])).status, 404, 'old provider credentials are not restored')
-  const refusedCheckout = async (c, code) => {
-    const before = await restoredOwner.get('/api/glove/balances'), posts = await providerPosts()
-    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'payment.checkout', payload: c.payload }, restoredOwner.cookie)
-    assert.equal((await response.json()).error.code, code)
-    assert.equal(await providerPosts(), posts)
-    assert.deepEqual(await restoredOwner.get('/api/glove/balances'), before)
-  }
-  await refusedCheckout(checkoutCases[1], 'PAYMENT_SETUP')
-  const refuseCharge = async (payload, code, message) => {
-    const before = await restoredOwner.get('/api/glove/balances'), posts = await providerPosts()
-    const response = await running.request('/api/glove/commands', 'POST', { commandId: randomUUID(), type: 'payment.autopayCharge', payload }, restoredOwner.cookie)
-    const body = await response.json()
-    assert.equal(body.error.code, code)
-    if (message) assert.equal(body.error.message, message)
-    assert.equal(await providerPosts(), posts)
-    assert.deepEqual(await restoredOwner.get('/api/glove/balances'), before)
-  }
-  await refuseCharge(chargePayload(payInvoices[1]), 'PAYMENT_SETUP')
-  await restoredOwner.cmd('payment.connect', { version: payAfter.business[0].version, mode: 'test', key: 'synthetic-glove-87', webhookSecret: 'synthetic-glove-88' })
-  await running.request('/__portable/stripe', 'POST', { intent: stripeSource.checkouts[0].intent })
-  assert.equal((await postSettlement(stripeSource.checkouts[0])).status, 401, 'old signature cannot authenticate after reconnection')
-  assert.equal((await postSettlement(stripeSource.checkouts[0], 'synthetic-glove-88')).status, 200)
-  for (const c of checkoutCases.slice(1)) await refusedCheckout(c, 'PAYMENT_PENDING')
-  await refusedCheckout(checkoutCases[0], 'PAID')
-  await assertCheckoutMoney(restoredOwner)
-  await restoredOwner.cmd('series.billingRun', {})
-  assert.equal(await providerPosts(), 0, 'reconnection and scheduled billing restore no automatic execution')
-  await refuseCharge(chargePayload(payInvoices[1]), 'SAVED_CARD')
-  const freshCard = await enroll(restoredOwner)
-  await refuseCharge({ ...chargePayload(payInvoices[1]), cardId: freshCard.id }, 'CARD_AUTHORIZATION', 'Fresh customer permission is required for this card and billing rule')
-  payJob = (await restoredOwner.get('/api/glove/state')).jobs.find(j => j.id === payJob.id)
-  payJob = await restoredOwner.cmd('payment.autopayRevoke', { jobId: payJob.id, version: payJob.version, reason: 'Fresh installation requires fresh permission' })
-  payJob = await restoredOwner.cmd('payment.autopayAuthorize', { ...permission, cardId: freshCard.id, version: payJob.version })
-  await refuseCharge({ ...chargePayload(payInvoices[1]), cardId: freshCard.id, confirmed: false }, 'CONSENT')
-  assert.equal(await providerPosts(), 0, 'fresh card and permission still require explicit invoice confirmation')
-  await restoredOwner.cmd('payment.autopayCharge', { ...chargePayload(payInvoices[1]), cardId: freshCard.id })
-  assert.equal(await providerPosts(), 1, 'a new explicit confirmation permits one current test request')
-  const erasedCustomer = (await restoredOwner.get('/api/glove/state')).customers.find(c => c.id === payCustomer.id)
-  const erasePreview = await restoredOwner.cmd('privacy.preview', { customerId: erasedCustomer.id, version: erasedCustomer.version })
-  await restoredOwner.cmd('privacy.erase', { customerId: erasedCustomer.id, version: erasedCustomer.version, confirm: 'ERASE', fingerprint: erasePreview.fingerprint })
-  const anonymousPayments = await restoredOwner.get('/api/glove/export')
-  assert.equal(anonymousPayments.jobs.find(j => j.id === payJob.id).series, undefined)
-  const anonymousText = JSON.stringify(anonymousPayments)
-  assert.doesNotMatch(anonymousText, /Synthetic payment customer|synthetic-glove-intent-|synthetic-glove-portable-charge|synthetic-glove-session-|checkout\.stripe\.com/)
-  for (const c of checkoutCases) {
-    const anonymous = anonymousPayments.payments.find(p => p.id === c.payment.id)
-    assert.ok(anonymous.erasedAt)
-    assert.equal(anonymous.intentId, undefined)
-    assert.equal(anonymous.providerReference, undefined)
-    assert.equal(anonymous.by, undefined)
-    assert.equal(anonymous.effects.reduce((sum, e) => sum + e.amountCents, 0), c === checkoutCases[0] ? 10000 : 0)
-    const replay = await running.request('/api/glove/commands', 'POST', { commandId: c.commandId, type: 'payment.checkout', payload: c.payload }, restoredOwner.cookie)
-    assert.equal((await replay.json()).error.code, 'ERASED')
-  }
-  assert.equal(await providerPosts(), 1, 'erasure and replay cause no additional provider attempt')
-  assert.ok(!anonymousText.includes(permission.wording))
-  assert.ok(!JSON.stringify(anonymousPayments).includes('Replacement monthly permission exact wording.'))
-  await running.close(); running = null
-  const paymentJournal = join(parent, 'payment-erasure.rer')
-  await command(payDestination, ['export', '--output', paymentJournal])
-  const payOlder = await copy('payment-older')
-  await cp(paymentJournal, join(payOlder, 'payment-erasure.rer'))
-  await assert.rejects(command(payOlder, ['import', '--input', paymentArchive, '--journal', 'payment-erasure.rer', '--yes']), /erasure_epoch/, 'later trusted erasure journal refuses old permission evidence')
-  await command(payOlder, ['import', '--input', paymentJournal, '--yes'])
-  running = await install(payOlder)
-  assert.equal((await running.request('/api/glove/state', 'GET', undefined, restoredOwner.cookie)).status, 401, 'the later archive also restores no prior sign-in')
-  const fenced = await running.owner.get('/api/glove/export')
-  assert.equal(fenced.customers.find(c => c.id === payCustomer.id).savedCards, undefined)
-  assert.equal(fenced.jobs.find(j => j.id === payJob.id).series, undefined)
-  assert.ok(!JSON.stringify(fenced).includes(permission.wording))
-  assert.doesNotMatch(JSON.stringify(fenced), /Synthetic payment customer|synthetic-glove-intent-|synthetic-glove-portable-charge|synthetic-glove-session-|checkout\.stripe\.com/)
-  for (const c of checkoutCases) {
-    const payment = fenced.payments.find(p => p.id === c.payment.id)
-    assert.ok(payment.erasedAt)
-    assert.equal(payment.amount, c.payment.amount)
-    assert.equal(payment.effects.reduce((sum, e) => sum + e.amountCents, 0), c === checkoutCases[0] ? 10000 : 0)
-    const replay = await running.request('/api/glove/commands', 'POST', { commandId: c.commandId, type: 'payment.checkout', payload: c.payload }, running.owner.cookie)
-    assert.equal((await replay.json()).error.code, 'ERASED', 'the trusted later journal preserves erasure of saved Checkout outcomes')
-  }
-  assert.deepEqual((await running.owner.get('/api/glove/export')).payments, fenced.payments, 'replaying erased outcomes changes no retained financial record')
-  assert.equal(await providerPosts(), 0)
-  console.log('PAY-002 real archive passed: confirmed funds, pending ACH, uncertain reservations, balances, aging and attributable history retained; keys and private Checkout material excluded; sessions, replay, reconnection and later-erasure journal fenced')
-  console.log('PAY-008 real archive passed: distinct permission history retained, credentials absent, reconnection grants no authority, fresh confirmation required, later erasure journal fences old evidence')
-  console.log('Glove portability passed: export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore')
+  console.log(`Glove portability passed (${parts.join(', ')}): export, import into a fresh checkout, identical records, timeline, photo bytes and move-in journal, and undo after restore`)
 } finally {
   if (running) await running.close().catch(() => {})
   for (const proc of children) if (proc.exitCode === null) proc.kill('SIGTERM')

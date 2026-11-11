@@ -1,5 +1,7 @@
 import { readD1ImportOriginals, planD1Import, createD1ImportJob, applyD1ImportBatches, undoD1Import, canonicalJson, sha256, type D1TargetAdapter, type D1ImportContext, type D1Sql, type TargetRow, type ImportPlan, type SourceBundle, type ImportMapping } from '../../modules/import-kit/src/d1/index'
 import { authority } from '../access'
+import { load } from '../storage'
+import { recordChanges, type RecordChange } from '../timeline'
 import { duplicatesOf } from '../duplicates'
 import { fail, text, find, expectVersion, put, bump, event, newId, business, collections, type Context, type Row, type Collection, type State } from '../model'
 import { readBundle, mapping, MAPPING_VERSION, NAMESPACE, JOB_TARGET } from './servicem8'
@@ -294,7 +296,7 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
     if (batch.status !== 'previewed') fail('IMPORT_STATE', `This ${noun(batch).toLowerCase()} is ${batch.status}.`)
     if (p.fingerprint !== batch.preview.fingerprint) fail('IMPORT_REVIEW', 'Confirm the exact preview you reviewed (its fingerprint).', { fingerprint: batch.preview.fingerprint })
     const jobId = await applyMoveIn(db, batch, guard, batch.preview.fingerprint, c.s)
-    return { batch, jobId, summary: committedSummary(batch) }
+    return { batch, jobId, summary: committedSummary(batch), changes: recordChanges(c.s, await load(db)) }
   }
   if (batch.status !== 'committed' && batch.status !== 'undoing') fail('IMPORT_STATE', `Only a committed import can be undone; this one is ${batch.status}.`)
   const blocking = await dependents(db, c, batch)
@@ -318,7 +320,7 @@ export async function journal(db: D1Database, c: Context, type: 'import.commit' 
     throw error
   }
   if (done.state !== 'undone') fail('IMPORT_INCOMPLETE', 'Undo has not finished; run the same undo again to resume it.', { state: done.state })
-  return { batch, jobId: batch.jobId, summary: `${noun(batch)} undone: ${reason}`, reason }
+  return { batch, jobId: batch.jobId, summary: `${noun(batch)} undone: ${reason}`, reason, changes: recordChanges(c.s, await load(db)) }
 }
 
 export const committedSummary = (batch: Row) => batch.system === 'CSV'
@@ -326,12 +328,12 @@ export const committedSummary = (batch: Row) => batch.system === 'CSV'
   : `${batch.system} move-in committed: ${batch.preview.counts.input} source records journaled (${batch.preview.alreadyMovedIn} already moved in earlier and left as they were); every record keeps its ${batch.system} ID`
 
 /** After the journal ran: the batch record and its timeline event, committed normally. */
-export function settle(c: Context, type: 'import.commit' | 'import.undo', outcome: { batch: Row; jobId: string; summary: string; reason?: string }) {
+export function settle(c: Context, type: 'import.commit' | 'import.undo', outcome: { batch: Row; jobId: string; summary: string; reason?: string; changes: RecordChange[] }) {
   const batch = find(c.s, 'imports', outcome.batch.id)
   // The column mapping a committed CSV used is remembered for the next file (CUST-003).
   if (type === 'import.commit' && batch.system === 'CSV') bump(c.s, 'business', business(c.s), { csvMapping: batch.mapping })
   const row = bump(c.s, 'imports', batch, type === 'import.commit' ? { status: 'committed', jobId: outcome.jobId, committedAt: c.now, committedBy: { id: c.actor.id, name: c.actor.name } } : { status: 'undone', undoneAt: c.now, undoneBy: { id: c.actor.id, name: c.actor.name }, undoReason: outcome.reason })
-  event(c, { jobId: null, subjectKind: 'import', subjectId: row.id, kind: type === 'import.commit' ? 'import.committed' : 'import.undone', summary: outcome.summary, data: { importJob: outcome.jobId } })
+  event(c, { jobId: null, subjectKind: 'import', subjectId: row.id, kind: type === 'import.commit' ? 'import.committed' : 'import.undone', summary: outcome.summary, data: { importJob: outcome.jobId, recordChanges: outcome.changes } })
   const { files: _files, ...visible } = row
   return visible
 }
