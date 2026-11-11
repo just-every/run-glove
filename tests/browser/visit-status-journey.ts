@@ -1,3 +1,4 @@
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute } from './harness-route'
 import { expect } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { technicianPhoto } from '../fixtures/document-images.mjs'
@@ -17,10 +18,10 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       globalThis.Date = new Proxy(NativeDate, { construct(target, args) { return Reflect.construct(target, args.length ? args : [instant]) }, get(target, property) { return property === 'now' ? () => instant : Reflect.get(target, property) } })
     }, at)
     if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-    try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
-    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
+    try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+    if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
     let acting = h.owner()
-    await context.route(`${origin}/api/glove/**`, async route => {
+    await harnessRoute(context, `${origin}/api/glove/**`, async route => {
       const request = route.request(), url = new URL(request.url()), publicRead = url.pathname.startsWith('/api/glove/public/')
       const response = await h.request(url.pathname + url.search, { method: request.method(), as: publicRead ? '' : acting, headers: publicRead ? { authorization: request.headers().authorization ?? '' } : {}, ...(request.postData() ? { body: JSON.parse(request.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
@@ -29,7 +30,7 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       if (process.env.GLOVE_SCREENSHOTS) { await mkdir(process.env.GLOVE_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: join(process.env.GLOVE_SCREENSHOTS, `${width}-visit-status-${name}.png`), fullPage: false }) }
     }
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     const settings = page.getByRole('region', { name: 'Visit status texts', exact: true })
     await settings.getByText('Edit visit status settings', { exact: true }).click()
     await settings.getByLabel('Allow the assigned technician to send an on-my-way text', { exact: true }).check()
@@ -55,7 +56,7 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
         await b.priyaPerson.run('timer.start', { visitId: currentVisit.id, kind: 'travel', deviceTime: at })
         await b.priyaPerson.run('location.phone', { lat: 41.89, lng: -87.63, observedAt: at })
       }
-      await page.setViewportSize({ width, height: 1050 }); await page.goto(`${origin}/app?job=${currentJob.id}`)
+      await page.setViewportSize({ width, height: 1050 }); await gotoHarness(page, `${origin}/app?job=${currentJob.id}`)
       const portraitSettings = page.getByRole('region', { name: 'Your customer photo', exact: true })
       await portraitSettings.getByLabel('Your photo', { exact: true }).setInputFiles({ name: 'priya.png', mimeType: 'image/png', buffer: Buffer.from(technicianPhoto, 'base64') })
       await portraitSettings.getByRole('checkbox').check()
@@ -72,10 +73,10 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       await shot(width, 'on-my-way')
       const photoToken = /\/technician-photo#token=(gtp_[\w-]+)/.exec(text.body)?.[1]
       expect(photoToken).toBeTruthy()
-      await page.goto(`${origin}/technician-photo#token=${photoToken}`)
+      await gotoHarness(page, `${origin}/technician-photo#token=${photoToken}`)
       await expect(page.getByRole('img', { name: 'Your technician, Priya', exact: true })).toBeVisible()
       await shot(width, 'received-technician-photo')
-      await page.goto(`${origin}/app?job=${currentJob.id}`)
+      await gotoHarness(page, `${origin}/app?job=${currentJob.id}`)
       const arrived = page.waitForResponse(r => r.url().endsWith('/api/glove/commands') && r.request().postDataJSON().type === 'visit.arrive')
       await page.getByRole('button', { name: 'Record arrival', exact: true }).click()
       expect((await (await arrived).json()).ok).toBe(true)
@@ -83,7 +84,7 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       expect(([...h.twilio.messages.values()].at(-1) as any).body).toContain('Priya has arrived')
       await expect(page.getByText(/^Arrival recorded at/)).toBeVisible()
       await shot(width, 'arrival')
-      await page.goto(`${origin}/app?job=${currentJob.id}`)
+      await gotoHarness(page, `${origin}/app?job=${currentJob.id}`)
       await page.getByRole('button', { name: 'Complete visit', exact: true }).click()
       await page.getByLabel('Work done', { exact: true }).fill('Cleaned the coil and filters; cooling restored.')
       await page.getByLabel('The customer is not here to sign', { exact: true }).check()
@@ -96,12 +97,12 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       const delivered = await h.mf.dispatchFetch(callback.url, { method: callback.method, headers: Object.fromEntries(callback.headers), body: await callback.text() }); expect(delivered.status).toBe(200)
       const state = await h.state(), message = state.messages.find((m: any) => m.reportLinkId && m.subjectId === currentVisit.id)
       expect(state.messageStates[message.id].status).toBe('delivered')
-      await page.goto(`${origin}/report#token=${token}`)
+      await gotoHarness(page, `${origin}/report#token=${token}`)
       await expect(page.getByRole('article', { name: 'Service report' })).toContainText('Cleaned the coil and filters; cooling restored.')
       await shot(width, 'received-report')
       const tech = (await h.state()).technicians.find((t: any) => t.id === b.priya.id)
       await h.command('technician.save', { ...tech, active: false })
-      await page.goto(`${origin}/app`)
+      await gotoHarness(page, `${origin}/app`)
       const inactivePortrait = page.getByRole('region', { name: 'Your customer photo', exact: true })
       await expect(inactivePortrait.getByRole('button', { name: 'Save photo and consent', exact: true })).toBeDisabled()
       await inactivePortrait.getByRole('button', { name: 'Stop sharing and remove my photo', exact: true }).click()
@@ -110,5 +111,5 @@ export async function visitStatusBrowser(browser: import('@playwright/test').Bro
       expect((await h.request('/api/glove/public/technician-photo/image', { as: '', headers: { authorization: `Bearer ${photoToken}` } })).status).toBe(404)
       await h.command('technician.save', { ...(await h.state()).technicians.find((t: any) => t.id === b.priya.id), active: true })
     }
-  } finally { await context.close(); await h.close() }
+  } finally { await closeHarnessContext(context); await h.close() }
 }
