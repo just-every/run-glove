@@ -156,7 +156,7 @@
       "executable": false
     },
     "ACCEPTANCE.md": {
-      "sha256": "c1d35dc8c3e603a96c240984c92e619034ad96d783352fe3a13a25cb697a4fc8",
+      "sha256": "e008a266bc847e37c4ec9abb47e228972a72a0dc6104f2cedf708b6cd1fef03a",
       "executable": false
     },
     "agent-surface.json": {
@@ -188,7 +188,7 @@
       "executable": false
     },
     "CONTRACT.md": {
-      "sha256": "965339470d264320c5f83c18c40078dbf0333a5f9e30cebd5e94b0495bd2aa35",
+      "sha256": "9357c4decea4780a3b94beef21dc3d1380a97e941f2dcffbb9a6200949c42ee6",
       "executable": false
     },
     "DEMO.md": {
@@ -2188,7 +2188,7 @@
       "executable": false
     },
     "src/glove/locations.ts": {
-      "sha256": "72495b9c648f51d3661f9d4743033467798c07c0584c818424e5d93a03f40758",
+      "sha256": "171f73c42bd9be3961b80f83f40ad26eb42219b98e8566d2a0ea764a5db76aec",
       "executable": false
     },
     "src/glove/mail-callbacks.ts": {
@@ -5600,7 +5600,7 @@
       "executable": false
     },
     "tests/api/eligibility.test.mjs": {
-      "sha256": "6eb003f1e8327a8fbbbf6ac9e37a322efed47a75cba1e29f704c11b3eabf161f",
+      "sha256": "af99e3d018a27ec9c266d5cbf5a0c8f918ce6eac96aba2563c3aa5cabde933b9",
       "executable": false
     },
     "tests/api/email.test.mjs": {
@@ -5639,16 +5639,20 @@
       "sha256": "79dd49bc5f48a62a4bb2d0c263c790d78dfc661da9831f3f089f0b66478364b6",
       "executable": false
     },
+    "tests/api/installment-ledger.mjs": {
+      "sha256": "596a36393727e4965dab5652b002d0c836dfe0c1a4a939b1688813e31fa1bb94",
+      "executable": false
+    },
     "tests/api/instant-payouts.test.mjs": {
       "sha256": "d9063e6a159303adc31f33bd268e3625d35b20be77538783b563d89523063e05",
       "executable": false
     },
     "tests/api/lead-matching.test.mjs": {
-      "sha256": "baeee8c8dd4cf8649c67a5d66e67c2412d86c8823135cccaba981892bacd406a",
+      "sha256": "cabec0cb79f1947e306bd101f1052061f51526fecc823dd1dc3f30aaf5fe5382",
       "executable": false
     },
     "tests/api/live-locations.test.mjs": {
-      "sha256": "c37502f0609c2556e02f0ac77a1714af09303843ceba6819b9a91b8b1f16d1bd",
+      "sha256": "ce73c44af96a519e40c1d913fc9234179d0b54b5c01f3249889f9be2a251e63d",
       "executable": false
     },
     "tests/api/margins.test.mjs": {
@@ -5756,7 +5760,7 @@
       "executable": false
     },
     "tests/api/refunds.test.mjs": {
-      "sha256": "295364fa360ee1ce751f1273e43531057094b31bd5fa556cfc76efebd869d66c",
+      "sha256": "4d116ef275b8372166b04649f10dfef87980dc1951897e42bb274f3552df7b63",
       "executable": false
     },
     "tests/api/reminders.test.mjs": {
