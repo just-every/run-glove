@@ -105,7 +105,7 @@ export async function locationDelayWatch(db: D1Database, s: State, actor: Actor,
   const risks = delayWatch(s, actor, at)
   if (actor.role !== 'owner' || actor.token) return risks
   const dates = [...new Set(risks.map(r => s.visits.find(v => v.id === r.visitId)!.local.date))]
-  const byDate = new Map(await Promise.all(dates.map(async date => [date, await livePositions(db, s, date)] as const)))
+  const byDate = new Map(await Promise.all(dates.map(async date => [date, await livePositions(db, s, date, at)] as const)))
   const describe = (live: Awaited<ReturnType<typeof livePositions>>[number] | undefined) => live?.position ? `${live.position.source} position ${live.position.lat.toFixed(5)}, ${live.position.lng.toFixed(5)}; ${live.eta ? `ETA ${Math.ceil(live.eta.seconds / 60)} min drive` : 'ETA unavailable'}` : 'Location and ETA unavailable'
   return risks.map(r => {
     const date = s.visits.find(v => v.id === r.visitId)!.local.date, positions = byDate.get(date)!

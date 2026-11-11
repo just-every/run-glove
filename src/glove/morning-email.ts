@@ -48,7 +48,7 @@ export async function deliverMorningBrief(db: D1Database, at: string): Promise<D
     status = result.status; providerMessageId = result.providerMessageId ?? null; code = result.code ?? null
   } catch (error) { code = typeof (error as { code?: unknown })?.code === 'string' ? (error as { code: string }).code : 'invalid_message' }
   const said: Record<string, string> = { accepted: 'accepted the email; delivery is not yet reported', rejected: 'refused the email', rate_limited: 'is limiting sends and did not take the email', uncertain: 'did not confirm the email', development: 'suppressed the email (development mode)' }
-  await providerEvent(db, { id: `${id}:send`, at: new Date().toISOString(), commandId: id, provider: providerName(mail.provider), subjectKind: 'brief', subjectId: id, kind: `email.${status}`, summary: `${providerName(mail.provider)} ${said[status] ?? 'answered'} (the ${date} morning brief to ${owner})`, data: { date, provider: mail.provider, providerMessageId, status, code } }).run()
+  await providerEvent(db, { id: `${id}:send`, at: new Date().toISOString(), commandId: id, provider: providerName(mail.provider), subjectKind: 'brief', subjectId: id, kind: `email.${status}`, summary: `${providerName(mail.provider)} ${said[status] ?? 'answered'} (the ${date} morning brief to ${owner})${providerMessageId ? `. Provider reference: ${providerMessageId}.` : ''}`, data: { date, provider: mail.provider, providerMessageId, status, code } }).run()
   return 'sent'
 }
 
