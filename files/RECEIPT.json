@@ -1,0 +1,159 @@
+{
+  "base_main": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "boundaries": [
+    "No long jobs, provider execution, uncertain-provider recovery or resend declared.",
+    "Client-bearing service-work remains closed pending the accepted Base custody, redaction and erasure adapter.",
+    "No publication, release, deploy, default-branch push or contract judgment performed."
+  ],
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email <fleet identity> --non-interactive",
+      "exit": 0
+    },
+    {
+      "command": "npx -y @runeditrun/rer build",
+      "exit": 0,
+      "pin": "0.2.87"
+    },
+    {
+      "candidate": "included again by the exact-head foundation run",
+      "command": "pnpm run typecheck",
+      "exit": 0
+    },
+    {
+      "candidate": "included again by the exact-head foundation run",
+      "command": "pnpm run check --profile first-party",
+      "exit": 0
+    },
+    {
+      "agent_points_passed": 787,
+      "agent_points_total": 787,
+      "command": "env GLOVE_CI_PREBUILT=1 CI=true WRANGLER_SEND_METRICS=false node scripts/verify-ci.mjs foundation",
+      "evidence": "FOUNDATION.txt",
+      "exit": 0,
+      "head": "c6efd8f9627cb82d979046d06cc98d3cb2fecce3",
+      "native_journey": "PASS BASE-AGENT-013.native-journey",
+      "node": "22.20.0",
+      "pnpm": "10.12.4",
+      "rer": "0.2.87",
+      "shared_audit_count": "PASS BASE-AGENT-009.1.count",
+      "terminal": "verify: complete (exit 0)"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses SURFACE-025",
+      "exit": 0,
+      "output": "Wrote 0 contract documents.\nContract documents are current.",
+      "views_committed": false
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses SURFACE-025",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "after": 198,
+      "before": 198,
+      "cap": 200,
+      "command": "node tests/inventory.mjs --json",
+      "exit": 0
+    }
+  ],
+  "ci": {
+    "total_count": 1,
+    "workflow_runs": [
+      {
+        "conclusion": null,
+        "event": "push",
+        "head_sha": "c6efd8f9627cb82d979046d06cc98d3cb2fecce3",
+        "html_url": "https://github.com/just-every/run-glove/actions/runs/43000518951",
+        "id": 43000518951,
+        "name": "Verify",
+        "status": "in_progress"
+      }
+    ]
+  },
+  "claim": {
+    "id": "SURFACE-025",
+    "invocation": "tests/agent-native-journey.mjs default export awaited once",
+    "points": [
+      1
+    ],
+    "status": "DONE proposed on landing",
+    "test": "tests/agent-native-replay.mjs#pricebookReplay"
+  },
+  "failing_before_repair": "Not applicable: no demonstrated defect or production repair.",
+  "github_api_calls": 1,
+  "main_equal_candidate": false,
+  "pr": null,
+  "product_branch": "cloud/sx-glove-c-f260",
+  "product_commits": [
+    "c6efd8f9627cb82d979046d06cc98d3cb2fecce3 Check fresh price-book keys own separate native commands",
+    "465eb6901acc10ec5cab6a0465c3d8f3e9a5c3be Prove native price-book replay effects and conflict isolation [skip ci]"
+  ],
+  "product_files": [
+    "sources.lock.json",
+    "tests/agent-native-journey.mjs",
+    "tests/agent-native-replay.mjs"
+  ],
+  "product_head": "c6efd8f9627cb82d979046d06cc98d3cb2fecce3",
+  "product_push": {
+    "attempts": 1,
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f260",
+    "exit": 0,
+    "guard": "cloud-push.py",
+    "remote_head": "c6efd8f9627cb82d979046d06cc98d3cb2fecce3",
+    "remote_verified": true,
+    "status": "success"
+  },
+  "production_repair": null,
+  "proposed_on_acceptance": {
+    "done": 47,
+    "missing": 29,
+    "partial": 187
+  },
+  "protected_files_unchanged": true,
+  "publication_scan": {
+    "commit": "c6efd8f9627cb82d979046d06cc98d3cb2fecce3",
+    "complete": null,
+    "findings": null,
+    "historyScanned": false,
+    "status": "NOT RUN in cloud; maintained Mac lander must scan full history on this exact head."
+  },
+  "recorded_at": "2026-11-11T10:06:30.412242+00:00",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "screens": [
+    {
+      "bytes": 742756,
+      "note": "Existing agent screen proof; no screens changed in this round.",
+      "path": "/tmp/glove-agent-door-browser/agents-1440.png",
+      "sha256": "2abb97837d2fabfcffed2ae4110b1bf49bc10c7ad27114180e1bf891686087aa",
+      "width": 1440
+    },
+    {
+      "bytes": 660841,
+      "note": "Existing agent screen proof; no screens changed in this round.",
+      "path": "/tmp/glove-agent-door-browser/agents-390.png",
+      "sha256": "2507c7723f22a3cf96cc798d337732ee534260a1bc150e9eea009af816268dd6",
+      "width": 390
+    }
+  ],
+  "source_counts_after": {
+    "done": 46,
+    "missing": 29,
+    "partial": 188
+  },
+  "source_counts_before": {
+    "done": 46,
+    "missing": 29,
+    "partial": 188
+  },
+  "tag": "sx-glove-c-f260"
+}

@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "blob": "ecf92fd1534c377d0f69028243d4e36d18011067",
+      "bytes": 337,
+      "path": "CI.json",
+      "sha256": "722fd9bc09eb3e628b5d6a2e8194f449af7233a7a08ce3c9f0a428aabc3c97d5"
+    },
+    {
+      "blob": "aba4ebfcb5de67b0bd03c1ca6e3e12fdb4750c56",
+      "bytes": 29503,
+      "path": "FOUNDATION.txt",
+      "sha256": "5104bee4c4619baf4b13e5ad88fc360e7820de93850dad2649d2656498f0f3cc"
+    },
+    {
+      "blob": "6d1068cc2dd6e60cfe2797964cc3e9785d1ef543",
+      "bytes": 5011,
+      "path": "RECEIPT.json",
+      "sha256": "36bf0acda748c5cec75852eca9bfbf4ece091af1f2ede49397c0aa35320ad6a2"
+    },
+    {
+      "blob": "f57080d73193f0bb2a4f99597cf4cb8cb1b6f849",
+      "bytes": 10211,
+      "path": "REPORT.md",
+      "sha256": "d9bd911c84190bad4f93ff32ac0f7c3dbfa741ddd5e63125ff39b10ee02f3795"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f260",
+  "product_head": "c6efd8f9627cb82d979046d06cc98d3cb2fecce3",
+  "ref": "refs/heads/evidence/sx-glove-c-f260",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f260"
+}
