@@ -102,6 +102,21 @@ Pause, replay, changed-argument and stale-revision refusals, measured bulk effec
 and separate agent/sponsor activity. Browser proof opens the real `/agents`
 page at 1440 and 390; captures remain outside product source.
 
+The same journey awaits `tests/agent-native-pause.mjs` once. Through the signed-in
+Owner's person doors it sets native Pause, shared local Pause and both controls,
+including both release orders. Each refused read, item update, category change
+and bulk adjustment leaves the native state version, all services, business,
+Activity identities and shared Pause flags unchanged. An issued integration
+token cannot change either control, even alongside the Owner's session cookie.
+After person resume, the prepared item update and category intent each complete
+with one native version step and one attributed Activity event; replay adds
+neither. Native Pause itself changes the business revision, so that category
+request first proves stale-revision refusal and then uses the current revision
+with its original intent and key. Shared local Pause leaves that revision intact.
+Both controls are resumed in cleanup. Business Pause's signed-envelope phase
+remains Base's proof; the seed journey supplies no Business signer and does not
+claim its resume-and-complete leg.
+
 The released 0.2.87 runtime still installs `events.list` and advertises
 subscriptions without a declared-subset switch. Its core harness does not yet
 exercise named approval execution for a standard-only registry or native
