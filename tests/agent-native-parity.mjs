@@ -50,13 +50,16 @@ export async function pricebookParity({ request, origin, cookie, tool }) {
     const fixedA = await must('service.save', { code: code(side, 'FIXED-A'), name: 'Twin fixed A', category: cat, unitCost: '4.00', unitPrice: '100.00' })
     const fixedB = await must('service.save', { code: code(side, 'FIXED-B'), name: 'Twin fixed B', category: cat, unitCost: '4.00', unitPrice: '33.33' })
     const retired = await must('service.save', { code: code(side, 'RETIRED'), name: 'Twin retired', category: cat, unitCost: '4.00', unitPrice: '50.00', archived: true })
-    const richArgs = { code: code(side, 'RICH'), name: 'Twin rich', kind: 'material', unit: 'box', category: richCategory(side), description: 'Keep this description', tax: 'FREE', unitCost: '7.00', unitPrice: '19.00',
+    await must('pricebook.category', { name: richCategory(side), markupPercent: '50' })
+    const richArgs = { code: code(side, 'RICH'), name: 'Twin rich', kind: 'material', unit: 'box', category: richCategory(side), pricing: 'markup', description: 'Keep this description', tax: 'FREE', unitCost: '7.00', unitPrice: '0.00',
       checklist: [{ label: 'Check the seal', required: true }], requiredSkills: ['hvac'], parts: [{ supplier: 'Acme', partNumber: 'A-1' }], archived: true }
     const rich = await must('service.save', richArgs)
-    world[side] = { cat, ids: { part: part.id, task: task.id, fixedA: fixedA.id, fixedB: fixedB.id, retired: retired.id, rich: rich.id }, rich, richArgs }
+    const richTask = await must('service.save', { code: code(side, 'RICH-TASK'), name: 'Twin rich task', kind: 'task', category: richCategory(side), pricing: 'markup', unitPrice: '0.00', components: [{ serviceId: rich.id, quantity: '2' }] })
+    world[side] = { cat, ids: { part: part.id, task: task.id, fixedA: fixedA.id, fixedB: fixedB.id, retired: retired.id, rich: rich.id, richTask: richTask.id }, rich, richTask }
     // The fixtures themselves are held to literal values.
     assert.deepEqual([part.unitPrice, task.unitCost, task.unitPrice, part.version, task.version], ['15.00', '20.00', '30.00', 2, 2], `${side} markup fixtures`)
     assert.deepEqual([fixedA.version, fixedB.version, retired.archived, rich.archived], [1, 1, true, true])
+    assert.deepEqual([rich.pricing, rich.unitCost, rich.unitPrice, rich.tax, richTask.unitCost, richTask.unitPrice], ['markup', '7.00', '10.50', 'FREE', '14.00', '21.00'], `${side} rich fixtures`)
   }
 
   // Twin ids and tags are written as labels so one door's output can be compared with the other's.
@@ -206,11 +209,27 @@ export async function pricebookParity({ request, origin, cookie, tool }) {
   }
 
   // 6. Omitted fields: an update naming only the required id, code, name and unitPrice, through both doors.
-  const lean = side => ({ code: code(side, 'RICH'), name: 'Twin rich renamed', unitPrice: '19.00' })
+  const beforeLean = await state()
+  const lean = side => ({ code: code(side, 'RICH'), name: 'Twin rich renamed', unitPrice: '10.50' })
   const deskLean = await must('service.save', { id: world.desk.ids.rich, version: world.desk.rich.version, ...lean('desk') })
   const toolLean = succeeded(await write('glove.pricebook.update', { id: world.tool.ids.rich, ...lean('tool') }, world.tool.rich.version))
+  const afterLean = await state()
+  for (const side of SIDES) {
+    const item = row(afterLean.services, side, 'rich'), task = row(afterLean.services, side, 'richTask')
+    assert.deepEqual({ pricing: item.pricing, unitCost: item.unitCost, tax: item.tax, taskTotal: task.unitPrice }, { pricing: 'markup', unitCost: '7.00', tax: 'FREE', taskTotal: '21.00' }, `${side} name-only edit retains pricing, cost, tax and dependent task total`)
+    assert.deepEqual(sameRow(item), { ...sameRow(world[side].rich), name: 'Twin rich renamed', version: world[side].rich.version + 1, updatedBy: item.updatedBy }, `${side} every omitted business field stays, including category, unit, description, checklist, skills, supplier parts and archived`)
+    assert.deepEqual(task, world[side].richTask, `${side} name-only edit changes no dependent task field or version`)
+    for (const other of beforeLean.services.filter(item => !SIDES.some(side => item.id === world[side].ids.rich))) {
+      assert.deepEqual(afterLean.services.find(item => item.id === other.id), other, 'name-only edits leave every other item unchanged')
+    }
+  }
   assert.deepEqual(normalise(sameRow(deskLean), 'desk'), normalise(sameRow(toolLean), 'tool'))
-  const reset = (result, side) => Object.keys(result).filter(key => !bookkeeping.includes(key) && !['version', 'name', 'updatedBy'].includes(key) && JSON.stringify(result[key]) !== JSON.stringify(world[side].rich[key])).sort()
-  assert.deepEqual(reset(deskLean, 'desk'), reset(toolLean, 'tool'))
-  return `Price-book parity: reads, update, category markup and price adjustment match their desk commands with identical Activity; stale and duplicate refusals change nothing; an update naming only id, code, name and unitPrice resets ${reset(deskLean, 'desk').join(', ')} through both doors alike.`
+  // Named empty values and false still clear fields; omission alone preserves them.
+  for (const side of SIDES) {
+    const item = row(afterLean.services, side, 'rich')
+    const clear = { id: item.id, code: item.code, name: item.name, unitPrice: '9.00', pricing: 'fixed', unitCost: '0.00', tax: 'TAXABLE', category: '', unit: 'each', description: '', checklist: [], requiredSkills: [], parts: [], archived: false }
+    const result = side === 'desk' ? await must('service.save', { ...clear, version: item.version }) : succeeded(await write('glove.pricebook.update', clear, item.version))
+    for (const [field, value] of Object.entries(clear)) assert.deepEqual(result[field], value, `${side} explicit ${field} is applied`)
+  }
+  return 'Price-book parity: reads, update, category markup and price adjustment match their desk commands with identical Activity; stale and duplicate refusals change nothing; a name-only edit preserves every omitted field, archived state and the 21.00 dependent task through both doors; explicitly named empty values and false still apply.'
 }

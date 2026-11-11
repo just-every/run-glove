@@ -2048,7 +2048,7 @@
       "executable": false
     },
     "src/glove/commands/setup.ts": {
-      "sha256": "2c498c47afaf9f4baa0d5f0c3b3d27a8b8bc9f3275e3dda42b5a7a5b7667c3a7",
+      "sha256": "f35f4d6da9fdef178c48afa7be0d6bd81095609ebd841a705998cb1234332136",
       "executable": false
     },
     "src/glove/commands/stock.ts": {
@@ -5504,7 +5504,7 @@
       "executable": false
     },
     "tests/agent-native-parity.mjs": {
-      "sha256": "1a9a0dedf6062bc9ced3b9c2d5e8cb515b592e81976e8f6d406ed272dc330c67",
+      "sha256": "17b376144d26defb8056d259b02b9ec129a2f9b6144b3d13477779a35912dd12",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {

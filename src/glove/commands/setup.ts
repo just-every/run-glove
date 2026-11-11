@@ -98,10 +98,13 @@ export const setup: Handler = async (c, type, p, db) => {
       return { operatorId: operator.id, role }
     }
     case 'service.save': {
+      const existing = p.id === undefined ? null : find(c.s, 'services', p.id)
+      // Desk saves and agent updates change only named fields. Defaults below
+      // apply to new items; explicit empty lists, strings and false still apply.
+      p = { ...existing, ...p }
       const code = text(p.code, 'code', { max: 40 })
       if (c.s.services.some(s => s.code === code && s.id !== p.id)) fail('DUPLICATE', `Service code ${code} is already used.`)
       // MONEY-003, MONEY-006: kind, cost, category and markup or fixed price, supplier part numbers, the customer's description, a task's contents and images.
-      const existing = p.id === undefined ? null : find(c.s, 'services', p.id)
       let row = save(c, 'services', p, { code, name: text(p.name, 'name', { max: 200 }), unit: text(p.unit, 'unit', { optional: true, max: 20 }) || 'each', ...itemFields(c.s, p, existing), tax: oneOf(p.tax ?? (c.s.business[0]?.currency === 'AUD' ? 'GST' : 'TAXABLE'), taxCodes, 'tax'), checklist: checklist(p.checklist), requiredSkills: p.requiredSkills === undefined ? [] : skills(p.requiredSkills, 'requiredSkills'), archived: p.archived === true, images: existing?.images ?? [] })
       if (p.image) row = put(c.s, 'services', { ...row, images: [...row.images, await image(c, p.image, row.id, 'image')] })
       reprice(c.s, c.now)
