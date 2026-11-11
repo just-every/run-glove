@@ -90,13 +90,14 @@ export async function pricebookReplay({ request, origin, cookie, tool }) {
       assert.deepEqual([change.fromVersion, change.toVersion], [from, from + 1])
     }
     assert.deepEqual(after.events.filter(event => event.id !== added[0].id), before.events, 'prior Activity is retained')
+    return event
   }
 
   const beforeUpdate = await snapshot()
   const updateArgs = { id: part.id, ...partFields, unitCost: '12.00', unitPrice: '24.00', expected_revision: row(beforeUpdate, part.id).version, idempotency_key: crypto.randomUUID() }
   const update = succeeded(await tool('glove.pricebook.update', updateArgs))
   const afterUpdate = await snapshot()
-  singleEffect(beforeUpdate, afterUpdate, [part.id, task.id], false, 'service.saved', part.id)
+  const updateEvent = singleEffect(beforeUpdate, afterUpdate, [part.id, task.id], false, 'service.saved', part.id)
   assert.deepEqual(update, row(afterUpdate, part.id))
   assert.deepEqual(figures(afterUpdate), [['12.00', '24.00'], ['24.00', '36.00'], ['4.00', '6.00']])
   // An unrelated person's committed edit must neither invalidate nor repeat the saved effect.
@@ -113,7 +114,8 @@ export async function pricebookReplay({ request, origin, cookie, tool }) {
   const freshUpdateArgs = { ...updateArgs, unitCost: '14.00', unitPrice: '28.00', expected_revision: row(beforeFreshUpdate, part.id).version, idempotency_key: crypto.randomUUID() }
   const freshUpdate = succeeded(await tool('glove.pricebook.update', freshUpdateArgs))
   const afterFreshUpdate = await snapshot()
-  singleEffect(beforeFreshUpdate, afterFreshUpdate, [part.id, task.id], false, 'service.saved', part.id)
+  const freshUpdateEvent = singleEffect(beforeFreshUpdate, afterFreshUpdate, [part.id, task.id], false, 'service.saved', part.id)
+  assert.notEqual(freshUpdateEvent.commandId, updateEvent.commandId, 'a fresh item key owns a distinct native command')
   assert.deepEqual(freshUpdate, row(afterFreshUpdate, part.id))
   assert.deepEqual(figures(afterFreshUpdate), [['14.00', '28.00'], ['28.00', '42.00'], ['4.00', '6.00']])
 
@@ -121,7 +123,7 @@ export async function pricebookReplay({ request, origin, cookie, tool }) {
   const categoryArgs = { name: category, markupPercent: '80', expected_revision: businessRevision(beforeCategory), idempotency_key: crypto.randomUUID() }
   const changedCategory = succeeded(await tool('glove.pricebook.category', categoryArgs))
   const afterCategory = await snapshot()
-  singleEffect(beforeCategory, afterCategory, [task.id, marked.id], true, 'pricebook.category', 'business')
+  const categoryEvent = singleEffect(beforeCategory, afterCategory, [task.id, marked.id], true, 'pricebook.category', 'business')
   assert.deepEqual(figures(afterCategory), [['14.00', '28.00'], ['28.00', '50.40'], ['4.00', '7.20']])
   assert.equal(afterCategory.business[0].priceCategories.find(item => item.name === category).markupPercent, '80')
   assert.equal(changedCategory.markupPercent, '80')
@@ -134,7 +136,8 @@ export async function pricebookReplay({ request, origin, cookie, tool }) {
   const freshCategoryArgs = { ...categoryArgs, markupPercent: '90', expected_revision: businessRevision(beforeFreshCategory), idempotency_key: crypto.randomUUID() }
   const freshCategory = succeeded(await tool('glove.pricebook.category', freshCategoryArgs))
   const afterFreshCategory = await snapshot()
-  singleEffect(beforeFreshCategory, afterFreshCategory, [task.id, marked.id], true, 'pricebook.category', 'business')
+  const freshCategoryEvent = singleEffect(beforeFreshCategory, afterFreshCategory, [task.id, marked.id], true, 'pricebook.category', 'business')
+  assert.notEqual(freshCategoryEvent.commandId, categoryEvent.commandId, 'a fresh category key owns a distinct native command')
   assert.deepEqual(figures(afterFreshCategory), [['14.00', '28.00'], ['28.00', '53.20'], ['4.00', '7.60']])
   assert.equal(afterFreshCategory.business[0].priceCategories.find(item => item.name === category).markupPercent, '90')
   assert.equal(freshCategory.markupPercent, '90')

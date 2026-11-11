@@ -5508,7 +5508,7 @@
       "executable": false
     },
     "tests/agent-native-replay.mjs": {
-      "sha256": "efaa633defc8e6302ab7eff7b1b8b22535453ddb945522c7de37d5be18cd2584",
+      "sha256": "5e773d9825607ea1829367f784368340774a02161c1ba72a486b23e6cec91651",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
