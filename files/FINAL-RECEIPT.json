@@ -1,0 +1,45 @@
+{
+  "tag": "sx-glove-c-f233-pc2",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f233-pc2",
+  "head": "c3f4c1ec4003e8fccadf6798cf706e8db39ef3e9",
+  "product_push": "succeeded",
+  "verify_run_id": 43010230808,
+  "verify_status": "completed",
+  "verify_conclusion": "success",
+  "verify_url": "https://github.com/just-every/run-glove/actions/runs/43010230808",
+  "github_calls": 4,
+  "before_counts": {
+    "done": 45,
+    "partial": 189,
+    "missing": 29,
+    "total": 263
+  },
+  "after_counts": {
+    "done": 47,
+    "partial": 187,
+    "missing": 29,
+    "total": 263
+  },
+  "retained_main_status_changes": {
+    "COST-001": [
+      "partial",
+      "done"
+    ],
+    "SURFACE-015": [
+      "partial",
+      "done"
+    ]
+  },
+  "candidate_clause_status_changes": {},
+  "field_status": {
+    "FIELD-004": "partial",
+    "FIELD-009": "partial",
+    "FIELD-010": "done"
+  },
+  "pr": null,
+  "blockers": [],
+  "terminal": "READY",
+  "evidence_ref": "refs/heads/evidence/sx-glove-c-f233-pc2",
+  "evidence_is_product_acceptance": false
+}

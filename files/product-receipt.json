@@ -1,0 +1,41 @@
+{
+  "head": "c3f4c1ec4003e8fccadf6798cf706e8db39ef3e9",
+  "branch": "cloud/sx-glove-c-f233-pc2",
+  "main_at_push": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+  "pc1": "d2366e79d9f2cdc5833285c42a72fc32de35faee",
+  "main_is_ancestor": true,
+  "contract_files": {
+    "CONTRACT.md": {
+      "equals_main": true,
+      "sha256": "dc5b7600332a6c3fed46ae0643322e3f63d646bdb01f57a706113126d1602a8b"
+    },
+    "ACCEPTANCE.md": {
+      "equals_main": true,
+      "sha256": "047bb9876cbe06d3869f09dbef36131409cb13172f64d0ece4baaefd70fa7f16"
+    },
+    "docs/CLAIMS.md": {
+      "equals_main": true,
+      "sha256": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+    },
+    "docs/contract/ID-MAP.json": {
+      "equals_main": true,
+      "sha256": "9d1149cffa862c30a2094bd25b08a4cf97b1d74fd529c03ea6644f1b8fe5d7cc"
+    }
+  },
+  "preserved_candidate_files": {
+    "src/ui/push.tsx": {
+      "equals_pc1": true,
+      "sha256": "658c0248730d850a08eeaa21a5ba1d6bfb0e1008f70afc4e5d8c3a7218c1b186"
+    },
+    "tests/api/push.test.mjs": {
+      "equals_pc1": true,
+      "sha256": "9de4352f860fb0e08985a187a0f36ccf9292b4b62254c6c57e47d6270818c2ed"
+    },
+    "tests/browser/journey.spec.ts": {
+      "equals_pc1": true,
+      "sha256": "0dc5a5b4b9c8fcc786ed4262080de39b39666c0a1fffffb83826f66c26cfd378"
+    }
+  },
+  "product_diff": "sources.lock.json             |   6 +-\n src/ui/push.tsx               |   2 +-\n tests/api/push.test.mjs       |   6 ++\n tests/browser/journey.spec.ts | 242 ++++++++++++++++++++++++++++++++----------\n 4 files changed, 194 insertions(+), 62 deletions(-)",
+  "clean_worktree": true
+}

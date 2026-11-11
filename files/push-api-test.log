@@ -1,0 +1,18 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+✔ API-001 / DATA-002, DATA-009, DATA-010 / FIELD-004, FIELD-009, FIELD-010 technicians get a push for new, moved and canceled visits, carrying only a generic line and the job id (6657.461502ms)
+ℹ FIELD-004, FIELD-009, FIELD-010 only the owner turns notifications on, and the VAPID private key never leaves the server
+ℹ FIELD-004, FIELD-009, FIELD-010 a technician subscribes their own phone; agents and desk roles cannot, and each person reads only their own phones
+ℹ FIELD-004, FIELD-009, FIELD-010 new, moved and canceled visits each reach the technician's phone, signed with the VAPID key and encrypted for that phone
+ℹ FIELD-004, FIELD-009, FIELD-010 a failed push is labelled and not retried; a subscription the push service no longer knows is deleted
+ℹ FIELD-004, FIELD-009, FIELD-010 sign-out and role loss delete the phone's subscription, and nothing more is sent to it
+ℹ FIELD-004, FIELD-009, FIELD-010 turning notifications off deletes every phone's subscription and the key
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8977.441035

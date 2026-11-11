@@ -1,0 +1,40 @@
+{
+  "before": {
+    "done": 45,
+    "partial": 189,
+    "missing": 29,
+    "total": 263
+  },
+  "after": {
+    "done": 47,
+    "partial": 187,
+    "missing": 29,
+    "total": 263
+  },
+  "changes": [
+    {
+      "id": "COST-001",
+      "before": "partial",
+      "after": "done"
+    },
+    {
+      "id": "SURFACE-015",
+      "before": "partial",
+      "after": "done"
+    }
+  ],
+  "field": [
+    {
+      "id": "FIELD-004",
+      "status": "partial"
+    },
+    {
+      "id": "FIELD-009",
+      "status": "partial"
+    },
+    {
+      "id": "FIELD-010",
+      "status": "done"
+    }
+  ]
+}

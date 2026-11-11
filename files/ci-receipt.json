@@ -1,0 +1,67 @@
+{
+  "repository": "just-every/run-glove",
+  "head": "c3f4c1ec4003e8fccadf6798cf706e8db39ef3e9",
+  "calls": [
+    {
+      "number": 1,
+      "time": "2026-11-11T11:14:32.566538+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs?head_sha=c3f4c1ec4003e8fccadf6798cf706e8db39ef3e9&per_page=100"
+      ],
+      "exit": 0,
+      "file": "ci-discovery.json"
+    },
+    {
+      "number": 2,
+      "time": "2026-11-11T11:19:33.162532+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/43010230808",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "file": "ci-poll-2.json"
+    },
+    {
+      "number": 3,
+      "time": "2026-11-11T11:24:33.762962+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/43010230808",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "file": "ci-poll-3.json"
+    },
+    {
+      "number": 4,
+      "time": "2026-11-11T11:29:34.361349+00:00",
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/43010230808",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "file": "ci-poll-4.json"
+    }
+  ],
+  "status": "completed",
+  "run_id": 43010230808,
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/43010230808",
+  "discovery_note": "First discovery was successful. Sanitization of a templated GitHub URL truncated the saved JSON after the complete run identity; watcher resumed from the observed run id without repeating discovery.",
+  "conclusion": "success",
+  "last_observation": {
+    "conclusion": "success",
+    "head_sha": "c3f4c1ec4003e8fccadf6798cf706e8db39ef3e9",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43010230808",
+    "status": "completed"
+  }
+}

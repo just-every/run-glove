@@ -1,0 +1,56 @@
+{
+  "time": "2026-11-11T11:15:23.873963+00:00",
+  "head": "c3f4c1ec4003e8fccadf6798cf706e8db39ef3e9",
+  "checks": [
+    {
+      "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "exit": 0,
+      "detail": "Production build, 55 migrations and first-owner preparation completed; private setup output excluded from public packet."
+    },
+    {
+      "command": "cloud_run pnpm typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "command": "cloud_run node --test --test-concurrency=1 tests/api/push.test.mjs",
+      "exit": 0,
+      "log": "push-api-test.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "scenarios": 6
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses FIELD-004 FIELD-009 FIELD-010",
+      "exit": 0,
+      "log": "contract-write.log"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses FIELD-004 FIELD-009 FIELD-010",
+      "exit": 0,
+      "log": "contract-check.log"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0,
+      "log": "source-lock-write.json"
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "log": "source-lock-check.json"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --exit-code origin/main -- CONTRACT.md ACCEPTANCE.md docs/CLAIMS.md docs/contract/ID-MAP.json",
+      "exit": 0
+    }
+  ],
+  "browser_local": "Not run, by explicit brief: browser and portable suites delegated to exact-SHA Verify.",
+  "runtime": "Shell toolchain used Node 24.19.0 with pnpm 10.12.4. rer setup selected and cached project-pinned Node 22.20.0; final generator/lock checks used that cached Node 22.20.0.",
+  "publication_scan": "All six candidate commits including side parents passed identity and co-author/trailer checks. The five published pc1 commits use the owner identity already present on main; the merge uses the fleet identity. No OpenAI/Codex coauthor survived."
+}
