@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { browserProof } from './agent-browser-proof.mjs'
 import { pricebookParity } from './agent-native-parity.mjs'
+import { pricebookClassFacts } from './agent-native-class-facts.mjs'
 
 /** Only public native and shared doors. No account writer or substituted authority. */
 export default async function ({ request, origin, cookie, tool }) {
@@ -43,6 +44,7 @@ export default async function ({ request, origin, cookie, tool }) {
   await browserProof({ request, origin, cookie })
   // The harness hides journey failures; the parity helper's messages hold only synthetic fixture values.
   console.log(await pricebookParity({ request, origin, cookie, tool }).catch(error => { console.log(`Price-book parity failed: ${error.stack}`); throw error }))
+  console.log(await pricebookClassFacts({ request, origin, cookie, tool }).catch(error => { console.log(`Native class facts failed: ${error.stack}`); throw error }))
   console.log('Native price-book journey: revision conflict, argument conflict, once-only replay, native Pause, measured bulk effects and attributable Activity passed.')
 }
 
@@ -67,4 +69,12 @@ export async function afterStep({ request, origin, cookie, phase, step, args, re
   } else if (step.tool === 'glove.pricebook.adjust') {
     for (const item of result.items) assert.equal(item.unitPrice, state.services.find(row => row.id === item.id)?.unitPrice)
   }
+}
+
+/** Keep the declared catalogue fixture stable across both policy phases. */
+export async function beforeStep({ request, origin, cookie, phase, step }) {
+  if (phase !== 'autonomous' || step.id !== 'catalogue') return
+  const response = await request(origin + '/api/glove/commands', { method: 'POST', headers: { Origin: origin, Cookie: cookie, 'Content-Type': 'application/json' }, body: JSON.stringify({ commandId: crypto.randomUUID(), type: 'pricebook.category', payload: { name: 'Parts', markupPercent: '0' } }) })
+  assert.equal(response.status, 200)
+  await response.body?.cancel()
 }

@@ -160,7 +160,7 @@
       "executable": false
     },
     "agent-surface.json": {
-      "sha256": "5c7a74ec3751db73401ad8f1bedb1b660d4e56771d33bdb991753f372f13b0ba",
+      "sha256": "52b70b20e4df766b7399c239e76258e2fb2f07a199eb5302ddbbf146575944fd",
       "executable": false
     },
     "AGENTS.consumer.md": {
@@ -1848,7 +1848,7 @@
       "executable": false
     },
     "src/glove/agent-door/tools.ts": {
-      "sha256": "b6e5e98f924d1d5f28eb4cac0b8ba3ec13f21b8b1ee5b05e89f17554bbb31271",
+      "sha256": "13649ce5bb5286b5d9b1b3679036f3fd0fb4f6b39441f30019bb4f4e1a352aa5",
       "executable": false
     },
     "src/glove/agreement-agent.ts": {
@@ -5499,8 +5499,12 @@
       "sha256": "36398d67fe599f96351e69d9a681b1e10cf67a3ab7cfbc064901a6a3eaf74893",
       "executable": false
     },
+    "tests/agent-native-class-facts.mjs": {
+      "sha256": "2ee095b0396cac6efe35de445edc8e99a7768ecb66dad709ea6d7b03df8194c8",
+      "executable": false
+    },
     "tests/agent-native-journey.mjs": {
-      "sha256": "bcd41f25f3cb45e6334cc7ea353a9d642faad76259adf5cd84e18f270739fe48",
+      "sha256": "4e2e838df05d33eb1c28e8c82e76634f540b1f1551ecbed8081005c739c83c62",
       "executable": false
     },
     "tests/agent-native-parity.mjs": {
