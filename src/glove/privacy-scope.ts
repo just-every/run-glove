@@ -28,8 +28,18 @@ export function privacyScope(s: State, customerId: string, references: string[] 
   }
   for (const site of records.sites) for (const key of ['address', 'contact', 'contactPhone', 'contactEmail']) add(site[key])
   for (const enquiry of records.enquiries) for (const key of ['name', 'phone', 'email']) add(enquiry.intake?.contact?.[key])
-  const values = [...ids, ...personal, ...references].sort((a, b) => b.length - a.length)
-  const matches = (value: unknown): boolean => typeof value === 'string' ? values.some(v => value.includes(v)) : Array.isArray(value) ? value.some(matches) : !!value && typeof value === 'object' && Object.values(value).some(matches)
-  const redact = (value: any): any => typeof value === 'string' ? values.reduce((s, v) => s.split(v).join('[erased]'), value) : Array.isArray(value) ? value.map(redact) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redact(v)])) : value
-  return { customers, ids, selected, records, personal, matches, redact }
+  // Record IDs and provider references are unique machine strings: match them wherever they appear.
+  // A typed identifier is redacted only where it occurs as that value, never inside a longer word
+  // (Ann in Annual, Lee in Leeds). JSON escapes such as \n before a value do not count as word text.
+  const edge = /[\p{L}\p{N}]/u, escape = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const whole = (v: string) => `${edge.test(v[0]) ? '(?:(?<![\\p{L}\\p{N}])|(?<=\\\\[nrtbf])|(?<=\\\\u[0-9a-fA-F]{4}))' : ''}${escape(v)}${edge.test(v.at(-1)!) ? '(?![\\p{L}\\p{N}])' : ''}`
+  const machine = [...ids, ...references].filter(Boolean), typed = [...personal].filter(v => !machine.includes(v))
+  const compile = (items: [string, string][]) => new RegExp(items.sort((x, y) => y[0].length - x[0].length).map(x => x[1]).join('|') || '(?!)', 'gu')
+  const pattern = compile([...machine.map(v => [v, escape(v)] as [string, string]), ...typed.map(v => [v, whole(v)] as [string, string])])
+  const personalPattern = compile(typed.map(v => [v, whole(v)] as [string, string]))
+  const matches = (value: unknown): boolean => typeof value === 'string' ? (pattern.lastIndex = 0, pattern.test(value)) : Array.isArray(value) ? value.some(matches) : !!value && typeof value === 'object' && Object.values(value).some(matches)
+  const redact = (value: any): any => typeof value === 'string' ? value.replace(pattern, '[erased]') : Array.isArray(value) ? value.map(redact) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, redact(v)])) : value
+  /** Whether an identifier carries a typed personal value (a client-chosen command or event identity). */
+  const mentionsPersonal = (value: string) => (personalPattern.lastIndex = 0, personalPattern.test(value))
+  return { customers, ids, selected, records, personal, matches, redact, mentionsPersonal }
 }

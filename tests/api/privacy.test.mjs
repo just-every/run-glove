@@ -10,6 +10,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
 import { unstable_splitSqlQuery } from 'wrangler'
 import { editionArchivePolicy } from '../fixtures/edition-archive-policy.mjs'
+import * as peers from '../fixtures/peer-redaction.mjs'
 
 const pdf = Buffer.from('%PDF-1.4 synthetic-glove-1 certificate').toString('base64')
 const jpeg = Buffer.from('ffd8ffe000104a4649460001010000010000010000ffd9', 'hex').toString('base64')
@@ -299,4 +300,97 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
   assert.ok(!undone.customers.some(c => c.id === peer.id))
   assert.equal(undone.customers.find(c => c.id === subject.id).name, 'Erased customer')
 })
+  await scenario(t, 'DATA-007 point 1: every exact typed value in peer and shared records is redacted while other mentions and short-word lookalikes stay', async t => {
+    const h = await installation({ captureLogs: true }); t.after(() => h.close())
+    const w = await peers.peerWorld(h), v = peers.subjectValues
+    const group = (await h.state()), subject = group.customers.find(c => c.id === w.subject.id), site = group.sites.find(s => s.id === w.site.id), enquiry = group.enquiries.find(e => e.intake)
+    assert.deepEqual([subject.name, subject.contact, subject.email, subject.apEmail, subject.phone, subject.billingAddress, subject.billingContact, subject.abn, subject.contacts[0].name, subject.contacts[0].phone, subject.contacts[0].email, subject.taxExemption.certificateNumber],
+      [v.name, v.contact, v.email, v.apEmail, v.phone, v.billingAddress, v.billingContact, v.abn, v.contactName, v.contactPhone, v.contactEmail, v.certificate])
+    assert.deepEqual([site.address, site.contact, site.contactPhone, site.contactEmail, enquiry.customerId, enquiry.intake.contact.name], [v.siteAddress, v.siteContact, v.siteContactPhone, v.siteContactEmail, subject.id, v.intakeName])
+    assert.equal(group.customers.find(c => c.id === w.duplicate.id).mergedInto, subject.id)
+    const before = await peers.peerRecords(h, w)
+    assert.match(before.captures[0].text, new RegExp(v.phone)); assert.match(before.sites[0].accessNotes, new RegExp(v.email)); assert.match(before.conversations[0].text, new RegExp(v.siteAddress))
+    assert.match(before.equipment[0].location, new RegExp(v.certificate)); assert.match(before.templates[0].name, new RegExp(v.contact))
+    await peers.erase(h, w)
+    const after = await peers.peerRecords(h, w)
+    assert.equal(after.captures[0].text, `Rang [erased] to book; alternate ${peers.nearMiss.phone}; ${peers.nearMiss.title}; ${peers.nearMiss.annual} due`, 'a peer job note quoting the phone')
+    assert.equal(after.sites[0].accessNotes, 'Gate code from [erased]; spare key with reception', 'a peer site access note with the email')
+    assert.equal(after.conversations[0].text, `Neighbour [erased] at [erased] asked about a quote; ${peers.nearMiss.leeds} also rang`, 'a peer conversation note with the service address')
+    assert.equal(after.equipment[0].location, 'Plant room; certificate [erased] on file', 'a peer equipment note with the certificate number')
+    assert.equal(after.templates[0].name, 'Priority plan for [erased]', 'a template naming the contact')
+    assert.equal(after.conversations[1].text, peers.values().map(() => '[erased]').join(' | '), 'every typed identifier kind standing alone')
+    assert.deepEqual(after.services, before.services, 'a price-book Annual tune-up is not the site contact Ann')
+    assert.deepEqual(after.technicians, before.technicians, 'a technician Annabel Leeds is not the customer Lee')
+  })
+  await scenario(t, 'DATA-007 point 2: peer and shared records keep their IDs, other fields, original files and place in histories with only the exact values replaced', async t => {
+    const h = await installation({ captureLogs: true }); t.after(() => h.close())
+    const w = await peers.peerWorld(h)
+    const before = await peers.peerRecords(h, w), ids = kind => before[kind].map(r => r.id)
+    const peerIds = Object.values(before).flat().map(r => r.id)
+    const history = () => h.db.prepare(`SELECT id,sequence,at,actor_id,job_id,subject_kind,subject_id,kind FROM glove_events WHERE subject_id IN (SELECT value FROM json_each(?)) OR job_id=? ORDER BY sequence`).bind(JSON.stringify(peerIds), w.peerWork.job.id).all().then(r => r.results)
+    const timeline = await history(), bytes = await Promise.all(w.originals.peer.map(id => peers.fileBytes(h, id)))
+    assert.ok(timeline.length >= 8 && bytes.every(b => typeof b === 'string'), 'the peer has history and readable originals before erasure')
+    const counts = async () => { const s = await h.state(); return Object.fromEntries(['sites', 'jobs', 'invoices', 'payments'].map(k => [k, s[k].filter(r => r.customerId === w.peer.id).map(r => r.id).sort()]).concat([['customers', s.customers.filter(c => c.id === w.peer.id).map(c => c.id)], ['visits', s.visits.filter(x => s.jobs.find(j => j.id === x.jobId)?.customerId === w.peer.id).map(x => x.id).sort()]])) }
+    const records = await counts()
+    await peers.erase(h, w)
+    const after = await peers.peerRecords(h, w), want = peers.expectedPeer(w, before)
+    for (const kind of Object.keys(want)) assert.deepEqual(after[kind], want[kind], `${kind} change only by the exact values`)
+    for (const kind of Object.keys(before)) assert.deepEqual(after[kind].map(r => r.id), ids(kind), `${kind} keep their IDs`)
+    for (const kind of peers.unchanged) assert.deepEqual(after[kind], before[kind], `${kind} are untouched`)
+    assert.deepEqual(await Promise.all(w.originals.peer.map(id => peers.fileBytes(h, id))), bytes, 'peer originals are byte-identical through the file door')
+    assert.deepEqual(await history(), timeline, 'peer events keep their IDs, order and subjects')
+    const kept = await counts()
+    assert.ok(Object.values(records).every(list => list.length), 'the peer owns a customer, site, job, visit, invoice and payment')
+    assert.deepEqual(kept, records, 'no peer customer, site, job, visit, invoice or payment is deleted')
+    assert.deepEqual(await Promise.all(w.originals.subject.map(id => peers.fileBytes(h, id))), [404, 404, 404], 'the subject originals are gone')
+    const s = await h.state(), invoice = s.invoices.find(i => i.id === w.invoices[1].invoice.id), payment = s.payments.find(p => p.id === w.invoices[1].payment.id)
+    assert.equal(invoice.erasedAt, undefined); assert.equal(payment.erasedAt, undefined)
+  })
+  await scenario(t, 'DATA-007 point 3: no table, saved outcome, Activity, export or Worker log keeps a subject value or its unkeyed SHA-256, and client command IDs become random privacy IDs', async t => {
+    const runs = []
+    for (const label of ['first', 'second']) {
+      const h = await installation({ captureLogs: true }); t.after(() => h.close())
+      const w = await peers.peerWorld(h), places = await peers.stores(h)
+      assert.throws(() => peers.assertNoSubject(places), /holds/, 'the seeded installation holds subject values, so the scan can fail')
+      const stop = (await h.db.prepare('SELECT address_hash FROM glove_email_stop_secrets').all()).results
+      assert.ok(stop.length && peers.digests().some(([, digest]) => digest === stop[0].address_hash), 'the review stop link saved an unkeyed digest of the subject email')
+      assert.ok(h.logs.length > 0, 'the Worker log was captured')
+      await peers.erase(h, w)
+      const after = await peers.stores(h)
+      assert.ok(after['Worker log'].length > 0)
+      peers.assertNoSubject(after)
+      const events = (await h.db.prepare("SELECT command_id FROM glove_events WHERE command_id LIKE 'privacy-%'").all()).results.map(r => r.command_id)
+      const commands = (await h.db.prepare("SELECT id,result FROM glove_commands WHERE id LIKE 'privacy-%'").all()).results
+      assert.ok(events.length && commands.length, `${label}: the client-chosen command identity was rewritten`)
+      assert.ok(commands.every(c => /^privacy-[0-9a-f-]{36}$/.test(c.id) && JSON.parse(c.result).error.code === 'ERASED'))
+      assert.equal((await h.db.prepare('SELECT count(*) AS n FROM glove_commands WHERE id=?').bind(w.commandId).first()).n, 0)
+      assert.ok(!events.concat(commands.map(c => c.id)).includes('privacy-' + createHash('sha256').update(w.commandId).digest('hex')), 'never a plain hash of the original identity')
+      runs.push(new Set([...events, ...commands.map(c => c.id)]))
+    }
+    assert.ok([...runs[0]].every(id => !runs[1].has(id)), 'identical subjects erased in two installations get different random identities')
+  })
+  await scenario(t, 'DATA-007 point 4: preview, erasure, command replay and Worker restart send nothing and attempt no remote deletion with email, Stripe test and Maps connected', async t => {
+    const h = await installation({ captureLogs: true }); t.after(() => h.close())
+    const w = await peers.peerWorld(h)
+    const calls = () => [h.outbound.attempts, h.email.sent.length, h.twilio.calls.length, h.stripePayments.calls.length]
+    const baseline = calls()
+    assert.ok(baseline[1] >= 2, 'the subject was emailed before erasure, so a provider send would be visible')
+    const preview = await peers.preview(h, w)
+    assert.deepEqual(calls(), baseline, 'preview')
+    const current = (await h.state()).customers.find(c => c.id === w.subject.id)
+    const commandId = id(), payload = { customerId: current.id, version: current.version, confirm: 'ERASE', fingerprint: (await peers.preview(h, w)).fingerprint }
+    const erased = await h.command('privacy.erase', payload, { commandId })
+    assert.deepEqual(calls(), baseline, 'erasure')
+    assert.equal(erased.outcome, 'complete')
+    const replay = await h.request('/api/glove/commands', { method: 'POST', body: { commandId, type: 'privacy.erase', payload } }).then(r => r.json())
+    assert.deepEqual(replay.result, erased, 'the same command identity recovers the recorded receipt')
+    const echoed = await h.request('/api/glove/commands', { method: 'POST', body: { commandId: w.commandId, type: 'conversation.log', payload: { customerId: w.subject.id, kind: 'note', text: 'Client-chosen command identity' } } }).then(r => r.json())
+    assert.equal(echoed.ok, false, 'a replayed personal command does not run again on the erased customer')
+    assert.deepEqual(calls(), baseline, 'command replay')
+    const state = JSON.stringify(await h.state())
+    await h.restart()
+    assert.equal(JSON.stringify(await h.state()), state, 'the restarted Worker holds the same erased records')
+    assert.deepEqual(calls(), baseline, 'actual Worker restart')
+    assert.equal(preview.customerIds.length, 2)
+  })
 })
