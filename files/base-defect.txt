@@ -1,0 +1,9 @@
+Unedited copied Base renderer: src/modules/agent-door/pages.ts
+
+102:   if (recent) content += `<section><h2>Recent activity</h2>${recent.results.length ? `<ul class="stack">${recent.results.map(record => {
+103:     const row = JSON.parse(record.row) as AuditRow
+104:     return `<li><h3>${escape(row.tool)}</h3><p>${escape(row.agent.name)} for ${escape(row.sponsor.name)}</p><p>${escape(row.decision)} · ${escape(row.outcome)}${row.code ? ` · ${escape(row.code)}` : ''}</p><p>${time(row.at)}</p></li>`
+105:   }).join('')}</ul>` : empty('No agent activity has been recorded.')}</section>`
+106:   return shell(rt, 'Agents', content)
+
+The audit retains class standard. Recent activity renders the tool, agent, sponsor, decision, outcome, code and time but never row.classes.

@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "command": "node scripts/edition-authoring/cli.mjs check",
+  "exit": 0,
+  "head": "1edb76d696dfc55ecc8064c063f5a65803084055",
+  "tracked_helper": true
+}

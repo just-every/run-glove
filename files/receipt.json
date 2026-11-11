@@ -1,0 +1,93 @@
+{
+  "tag": "sx-glove-c-f261",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f261",
+  "head": "1edb76d696dfc55ecc8064c063f5a65803084055",
+  "based_on_main": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "product_push": {
+    "status": "pushed",
+    "attempts": 1,
+    "ref": "refs/heads/cloud/sx-glove-c-f261",
+    "commit_message_contains_skip_ci": true
+  },
+  "disposition": "BLOCKED: copied Base Recent activity omits computed class; no landing candidate",
+  "foundation": {
+    "command": "GLOVE_CI_PREBUILT=1 node scripts/verify-ci.mjs foundation",
+    "exit": 1,
+    "head": "1edb76d696dfc55ecc8064c063f5a65803084055",
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "rer": "0.2.87",
+    "agent_points_passed": 767,
+    "agent_points_total": 768,
+    "failed_point": "BASE-AGENT-013.native-journey",
+    "test": "tests/agent-native-overview.mjs#pricebookOverview",
+    "failure": "SURFACE-022: Recent activity must show the computed class for each admitted price-book call",
+    "prebuilt": "setup built the unchanged product source; candidate changes tests and source lock only"
+  },
+  "passed": {
+    "first_party_check": true,
+    "typecheck": true,
+    "runtime_routing": true,
+    "email_link_signin": true,
+    "site_journey": true,
+    "shared_audit_call_rows": 6,
+    "admitted_native_events": 3,
+    "refused_native_events": 0,
+    "differs_from_policy": 0,
+    "overview_week_counts": true,
+    "client_content_excluded": true,
+    "screenshots": [
+      1440,
+      390
+    ]
+  },
+  "counts_before": {
+    "done": 46,
+    "partial": 188,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 46,
+    "partial": 188,
+    "missing": 29,
+    "total": 263
+  },
+  "inventory": {
+    "registrations": 194,
+    "assertion_scripts": 4,
+    "total": 198,
+    "limit": 200,
+    "delta": 0
+  },
+  "mechanical": {
+    "views_write_exit": 0,
+    "views_check_exit": 0,
+    "generated_views_restored": true,
+    "lock_write_exit": 0,
+    "lock_check_exit": 0,
+    "ledger": "not applicable; no migration"
+  },
+  "unchanged": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    "agent-surface.json",
+    "tests/agent-native-parity.mjs",
+    "tests/agent-browser-proof.mjs",
+    "base-copies.json",
+    "package.json",
+    "src/modules/agent-door"
+  ],
+  "ci": {
+    "run_ids": [],
+    "verify": "not requested for a known failing skip-ci save; no CI green claim",
+    "run_site": "not run; main was not pushed",
+    "publication_scan": "not run; Mac gate required for any later landing"
+  },
+  "repairs": [],
+  "policy_defaults": [],
+  "screens_edited": false,
+  "pr": null
+}

@@ -1,0 +1,94 @@
+{
+  "files": [
+    {
+      "blob": "7e6e876e1c19f8d96c89656919d37c1302a27ecc",
+      "bytes": 1768,
+      "path": "PLAN.md",
+      "sha256": "7af51a81632bc27a38200f4939ee188faa1ab1dcb750efa392881d3fd165c985"
+    },
+    {
+      "blob": "5dd9857c4783289d75308be326f0d33f7f1641d8",
+      "bytes": 11897,
+      "path": "REPORT.md",
+      "sha256": "6079543b052a61fb1d35eaeff9f83cec8d17f44cf7e35a08a61945afd03e7781"
+    },
+    {
+      "blob": "9b38bf8c6b5861a0df86e32d758aa15232de3d49",
+      "bytes": 774,
+      "path": "base-defect.txt",
+      "sha256": "a1f2ca436796d0c36a81e3bc12a06ef8122917a7fb02d88c1608e6292da3d160"
+    },
+    {
+      "blob": "4a6a89ae4cabc91b3bc8d6409f0a4d3ea880fa51",
+      "bytes": 214,
+      "path": "first-party-check.log",
+      "sha256": "30efbe7ee746da62fdde98f9107842fd6180ac959bd8558cc01f5c567075d204"
+    },
+    {
+      "blob": "2be55cb6d708effe125967aa17f166585d3086a8",
+      "bytes": 120095,
+      "path": "foundation.log",
+      "sha256": "de31fe490b5ac3e39049a78fdfab09a09348fb15ac00fc2ee66adddee8a15bd3"
+    },
+    {
+      "blob": "158aaa16ca861140105790e67bf58c5d97bdd0a8",
+      "bytes": 69,
+      "path": "inventory.log",
+      "sha256": "13ab2aab3b993561f6e18726847508a3b123a335402c5c98f7ed2fd29e6cdd52"
+    },
+    {
+      "blob": "2ccd0a7343f9f39f6dad776cf0e2386b9d423ce6",
+      "bytes": 171,
+      "path": "lock-receipt.json",
+      "sha256": "86f577f0a1e0ac543641325a4cbc00a9c2e6d34df5868d490b603f3bab250837"
+    },
+    {
+      "blob": "45c88e967a88c8128df299d65f726fe361907084",
+      "bytes": 30436,
+      "path": "native-conformance.log",
+      "sha256": "7aa704d422979b70cfdbcd32b993391e3e8c3660ba81211754e38dbe68b940fe"
+    },
+    {
+      "blob": "f66f2f101234e9436217b1ac3564f9b3ab8d279e",
+      "bytes": 742855,
+      "path": "overview-1440.png",
+      "sha256": "df48a511971321e7a11818d5758483a574cadb1482f9d8a40d3dbe35a48653a3"
+    },
+    {
+      "blob": "8bbcbac083cd55fa05b1b7c49e3b22ea8bad9d0c",
+      "bytes": 660772,
+      "path": "overview-390.png",
+      "sha256": "957592f174b8fcc1593fecedef80b2dc9d1661f4f7464a3447821e60ce29c5fb"
+    },
+    {
+      "blob": "59cae012375143d73f12651252b2dd775a774f65",
+      "bytes": 14342,
+      "path": "qualification.patch",
+      "sha256": "784c737d4763b2220f1f19e548a7c1fcec64a3142c3a4d124fea05e7e794f5c8"
+    },
+    {
+      "blob": "8cccdffb2494771839a62da702b9c8826aa9bfea",
+      "bytes": 2638,
+      "path": "receipt.json",
+      "sha256": "94377251f13ec0625c3248b376e0a4883a9946f0d71e8e3b48b5cf8a79991ea2"
+    },
+    {
+      "blob": "943f5766ba9484930c8a5da25a9336208514e229",
+      "bytes": 106,
+      "path": "typecheck.log",
+      "sha256": "47b2c2ff1f0a53acd86ee3367bf6a13978c4198993c1f6b46a34e0d23323ee8c"
+    },
+    {
+      "blob": "ae869b2fafd3acf46a2dc6ce35ec869497ae9cfb",
+      "bytes": 32,
+      "path": "views-check.log",
+      "sha256": "c21aae40192141751d6d5c7a3a1d0eb701a6852f305d592d77b4dcab9c2536ab"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f261",
+  "product_head": "1edb76d696dfc55ecc8064c063f5a65803084055",
+  "ref": "refs/heads/evidence/sx-glove-c-f261",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f261"
+}

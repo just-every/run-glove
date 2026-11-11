@@ -1,0 +1,4 @@
+
+> @field-service/glove@0.1.1 typecheck /workspace/sx-glove-c-f261/run-glove
+> tsc --build --incremental
+

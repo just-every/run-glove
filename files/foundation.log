@@ -1,0 +1,908 @@
+> pnpm run verify
+
+> @field-service/glove@0.1.1 verify /workspace/sx-glove-c-f261/run-glove
+> rer verify
+
+Heavy job admitted: Glove verify:workflow [2cd94885168c]
+Checking pinned pnpm
+10.12.4
+Installing Chromium and its headless shell from the checkout’s Playwright
+Downloading Chrome for Testing 153.0.8010.12 (playwright chromium v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-linux64.zip
+|                                                                                |   0% of 186.8 MiB
+|■■■■■■■■                                                                        |  10% of 186.8 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 186.8 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 186.8 MiB
+Chrome for Testing 153.0.8010.12 (playwright chromium v1243) downloaded to /home/agent/.cache/ms-playwright/chromium-1243
+Downloading FFmpeg (playwright ffmpeg v1011) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+|                                                                                |   0% of 2.3 MiB
+|■■■■■■■■                                                                        |  10% of 2.3 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+FFmpeg (playwright ffmpeg v1011) downloaded to /home/agent/.cache/ms-playwright/ffmpeg-1011
+Downloading Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) from https://cdn.playwright.dev/builds/cft/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip
+|                                                                                |   0% of 114.3 MiB
+|■■■■■■■■                                                                        |  10% of 114.3 MiB
+|■■■■■■■■■■■■■■■■                                                                |  20% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 114.3 MiB
+|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 114.3 MiB
+Chrome Headless Shell 153.0.8010.12 (playwright chromium-headless-shell v1243) downloaded to /home/agent/.cache/ms-playwright/chromium_headless_shell-1243
+Verifying application
+
+> @field-service/glove@0.1.1 verify:app [REDACTED]
+> rer queue verify:app -- node scripts/verify-app.mjs
+
+verify:app
+> pnpm run check --profile first-party
+
+> @field-service/glove@0.1.1 check [REDACTED]
+> rer check --profile first-party
+
+{"version":1,"verb":"check","event":"result","ok":true,"exitCode":0,"clauses":[{"id":"delivery.declarations.packaging.json","ok":true},{"id":"delivery.declarations.scripts/delivery/base/packaging.json","ok":true},{"id":"delivery.declarations.management/integration/deployment-spec.json","ok":true},{"id":"deploy.vars-secrets","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.schema","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.seed","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.specialist","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.tools","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.resources","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.resource.glove://services/{id}","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.resource.glove://pricebook/catalogue","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey","ok":true},{"id":"SC-14.agents.BASE-AGENT-005.surface.escalations","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.name","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.scope","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.readOnly","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.clauses","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.clause.MONEY-003","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.clause.BASE-AGENT-002","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.clause.BASE-AGENT-005","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.name","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.scope","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.readOnly","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.clauses","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.clause.MONEY-003","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.clause.FIELD-002","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.clause.BASE-AGENT-002","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.clause.BASE-AGENT-006","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.clause.BASE-AGENT-012","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.name","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.scope","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.readOnly","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.clauses","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.clause.MONEY-003","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.clause.BASE-AGENT-002","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.clause.BASE-AGENT-006","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.clause.BASE-AGENT-012","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.name","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.scope","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.readOnly","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.clauses","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.clause.MONEY-003","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.clause.BASE-AGENT-002","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.clause.BASE-AGENT-006","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.clause.BASE-AGENT-012","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.events.list.name","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.events.list.scope","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.events.list.readOnly","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.events.list.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.events.list.clauses","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.events.list.clause.BASE-AGENT-010","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.0","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.0.HTTP-001","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.0.DATA-003","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.0.DATA-004","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.GLOVE-11","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.CUST-003","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.MOVE-001","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.MOVE-002","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.MOVE-003","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.MOVE-004","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.MOVE-005","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.1.MOVE-006","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.2","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.2.FIELD-001","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.2.FIELD-004","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.2.FIELD-005","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.3","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.notTools.3.FIELD-008","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.catalogue","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.catalogue.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update.ref.catalogue","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update.ref.catalogue","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update.ref.catalogue","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update.target","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update.target.ref.catalogue","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.update.inject","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.catalogue_after_update","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.catalogue_after_update.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.category","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.category.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.category.ref.catalogue_after_update","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.category.target","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.catalogue_after_category","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.catalogue_after_category.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.adjust","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.adjust.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.adjust.ref.catalogue_after_category","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.adjust.target","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.events","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.journey.events.classes","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.read.coverage.standard","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.update.coverage.standard","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.category.coverage.standard","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.pricebook.adjust.coverage.standard","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.glove.events.list.coverage.standard","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.events","ok":true},{"id":"SC-14.agents.BASE-AGENT-013.surface.witness","ok":true},{"id":"SC-10.inputs.setup","ok":true},{"id":"SC-10.inputs.dev","ok":true},{"id":"SC-10.inputs.build","ok":true},{"id":"SC-10.inputs.verify","ok":true},{"id":"SC-10.inputs.reset","ok":true},{"id":"SC-10.inputs.deploy","ok":true},{"id":"SC-10.inputs.export","ok":true},{"id":"SC-10.inputs.import","ok":true},{"id":"SC-10.inputs.release","ok":true},{"id":"SC-10.inputs.doctor","ok":true},{"id":"SC-10.inputs.describe","ok":true},{"id":"SC-10.inputs.check","ok":true},{"id":"SC-10.inputs.install","ok":true},{"id":"SC-10.inputs.preview","ok":true},{"id":"SC-09.profile","ok":true},{"id":"SC-01.adapter","ok":true},{"id":"SC-01.hook.preview","ok":true},{"id":"SC-01.hook.dependencies","ok":true},{"id":"SC-01.hook.build","ok":true},{"id":"SC-01.hook.migrate","ok":true},{"id":"SC-01.hook.start","ok":true},{"id":"SC-01.hook.health","ok":true},{"id":"SC-01.hook.owner","ok":true},{"id":"SC-01.hook.signIn","ok":true},{"id":"SC-01.hook.verify","ok":true},{"id":"SC-01.hook.deploy","ok":true},{"id":"SC-01.hook.portability","ok":true},{"id":"SC-01.hook.state","ok":true},{"id":"SC-01.hook.settings","ok":true},{"id":"SC-01.hook.input","ok":true},{"id":"SC-01.verb.install","ok":true},{"id":"SC-01.flag.install.help","ok":true},{"id":"SC-01.flag.install.cwd","ok":true},{"id":"SC-01.flag.install.non-interactive","ok":true},{"id":"SC-01.flag.install.json","ok":true},{"id":"SC-01.flag.install.no-queue","ok":true},{"id":"SC-02.target.install","ok":true},{"id":"SC-01.verb.setup","ok":true},{"id":"SC-01.flag.setup.help","ok":true},{"id":"SC-01.flag.setup.cwd","ok":true},{"id":"SC-01.flag.setup.non-interactive","ok":true},{"id":"SC-01.flag.setup.json","ok":true},{"id":"SC-01.flag.setup.owner-email","ok":true},{"id":"SC-01.flag.setup.owner-name","ok":true},{"id":"SC-01.flag.setup.port","ok":true},{"id":"SC-01.flag.setup.host","ok":true},{"id":"SC-01.flag.setup.answers","ok":true},{"id":"SC-01.flag.setup.door","ok":true},{"id":"SC-01.flag.setup.no-queue","ok":true},{"id":"SC-02.target.setup","ok":true},{"id":"SC-01.verb.dev","ok":true},{"id":"SC-01.flag.dev.help","ok":true},{"id":"SC-01.flag.dev.cwd","ok":true},{"id":"SC-01.flag.dev.non-interactive","ok":true},{"id":"SC-01.flag.dev.json","ok":true},{"id":"SC-01.flag.dev.port","ok":true},{"id":"SC-01.flag.dev.host","ok":true},{"id":"SC-01.flag.dev.idle-timeout","ok":true},{"id":"SC-01.flag.dev.stop","ok":true},{"id":"SC-01.flag.dev.detach","ok":true},{"id":"SC-01.flag.dev.foreground","ok":true},{"id":"SC-01.flag.dev.as","ok":true},{"id":"SC-01.flag.dev.login","ok":true},{"id":"SC-01.flag.dev.models","ok":true},{"id":"SC-01.flag.dev.models-service","ok":true},{"id":"SC-01.flag.dev.door","ok":true},{"id":"SC-01.flag.dev.direct","ok":true},{"id":"SC-01.flag.dev.demo","ok":true},{"id":"SC-01.flag.dev.platform","ok":true},{"id":"SC-01.flag.dev.no-queue","ok":true},{"id":"SC-02.target.dev","ok":true},{"id":"SC-01.verb.preview","ok":true},{"id":"SC-01.flag.preview.help","ok":true},{"id":"SC-01.flag.preview.cwd","ok":true},{"id":"SC-01.flag.preview.non-interactive","ok":true},{"id":"SC-01.flag.preview.json","ok":true},{"id":"SC-01.flag.preview.port","ok":true},{"id":"SC-01.flag.preview.host","ok":true},{"id":"SC-01.flag.preview.idle-timeout","ok":true},{"id":"SC-01.flag.preview.stop","ok":true},{"id":"SC-01.flag.preview.detach","ok":true},{"id":"SC-01.flag.preview.foreground","ok":true},{"id":"SC-01.flag.preview.platform","ok":true},{"id":"SC-01.flag.preview.no-queue","ok":true},{"id":"SC-02.target.preview","ok":true},{"id":"SC-01.verb.build","ok":true},{"id":"SC-01.flag.build.help","ok":true},{"id":"SC-01.flag.build.cwd","ok":true},{"id":"SC-01.flag.build.non-interactive","ok":true},{"id":"SC-01.flag.build.json","ok":true},{"id":"SC-01.flag.build.site","ok":true},{"id":"SC-01.flag.build.platform","ok":true},{"id":"SC-01.flag.build.no-queue","ok":true},{"id":"SC-02.target.build","ok":true},{"id":"SC-01.verb.verify","ok":true},{"id":"SC-01.flag.verify.help","ok":true},{"id":"SC-01.flag.verify.cwd","ok":true},{"id":"SC-01.flag.verify.non-interactive","ok":true},{"id":"SC-01.flag.verify.json","ok":true},{"id":"SC-01.flag.verify.no-queue","ok":true},{"id":"SC-02.target.verify","ok":true},{"id":"SC-01.verb.reset","ok":true},{"id":"SC-01.flag.reset.help","ok":true},{"id":"SC-01.flag.reset.cwd","ok":true},{"id":"SC-01.flag.reset.non-interactive","ok":true},{"id":"SC-01.flag.reset.json","ok":true},{"id":"SC-01.flag.reset.yes","ok":true},{"id":"SC-02.target.reset","ok":true},{"id":"SC-01.verb.deploy","ok":true},{"id":"SC-01.flag.deploy.help","ok":true},{"id":"SC-01.flag.deploy.cwd","ok":true},{"id":"SC-01.flag.deploy.non-interactive","ok":true},{"id":"SC-01.flag.deploy.json","ok":true},{"id":"SC-01.flag.deploy.owner-name","ok":true},{"id":"SC-01.flag.deploy.environment","ok":true},{"id":"SC-01.flag.deploy.dry-run","ok":true},{"id":"SC-01.flag.deploy.site","ok":true},{"id":"SC-01.flag.deploy.demo","ok":true},{"id":"SC-01.flag.deploy.host","ok":true},{"id":"SC-01.flag.deploy.env-file","ok":true},{"id":"SC-01.flag.deploy.image","ok":true},{"id":"SC-01.flag.deploy.bind-address","ok":true},{"id":"SC-01.flag.deploy.http-port","ok":true},{"id":"SC-01.flag.deploy.https-port","ok":true},{"id":"SC-01.flag.deploy.remove","ok":true},{"id":"SC-01.flag.deploy.yes","ok":true},{"id":"SC-01.flag.deploy.set-secret","ok":true},{"id":"SC-01.flag.deploy.unset-secret","ok":true},{"id":"SC-01.flag.deploy.rotate-secret","ok":true},{"id":"SC-01.flag.deploy.reopen-installation-key","ok":true},{"id":"SC-01.flag.deploy.platform","ok":true},{"id":"SC-01.flag.deploy.no-queue","ok":true},{"id":"SC-02.target.deploy","ok":true},{"id":"SC-01.verb.export","ok":true},{"id":"SC-01.flag.export.help","ok":true},{"id":"SC-01.flag.export.cwd","ok":true},{"id":"SC-01.flag.export.non-interactive","ok":true},{"id":"SC-01.flag.export.json","ok":true},{"id":"SC-01.flag.export.target","ok":true},{"id":"SC-01.flag.export.output","ok":true},{"id":"SC-01.flag.export.origin","ok":true},{"id":"SC-01.flag.export.session-file","ok":true},{"id":"SC-01.flag.export.platform","ok":true},{"id":"SC-01.flag.export.no-queue","ok":true},{"id":"SC-02.target.export","ok":true},{"id":"SC-01.verb.import","ok":true},{"id":"SC-01.flag.import.help","ok":true},{"id":"SC-01.flag.import.cwd","ok":true},{"id":"SC-01.flag.import.non-interactive","ok":true},{"id":"SC-01.flag.import.json","ok":true},{"id":"SC-01.flag.import.target","ok":true},{"id":"SC-01.flag.import.input","ok":true},{"id":"SC-01.flag.import.journal","ok":true},{"id":"SC-01.flag.import.origin","ok":true},{"id":"SC-01.flag.import.session-file","ok":true},{"id":"SC-01.flag.import.yes","ok":true},{"id":"SC-01.flag.import.legacy-v1","ok":true},{"id":"SC-01.flag.import.acknowledge-unverified-metadata","ok":true},{"id":"SC-01.flag.import.acknowledge-unverified-schema-objects","ok":true},{"id":"SC-01.flag.import.output","ok":true},{"id":"SC-01.flag.import.platform","ok":true},{"id":"SC-01.flag.import.no-queue","ok":true},{"id":"SC-02.target.import","ok":true},{"id":"SC-01.verb.doctor","ok":true},{"id":"SC-01.flag.doctor.help","ok":true},{"id":"SC-01.flag.doctor.cwd","ok":true},{"id":"SC-01.flag.doctor.non-interactive","ok":true},{"id":"SC-01.flag.doctor.json","ok":true},{"id":"SC-02.target.doctor","ok":true},{"id":"SC-01.verb.describe","ok":true},{"id":"SC-01.flag.describe.help","ok":true},{"id":"SC-01.flag.describe.cwd","ok":true},{"id":"SC-01.flag.describe.non-interactive","ok":true},{"id":"SC-01.flag.describe.json","ok":true},{"id":"SC-02.target.describe","ok":true},{"id":"SC-01.verb.check","ok":true},{"id":"SC-01.flag.check.help","ok":true},{"id":"SC-01.flag.check.cwd","ok":true},{"id":"SC-01.flag.check.non-interactive","ok":true},{"id":"SC-01.flag.check.json","ok":true},{"id":"SC-01.flag.check.profile","ok":true},{"id":"SC-02.target.check","ok":true},{"id":"SC-01.verb.release","ok":true},{"id":"SC-01.flag.release.repo","ok":true},{"id":"SC-01.flag.release.project","ok":true},{"id":"SC-01.flag.release.repository","ok":true},{"id":"SC-01.flag.release.output","ok":true},{"id":"SC-01.flag.release.ref","ok":true},{"id":"SC-01.flag.release.public-base","ok":true},{"id":"SC-01.flag.release.dry-run","ok":true},{"id":"SC-01.flag.release.local-verify","ok":true},{"id":"SC-01.flag.release.verify-workflow","ok":true},{"id":"SC-01.flag.release.scan-timeout-seconds","ok":true},{"id":"SC-01.flag.release.tag","ok":true},{"id":"SC-01.flag.release.clean-history","ok":true},{"id":"SC-01.flag.release.onto","ok":true},{"id":"SC-01.flag.release.env-file","ok":true},{"id":"SC-01.flag.release.allow-placeholder-mark","ok":true},{"id":"SC-01.flag.release.no-queue","ok":true},{"id":"SC-02.target.release","ok":true},{"id":"SC-02.alias.setup","ok":true},{"id":"SC-02.alias.dev","ok":true},{"id":"SC-02.alias.preview","ok":true},{"id":"SC-02.alias.build","ok":true},{"id":"SC-02.alias.verify","ok":true},{"id":"SC-02.alias.reset","ok":true},{"id":"SC-02.alias.deploy","ok":true},{"id":"SC-02.alias.export","ok":true},{"id":"SC-02.alias.import","ok":true},{"id":"SC-02.alias.doctor","ok":true},{"id":"SC-02.alias.describe","ok":true},{"id":"SC-02.alias.check","ok":true},{"id":"SC-02.alias.release","ok":true},{"id":"SC-02.alias.deps","ok":true},{"id":"SC-02.alias.rer","ok":true},{"id":"SC-02.install-lifecycle","ok":true},{"id":"SC-02.node-file","ok":true},{"id":"SC-02.node-engine","ok":true},{"id":"SC-02.pnpm","ok":true},{"id":"SC-13.package.pin","ok":true},{"id":"SC-13.package.lockfile","ok":true},{"id":"SC-13.package.vendored.scripts/rer.mjs","ok":true},{"id":"SC-13.package.vendored.scripts/base-cli","ok":true},{"id":"SC-13.package.vendored.scripts/base-onboarding","ok":true},{"id":"SC-13.package.calls","ok":true},{"id":"SC-08.portability","ok":true},{"id":"SC-05.dev-identity.entry","ok":true},{"id":"SC-05.dev-identity.exclusion","ok":true},{"id":"SC-05.auth-copy.pin","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/adapter.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/admin.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/audit.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/business-team.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/credentials.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/delegated.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/display-name.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/domain-audit.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/editor-owner.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/email-change.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/native.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/native.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/oa.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/one-click.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/owner-signin.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/provider-control.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/provider-pin.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/provider-setup.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/roles.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/dependency-setup.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/dev-sessions.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/domain-rules-step-up.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/invitation-cancellation.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/last-signin.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/operator-auth.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/owner-signin.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/provider-control.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/provider-pins.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/scheduled-policy-hardening.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/schema/scheduled-policy.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/settings-page.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/status.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/accounts/store.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/branding.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/business-settings.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/config.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/conformance/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/conformance/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/conformance/presentation.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/conformance/README.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/crypto.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/csp.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev-admission.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev-admission.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev-gate.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev/cli-session.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev/personas.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev/refusal.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev/sign-in-as.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/dev/sign-in-as.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/docs/native-accounts.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/docs/README.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/docs/tanstack-start.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/docs/vite-spa.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/errors.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/http.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/icon-head.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/icon-head.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/admission.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/after-confirm.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/email-link/confirmation.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/email-link/expiry.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/email-link/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/email-link/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/email-link/message.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/admin-audit.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/aes-gcm.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/client-auth.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/config.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/crypto.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/errors.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/jwt.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/network.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/presets.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/README.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/schema/oidc.sql","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/oidc/store.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/identity/principal.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/input.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/local-cli.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/loopback.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/owner-signin-grant.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/page.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/policy.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/policy.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/README.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/rejected-response.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/representation.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/routes.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/SCHEDULED-POLICY.md","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/scheduled/definition.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/scheduled/expiry.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/scheduled/fence.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/scheduled/history.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/scheduled/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/scheduled/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/scheduled/runner.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/service.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/signin/index.d.mts","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/signin/index.mjs","ok":true},{"id":"SC-05.auth-copy.src/modules/operator-auth/signin/one-click.mjs","ok":true},{"id":"SC-05.auth-copy.migration-pin.migrations/core/0001_owner.sql","ok":true},{"id":"SC-05.auth-copy.migrations/core/0001_owner.sql","ok":true},{"id":"SC-05.auth-copy.migration-pin.migrations/core/0005_identity_providers.sql","ok":true},{"id":"SC-05.auth-copy.migrations/core/0005_identity_providers.sql","ok":true},{"id":"SC-05.auth-copy.migration-pin.migrations/core/0006_provider_control.sql","ok":true},{"id":"SC-05.auth-copy.migrations/core/0006_provider_control.sql","ok":true},{"id":"SC-05.auth-copy.migration-pin.migrations/core/0010_provider_pins.sql","ok":true},{"id":"SC-05.auth-copy.migrations/core/0010_provider_pins.sql","ok":true},{"id":"SC-05.auth-copy.migration-pin.migrations/core/0011_dependency_setup.sql","ok":true},{"id":"SC-05.auth-copy.migrations/core/0011_dependency_setup.sql","ok":true},{"id":"CONTRACT.status","ok":true},{"id":"CONTRACT.evidence.GLOVE-01","ok":true},{"id":"CONTRACT.evidence.GLOVE-01","ok":true},{"id":"CONTRACT.evidence.GLOVE-02","ok":true},{"id":"CONTRACT.evidence.GLOVE-03","ok":true},{"id":"CONTRACT.evidence.GLOVE-03","ok":true},{"id":"CONTRACT.evidence.GLOVE-04","ok":true},{"id":"CONTRACT.evidence.GLOVE-05","ok":true},{"id":"CONTRACT.evidence.GLOVE-05","ok":true},{"id":"CONTRACT.evidence.GLOVE-06","ok":true},{"id":"CONTRACT.evidence.GLOVE-06","ok":true},{"id":"CONTRACT.evidence.GLOVE-07","ok":true},{"id":"CONTRACT.evidence.GLOVE-08","ok":true},{"id":"CONTRACT.evidence.GLOVE-08","ok":true},{"id":"CONTRACT.evidence.GLOVE-09","ok":true},{"id":"CONTRACT.evidence.GLOVE-09","ok":true},{"id":"CONTRACT.evidence.GLOVE-09","ok":true},{"id":"CONTRACT.evidence.GLOVE-10","ok":true},{"id":"CONTRACT.evidence.GLOVE-10","ok":true},{"id":"CONTRACT.evidence.GLOVE-11","ok":true},{"id":"CONTRACT.evidence.GLOVE-11","ok":true},{"id":"CONTRACT.evidence.GLOVE-12","ok":true},{"id":"CONTRACT.evidence.GLOVE-12","ok":true},{"id":"CONTRACT.evidence.GLOVE-12","ok":true},{"id":"CONTRACT.evidence.HTTP-001","ok":true},{"id":"CONTRACT.evidence.MONEY-002","ok":true},{"id":"CONTRACT.evidence.MONEY-002","ok":true},{"id":"CONTRACT.evidence.MONEY-002","ok":true},{"id":"CONTRACT.evidence.MONEY-002","ok":true},{"id":"CONTRACT.evidence.MONEY-002","ok":true},{"id":"CONTRACT.evidence.CUST-001","ok":true},{"id":"CONTRACT.evidence.CUST-001","ok":true},{"id":"CONTRACT.evidence.CUST-001","ok":true},{"id":"CONTRACT.evidence.CUST-002","ok":true},{"id":"CONTRACT.evidence.CUST-002","ok":true},{"id":"CONTRACT.evidence.CUST-002","ok":true},{"id":"CONTRACT.evidence.CUST-002","ok":true},{"id":"CONTRACT.evidence.CUST-002","ok":true},{"id":"CONTRACT.evidence.CUST-003","ok":true},{"id":"CONTRACT.evidence.CUST-003","ok":true},{"id":"CONTRACT.evidence.CUST-003","ok":true},{"id":"CONTRACT.evidence.CUST-003","ok":true},{"id":"CONTRACT.evidence.CUST-005","ok":true},{"id":"CONTRACT.evidence.BOOK-003","ok":true},{"id":"CONTRACT.evidence.BOOK-005","ok":true},{"id":"CONTRACT.evidence.BOOK-005","ok":true},{"id":"CONTRACT.evidence.BOOK-005","ok":true},{"id":"CONTRACT.evidence.BOOK-005","ok":true},{"id":"CONTRACT.evidence.BOOK-005","ok":true},{"id":"CONTRACT.evidence.BOOK-005","ok":true},{"id":"CONTRACT.evidence.BOOK-006","ok":true},{"id":"CONTRACT.evidence.BOOK-006","ok":true},{"id":"CONTRACT.evidence.BOOK-006","ok":true},{"id":"CONTRACT.evidence.BOOK-006","ok":true},{"id":"CONTRACT.evidence.BOOK-006","ok":true},{"id":"CONTRACT.evidence.QUOTE-001","ok":true},{"id":"CONTRACT.evidence.QUOTE-001","ok":true},{"id":"CONTRACT.evidence.QUOTE-001","ok":true},{"id":"CONTRACT.evidence.QUOTE-001","ok":true},{"id":"CONTRACT.evidence.QUOTE-001","ok":true},{"id":"CONTRACT.evidence.QUOTE-001","ok":true},{"id":"CONTRACT.evidence.QUOTE-004","ok":true},{"id":"CONTRACT.evidence.QUOTE-004","ok":true},{"id":"CONTRACT.evidence.DISP-001","ok":true},{"id":"CONTRACT.evidence.DISP-001","ok":true},{"id":"CONTRACT.evidence.DISP-001","ok":true},{"id":"CONTRACT.evidence.DISP-001","ok":true},{"id":"CONTRACT.evidence.DISP-004","ok":true},{"id":"CONTRACT.evidence.DISP-004","ok":true},{"id":"CONTRACT.evidence.DISP-004","ok":true},{"id":"CONTRACT.evidence.DISP-004","ok":true},{"id":"CONTRACT.evidence.DISP-004","ok":true},{"id":"CONTRACT.evidence.DISP-006","ok":true},{"id":"CONTRACT.evidence.DISP-006","ok":true},{"id":"CONTRACT.evidence.DISP-006","ok":true},{"id":"CONTRACT.evidence.DISP-006","ok":true},{"id":"CONTRACT.evidence.DISP-006","ok":true},{"id":"CONTRACT.evidence.DISP-006","ok":true},{"id":"CONTRACT.evidence.DISP-009","ok":true},{"id":"CONTRACT.evidence.DISP-009","ok":true},{"id":"CONTRACT.evidence.DISP-009","ok":true},{"id":"CONTRACT.evidence.COMM-002","ok":true},{"id":"CONTRACT.evidence.COMM-002","ok":true},{"id":"CONTRACT.evidence.COMM-002","ok":true},{"id":"CONTRACT.evidence.COMM-005","ok":true},{"id":"CONTRACT.evidence.COMM-005","ok":true},{"id":"CONTRACT.evidence.COMM-007","ok":true},{"id":"CONTRACT.evidence.COMM-007","ok":true},{"id":"CONTRACT.evidence.COMM-007","ok":true},{"id":"CONTRACT.evidence.COMM-007","ok":true},{"id":"CONTRACT.evidence.COMM-007","ok":true},{"id":"CONTRACT.evidence.COMM-007","ok":true},{"id":"CONTRACT.evidence.FIELD-001","ok":true},{"id":"CONTRACT.evidence.FIELD-001","ok":true},{"id":"CONTRACT.evidence.FIELD-001","ok":true},{"id":"CONTRACT.evidence.FIELD-001","ok":true},{"id":"CONTRACT.evidence.FIELD-001","ok":true},{"id":"CONTRACT.evidence.FIELD-001","ok":true},{"id":"CONTRACT.evidence.FIELD-002","ok":true},{"id":"CONTRACT.evidence.FIELD-002","ok":true},{"id":"CONTRACT.evidence.FIELD-002","ok":true},{"id":"CONTRACT.evidence.FIELD-002","ok":true},{"id":"CONTRACT.evidence.FIELD-002","ok":true},{"id":"CONTRACT.evidence.FIELD-002","ok":true},{"id":"CONTRACT.evidence.FIELD-003","ok":true},{"id":"CONTRACT.evidence.FIELD-003","ok":true},{"id":"CONTRACT.evidence.FIELD-003","ok":true},{"id":"CONTRACT.evidence.FIELD-003","ok":true},{"id":"CONTRACT.evidence.FIELD-003","ok":true},{"id":"CONTRACT.evidence.FIELD-007","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-001","ok":true},{"id":"CONTRACT.evidence.COST-003","ok":true},{"id":"CONTRACT.evidence.COST-004","ok":true},{"id":"CONTRACT.evidence.COST-004","ok":true},{"id":"CONTRACT.evidence.COST-005","ok":true},{"id":"CONTRACT.evidence.COST-005","ok":true},{"id":"CONTRACT.evidence.COST-005","ok":true},{"id":"CONTRACT.evidence.COST-005","ok":true},{"id":"CONTRACT.evidence.COST-005","ok":true},{"id":"CONTRACT.evidence.COST-005","ok":true},{"id":"CONTRACT.evidence.PAY-005","ok":true},{"id":"CONTRACT.evidence.PAY-005","ok":true},{"id":"CONTRACT.evidence.PAY-009","ok":true},{"id":"CONTRACT.evidence.PAY-009","ok":true},{"id":"CONTRACT.evidence.LEDGER-004","ok":true},{"id":"CONTRACT.evidence.LEDGER-004","ok":true},{"id":"CONTRACT.evidence.PLAN-002","ok":true},{"id":"CONTRACT.evidence.PLAN-002","ok":true},{"id":"CONTRACT.evidence.PLAN-002","ok":true},{"id":"CONTRACT.evidence.PLAN-002","ok":true},{"id":"CONTRACT.evidence.PLAN-002","ok":true},{"id":"CONTRACT.evidence.PLAN-002","ok":true},{"id":"CONTRACT.evidence.PLAN-002","ok":true},{"id":"CONTRACT.evidence.STOCK-001","ok":true},{"id":"CONTRACT.evidence.STOCK-001","ok":true},{"id":"CONTRACT.evidence.STOCK-001","ok":true},{"id":"CONTRACT.evidence.STOCK-001","ok":true},{"id":"CONTRACT.evidence.STOCK-001","ok":true},{"id":"CONTRACT.evidence.STOCK-001","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.STOCK-002","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.TEAM-001","ok":true},{"id":"CONTRACT.evidence.REPORT-001","ok":true},{"id":"CONTRACT.evidence.REPORT-001","ok":true},{"id":"CONTRACT.evidence.REPORT-001","ok":true},{"id":"CONTRACT.evidence.REPORT-001","ok":true},{"id":"CONTRACT.evidence.REPORT-001","ok":true},{"id":"CONTRACT.evidence.REPORT-003","ok":true},{"id":"CONTRACT.evidence.REPORT-003","ok":true},{"id":"CONTRACT.evidence.REPORT-003","ok":true},{"id":"CONTRACT.evidence.MOVE-005","ok":true},{"id":"CONTRACT.evidence.MOVE-005","ok":true},{"id":"CONTRACT.evidence.API-001","ok":true},{"id":"CONTRACT.evidence.API-001","ok":true},{"id":"CONTRACT.evidence.API-001","ok":true},{"id":"CONTRACT.evidence.API-001","ok":true},{"id":"CONTRACT.evidence.API-001","ok":true},{"id":"CONTRACT.evidence.API-001","ok":true},{"id":"CONTRACT.evidence.API-005","ok":true},{"id":"CONTRACT.evidence.API-005","ok":true},{"id":"CONTRACT.evidence.API-005","ok":true},{"id":"CONTRACT.evidence.API-005","ok":true},{"id":"CONTRACT.evidence.DATA-003","ok":true},{"id":"CONTRACT.evidence.DATA-003","ok":true},{"id":"CONTRACT.evidence.DATA-004","ok":true},{"id":"CONTRACT.evidence.DATA-004","ok":true},{"id":"CONTRACT.evidence.DATA-004","ok":true},{"id":"CONTRACT.evidence.AGENT-006","ok":true},{"id":"CONTRACT.evidence.AGENT-006","ok":true},{"id":"CONTRACT.evidence.AGENT-006","ok":true},{"id":"CONTRACT.evidence.AGENT-006","ok":true},{"id":"CONTRACT.evidence.AGENT-006","ok":true},{"id":"CONTRACT.evidence.AGENT-009","ok":true},{"id":"CONTRACT.evidence.AGENT-009","ok":true},{"id":"CONTRACT.evidence.AGENT-009","ok":true},{"id":"CONTRACT.evidence.AGENT-009","ok":true},{"id":"CONTRACT.evidence.AGENT-009","ok":true},{"id":"CONTRACT.evidence.MONEY-001","ok":true},{"id":"CONTRACT.evidence.MONEY-001","ok":true},{"id":"CONTRACT.evidence.MONEY-001","ok":true},{"id":"CONTRACT.evidence.MONEY-001","ok":true},{"id":"CONTRACT.evidence.MONEY-001","ok":true},{"id":"CONTRACT.evidence.MONEY-001","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-004","ok":true},{"id":"CONTRACT.evidence.MONEY-005","ok":true},{"id":"CONTRACT.evidence.MONEY-005","ok":true},{"id":"CONTRACT.evidence.MONEY-005","ok":true},{"id":"CONTRACT.evidence.MONEY-005","ok":true},{"id":"CONTRACT.evidence.MONEY-005","ok":true},{"id":"CONTRACT.evidence.MONEY-005","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-003","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.MONEY-006","ok":true},{"id":"CONTRACT.evidence.CUST-004","ok":true},{"id":"CONTRACT.evidence.CUST-004","ok":true},{"id":"CONTRACT.evidence.CUST-004","ok":true},{"id":"CONTRACT.evidence.CUST-004","ok":true},{"id":"CONTRACT.evidence.CUST-004","ok":true},{"id":"CONTRACT.evidence.CUST-004","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.CUST-006","ok":true},{"id":"CONTRACT.evidence.BOOK-001","ok":true},{"id":"CONTRACT.evidence.BOOK-001","ok":true},{"id":"CONTRACT.evidence.BOOK-007","ok":true},{"id":"CONTRACT.evidence.BOOK-007","ok":true},{"id":"CONTRACT.evidence.BOOK-008","ok":true},{"id":"CONTRACT.evidence.BOOK-008","ok":true},{"id":"CONTRACT.evidence.BOOK-009","ok":true},{"id":"CONTRACT.evidence.BOOK-009","ok":true},{"id":"CONTRACT.evidence.BOOK-010","ok":true},{"id":"CONTRACT.evidence.BOOK-010","ok":true},{"id":"CONTRACT.evidence.BOOK-002","ok":true},{"id":"CONTRACT.evidence.BOOK-002","ok":true},{"id":"CONTRACT.evidence.BOOK-002","ok":true},{"id":"CONTRACT.evidence.BOOK-002","ok":true},{"id":"CONTRACT.evidence.BOOK-002","ok":true},{"id":"CONTRACT.evidence.BOOK-011","ok":true},{"id":"CONTRACT.evidence.BOOK-011","ok":true},{"id":"CONTRACT.evidence.BOOK-011","ok":true},{"id":"CONTRACT.evidence.BOOK-011","ok":true},{"id":"CONTRACT.evidence.BOOK-011","ok":true},{"id":"CONTRACT.evidence.BOOK-012","ok":true},{"id":"CONTRACT.evidence.BOOK-012","ok":true},{"id":"CONTRACT.evidence.BOOK-012","ok":true},{"id":"CONTRACT.evidence.BOOK-012","ok":true},{"id":"CONTRACT.evidence.BOOK-012","ok":true},{"id":"CONTRACT.evidence.BOOK-013","ok":true},{"id":"CONTRACT.evidence.BOOK-013","ok":true},{"id":"CONTRACT.evidence.BOOK-013","ok":true},{"id":"CONTRACT.evidence.BOOK-013","ok":true},{"id":"CONTRACT.evidence.BOOK-013","ok":true},{"id":"CONTRACT.evidence.BOOK-004","ok":true},{"id":"CONTRACT.evidence.BOOK-004","ok":true},{"id":"CONTRACT.evidence.BOOK-014","ok":true},{"id":"CONTRACT.evidence.BOOK-014","ok":true},{"id":"CONTRACT.evidence.BOOK-014","ok":true},{"id":"CONTRACT.evidence.BOOK-015","ok":true},{"id":"CONTRACT.evidence.BOOK-015","ok":true},{"id":"CONTRACT.evidence.BOOK-015","ok":true},{"id":"CONTRACT.evidence.BOOK-015","ok":true},{"id":"CONTRACT.evidence.BOOK-016","ok":true},{"id":"CONTRACT.evidence.BOOK-016","ok":true},{"id":"CONTRACT.evidence.BOOK-016","ok":true},{"id":"CONTRACT.evidence.BOOK-017","ok":true},{"id":"CONTRACT.evidence.BOOK-017","ok":true},{"id":"CONTRACT.evidence.BOOK-017","ok":true},{"id":"CONTRACT.evidence.BOOK-017","ok":true},{"id":"CONTRACT.evidence.QUOTE-002","ok":true},{"id":"CONTRACT.evidence.QUOTE-002","ok":true},{"id":"CONTRACT.evidence.QUOTE-002","ok":true},{"id":"CONTRACT.evidence.QUOTE-002","ok":true},{"id":"CONTRACT.evidence.QUOTE-002","ok":true},{"id":"CONTRACT.evidence.QUOTE-008","ok":true},{"id":"CONTRACT.evidence.QUOTE-008","ok":true},{"id":"CONTRACT.evidence.QUOTE-008","ok":true},{"id":"CONTRACT.evidence.QUOTE-009","ok":true},{"id":"CONTRACT.evidence.QUOTE-009","ok":true},{"id":"CONTRACT.evidence.QUOTE-009","ok":true},{"id":"CONTRACT.evidence.QUOTE-010","ok":true},{"id":"CONTRACT.evidence.QUOTE-010","ok":true},{"id":"CONTRACT.evidence.QUOTE-010","ok":true},{"id":"CONTRACT.evidence.QUOTE-011","ok":true},{"id":"CONTRACT.evidence.QUOTE-011","ok":true},{"id":"CONTRACT.evidence.QUOTE-011","ok":true},{"id":"CONTRACT.evidence.QUOTE-011","ok":true},{"id":"CONTRACT.evidence.QUOTE-012","ok":true},{"id":"CONTRACT.evidence.QUOTE-012","ok":true},{"id":"CONTRACT.evidence.QUOTE-012","ok":true},{"id":"CONTRACT.evidence.QUOTE-012","ok":true},{"id":"CONTRACT.evidence.QUOTE-012","ok":true},{"id":"CONTRACT.evidence.QUOTE-013","ok":true},{"id":"CONTRACT.evidence.QUOTE-013","ok":true},{"id":"CONTRACT.evidence.QUOTE-013","ok":true},{"id":"CONTRACT.evidence.QUOTE-003","ok":true},{"id":"CONTRACT.evidence.QUOTE-014","ok":true},{"id":"CONTRACT.evidence.QUOTE-005","ok":true},{"id":"CONTRACT.evidence.QUOTE-005","ok":true},{"id":"CONTRACT.evidence.QUOTE-015","ok":true},{"id":"CONTRACT.evidence.QUOTE-015","ok":true},{"id":"CONTRACT.evidence.QUOTE-015","ok":true},{"id":"CONTRACT.evidence.QUOTE-015","ok":true},{"id":"CONTRACT.evidence.QUOTE-006","ok":true},{"id":"CONTRACT.evidence.QUOTE-006","ok":true},{"id":"CONTRACT.evidence.QUOTE-016","ok":true},{"id":"CONTRACT.evidence.QUOTE-016","ok":true},{"id":"CONTRACT.evidence.QUOTE-017","ok":true},{"id":"CONTRACT.evidence.QUOTE-017","ok":true},{"id":"CONTRACT.evidence.QUOTE-018","ok":true},{"id":"CONTRACT.evidence.QUOTE-018","ok":true},{"id":"CONTRACT.evidence.QUOTE-007","ok":true},{"id":"CONTRACT.evidence.QUOTE-007","ok":true},{"id":"CONTRACT.evidence.QUOTE-019","ok":true},{"id":"CONTRACT.evidence.QUOTE-019","ok":true},{"id":"CONTRACT.evidence.QUOTE-019","ok":true},{"id":"CONTRACT.evidence.QUOTE-019","ok":true},{"id":"CONTRACT.evidence.DISP-002","ok":true},{"id":"CONTRACT.evidence.DISP-002","ok":true},{"id":"CONTRACT.evidence.DISP-002","ok":true},{"id":"CONTRACT.evidence.DISP-002","ok":true},{"id":"CONTRACT.evidence.DISP-002","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-010","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-003","ok":true},{"id":"CONTRACT.evidence.DISP-011","ok":true},{"id":"CONTRACT.evidence.DISP-011","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-005","ok":true},{"id":"CONTRACT.evidence.DISP-012","ok":true},{"id":"CONTRACT.evidence.DISP-012","ok":true},{"id":"CONTRACT.evidence.DISP-012","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-007","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-013","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-014","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-008","ok":true},{"id":"CONTRACT.evidence.DISP-015","ok":true},{"id":"CONTRACT.evidence.DISP-015","ok":true},{"id":"CONTRACT.evidence.DISP-015","ok":true},{"id":"CONTRACT.evidence.DISP-015","ok":true},{"id":"CONTRACT.evidence.DISP-015","ok":true},{"id":"CONTRACT.evidence.DISP-015","ok":true},{"id":"CONTRACT.evidence.COMM-001","ok":true},{"id":"CONTRACT.evidence.COMM-001","ok":true},{"id":"CONTRACT.evidence.COMM-001","ok":true},{"id":"CONTRACT.evidence.COMM-001","ok":true},{"id":"CONTRACT.evidence.COMM-001","ok":true},{"id":"CONTRACT.evidence.COMM-001","ok":true},{"id":"CONTRACT.evidence.COMM-001","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-010","ok":true},{"id":"CONTRACT.evidence.COMM-011","ok":true},{"id":"CONTRACT.evidence.COMM-011","ok":true},{"id":"CONTRACT.evidence.COMM-011","ok":true},{"id":"CONTRACT.evidence.COMM-011","ok":true},{"id":"CONTRACT.evidence.COMM-011","ok":true},{"id":"CONTRACT.evidence.COMM-011","ok":true},{"id":"CONTRACT.evidence.COMM-011","ok":true},{"id":"CONTRACT.evidence.COMM-012","ok":true},{"id":"CONTRACT.evidence.COMM-012","ok":true},{"id":"CONTRACT.evidence.COMM-012","ok":true},{"id":"CONTRACT.evidence.COMM-012","ok":true},{"id":"CONTRACT.evidence.COMM-012","ok":true},{"id":"CONTRACT.evidence.COMM-012","ok":true},{"id":"CONTRACT.evidence.COMM-012","ok":true},{"id":"CONTRACT.evidence.COMM-013","ok":true},{"id":"CONTRACT.evidence.COMM-013","ok":true},{"id":"CONTRACT.evidence.COMM-013","ok":true},{"id":"CONTRACT.evidence.COMM-013","ok":true},{"id":"CONTRACT.evidence.COMM-013","ok":true},{"id":"CONTRACT.evidence.COMM-013","ok":true},{"id":"CONTRACT.evidence.COMM-013","ok":true},{"id":"CONTRACT.evidence.COMM-014","ok":true},{"id":"CONTRACT.evidence.COMM-014","ok":true},{"id":"CONTRACT.evidence.COMM-014","ok":true},{"id":"CONTRACT.evidence.COMM-014","ok":true},{"id":"CONTRACT.evidence.COMM-014","ok":true},{"id":"CONTRACT.evidence.COMM-014","ok":true},{"id":"CONTRACT.evidence.COMM-014","ok":true},{"id":"CONTRACT.evidence.COMM-015","ok":true},{"id":"CONTRACT.evidence.COMM-015","ok":true},{"id":"CONTRACT.evidence.COMM-015","ok":true},{"id":"CONTRACT.evidence.COMM-015","ok":true},{"id":"CONTRACT.evidence.COMM-015","ok":true},{"id":"CONTRACT.evidence.COMM-015","ok":true},{"id":"CONTRACT.evidence.COMM-015","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-016","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-017","ok":true},{"id":"CONTRACT.evidence.COMM-018","ok":true},{"id":"CONTRACT.evidence.COMM-018","ok":true},{"id":"CONTRACT.evidence.COMM-018","ok":true},{"id":"CONTRACT.evidence.COMM-018","ok":true},{"id":"CONTRACT.evidence.COMM-018","ok":true},{"id":"CONTRACT.evidence.COMM-018","ok":true},{"id":"CONTRACT.evidence.COMM-018","ok":true},{"id":"CONTRACT.evidence.COMM-003","ok":true},{"id":"CONTRACT.evidence.COMM-003","ok":true},{"id":"CONTRACT.evidence.COMM-019","ok":true},{"id":"CONTRACT.evidence.COMM-019","ok":true},{"id":"CONTRACT.evidence.COMM-020","ok":true},{"id":"CONTRACT.evidence.COMM-020","ok":true},{"id":"CONTRACT.evidence.COMM-004","ok":true},{"id":"CONTRACT.evidence.COMM-004","ok":true},{"id":"CONTRACT.evidence.COMM-021","ok":true},{"id":"CONTRACT.evidence.COMM-021","ok":true},{"id":"CONTRACT.evidence.COMM-006","ok":true},{"id":"CONTRACT.evidence.COMM-006","ok":true},{"id":"CONTRACT.evidence.COMM-006","ok":true},{"id":"CONTRACT.evidence.COMM-022","ok":true},{"id":"CONTRACT.evidence.COMM-022","ok":true},{"id":"CONTRACT.evidence.COMM-022","ok":true},{"id":"CONTRACT.evidence.COMM-023","ok":true},{"id":"CONTRACT.evidence.COMM-023","ok":true},{"id":"CONTRACT.evidence.COMM-023","ok":true},{"id":"CONTRACT.evidence.COMM-024","ok":true},{"id":"CONTRACT.evidence.COMM-024","ok":true},{"id":"CONTRACT.evidence.COMM-024","ok":true},{"id":"CONTRACT.evidence.COMM-025","ok":true},{"id":"CONTRACT.evidence.COMM-025","ok":true},{"id":"CONTRACT.evidence.COMM-025","ok":true},{"id":"CONTRACT.evidence.COMM-008","ok":true},{"id":"CONTRACT.evidence.COMM-008","ok":true},{"id":"CONTRACT.evidence.COMM-026","ok":true},{"id":"CONTRACT.evidence.COMM-026","ok":true},{"id":"CONTRACT.evidence.COMM-027","ok":true},{"id":"CONTRACT.evidence.COMM-027","ok":true},{"id":"CONTRACT.evidence.COMM-009","ok":true},{"id":"CONTRACT.evidence.COMM-009","ok":true},{"id":"CONTRACT.evidence.COMM-009","ok":true},{"id":"CONTRACT.evidence.COMM-009","ok":true},{"id":"CONTRACT.evidence.COMM-028","ok":true},{"id":"CONTRACT.evidence.COMM-028","ok":true},{"id":"CONTRACT.evidence.COMM-028","ok":true},{"id":"CONTRACT.evidence.COMM-028","ok":true},{"id":"CONTRACT.evidence.FIELD-004","ok":true},{"id":"CONTRACT.evidence.FIELD-004","ok":true},{"id":"CONTRACT.evidence.FIELD-004","ok":true},{"id":"CONTRACT.evidence.FIELD-004","ok":true},{"id":"CONTRACT.evidence.FIELD-004","ok":true},{"id":"CONTRACT.evidence.FIELD-004","ok":true},{"id":"CONTRACT.evidence.FIELD-004","ok":true},{"id":"CONTRACT.evidence.FIELD-009","ok":true},{"id":"CONTRACT.evidence.FIELD-009","ok":true},{"id":"CONTRACT.evidence.FIELD-009","ok":true},{"id":"CONTRACT.evidence.FIELD-009","ok":true},{"id":"CONTRACT.evidence.FIELD-009","ok":true},{"id":"CONTRACT.evidence.FIELD-009","ok":true},{"id":"CONTRACT.evidence.FIELD-009","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-010","ok":true},{"id":"CONTRACT.evidence.FIELD-006","ok":true},{"id":"CONTRACT.evidence.FIELD-006","ok":true},{"id":"CONTRACT.evidence.FIELD-006","ok":true},{"id":"CONTRACT.evidence.FIELD-006","ok":true},{"id":"CONTRACT.evidence.FIELD-011","ok":true},{"id":"CONTRACT.evidence.FIELD-011","ok":true},{"id":"CONTRACT.evidence.FIELD-011","ok":true},{"id":"CONTRACT.evidence.FIELD-011","ok":true},{"id":"CONTRACT.evidence.FIELD-008","ok":true},{"id":"CONTRACT.evidence.FIELD-008","ok":true},{"id":"CONTRACT.evidence.FIELD-008","ok":true},{"id":"CONTRACT.evidence.FIELD-012","ok":true},{"id":"CONTRACT.evidence.FIELD-012","ok":true},{"id":"CONTRACT.evidence.FIELD-012","ok":true},{"id":"CONTRACT.evidence.COST-002","ok":true},{"id":"CONTRACT.evidence.COST-002","ok":true},{"id":"CONTRACT.evidence.COST-002","ok":true},{"id":"CONTRACT.evidence.COST-002","ok":true},{"id":"CONTRACT.evidence.COST-002","ok":true},{"id":"CONTRACT.evidence.COST-002","ok":true},{"id":"CONTRACT.evidence.COST-006","ok":true},{"id":"CONTRACT.evidence.COST-006","ok":true},{"id":"CONTRACT.evidence.COST-006","ok":true},{"id":"CONTRACT.evidence.COST-006","ok":true},{"id":"CONTRACT.evidence.COST-006","ok":true},{"id":"CONTRACT.evidence.COST-006","ok":true},{"id":"CONTRACT.evidence.COST-007","ok":true},{"id":"CONTRACT.evidence.COST-007","ok":true},{"id":"CONTRACT.evidence.COST-007","ok":true},{"id":"CONTRACT.evidence.COST-007","ok":true},{"id":"CONTRACT.evidence.COST-007","ok":true},{"id":"CONTRACT.evidence.COST-007","ok":true},{"id":"CONTRACT.evidence.COST-007","ok":true},{"id":"CONTRACT.evidence.PAY-001","ok":true},{"id":"CONTRACT.evidence.PAY-001","ok":true},{"id":"CONTRACT.evidence.PAY-001","ok":true},{"id":"CONTRACT.evidence.PAY-001","ok":true},{"id":"CONTRACT.evidence.PAY-001","ok":true},{"id":"CONTRACT.evidence.PAY-001","ok":true},{"id":"CONTRACT.evidence.PAY-010","ok":true},{"id":"CONTRACT.evidence.PAY-010","ok":true},{"id":"CONTRACT.evidence.PAY-010","ok":true},{"id":"CONTRACT.evidence.PAY-010","ok":true},{"id":"CONTRACT.evidence.PAY-010","ok":true},{"id":"CONTRACT.evidence.PAY-010","ok":true},{"id":"CONTRACT.evidence.PAY-011","ok":true},{"id":"CONTRACT.evidence.PAY-011","ok":true},{"id":"CONTRACT.evidence.PAY-011","ok":true},{"id":"CONTRACT.evidence.PAY-011","ok":true},{"id":"CONTRACT.evidence.PAY-011","ok":true},{"id":"CONTRACT.evidence.PAY-011","ok":true},{"id":"CONTRACT.evidence.PAY-012","ok":true},{"id":"CONTRACT.evidence.PAY-012","ok":true},{"id":"CONTRACT.evidence.PAY-012","ok":true},{"id":"CONTRACT.evidence.PAY-012","ok":true},{"id":"CONTRACT.evidence.PAY-012","ok":true},{"id":"CONTRACT.evidence.PAY-012","ok":true},{"id":"CONTRACT.evidence.PAY-013","ok":true},{"id":"CONTRACT.evidence.PAY-013","ok":true},{"id":"CONTRACT.evidence.PAY-013","ok":true},{"id":"CONTRACT.evidence.PAY-013","ok":true},{"id":"CONTRACT.evidence.PAY-013","ok":true},{"id":"CONTRACT.evidence.PAY-013","ok":true},{"id":"CONTRACT.evidence.PAY-014","ok":true},{"id":"CONTRACT.evidence.PAY-014","ok":true},{"id":"CONTRACT.evidence.PAY-014","ok":true},{"id":"CONTRACT.evidence.PAY-014","ok":true},{"id":"CONTRACT.evidence.PAY-014","ok":true},{"id":"CONTRACT.evidence.PAY-014","ok":true},{"id":"CONTRACT.evidence.PAY-015","ok":true},{"id":"CONTRACT.evidence.PAY-015","ok":true},{"id":"CONTRACT.evidence.PAY-015","ok":true},{"id":"CONTRACT.evidence.PAY-015","ok":true},{"id":"CONTRACT.evidence.PAY-015","ok":true},{"id":"CONTRACT.evidence.PAY-015","ok":true},{"id":"CONTRACT.evidence.PAY-016","ok":true},{"id":"CONTRACT.evidence.PAY-016","ok":true},{"id":"CONTRACT.evidence.PAY-016","ok":true},{"id":"CONTRACT.evidence.PAY-016","ok":true},{"id":"CONTRACT.evidence.PAY-016","ok":true},{"id":"CONTRACT.evidence.PAY-016","ok":true},{"id":"CONTRACT.evidence.PAY-002","ok":true},{"id":"CONTRACT.evidence.PAY-002","ok":true},{"id":"CONTRACT.evidence.PAY-002","ok":true},{"id":"CONTRACT.evidence.PAY-017","ok":true},{"id":"CONTRACT.evidence.PAY-017","ok":true},{"id":"CONTRACT.evidence.PAY-017","ok":true},{"id":"CONTRACT.evidence.PAY-018","ok":true},{"id":"CONTRACT.evidence.PAY-018","ok":true},{"id":"CONTRACT.evidence.PAY-018","ok":true},{"id":"CONTRACT.evidence.PAY-019","ok":true},{"id":"CONTRACT.evidence.PAY-019","ok":true},{"id":"CONTRACT.evidence.PAY-019","ok":true},{"id":"CONTRACT.evidence.PAY-020","ok":true},{"id":"CONTRACT.evidence.PAY-020","ok":true},{"id":"CONTRACT.evidence.PAY-020","ok":true},{"id":"CONTRACT.evidence.PAY-004","ok":true},{"id":"CONTRACT.evidence.PAY-004","ok":true},{"id":"CONTRACT.evidence.PAY-004","ok":true},{"id":"CONTRACT.evidence.PAY-021","ok":true},{"id":"CONTRACT.evidence.PAY-021","ok":true},{"id":"CONTRACT.evidence.PAY-021","ok":true},{"id":"CONTRACT.evidence.PAY-022","ok":true},{"id":"CONTRACT.evidence.PAY-022","ok":true},{"id":"CONTRACT.evidence.PAY-022","ok":true},{"id":"CONTRACT.evidence.PAY-023","ok":true},{"id":"CONTRACT.evidence.PAY-023","ok":true},{"id":"CONTRACT.evidence.PAY-023","ok":true},{"id":"CONTRACT.evidence.PAY-006","ok":true},{"id":"CONTRACT.evidence.PAY-024","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-007","ok":true},{"id":"CONTRACT.evidence.PAY-025","ok":true},{"id":"CONTRACT.evidence.PAY-025","ok":true},{"id":"CONTRACT.evidence.PAY-026","ok":true},{"id":"CONTRACT.evidence.PAY-026","ok":true},{"id":"CONTRACT.evidence.PAY-026","ok":true},{"id":"CONTRACT.evidence.PAY-008","ok":true},{"id":"CONTRACT.evidence.PAY-027","ok":true},{"id":"CONTRACT.evidence.PAY-028","ok":true},{"id":"CONTRACT.evidence.PAY-029","ok":true},{"id":"CONTRACT.evidence.PAY-030","ok":true},{"id":"CONTRACT.evidence.LEDGER-001","ok":true},{"id":"CONTRACT.evidence.LEDGER-001","ok":true},{"id":"CONTRACT.evidence.LEDGER-001","ok":true},{"id":"CONTRACT.evidence.LEDGER-001","ok":true},{"id":"CONTRACT.evidence.LEDGER-001","ok":true},{"id":"CONTRACT.evidence.LEDGER-001","ok":true},{"id":"CONTRACT.evidence.LEDGER-001","ok":true},{"id":"CONTRACT.evidence.LEDGER-005","ok":true},{"id":"CONTRACT.evidence.LEDGER-005","ok":true},{"id":"CONTRACT.evidence.LEDGER-005","ok":true},{"id":"CONTRACT.evidence.LEDGER-005","ok":true},{"id":"CONTRACT.evidence.LEDGER-005","ok":true},{"id":"CONTRACT.evidence.LEDGER-006","ok":true},{"id":"CONTRACT.evidence.LEDGER-006","ok":true},{"id":"CONTRACT.evidence.LEDGER-006","ok":true},{"id":"CONTRACT.evidence.LEDGER-006","ok":true},{"id":"CONTRACT.evidence.LEDGER-006","ok":true},{"id":"CONTRACT.evidence.LEDGER-007","ok":true},{"id":"CONTRACT.evidence.LEDGER-007","ok":true},{"id":"CONTRACT.evidence.LEDGER-007","ok":true},{"id":"CONTRACT.evidence.LEDGER-007","ok":true},{"id":"CONTRACT.evidence.LEDGER-007","ok":true},{"id":"CONTRACT.evidence.LEDGER-002","ok":true},{"id":"CONTRACT.evidence.LEDGER-002","ok":true},{"id":"CONTRACT.evidence.LEDGER-002","ok":true},{"id":"CONTRACT.evidence.LEDGER-002","ok":true},{"id":"CONTRACT.evidence.LEDGER-008","ok":true},{"id":"CONTRACT.evidence.LEDGER-008","ok":true},{"id":"CONTRACT.evidence.LEDGER-008","ok":true},{"id":"CONTRACT.evidence.LEDGER-008","ok":true},{"id":"CONTRACT.evidence.LEDGER-009","ok":true},{"id":"CONTRACT.evidence.LEDGER-009","ok":true},{"id":"CONTRACT.evidence.LEDGER-009","ok":true},{"id":"CONTRACT.evidence.LEDGER-009","ok":true},{"id":"CONTRACT.evidence.LEDGER-010","ok":true},{"id":"CONTRACT.evidence.LEDGER-010","ok":true},{"id":"CONTRACT.evidence.LEDGER-010","ok":true},{"id":"CONTRACT.evidence.LEDGER-010","ok":true},{"id":"CONTRACT.evidence.LEDGER-011","ok":true},{"id":"CONTRACT.evidence.LEDGER-011","ok":true},{"id":"CONTRACT.evidence.LEDGER-011","ok":true},{"id":"CONTRACT.evidence.LEDGER-011","ok":true},{"id":"CONTRACT.evidence.LEDGER-012","ok":true},{"id":"CONTRACT.evidence.LEDGER-012","ok":true},{"id":"CONTRACT.evidence.LEDGER-012","ok":true},{"id":"CONTRACT.evidence.LEDGER-012","ok":true},{"id":"CONTRACT.evidence.LEDGER-013","ok":true},{"id":"CONTRACT.evidence.LEDGER-013","ok":true},{"id":"CONTRACT.evidence.LEDGER-013","ok":true},{"id":"CONTRACT.evidence.LEDGER-013","ok":true},{"id":"CONTRACT.evidence.LEDGER-014","ok":true},{"id":"CONTRACT.evidence.LEDGER-014","ok":true},{"id":"CONTRACT.evidence.LEDGER-014","ok":true},{"id":"CONTRACT.evidence.LEDGER-014","ok":true},{"id":"CONTRACT.evidence.PLAN-001","ok":true},{"id":"CONTRACT.evidence.PLAN-001","ok":true},{"id":"CONTRACT.evidence.PLAN-001","ok":true},{"id":"CONTRACT.evidence.PLAN-001","ok":true},{"id":"CONTRACT.evidence.PLAN-001","ok":true},{"id":"CONTRACT.evidence.PLAN-006","ok":true},{"id":"CONTRACT.evidence.PLAN-006","ok":true},{"id":"CONTRACT.evidence.PLAN-006","ok":true},{"id":"CONTRACT.evidence.PLAN-006","ok":true},{"id":"CONTRACT.evidence.PLAN-006","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-004","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-007","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-008","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-009","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-010","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-011","ok":true},{"id":"CONTRACT.evidence.PLAN-005","ok":true},{"id":"CONTRACT.evidence.PLAN-005","ok":true},{"id":"CONTRACT.evidence.PLAN-012","ok":true},{"id":"CONTRACT.evidence.PLAN-012","ok":true},{"id":"CONTRACT.evidence.PLAN-013","ok":true},{"id":"CONTRACT.evidence.PLAN-013","ok":true},{"id":"CONTRACT.evidence.PLAN-013","ok":true},{"id":"CONTRACT.evidence.PLAN-013","ok":true},{"id":"CONTRACT.evidence.TEAM-002","ok":true},{"id":"CONTRACT.evidence.TEAM-002","ok":true},{"id":"CONTRACT.evidence.TEAM-004","ok":true},{"id":"CONTRACT.evidence.TEAM-004","ok":true},{"id":"CONTRACT.evidence.TEAM-004","ok":true},{"id":"CONTRACT.evidence.TEAM-004","ok":true},{"id":"CONTRACT.evidence.TEAM-005","ok":true},{"id":"CONTRACT.evidence.TEAM-005","ok":true},{"id":"CONTRACT.evidence.TEAM-005","ok":true},{"id":"CONTRACT.evidence.TEAM-005","ok":true},{"id":"CONTRACT.evidence.TEAM-005","ok":true},{"id":"CONTRACT.evidence.TEAM-003","ok":true},{"id":"CONTRACT.evidence.TEAM-003","ok":true},{"id":"CONTRACT.evidence.TEAM-003","ok":true},{"id":"CONTRACT.evidence.TEAM-003","ok":true},{"id":"CONTRACT.evidence.TEAM-006","ok":true},{"id":"CONTRACT.evidence.TEAM-006","ok":true},{"id":"CONTRACT.evidence.TEAM-006","ok":true},{"id":"CONTRACT.evidence.TEAM-006","ok":true},{"id":"CONTRACT.evidence.REPORT-002","ok":true},{"id":"CONTRACT.evidence.REPORT-002","ok":true},{"id":"CONTRACT.evidence.REPORT-002","ok":true},{"id":"CONTRACT.evidence.REPORT-002","ok":true},{"id":"CONTRACT.evidence.REPORT-002","ok":true},{"id":"CONTRACT.evidence.REPORT-004","ok":true},{"id":"CONTRACT.evidence.REPORT-004","ok":true},{"id":"CONTRACT.evidence.REPORT-004","ok":true},{"id":"CONTRACT.evidence.REPORT-004","ok":true},{"id":"CONTRACT.evidence.REPORT-004","ok":true},{"id":"CONTRACT.evidence.MOVE-001","ok":true},{"id":"CONTRACT.evidence.MOVE-001","ok":true},{"id":"CONTRACT.evidence.MOVE-001","ok":true},{"id":"CONTRACT.evidence.MOVE-007","ok":true},{"id":"CONTRACT.evidence.MOVE-007","ok":true},{"id":"CONTRACT.evidence.MOVE-007","ok":true},{"id":"CONTRACT.evidence.MOVE-002","ok":true},{"id":"CONTRACT.evidence.MOVE-002","ok":true},{"id":"CONTRACT.evidence.MOVE-008","ok":true},{"id":"CONTRACT.evidence.MOVE-008","ok":true},{"id":"CONTRACT.evidence.MOVE-003","ok":true},{"id":"CONTRACT.evidence.MOVE-003","ok":true},{"id":"CONTRACT.evidence.MOVE-003","ok":true},{"id":"CONTRACT.evidence.MOVE-009","ok":true},{"id":"CONTRACT.evidence.MOVE-009","ok":true},{"id":"CONTRACT.evidence.MOVE-009","ok":true},{"id":"CONTRACT.evidence.MOVE-009","ok":true},{"id":"CONTRACT.evidence.MOVE-009","ok":true},{"id":"CONTRACT.evidence.MOVE-004","ok":true},{"id":"CONTRACT.evidence.MOVE-004","ok":true},{"id":"CONTRACT.evidence.MOVE-004","ok":true},{"id":"CONTRACT.evidence.MOVE-010","ok":true},{"id":"CONTRACT.evidence.MOVE-010","ok":true},{"id":"CONTRACT.evidence.MOVE-010","ok":true},{"id":"CONTRACT.evidence.API-002","ok":true},{"id":"CONTRACT.evidence.API-002","ok":true},{"id":"CONTRACT.evidence.API-002","ok":true},{"id":"CONTRACT.evidence.API-002","ok":true},{"id":"CONTRACT.evidence.API-002","ok":true},{"id":"CONTRACT.evidence.API-006","ok":true},{"id":"CONTRACT.evidence.API-006","ok":true},{"id":"CONTRACT.evidence.API-006","ok":true},{"id":"CONTRACT.evidence.API-006","ok":true},{"id":"CONTRACT.evidence.API-006","ok":true},{"id":"CONTRACT.evidence.API-007","ok":true},{"id":"CONTRACT.evidence.API-007","ok":true},{"id":"CONTRACT.evidence.API-007","ok":true},{"id":"CONTRACT.evidence.API-007","ok":true},{"id":"CONTRACT.evidence.API-007","ok":true},{"id":"CONTRACT.evidence.API-004","ok":true},{"id":"CONTRACT.evidence.API-004","ok":true},{"id":"CONTRACT.evidence.API-004","ok":true},{"id":"CONTRACT.evidence.API-004","ok":true},{"id":"CONTRACT.evidence.API-004","ok":true},{"id":"CONTRACT.evidence.API-004","ok":true},{"id":"CONTRACT.evidence.API-008","ok":true},{"id":"CONTRACT.evidence.API-008","ok":true},{"id":"CONTRACT.evidence.API-008","ok":true},{"id":"CONTRACT.evidence.API-008","ok":true},{"id":"CONTRACT.evidence.API-008","ok":true},{"id":"CONTRACT.evidence.API-008","ok":true},{"id":"CONTRACT.evidence.DATA-001","ok":true},{"id":"CONTRACT.evidence.DATA-001","ok":true},{"id":"CONTRACT.evidence.DATA-001","ok":true},{"id":"CONTRACT.evidence.DATA-001","ok":true},{"id":"CONTRACT.evidence.DATA-001","ok":true},{"id":"CONTRACT.evidence.DATA-005","ok":true},{"id":"CONTRACT.evidence.DATA-005","ok":true},{"id":"CONTRACT.evidence.DATA-005","ok":true},{"id":"CONTRACT.evidence.DATA-005","ok":true},{"id":"CONTRACT.evidence.DATA-005","ok":true},{"id":"CONTRACT.evidence.DATA-006","ok":true},{"id":"CONTRACT.evidence.DATA-006","ok":true},{"id":"CONTRACT.evidence.DATA-006","ok":true},{"id":"CONTRACT.evidence.DATA-006","ok":true},{"id":"CONTRACT.evidence.DATA-006","ok":true},{"id":"CONTRACT.evidence.DATA-007","ok":true},{"id":"CONTRACT.evidence.DATA-007","ok":true},{"id":"CONTRACT.evidence.DATA-007","ok":true},{"id":"CONTRACT.evidence.DATA-007","ok":true},{"id":"CONTRACT.evidence.DATA-007","ok":true},{"id":"CONTRACT.evidence.DATA-008","ok":true},{"id":"CONTRACT.evidence.DATA-008","ok":true},{"id":"CONTRACT.evidence.DATA-008","ok":true},{"id":"CONTRACT.evidence.DATA-008","ok":true},{"id":"CONTRACT.evidence.DATA-008","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-002","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-009","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.DATA-010","ok":true},{"id":"CONTRACT.evidence.AGENT-003","ok":true},{"id":"CONTRACT.evidence.AGENT-003","ok":true},{"id":"CONTRACT.evidence.AGENT-003","ok":true},{"id":"CONTRACT.evidence.AGENT-003","ok":true},{"id":"CONTRACT.evidence.AGENT-003","ok":true},{"id":"CONTRACT.evidence.AGENT-010","ok":true},{"id":"CONTRACT.evidence.AGENT-010","ok":true},{"id":"CONTRACT.evidence.AGENT-010","ok":true},{"id":"CONTRACT.evidence.AGENT-010","ok":true},{"id":"CONTRACT.evidence.AGENT-010","ok":true},{"id":"CONTRACT.evidence.AGENT-004","ok":true},{"id":"CONTRACT.evidence.AGENT-004","ok":true},{"id":"CONTRACT.evidence.AGENT-004","ok":true},{"id":"CONTRACT.evidence.AGENT-011","ok":true},{"id":"CONTRACT.evidence.AGENT-011","ok":true},{"id":"CONTRACT.evidence.AGENT-011","ok":true},{"id":"CONTRACT.evidence.AGENT-012","ok":true},{"id":"CONTRACT.evidence.AGENT-012","ok":true},{"id":"CONTRACT.evidence.AGENT-012","ok":true},{"id":"CONTRACT.evidence.AGENT-013","ok":true},{"id":"CONTRACT.evidence.AGENT-013","ok":true},{"id":"CONTRACT.evidence.AGENT-013","ok":true},{"id":"CONTRACT.evidence.AGENT-005","ok":true},{"id":"CONTRACT.evidence.AGENT-005","ok":true},{"id":"CONTRACT.evidence.AGENT-005","ok":true},{"id":"CONTRACT.evidence.AGENT-005","ok":true},{"id":"CONTRACT.evidence.AGENT-014","ok":true},{"id":"CONTRACT.evidence.AGENT-014","ok":true},{"id":"CONTRACT.evidence.AGENT-014","ok":true},{"id":"CONTRACT.evidence.AGENT-014","ok":true},{"id":"CONTRACT.evidence.AGENT-007","ok":true},{"id":"CONTRACT.evidence.AGENT-007","ok":true},{"id":"CONTRACT.evidence.AGENT-015","ok":true},{"id":"CONTRACT.evidence.AGENT-015","ok":true},{"id":"CONTRACT.evidence.AGENT-008","ok":true},{"id":"CONTRACT.evidence.AGENT-008","ok":true},{"id":"CONTRACT.evidence.AGENT-008","ok":true},{"id":"CONTRACT.evidence.AGENT-008","ok":true},{"id":"CONTRACT.evidence.AGENT-008","ok":true},{"id":"CONTRACT.evidence.AGENT-016","ok":true},{"id":"CONTRACT.evidence.AGENT-016","ok":true},{"id":"CONTRACT.evidence.AGENT-016","ok":true},{"id":"CONTRACT.evidence.AGENT-016","ok":true},{"id":"CONTRACT.evidence.FIELD-013","ok":true},{"id":"CONTRACT.evidence.FIELD-013","ok":true},{"id":"CONTRACT.evidence.FIELD-013","ok":true},{"id":"CONTRACT.evidence.SURFACE-014","ok":true},{"id":"CONTRACT.evidence.SURFACE-014","ok":true},{"id":"CONTRACT.evidence.SURFACE-014","ok":true},{"id":"CONTRACT.evidence.SURFACE-015","ok":true},{"id":"CONTRACT.evidence.SURFACE-015","ok":true},{"id":"CONTRACT.evidence.SURFACE-015","ok":true},{"id":"CONTRACT.evidence.SURFACE-015","ok":true},{"id":"CONTRACT.evidence.SURFACE-016","ok":true},{"id":"CONTRACT.evidence.SURFACE-016","ok":true},{"id":"CONTRACT.evidence.SURFACE-016","ok":true},{"id":"CONTRACT.evidence.SURFACE-017","ok":true},{"id":"CONTRACT.evidence.SURFACE-017","ok":true},{"id":"CONTRACT.evidence.SURFACE-017","ok":true},{"id":"CONTRACT.evidence.SURFACE-018","ok":true},{"id":"CONTRACT.evidence.SURFACE-018","ok":true},{"id":"CONTRACT.evidence.SURFACE-018","ok":true},{"id":"CONTRACT.evidence.SURFACE-019","ok":true},{"id":"CONTRACT.evidence.SURFACE-019","ok":true},{"id":"CONTRACT.evidence.SURFACE-019","ok":true},{"id":"CONTRACT.evidence.SURFACE-020","ok":true},{"id":"CONTRACT.evidence.SURFACE-020","ok":true},{"id":"CONTRACT.evidence.SURFACE-020","ok":true},{"id":"CONTRACT.evidence.SURFACE-021","ok":true},{"id":"CONTRACT.evidence.SURFACE-021","ok":true},{"id":"CONTRACT.evidence.SURFACE-021","ok":true},{"id":"CONTRACT.evidence.SURFACE-022","ok":true},{"id":"CONTRACT.evidence.SURFACE-022","ok":true},{"id":"CONTRACT.evidence.SURFACE-022","ok":true},{"id":"CONTRACT.evidence.SURFACE-023","ok":true},{"id":"CONTRACT.evidence.SURFACE-023","ok":true},{"id":"CONTRACT.evidence.SURFACE-023","ok":true},{"id":"CONTRACT.evidence.SURFACE-024","ok":true},{"id":"CONTRACT.evidence.SURFACE-024","ok":true},{"id":"CONTRACT.evidence.SURFACE-024","ok":true},{"id":"CONTRACT.evidence.SURFACE-025","ok":true},{"id":"CONTRACT.evidence.SURFACE-025","ok":true},{"id":"CONTRACT.evidence.SURFACE-025","ok":true},{"id":"CONTRACT.evidence.SURFACE-026","ok":true},{"id":"CONTRACT.evidence.SURFACE-026","ok":true},{"id":"CONTRACT.evidence.SURFACE-026","ok":true}]}
+> pnpm run typecheck
+
+> @field-service/glove@0.1.1 typecheck [REDACTED]
+> tsc --build --incremental
+
+> node tests/runtime.mjs
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+PROBE HTTP-001 health: GET /health -> 200 JSON with healthy deployment metadata
+PROBE HTTP-001 document: GET / -> 200 installed homepage HTML
+PROBE HTTP-001 authenticated API: native owner command and GET /api/glove/state -> 200 JSON with the saved customer
+PROBE HTTP-001 signed-out API: GET /api/glove/state with a stored customer -> 401 AUTH without product data
+PROBE HTTP-001 missing routes: unknown document, generic API and authenticated product API -> 404 missing responses
+PROBE HTTP-001 revoked session: signed-out native session GET /api/glove/state -> 401 AUTH
+HTTP-001 emitted Worker routing passed: health, authenticated product API, signed-out refusal, document HTML and missing routes
+> node tests/email-link.mjs
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Email-link sign-in passed against the emitted Worker: claim, provider mail, confirmation, session
+> node tests/site.mjs
+Checking pinned pnpm
+10.12.4
+Building the run site
+{"pages":22,"assets":6,"styles":1}
+Run site written to dist/site (22 pages, 96 files): [REDACTED]/dist/site
+{"version":1,"verb":"build","event":"result","ok":true,"exitCode":0,"site":{"folder":"[REDACTED]/dist/site","path":"dist/site","pages":22,"files":96,"references":{"unresolved":[]}}}
+run site: 21 pages, 36 files, every link answers
+Serving the production build as rer deploy hosts it
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+Checking that page sections hydrate as separate units
+Hydration check: 1 page(s), 1 load(s)
+  /: skipped, plain HTML: React does not hydrate this page and it loads no application script
+  not checked: /setup answered 303 to /signin?returnTo=%2Fsetup
+Agent browser proof: production /agents at 1440 and 390, no horizontal overflow; /tmp/glove-agent-door-browser.
+Price-book parity: reads, update, category markup and price adjustment match their desk commands with identical Activity; stale and duplicate refusals change nothing; an update naming only id, code, name and unitPrice resets archived, category, checklist, description, requiredSkills, tax, unit, unitCost through both doors alike.
+SURFACE-022: seeded approved client quote; six calls each have one exact shared audit row; three admitted changes have one attributed native event each; three refusals change nothing; audit and Activity exclude client data.
+SURFACE-022: Recent activity includes the last 20 audit calls with tool, agent, sponsor, decision, outcome and code; This-week count cells match all paginated current-week audit rows; overview HTML excludes client data.
+Price-book overview failed: AssertionError [ERR_ASSERTION]: SURFACE-022: Recent activity must show the computed class for each admitted price-book call
++ actual - expected
+
++ [
++   {
++     class: 'standard',
++     decision: 'autonomous',
++     outcome: 'done',
++     tool: 'glove.pricebook.update'
++   },
++   {
++     class: 'standard',
++     decision: 'autonomous',
++     outcome: 'done',
++     tool: 'glove.pricebook.category'
++   },
++   {
++     class: 'standard',
++     decision: 'autonomous',
++     outcome: 'done',
++     tool: 'glove.pricebook.adjust'
++   }
++ ]
+- []
+
+    at pricebookOverview (file://[REDACTED]/tests/agent-native-overview.mjs:170:10)
+    at async default (file://[REDACTED]/tests/agent-native-journey.mjs:47:15)
+    at async call (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/cli/agent-verifier.mjs:25:9)
+    at async file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/modules/agent-door/conformance/index.mjs:34:82
+    at async context.phase (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/modules/agent-door/conformance/protocol.mjs:59:9)
+    at async runAgentDoorConformance (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/modules/agent-door/conformance/index.mjs:34:21)
+    at async Module.checkAgentDoor (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/cli/agent-door.mjs:134:18)
+    at async runLifecycle (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/cli/lifecycle.mjs:116:22)
+    at async main (file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/cli/main.mjs:84:17)
+    at async file://[REDACTED]/node_modules/.pnpm/@runeditrun+rer@0.2.87/node_modules/@runeditrun/rer/bin/rer.mjs:3:20
+PASS BASE-AGENT-013.surface.schema
+PASS BASE-AGENT-013.surface.seed
+PASS BASE-AGENT-013.surface.specialist
+PASS BASE-AGENT-013.surface.tools
+PASS BASE-AGENT-013.surface.notTools
+PASS BASE-AGENT-013.surface.resources
+PASS BASE-AGENT-013.surface.resource.glove://services/{id}
+PASS BASE-AGENT-013.surface.resource.glove://pricebook/catalogue
+PASS BASE-AGENT-013.surface.journey
+PASS BASE-AGENT-005.surface.escalations
+PASS BASE-AGENT-013.surface.glove.pricebook.read.name
+PASS BASE-AGENT-013.surface.glove.pricebook.read.scope
+PASS BASE-AGENT-013.surface.glove.pricebook.read.readOnly
+PASS BASE-AGENT-013.surface.glove.pricebook.read.classes
+PASS BASE-AGENT-013.surface.glove.pricebook.read.clauses
+PASS BASE-AGENT-013.surface.glove.pricebook.update.name
+PASS BASE-AGENT-013.surface.glove.pricebook.update.scope
+PASS BASE-AGENT-013.surface.glove.pricebook.update.readOnly
+PASS BASE-AGENT-013.surface.glove.pricebook.update.classes
+PASS BASE-AGENT-013.surface.glove.pricebook.update.clauses
+PASS BASE-AGENT-013.surface.glove.pricebook.category.name
+PASS BASE-AGENT-013.surface.glove.pricebook.category.scope
+PASS BASE-AGENT-013.surface.glove.pricebook.category.readOnly
+PASS BASE-AGENT-013.surface.glove.pricebook.category.classes
+PASS BASE-AGENT-013.surface.glove.pricebook.category.clauses
+PASS BASE-AGENT-013.surface.glove.pricebook.adjust.name
+PASS BASE-AGENT-013.surface.glove.pricebook.adjust.scope
+PASS BASE-AGENT-013.surface.glove.pricebook.adjust.readOnly
+PASS BASE-AGENT-013.surface.glove.pricebook.adjust.classes
+PASS BASE-AGENT-013.surface.glove.pricebook.adjust.clauses
+PASS BASE-AGENT-013.surface.glove.events.list.name
+PASS BASE-AGENT-013.surface.glove.events.list.scope
+PASS BASE-AGENT-013.surface.glove.events.list.readOnly
+PASS BASE-AGENT-013.surface.glove.events.list.classes
+PASS BASE-AGENT-013.surface.glove.events.list.clauses
+PASS BASE-AGENT-013.surface.notTools.0
+PASS BASE-AGENT-013.surface.notTools.1
+PASS BASE-AGENT-013.surface.notTools.2
+PASS BASE-AGENT-013.surface.notTools.3
+PASS BASE-AGENT-013.surface.journey.catalogue
+PASS BASE-AGENT-013.surface.journey.catalogue.classes
+PASS BASE-AGENT-013.surface.journey.update
+PASS BASE-AGENT-013.surface.journey.update.classes
+PASS BASE-AGENT-013.surface.journey.update.ref.catalogue
+PASS BASE-AGENT-013.surface.journey.update.ref.catalogue
+PASS BASE-AGENT-013.surface.journey.update.ref.catalogue
+PASS BASE-AGENT-013.surface.journey.update.target
+PASS BASE-AGENT-013.surface.journey.update.target.ref.catalogue
+PASS BASE-AGENT-013.surface.journey.update.inject
+PASS BASE-AGENT-013.surface.journey.catalogue_after_update
+PASS BASE-AGENT-013.surface.journey.catalogue_after_update.classes
+PASS BASE-AGENT-013.surface.journey.category
+PASS BASE-AGENT-013.surface.journey.category.classes
+PASS BASE-AGENT-013.surface.journey.category.ref.catalogue_after_update
+PASS BASE-AGENT-013.surface.journey.category.target
+PASS BASE-AGENT-013.surface.journey.catalogue_after_category
+PASS BASE-AGENT-013.surface.journey.catalogue_after_category.classes
+PASS BASE-AGENT-013.surface.journey.adjust
+PASS BASE-AGENT-013.surface.journey.adjust.classes
+PASS BASE-AGENT-013.surface.journey.adjust.ref.catalogue_after_category
+PASS BASE-AGENT-013.surface.journey.adjust.target
+PASS BASE-AGENT-013.surface.journey.events
+PASS BASE-AGENT-013.surface.journey.events.classes
+PASS BASE-AGENT-013.surface.glove.pricebook.read.coverage.standard
+PASS BASE-AGENT-013.surface.glove.pricebook.update.coverage.standard
+PASS BASE-AGENT-013.surface.glove.pricebook.category.coverage.standard
+PASS BASE-AGENT-013.surface.glove.pricebook.adjust.coverage.standard
+PASS BASE-AGENT-013.surface.glove.events.list.coverage.standard
+PASS BASE-AGENT-013.surface.events
+PASS BASE-AGENT-013.surface.witness
+PASS BASE-AGENT-001.1
+PASS BASE-AGENT-001.6.limits
+PASS BASE-AGENT-001.5.origin
+PASS BASE-AGENT-001.5.method
+PASS BASE-AGENT-001.3
+PASS BASE-AGENT-004.1.metadata
+PASS BASE-AGENT-001.6
+PASS BASE-AGENT-007.2.initial.list
+PASS BASE-AGENT-004.6.sponsor
+PASS BASE-AGENT-007.2.initial.catalogue
+PASS BASE-AGENT-007.2.initial.update
+PASS BASE-AGENT-007.2.initial.catalogue_after_update
+PASS BASE-AGENT-007.2.initial.category
+PASS BASE-AGENT-007.2.initial.catalogue_after_category
+PASS BASE-AGENT-007.2.initial.adjust
+PASS BASE-AGENT-007.2.initial.events
+PASS BASE-AGENT-007.7.adopt.1
+PASS BASE-AGENT-007.7.adopt.2
+PASS BASE-AGENT-007.2.removed.list
+PASS BASE-AGENT-007.2.removed.catalogue
+PASS BASE-AGENT-007.2.removed.update
+PASS BASE-AGENT-007.2.removed.catalogue_after_update
+PASS BASE-AGENT-007.2.removed.category
+PASS BASE-AGENT-007.2.removed.catalogue_after_category
+PASS BASE-AGENT-007.2.removed.adjust
+PASS BASE-AGENT-007.2.removed.events
+PASS BASE-AGENT-007.7.adopt.3
+PASS BASE-AGENT-007.2.unset-no-effect
+PASS BASE-AGENT-007.7.adopt.4
+PASS BASE-AGENT-002.1.registry
+PASS BASE-AGENT-001.4
+PASS BASE-AGENT-002.2.schema.glove.pricebook.read
+PASS BASE-AGENT-002.3.glove.pricebook.read
+PASS BASE-AGENT-006.1.glove.pricebook.read
+PASS BASE-AGENT-002.2.schema.glove.pricebook.update
+PASS BASE-AGENT-002.3.glove.pricebook.update
+PASS BASE-AGENT-006.1.glove.pricebook.update
+PASS BASE-AGENT-002.2.schema.glove.pricebook.category
+PASS BASE-AGENT-002.3.glove.pricebook.category
+PASS BASE-AGENT-006.1.glove.pricebook.category
+PASS BASE-AGENT-002.2.schema.glove.pricebook.adjust
+PASS BASE-AGENT-002.3.glove.pricebook.adjust
+PASS BASE-AGENT-006.1.glove.pricebook.adjust
+PASS BASE-AGENT-002.2.schema.glove.events.list
+PASS BASE-AGENT-002.3.glove.events.list
+PASS BASE-AGENT-006.1.glove.events.list
+PASS BASE-AGENT-001.2.2026-07-28
+PASS BASE-AGENT-001.2.2025-11-25
+PASS BASE-AGENT-001.3.2025-03-26
+PASS BASE-AGENT-003.1
+PASS BASE-AGENT-013.5.prompts
+PASS BASE-AGENT-001.1.prompts
+PASS BASE-AGENT-006.2.autonomous.catalogue
+PASS BASE-AGENT-007.1.autonomous.catalogue
+PASS BASE-AGENT-013.4.autonomous.catalogue
+PASS BASE-AGENT-002.2.autonomous.catalogue
+PASS BASE-AGENT-006.2.resource.autonomous.catalogue.0
+PASS BASE-AGENT-003.4.autonomous.catalogue.0
+PASS BASE-AGENT-006.2.autonomous.update
+PASS BASE-AGENT-009.target.autonomous.update
+PASS BASE-AGENT-007.1.autonomous.update
+PASS BASE-AGENT-013.4.autonomous.update
+PASS BASE-AGENT-002.2.autonomous.update
+PASS BASE-AGENT-006.2.resource.autonomous.update.0
+PASS BASE-AGENT-003.4.autonomous.update.0
+PASS BASE-AGENT-005.5.autonomous.update
+PASS BASE-AGENT-012.1.autonomous
+PASS BASE-AGENT-006.2.autonomous.catalogue_after_update
+PASS BASE-AGENT-007.1.autonomous.catalogue_after_update
+PASS BASE-AGENT-013.4.autonomous.catalogue_after_update
+PASS BASE-AGENT-002.2.autonomous.catalogue_after_update
+PASS BASE-AGENT-006.2.resource.autonomous.catalogue_after_update.0
+PASS BASE-AGENT-003.4.autonomous.catalogue_after_update.0
+PASS BASE-AGENT-006.2.autonomous.category
+PASS BASE-AGENT-009.target.autonomous.category
+PASS BASE-AGENT-007.1.autonomous.category
+PASS BASE-AGENT-013.4.autonomous.category
+PASS BASE-AGENT-002.2.autonomous.category
+PASS BASE-AGENT-006.2.resource.autonomous.category.0
+PASS BASE-AGENT-003.4.autonomous.category.0
+PASS BASE-AGENT-006.2.autonomous.catalogue_after_category
+PASS BASE-AGENT-007.1.autonomous.catalogue_after_category
+PASS BASE-AGENT-013.4.autonomous.catalogue_after_category
+PASS BASE-AGENT-002.2.autonomous.catalogue_after_category
+PASS BASE-AGENT-006.2.resource.autonomous.catalogue_after_category.0
+PASS BASE-AGENT-003.4.autonomous.catalogue_after_category.0
+PASS BASE-AGENT-006.2.autonomous.adjust
+PASS BASE-AGENT-009.target.autonomous.adjust
+PASS BASE-AGENT-007.1.autonomous.adjust
+PASS BASE-AGENT-013.4.autonomous.adjust
+PASS BASE-AGENT-002.2.autonomous.adjust
+PASS BASE-AGENT-006.2.resource.autonomous.adjust.0
+PASS BASE-AGENT-003.4.autonomous.adjust.0
+PASS BASE-AGENT-006.2.autonomous.events
+PASS BASE-AGENT-007.1.autonomous.events
+PASS BASE-AGENT-013.4.autonomous.events
+PASS BASE-AGENT-002.2.autonomous.events
+PASS BASE-AGENT-007.7.adopt.5
+PASS BASE-AGENT-006.2.held.catalogue
+PASS BASE-AGENT-007.1.held.catalogue
+PASS BASE-AGENT-013.4.held.catalogue
+PASS BASE-AGENT-002.2.held.catalogue
+PASS BASE-AGENT-006.2.resource.held.catalogue.0
+PASS BASE-AGENT-003.4.held.catalogue.0
+PASS BASE-AGENT-006.2.held.update
+PASS BASE-AGENT-009.target.held.update
+PASS BASE-AGENT-007.1.held.update
+PASS BASE-AGENT-013.4.held.update
+PASS BASE-AGENT-002.2.held.update
+PASS BASE-AGENT-006.2.resource.held.update.0
+PASS BASE-AGENT-003.4.held.update.0
+PASS BASE-AGENT-006.2.held.catalogue_after_update
+PASS BASE-AGENT-007.1.held.catalogue_after_update
+PASS BASE-AGENT-013.4.held.catalogue_after_update
+PASS BASE-AGENT-002.2.held.catalogue_after_update
+PASS BASE-AGENT-006.2.resource.held.catalogue_after_update.0
+PASS BASE-AGENT-003.4.held.catalogue_after_update.0
+PASS BASE-AGENT-006.2.held.category
+PASS BASE-AGENT-009.target.held.category
+PASS BASE-AGENT-007.1.held.category
+PASS BASE-AGENT-013.4.held.category
+PASS BASE-AGENT-002.2.held.category
+PASS BASE-AGENT-006.2.resource.held.category.0
+PASS BASE-AGENT-003.4.held.category.0
+PASS BASE-AGENT-006.2.held.catalogue_after_category
+PASS BASE-AGENT-007.1.held.catalogue_after_category
+PASS BASE-AGENT-013.4.held.catalogue_after_category
+PASS BASE-AGENT-002.2.held.catalogue_after_category
+PASS BASE-AGENT-006.2.resource.held.catalogue_after_category.0
+PASS BASE-AGENT-003.4.held.catalogue_after_category.0
+PASS BASE-AGENT-006.2.held.adjust
+PASS BASE-AGENT-009.target.held.adjust
+PASS BASE-AGENT-007.1.held.adjust
+PASS BASE-AGENT-013.4.held.adjust
+PASS BASE-AGENT-002.2.held.adjust
+PASS BASE-AGENT-006.2.resource.held.adjust.0
+PASS BASE-AGENT-003.4.held.adjust.0
+PASS BASE-AGENT-006.2.held.events
+PASS BASE-AGENT-007.1.held.events
+PASS BASE-AGENT-013.4.held.events
+PASS BASE-AGENT-002.2.held.events
+PASS BASE-AGENT-007.7.adopt.6
+PASS BASE-AGENT-007.7.adopt.7
+PASS BASE-AGENT-011.6.pause.glove.pricebook.read
+PASS BASE-AGENT-011.6.pause.glove.pricebook.update
+PASS BASE-AGENT-011.6.pause.glove.pricebook.category
+PASS BASE-AGENT-011.6.pause.glove.pricebook.adjust
+PASS BASE-AGENT-011.6.pause.glove.events.list
+PASS BASE-AGENT-011.6.person
+PASS BASE-AGENT-007.7.adopt.8
+PASS BASE-AGENT-011.6.resume
+PASS BASE-AGENT-007.7.adopt.9
+PASS BASE-AGENT-003.refusal-code
+PASS BASE-AGENT-004.1.challenge
+PASS BASE-AGENT-004.2.audience
+PASS BASE-AGENT-004.3.expired
+PASS BASE-AGENT-004.3.lifetime
+PASS BASE-AGENT-004.4
+PASS BASE-AGENT-004.5
+PASS BASE-AGENT-008.2.person-door
+PASS BASE-AGENT-007.8.signature
+PASS BASE-AGENT-007.8.business
+PASS BASE-AGENT-007.8.state
+PASS BASE-AGENT-004.negative-no-effect
+PASS BASE-AGENT-007.7.adopt.10
+PASS BASE-AGENT-007.7.adopt.11
+PASS BASE-AGENT-004.consent-revoked
+PASS BASE-AGENT-007.7.adopt.12
+PASS BASE-AGENT-004.consent-no-effect
+FAIL BASE-AGENT-013.native-journey: Native verification journey failed; no captured mail or fixture values are logged.
+PASS BASE-AGENT-007.7.adopt.13
+PASS BASE-AGENT-012.replay.current
+PASS BASE-AGENT-007.7.adopt.14
+PASS BASE-AGENT-012.replay.paused
+PASS BASE-AGENT-012.replay.audit
+PASS BASE-AGENT-007.7.adopt.15
+PASS BASE-AGENT-012.replay.policy
+PASS BASE-AGENT-007.7.adopt.16
+PASS BASE-AGENT-012.replay.approval
+PASS BASE-AGENT-007.7.adopt.17
+PASS BASE-AGENT-012.replay.scope
+PASS BASE-AGENT-012.replay.once
+PASS BASE-AGENT-009.1.count
+PASS BASE-AGENT-009.1.unique
+PASS BASE-AGENT-009.1.call.0
+PASS BASE-AGENT-009.1.resource.0
+PASS BASE-AGENT-009.2.link.0
+PASS BASE-AGENT-006.6.audit.0
+PASS BASE-AGENT-009.2.decision.0
+PASS BASE-AGENT-009.1.call.1
+PASS BASE-AGENT-009.1.resource.1
+PASS BASE-AGENT-009.2.link.1
+PASS BASE-AGENT-006.6.audit.1
+PASS BASE-AGENT-009.2.decision.1
+PASS BASE-AGENT-009.1.call.2
+PASS BASE-AGENT-009.1.resource.2
+PASS BASE-AGENT-009.2.link.2
+PASS BASE-AGENT-006.6.audit.2
+PASS BASE-AGENT-009.2.decision.2
+PASS BASE-AGENT-009.1.call.3
+PASS BASE-AGENT-009.1.resource.3
+PASS BASE-AGENT-009.2.link.3
+PASS BASE-AGENT-006.6.audit.3
+PASS BASE-AGENT-009.2.decision.3
+PASS BASE-AGENT-009.1.call.4
+PASS BASE-AGENT-009.1.resource.4
+PASS BASE-AGENT-009.2.link.4
+PASS BASE-AGENT-006.6.audit.4
+PASS BASE-AGENT-009.2.decision.4
+PASS BASE-AGENT-009.1.call.5
+PASS BASE-AGENT-009.1.resource.5
+PASS BASE-AGENT-009.2.link.5
+PASS BASE-AGENT-006.6.audit.5
+PASS BASE-AGENT-009.2.decision.5
+PASS BASE-AGENT-009.1.call.6
+PASS BASE-AGENT-009.1.resource.6
+PASS BASE-AGENT-009.2.link.6
+PASS BASE-AGENT-006.6.audit.6
+PASS BASE-AGENT-009.2.decision.6
+PASS BASE-AGENT-009.1.call.7
+PASS BASE-AGENT-009.1.resource.7
+PASS BASE-AGENT-009.2.link.7
+PASS BASE-AGENT-006.6.audit.7
+PASS BASE-AGENT-009.2.decision.7
+PASS BASE-AGENT-009.1.call.8
+PASS BASE-AGENT-009.1.resource.8
+PASS BASE-AGENT-009.2.link.8
+PASS BASE-AGENT-006.6.audit.8
+PASS BASE-AGENT-009.2.decision.8
+PASS BASE-AGENT-009.1.call.9
+PASS BASE-AGENT-009.1.resource.9
+PASS BASE-AGENT-009.2.link.9
+PASS BASE-AGENT-006.6.audit.9
+PASS BASE-AGENT-009.2.decision.9
+PASS BASE-AGENT-009.1.call.10
+PASS BASE-AGENT-009.1.resource.10
+PASS BASE-AGENT-009.2.link.10
+PASS BASE-AGENT-006.6.audit.10
+PASS BASE-AGENT-009.2.decision.10
+PASS BASE-AGENT-009.1.call.11
+PASS BASE-AGENT-009.1.resource.11
+PASS BASE-AGENT-009.2.link.11
+PASS BASE-AGENT-006.6.audit.11
+PASS BASE-AGENT-009.2.decision.11
+PASS BASE-AGENT-009.1.call.12
+PASS BASE-AGENT-009.1.resource.12
+PASS BASE-AGENT-009.2.link.12
+PASS BASE-AGENT-006.6.audit.12
+PASS BASE-AGENT-009.2.decision.12
+PASS BASE-AGENT-009.1.call.13
+PASS BASE-AGENT-009.1.resource.13
+PASS BASE-AGENT-009.2.link.13
+PASS BASE-AGENT-006.6.audit.13
+PASS BASE-AGENT-009.2.decision.13
+PASS BASE-AGENT-009.1.call.14
+PASS BASE-AGENT-009.1.resource.14
+PASS BASE-AGENT-009.2.link.14
+PASS BASE-AGENT-006.6.audit.14
+PASS BASE-AGENT-009.2.decision.14
+PASS BASE-AGENT-009.1.call.15
+PASS BASE-AGENT-009.1.resource.15
+PASS BASE-AGENT-009.2.link.15
+PASS BASE-AGENT-006.6.audit.15
+PASS BASE-AGENT-009.2.decision.15
+PASS BASE-AGENT-009.1.call.16
+PASS BASE-AGENT-009.1.resource.16
+PASS BASE-AGENT-009.2.link.16
+PASS BASE-AGENT-006.6.audit.16
+PASS BASE-AGENT-009.2.decision.16
+PASS BASE-AGENT-009.1.call.17
+PASS BASE-AGENT-009.1.resource.17
+PASS BASE-AGENT-009.2.link.17
+PASS BASE-AGENT-006.6.audit.17
+PASS BASE-AGENT-009.2.decision.17
+PASS BASE-AGENT-009.1.call.18
+PASS BASE-AGENT-009.1.resource.18
+PASS BASE-AGENT-009.2.link.18
+PASS BASE-AGENT-006.6.audit.18
+PASS BASE-AGENT-009.2.decision.18
+PASS BASE-AGENT-009.1.call.19
+PASS BASE-AGENT-009.1.resource.19
+PASS BASE-AGENT-009.2.link.19
+PASS BASE-AGENT-006.6.audit.19
+PASS BASE-AGENT-009.2.decision.19
+PASS BASE-AGENT-009.1.call.20
+PASS BASE-AGENT-009.1.resource.20
+PASS BASE-AGENT-009.2.link.20
+PASS BASE-AGENT-006.6.audit.20
+PASS BASE-AGENT-009.2.decision.20
+PASS BASE-AGENT-009.1.call.21
+PASS BASE-AGENT-009.1.resource.21
+PASS BASE-AGENT-009.2.link.21
+PASS BASE-AGENT-006.6.audit.21
+PASS BASE-AGENT-009.2.decision.21
+PASS BASE-AGENT-009.1.call.22
+PASS BASE-AGENT-009.1.resource.22
+PASS BASE-AGENT-009.2.link.22
+PASS BASE-AGENT-006.6.audit.22
+PASS BASE-AGENT-009.2.decision.22
+PASS BASE-AGENT-009.1.call.23
+PASS BASE-AGENT-009.1.resource.23
+PASS BASE-AGENT-009.2.link.23
+PASS BASE-AGENT-006.6.audit.23
+PASS BASE-AGENT-009.2.decision.23
+PASS BASE-AGENT-009.1.call.24
+PASS BASE-AGENT-009.1.resource.24
+PASS BASE-AGENT-009.2.link.24
+PASS BASE-AGENT-006.6.audit.24
+PASS BASE-AGENT-009.2.decision.24
+PASS BASE-AGENT-009.1.call.25
+PASS BASE-AGENT-009.1.resource.25
+PASS BASE-AGENT-009.2.link.25
+PASS BASE-AGENT-006.6.audit.25
+PASS BASE-AGENT-009.2.decision.25
+PASS BASE-AGENT-009.1.call.26
+PASS BASE-AGENT-009.1.resource.26
+PASS BASE-AGENT-009.2.link.26
+PASS BASE-AGENT-006.6.audit.26
+PASS BASE-AGENT-009.2.decision.26
+PASS BASE-AGENT-009.1.call.27
+PASS BASE-AGENT-009.1.resource.27
+PASS BASE-AGENT-009.2.link.27
+PASS BASE-AGENT-006.6.audit.27
+PASS BASE-AGENT-009.2.decision.27
+PASS BASE-AGENT-009.1.call.28
+PASS BASE-AGENT-009.1.resource.28
+PASS BASE-AGENT-009.2.link.28
+PASS BASE-AGENT-006.6.audit.28
+PASS BASE-AGENT-009.2.decision.28
+PASS BASE-AGENT-009.1.call.29
+PASS BASE-AGENT-009.1.resource.29
+PASS BASE-AGENT-009.2.link.29
+PASS BASE-AGENT-006.6.audit.29
+PASS BASE-AGENT-009.2.decision.29
+PASS BASE-AGENT-009.1.call.30
+PASS BASE-AGENT-009.1.resource.30
+PASS BASE-AGENT-009.2.link.30
+PASS BASE-AGENT-006.6.audit.30
+PASS BASE-AGENT-009.2.decision.30
+PASS BASE-AGENT-009.1.call.31
+PASS BASE-AGENT-009.1.resource.31
+PASS BASE-AGENT-009.2.link.31
+PASS BASE-AGENT-006.6.audit.31
+PASS BASE-AGENT-009.2.decision.31
+PASS BASE-AGENT-009.1.call.32
+PASS BASE-AGENT-009.1.resource.32
+PASS BASE-AGENT-009.2.link.32
+PASS BASE-AGENT-006.6.audit.32
+PASS BASE-AGENT-009.2.decision.32
+PASS BASE-AGENT-009.1.call.33
+PASS BASE-AGENT-009.1.resource.33
+PASS BASE-AGENT-009.2.link.33
+PASS BASE-AGENT-006.6.audit.33
+PASS BASE-AGENT-009.2.decision.33
+PASS BASE-AGENT-009.1.call.34
+PASS BASE-AGENT-009.1.resource.34
+PASS BASE-AGENT-009.2.link.34
+PASS BASE-AGENT-006.6.audit.34
+PASS BASE-AGENT-009.2.decision.34
+PASS BASE-AGENT-009.1.call.35
+PASS BASE-AGENT-009.1.resource.35
+PASS BASE-AGENT-009.2.link.35
+PASS BASE-AGENT-006.6.audit.35
+PASS BASE-AGENT-009.2.decision.35
+PASS BASE-AGENT-009.1.call.36
+PASS BASE-AGENT-009.1.resource.36
+PASS BASE-AGENT-009.2.link.36
+PASS BASE-AGENT-006.6.audit.36
+PASS BASE-AGENT-009.2.decision.36
+PASS BASE-AGENT-009.1.call.37
+PASS BASE-AGENT-009.1.resource.37
+PASS BASE-AGENT-009.2.link.37
+PASS BASE-AGENT-006.6.audit.37
+PASS BASE-AGENT-009.2.decision.37
+PASS BASE-AGENT-009.4.review.37
+PASS BASE-AGENT-009.1.call.38
+PASS BASE-AGENT-009.1.resource.38
+PASS BASE-AGENT-009.2.link.38
+PASS BASE-AGENT-006.6.audit.38
+PASS BASE-AGENT-009.2.decision.38
+PASS BASE-AGENT-009.4.review.38
+PASS BASE-AGENT-009.1.call.39
+PASS BASE-AGENT-009.1.resource.39
+PASS BASE-AGENT-009.2.link.39
+PASS BASE-AGENT-006.6.audit.39
+PASS BASE-AGENT-009.2.decision.39
+PASS BASE-AGENT-009.4.review.39
+PASS BASE-AGENT-009.1.call.40
+PASS BASE-AGENT-009.1.resource.40
+PASS BASE-AGENT-009.2.link.40
+PASS BASE-AGENT-006.6.audit.40
+PASS BASE-AGENT-009.2.decision.40
+PASS BASE-AGENT-009.4.review.40
+PASS BASE-AGENT-009.1.call.41
+PASS BASE-AGENT-009.1.resource.41
+PASS BASE-AGENT-009.2.link.41
+PASS BASE-AGENT-006.6.audit.41
+PASS BASE-AGENT-009.2.decision.41
+PASS BASE-AGENT-009.4.review.41
+PASS BASE-AGENT-009.1.call.42
+PASS BASE-AGENT-009.1.resource.42
+PASS BASE-AGENT-009.2.link.42
+PASS BASE-AGENT-006.6.audit.42
+PASS BASE-AGENT-009.2.decision.42
+PASS BASE-AGENT-009.4.review.42
+PASS BASE-AGENT-009.1.call.43
+PASS BASE-AGENT-009.1.resource.43
+PASS BASE-AGENT-009.2.link.43
+PASS BASE-AGENT-006.6.audit.43
+PASS BASE-AGENT-009.2.decision.43
+PASS BASE-AGENT-009.4.review.43
+PASS BASE-AGENT-009.1.call.44
+PASS BASE-AGENT-009.1.resource.44
+PASS BASE-AGENT-009.2.link.44
+PASS BASE-AGENT-006.6.audit.44
+PASS BASE-AGENT-009.2.decision.44
+PASS BASE-AGENT-009.4.review.44
+PASS BASE-AGENT-009.1.call.45
+PASS BASE-AGENT-009.1.resource.45
+PASS BASE-AGENT-009.2.link.45
+PASS BASE-AGENT-006.6.audit.45
+PASS BASE-AGENT-009.2.decision.45
+PASS BASE-AGENT-009.4.review.45
+PASS BASE-AGENT-009.1.call.46
+PASS BASE-AGENT-009.1.resource.46
+PASS BASE-AGENT-009.2.link.46
+PASS BASE-AGENT-006.6.audit.46
+PASS BASE-AGENT-009.2.decision.46
+PASS BASE-AGENT-009.4.review.46
+PASS BASE-AGENT-009.1.call.47
+PASS BASE-AGENT-009.1.resource.47
+PASS BASE-AGENT-009.2.link.47
+PASS BASE-AGENT-006.6.audit.47
+PASS BASE-AGENT-009.2.decision.47
+PASS BASE-AGENT-009.4.review.47
+PASS BASE-AGENT-009.1.call.48
+PASS BASE-AGENT-009.1.resource.48
+PASS BASE-AGENT-009.2.link.48
+PASS BASE-AGENT-006.6.audit.48
+PASS BASE-AGENT-009.2.decision.48
+PASS BASE-AGENT-009.4.review.48
+PASS BASE-AGENT-009.1.call.49
+PASS BASE-AGENT-009.1.resource.49
+PASS BASE-AGENT-009.2.link.49
+PASS BASE-AGENT-006.6.audit.49
+PASS BASE-AGENT-009.2.decision.49
+PASS BASE-AGENT-009.4.review.49
+PASS BASE-AGENT-009.1.call.50
+PASS BASE-AGENT-009.1.resource.50
+PASS BASE-AGENT-009.2.link.50
+PASS BASE-AGENT-006.6.audit.50
+PASS BASE-AGENT-009.2.decision.50
+PASS BASE-AGENT-009.4.review.50
+PASS BASE-AGENT-009.1.call.51
+PASS BASE-AGENT-009.1.resource.51
+PASS BASE-AGENT-009.2.link.51
+PASS BASE-AGENT-006.6.audit.51
+PASS BASE-AGENT-009.2.decision.51
+PASS BASE-AGENT-009.4.review.51
+PASS BASE-AGENT-009.1.call.52
+PASS BASE-AGENT-009.1.resource.52
+PASS BASE-AGENT-009.2.link.52
+PASS BASE-AGENT-006.6.audit.52
+PASS BASE-AGENT-009.2.decision.52
+PASS BASE-AGENT-009.4.review.52
+PASS BASE-AGENT-009.1.call.53
+PASS BASE-AGENT-009.1.resource.53
+PASS BASE-AGENT-009.2.link.53
+PASS BASE-AGENT-006.6.audit.53
+PASS BASE-AGENT-009.2.decision.53
+PASS BASE-AGENT-009.1.call.54
+PASS BASE-AGENT-009.1.resource.54
+PASS BASE-AGENT-009.2.link.54
+PASS BASE-AGENT-006.6.audit.54
+PASS BASE-AGENT-009.2.decision.54
+PASS BASE-AGENT-009.1.call.55
+PASS BASE-AGENT-009.1.resource.55
+PASS BASE-AGENT-009.2.link.55
+PASS BASE-AGENT-006.6.audit.55
+PASS BASE-AGENT-009.2.decision.55
+PASS BASE-AGENT-009.1.call.56
+PASS BASE-AGENT-009.1.resource.56
+PASS BASE-AGENT-009.2.link.56
+PASS BASE-AGENT-006.6.audit.56
+PASS BASE-AGENT-009.2.decision.56
+PASS BASE-AGENT-009.1.call.57
+PASS BASE-AGENT-009.1.resource.57
+PASS BASE-AGENT-009.2.link.57
+PASS BASE-AGENT-006.6.audit.57
+PASS BASE-AGENT-009.2.decision.57
+PASS BASE-AGENT-009.1.call.58
+PASS BASE-AGENT-009.1.resource.58
+PASS BASE-AGENT-009.2.link.58
+PASS BASE-AGENT-006.6.audit.58
+PASS BASE-AGENT-009.2.decision.58
+PASS BASE-AGENT-009.1.call.59
+PASS BASE-AGENT-009.1.resource.59
+PASS BASE-AGENT-009.2.link.59
+PASS BASE-AGENT-006.6.audit.59
+PASS BASE-AGENT-009.2.decision.59
+PASS BASE-AGENT-009.1.call.60
+PASS BASE-AGENT-009.1.resource.60
+PASS BASE-AGENT-009.2.link.60
+PASS BASE-AGENT-006.6.audit.60
+PASS BASE-AGENT-009.2.decision.60
+PASS BASE-AGENT-009.1.call.61
+PASS BASE-AGENT-009.1.resource.61
+PASS BASE-AGENT-009.2.link.61
+PASS BASE-AGENT-006.6.audit.61
+PASS BASE-AGENT-009.2.resource-rules.61
+PASS BASE-AGENT-009.1.call.62
+PASS BASE-AGENT-009.1.resource.62
+PASS BASE-AGENT-009.2.link.62
+PASS BASE-AGENT-006.6.audit.62
+PASS BASE-AGENT-009.1.call.63
+PASS BASE-AGENT-009.1.resource.63
+PASS BASE-AGENT-009.2.link.63
+PASS BASE-AGENT-006.6.audit.63
+PASS BASE-AGENT-009.2.decision.63
+PASS BASE-AGENT-009.1.call.64
+PASS BASE-AGENT-009.1.resource.64
+PASS BASE-AGENT-009.2.link.64
+PASS BASE-AGENT-006.6.audit.64
+PASS BASE-AGENT-009.2.decision.64
+PASS BASE-AGENT-009.1.call.65
+PASS BASE-AGENT-009.1.resource.65
+PASS BASE-AGENT-009.2.link.65
+PASS BASE-AGENT-006.6.audit.65
+PASS BASE-AGENT-009.1.call.66
+PASS BASE-AGENT-009.1.resource.66
+PASS BASE-AGENT-009.2.link.66
+PASS BASE-AGENT-006.6.audit.66
+PASS BASE-AGENT-009.2.decision.66
+PASS BASE-AGENT-009.1.call.67
+PASS BASE-AGENT-009.1.resource.67
+PASS BASE-AGENT-009.2.link.67
+PASS BASE-AGENT-006.6.audit.67
+PASS BASE-AGENT-009.2.decision.67
+PASS BASE-AGENT-009.1.call.68
+PASS BASE-AGENT-009.1.resource.68
+PASS BASE-AGENT-009.2.link.68
+PASS BASE-AGENT-006.6.audit.68
+PASS BASE-AGENT-009.2.decision.68
+PASS BASE-AGENT-009.1.call.69
+PASS BASE-AGENT-009.1.resource.69
+PASS BASE-AGENT-009.2.link.69
+PASS BASE-AGENT-006.6.audit.69
+PASS BASE-AGENT-009.2.decision.69
+PASS BASE-AGENT-009.1.call.70
+PASS BASE-AGENT-009.1.resource.70
+PASS BASE-AGENT-009.2.link.70
+PASS BASE-AGENT-006.6.audit.70
+PASS BASE-AGENT-009.1.call.71
+PASS BASE-AGENT-009.1.resource.71
+PASS BASE-AGENT-009.2.link.71
+PASS BASE-AGENT-006.6.audit.71
+PASS BASE-AGENT-009.1.call.72
+PASS BASE-AGENT-009.1.resource.72
+PASS BASE-AGENT-009.2.link.72
+PASS BASE-AGENT-006.6.audit.72
+PASS BASE-AGENT-009.1.call.73
+PASS BASE-AGENT-009.1.resource.73
+PASS BASE-AGENT-009.2.link.73
+PASS BASE-AGENT-006.6.audit.73
+PASS BASE-AGENT-009.2.decision.73
+PASS BASE-AGENT-009.1.call.74
+PASS BASE-AGENT-009.1.resource.74
+PASS BASE-AGENT-009.2.link.74
+PASS BASE-AGENT-006.6.audit.74
+PASS BASE-AGENT-009.2.decision.74
+PASS BASE-AGENT-009.1.call.75
+PASS BASE-AGENT-009.1.resource.75
+PASS BASE-AGENT-009.2.link.75
+PASS BASE-AGENT-006.6.audit.75
+PASS BASE-AGENT-009.2.decision.75
+PASS BASE-AGENT-009.1.call.76
+PASS BASE-AGENT-009.1.resource.76
+PASS BASE-AGENT-009.2.link.76
+PASS BASE-AGENT-006.6.audit.76
+PASS BASE-AGENT-009.2.decision.76
+PASS BASE-AGENT-009.1.call.77
+PASS BASE-AGENT-009.1.resource.77
+PASS BASE-AGENT-009.2.link.77
+PASS BASE-AGENT-006.6.audit.77
+PASS BASE-AGENT-009.2.decision.77
+PASS BASE-AGENT-009.1.call.78
+PASS BASE-AGENT-009.1.resource.78
+PASS BASE-AGENT-009.2.link.78
+PASS BASE-AGENT-006.6.audit.78
+PASS BASE-AGENT-009.2.decision.78
+PASS BASE-AGENT-009.1.call.79
+PASS BASE-AGENT-009.1.resource.79
+PASS BASE-AGENT-009.2.link.79
+PASS BASE-AGENT-006.6.audit.79
+PASS BASE-AGENT-009.2.decision.79
+PASS BASE-AGENT-009.1.call.80
+PASS BASE-AGENT-009.1.resource.80
+PASS BASE-AGENT-009.2.link.80
+PASS BASE-AGENT-006.6.audit.80
+PASS BASE-AGENT-009.1.call.81
+PASS BASE-AGENT-009.1.resource.81
+PASS BASE-AGENT-009.2.link.81
+PASS BASE-AGENT-006.6.audit.81
+PASS BASE-AGENT-009.1.call.82
+PASS BASE-AGENT-009.1.resource.82
+PASS BASE-AGENT-009.2.link.82
+PASS BASE-AGENT-006.6.audit.82
+PASS BASE-AGENT-009.1.call.83
+PASS BASE-AGENT-009.1.resource.83
+PASS BASE-AGENT-009.2.link.83
+PASS BASE-AGENT-006.6.audit.83
+PASS BASE-AGENT-009.1.call.84
+PASS BASE-AGENT-009.1.resource.84
+PASS BASE-AGENT-009.2.link.84
+PASS BASE-AGENT-006.6.audit.84
+PASS BASE-AGENT-009.2.decision.84
+PASS BASE-AGENT-009.1.call.85
+PASS BASE-AGENT-009.1.resource.85
+PASS BASE-AGENT-009.2.link.85
+PASS BASE-AGENT-006.6.audit.85
+PASS BASE-AGENT-009.2.decision.85
+PASS BASE-AGENT-009.1.call.86
+PASS BASE-AGENT-009.1.resource.86
+PASS BASE-AGENT-009.2.link.86
+PASS BASE-AGENT-006.6.audit.86
+PASS BASE-AGENT-009.1.call.87
+PASS BASE-AGENT-009.1.resource.87
+PASS BASE-AGENT-009.2.link.87
+PASS BASE-AGENT-006.6.audit.87
+PASS BASE-AGENT-009.1.call.88
+PASS BASE-AGENT-009.1.resource.88
+PASS BASE-AGENT-009.2.link.88
+PASS BASE-AGENT-006.6.audit.88
+PASS BASE-AGENT-009.1.call.89
+PASS BASE-AGENT-009.1.resource.89
+PASS BASE-AGENT-009.2.link.89
+PASS BASE-AGENT-006.6.audit.89
+PASS BASE-AGENT-009.2.decision.89
+PASS BASE-AGENT-009.1.call.90
+PASS BASE-AGENT-009.1.resource.90
+PASS BASE-AGENT-009.2.link.90
+PASS BASE-AGENT-006.6.audit.90
+PASS BASE-AGENT-009.2.decision.90
+PASS BASE-AGENT-009.1.call.91
+PASS BASE-AGENT-009.1.resource.91
+PASS BASE-AGENT-009.2.link.91
+PASS BASE-AGENT-006.6.audit.91
+PASS BASE-AGENT-009.2.decision.91
+PASS BASE-AGENT-009.1.call.92
+PASS BASE-AGENT-009.1.resource.92
+PASS BASE-AGENT-009.2.link.92
+PASS BASE-AGENT-006.6.audit.92
+PASS BASE-AGENT-009.2.decision.92
+PASS BASE-AGENT-009.1.call.93
+PASS BASE-AGENT-009.1.resource.93
+PASS BASE-AGENT-009.2.link.93
+PASS BASE-AGENT-006.6.audit.93
+PASS BASE-AGENT-009.2.decision.93
+PASS BASE-AGENT-009.1.call.94
+PASS BASE-AGENT-009.1.resource.94
+PASS BASE-AGENT-009.2.link.94
+PASS BASE-AGENT-006.6.audit.94
+PASS BASE-AGENT-009.2.decision.94
+PASS BASE-AGENT-009.1.call.95
+PASS BASE-AGENT-009.1.resource.95
+PASS BASE-AGENT-009.2.link.95
+PASS BASE-AGENT-006.6.audit.95
+PASS BASE-AGENT-009.2.decision.95
+PASS BASE-AGENT-009.1.call.96
+PASS BASE-AGENT-009.1.resource.96
+PASS BASE-AGENT-009.2.link.96
+PASS BASE-AGENT-006.6.audit.96
+PASS BASE-AGENT-009.2.decision.96
+PASS BASE-AGENT-009.1.call.97
+PASS BASE-AGENT-009.1.resource.97
+PASS BASE-AGENT-009.2.link.97
+PASS BASE-AGENT-006.6.audit.97
+PASS BASE-AGENT-009.2.decision.97
+PASS BASE-AGENT-009.1.call.98
+PASS BASE-AGENT-009.1.resource.98
+PASS BASE-AGENT-009.2.link.98
+PASS BASE-AGENT-006.6.audit.98
+PASS BASE-AGENT-009.2.decision.98
+PASS BASE-AGENT-009.1.call.99
+PASS BASE-AGENT-009.1.resource.99
+PASS BASE-AGENT-009.2.link.99
+PASS BASE-AGENT-006.6.audit.99
+PASS BASE-AGENT-009.1.call.100
+PASS BASE-AGENT-009.1.resource.100
+PASS BASE-AGENT-009.2.link.100
+PASS BASE-AGENT-006.6.audit.100
+PASS BASE-AGENT-009.2.decision.100
+PASS BASE-AGENT-007.7.differs-from-policy
+PASS BASE-AGENT-010.2.events
+PASS BASE-AGENT-010.6.policy.adopted
+PASS BASE-AGENT-010.1.effects
+PASS BASE-AGENT-010.3.cursor
+PASS BASE-AGENT-009.1.events-audited
+Agent door conformance: 767/768 points passed.
+Agent door conformance failed: BASE-AGENT-013.native-journey.
+verify: failed (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
