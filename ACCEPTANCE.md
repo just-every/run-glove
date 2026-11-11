@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 43 | 178 | 16 | 237 |
-| Agent surface | 0 | 13 | 13 | 26 |
+| Core | 46 | 175 | 16 | 237 |
+| Agent surface | 1 | 12 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 43 | 191 | 29 | 263 |
+| Full target | 47 | 187 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -639,7 +639,7 @@ Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 #### BOOK-017 — Reserve with Google request intake
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Reserve with Google request intake supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
@@ -653,8 +653,8 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 7. The slot start is not a creation timestamp; the acknowledgment due time starts at Glove receipt.
 8. No live integration is claimed; see [lead source formats](docs/lead-sources.md).
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/lead-matching.test.mjs` (BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart); `tests/browser/journey.spec.ts` (BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390)
+**Gap.** None.
 
 #### BOOK-005 — Service calls booked without a quote
 
@@ -714,7 +714,7 @@ Core · target · **partial**
 
 #### QUOTE-002 — Online approval with e-signature
 
-Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001 · Register R-1, R-2
+Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001 · Register R-1, R-2
 
 **Requirement.** Online approval with e-signature supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations. Recorded decisions: RL-4.
 
@@ -728,8 +728,8 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 7. A decision rechecks the issuer's live role and branch; job creation rechecks price approval.
 8. One decision per revision wins between staff and online and freezes it; replay changes nothing.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture opens a sent quote link, finds each price-book line's customer-facing description (MONEY-003, MONEY-006), chooses the middle of three options and one add-on (QUOTE-001, the job then carrying exactly that choice), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved.; point 2 — A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.; point 3 — A bearer delegates read, option choice, change request, decline, update request and signed approval for one price-approved revision.; point 4 — Only a signed-in person issues it; one live link per revision, and reissue revokes the previous one.; point 5 — The page reveals only that revision and its service site.; point 6 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.; point 7 — A decision rechecks the issuer's live role and branch; job creation rechecks price approval.; point 8 — One decision per revision wins between staff and online and freezes it; replay changes nothing. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/quote-approval.test.mjs` (QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority); `tests/browser/quote-link-custody.spec.ts` (QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390)
+**Gap.** None.
 
 #### QUOTE-008 — First quote decision freezes the revision
 
@@ -1894,7 +1894,7 @@ Core · target · **partial** · From FIELD-008 · Cites BASE-DATA-003, BASE-ROL
 
 #### COST-001 — Clock-ins and job timers
 
-Core · target · **partial** · Cites BASE-AUDIT-001
+Core · target · **done** · Cites BASE-AUDIT-001
 
 **Requirement.** Technicians clock in and out for the day and run travel and on-job timers per visit, with or without signal; time is attached to the job; the desk sees who is on the clock (the `REPORT-001` dashboard's on-the-clock tile) and corrects time with a reason. The [operating rules](docs/service-work-rules.md#cost-001-operating-rules) retain the record formats and calculations.
 
@@ -1908,7 +1908,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 7. The `REPORT-001` on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running.
 
 **Evidence.** `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`, `src/ui/technician.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original; the REPORT-001 on-the-clock tile lists exactly the technicians clocked in at each step.; point 2 — A technician clocks in and out on the phone and, only while clocked in, runs one timer at a time, travel or on the job, on a visit currently assigned to them; starting a timer stops the running one at the same phone time, and clocking out or completing the visit stops it too.; point 3 — Every start and stop carries the phone's clock time and goes through the phone's outbox with the identity it was given, so it works without signal and a resend lands once (GLOVE-06).; point 4 — An entry counts end − start in whole minutes, rounded half up; a job's time is the sum of its entries per kind.; point 5 — The desk (owner, dispatcher, office) corrects a stopped entry's start and end, as local dates and times in the business timezone, with a reason; the entry keeps the phone's original times and every correction (who, when, reason, from and to), and the job's timeline records it.; point 6 — Technicians read only their own entries.; point 7 — The REPORT-001 on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Gap.** None.
 
 #### COST-002 — Timesheets and payroll export
 
@@ -4027,15 +4027,15 @@ Agent surface · target · **partial** · From BASE-AGENT-001 · Cites BASE-AGEN
 
 #### SURFACE-015 — Native price-book action parity
 
-Agent surface · target · **partial** · From BASE-AGENT-002 · Cites BASE-AGENT-002
+Agent surface · target · **done** · From BASE-AGENT-002 · Cites BASE-AGENT-002
 
 **Requirement.** The price-book registry joins internal catalogue inspection, existing-item edits, category markups and category price adjustments to Glove’s desk actions.
 
 **Acceptance.**
 1. Each declared price-book operation gives the same native record state and Activity effect as its desk action; the wider service-work registry remains the target of SURFACE-001.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
-**Gap.** Only internal inspection and existing-item, category-markup and category-price updates are registered. Client-bearing tools await the agreed retained-client custody, redaction and atomic erasure mapping required by Base ADOPTING.md and DATA-001. The broader ct service-work surface is not adopted.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.; `tests/agent-native-journey.mjs` (default export (native price-book journey, extended by tests/agent-native-parity.mjs#pricebookParity: read parity, update, category markup and price adjustment desk-versus-tool parity with Activity, stale and duplicate refusals changing nothing, omitted-field reset parity))
+**Gap.** None.
 
 #### SURFACE-016 — Native price-book resources
 

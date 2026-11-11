@@ -58,7 +58,7 @@ export function PhonePush({ s }: { s: Glove }) {
   return <section className="card" aria-labelledby="push-title">
     <h2 id="push-title" className="section-title">Notifications</h2>
     {!publicKey ? <p className="muted">The owner has not turned on phone notifications.</p>
-      : !supported() ? <p className="muted">This browser cannot show notifications. On an iPhone, add Glove to your Home Screen (Share, then Add to Home Screen) and open it from there.</p>
+      : !supported() ? <p className="muted">This browser cannot show notifications. An iPhone shows web pushes only once Glove is added to its Home Screen (Share, then Add to Home Screen) and opened from there, and needs iOS 16.4 or later.</p>
       : <>
         <p role="status">{here ? 'On for this phone: new, moved and canceled visits.' : 'Off for this phone.'}</p>
         {!here && <button onClick={() => void turnOn()}>Turn on notifications</button>}

@@ -30,7 +30,7 @@ import { commissionDownloads } from './commission-download-journey'
 // moved at the desk meanwhile waits for late-evidence review. DISP-001 (1440): drag to book, drag to another day through a conflict review,
 // keyboard move and resize, the month view and job-type colors. DISP-007 (1440): a crew named on Team and booked as one is
 // dragged to another day on the week board by crew, moving both members' visits.
-// FIELD-004 (390): the app is installable from its manifest, the technician turns on notifications (push service fake),
+// FIELD-004 (1440 and 390): the app is installable from its manifest, the technician turns on notifications (push service fake),
 // the dispatcher's move of their visit arrives as a notification that opens the job, and the visit offers tap-to-call and
 // tap-to-navigate.
 
@@ -656,7 +656,9 @@ test('MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1
       await page.getByRole('button', { name: new RegExp(`^${two.number} Offline day two, `) }).click()
       await expect(page.getByText('2 field items arrived after this visit changed.')).toBeVisible()
       await send(page, page.getByRole('button', { name: 'Mark reviewed' }))
-      // FIELD-004: the push service fake on this computer receives what Glove sends and hands it to the phone's service worker.
+    }
+    // FIELD-004 (1440 and 390): the push service fake on this computer receives what Glove sends and hands it to the phone's service worker.
+    {
       const pushed: { authorization: string; encoding: string; body: Buffer }[] = []
       const service = createServer((req, res) => { const chunks: Buffer[] = []; req.on('data', c => chunks.push(c)); req.on('end', () => { pushed.push({ authorization: String(req.headers.authorization), encoding: String(req.headers['content-encoding']), body: Buffer.concat(chunks) }); res.writeHead(201).end() }) })
       await new Promise<void>(resolve => service.listen(0, '127.0.0.1', resolve))
@@ -668,67 +670,191 @@ test('MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
-        await gotoHarness(page, `${origin}/app#team`)
-        await send(page, page.getByRole('button', { name: 'Turn on phone notifications' }))
-        const publicKey = (await records(page)).business[0].webPush.publicKey
-        // The subscription the push service hands this phone, with the test's keys (headless Chromium has no push service).
-        await pushContext.grantPermissions(['notifications'], { origin })
-        await pushContext.addInitScript(({ endpoint, keys }) => {
-          const subscription = { endpoint, expirationTime: null, options: null, getKey: () => null, toJSON: () => ({ endpoint, expirationTime: null, keys }), unsubscribe: async () => { localStorage.removeItem('test.push'); return true } }
-          PushManager.prototype.subscribe = async function (options?: PushSubscriptionOptionsInit) { localStorage.setItem('test.push', btoa(String.fromCharCode(...new Uint8Array(options!.applicationServerKey as ArrayBuffer))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')); return subscription as unknown as PushSubscription }
-          PushManager.prototype.getSubscription = async function () { return (localStorage.getItem('test.push') ? subscription : null) as unknown as PushSubscription }
-        }, { endpoint, keys: device.keys })
-        await gotoHarness(pushPhone, `${origin}/app`)
-        // Installable: the manifest Chromium reads, with no installability errors but the test profile's own incognito one.
-        const cdp = await pushContext.newCDPSession(pushPhone)
-        const manifest = await cdp.send('Page.getAppManifest')
-        expect(manifest.url).toBe(`${origin}/manifest.webmanifest`)
-        expect(JSON.parse(manifest.data!)).toMatchObject({ name: 'Glove', start_url: '/app', display: 'standalone' })
-        await expect.poll(async () => (await cdp.send('Page.getInstallabilityErrors')).installabilityErrors.map(e => e.errorId).filter(id => id !== 'in-incognito')).toEqual([])
         const notifications = pushPhone.getByRole('region', { name: 'Notifications' })
-        await notifications.getByRole('button', { name: 'Turn on notifications' }).click()
-        await expect(notifications.getByRole('status')).toHaveText('On for this phone: new, moved and canceled visits.')
-        expect(await pushPhone.evaluate(() => localStorage.getItem('test.push'))).toBe(publicKey)
-        // The dispatcher books tomorrow's visit for this technician, then moves it.
-        const s1 = await records(page), techId = s1.technicians.find((t: any) => t.name === techName).id
+        const pngSize = async (path: string) => { const r = await pushContext.request.get(`${origin}${path}`); expect(r.status(), path).toBe(200); expect(r.headers()['content-type'], path).toContain('image/png'); const b = await r.body(); return [b.readUInt32BE(16), b.readUInt32BE(20)] }
+        // The records the phone's visit needs: a photo question on the service's form and a model connection (the nameplate card needs one; it is never called here).
+        const s1 = await records(page), techId = s1.technicians.find((t: any) => t.name === techName).id, serviceId = s1.services.find((x: any) => x.code === code).id
         const harbour = s1.customers.find((c: any) => c.name === customer), site = s1.sites.find((x: any) => x.address === siteA)
-        const q = await command('quote.draft', { customerId: harbour.id, siteId: site.id, title: 'Push visit', lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId: s1.services.find((x: any) => x.code === code).id }] })
-        const a = await command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
-        await command('quote.accept', { quoteId: q.id, version: a.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
-        const pushJob = await command('job.create', { quoteId: q.id })
+        const photoForm = `Condenser ${tag}`, photoQuestion = `Condenser photo ${tag}`
+        await command('form.save', { name: photoForm, serviceIds: [serviceId], questions: [{ type: 'photo', label: photoQuestion, required: false }] })
+        await command('model.connect', { url: 'https://models.example.test/v1', model: 'synthetic-glove-233', key: 'synthetic-glove-234' })
+        const accepted = async (customerId: string, siteId: string, title: string) => {
+          const q = await command('quote.draft', { customerId, siteId, title, lines: [{ description: 'Split system service', quantity: '1', unitPrice: '189.00', serviceId }] })
+          const a = await command('quote.approve', { quoteId: q.id, version: q.version, revision: 1 })
+          await command('quote.accept', { quoteId: q.id, version: a.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
+          return command('job.create', { quoteId: q.id })
+        }
+        // The desk's dispatch commands: a schedule conflict (the crew drag at 1440 leaves tomorrow's 7 am taken) is reviewed and acknowledged, as the board does.
+        const dispatch = async (type: string, payload: object) => {
+          const post = async (acknowledge: string[]): Promise<any> => (await page.request.post(`${origin}/api/glove/commands`, { data: { commandId: crypto.randomUUID(), type, payload: { ...payload, acknowledge } }, headers: { origin } })).json()
+          let body = await post([])
+          if (!body.ok && body.error.code === 'CONFLICT_REVIEW') body = await post(body.error.details.conflicts.map((x: any) => x.code))
+          expect(body.ok, JSON.stringify(body.error ?? {})).toBe(true)
+          return body.result
+        }
         const tomorrow = new Date(Date.parse(`${day}T00:00:00Z`) + 86400000).toISOString().slice(0, 10)
-        const booked = await command('visit.book', { jobId: pushJob.id, technicianId: techId, date: tomorrow, start: '07:00', end: '08:00' })
-        await command('visit.change', { visitId: booked.id, version: booked.version, start: '07:30', end: '08:30', reason: 'Customer asked for later' })
-        expect(pushed).toHaveLength(2)
-        const messages = await Promise.all(pushed.map(async p => ({ ...JSON.parse(await decrypt(p.body, device)), key: (await vapid(p.authorization)).k, encoding: p.encoding })))
-        expect(messages).toEqual([{ title: 'Glove', body: 'New visit on your schedule', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }, { title: 'Glove', body: 'Visit moved', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }])
-        // The push service delivers the move to the phone's service worker, which shows the notification.
-        // Attach to the actual background before delivering the network-edge fake.
-        // A registration announcement alone does not acknowledge receipt of a push.
-        const background = pushContext.serviceWorkers().find(w => w.url() === `${origin}/glove-sw.js`)
-          ?? await pushContext.waitForEvent('serviceworker', { predicate: w => w.url() === `${origin}/glove-sw.js` })
-        await background.evaluate(() => {
-          const scope = globalThis as any
-          scope.syntheticGlovePush = null
-          scope.addEventListener('push', (event: any) => { scope.syntheticGlovePush = event.data?.text() ?? '' }, { once: true })
-        })
+        let pushJob: any, publicKey = '', registrationId = ''
         const worker = await pushContext.newCDPSession(pushPhone)
-        const registration = new Promise<string>(resolve => worker.on('ServiceWorker.workerRegistrationUpdated', e => { const r = e.registrations.find(x => x.scopeURL === `${origin}/` && !x.isDeleted); if (r) resolve(r.registrationId) }))
-        await worker.send('ServiceWorker.enable')
-        const payload = await decrypt(pushed[1].body, device)
-        await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: payload })
-        await expect.poll(() => background.evaluate(() => (globalThis as any).syntheticGlovePush)).toBe(payload)
-        await expect.poll(() => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))).toEqual([['Glove', 'Visit moved', pushJob.id]])
-        await reloadHarness(pushPhone)
-        await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
-        // Tapping it opens the app on that job's visit, with tap-to-call and tap-to-navigate.
-        await gotoHarness(pushPhone, `${origin}/app?job=${pushJob.id}`)
-        await expect(pushPhone.getByRole('heading', { name: `${pushJob.number} · Push visit` })).toBeVisible()
-        await expect(pushPhone.getByRole('link', { name: 'Call customer' })).toHaveAttribute('href', `tel:212555${phone4}`)
-        await expect(pushPhone.getByRole('group', { name: 'Directions to the site' }).getByRole('link', { name: 'Google Maps' })).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(siteA)}&travelmode=driving`)
-        await expect(pushPhone.getByRole('region', { name: 'Photos' }).locator('input[type=file]')).toHaveAttribute('capture', 'environment')
-        await shot(pushPhone, width, 'technician-push')
+        const cdp = await pushContext.newCDPSession(pushPhone)
+        const backgroundWorker = () => pushContext.serviceWorkers().find(w => w.url() === `${origin}/glove-sw.js`)
+        const shown = () => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))
+
+        await test.step('FIELD-004 point 1: the phone reads the manifest with no installability errors, turns on notifications, and the dispatcher\'s move shows as exactly that notification', async () => {
+          await gotoHarness(page, `${origin}/app#team`)
+          await send(page, page.getByRole('button', { name: 'Turn on phone notifications' }))
+          publicKey = (await records(page)).business[0].webPush.publicKey
+          // The subscription the push service hands this phone, with the test's keys (headless Chromium has no push service).
+          await pushContext.grantPermissions(['notifications'], { origin })
+          await pushContext.addInitScript(({ endpoint, keys }) => {
+            const subscription = { endpoint, expirationTime: null, options: null, getKey: () => null, toJSON: () => ({ endpoint, expirationTime: null, keys }), unsubscribe: async () => { localStorage.removeItem('test.push'); return true } }
+            PushManager.prototype.subscribe = async function (options?: PushSubscriptionOptionsInit) { localStorage.setItem('test.push', btoa(String.fromCharCode(...new Uint8Array(options!.applicationServerKey as ArrayBuffer))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')); return subscription as unknown as PushSubscription }
+            PushManager.prototype.getSubscription = async function () { return (localStorage.getItem('test.push') ? subscription : null) as unknown as PushSubscription }
+          }, { endpoint, keys: device.keys })
+          await gotoHarness(pushPhone, `${origin}/app`)
+          // Installable: the manifest Chromium reads, with no installability errors but the test profile's own incognito one.
+          const manifest = await cdp.send('Page.getAppManifest')
+          expect(manifest.url).toBe(`${origin}/manifest.webmanifest`)
+          expect(JSON.parse(manifest.data!)).toMatchObject({ name: 'Glove', start_url: '/app', display: 'standalone' })
+          await expect.poll(async () => (await cdp.send('Page.getInstallabilityErrors')).installabilityErrors.map(e => e.errorId).filter(id => id !== 'in-incognito')).toEqual([])
+          await notifications.getByRole('button', { name: 'Turn on notifications' }).click()
+          await expect(notifications.getByRole('status')).toHaveText('On for this phone: new, moved and canceled visits.')
+          expect(await pushPhone.evaluate(() => localStorage.getItem('test.push'))).toBe(publicKey)
+          // The dispatcher books tomorrow's visit for this technician, then moves it.
+          pushJob = await accepted(harbour.id, site.id, 'Push visit')
+          const booked = await dispatch('visit.book', { jobId: pushJob.id, technicianId: techId, date: tomorrow, start: '07:00', end: '08:00' })
+          await dispatch('visit.change', { visitId: booked.id, version: booked.version, start: '07:30', end: '08:30', reason: 'Customer asked for later' })
+          expect(pushed).toHaveLength(2)
+          const messages = await Promise.all(pushed.map(async p => ({ ...JSON.parse(await decrypt(p.body, device)), key: (await vapid(p.authorization)).k, encoding: p.encoding })))
+          expect(messages).toEqual([{ title: 'Glove', body: 'New visit on your schedule', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }, { title: 'Glove', body: 'Visit moved', jobId: pushJob.id, key: publicKey, encoding: 'aes128gcm' }])
+          // The push service delivers the move to the phone's service worker, which shows the notification.
+          // Attach to the actual background before delivering the network-edge fake.
+          // A registration announcement alone does not acknowledge receipt of a push.
+          const background = backgroundWorker() ?? await pushContext.waitForEvent('serviceworker', { predicate: w => w.url() === `${origin}/glove-sw.js` })
+          await background.evaluate(() => {
+            const scope = globalThis as any
+            scope.syntheticGlovePush = null
+            scope.addEventListener('push', (event: any) => { scope.syntheticGlovePush = event.data?.text() ?? '' }, { once: true })
+          })
+          const registration = new Promise<string>(resolve => worker.on('ServiceWorker.workerRegistrationUpdated', e => { const r = e.registrations.find(x => x.scopeURL === `${origin}/` && !x.isDeleted); if (r) resolve(r.registrationId) }))
+          await worker.send('ServiceWorker.enable')
+          registrationId = await registration
+          const payload = await decrypt(pushed[1].body, device)
+          await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId, data: payload })
+          await expect.poll(() => background.evaluate(() => (globalThis as any).syntheticGlovePush)).toBe(payload)
+          await expect.poll(shown).toEqual([['Glove', 'Visit moved', pushJob.id]])
+          await reloadHarness(pushPhone)
+          await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
+        })
+
+        await test.step('FIELD-004 point 2: the app installs from its manifest (Glove, /app, standalone, 192 and 512 px icons) and carries the tags iPhone reads', async () => {
+          const manifest = JSON.parse((await cdp.send('Page.getAppManifest')).data!)
+          expect(manifest).toMatchObject({ name: 'Glove', short_name: 'Glove', id: '/app', start_url: '/app', scope: '/', display: 'standalone' })
+          expect(manifest.icons.map((i: any) => [i.sizes, i.type, i.src])).toEqual([['192x192', 'image/png', '/brand/icon-192.png'], ['512x512', 'image/png', '/brand/icon-512.png']])
+          expect(await pngSize('/brand/icon-192.png')).toEqual([192, 192])
+          expect(await pngSize('/brand/icon-512.png')).toEqual([512, 512])
+          await expect(pushPhone.locator('link[rel=manifest]')).toHaveAttribute('href', '/manifest.webmanifest')
+          await expect(pushPhone.locator('link[rel=apple-touch-icon]')).toHaveAttribute('href', '/apple-touch-icon.png')
+          expect((await pngSize('/apple-touch-icon.png'))[0]).toBeGreaterThanOrEqual(180)
+          await expect(pushPhone.locator('meta[name=apple-mobile-web-app-capable]')).toHaveAttribute('content', 'yes')
+          await expect(pushPhone.locator('meta[name=apple-mobile-web-app-title]')).toHaveAttribute('content', 'Glove')
+        })
+
+        await test.step('FIELD-004 point 3: every field photo input on the phone (visit photo, form photo question, unit photo, nameplate and receipt photo) opens the rear camera', async () => {
+          await gotoHarness(pushPhone, `${origin}/app?job=${pushJob.id}`)
+          await expect(pushPhone.getByRole('heading', { name: `${pushJob.number} · Push visit` })).toBeVisible()
+          await pushPhone.getByRole('region', { name: 'Equipment' }).getByRole('button', { name: 'New equipment' }).click()
+          const inputs = [
+            pushPhone.getByRole('region', { name: 'Photos' }).locator('input[type=file]'),
+            pushPhone.getByRole('region', { name: photoForm }).getByLabel(photoQuestion, { exact: true }),
+            pushPhone.getByRole('region', { name: 'Equipment' }).locator('input[type=file]'),
+            pushPhone.getByRole('region', { name: 'Nameplate' }).locator('input[type=file]'),
+            pushPhone.getByRole('region', { name: 'Expenses' }).locator('input[type=file]'),
+          ]
+          for (const input of inputs) { await expect(input).toHaveAttribute('type', 'file'); await expect(input).toHaveAttribute('capture', 'environment'); await expect(input).toHaveAttribute('accept', 'image/*') }
+          // These five are all the field photo inputs on the visit (the technician's own portrait upload on this screen is a profile photo, not a field photo).
+          const field = pushPhone.locator('input[type=file][accept="image/*"]')
+          await expect(field).toHaveCount(5)
+          for (let i = 0; i < 5; i++) await expect(field.nth(i)).toHaveAttribute('capture', 'environment')
+          await shot(pushPhone, width, 'technician-push')
+        })
+
+        await test.step('FIELD-004 point 4: tapping the shown notification (notificationclick for the real notification inside its service worker) lands the open signed-in app on that job\'s visit', async () => {
+          // The open app is on the visit list; a fresh delivery replaces the notification the job's tag holds, then it is tapped.
+          await gotoHarness(pushPhone, `${origin}/app`)
+          await expect(notifications.getByRole('status')).toHaveText('On for this phone: new, moved and canceled visits.')
+          await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId, data: await decrypt(pushed[1].body, device) })
+          await expect.poll(shown).toEqual([['Glove', 'Visit moved', pushJob.id]])
+          expect(backgroundWorker(), 'the phone\'s service worker').toBeTruthy()
+          // Chromium has no way to press a notification without a person, so the event is built for the real Notification and dispatched in the worker.
+          const tap = () => backgroundWorker()!.evaluate(async () => {
+            const scope = globalThis as any
+            const [notification] = await scope.registration.getNotifications()
+            const waits: Promise<unknown>[] = []
+            const event = new scope.NotificationEvent('notificationclick', { notification })
+            const wait = event.waitUntil.bind(event)
+            event.waitUntil = (p: Promise<unknown>) => { waits.push(p); try { wait(p) } catch { /* a constructed event is not active */ } }
+            scope.dispatchEvent(event)
+            return Promise.all(waits).then(() => 'handler finished', (e: Error) => `handler refused: ${e.name}`)
+          })
+          const openOutcome = await tap()
+          await expect(pushPhone).toHaveURL(`${origin}/app?job=${pushJob.id}`)
+          await expect(pushPhone.getByRole('heading', { name: `${pushJob.number} · Push visit` })).toBeVisible()
+          await expect.poll(shown).toEqual([])
+          // A closed app: the worker can only openWindow from a person's tap, which Chromium cannot give; the outcome is recorded, not assumed.
+          await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId, data: await decrypt(pushed[1].body, device) })
+          await expect.poll(shown).toEqual([['Glove', 'Visit moved', pushJob.id]])
+          const closedApp = await pushContext.newPage()
+          await pushPhone.close()
+          const opened = pushContext.waitForEvent('page', { timeout: 4000 }).then(p => p.url(), () => 'no window opened')
+          const outcome = await tap()
+          const recorded = `open app: ${openOutcome}; closed app, notificationclick without a person's tap: ${outcome}; ${await opened}`
+          test.info().annotations.push({ type: 'FIELD-004 point 4', description: recorded })
+          console.log(`FIELD-004 point 4 (${width}) ${recorded}`)
+          await closedApp.close()
+        })
+
+        await test.step('FIELD-004 point 5: Call customer carries the stored phone\'s digits with its leading + and Navigate to site opens Google Maps directions to the exact site address', async () => {
+          const plusPhone = `+1 (917) 555-${String((Number(phone4) + 1111) % 9000 + 1000)}`, plusSite = `9 Lighthouse Rd, Balmain NSW 2041 (${tag})`
+          const plusCustomer = await command('customer.save', { name: `Lakeview Plumbing ${tag}`, phone: plusPhone })
+          const plusAt = await command('site.save', { customerId: plusCustomer.id, address: plusSite })
+          const plusJob = await accepted(plusCustomer.id, plusAt.id, 'Plus one visit')
+          await dispatch('visit.book', { jobId: plusJob.id, technicianId: techId, date: tomorrow, start: '09:00', end: '10:00' })
+          const visitPage = await pushContext.newPage()
+          await gotoHarness(visitPage, `${origin}/app?job=${pushJob.id}`)
+          await expect(visitPage.getByRole('link', { name: 'Call customer' })).toHaveAttribute('href', `tel:212555${phone4}`)
+          await gotoHarness(visitPage, `${origin}/app?job=${plusJob.id}`)
+          await expect(visitPage.getByRole('heading', { name: `${plusJob.number} · Plus one visit` })).toBeVisible()
+          await expect(visitPage.getByRole('link', { name: 'Call customer' })).toHaveAttribute('href', `tel:+${plusPhone.replace(/\D/g, '')}`)
+          await gotoHarness(visitPage, `${origin}/app?job=${pushJob.id}`)
+          const maps = visitPage.getByRole('group', { name: 'Directions to the site' }).getByRole('link', { name: 'Google Maps' })
+          await expect(maps).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(siteA)}&travelmode=driving`)
+          // The link opens in the maps app or a new tab; this computer answers the Google page itself.
+          await pushContext.route('https://www.google.com/maps/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<title>Maps</title>' }))
+          const [directions] = await Promise.all([visitPage.waitForEvent('popup'), maps.click()])
+          await directions.waitForLoadState()
+          const opened = new URL(directions.url())
+          expect([opened.origin + opened.pathname, opened.searchParams.get('api'), opened.searchParams.get('destination'), opened.searchParams.get('travelmode')]).toEqual(['https://www.google.com/maps/dir/', '1', siteA, 'driving'])
+          await visitPage.close()
+        })
+
+        await test.step('FIELD-004 point 2: an iPhone browser that cannot show pushes is told they need Glove on its Home Screen and iOS 16.4 or later', async () => {
+          const iphone = await pushBrowser.newContext({ viewport: { width, height: 900 }, userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1' })
+          await iphone.addInitScript(() => { delete (window as any).PushManager })
+          const iphonePage = await iphone.newPage()
+          await iphonePage.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
+          await gotoHarness(iphonePage, `${origin}/auth/dev/enter?as=${persona}&returnTo=%2Fapp`)
+          await iphonePage.waitForURL(url => url.pathname === '/app')
+          const notice = iphonePage.getByRole('region', { name: 'Notifications' })
+          await expect(notice).toContainText('Glove is added to its Home Screen')
+          await expect(notice).toContainText('iOS 16.4 or later')
+          await expect(notice.getByRole('button', { name: 'Turn on notifications' })).toHaveCount(0)
+          await iphone.close()
+        })
+        // Turning notifications off deletes the key and every phone's subscription, so the next width starts clean.
+        await command('push.setup', { off: true })
       } finally { await pushBrowser.close(); await new Promise(resolve => service.close(resolve)) }
+    }
+    if (width === 390) {
       // Back to the 1 pm visit, whose job timer is still running.
       await phone.getByRole('button', { name: '‹ Your visits' }).click()
       await phone.getByRole('button', { name: / 1:00 PM – 2:00 PM/ }).click()
