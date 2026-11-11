@@ -115,8 +115,11 @@ export const privacy: Handler = async (c, type, p, db) => {
           const retired = preview.retiredBatches.some(ofBatch)
           const privacyOmissions = preview.sharedOriginals.filter(ofBatch).map(a => ({ name: scope.redact(a.name), sha256: a.sha256, peerIds: a.peerIds }))
           // A batch that keeps Undo and resume keeps its reviewed fingerprint, mapping and
-          // counts with only the subject's values redacted; a retired batch keeps nothing else.
-          if (!retired) return [{ ...scope.redact(r), id: r.id, jobId: r.jobId, version: r.version + 1, label: privacyOmissions.length ? 'Shared original withdrawn; peer Undo remains available' : 'Customer data erased from this batch; peer Undo remains available', privacyOmissions }]
+          // counts with only the subject's values redacted. The uploaded files (source text and
+          // attachments) are withdrawn whole, and so is the listing of any withdrawn shared file;
+          // a retired batch keeps nothing else.
+          const { files: _files, fileSummary, ...kept } = r
+          if (!retired) return [{ ...scope.redact(kept), ...(fileSummary ? { fileSummary: scope.redact(fileSummary).filter((f: Row) => !privacyOmissions.some(o => o.sha256 === f.sha256)) } : {}), id: r.id, jobId: r.jobId, version: r.version + 1, label: privacyOmissions.length ? 'Shared original withdrawn; peer Undo remains available' : 'Customer data erased from this batch; peer Undo remains available', privacyOmissions }]
           return [{ id: r.id, jobId: r.jobId, version: r.version + 1, status: 'privacy-withdrawn', system: r.system, createdAt: r.createdAt, label: 'Source and Undo withdrawn for customer privacy', privacyOmissions }]
         }
         const sharedSignedCopy = kind === 'quotes' && preview.sharedSignedCopies.find(q => q.quoteId === r.id)

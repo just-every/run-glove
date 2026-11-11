@@ -111,6 +111,10 @@ export async function importKitText(h) {
   const tables = await stored(h)
   return Object.fromEntries(Object.entries(tables).filter(([name]) => name.startsWith('ik_')).map(([name, rows]) => [name, rows.map(text).join('\n')]))
 }
+/** Decoded text of every glove record: the batch records of imports, with any uploaded file text or base64, are in here. */
+export async function recordsText(h) {
+  return (await stored(h)).glove_records.map(text).join('\n')
+}
 /** The retained bytes of one original: its chunks, in order, hold the file as base64 text. */
 export async function originalBytes(h, jobId, name, digest) {
   const key = JSON.stringify([name, digest])
