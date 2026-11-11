@@ -1628,7 +1628,7 @@
       "executable": false
     },
     "scripts/verify-app.mjs": {
-      "sha256": "4c8f1056c92e7879197ccb4ccca8dbc9a2273af53afe477b157529350ac93d89",
+      "sha256": "a164699d6546c3dcbec0bbf8e8ad8d1cc4d6a486ea4438f5e854079ae46d5c34",
       "executable": false
     },
     "scripts/verify-ci.mjs": {
@@ -1643,12 +1643,20 @@
       "sha256": "f9b126130837144e43a65d10d370d602b63daad2be7ff66c93178d461a7521d9",
       "executable": false
     },
+    "scripts/verify-parallel.mjs": {
+      "sha256": "37b1461ad0a2ed46afb7f93b8b09a1bfccaa3b2c3486d39041ce526ebe3c5828",
+      "executable": false
+    },
     "scripts/verify-plan.mjs": {
       "sha256": "45fe2ab9c5cbc72d0186bf77fab32c985605caae6ecee50676dd618612c3e78f",
       "executable": false
     },
     "scripts/verify-progress.mjs": {
       "sha256": "b310a58c24e012074f12e6998d1cb0cb716ccaa36b71ff13340680e0f3e115d3",
+      "executable": false
+    },
+    "scripts/verify-timings.json": {
+      "sha256": "31f4b98c69a0db9a64ca05b18ceee6c6d0ab8cadcccf47f08811940a6605169d",
       "executable": false
     },
     "SEED-COMMAND-CONTRACT.md": {
@@ -6560,7 +6568,7 @@
       "executable": false
     },
     "tests/portable.mjs": {
-      "sha256": "451f322464eb4da855525ec24061c5e57e02af910428eaff13edd78009c12396",
+      "sha256": "a27c11ba11c976b0e1af4628c0d0dd6a31da12923e55fc87267722d3a11fc1db",
       "executable": false
     },
     "tests/runtime.mjs": {
