@@ -1,0 +1,29 @@
+{
+  "563c76cbeecb6d3723f182760ab15cb9aae3b314": {
+    "total": 263,
+    "status": {
+      "partial": 191,
+      "done": 43,
+      "missing": 29
+    },
+    "pay010": "partial"
+  },
+  "origin/main": {
+    "total": 263,
+    "status": {
+      "partial": 189,
+      "done": 45,
+      "missing": 29
+    },
+    "pay010": "partial"
+  },
+  "WORKTREE": {
+    "total": 263,
+    "status": {
+      "partial": 189,
+      "done": 45,
+      "missing": 29
+    },
+    "pay010": "partial"
+  }
+}

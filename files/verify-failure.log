@@ -1,0 +1,16 @@
+Actual aggregate failure log excerpt; workflow environment listing omitted.
+verify	Require the selected coverage and its proof	﻿2026-11-11T09:16:43.8675427Z ##[group]Run set -euo pipefail
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8676173Z set -euo pipefail
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8676742Z test "$PLAN" = success
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8677534Z case "$PUSH_PROOF:$NIGHTLY_PROOF" in
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8678178Z   *failure*|*cancelled*) exit 1 ;;
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8678779Z esac
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8679296Z case "$COVERAGE" in
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8680025Z   reuse) test "$SKIP" = true && test "$SHARDS" = skipped && test "$LIGHT" = skipped ;;
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8681030Z   light) test "$SKIP" = false && test "$LIGHT" = success && test "$SHARDS" = skipped ;;
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8682120Z   full) test "$LIGHT" = skipped && { test "$SHARDS" = success || { test "$HAS_SHARDS" = false && test "$SHARDS" = skipped; }; } ;;
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8683296Z   *) exit 1 ;;
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8683814Z esac
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8954941Z shell: /usr/bin/bash -e {0}
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.8960542Z ##[endgroup]
+verify	Require the selected coverage and its proof	2026-11-11T09:16:43.9193323Z ##[error]Process completed with exit code 1.

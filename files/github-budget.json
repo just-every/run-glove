@@ -1,0 +1,142 @@
+{
+  "calls": [
+    {
+      "number": 1,
+      "at": 1794387578.3543367,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs?head_sha=507b08f48ccaf3d03fea89b3b01c245ceb1075ba&per_page=100",
+        "--jq",
+        ".workflow_runs[] | {id,name,status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794387581.9595165
+    },
+    {
+      "number": 2,
+      "at": 1794387883.2221854,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/42991305646",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794387884.099112
+    },
+    {
+      "number": 3,
+      "at": 1794388185.133891,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/42991305646",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794388185.6835892
+    },
+    {
+      "number": 4,
+      "at": 1794388486.7276719,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/42991305646",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794388487.221664
+    },
+    {
+      "number": 5,
+      "at": 1794388788.2844384,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/42991305646",
+        "--jq",
+        "{status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794388788.7978776
+    },
+    {
+      "number": 6,
+      "at": 1794388800.811009,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/42991305646/jobs?per_page=100",
+        "--jq",
+        ".jobs[] | {id,name,status,conclusion,started_at,completed_at,steps:[.steps[] | select(.conclusion == \"failure\" or .conclusion == \"cancelled\") | {name,conclusion}],html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794388801.6681108
+    },
+    {
+      "number": 7,
+      "at": 1794388823.3952594,
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "42991305646",
+        "--repo",
+        "just-every/run-glove",
+        "--job",
+        "130424856759",
+        "--log-failed"
+      ],
+      "exit": 0,
+      "finished_at": 1794388830.001745
+    },
+    {
+      "number": 8,
+      "at": 1794388846.589845,
+      "command": [
+        "gh",
+        "run",
+        "view",
+        "42991305646",
+        "--repo",
+        "just-every/run-glove",
+        "--job",
+        "130432802999",
+        "--log-failed"
+      ],
+      "exit": 0,
+      "finished_at": 1794388847.911534
+    },
+    {
+      "number": 9,
+      "at": 1794388847.93538,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs?head_sha=14d10155020b230c5cba59aa9f78be5185b7e0fa&per_page=100",
+        "--jq",
+        ".workflow_runs[] | {id,name,status,conclusion,head_sha,html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794388848.5299277
+    },
+    {
+      "number": 10,
+      "at": 1794388875.7792714,
+      "command": [
+        "gh",
+        "api",
+        "repos/just-every/run-glove/actions/runs/42988391557/jobs?per_page=100",
+        "--jq",
+        ".jobs[] | select(.name | contains(\"portable\")) | {id,name,status,conclusion,started_at,completed_at,html_url}"
+      ],
+      "exit": 0,
+      "finished_at": 1794388876.3789713
+    }
+  ]
+}

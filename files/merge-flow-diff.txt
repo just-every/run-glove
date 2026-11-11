@@ -1,0 +1,20 @@
+diff --git a/tests/api/flows.test.mjs b/tests/api/flows.test.mjs
+index 449e14a..072450b 100644
+--- a/tests/api/flows.test.mjs
++++ b/tests/api/flows.test.mjs
+@@ -6,6 +6,7 @@ import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
+ import { reminderTemplates } from '../fixtures/collection.mjs'
+ import { statementPath, readStatement, refusedStatement, untouched, statementWorld, approvedInvoice, checkoutPayment, statementReaders } from '../fixtures/statement-journey.mjs'
+ import { exportedFixture } from '../fixtures/movein.mjs'
++import { unbilledReminderPoints } from '../fixtures/unbilled-reminders.mjs'
+ import test, { after, describe } from 'node:test'
+ import assert from 'node:assert/strict'
+ import { randomUUID } from 'node:crypto'
+@@ -1384,6 +1385,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 cus
+     await x.restart()
+     assert.deepEqual(await readAll(), reads, 'the same frozen dates after the Worker restarts')
+   })
++  await unbilledReminderPoints(t)
+ })
+ 
+ test('AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money', async t => {

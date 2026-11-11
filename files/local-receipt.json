@@ -1,0 +1,76 @@
+{
+  "repository": "just-every/run-glove",
+  "tag": "sx-glove-c-f256-pc1",
+  "branch": "cloud/sx-glove-c-f256-pc1",
+  "head": "507b08f48ccaf3d03fea89b3b01c245ceb1075ba",
+  "parents": [
+    "563c76cbeecb6d3723f182760ab15cb9aae3b314",
+    "14d10155020b230c5cba59aa9f78be5185b7e0fa"
+  ],
+  "candidate": "563c76cbeecb6d3723f182760ab15cb9aae3b314",
+  "main": "14d10155020b230c5cba59aa9f78be5185b7e0fa",
+  "checks": [
+    {
+      "command": "npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+      "runner": "cloud_run",
+      "exit": 0,
+      "result": "RER_SETUP_READY; temporary Worker stopped"
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses PAY-010",
+      "exit": 0,
+      "output": "Wrote 0 contract documents."
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses PAY-010",
+      "exit": 0,
+      "output": "Contract documents are current."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/flows.test.mjs",
+      "runner": "cloud_run",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "duration_ms": 88940.505766
+    },
+    {
+      "command": "git diff --exit-code origin/main -- CONTRACT.md ACCEPTANCE.md docs/CLAIMS.md docs/contract/ID-MAP.json",
+      "exit": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    }
+  ],
+  "local_browser_and_portable": "Not run as explicitly instructed; exact-SHA Verify owns this coverage",
+  "runtime": {
+    "node": "24.19.0",
+    "pnpm": "10.12.4",
+    "requested_node": "22.20.0",
+    "note": "Prescribed toolchain shell retains newer VM Node; rer selects project runtime for setup."
+  },
+  "product_diff_vs_main": "sources.lock.json                    |   6 +-\n tests/api/flows.test.mjs             | 261 ++++++++++++++++++++++++++++++++++-\n tests/fixtures/statement-journey.mjs | 118 ++++++++++++++++\n 3 files changed, 383 insertions(+), 2 deletions(-)",
+  "worktree": "",
+  "clause_changes_authored": [],
+  "clause_changes_inherited": [
+    "BOOK-017 partial -> done",
+    "QUOTE-002 partial -> done"
+  ],
+  "pay010": "partial -> partial"
+}

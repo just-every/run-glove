@@ -1,0 +1,1 @@
+{"conclusion":"cancelled","head_sha":"507b08f48ccaf3d03fea89b3b01c245ceb1075ba","html_url":"https://github.com/just-every/run-glove/actions/runs/42991305646","status":"completed"}

@@ -1,0 +1,202 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f256-pc1",
+  "head": "507b08f48ccaf3d03fea89b3b01c245ceb1075ba",
+  "run_id": 42991305646,
+  "status": "completed",
+  "conclusion": "cancelled",
+  "url": "https://github.com/just-every/run-glove/actions/runs/42991305646",
+  "jobs": [
+    {
+      "completed_at": "2026-11-11T08:58:56Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424603284",
+      "id": 130424603284,
+      "name": "plan",
+      "started_at": "2026-11-11T08:58:50Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:59:22Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424663385",
+      "id": 130424663385,
+      "name": "build",
+      "started_at": "2026-11-11T08:58:58Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:58:56Z",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424665860",
+      "id": 130424665860,
+      "name": "light",
+      "started_at": "2026-11-11T08:58:57Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:09:31Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856243",
+      "id": 130424856243,
+      "name": "shards (api-1)",
+      "started_at": "2026-11-11T08:59:24Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:01:11Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856248",
+      "id": 130424856248,
+      "name": "shards (foundation)",
+      "started_at": "2026-11-11T08:59:24Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:05:38Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856290",
+      "id": 130424856290,
+      "name": "shards (browser-4)",
+      "started_at": "2026-11-11T08:59:25Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:07:28Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856310",
+      "id": 130424856310,
+      "name": "shards (browser-3)",
+      "started_at": "2026-11-11T08:59:24Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:15:00Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856349",
+      "id": 130424856349,
+      "name": "shards (api-2)",
+      "started_at": "2026-11-11T08:59:24Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:07:25Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856362",
+      "id": 130424856362,
+      "name": "shards (browser-2)",
+      "started_at": "2026-11-11T08:59:24Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:03:47Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856378",
+      "id": 130424856378,
+      "name": "shards (browser-1)",
+      "started_at": "2026-11-11T08:59:24Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:16:40Z",
+      "conclusion": "cancelled",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130424856759",
+      "id": 130424856759,
+      "name": "shards (portable)",
+      "started_at": "2026-11-11T08:59:24Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "cancelled",
+          "name": "Run this shard"
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-11T09:16:46Z",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130432802999",
+      "id": 130432802999,
+      "name": "verify",
+      "started_at": "2026-11-11T09:16:43Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof"
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-11T09:16:40Z",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130432804216",
+      "id": 130432804216,
+      "name": "nightly-proof",
+      "started_at": "2026-11-11T09:16:41Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:16:40Z",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42991305646/job/130432805038",
+      "id": 130432805038,
+      "name": "full-push-proof",
+      "started_at": "2026-11-11T09:16:41Z",
+      "status": "completed",
+      "steps": []
+    }
+  ],
+  "local_checks_passed": true,
+  "ready": false,
+  "blocker": {
+    "job_id": 130424856759,
+    "name": "shards (portable)",
+    "conclusion": "cancelled",
+    "started_at": "2026-11-11T08:59:24Z",
+    "completed_at": "2026-11-11T09:16:40Z",
+    "elapsed_seconds": 1036,
+    "configured_timeout_minutes": 17,
+    "interpretation": "Cancellation timing is consistent with the configured 17-minute job deadline. No failed assertion text was returned, so the underlying stall is not proven."
+  },
+  "aggregate_verify_job": 130432802999,
+  "log_reads": [
+    {
+      "command": "gh run view 42991305646 --repo just-every/run-glove --job 130424856759 --log-failed",
+      "exit": 0,
+      "bytes": 0,
+      "result": "No failed-step output for cancelled portable job; no repeated archive request."
+    },
+    {
+      "command": "gh run view 42991305646 --repo just-every/run-glove --job 130432802999 --log-failed",
+      "exit": 0,
+      "result": "SHARDS: cancelled; coverage gate exits 1."
+    }
+  ],
+  "main_comparison": {
+    "merged_main": "14d10155020b230c5cba59aa9f78be5185b7e0fa",
+    "verify_runs_success": [
+      42988391557,
+      42985130934
+    ],
+    "portable_jobs_returned_for_run_42988391557": 0,
+    "shared_portable_failure_established": false
+  },
+  "fresh_main_after_failure": "312db4a9e23e08010f4fcdbd8d5336ec65373afd",
+  "ci_replan_on_fresh_main": false,
+  "github_calls_used": 10,
+  "product_push_succeeded": true,
+  "pr": null,
+  "recommended_lane_followup": "Land the independently running CI shard re-plan or diagnose/rerun the portable timeout; merge its updated main into this published branch without rebasing, regenerate the lock and obtain exact-SHA green Verify."
+}

@@ -1,0 +1,39 @@
+507b08f48ccaf3d03fea89b3b01c245ceb1075ba
+Merge current main into PAY-010 statement candidate
+
+563c76cbeecb6d3723f182760ab15cb9aae3b314
+Refresh source lock for PAY-010 points 5 and 8
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+a34af1ce9d7543c029cfe2a2754acb3f51bd9442
+Qualify PAY-010 points 5 and 8 on fixed-monthly and ordinary statement dates [skip ci]
+
+One more independent-installation step in the PAY-001 family statement
+registration: period-end issue dates, frozen due-date basis and approval gating
+read through the statement door across all three months, both branches and a
+Worker restart.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+bca70d3c98a6ae2f9cd31847e337afe8ec0cb0c2
+Refresh source lock for PAY-010 statement steps
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+c2c62159bf2c84ec5e8b23a28fb4d1cf04e4efdc
+Build statement fixture emails from parts [skip ci]
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+234cbe0c16a36b29f6cfce77865393aebc5d81ed
+Qualify PAY-010 statement points 1-4, 6 and 7 through public doors [skip ci]
+
+Seven independent-installation steps inside the existing PAY-001 family
+statement registration: report-authority readers with CSV parsed against JSON,
+branch-local dating of approvals and Office and Checkout receipts with a moved-in
+opening balance, unapproved and unconfirmed money, credit allocation, refusals,
+branch limits and erasure, and read-only behaviour across Worker restart.
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+

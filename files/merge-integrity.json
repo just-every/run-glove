@@ -1,0 +1,34 @@
+{
+  "protected_files": [
+    {
+      "path": "CONTRACT.md",
+      "sha256": "9357c4decea4780a3b94beef21dc3d1380a97e941f2dcffbb9a6200949c42ee6",
+      "matches_main": true
+    },
+    {
+      "path": "ACCEPTANCE.md",
+      "sha256": "e008a266bc847e37c4ec9abb47e228972a72a0dc6104f2cedf708b6cd1fef03a",
+      "matches_main": true
+    },
+    {
+      "path": "docs/CLAIMS.md",
+      "sha256": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e",
+      "matches_main": true
+    },
+    {
+      "path": "docs/contract/ID-MAP.json",
+      "sha256": "9d1149cffa862c30a2094bd25b08a4cf97b1d74fd529c03ea6644f1b8fe5d7cc",
+      "matches_main": true
+    }
+  ],
+  "fixture_matches_original_candidate": true,
+  "flows_vs_original_candidate": {
+    "added": [
+      "+import { unbilledReminderPoints } from '../fixtures/unbilled-reminders.mjs'",
+      "+  await unbilledReminderPoints(t)"
+    ],
+    "removed": []
+  },
+  "candidate_migration_changes": [],
+  "verify_configuration_matches_main": true
+}
