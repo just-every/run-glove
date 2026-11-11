@@ -22,9 +22,14 @@ import type { Handler } from './types'
 const who = (c: Context) => ({ id: c.actor.id, name: c.actor.name, role: c.actor.role })
 const current = (inv: Row) => inv.revisions[inv.revisions.length - 1]
 
+/** Field captures (added lines and materials) not yet claimed by an invoice, optionally scoped to one visit. */
+export function billableCaptures(c: Context, job: Row, visitId?: string, billedCaptureIds: string[] = []): Row[] {
+  return c.s.captures.filter(x => x.jobId === job.id && (!visitId || x.visitId === visitId) && ['line', 'material'].includes(x.kind) && !billedCaptureIds.includes(x.id))
+}
+
 /** The job's accepted price lines plus field materials priced from the price book (billable expenses join them in invoice.prepare). */
 export function suggested(c: Context, job: Row, visitId?: string, base: Line[] = job.lines, billedCaptureIds: string[] = []): Line[] {
-  const captures = c.s.captures.filter(x => x.jobId === job.id && (!visitId || x.visitId === visitId) && !billedCaptureIds.includes(x.id))
+  const captures = billableCaptures(c, job, visitId, billedCaptureIds)
   const materials = captures.filter(x => x.kind === 'material')
   const unpriced = materials.filter(m => !m.serviceId)
   if (!base.length && !materials.length && !captures.some(x => x.kind === 'line')) fail('NO_LINES', 'This service call has no lines yet. Prepare the invoice with explicit lines.')
@@ -72,7 +77,9 @@ function prepare(c: Context, p: any) {
   if (progress && p.lines === undefined) fail('INPUT', 'Enter the exact lines for this stage; prior stages and extras are never billed automatically.', null, 400)
   const billed = p.lines === undefined ? expenseLines(c, job) : []
   const priced = p.lines === undefined ? lines([...suggested(c, job), ...billed.map(b => b.line)]) : invoiceLines(c, p.lines)
-  const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', ...(progress ? { progress } : {}), revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? progress ? null : job.discount ?? null : documentDiscount(p.discount))] })
+  // Only a default-priced invoice carries the job's captures; explicit lines (every progress stage) price exactly what they list and claim none.
+  const capturesPriced = p.lines === undefined ? billableCaptures(c, job).map(x => x.id) : []
+  const row = put(c.s, 'invoices', { id: newId(), version: 1, createdAt: c.now, number: nextNumber(c, 'invoice', branchIdOf(c.s, job)), branchId: branchIdOf(c.s, job), jobId: job.id, customerId: job.customerId, status: 'draft', ...(progress ? { progress } : {}), ...(capturesPriced.length ? { capturesPriced } : {}), revisions: [revision(c, job, priced, 1, {}, p.discount === undefined ? progress ? null : job.discount ?? null : documentDiscount(p.discount))] })
   checkProgress(c, row, current(row).totals.total)
   for (const payment of c.s.payments.filter(p => (!progress || progress.final) && ['deposit', 'financing'].includes(p.kind) && p.jobId === job.id && !p.invoiceId)) {
     bump(c.s, 'payments', payment, { invoiceId: row.id, invoiceNumber: row.number })
