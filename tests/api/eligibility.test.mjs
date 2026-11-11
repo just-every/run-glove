@@ -332,7 +332,12 @@ test('DATA-002, DATA-009, DATA-010 / DISP-002, DISP-010 map and location flow', 
     for (const value of ['synthetic-glove-501', '41.89001', '41.89002', '41.89123']) assert.ok(!data.includes(value), table)
   }
   assert.deepEqual(h.fleet.calls.at(-1), { method: 'GET', url: 'https://api.samsara.com/fleet/vehicles/stats?vehicleIds=12345&types=gps', authorization: 'Bearer synthetic-glove-501' })
+  // The watch judges a fix's freshness at the instant it reads, so run the clock to the read and take a fresh Samsara fix there.
   const delayAt = new Date(Date.parse(active.endAt) + 20 * 60_000).toISOString()
+  locationTime = Date.parse(delayAt) - 30_000
+  await tick()
+  h.fleet.data[0].gps.time = now()
+  await h.command('location.fleetRead', { technicianId: b.priya.id })
   const risk = (await (await h.request(`/api/glove/delays?at=${delayAt}`, { as: h.owner() })).json()).risks.find(r => r.visitId === nextLocationVisit.id)
   assert.ok(risk, 'The next visit is at risk while the current job runs long')
   assert.ok(risk.reasons.some(r => /Samsara position 41.89123, -87.63123; ETA/.test(r)))

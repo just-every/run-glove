@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, liveLocationFixture, assertTrail } from './harness.mjs'
+import { scenario } from '../fixtures/scenario.mjs'
 
 async function fixture(t) {
   const h = await installation({ at: '2026-11-09T08:00:00.000Z', captureLogs: true })
@@ -14,6 +15,36 @@ async function connect(f) {
   await f.h.command('location.fleetConnect', { ...vehicle, technicianId: f.b.tom.id })
   f.h.fleet.data = [{ id: '12345', gps: { time: f.now(), latitude: 41.89172, longitude: -87.63172 } }]
 }
+
+// DISP-012: the owner's delay watch adds each late technician's position and Routes ETA. Each step owns an installation.
+const phoneAt = { lat: 41.89071, lng: -87.63071 }, samsaraAt = { lat: 41.89172, lng: -87.63172 }, wacker = { lat: 41.8789, lng: -87.6359 }
+const secretsOf = ['41.89071', '-87.63071', '41.89172', '-87.63172', fleetKey]
+async function lateInstallation(step) {
+  const h = await installation({ at: '2026-11-09T08:00:00.000Z', captureLogs: true })
+  step.after(() => h.close())
+  const f = { h, ...await liveLocationFixture(h) }
+  // Routes drive seconds follow the fix, so each ETA is told apart: 25 min from the phone fix, 31 from the Samsara fix.
+  h.maps.routeSeconds = from => from.latitude === phoneAt.lat ? 1500 : 1801
+  return { h, f, b: f.b }
+}
+/** Each rider consents, clocks in and runs a job timer on a visit booked 08:00 to 09:00; then the clock reaches the late instant. */
+async function runLate(f, riders, minutes = 100) {
+  for (const [person, visit] of riders) {
+    await person.run('location.consent', { enabled: true })
+    await person.run('clock.in', { deviceTime: f.now() })
+    await person.run('timer.start', { visitId: visit.id, kind: 'job', deviceTime: f.now() })
+  }
+  await f.tick(minutes * 60_000)
+}
+const nextOf = async (h, tech, start = '10:00') => (await h.state()).visits.find(v => v.technicianId === tech.id && v.local.start === start && v.status === 'booked')
+const watchOf = async (h, at, as = h.owner(), headers = {}) => {
+  const response = await h.request(`/api/glove/delays?at=${at}`, { as, headers })
+  assert.equal(response.status, 200, await response.clone().text())
+  return (await response.json()).risks
+}
+const routesOf = h => h.maps.calls.filter(c => c.api === 'routes')
+const stripped = risks => risks.map(r => ({ ...r, reasons: r.reasons.slice(0, -1), options: r.options.map(o => ({ ...o, note: o.note.split(' Delayed technician:')[0] })) }))
+const requestFor = (from, to) => ({ origins: [{ waypoint: { location: { latLng: { latitude: from.lat, longitude: from.lng } } } }], destinations: [{ waypoint: { location: { latLng: { latitude: to.lat, longitude: to.lng } } } }], travelMode: 'DRIVE', routingPreference: 'TRAFFIC_UNAWARE' })
 
 test('DISP-005 point 1: phone and fleet fixes reach the owner board with next-stop ETAs and clock-out stops both sources after Worker restart', async t => {
   const f = await fixture(t), { h, b } = f
@@ -44,6 +75,174 @@ test('DISP-005 point 1: phone and fleet fixes reach the owner board with next-st
   assert.equal(h.fleet.calls.length, calls)
   assert.deepEqual(await f.rows(), [])
   assert.ok((await f.board()).every(t => t.live.position === null && t.live.eta === null))
+
+  await scenario(t, 'DISP-012 point 1: a running job timer past its booked end adds the phone or Samsara position and exact Routes ETA to the risk reasons and each option note', async step => {
+    const { h, f, b } = await lateInstallation(step)
+    await runLate(f, [[b.priyaPerson, f.visits[0]], [b.tomPerson, f.visits[1]]])
+    await connect(f)
+    await b.priyaPerson.run('location.phone', f.point())
+    await h.command('location.fleetRead', { technicianId: b.tom.id })
+    const at = new Date(Date.parse(f.now()) + 30_000).toISOString()
+    const risks = await watchOf(h, at)
+    for (const [tech, source, point, minutes] of [[b.priya, 'phone', phoneAt, 25], [b.tom, 'Samsara', samsaraAt, 31]]) {
+      const next = await nextOf(h, tech), risk = risks.find(r => r.visitId === next.id)
+      assert.ok(risk, `${tech.name} next visit is at risk`)
+      const where = `${source} position ${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}; ETA ${minutes} min drive`
+      assert.match(risk.reasons[0], /is still on .* min past its booked end; expected free about/)
+      assert.equal(risk.reasons.at(-1), where)
+      assert.ok(risk.options.length > 0)
+      for (const o of risk.options) assert.ok(o.note.includes(`Delayed technician: ${where}.`), o.note)
+    }
+  })
+
+  await scenario(t, 'DISP-012 point 2: positions go to the unscoped Owner and a branch-limited Owner for their branch only, through one traffic-unaware driving request per ETA', async step => {
+    const { h, f, b } = await lateInstallation(step)
+    const north = await h.command('branch.save', { name: 'North branch', prefix: 'NTH', timezone: 'UTC', zips: [] })
+    const noraPerson = await h.person('Nora North', 'technician')
+    const nora = await h.command('technician.save', { name: 'Nora N.', operatorId: noraPerson.id, branchId: north.id })
+    const northAt = { lat: 41.9, lng: -87.7 }, northSite = { lat: 41.95, lng: -87.65 }
+    h.maps.places.set('900 North Ave, Chicago, IL 60642', northSite)
+    const customer = await h.command('customer.save', { name: 'North customer', branchId: north.id })
+    const site = await h.command('site.save', { customerId: customer.id, address: '900 North Ave, Chicago, IL 60642', branchId: north.id })
+    const job = await b.dispatcher.run('job.create', { customerId: customer.id, siteId: site.id, title: 'North late service' })
+    const first = await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: nora.id, date: '2026-11-09', start: '08:00', end: '09:00' })
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: nora.id, date: '2026-11-09', start: '10:00', end: '11:00' })
+    await runLate(f, [[b.priyaPerson, f.visits[0]], [b.tomPerson, f.visits[1]], [noraPerson, first]])
+    await connect(f)
+    await b.priyaPerson.run('location.phone', f.point())
+    await noraPerson.run('location.phone', { ...northAt, observedAt: f.now() })
+    await h.command('location.fleetRead', { technicianId: b.tom.id })
+    const at = new Date(Date.parse(f.now()) + 30_000).toISOString()
+    const customRole = await h.command('role.save', { name: 'Watch helper', permissions: ['customer.save'] })
+    const custom = await h.person('Synthetic Watch Custom', `custom:${customRole.id}`)
+    const token = await h.command('token.issue', { name: 'Synthetic watch token', role: 'dispatcher' })
+    const mainOwner = await h.person('Synthetic Main Owner', 'owner'), northOwner = await h.person('Synthetic North Owner', 'owner')
+    await h.command('branch.limit', { operatorId: mainOwner.id, branchId: 'main' })
+    await h.command('branch.limit', { operatorId: northOwner.id, branchId: north.id })
+
+    const mark = routesOf(h).length
+    const all = await watchOf(h, at)
+    const requests = routesOf(h).slice(mark)
+    assert.equal(all.length, 3)
+    const eta = new Map([[b.priya.id, [phoneAt, wacker]], [b.tom.id, [samsaraAt, wacker]], [nora.id, [northAt, northSite]]])
+    assert.equal(requests.length, eta.size, 'one Routes request per ETA')
+    for (const [, [from, to]] of eta) {
+      const call = requests.find(r => r.body.origins[0].waypoint.location.latLng.latitude === from.lat)
+      assert.deepEqual(call.body, requestFor(from, to))
+      assert.equal(call.key, 'synthetic-glove-701')
+    }
+    for (const risk of all) assert.match(risk.reasons.at(-1), /position -?\d+\.\d{5}, -?\d+\.\d{5}; ETA \d+ min drive$/)
+    const sees = async (as, headers) => (await watchOf(h, at, as, headers)).map(r => [r.technicianId, /position \S+ \S+; ETA \d+ min drive$/.test(r.reasons.at(-1))])
+    const calls = routesOf(h).length
+    assert.deepEqual(await sees(mainOwner.cookie), [[b.priya.id, true], [b.tom.id, true]].sort((x, y) => all.findIndex(r => r.technicianId === x[0]) - all.findIndex(r => r.technicianId === y[0])))
+    assert.deepEqual(await sees(northOwner.cookie), [[nora.id, true]])
+    assert.equal(routesOf(h).length, calls + 3, 'a branch-limited Owner prompts a request only for their own branch technicians')
+    const before = routesOf(h).length
+    for (const [as, headers] of [[b.office.cookie, {}], [b.dispatcher.cookie, {}], [b.agent.cookie, {}], [custom.cookie, {}], ['', { authorization: `Bearer ${token.token}` }]]) {
+      const risks = await watchOf(h, at, as, headers)
+      assert.deepEqual(risks, stripped(all), 'the same risks, reasons and options without the position')
+      assert.doesNotMatch(JSON.stringify(risks), /position|-?\d+\.\d{4,}|Delayed technician|Samsara|phone/)
+    }
+    assert.equal(routesOf(h).length, before, 'readers below Owner make no Routes request')
+    for (const as of [b.tomPerson.cookie, (await h.person('Synthetic Sub', 'subcontractor')).cookie]) assert.equal((await h.request(`/api/glove/delays?at=${at}`, { as })).status, 403)
+    await h.command('maps.connect', { key: null })
+    const disconnected = routesOf(h).length
+    const none = await watchOf(h, at)
+    assert.equal(routesOf(h).length, disconnected, 'with Maps disconnected no Routes request is made')
+    assert.match(none.find(r => r.technicianId === b.priya.id).reasons.at(-1), /^phone position 41\.89071, -87\.63071; ETA unavailable$/)
+  })
+
+  await scenario(t, 'DISP-012 point 3: overrun, the 15-minute floor, expected-free time, options and customer labels are identical with positions on and off', async step => {
+    const { h, f, b } = await lateInstallation(step)
+    const early = await b.dispatcher.run('visit.book', { jobId: f.job.id, technicianId: b.priya.id, date: '2026-11-09', start: '09:00', end: '09:30' })
+    await runLate(f, [[b.priyaPerson, f.visits[0]]], 65)
+    await b.priyaPerson.run('location.phone', f.point())
+    const at = new Date(Date.parse(f.now()) + 30_000).toISOString()
+    const on = await watchOf(h, at)
+    assert.deepEqual(on.map(r => r.visitId), [early.id], 'only the visit starting inside the floor is at risk')
+    assert.match(on[0].reasons[0], /6 min past its booked end; expected free about 09:20\./)
+    assert.deepEqual(on[0].options.map(o => o.customer).sort(), ['customer not yet asked', 'unchanged'])
+    assert.ok(on[0].options.some(o => o.technicianId === b.tom.id && o.start === '09:00' && o.customer === 'unchanged'))
+    assert.match(on[0].reasons.at(-1), /^phone position 41\.89071, -87\.63071; ETA 25 min drive$/)
+    const off = await Promise.all([watchOf(h, at, b.office.cookie), watchOf(h, at, b.dispatcher.cookie)])
+    for (const risks of off) assert.deepEqual(risks, stripped(on))
+    const calls = routesOf(h).length
+    await b.priyaPerson.run('location.consent', { enabled: false })
+    const withdrawn = await watchOf(h, at)
+    assert.deepEqual(stripped(withdrawn), stripped(on), 'sharing off changes nothing but the appended position')
+    assert.equal(withdrawn[0].reasons.at(-1), 'Location and ETA unavailable')
+    assert.equal(routesOf(h).length, calls)
+  })
+
+  await scenario(t, 'DISP-012 point 4: a stale or future fix, a missing next visit, an unplaced site, no route and a Routes error each give no ETA', async step => {
+    const { h, f, b } = await lateInstallation(step)
+    const tomNext = await nextOf(h, b.tom)
+    await b.dispatcher.run('visit.cancel', { visitId: tomNext.id, version: tomNext.version, reason: 'Make Tom an alternative' })
+    await runLate(f, [[b.priyaPerson, f.visits[0]], [b.tomPerson, f.visits[1]]])
+    await connect(f)
+    await b.priyaPerson.run('location.phone', f.point())
+    await h.command('location.fleetRead', { technicianId: b.tom.id })
+    const fixed = Date.parse(f.now()), clock = f.now()
+    const last = async (at, who = b.priya) => {
+      const risk = (await watchOf(h, new Date(at).toISOString())).find(r => r.technicianId === who.id)
+      return [risk.reasons.at(-1), risk.options.map(o => o.note)]
+    }
+    for (const at of [fixed + 120_000, fixed - 10_000]) assert.match((await last(at))[0], /^phone position 41\.89071, -87\.63071; ETA 25 min drive$/, 'fresh at the edge of the window')
+    for (const at of [fixed + 120_001, fixed - 10_001]) {
+      const mark = routesOf(h).length
+      const [reason, notes] = await last(at)
+      assert.equal(reason, 'Location and ETA unavailable', 'older than two minutes or more than ten seconds ahead of the reading instant')
+      assert.ok(notes.every(n => !/position|ETA \d/.test(n.replace(/ETA unavailable/g, ''))))
+      assert.equal(routesOf(h).length, mark, 'no Routes request for a fix that is not current')
+    }
+    assert.equal(f.now(), clock, 'the Worker clock never moved: freshness follows the reading instant')
+    const notes = (await last(fixed + 30_000))[1]
+    assert.ok(notes.some(n => n.includes('Alternative: Samsara position 41.89172, -87.63172; ETA unavailable.')), 'a technician with no next booked visit gets no ETA')
+    const unavailable = /^phone position 41\.89071, -87\.63071; ETA unavailable$/
+    h.maps.routeSeconds = () => null
+    let mark = routesOf(h).length
+    assert.match((await last(fixed + 30_000))[0], unavailable, 'route not found')
+    assert.equal(routesOf(h).length, mark + 1)
+    h.maps.routeSeconds = undefined
+    h.maps.status.routes = 503
+    assert.match((await last(fixed + 30_000))[0], unavailable, 'Routes HTTP error')
+    delete h.maps.status.routes
+    const priyaNext = await nextOf(h, b.priya)
+    await b.dispatcher.run('visit.cancel', { visitId: priyaNext.id, version: priyaNext.version, reason: 'Move to an unplaced address' })
+    const customer = await h.command('customer.save', { name: 'Unplaced customer' })
+    const site = await h.command('site.save', { customerId: customer.id, address: '1 Unplaced Road, Nowhere' })
+    const job = await b.dispatcher.run('job.create', { customerId: customer.id, siteId: site.id, title: 'Unplaced service' })
+    await b.dispatcher.run('visit.book', { jobId: job.id, technicianId: b.priya.id, date: '2026-11-09', start: '10:00', end: '11:00' })
+    mark = routesOf(h).length
+    assert.match((await last(fixed + 30_000))[0], unavailable, 'unplaced site')
+    assert.equal(routesOf(h).length, mark, 'no request for a site with no coordinates')
+  })
+
+  await scenario(t, 'DISP-012 point 5: after Owner reads coordinates and the Samsara key are absent from state, Activity, saved outcomes, export and logs, and results survive Worker restart', async step => {
+    const { h, f, b } = await lateInstallation(step)
+    await runLate(f, [[b.priyaPerson, f.visits[0]], [b.tomPerson, f.visits[1]]])
+    await connect(f)
+    await b.priyaPerson.run('location.phone', f.point())
+    await h.command('location.fleetRead', { technicianId: b.tom.id })
+    const at = new Date(Date.parse(f.now()) + 30_000).toISOString()
+    const before = await watchOf(h, at)
+    assert.ok(before.length === 2 && before.every(r => /position/.test(r.reasons.at(-1))))
+    await watchOf(h, at); await f.board()
+    const absent = async label => {
+      const trail = await assertTrail(h, ['location.consent', 'location.received', 'location.fleetConnected'])
+      assert.ok(h.logs.length > 0, 'Worker logs were captured')
+      const outputs = [trail, h.logs]
+      for (const person of [h.owner(), b.priyaPerson.cookie, b.office.cookie, b.dispatcher.cookie]) outputs.push(await h.state(person))
+      for (const table of ['glove_records', 'glove_events', 'glove_commands']) outputs.push((await h.db.prepare(`SELECT * FROM ${table}`).all()).results)
+      outputs.push(await (await h.request('/api/glove/export')).text())
+      const text = JSON.stringify(outputs)
+      for (const value of [...secretsOf, 'synthetic-glove-701']) assert.ok(!text.includes(value), `${label}: ${value} stays out of every stored or logged output`)
+    }
+    await absent('after reads')
+    await h.restart()
+    assert.deepEqual(await watchOf(h, at), before, 'the same watch after Worker restart')
+    await absent('after restart')
+  })
 })
 
 test('DISP-005 point 2: a newly linked technician starts with sharing off and no stored or board position', async t => {
