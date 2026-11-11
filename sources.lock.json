@@ -2324,7 +2324,7 @@
       "executable": false
     },
     "src/glove/privacy.ts": {
-      "sha256": "a1f8ab98527090ca4a871677a1ed87c3bfb92a8a9e3018ded4004a1e60b1ad58",
+      "sha256": "19ca391bca1b8821536601fc730a6bf726ca3f12fa9de7eb182a2bf7db62707e",
       "executable": false
     },
     "src/glove/progress-invoices.ts": {
@@ -6496,7 +6496,7 @@
       "executable": false
     },
     "tests/fixtures/shared-import-effects.mjs": {
-      "sha256": "136b600c7bf690260ac214d73328131b0cd745b3a7fcfaf7f6f5fbcd8527abfa",
+      "sha256": "ef45f136031c78cfc7634fc3b89a72ac08257ba531c958d84e215162f727fcc3",
       "executable": false
     },
     "tests/fixtures/shared-import-preview.mjs": {
@@ -6504,7 +6504,7 @@
       "executable": false
     },
     "tests/fixtures/shared-import-world.mjs": {
-      "sha256": "cb470fa0a2ef80a99d82940c247578b594edb1955c17e8fe26a89d36979d6043",
+      "sha256": "22f63fd2caf12c2f488b03049c7bf2b72b5ac3e8d1678a23f1168b685912df64",
       "executable": false
     },
     "tests/fixtures/stripe-payments.mjs": {
