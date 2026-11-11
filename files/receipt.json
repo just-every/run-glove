@@ -1,0 +1,131 @@
+{
+  "tag": "sx-glove-c-f249-pc1",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f249-pc1",
+  "source_candidate": "f89074455249b9d81780009f441397711e056abb",
+  "initial_main": "35f1f12f403d924b1a9cd095583fd21d774dfee2",
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "exit_code": 0,
+    "log": "typecheck.log"
+  },
+  "contract_generation": {
+    "command": "node scripts/contract-docs.mjs write --clauses COMM-014",
+    "exit_code": 0,
+    "written_documents": 0
+  },
+  "contract_check": {
+    "command": "node scripts/contract-docs.mjs check",
+    "exit_code": 0
+  },
+  "source_lock": {
+    "lock_command": "node scripts/edition-authoring/cli.mjs lock",
+    "check_command": "node scripts/edition-authoring/cli.mjs check",
+    "exit_code": 0,
+    "ok": true
+  },
+  "protected_files": [
+    "CONTRACT.md",
+    "ACCEPTANCE.md",
+    "docs/CLAIMS.md",
+    "docs/contract/ID-MAP.json"
+  ],
+  "protected_files_match_main": true,
+  "local_browser_suites": "not run, as directed by the brief",
+  "local_portable_suites": "not run, as directed by the brief",
+  "judgment_changes_authored": [],
+  "comm014_status_before": "partial",
+  "comm014_status_after": "partial",
+  "counts_before": {
+    "done": 43,
+    "partial": 191,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 47,
+    "partial": 187,
+    "missing": 29,
+    "total": 263
+  },
+  "pr": null,
+  "product_head": "76349e7c883f8e775cdd784f45b6f2a5aa95384f",
+  "merged_main": "9a9426a6470e2fa91f0232a527277b34f033d1ff",
+  "parents": [
+    "f89074455249b9d81780009f441397711e056abb",
+    "9a9426a6470e2fa91f0232a527277b34f033d1ff"
+  ],
+  "email_api": {
+    "command": "node --test --test-concurrency=1 tests/api/email.test.mjs",
+    "exit_code": 0,
+    "tests": 1,
+    "passed": 1,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "duration_ms": 529324.615457,
+    "log": "email-api.log",
+    "source_sha256": "95c11fd3df2646e034949b47b126dcdd2e54c00fa9dc66d343e9167861aa70fb",
+    "comm014_point2_scenarios": 3
+  },
+  "product_push": {
+    "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-c-f249-pc1",
+    "exit_code": 0,
+    "attempts": 1,
+    "head": "76349e7c883f8e775cdd784f45b6f2a5aa95384f",
+    "log": "product-push.log"
+  },
+  "identity_audit": {
+    "passed": true,
+    "candidate_commits_including_side_parents": 3,
+    "messages": "commit-messages.txt",
+    "identities": "commit-identities.txt"
+  },
+  "worktree_clean": true,
+  "verify": {
+    "id": 43011672078,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "76349e7c883f8e775cdd784f45b6f2a5aa95384f",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43011672078"
+  },
+  "github_calls_so_far": 3,
+  "final_main_refresh_paths": [
+    "docs/agent-door.md",
+    "sources.lock.json",
+    "tests/agent-native-journey.mjs",
+    "tests/agent-native-pause.mjs"
+  ],
+  "typecheck_sources_unchanged_by_final_main_refresh": true,
+  "protected_blobs": {
+    "CONTRACT.md": {
+      "product_blob": "49392d4926d9b2c807c9ba129a9a7218e9b6afb3",
+      "main_blob": "49392d4926d9b2c807c9ba129a9a7218e9b6afb3",
+      "identical": true
+    },
+    "ACCEPTANCE.md": {
+      "product_blob": "f3ecf9f47e01c38a92063bebb7f58d9f5d055e7d",
+      "main_blob": "f3ecf9f47e01c38a92063bebb7f58d9f5d055e7d",
+      "identical": true
+    },
+    "docs/CLAIMS.md": {
+      "product_blob": "7a8226f6255b9471d091155dee237d97721856ed",
+      "main_blob": "7a8226f6255b9471d091155dee237d97721856ed",
+      "identical": true
+    },
+    "docs/contract/ID-MAP.json": {
+      "product_blob": "1b495c0a3c75e84bf382fa6b17a59acf48aa5620",
+      "main_blob": "1b495c0a3c75e84bf382fa6b17a59acf48aa5620",
+      "identical": true
+    }
+  },
+  "github_calls_total": 3,
+  "workflow_failures": [],
+  "blockers": [],
+  "custody": "READY",
+  "generated_view_failure_exception_used": false,
+  "landed": false,
+  "publication_scan": "Fleet Mac responsibility; not run in this cloud task",
+  "evidence_ref": "refs/heads/evidence/sx-glove-c-f249-pc1",
+  "completed_at": "2026-11-11T11:35:25.296338+00:00"
+}

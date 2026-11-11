@@ -1,0 +1,94 @@
+{
+  "files": [
+    {
+      "blob": "2b95015abfb98a529d74916a1892366f21b77cd2",
+      "bytes": 8963,
+      "path": "REPORT.md",
+      "sha256": "a0855815e4ceb5122607d5bbe3faa42e5d9530df81b22c1c8314536c7bcc83a0"
+    },
+    {
+      "blob": "ca8eaa4f76bc7af31fa7335562c9f4a4f7ace4a4",
+      "bytes": 211,
+      "path": "commit-identities.txt",
+      "sha256": "b7f0d6915a590e230e29b5eae0f64f167b1125aa36a9caef4c8d891147fb30c8"
+    },
+    {
+      "blob": "d57f49e37e1a443ff14af3193491bbf083d08b52",
+      "bytes": 362,
+      "path": "commit-messages.txt",
+      "sha256": "6488e52c9f09eaaaa235256b2499dfaa5b193974fc6a7a3035a63b369a53d9ef"
+    },
+    {
+      "blob": "bb49c724e17a8c7a68c135f69a853fa0f13c7f64",
+      "bytes": 3286,
+      "path": "contract-before.json",
+      "sha256": "0453cafff56779604889a83f467228ee06e929a5ed80896a0625b735907d1856"
+    },
+    {
+      "blob": "d40d1f33e3323f051cd53187f3844290bf0570f4",
+      "bytes": 25642,
+      "path": "contract-counts.json",
+      "sha256": "2c01c2c15b7bf62ed53ee08cb7b18b9c06a9ddd406452dd6fffaa9e9ac81996d"
+    },
+    {
+      "blob": "9de7bf361ecd3b7db0547b09e730b7014f3c3188",
+      "bytes": 9073,
+      "path": "email-api.log",
+      "sha256": "2ec0cc48aed1b91cfb18dbf360b3c7623fe7578649648bbe1047ae3fade87e65"
+    },
+    {
+      "blob": "78f72362e6ba182039f602392fb55be726103f73",
+      "bytes": 516,
+      "path": "github-calls.jsonl",
+      "sha256": "7ff806f79151cf4bda49bc732085d7f81ee232c6bb61de3c867ada51559e84c0"
+    },
+    {
+      "blob": "acc786746ea76f14f164f97fb794a4d6195a7e33",
+      "bytes": 14672,
+      "path": "github-response-2.json",
+      "sha256": "58a88ea9cd4213162ac242a71a280908d23ad7c1b72494e0c6e449ec7b2c6adb"
+    },
+    {
+      "blob": "acfe0602ea723fedf0e8cdc0c9217f822e1c1c4e",
+      "bytes": 13730,
+      "path": "github-response-3.json",
+      "sha256": "b5605c0bb1c6d21a26a1f93ed8abcf6f0d0de50e1c35641d247b4298644b082a"
+    },
+    {
+      "blob": "02e09a92cc0ad2bc586d092fe7d71eaae5d5ff3c",
+      "bytes": 918,
+      "path": "product-push.log",
+      "sha256": "52f0ee69cac4deac5be3fbc0278a060601fa35ae12937ce3dbb19dec3fcde9eb"
+    },
+    {
+      "blob": "a17ec431047e58dd4eb8912c6073c274b87407ca",
+      "bytes": 4106,
+      "path": "receipt.json",
+      "sha256": "62c5735705ef6a412d52e1712c618da1cd6ac6d0409b03b53bbf194eafaabe16"
+    },
+    {
+      "blob": "56fa5726a147fb3855806bbfa2dd0536b642866b",
+      "bytes": 240,
+      "path": "typecheck.log",
+      "sha256": "e9b611e6bc94c78f8e42d5fa020027c5e33714489619f644bb79c2b1b12e49a3"
+    },
+    {
+      "blob": "fcd9ad64dec20e74147f03f3b74f7f2b56e4a23e",
+      "bytes": 216,
+      "path": "verify-latest.json",
+      "sha256": "524a15ede4276417fafe3c140de81cc799d8cd293db9b3d6750f872726ff7b37"
+    },
+    {
+      "blob": "84516ee4ac0c60aa9da4d52191646c75ccdd94f1",
+      "bytes": 1488,
+      "path": "verify-watch.log",
+      "sha256": "4bb9d37e06199fafe5cf497f95e5d2b29ec8f9be1ebd3bcf07e8054488161a74"
+    }
+  ],
+  "product_branch": "cloud/sx-glove-c-f249-pc1",
+  "product_head": "76349e7c883f8e775cdd784f45b6f2a5aa95384f",
+  "ref": "refs/heads/evidence/sx-glove-c-f249-pc1",
+  "repository": "just-every/run-glove",
+  "schema": 1,
+  "tag": "sx-glove-c-f249-pc1"
+}

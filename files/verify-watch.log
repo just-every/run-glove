@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/tmp/fleet-ci-watch.py", line 23, in <module>
+    runs,last=api(f'repos/{repo}/actions/runs?head_sha={sha}&per_page=100')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/fleet-ci-watch.py", line 19, in api
+    data=json.loads(r.stdout)
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 1 column 7497 (char 7496)
+VERIFY {"id": 43011672078, "status": "in_progress", "conclusion": null, "head_sha": "76349e7c883f8e775cdd784f45b6f2a5aa95384f", "html_url": "https://github.com/just-every/run-glove/actions/runs/43011672078"}
+VERIFY {"id": 43011672078, "status": "completed", "conclusion": "success", "head_sha": "76349e7c883f8e775cdd784f45b6f2a5aa95384f", "html_url": "https://github.com/just-every/run-glove/actions/runs/43011672078"}
