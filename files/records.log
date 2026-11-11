@@ -1,0 +1,25 @@
+TAP version 13
+# [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+# Subtest: a correction revised before approval still exports as its own numbered row
+ok 1 - a correction revised before approval still exports as its own numbered row
+  ---
+  duration_ms: 7736.286397
+  type: 'test'
+  ...
+# Subtest: DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline after hundreds of later events
+ok 2 - DATA-002, DATA-009, DATA-010 a job and Activity keep the whole timeline after hundreds of later events
+  ---
+  duration_ms: 17745.375412
+  type: 'test'
+  ...
+# PROBE GLOVE-12 point 1: native commands, 510 unrelated changes and Worker restart -> 15 exact ordered steps; historical roles, current desk and assigned field access, unrelated and branch refusals; reads unchanged
+# PROBE GLOVE-12 point 2: Owner and Office business downloads -> 18 independently expected service entries, including all 15 job steps, with affected records, plus current branch and role boundaries
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 27642.578916

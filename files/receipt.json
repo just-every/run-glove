@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "tag": "sx-glove-c-f259",
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f259",
+  "head": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+  "base": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "clause": "SURFACE-021",
+  "claim": "PARTIAL",
+  "qualified_points": [
+    1
+  ],
+  "counts_before": {
+    "done": 46,
+    "partial": 188,
+    "missing": 29,
+    "total": 263
+  },
+  "counts_after": {
+    "done": 46,
+    "partial": 188,
+    "missing": 29,
+    "total": 263
+  },
+  "repair": {
+    "path": "src/glove/activity.ts",
+    "defect": "Activity omitted persisted preparedBy and approvers identities while business export retained them",
+    "before_command": "node node_modules/@runeditrun/rer/cli/agent-door.mjs .",
+    "before_exit": 1,
+    "before_failure": "Activity preserves the separate registered agent and native sponsor: actual undefined",
+    "before_passed": 564,
+    "before_total": 567,
+    "after_exit": 0,
+    "after_passed": 756,
+    "after_total": 756,
+    "counts_note": "Failed phases stopped early, so the failing run has fewer audited calls and checks."
+  },
+  "checks": [
+    {
+      "command": "pnpm run typecheck",
+      "exit": 0
+    },
+    {
+      "command": "node --test --test-concurrency=1 tests/api/records.test.mjs",
+      "exit": 0,
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "command": "pnpm run check --profile first-party",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses SURFACE-021",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check --clauses SURFACE-021",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/verify-ci.mjs foundation",
+      "head": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+      "exit": 0,
+      "agent_conformance": {
+        "passed": 756,
+        "total": 756
+      }
+    },
+    {
+      "command": "node tests/inventory.mjs",
+      "exit": 0,
+      "total": 198,
+      "cap": 200
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check (after final foundation)",
+      "exit": 0
+    }
+  ],
+  "browser": {
+    "door": "/app#activity",
+    "widths": [
+      1440,
+      390
+    ],
+    "transport": "actual disposable production Worker with its native synthetic Owner session",
+    "files": [
+      "activity-1440.png",
+      "activity-390.png"
+    ],
+    "assertion_width": 1440
+  },
+  "policy_results": {
+    "autonomous": "all three agent writes attributed, then same-item Owner edit",
+    "held_standard_review": "all three agent writes attributed, then same-item Owner edit",
+    "approvers": "empty; no approval simulated"
+  },
+  "product_push": {
+    "exit": 0,
+    "attempt": 1
+  },
+  "publication_scan": {
+    "commit": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+    "complete": null,
+    "historyScanned": null,
+    "findings": null,
+    "status": "fleet lander pending; cloud does not run publication scanner"
+  },
+  "main_equality": false,
+  "landing": "not performed",
+  "pr": null,
+  "holds": [
+    "Base standard-class named-approval execution proof",
+    "No native human approval or Undo operation registered",
+    "No mail tool registered",
+    "Client-bearing tools remain closed pending Base client custody, redaction and atomic erasure fence"
+  ],
+  "github_calls_used": 4,
+  "test_inventory": {
+    "registrations": 194,
+    "assertion_scripts": 4,
+    "total": 198,
+    "cap": 200,
+    "delta": 0
+  },
+  "ci": {
+    "run_id": 43000933328,
+    "head_sha": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+    "event": "push",
+    "name": "Verify",
+    "status": "in_progress",
+    "conclusion": null,
+    "observed_at": "2026-11-11T10:11:24Z"
+  },
+  "runtime": {
+    "node": "22.20.0",
+    "pnpm": "10.12.4",
+    "rer": "0.2.87"
+  },
+  "screenshots": [
+    {
+      "file": "activity-1440.png",
+      "bytes": 636185,
+      "sha256": "ae46f3f56abf3e8a1e88df723f192b5ddec573fcd8fda0c40f670f740b00e975"
+    },
+    {
+      "file": "activity-390.png",
+      "bytes": 563966,
+      "sha256": "9092f4c804306817061998a3b608ea5f3e19bbf1545190029c6179a677450278"
+    }
+  ]
+}
