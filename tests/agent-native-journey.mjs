@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { browserProof } from './agent-browser-proof.mjs'
 import { pricebookParity } from './agent-native-parity.mjs'
+import { pricebookReplay } from './agent-native-replay.mjs'
 
 /** Only public native and shared doors. No account writer or substituted authority. */
 export default async function ({ request, origin, cookie, tool }) {
@@ -43,6 +44,7 @@ export default async function ({ request, origin, cookie, tool }) {
   await browserProof({ request, origin, cookie })
   // The harness hides journey failures; the parity helper's messages hold only synthetic fixture values.
   console.log(await pricebookParity({ request, origin, cookie, tool }).catch(error => { console.log(`Price-book parity failed: ${error.stack}`); throw error }))
+  console.log(await pricebookReplay({ request, origin, cookie, tool }).catch(error => { console.log(`Price-book replay failed: ${error.stack}`); throw error }))
   console.log('Native price-book journey: revision conflict, argument conflict, once-only replay, native Pause, measured bulk effects and attributable Activity passed.')
 }
 

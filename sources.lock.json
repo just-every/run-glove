@@ -5500,11 +5500,15 @@
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
-      "sha256": "bcd41f25f3cb45e6334cc7ea353a9d642faad76259adf5cd84e18f270739fe48",
+      "sha256": "3fea9936694275b1dc96cdf6ef87ad3d0ff1dfcd3227e0f2c94313fa32f8d88f",
       "executable": false
     },
     "tests/agent-native-parity.mjs": {
       "sha256": "1a9a0dedf6062bc9ced3b9c2d5e8cb515b592e81976e8f6d406ed272dc330c67",
+      "executable": false
+    },
+    "tests/agent-native-replay.mjs": {
+      "sha256": "efaa633defc8e6302ab7eff7b1b8b22535453ddb945522c7de37d5be18cd2584",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
