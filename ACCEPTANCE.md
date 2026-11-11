@@ -9,9 +9,9 @@ The primary journey: Capture the customer request, quote and book the work, disp
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
 | Core | 45 | 176 | 16 | 237 |
-| Agent surface | 0 | 13 | 13 | 26 |
+| Agent surface | 1 | 12 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 45 | 189 | 29 | 263 |
+| Full target | 46 | 188 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -4027,15 +4027,15 @@ Agent surface · target · **partial** · From BASE-AGENT-001 · Cites BASE-AGEN
 
 #### SURFACE-015 — Native price-book action parity
 
-Agent surface · target · **partial** · From BASE-AGENT-002 · Cites BASE-AGENT-002
+Agent surface · target · **done** · From BASE-AGENT-002 · Cites BASE-AGENT-002
 
 **Requirement.** The price-book registry joins internal catalogue inspection, existing-item edits, category markups and category price adjustments to Glove’s desk actions.
 
 **Acceptance.**
 1. Each declared price-book operation gives the same native record state and Activity effect as its desk action; the wider service-work registry remains the target of SURFACE-001.
 
-**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.
-**Gap.** Only internal inspection and existing-item, category-markup and category-price updates are registered. Client-bearing tools await the agreed retained-client custody, redaction and atomic erasure mapping required by Base ADOPTING.md and DATA-001. The broader ct service-work surface is not adopted.
+**Evidence.** `agent-surface.json`, `tests/initialize-agent-owner.mjs`, `tests/agent-native-journey.mjs`; normal rer 0.2.87 verify with the foundation shard passed 700/700 BASE-AGENT points, including native person/tool readback under both policies, current native revision preconditions, independent audit targets, revision/key conflicts, once-only replay, measured bulk effects, Pause, resource policy and attributable Activity.; `tests/agent-native-journey.mjs` (default export (native price-book journey, extended by tests/agent-native-parity.mjs#pricebookParity: read parity, update, category markup and price adjustment desk-versus-tool parity with Activity, stale and duplicate refusals changing nothing, omitted-field reset parity))
+**Gap.** None.
 
 #### SURFACE-016 — Native price-book resources
 
