@@ -151,7 +151,7 @@
     "No mail tool registered",
     "Client-bearing tools remain closed pending Base client custody, redaction and atomic erasure fence"
   ],
-  "github_calls_used": 7,
+  "github_calls_used": 8,
   "test_inventory": {
     "registrations": 194,
     "assertion_scripts": 4,
@@ -203,13 +203,20 @@
   },
   "ci": {
     "run_id": 43002022587,
-    "head_sha": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
     "event": "push",
     "name": "Verify",
-    "status": "in_progress",
     "conclusion": null,
-    "observed_at": "2026-11-11T10:21:46Z"
+    "head_sha": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43002022587",
+    "status": "in_progress",
+    "observed_at": "2026-11-11T10:26:58Z"
   },
   "worktree_clean": true,
-  "foundation_transport_note": "First final-head output reports verify complete exit 0 and 756 of 756 conformance points, while its execution session returned 1. The same command was repeated with an explicit captured exit receipt: confirmed exit 0 and all 756 conformance points passed."
+  "foundation_transport_note": "First final-head output reports verify complete exit 0 and 756 of 756 conformance points, while its execution session returned 1. The same command was repeated with an explicit captured exit receipt: confirmed exit 0 and all 756 conformance points passed.",
+  "terminal_custody": "PUSHED; exact-SHA Verify still in progress with GitHub budget running short; no READY or landing claim",
+  "evidence_fetch_verified": {
+    "head": "ab7876b5bf6421f0de05e32173842586130b9b55",
+    "product_head": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+    "receipt": "evidence-fetch-first.json"
+  }
 }
