@@ -4,7 +4,7 @@ import { stopQuoteCallTasks } from './followups'
 import { visitNotices } from './visit-notices'
 import { commitPrivacy } from './privacy'
 import { branchState } from './branch-access'
-import { recordChanges } from './timeline'
+import { recordChanges, mergeChanges } from './timeline'
 import { authority } from './access'
 import { visibleOutcome } from './view'
 import { collections, fail, type Collection, type Context, type State, type Actor } from './model'
@@ -78,7 +78,9 @@ export async function commit(db: D1Database, c: Context, before: State, type: st
   statements.push(db.prepare(`DELETE FROM glove_live_locations WHERE observed_at < ? OR NOT EXISTS (SELECT 1 FROM glove_records tech WHERE tech.kind='technicians' AND tech.id=technician_id AND json_extract(tech.data,'$.active')=1 AND json_extract(tech.data,'$.locationConsent.enabled')=1 AND json_extract(tech.data,'$.locationConsent.by')=json_extract(tech.data,'$.operatorId')) OR NOT EXISTS (SELECT 1 FROM glove_records shift WHERE shift.kind='times' AND json_extract(shift.data,'$.technicianId')=technician_id AND json_extract(shift.data,'$.kind')='shift' AND json_extract(shift.data,'$.endAt') IS NULL) OR NOT EXISTS (SELECT 1 FROM glove_records timer JOIN glove_records visit ON visit.kind='visits' AND visit.id=json_extract(timer.data,'$.visitId') WHERE timer.kind='times' AND json_extract(timer.data,'$.technicianId')=technician_id AND json_extract(timer.data,'$.kind') IN ('job','travel') AND json_extract(timer.data,'$.endAt') IS NULL AND visit.id=visit_id AND json_extract(visit.data,'$.technicianId')=technician_id AND json_extract(visit.data,'$.status') IN ('booked','arrived'))`).bind(new Date(Date.parse(c.now) - 120_000).toISOString()))
   statements.push(db.prepare("DELETE FROM glove_location_delegates WHERE NOT EXISTS (SELECT 1 FROM glove_records WHERE kind='times' AND id=shift_id AND json_extract(data,'$.endAt') IS NULL)"))
   for (const f of c.files) statements.push(db.prepare('INSERT INTO glove_files(id,capture_id,media_type,size,sha256,bytes,created_at) VALUES(?,?,?,?,?,?,?)').bind(f.id, f.captureId, f.mediaType, f.size, f.sha256, f.bytes, c.now))
-  const changes = recordChanges(before, c.s)
+  // A move-in journal writes its records before this commit; the event that settles it brings those changes with it.
+  const journaled = c.events[0]?.data && typeof c.events[0].data === 'object' && Array.isArray((c.events[0].data as any).recordChanges) ? (c.events[0].data as any).recordChanges : []
+  const changes = mergeChanges(journaled, recordChanges(before, c.s))
   for (const [index, e] of c.events.entries()) statements.push(db.prepare("INSERT INTO glove_events(id,sequence,at,actor_id,actor_name,actor_role,command_id,job_id,subject_kind,subject_id,kind,summary,data) VALUES(?,(SELECT COALESCE(MAX(sequence),0)+1 FROM glove_events),?,?,?,?,?,?,?,?,?,?,?)").bind(e.id, c.now, e.actor.id, e.actor.name, e.actor.role, c.commandId, e.jobId, e.subjectKind, e.subjectId, e.kind, e.summary, JSON.stringify(index === 0 ? { ...(e.data && typeof e.data === 'object' && !Array.isArray(e.data) ? e.data : { detail: e.data ?? null }), recordChanges: changes } : e.data ?? null)))
   statements.push(db.prepare('UPDATE glove_meta SET version=version+1 WHERE id=1 AND version=?').bind(before.version))
   statements.push(db.prepare('INSERT INTO glove_guard(id,ok) VALUES(?,CASE WHEN changes()=1 THEN 1 ELSE 0 END)').bind(crypto.randomUUID()))
