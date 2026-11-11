@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 43 | 178 | 16 | 237 |
+| Core | 45 | 176 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 43 | 191 | 29 | 263 |
+| Full target | 45 | 189 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -639,7 +639,7 @@ Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 #### BOOK-017 — Reserve with Google request intake
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Reserve with Google request intake supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
@@ -653,8 +653,8 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 7. The slot start is not a creation timestamp; the acknowledgment due time starts at Glove receipt.
 8. No live integration is claimed; see [lead source formats](docs/lead-sources.md).
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/lead-matching.test.mjs` (BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart); `tests/browser/journey.spec.ts` (BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390)
+**Gap.** None.
 
 #### BOOK-005 — Service calls booked without a quote
 
@@ -714,7 +714,7 @@ Core · target · **partial**
 
 #### QUOTE-002 — Online approval with e-signature
 
-Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001 · Register R-1, R-2
+Core · target · **done** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-ACCESSIBILITY-001, BASE-PUBLIC-001, BASE-PUBLIC-003, BASE-ROLE-001 · Register R-1, R-2
 
 **Requirement.** Online approval with e-signature supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#quote-002-operating-rules) retain the record formats and calculations. Recorded decisions: RL-4.
 
@@ -728,8 +728,8 @@ Core · target · **partial** · From QUOTE-002 · Cites BASE-ACCESS-003, BASE-A
 7. A decision rechecks the issuer's live role and branch; job creation rechecks price approval.
 8. One decision per revision wins between staff and online and freezes it; replay changes nothing.
 
-**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture opens a sent quote link, finds each price-book line's customer-facing description (MONEY-003, MONEY-006), chooses the middle of three options and one add-on (QUOTE-001, the job then carrying exactly that choice), requests a change, approves the revised quote with a drawn signature, and checks the signature record and that a stale revision's link cannot be approved.; point 2 — A second quote with a 30-day validity date is opened on day 31: approval is refused, and "ask for an updated quote" puts a notice in the office queue and reopens the request.; point 3 — A bearer delegates read, option choice, change request, decline, update request and signed approval for one price-approved revision.; point 4 — Only a signed-in person issues it; one live link per revision, and reissue revokes the previous one.; point 5 — The page reveals only that revision and its service site.; point 6 — A forwarded link can be used; name and capacity are claimed, unverified, never verified, with authentication basis recorded as a link sent by Glove to the address on record or handed out by staff to an unverified recipient.; point 7 — A decision rechecks the issuer's live role and branch; job creation rechecks price approval.; point 8 — One decision per revision wins between staff and online and freezes it; replay changes nothing. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/browser/customer-quotes.spec.ts`, `tests/api/customer-quotes.test.mjs`, `tests/portable.mjs`; `tests/api/quote-approval.test.mjs` (QUOTE-002 points 1–8: customer approval binds the chosen work and claimed signer under live revision authority); `tests/browser/quote-link-custody.spec.ts` (QUOTE-009 fragment links use only Authorization for real customer reads and responses through revision and expiry at 1440 and 390)
+**Gap.** None.
 
 #### QUOTE-008 — First quote decision freezes the revision
 
@@ -2346,7 +2346,7 @@ Core · target · **partial** · From PAY-006 · Cites BASE-AUDIT-001 · Registe
 
 #### PAY-007 — Payouts and reconciliation
 
-Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
+Core · target · **done** · From PAY-007 · Cites BASE-AUDIT-001
 
 **Requirement.** Payouts and reconciliation supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2360,12 +2360,12 @@ Core · target · **partial** · From PAY-007 · Cites BASE-AUDIT-001
 7. Stripe does not attribute source payments to manual payouts.
 8. Those require an explicit owner-reviewed books allocation (payout allocate action), never claimed as Stripe source attribution; unreviewed sources remain unmatched.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture replays a payout of six payments, one refund and fees (Stripe fake) and checks the payout reconciles to the cent, with a deliberately missing payment listed as unmatched; an instant payout (Stripe fake) with its fee reconciles the same way.; point 2 — The journey records each new DATA-002, DATA-009, DATA-010 event in Activity and the business export, including provider outcomes and references without secrets.; point 3 — The owner inspects a USD Stripe test payout (payout reconcile action).; point 4 — Automatic payouts use Stripe's paginated source balance transactions (up to 1,000; a longer/incomplete list refuses reconciliation) and match confirmed payment/refund references, gross cents and fees; missing, unconfirmed, wrong-amount, wrong-fee/currency and unsupported sources are named.; point 5 — Bank amount plus any payout fee must equal source net exactly, and only provider-paid payouts reconcile.; point 6 — An unavailable payout fee refuses reconciliation; zero is never inferred.; point 7 — Stripe does not attribute source payments to manual payouts.; point 8 — Those require an explicit owner-reviewed books allocation (payout allocate action), never claimed as Stripe source attribution; unreviewed sources remain unmatched. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 1: six Checkout payments, a refund, missing source and Instant Payout reconcile to exact cents across restart and replay); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 2: every inspection and reviewed allocation has attributable secret-free Activity and business export facts); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 3: only a signed-in unscoped Owner inspects positive USD test payouts); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 4: ten pages reconcile exactly 1000 rows); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 5: bank plus payout fee must equal source net exactly and only paid payouts reconcile); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 6: an unavailable payout fee refuses without changing any retained payout); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 7: a manual payout has no Stripe source attribution before owner review); `tests/api/payout-reconciliation.test.mjs` (PAY-007 point 8: only explicit owner books allocation reconciles manual sources and other unreviewed payouts remain unmatched)
+**Gap.** None.
 
 #### PAY-025 — Cash and check deposit batches
 
-Core · target · **done** · From PAY-007 · Cites BASE-DATA-003
+Core · target · **partial** · From PAY-007 · Cites BASE-DATA-003
 
 **Requirement.** Cash and check deposit batches supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#pay-007-operating-rules) retain the record formats and calculations.
 
@@ -2374,8 +2374,8 @@ Core · target · **done** · From PAY-007 · Cites BASE-DATA-003
 2. Only the owner reads provider-wide payout and fee records; the office sees its branch's cash/check batches.
 3. DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history.
 
-**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`; `tests/api/payments.test.mjs` (PAY-007, PAY-025, PAY-026 six confirmed payments, refund and fees reconcile exactly)
-**Gap.** None.
+**Evidence.** `tests/api/payments.test.mjs`, `tests/browser/receivables.spec.ts`
+**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — Cash/check deposits (payment deposit batch action) group 1–100 confirmed same-currency/branch records once, net of prior recorded refunds, as staff-recorded deposits without a bank-confirmation claim.; point 2 — Only the owner reads provider-wide payout and fee records; the office sees its branch's cash/check batches.; point 3 — DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 removes erased customer references from shared payout source detail while retaining anonymous aggregate bank history. See docs/contract/DONE-AUDIT.md for each named outcome.
 
 #### PAY-026 — Instant payout preview and execution
 

@@ -1,4 +1,5 @@
-import { test, expect, chromium, type Page, type Locator, type Browser, type Route } from '@playwright/test'
+import { closeHarnessContext, finishHarnessSetup, gotoHarness, harnessRoute, reloadHarness, restartHarness, type HarnessRoute, unrouteHarness } from './harness-route'
+import { test, expect, chromium, type Page, type Locator, type Browser } from '@playwright/test'
 import { mkdir, readFile } from 'node:fs/promises'
 import { join, extname, resolve } from 'node:path'
 import { createServer } from 'node:http'
@@ -52,14 +53,14 @@ async function checkPropertyHistories(page: Page, width: number) {
   try {
     const b = await business(h)
     const fixture = await customerHistoryFixture(h, b)
-    await h.restart()
-    await page.route(`${origin}/api/glove/**`, async route => {
+    await restartHarness(h)
+    await harnessRoute(page, `${origin}/api/glove/**`, async route => {
       const req = route.request(), url = new URL(req.url())
       const response = await h.request(url.pathname + url.search, { as: b.office.cookie, method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
       await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
     })
-    await page.goto(`${origin}/app#customers`)
-    await page.reload()
+    await gotoHarness(page, `${origin}/app#customers`)
+    await reloadHarness(page)
     const search = page.getByLabel('Search customers', { exact: true })
     for (const query of ['555-0101', 'Wharf Rd']) {
       await search.fill(query)
@@ -101,7 +102,7 @@ async function checkPropertyHistories(page: Page, width: number) {
       await expect(refused.getByRole('alert')).toHaveText('No such site for you.')
       await expect(refused.locator('li')).toHaveCount(0)
     }
-  } finally { await page.unroute(`${origin}/api/glove/**`); await h.close() }
+  } finally { await unrouteHarness(page, `${origin}/api/glove/**`); await h.close() }
 }
 
 /** Click a control that sends one command and wait for its confirmed outcome. */
@@ -127,7 +128,7 @@ const minutes = (startAt: string, endAt: string) => Math.floor((Date.parse(endAt
 
 /** REPORT-001: open Today and check each tile against the records in GET /api/glove/state, then the journey's own job; answers who is on the clock. */
 async function checkToday(page: Page, customer: string | null, jobState?: 'Completed' | 'Invoiced') {
-  await page.goto(`${origin}/app#today`)
+  await gotoHarness(page, `${origin}/app#today`)
   const tile = (name: string) => page.getByRole('region', { name, exact: true })
   await expect(tile("Today's jobs")).toBeVisible()
   const s = await records(page)
@@ -180,33 +181,33 @@ async function signInPersona(browser: Browser, persona: string, width: number, k
   const context = await browser.newContext({ viewport: { width, height: 900 } })
   const phone = await context.newPage()
   await phone.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
-  await phone.goto(`${origin}/auth/dev/enter?as=${persona}&returnTo=%2Fapp`)
+  await gotoHarness(phone, `${origin}/auth/dev/enter?as=${persona}&returnTo=%2Fapp`)
   await phone.waitForURL(url => url.pathname === '/app')
   return { context, phone }
 }
 
-for (const width of [1440, 390]) {
-  test(`MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at ${width}px`, async ({ browser }) => {
+test('MONEY-002 / BOOK-005 owner, dispatcher, technician and office journey at 1440px', async ({ browser }) => {
+  test.setTimeout(480_000)
+  for (const width of [1440, 390]) {
     const entry = process.env.GLOVE_OPEN
     if (!entry) throw new Error('Set GLOVE_OPEN privately to rer dev’s owner-entry URL; this test needs a real local installation.')
     const desk = await browser.newContext({ viewport: { width, height: 1000 } })
     const page = await desk.newPage()
-    await page.goto(`${origin}/`)
+    await gotoHarness(page, `${origin}/`)
     await shot(page, width, 'lobby')
-    await page.goto(`${origin}/signin`)
+    await gotoHarness(page, `${origin}/signin`)
     await shot(page, width, 'signin')
     try {
       // Open the CLI link as a fresh navigation. The sign-in capture can
       // already be on /__dev/key, where changing only its fragment runs no script.
-      await page.goto('about:blank')
-      await page.goto(entry)
+      await gotoHarness(page, 'about:blank')
+      await gotoHarness(page, entry)
       await page.waitForURL(url => !url.hash.includes('rer-dev') && ['/app', '/setup'].includes(url.pathname))
     } catch { throw new Error('Owner entry failed; obtain a fresh local entry privately.') }
     if (new URL(page.url()).pathname === '/setup') {
       await shot(page, width, 'setup')
       await page.getByRole('checkbox').check()
-      await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-      await page.waitForURL(url => url.pathname === '/app')
+      await finishHarnessSetup(page)
     }
     const key = new URLSearchParams(new URL(entry).hash.slice(1)).get('rer-dev')
     await page.request.post(`${origin}/__dev/key`, { data: { key }, headers: { origin } })
@@ -228,7 +229,7 @@ for (const width of [1440, 390]) {
     const bookingZone = ['Australia/Sydney', 'America/New_York'].sort((a, b) => distanceFromMidnight(b) - distanceFromMidnight(a))[0]
 
     // Team: the business, a price book entry with its checklist, a technician who signs in.
-    await page.goto(`${origin}/app#team`)
+    await gotoHarness(page, `${origin}/app#team`)
     await expect(page.getByRole('heading', { name: 'Team and settings' })).toBeVisible()
     const businessForm = panel(page, /^(Set up your business|Business)$/)
     if (await businessForm.getByRole('heading', { name: 'Set up your business', exact: true }).isVisible()) {
@@ -278,12 +279,12 @@ for (const width of [1440, 390]) {
     const logo = await page.evaluate(() => { const c = document.createElement('canvas'); c.width = 80; c.height = 40; const x = c.getContext('2d')!; x.fillStyle = '#e8743b'; x.fillRect(0, 0, 80, 40); return c.toDataURL('image/png').split(',')[1] })
     await form.getByLabel('Logo', { exact: true }).setInputFiles({ name: 'logo.png', mimeType: 'image/png', buffer: Buffer.from(logo, 'base64') })
     await send(page, form.getByRole('button', { name: 'Save business' }))
-    await page.reload()
+    await reloadHarness(page)
     // MONEY-002: saving other settings leaves every omitted identity field intact.
     const savedBusiness = (await records(page)).business[0]
     const identitySave = await page.request.post(`${origin}/api/glove/commands`, { headers: { origin }, data: { commandId: crypto.randomUUID(), type: 'business.save', payload: { name: savedBusiness.name, timezone: savedBusiness.timezone, version: savedBusiness.version } } })
     expect((await identitySave.json()).ok).toBe(true)
-    await page.reload()
+    await reloadHarness(page)
     form = panel(page, /^Business$/)
     await expect(form.getByLabel('Tax ID (EIN)', { exact: true })).toHaveValue('12-3456789')
     await expect(form.getByRole('group', { name: 'License 1', exact: true }).getByLabel('License number', { exact: true })).toHaveValue(`TACLA${phone4}C`)
@@ -298,7 +299,7 @@ for (const width of [1440, 390]) {
     await send(page, form.getByRole('button', { name: 'Send invitation' }))
     await expect(page.getByText(inviteEmail)).toBeVisible()
     const { context: phoneContext, phone } = await signInPersona(browser, persona, width, key)
-    await page.reload()
+    await reloadHarness(page)
     const techOperator = page.locator('tr').filter({ hasText: techEmail })
     const roleSet = page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST')
     await techOperator.getByRole('combobox', { name: /^Role for / }).selectOption('technician')
@@ -311,7 +312,7 @@ for (const width of [1440, 390]) {
     await shot(page, width, 'team')
 
     // Customers and the site.
-    await page.goto(`${origin}/app#customers`)
+    await gotoHarness(page, `${origin}/app#customers`)
     await page.getByRole('button', { name: 'New customer' }).click()
     form = panel(page, 'New customer')
     await form.getByLabel('Name', { exact: true }).fill(customer)
@@ -350,7 +351,7 @@ for (const width of [1440, 390]) {
     await shot(page, width, 'customers')
 
     // Request → quote → approved price → recorded as sent → accepted.
-    await page.goto(`${origin}/app#quotes`)
+    await gotoHarness(page, `${origin}/app#quotes`)
     form = panel(page, 'Record a request')
     await form.getByLabel('Customer', { exact: true }).selectOption({ label: customer })
     await form.getByLabel('Site', { exact: true }).selectOption({ index: 1 })
@@ -370,7 +371,7 @@ for (const width of [1440, 390]) {
     await shot(page, width, 'quotes')
 
     // Dispatch: job from the accepted quote, a booking, and a reviewed conflict.
-    await page.goto(`${origin}/app#dispatch`)
+    await gotoHarness(page, `${origin}/app#dispatch`)
     await send(page, page.locator('.queue li').filter({ hasText: customer }).getByRole('button', { name: 'Create job' }))
     await page.locator('.queue li').filter({ hasText: customer }).getByRole('button', { name: 'Book a visit' }).click()
     form = panel(page, 'Book a visit')
@@ -416,7 +417,7 @@ for (const width of [1440, 390]) {
       const answer = (ok: boolean) => page.waitForResponse(r => r.url() === `${origin}/api/glove/commands` && r.request().method() === 'POST').then(r => r.json()).then(b => { expect(b.ok, JSON.stringify(b.error ?? {})).toBe(ok); return b })
       const settled = () => expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false')
       const visitOf = async () => (await records(page)).visits.find((v: any) => v.jobId === dragJob.id && v.status !== 'cancelled')
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       const timeline = page.getByRole('region', { name: techName }).locator('.timeline')
       // The day board scrolls sideways inside its card; bring 3 pm into view before aiming at it.
       await page.locator('.schedule .hours span', { hasText: /^3 PM$/ }).scrollIntoViewIfNeeded()
@@ -456,7 +457,7 @@ for (const width of [1440, 390]) {
       await expect(chip).toHaveClass(/type-\d/)
       // DISP-007 at 1440: a two-person crew named on Team, booked as one, dragged to another day on the week board by crew.
       const mate = await command('technician.save', { name: `Crew mate ${tag}` })
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const crews = page.getByRole('region', { name: 'Crews' })
       await crews.getByLabel('Crew name', { exact: true }).fill(`Install ${tag}`)
       await crews.getByLabel(techName, { exact: true }).check()
@@ -468,7 +469,7 @@ for (const width of [1440, 390]) {
       await command('quote.accept', { quoteId: fourth.id, version: fourthApproved.version, revision: 1, method: 'phone', customerName: 'Dr Mei Lin' })
       const crewJob = await command('job.create', { quoteId: fourth.id })
       const crewBooking = await command('visit.book', { jobId: crewJob.id, crewId: crew.id, date: day, start: '07:00', end: '08:00' })
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       await page.getByRole('group', { name: 'Board view' }).getByRole('button', { name: 'Week' }).click()
       await page.getByLabel('Rows').selectOption('crews')
       await page.getByRole('button', { name: new RegExp(`^${crewJob.number} Crew install, Crew Install ${tag}, `) }).dragTo(page.getByRole('gridcell', { name: `Crew Install ${tag} ${short(other)}` }))
@@ -483,7 +484,7 @@ for (const width of [1440, 390]) {
     }
 
     // QUOTE-001: the first quote saved as a template; a second quote with two options and an add-on, and the customer's choice.
-    await page.goto(`${origin}/app#quotes`)
+    await gotoHarness(page, `${origin}/app#quotes`)
     await page.locator('tr').filter({ hasText: 'Split system service' }).filter({ hasText: 'Accepted' }).first().getByRole('button').click()
     await page.getByLabel('Template name', { exact: true }).fill(`Tune-up ${tag}`)
     await send(page, page.getByRole('button', { name: 'Save as template' }))
@@ -514,7 +515,7 @@ for (const width of [1440, 390]) {
     // STOCK-001: a price-book material, the technician's van with a par level, and a restock, on the Stock screen.
     const material = `Run capacitor ${tag}`, vanName = `Van ${tag}`
     await command('service.save', { code: `CAP-${tag}`, name: material, kind: 'material', unit: 'each', unitCost: '12.00', unitPrice: '38.00', tax: 'GST' })
-    await page.goto(`${origin}/app#stock`)
+    await gotoHarness(page, `${origin}/app#stock`)
     form = page.getByRole('form', { name: 'Add a van or warehouse' })
     await form.getByLabel('Location name', { exact: true }).fill(vanName)
     await form.getByLabel("Technician's van", { exact: true }).selectOption({ label: techName })
@@ -531,7 +532,7 @@ for (const width of [1440, 390]) {
     await expect(vanPanel.getByText('Low', { exact: true })).toHaveCount(0)
 
     // The technician's phone, through a connectivity interruption.
-    await phone.goto(`${origin}/app`)
+    await gotoHarness(phone, `${origin}/app`)
     await expect(phone.getByRole('heading', { name: 'Your visits' })).toBeVisible()
     const clockStatus = phone.getByRole('region', { name: 'Time', exact: true }).getByRole('status'), timerStatus = phone.getByRole('region', { name: 'Timers' }).getByRole('status')
     const sent = () => expect(phone.getByText(/waiting to send|Sending/)).toHaveCount(0, { timeout: 30_000 })
@@ -613,10 +614,10 @@ for (const width of [1440, 390]) {
       const one = await offlineJob('Offline day one'), two = await offlineJob('Offline day two')
       const v1 = await command('visit.book', { jobId: one.id, technicianId: techId, date: day, start: '16:00', end: '16:45' })
       const v2 = await command('visit.book', { jobId: two.id, technicianId: techId, date: day, start: '17:00', end: '17:45' })
-      await phone.goto(`${origin}/app`)
+      await gotoHarness(phone, `${origin}/app`)
       await expect(phone.getByRole('button', { name: / 4:00 PM – 4:45 PM/ })).toBeVisible()
       await phoneContext.setOffline(true)
-      await phone.reload()
+      await reloadHarness(phone)
       await expect(phone.getByText(/^No signal: showing your day as of/)).toBeVisible()
       await phone.getByRole('button', { name: / 5:00 PM – 5:45 PM/ }).click()
       await phone.getByRole('button', { name: 'Record arrival' }).click()
@@ -651,7 +652,7 @@ for (const width of [1440, 390]) {
       expect(after.visits.find((v: any) => v.id === v1.id).status).toBe('completed')
       expect(kinds(v2.id)).toEqual(['arrival', 'note'])
       expect(after.visits.find((v: any) => v.id === v2.id).lateEvidence.filter((x: any) => !x.reviewed)).toHaveLength(2)
-      await page.goto(`${origin}/app#dispatch`)
+      await gotoHarness(page, `${origin}/app#dispatch`)
       await page.getByRole('button', { name: new RegExp(`^${two.number} Offline day two, `) }).click()
       await expect(page.getByText('2 field items arrived after this visit changed.')).toBeVisible()
       await send(page, page.getByRole('button', { name: 'Mark reviewed' }))
@@ -667,7 +668,7 @@ for (const width of [1440, 390]) {
       try {
         const { context: pushContext, phone: pushPhone } = await signInPersona(pushBrowser, persona, width, key)
         const device = await phoneKeys(), endpoint = `http://127.0.0.1:${(service.address() as any).port}/push/${tag}`
-        await page.goto(`${origin}/app#team`)
+        await gotoHarness(page, `${origin}/app#team`)
         await send(page, page.getByRole('button', { name: 'Turn on phone notifications' }))
         const publicKey = (await records(page)).business[0].webPush.publicKey
         // The subscription the push service hands this phone, with the test's keys (headless Chromium has no push service).
@@ -677,7 +678,7 @@ for (const width of [1440, 390]) {
           PushManager.prototype.subscribe = async function (options?: PushSubscriptionOptionsInit) { localStorage.setItem('test.push', btoa(String.fromCharCode(...new Uint8Array(options!.applicationServerKey as ArrayBuffer))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')); return subscription as unknown as PushSubscription }
           PushManager.prototype.getSubscription = async function () { return (localStorage.getItem('test.push') ? subscription : null) as unknown as PushSubscription }
         }, { endpoint, keys: device.keys })
-        await pushPhone.goto(`${origin}/app`)
+        await gotoHarness(pushPhone, `${origin}/app`)
         // Installable: the manifest Chromium reads, with no installability errors but the test profile's own incognito one.
         const cdp = await pushContext.newCDPSession(pushPhone)
         const manifest = await cdp.send('Page.getAppManifest')
@@ -718,10 +719,10 @@ for (const width of [1440, 390]) {
         await worker.send('ServiceWorker.deliverPushMessage', { origin, registrationId: await registration, data: payload })
         await expect.poll(() => background.evaluate(() => (globalThis as any).syntheticGlovePush)).toBe(payload)
         await expect.poll(() => pushPhone.evaluate(async () => (await (await navigator.serviceWorker.ready).getNotifications()).map(n => [n.title, n.body, n.data?.jobId]))).toEqual([['Glove', 'Visit moved', pushJob.id]])
-        await pushPhone.reload()
+        await reloadHarness(pushPhone)
         await expect(notifications.getByText(/^Handed to the push service · /)).toBeVisible()
         // Tapping it opens the app on that job's visit, with tap-to-call and tap-to-navigate.
-        await pushPhone.goto(`${origin}/app?job=${pushJob.id}`)
+        await gotoHarness(pushPhone, `${origin}/app?job=${pushJob.id}`)
         await expect(pushPhone.getByRole('heading', { name: `${pushJob.number} · Push visit` })).toBeVisible()
         await expect(pushPhone.getByRole('link', { name: 'Call customer' })).toHaveAttribute('href', `tel:212555${phone4}`)
         await expect(pushPhone.getByRole('group', { name: 'Directions to the site' }).getByRole('link', { name: 'Google Maps' })).toHaveAttribute('href', `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(siteA)}&travelmode=driving`)
@@ -740,10 +741,10 @@ for (const width of [1440, 390]) {
     await expect(clockStatus).toHaveText(/^Off the clock/)
     await sent()
     await expect(phone.getByRole('region', { name: vanName }).getByText(`Low: ${material} (1 each)`)).toBeVisible()
-    await phoneContext.close()
+    await closeHarnessContext(phoneContext)
 
     // The job record: evidence, sign-off and timeline.
-    await page.goto(`${origin}/app#jobs`)
+    await gotoHarness(page, `${origin}/app#jobs`)
     await page.locator('tr').filter({ hasText: customer }).filter({ hasText: 'Split system service' }).getByRole('button').click()
     await expect(page.getByRole('heading', { name: 'Field evidence' })).toBeVisible()
     await expect(page.getByRole('img', { name: 'Signature of Dr Mei Lin' })).toBeVisible()
@@ -772,7 +773,7 @@ for (const width of [1440, 390]) {
     const costing = page.getByRole('region', { name: 'Estimate and actual' })
     for (const [label, value] of [['Revenue before tax', costed.revenue], ['Estimated cost', costed.estimate.cost], ['Actual cost', costed.actual.cost]]) await expect(costing.getByRole('row', { name: `${label} ${dollars(cents(value))}` })).toBeVisible()
     await expect(page.getByRole('region', { name: 'Job costing' })).toBeVisible()
-    await page.goto(`${origin}/app#stock`)
+    await gotoHarness(page, `${origin}/app#stock`)
     await expect(vanPanel.locator('li').filter({ hasText: material }).getByText('1 each (par 2)')).toBeVisible()
     await expect(vanPanel.locator('li').filter({ hasText: material }).getByText('Low', { exact: true })).toBeVisible()
     await shot(page, width, 'stock')
@@ -780,7 +781,7 @@ for (const width of [1440, 390]) {
     await shot(page, width, 'today')
 
     // Invoice: prepare, approve, export once.
-    await page.goto(`${origin}/app#invoices`)
+    await gotoHarness(page, `${origin}/app#invoices`)
     // The technician's free-text material is not in the price book: the office prices it.
     const ready = page.locator('li').filter({ hasText: customer })
     await send(page, ready.getByRole('button', { name: 'Prepare invoice' }), false)
@@ -797,7 +798,7 @@ for (const width of [1440, 390]) {
     await checkToday(page, customer, 'Invoiced')
 
     // CUST-001: find the customer by a phone fragment and by a street, then each property's history.
-    await page.goto(`${origin}/app#customers`)
+    await gotoHarness(page, `${origin}/app#customers`)
     const search = page.getByLabel('Search customers', { exact: true })
     await search.fill(`555-${phone4}`)
     await expect(page.locator('tr').filter({ hasText: customer })).toBeVisible()
@@ -845,7 +846,7 @@ for (const width of [1440, 390]) {
     await shot(page, width, 'service-call')
 
     // Move in from ServiceM8: preview, then commit exactly that preview.
-    await page.goto(`${origin}/app#move-in`)
+    await gotoHarness(page, `${origin}/app#move-in`)
     const files = await Promise.all(['company', 'companycontact', 'staff', 'job', 'jobactivity', 'jobmaterial', 'attachment'].map(async kind => ({ name: `${kind}.json`, mimeType: 'application/json', buffer: await readFile(`${fixture}${kind}.json`) })))
     await page.getByLabel('Export files', { exact: true }).setInputFiles(files)
     await send(page, page.getByRole('button', { name: 'Preview', exact: true }))
@@ -854,13 +855,13 @@ for (const width of [1440, 390]) {
     await expect(page.getByText('Committed').first()).toBeVisible()
     await shot(page, width, 'move-in')
 
-    await page.goto(`${origin}/app#activity`)
+    await gotoHarness(page, `${origin}/app#activity`)
     await expect(page.getByRole('heading', { name: 'Approvals' })).toBeVisible()
     await shot(page, width, 'activity')
     await checkPropertyHistories(page, width)
     await desk.close()
-  })
-}
+  }
+})
 
 
 test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first shift before any visit is assigned at 1440 and 390', async ({ browser }) => {
@@ -879,14 +880,13 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
     try {
       await page.clock.setFixedTime(new Date('2026-11-05T12:00:00.000Z'))
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-      await page.goto(process.env.GLOVE_OPEN)
+      await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+        await finishHarnessSetup(page)
       }
-      const serve = async (route: Route) => {
+      const serve = async (route: HarnessRoute) => {
         const req = route.request(), url = new URL(req.url())
         if (offline) { await route.abort('internetdisconnected'); return }
         const body = req.postData() ? JSON.parse(req.postData()!) : undefined
@@ -896,7 +896,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         if (loseNext && body?.type === 'timer.start') { loseNext = false; await route.abort('connectionreset'); return }
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       }
-      await page.route(`${origin}/api/glove/**`, serve)
+      await harnessRoute(page, `${origin}/api/glove/**`, serve)
       const ready = async (navigate: () => Promise<unknown>) => {
         const records = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
         await navigate()
@@ -905,8 +905,8 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
         as = b.priyaPerson.cookie
-        await ready(() => page.goto(`${origin}/app`))
-        await ready(() => page.reload())
+        await ready(() => gotoHarness(page, `${origin}/app`))
+        await ready(() => reloadHarness(page))
         await expect(page.getByText('No visits booked for you', { exact: true })).toBeVisible()
         await expect(page.getByText('Your sign-in is not linked to a technician yet', { exact: true })).toHaveCount(0)
         const time = page.getByRole('region', { name: 'Time', exact: true })
@@ -915,7 +915,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await shot(page, width, 'first-shift-off-clock')
         await time.getByRole('button', { name: 'Clock in', exact: true }).click()
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
-        await ready(() => page.reload())
+        await ready(() => reloadHarness(page))
         await expect(time.getByRole('status')).toHaveText(/^On the clock since .*M$/)
         expect((await h.request(`/api/glove/timesheets?week=${currentWeek}`, { as }).then((r: Response) => r.json())).timesheets.map((x: any) => [x.technicianId, x.onTheClock])).toEqual([[b.priya.id, true]])
         await shot(page, width, 'first-shift-on-clock')
@@ -924,8 +924,8 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         await b.priyaPerson.run('clock.in', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T08:00:00+11:00` })
         await b.priyaPerson.run('clock.out', { deviceTime: `2026-11-0${width === 1440 ? 2 : 3}T16:00:00+11:00` })
         as = h.owner()
-        await ready(() => page.goto(`${origin}/app#reports`))
-        await ready(() => page.reload())
+        await ready(() => gotoHarness(page, `${origin}/app#reports`))
+        await ready(() => reloadHarness(page))
         const sheets = page.getByRole('region', { name: 'Timesheets', exact: true })
         await sheets.getByLabel('Week of', { exact: true }).fill('2026-11-02')
         const row = sheets.getByRole('listitem', { name: 'Timesheet for Priya N.', exact: true })
@@ -951,7 +951,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         jobs.push({ job, visit })
       }
       as = b.priyaPerson.cookie
-      await ready(() => page.goto(`${origin}/app`))
+      await ready(() => gotoHarness(page, `${origin}/app`))
       const clock = page.getByRole('region', { name: 'Time', exact: true })
       const timers = page.getByRole('region', { name: 'Timers', exact: true })
       const phoneAt = async (at: string) => page.clock.setFixedTime(new Date(at))
@@ -1041,17 +1041,17 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
         [queued[3].commandId, 'job', '2026-11-04T21:52:00.000Z', '2026-11-04T21:53:30.000Z', '2026-11-05T12:00:00.000Z', '2026-11-05T12:00:00.000Z'],
       ].sort())
       // Drain browser reads before replacing the Worker they dispatch to.
-      await page.goto('about:blank')
-      await page.unrouteAll({ behavior: 'wait' })
-      await h.restart()
+      await gotoHarness(page, 'about:blank')
+      await unrouteHarness(page)
+      await restartHarness(h)
       expect(await h.state()).toEqual(kept)
-      await page.route(`${origin}/api/glove/**`, serve)
+      await harnessRoute(page, `${origin}/api/glove/**`, serve)
       as = h.owner()
-      await ready(() => page.goto(`${origin}/app#today`))
+      await ready(() => gotoHarness(page, `${origin}/app#today`))
       await expect(page.getByRole('region', { name: 'On the clock', exact: true })).toContainText('0 technicians')
       await proof('time-desk-clock')
       for (const [i, travel, jobMinutes] of [[0, 10, 21], [1, 11, 3]]) {
-        await ready(() => page.goto(`${origin}/app#jobs/${jobs[i].job.id}`))
+        await ready(() => gotoHarness(page, `${origin}/app#jobs/${jobs[i].job.id}`))
         const time = page.getByRole('region', { name: 'Time on this job', exact: true })
         await expect(time.getByText(`Travel ${travel} min · On the job ${jobMinutes} min`, { exact: true })).toBeVisible()
         await proof(`time-job-${i + 1}`)
@@ -1064,7 +1064,7 @@ test('COST-001 / COST-002, COST-006, COST-007 a technician clocks their first sh
       await expect(row.getByText('Original from the phone: 8:40 AM – 8:50 AM', { exact: true })).toBeVisible()
       await expect(page.getByText('Travel 15 min · On the job 3 min', { exact: true })).toBeVisible()
       await proof('time-corrected')
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
   await commissionDownloads(browser)
 })
@@ -1080,22 +1080,21 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
     const context = await browser.newContext(), page = await context.newPage()
     try {
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-      await page.goto(process.env.GLOVE_OPEN)
+      await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+        await finishHarnessSetup(page)
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 })
-        await page.goto(`${origin}/app#jobs/${job.id}`)
-        await page.reload()
+        await gotoHarness(page, `${origin}/app#jobs/${job.id}`)
+        await reloadHarness(page)
         const panel = page.getByRole('region', { name: 'Estimate and actual', exact: true })
         await expect(panel.getByText('Site survey without a cost · quantity 1', { exact: true })).toBeVisible()
         await expect(panel.getByText('Disposal without a cost · quantity 2', { exact: true })).toBeVisible()
@@ -1104,7 +1103,7 @@ test('COST-004 uncosted estimate lines are named on the job at 1440 and 390', as
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
         await shot(page, width, 'uncosted-estimate-lines')
       }
-    } finally { await page.unrouteAll({ behavior: 'wait' }); await context.close() }
+    } finally { await unrouteHarness(page); await closeHarnessContext(context) }
   } finally { await h.close() }
 })
 
@@ -1112,26 +1111,30 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
   // @ts-expect-error Production Worker/native sessions/D1 fixture.
   const { installation, business } = await import('../api/harness.mjs')
   for (const width of [1440, 390]) {
-    const h = await installation()
+    const h = await test.step('DATA-001 native privacy installation', () => installation())
     const context = await browser.newContext({ viewport: { width, height: 1000 } }), page = await context.newPage()
     try {
-      const b = await business(h)
+      const b = await test.step('DATA-001 independent native people and customer', () => business(h))
       const duplicate = await h.command('customer.save', { name: 'Synthetic merged identity', email: 'synthetic-glove-8@example.test' })
       await h.command('customer.merge', { survivorId: b.customer.id, mergedIds: [duplicate.id], versions: { [b.customer.id]: b.customer.version, [duplicate.id]: duplicate.version } })
       const staged = await h.command('import.stage', { format: 'csv', files: [{ name: 'synthetic-glove-26.csv', text: `ID,Name,Email,Address\n${b.customer.id},Harbourview Dental,accounts@harbourview.example,17 Synthetic Road\n,Synthetic Peer,synthetic-glove-27@example.test,18 Synthetic Road\n` }], mapping: { customerId: 'ID', name: 'Name', email: 'Email', siteAddress: 'Address' } })
       await h.command('import.commit', { batchId: staged.id, version: staged.version, fingerprint: staged.preview.fingerprint })
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-      await page.goto(process.env.GLOVE_OPEN)
+      await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await context.route(`${origin}/api/glove/**`, async route => {
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
+      await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         const req = route.request(), url = new URL(req.url())
         const response = await h.request(url.pathname + url.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#customers/${b.customer.id}`)
-      await page.reload()
+      await gotoHarness(page, `${origin}/app#customers/${b.customer.id}`)
+      await reloadHarness(page)
+      await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
       const privacy = page.getByRole('region', { name: 'Customer privacy', exact: true })
+      await test.step('DATA-001 point 8: the owner sees how the latest backup prevents restoration of erased data', async () => {
+        await expect(privacy.getByText(/Keep the latest backup as the erasure journal when restoring older backups/)).toBeVisible()
+      })
       await expect(privacy.getByRole('button', { name: 'Erase customer personal data' })).toBeDisabled()
       const downloading = page.waitForEvent('download')
       await send(page, privacy.getByRole('button', { name: 'Export customer data' }))
@@ -1155,10 +1158,16 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 the owner exports and exp
       await expect(privacy.getByRole('status')).toHaveText('Personal data erased. Anonymous invoices and tax totals remain.')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
       await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      await test.step('DATA-001 point 8: export and erasure outcomes remain additive after the destructive action', async () => {
+        await reloadHarness(page)
+        await expect(page.locator('.glove-app')).toHaveAttribute('aria-busy', 'false', { timeout: 30_000 })
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Erasure complete')
+        await expect(privacy.getByLabel('Privacy request outcomes')).toContainText('Export complete')
+      })
       await expect(page.getByRole('heading', { name: 'Harbourview Dental', exact: true })).toHaveCount(0)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       await shot(page, width, 'customer-privacy-erased')
-    } finally { await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -1180,10 +1189,10 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       const peerOriginal = await b.priyaPerson.run('visit.capture', { visitId: peerVisit.id, deviceTime: peerVisit.startAt, kind: 'photo', photo: { mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' }, caption: 'Kept client original' })
       const original = await b.priyaPerson.run('visit.capture', { visitId: visit.id, deviceTime: visit.startAt, kind: 'photo', photo: { mediaType: 'image/png', base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' }, caption: 'Private visit original' })
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-      await page.goto(process.env.GLOVE_OPEN)
+      await gotoHarness(page, process.env.GLOVE_OPEN)
       await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev'))
-      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await page.getByRole('button', { name: 'Finish setup', exact: true }).click(); await page.waitForURL(u => u.pathname === '/app') }
-      await context.route(`${origin}/api/glove/**`, async route => {
+      if (new URL(page.url()).pathname === '/setup') { await page.getByRole('checkbox').check(); await finishHarnessSetup(page) }
+      await harnessRoute(context, `${origin}/api/glove/**`, async route => {
         const reply = (async () => {
           const req = route.request(), url = new URL(req.url())
           const response = await h.request(url.pathname + url.search, { method: req.method(), as: b.priyaPerson.cookie, ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
@@ -1192,7 +1201,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
         inFlight.add(reply)
         try { await reply } finally { inFlight.delete(reply) }
       })
-      await page.goto(`${origin}/app?job=${job.id}`)
+      await gotoHarness(page, `${origin}/app?job=${job.id}`)
       await expect(page.getByRole('heading', { name: `${job.number} · ${job.title}`, exact: true })).toBeVisible()
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).toContain('Harbourview Dental')
       await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), original.file.fileId)).toBe(true)
@@ -1217,7 +1226,7 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).not.toContain('Harbourview Dental')
       await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), original.file.fileId)).toBe(false)
       await settled()
-      await page.reload()
+      await reloadHarness(page)
       await expect(page.getByRole('button', { name: new RegExp(`${peerJob.number} · Kept visit`) })).toBeVisible()
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.outbox') ?? '[]')).toBe('[]')
       await expect.poll(() => page.evaluate(() => localStorage.getItem('glove.day') ?? '')).not.toContain('Harbourview Dental')
@@ -1228,10 +1237,10 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 a technician reconnects a
       await expect.poll(async () => (await h.state()).captures.filter((c: any) => c.jobId === peerJob.id && c.kind === 'note').map((c: any) => c.text)).toEqual(['Kept client queued note'])
       expect((await h.state()).captures.some((c: any) => c.jobId === job.id)).toBe(false)
       await expect.poll(() => page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), peerOriginal.file.fileId)).toBe(true)
-      await page.reload()
+      await reloadHarness(page)
       await expect(page.getByRole('button', { name: new RegExp(`${peerJob.number} · Kept visit`) })).toBeVisible()
       expect(await page.evaluate(async id => (await caches.open('glove-day-files')).keys().then(keys => keys.some(k => k.url.endsWith(id))), peerOriginal.file.fileId)).toBe(true)
-    } finally { await context.setOffline(false); await settled(); await context.unrouteAll({ behavior: 'wait' }); await context.close(); await h.close() }
+    } finally { await context.setOffline(false); await settled(); await unrouteHarness(context); await closeHarnessContext(context); await h.close() }
   }
 })
 
@@ -1263,18 +1272,17 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
     try {
       await business(h)
       if (!process.env.GLOVE_OPEN) throw new Error('Private owner entry required.')
-      try { await page.goto(process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
+      try { await gotoHarness(page, process.env.GLOVE_OPEN); await page.waitForURL(u => ['/app', '/setup'].includes(u.pathname) && !u.hash.includes('rer-dev')) } catch { throw new Error('Private owner entry failed.') }
       if (new URL(page.url()).pathname === '/setup') {
         await page.getByRole('checkbox').check()
-        await page.getByRole('button', { name: 'Finish setup', exact: true }).click()
-        await page.waitForURL(u => u.pathname === '/app')
+        await finishHarnessSetup(page)
       }
-      await page.route(`${origin}/api/glove/**`, async route => {
+      await harnessRoute(page, `${origin}/api/glove/**`, async route => {
         const req = route.request(), u = new URL(req.url())
         const response = await h.request(u.pathname + u.search, { method: req.method(), ...(req.postData() ? { body: JSON.parse(req.postData()!) } : {}) })
         await route.fulfill({ status: response.status, headers: Object.fromEntries(response.headers), body: Buffer.from(await response.arrayBuffer()) })
       })
-      await page.goto(`${origin}/app#team`)
+      await gotoHarness(page, `${origin}/app#team`)
       const connections = panel(page, 'Lead sources')
       await connections.getByLabel('Lead source', { exact: true }).selectOption('reserve-google')
       await expect(connections).toContainText('connecting it does not activate Google bookings or confirm a visit')
@@ -1293,11 +1301,11 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       const pipeline = page.getByRole('region', { name: 'Request pipeline', exact: true })
       const reloadLeadCards = async () => {
         const loaded = page.waitForResponse(r => r.url() === `${origin}/api/glove/state` && r.status() === 200)
-        await page.reload()
+        await reloadHarness(page)
         await loaded
         await expect(pipeline).toBeVisible({ timeout: 30_000 })
       }
-      await page.goto(`${origin}/app#quotes`)
+      await gotoHarness(page, `${origin}/app#quotes`)
       await reloadLeadCards()
       await expect(pipeline).toContainText('No Glove visit booked.')
       await expect(pipeline).toContainText('Acknowledgment queued')
@@ -1363,7 +1371,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
         expect((await h.state()).enquiries.find((e: any) => e.id === emailed.id).acknowledgment).toEqual(emailed.acknowledgment)
         const conversation = await (await h.request(`/api/glove/conversation?customerId=${emailed.customerId}`)).json()
         expect(conversation.entries.find((e: any) => e.id === `email:${message.id}`).delivery).toBe((await h.state()).messageStates[message.id].text)
-        await h.restart()
+        await restartHarness(h)
         await reloadLeadCards()
         await expect(emailedCard).toContainText(outcome === 'delivered' ? 'mail server (reported by Postmark)' : 'Bounced:')
         await expect(emailedCard).toContainText('Glove does not confirm receipt in the Yelp conversation')
@@ -1373,7 +1381,7 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
       const size = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }))
       expect(size.document).toBeLessThanOrEqual(size.viewport)
       for (const slug of ['lead-sources', 'data-flows']) {
-        await page.goto(`${siteOrigin}/docs/${slug}`)
+        await gotoHarness(page, `${siteOrigin}/docs/${slug}`)
         await expect(page.locator('body')).toContainText('Reserve with Google')
         if (slug === 'lead-sources') await expect(page.locator('body')).toContainText('outbound update to Google')
         else await expect(page.getByRole('link', { name: 'formats and live-integration limits' })).toHaveAttribute('href', '/docs/lead-sources')
@@ -1381,6 +1389,6 @@ test('BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google reque
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       }
       expect(errors).toEqual([])
-    } finally { await context.close(); await h.close(); await new Promise<void>(done => site.close(() => done())) }
+    } finally { await closeHarnessContext(context); await h.close(); await new Promise<void>(done => site.close(() => done())) }
   }
 })
