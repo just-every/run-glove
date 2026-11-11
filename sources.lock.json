@@ -208,7 +208,7 @@
       "executable": false
     },
     "docs/agent-door.md": {
-      "sha256": "44c0d337a6868de54a0ef5a57613d8db9f53afaf024e3cc9a900e63b0bb9f2a5",
+      "sha256": "de80202b95cc91c92e8465616708f219c34d61742e67396231d7ffb5117995b0",
       "executable": false
     },
     "docs/agents.md": {
@@ -4832,7 +4832,7 @@
       "executable": false
     },
     "src/routeTree.gen.ts": {
-      "sha256": "8846322d509719de0fb352da6c911e9dcb7eb0c2982576343b401e5ce4b2deab",
+      "sha256": "e62da7f06dcc30b6ac57cc9a4444baa23dc558948ab7ff7c13342ee3908239dc",
       "executable": false
     },
     "src/server.dev.ts": {
@@ -5516,7 +5516,7 @@
       "executable": false
     },
     "tests/agent-native-pause.mjs": {
-      "sha256": "24a0eee15b36ba8438b781e52f1628caebf86c7a9f382c8bcdd0017877f65c65",
+      "sha256": "4d72046eb5d87e84ff1235a0aa189c66e478fad601239f5ac10dd16fe057c373",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {

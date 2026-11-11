@@ -159,6 +159,7 @@ export async function pricebookPause({ request, origin, cookie, tool }) {
           assert.deepEqual(result.repriced, [{ id: markup.id, code: markup.code, unitPrice: '14.50' }])
           assert.deepEqual(after.services.filter(row => row.id !== markup.id), before.services.filter(row => row.id !== markup.id))
         })
+        console.log(`Pause ${label}: read, update, category and adjust refused without native changes; resumed update and category each committed one version and one attributed event; replay added neither.`)
       } finally {
         // Both are person doors, including when a preceding assertion failed.
         try { await set('native', false) } finally { await set('local', false) }
