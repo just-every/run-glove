@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 45 | 176 | 16 | 237 |
+| Core | 46 | 175 | 16 | 237 |
 | Agent surface | 1 | 12 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 46 | 188 | 29 | 263 |
+| Full target | 47 | 187 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -1894,7 +1894,7 @@ Core · target · **partial** · From FIELD-008 · Cites BASE-DATA-003, BASE-ROL
 
 #### COST-001 — Clock-ins and job timers
 
-Core · target · **partial** · Cites BASE-AUDIT-001
+Core · target · **done** · Cites BASE-AUDIT-001
 
 **Requirement.** Technicians clock in and out for the day and run travel and on-job timers per visit, with or without signal; time is attached to the job; the desk sees who is on the clock (the `REPORT-001` dashboard's on-the-clock tile) and corrects time with a reason. The [operating rules](docs/service-work-rules.md#cost-001-operating-rules) retain the record formats and calculations.
 
@@ -1908,7 +1908,7 @@ Core · target · **partial** · Cites BASE-AUDIT-001
 7. The `REPORT-001` on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running.
 
 **Evidence.** `src/glove/commands/time.ts`, `src/ui/clock.tsx`, `src/glove/dashboard.ts`, `src/ui/today.tsx`, `tests/browser/journey.spec.ts`, `tests/api/security.test.mjs`, `src/glove/view.ts`, `src/ui/technician.tsx`
-**Gap.** The audit records 0 separately asserted outcome(s). Complete proof is not located for point 1 — A fixture clocks in, starts travel and job timers on two visits with one offline stretch, clocks out, and checks the time on each job; a desk correction keeps the original; the REPORT-001 on-the-clock tile lists exactly the technicians clocked in at each step.; point 2 — A technician clocks in and out on the phone and, only while clocked in, runs one timer at a time, travel or on the job, on a visit currently assigned to them; starting a timer stops the running one at the same phone time, and clocking out or completing the visit stops it too.; point 3 — Every start and stop carries the phone's clock time and goes through the phone's outbox with the identity it was given, so it works without signal and a resend lands once (GLOVE-06).; point 4 — An entry counts end − start in whole minutes, rounded half up; a job's time is the sum of its entries per kind.; point 5 — The desk (owner, dispatcher, office) corrects a stopped entry's start and end, as local dates and times in the business timezone, with a reason; the entry keeps the phone's original times and every correction (who, when, reason, from and to), and the job's timeline records it.; point 6 — Technicians read only their own entries.; point 7 — The REPORT-001 on-the-clock tile lists the technicians with a shift clocked in and not out, with the timer each is running. See docs/contract/DONE-AUDIT.md for each named outcome.
+**Gap.** None.
 
 #### COST-002 — Timesheets and payroll export
 
