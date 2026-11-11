@@ -49,6 +49,12 @@
       "sha256": "f16ee44eb2e86637a70b7e4f94af23d3feb95b2ae520ab54d3bb54c246977857"
     },
     {
+      "blob": "e330f73d5f614a0422f7da0f03749d7c67843ae4",
+      "bytes": 4734,
+      "path": "evidence-transfer-verification.json",
+      "sha256": "08ea80c539b46ee1fb635eee25ba9626aa0b1dcf2dcbddf1618923bfce2c6609"
+    },
+    {
       "blob": "104788b776ead487d3da399115f9cf651d17f6c7",
       "bytes": 433,
       "path": "failure-scope-receipt.json",
