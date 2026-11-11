@@ -1,6 +1,7 @@
 // DATA-006 points 5-8: tombstones, retirement, withdrawn originals and what peers keep.
 import assert from 'node:assert/strict'
-import { open, csvWorld, servicem8World, servicem8Files, IDS, sha, email, stored, importKitText, originalBytes, preview, erase, exportOf, stageCsv, commit, undo, finish, csvText, csvSubjectValues, batchOf } from './shared-import-world.mjs'
+import { readFile } from 'node:fs/promises'
+import { open, csvWorld, servicem8World, servicem8Files, IDS, sha, email, stored, importKitText, recordsText, originalBytes, preview, erase, exportOf, stageCsv, commit, undo, finish, csvText, csvSubjectValues, batchOf } from './shared-import-world.mjs'
 
 const row = (name, who, street) => [name, email(who), ...(street ? [street] : [])]
 const withdrawn = 'Source and Undo withdrawn for customer privacy'
@@ -104,10 +105,23 @@ export async function point6(t) {
 export async function point7(t) {
   const h = await open(t)
   const w = await csvWorld(h), sm = await servicem8World(h)
+  // A kept CSV batch (customer-only rows, so the kit tombstones them) with a column Glove does not map.
+  const gate = { name: 'Synthetic Alpha Gate', email: email('synthetic-glove-d6-gate'), note: 'Gate code 4321 side door' }
+  const unmapped = await stageCsv(h, 'synthetic-glove-d6-unmapped.csv', csvText([['Name', 'Email', 'Site note'], [gate.name, gate.email, gate.note], ['Synthetic Peer Unmapped', email('synthetic-glove-d6-unmapped'), 'Synthetic peer site note']]), { name: 'Name', email: 'Email' })
+  const unmappedJob = (await commit(h, unmapped)).jobId
+  const gateRecord = (await h.state()).customers.find(c => c.name === gate.name)
+  const survivor = await w.subject()
+  await h.command('customer.merge', { survivorId: survivor.id, mergedIds: [gateRecord.id], versions: { [survivor.id]: survivor.version, [gateRecord.id]: gateRecord.version } })
   const subject = await w.subject()
   const peersJob = w.batches.peers.committed.jobId, secondJob = w.batches.second.committed.jobId, firstJob = w.batches.first.committed.jobId
-  await erase(h, subject, (await preview(h, subject)).fingerprint)
-  await erase(h, sm.people.balmain, (await preview(h, sm.people.balmain)).fingerprint)
+  const subjectPreview = await preview(h, subject)
+  assert.ok(!subjectPreview.retiredBatches.some(b => b.jobId === unmappedJob), 'the unmapped-column batch is tombstoned, not retired')
+  await erase(h, subject, subjectPreview.fingerprint)
+  const smPreview = await preview(h, sm.people.balmain)
+  assert.deepEqual(smPreview.retiredBatches, [], 'the ServiceM8 batch is tombstoned, not retired')
+  await erase(h, sm.people.balmain, smPreview.fingerprint)
+  assert.equal((await batchOf(h, unmapped.id)).status, 'committed', 'the CSV batch keeps its Undo')
+  assert.equal((await batchOf(h, sm.staged.id)).status, 'committed', 'the ServiceM8 batch keeps its Undo')
   // The retired batch holds no original at all.
   assert.deepEqual([(await h.db.prepare('SELECT count(*) AS n FROM ik_originals WHERE job_id=?').bind(firstJob).first()).n, (await h.db.prepare('SELECT count(*) AS n FROM ik_d1_original_chunks WHERE job_id=?').bind(firstJob).first()).n], [0, 0])
   // The withdrawn shared file in a kept batch keeps no chunk and no bytes, only a bytes-free tombstone row under an anonymous name.
@@ -122,9 +136,18 @@ export async function point7(t) {
   // A batch of untouched peers keeps its original whole.
   assert.equal((await originalBytes(h, peersJob, w.files.peers.name, sha(w.files.peers.text))).toString(), w.files.peers.text)
   // No subject value remains in any import-kit table, including blob bytes.
-  const subjectValues = [...csvSubjectValues(), 'Balmain Bakehouse', '88 Darling St', 'PO Box 12', 'Nadia', 'Haddad', ['nadia', 'balmainbakehouse.example'].join('@'), '0412 000 111', 'Coolroom compressor not starting', 'Replaced start capacitor', 'Synthetic subject payment source', 'Synthetic client terms']
+  const subjectValues = [...csvSubjectValues(), 'Balmain Bakehouse', '88 Darling St', 'PO Box 12', 'Nadia', 'Haddad', ['nadia', 'balmainbakehouse.example'].join('@'), '0412 000 111', 'Coolroom compressor not starting', 'Replaced start capacitor', 'Synthetic subject payment source', 'Synthetic client terms', gate.name, gate.email, gate.note]
   const text = await importKitText(h)
   for (const [table, body] of Object.entries(text)) for (const value of subjectValues) assert.ok(!body.includes(value), `${table} holds no ${value}`)
+  // The batch records in glove_records, which rer export carries, keep no uploaded file: no source text and no attachment bytes.
+  const records = await recordsText(h), b64 = value => Buffer.from(value).toString('base64')
+  const photo = b64(await readFile('./tests/fixtures/servicem8-small-hvac/attachment-' + IDS.jobAttachment + '.jpg'))
+  const uploaded = [gate.note, photo.slice(0, 80), photo.slice(-80), b64('Synthetic signoff naming two customers\n'), b64('Synthetic client terms\n')]
+  for (const value of [...subjectValues, ...uploaded]) assert.ok(!records.includes(value), `glove_records holds no ${value.slice(0, 40)}`)
+  for (const batch of [unmapped, sm.staged]) {
+    const row = (await stored(h)).glove_records.find(r => r.kind === 'imports' && r.id === batch.id)
+    assert.ok(row && !('files' in JSON.parse(row.data)), 'a kept batch record holds no uploaded files')
+  }
   assert.ok(text.ik_jobs.includes('Rozelle Physio') || Object.values(text).some(b => b.includes('Rozelle Physio')), 'the peer ServiceM8 custody is still there')
   assert.ok(Object.values(text).some(b => b.includes('Synthetic Peer Three')))
 }
