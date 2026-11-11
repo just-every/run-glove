@@ -208,7 +208,7 @@
       "executable": false
     },
     "docs/agent-door.md": {
-      "sha256": "44c0d337a6868de54a0ef5a57613d8db9f53afaf024e3cc9a900e63b0bb9f2a5",
+      "sha256": "de80202b95cc91c92e8465616708f219c34d61742e67396231d7ffb5117995b0",
       "executable": false
     },
     "docs/agents.md": {
@@ -5508,11 +5508,15 @@
       "executable": false
     },
     "tests/agent-native-journey.mjs": {
-      "sha256": "bcd41f25f3cb45e6334cc7ea353a9d642faad76259adf5cd84e18f270739fe48",
+      "sha256": "06346cc2a55d913b4f2f04628c588790b75bbed430eb71e4df7ecce14372f1e3",
       "executable": false
     },
     "tests/agent-native-parity.mjs": {
       "sha256": "1a9a0dedf6062bc9ced3b9c2d5e8cb515b592e81976e8f6d406ed272dc330c67",
+      "executable": false
+    },
+    "tests/agent-native-pause.mjs": {
+      "sha256": "4d72046eb5d87e84ff1235a0aa189c66e478fad601239f5ac10dd16fe057c373",
       "executable": false
     },
     "tests/api/agreements.test.mjs": {
