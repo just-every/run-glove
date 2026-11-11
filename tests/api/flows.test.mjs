@@ -6,6 +6,7 @@ import { quickbooksBusiness } from '../fixtures/quickbooks-business.mjs'
 import { reminderTemplates } from '../fixtures/collection.mjs'
 import { statementPath, readStatement, refusedStatement, untouched, statementWorld, approvedInvoice, checkoutPayment, statementReaders } from '../fixtures/statement-journey.mjs'
 import { exportedFixture } from '../fixtures/movein.mjs'
+import { unbilledReminderPoints } from '../fixtures/unbilled-reminders.mjs'
 import test, { after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
@@ -1347,6 +1348,7 @@ test('PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 cus
     await x.restart()
     await untouched(x, async () => { assert.deepEqual(await everyRead(), reads, 'every statement is identical after the Worker restarts') })
   })
+  await unbilledReminderPoints(t)
 })
 
 test('AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money', async t => {
