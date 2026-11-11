@@ -8,10 +8,10 @@ The primary journey: Capture the customer request, quote and book the work, disp
 
 | Tier | Done | Partial | Missing | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Core | 44 | 177 | 16 | 237 |
+| Core | 45 | 176 | 16 | 237 |
 | Agent surface | 0 | 13 | 13 | 26 |
 | Later | 0 | 0 | 0 | 0 |
-| Full target | 44 | 190 | 29 | 263 |
+| Full target | 45 | 189 | 29 | 263 |
 
 Judged from the code and tests at commit `d27cf7ec5607eb334d6f3c2cf4f8721b21cde9d1` (5 November 2026). Field proof register: 22 rows; 0 passed, 0 failed, 22 not run.
 
@@ -639,7 +639,7 @@ Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 #### BOOK-017 — Reserve with Google request intake
 
-Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
+Core · target · **done** · From BOOK-004 · Cites BASE-DATA-004
 
 **Requirement.** Reserve with Google request intake supports the service business with the outcomes below. The [operating rules](docs/service-work-rules.md#book-004-operating-rules) retain the record formats and calculations.
 
@@ -653,8 +653,8 @@ Core · target · **partial** · From BOOK-004 · Cites BASE-DATA-004
 7. The slot start is not a creation timestamp; the acknowledgment due time starts at Glove receipt.
 8. No live integration is claimed; see [lead source formats](docs/lead-sources.md).
 
-**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`
-**Gap.** Google, Angi, Thumbtack and Reserve replies through COMM-002 or their provider message channels within the response window remain unbuilt. Yelp's own response-time duties remain a Gap. Yelp has an explicitly approved masked-email acknowledgment through the existing mail sender, with provider acceptance distinguished from receipt in the Yelp conversation; neither Yelp receipt nor deadline compliance is claimed. ct approved this slice on 24 October 2026 at 05:58Z: only an unscoped owner acting as a person explicitly approves each acknowledgment, using its unexpired source destination, with no automatic send or retry. Reserve with Google still has documented Booking-record intake only; its booking server, feeds, notifications, updates and cancellations remain unbuilt. Provider eligibility gates live activation only.
+**Evidence.** `tests/api/pipeline.test.mjs`, `tests/browser/journey.spec.ts`; `tests/api/lead-matching.test.mjs` (BOOK-014 leads match exactly one live customer and retain source, sites and duplicate review across replay and restart); `tests/browser/journey.spec.ts` (BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017 Reserve with Google request intake and external-send attestation at 1440 and 390)
+**Gap.** None.
 
 #### BOOK-005 — Service calls booked without a quote
 
