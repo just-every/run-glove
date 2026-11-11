@@ -22,15 +22,20 @@ All rows refer to `tests/agent-native-class-facts.mjs#pricebookClassFacts`, invo
 | R3 | Point 1: category markup computes affected items | Lines 85–87 enumerate the business record, two markup items and their task, measure 4. Prices become 21.60, 36.00 and 43.20. |
 | R4 | Point 1: category adjustment computes affected items | Lines 88–93 enumerate only the two active fixed-price items, measure 2. Prices become 132.00 and 44.00. Archived, other-category and markup items remain unchanged. |
 | R5 | Point 1: no customer decision or provider effect | Lines 29–48 create and assert a nonempty approved then person-accepted quote, job, saved plan, sold agreement and customer. Lines 50–64 compare every other native collection and provider settings after each call; messages, payments, payouts, financing and push records stay empty; only the named price-book Activity event is added. |
-| R6 | Inherited BASE-AGENT-006: classes come from the native operation, not caller assertions | CONTRACT.md cites BASE-AGENT-006 at the clause. Exact class facts and independently named changed records cover all four declared native tools; the existing injection and policy checks remain in native conformance. |
+| R6 | Inherited BASE-AGENT-006 point 1: possible classes match the surface table | FOUNDATION.log passes BASE-AGENT-006.1 for each declared tool; native price-book classes remain standard. |
+| R7 | Inherited BASE-AGENT-006 point 2: calls cover the declared class and expected facts | R1–R4 plus the unchanged autonomous and held journey checks in FOUNDATION.log. All four native tools have exact standard class facts and independent expected record identities. |
+| R8 | Inherited BASE-AGENT-006 point 3: caller or text claims do not decide classes | Unchanged journey injection probe and the conformance injection checks, including BASE-AGENT-005.5.autonomous.update, pass in FOUNDATION.log. No caller-supplied risk decision was added. |
+| R9 | Inherited BASE-AGENT-006 point 4: family-specific facts | INSPECTED native scope: only standard is declared for these four tools, and its native record count is exercised in R1–R4. External, money, access and destructive families remain unadopted under the existing client-custody hold; no adoption is claimed. |
+| R10 | Inherited BASE-AGENT-006 point 5: no class outside the fleet list | Unchanged declared classes and successful first-party structural check in FOUNDATION.log. |
+| R11 | Inherited BASE-AGENT-006 point 6: refused calls retain computed classes in audit | BASE-AGENT-006.6.audit checks pass for all recorded calls, including the existing blocked and refused paths; BASE-AGENT-009.1 exact call and resource audit counts also pass. |
 
 The focused native run passed 766 of 766 conformance points. The full local foundation shard also passed on the exact committed candidate: `CI=true GLOVE_CI_PREBUILT=1 GLOVE_VERIFY_SHARD=foundation node scripts/verify-ci.mjs foundation` exited 0 and finished `verify: complete (exit 0)`, including structural check, typecheck, runtime and email-link flows, run-site build and links, hosted output, hydration and agent conformance. Its complete actual output is in FOUNDATION.log. Its production browser proof covers Agents once at 1440 and 390. No screen changes were made.
 
 ## DONE-RIDERS on the candidate
 
-1. PASS local: point 1 and inherited class duty are covered by R1–R6. Exact-SHA workflow outcome is recorded in CI files and RECEIPT.json; at 10:14:58 UTC the push run was still in progress.
+1. PASS local: point 1 and inherited class duties are covered by R1–R11. Exact-SHA workflow outcome is recorded in CI files and RECEIPT.json; at 10:19:58 UTC the push run was still in progress. Four REST calls total, including discovery, each separated by at least 300 seconds.
 2. PASS: nonempty mixed-price fixtures, independently enumerated record IDs, literal price outcomes and nonempty accepted customer decisions; lines 16–93. The demonstrated before failure proves the read assertion detects the defect.
-3. Pending workflow: default journey is loaded by the existing hosted foundation Verify path. Exact-SHA run 43000534237 is the push event; conclusion will be recorded in the receipt.
+3. PENDING exact-SHA workflow: default journey is loaded by the existing hosted foundation Verify path. Exact-SHA run 43000534237 is the push event; conclusion will be recorded in the receipt.
 4. PASS: exact candidate local foundation rerun, or byte identity for the focused native proof. No relevant source or test changes after the committed candidate.
 5. PASS INSPECTED: receiving clause already cites BASE-AGENT-006; contract text unchanged.
 6. PASS mechanical: generator write and check exited 0; generated views restored whole from origin main. Status, Gap, Evidence and counts remain lander-owned.
@@ -53,3 +58,7 @@ MECHANICAL lock=node scripts/edition-authoring/cli.mjs lock and check exit=0; vi
 CLAIM SURFACE-019 DONE points=1 tests=tests/agent-native-class-facts.mjs#pricebookClassFacts; tests/agent-native-journey.mjs#default export
 
 The local full foundation proof is green on the candidate. No account, product or policy blocker found. Workflow and landing state are reported separately in RECEIPT.json. Existing broader surface and client-custody holds are unchanged.
+
+## Terminal custody
+
+PUSHED: cloud local proof is complete; the latest permitted REST observation still reports Verify 43000534237 in progress on the exact candidate. No workflow success, publication scan, main equality or hosted deployment acceptance is claimed. The full local foundation shard passed on the candidate. This is a proposed DONE claim for the gate, not a written Status judgment. Exact-SHA workflow completion and guarded fleet landing remain outstanding. CI waiting is bounded by the cloud handoff instruction; no known red assertion or product blocker was observed. All product work was pushed successfully on the first attempt. The complete actual packet is transported only through the separate evidence ref.

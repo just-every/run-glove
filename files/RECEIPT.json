@@ -120,13 +120,15 @@
   "parity_preserved": true,
   "full_history": true,
   "ci": {
-    "observed_unix": 1794392098.0214312,
-    "observed_at": "2026-11-11T10:14:58.021438+00:00",
-    "calls": 3,
+    "observed_unix": 1794392398.6340408,
+    "observed_at": "2026-11-11T10:19:58.634061+00:00",
+    "calls": 4,
     "run_id": 43000534237,
     "conclusion": null,
     "head_sha": "11fd25e0092888ec15c32f309b3ba6ea23be0312",
     "html_url": "https://github.com/just-every/run-glove/actions/runs/43000534237",
     "status": "in_progress"
-  }
+  },
+  "terminal_custody": "PUSHED; exact-SHA Verify still in_progress at latest permitted observation",
+  "ci_monitoring": "One watcher; four REST calls in total including discovery, at least 300 seconds apart. Cloud handoff follows completed local proof; no workflow success is claimed."
 }
