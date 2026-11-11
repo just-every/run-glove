@@ -1,1 +1,13 @@
-{"workflow_runs":[{"conclusion":null,"event":"push","head_sha":"68cdca6afc8f78e628dcaa46f682e78a5842c87a","html_url":"https://github.com/just-every/run-glove/actions/runs/43000933328","id":43000933328,"name":"Verify","status":"in_progress"}]}
+{
+  "workflow_runs": [
+    {
+      "conclusion": null,
+      "event": "push",
+      "head_sha": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/43002022587",
+      "id": 43002022587,
+      "name": "Verify",
+      "status": "in_progress"
+    }
+  ]
+}

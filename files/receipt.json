@@ -3,22 +3,22 @@
   "tag": "sx-glove-c-f259",
   "repository": "just-every/run-glove",
   "branch": "cloud/sx-glove-c-f259",
-  "head": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
-  "base": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "head": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+  "base": "7ed9291267dafdd0ed87eaab829eb7af547269a9",
   "clause": "SURFACE-021",
   "claim": "PARTIAL",
   "qualified_points": [
     1
   ],
   "counts_before": {
-    "done": 46,
-    "partial": 188,
+    "done": 47,
+    "partial": 187,
     "missing": 29,
     "total": 263
   },
   "counts_after": {
-    "done": 46,
-    "partial": 188,
+    "done": 47,
+    "partial": 187,
     "missing": 29,
     "total": 263
   },
@@ -67,15 +67,6 @@
       "exit": 0
     },
     {
-      "command": "node scripts/verify-ci.mjs foundation",
-      "head": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
-      "exit": 0,
-      "agent_conformance": {
-        "passed": 756,
-        "total": 756
-      }
-    },
-    {
       "command": "node tests/inventory.mjs",
       "exit": 0,
       "total": 198,
@@ -84,6 +75,35 @@
     {
       "command": "node scripts/edition-authoring/cli.mjs check (after final foundation)",
       "exit": 0
+    },
+    {
+      "command": "node node_modules/@runeditrun/rer/cli/agent-door.mjs . (final strengthening)",
+      "exit": 0,
+      "agent_conformance": {
+        "passed": 756,
+        "total": 756
+      }
+    },
+    {
+      "command": "node scripts/verify-ci.mjs foundation",
+      "head": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+      "exit": 1,
+      "agent_conformance": {
+        "passed": 756,
+        "total": 756
+      },
+      "verifier_reported_exit": 0,
+      "result": "execution wrapper discrepancy resolved by the following successful exact-command repeat"
+    },
+    {
+      "command": "cloud_run timeout 1200 node scripts/verify-ci.mjs foundation (confirmation)",
+      "head": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+      "exit": 0,
+      "agent_conformance": {
+        "passed": 756,
+        "total": 756
+      },
+      "receipt": "foundation-exit.json"
     }
   ],
   "browser": {
@@ -106,10 +126,17 @@
   },
   "product_push": {
     "exit": 0,
-    "attempt": 1
+    "attempts_per_push": [
+      1,
+      1
+    ],
+    "heads": [
+      "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+      "4094bbf237dd15284cf86f7ae3d5048f6644e944"
+    ]
   },
   "publication_scan": {
-    "commit": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+    "commit": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
     "complete": null,
     "historyScanned": null,
     "findings": null,
@@ -124,22 +151,13 @@
     "No mail tool registered",
     "Client-bearing tools remain closed pending Base client custody, redaction and atomic erasure fence"
   ],
-  "github_calls_used": 4,
+  "github_calls_used": 7,
   "test_inventory": {
     "registrations": 194,
     "assertion_scripts": 4,
     "total": 198,
     "cap": 200,
     "delta": 0
-  },
-  "ci": {
-    "run_id": 43000933328,
-    "head_sha": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
-    "event": "push",
-    "name": "Verify",
-    "status": "in_progress",
-    "conclusion": null,
-    "observed_at": "2026-11-11T10:11:24Z"
   },
   "runtime": {
     "node": "22.20.0",
@@ -149,13 +167,49 @@
   "screenshots": [
     {
       "file": "activity-1440.png",
-      "bytes": 636185,
-      "sha256": "ae46f3f56abf3e8a1e88df723f192b5ddec573fcd8fda0c40f670f740b00e975"
+      "bytes": 632803,
+      "sha256": "6fc7d57a7a89424e0722dba0a1c68cccb43cdb2516fef24e1166dbd9a52f746d",
+      "head": "4094bbf237dd15284cf86f7ae3d5048f6644e944"
     },
     {
       "file": "activity-390.png",
-      "bytes": 563966,
-      "sha256": "9092f4c804306817061998a3b608ea5f3e19bbf1545190029c6179a677450278"
+      "bytes": 560984,
+      "sha256": "06dc6a2afd58396cfc1495d88ed6134dc150d8dd910314644c8f716636e20ed2",
+      "head": "4094bbf237dd15284cf86f7ae3d5048f6644e944"
     }
-  ]
+  ],
+  "initial_base": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "counts_at_initial_checkout": {
+    "done": 46,
+    "partial": 188,
+    "missing": 29,
+    "total": 263
+  },
+  "upstream_count_change": "COST-001 restored to DONE in main during task; target and builder count delta zero",
+  "prior_ci": {
+    "run_id": 43000933328,
+    "head_sha": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+    "event": "push",
+    "name": "Verify",
+    "status": "in_progress",
+    "conclusion": null,
+    "observed_at": "2026-11-11T10:11:24Z"
+  },
+  "prior_ci_status": {
+    "run_id": 43000933328,
+    "status": "unobserved",
+    "error": "invalid character u looking for beginning of value",
+    "HTTP": "unknown"
+  },
+  "ci": {
+    "run_id": 43002022587,
+    "head_sha": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+    "event": "push",
+    "name": "Verify",
+    "status": "in_progress",
+    "conclusion": null,
+    "observed_at": "2026-11-11T10:21:46Z"
+  },
+  "worktree_clean": true,
+  "foundation_transport_note": "First final-head output reports verify complete exit 0 and 756 of 756 conformance points, while its execution session returned 1. The same command was repeated with an explicit captured exit receipt: confirmed exit 0 and all 756 conformance points passed."
 }

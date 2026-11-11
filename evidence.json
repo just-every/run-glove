@@ -7,28 +7,28 @@
       "sha256": "45a0722f5668270de915c5119fa8ba11cc5752c32b7829f9d2b1a4e805f61507"
     },
     {
-      "blob": "91d5265cc21e9976e6bffa0fd9ac09fbb837419a",
-      "bytes": 13347,
+      "blob": "1606f34148d7b6b24acb735d21449e6adbb42be4",
+      "bytes": 15129,
       "path": "REPORT.md",
-      "sha256": "ce81c824e1c086e22a3fc55029cd05ab8bed439133344eb810563ce8ec6ec12d"
+      "sha256": "578654d62b5eb17b74a48cc735b0cb7887b70b810fb4a4450466aed346b93201"
     },
     {
-      "blob": "087f5a47b51d7b9ba62abc8ee372460adb75f35f",
-      "bytes": 636185,
+      "blob": "c75ae7ff386c96e51834fd304206099989a1f9e9",
+      "bytes": 632803,
       "path": "activity-1440.png",
-      "sha256": "ae46f3f56abf3e8a1e88df723f192b5ddec573fcd8fda0c40f670f740b00e975"
+      "sha256": "6fc7d57a7a89424e0722dba0a1c68cccb43cdb2516fef24e1166dbd9a52f746d"
     },
     {
-      "blob": "b9b84454ae13f1c52d1b9cca2f7652941cfdeeba",
-      "bytes": 563966,
+      "blob": "08ade3c8104d6768fc1d9b5cb2842689a044be10",
+      "bytes": 560984,
       "path": "activity-390.png",
-      "sha256": "9092f4c804306817061998a3b608ea5f3e19bbf1545190029c6179a677450278"
+      "sha256": "06dc6a2afd58396cfc1495d88ed6134dc150d8dd910314644c8f716636e20ed2"
     },
     {
-      "blob": "b8867eee759e88dcd703673f4b59deec38a4b02b",
-      "bytes": 30314,
+      "blob": "5c2bbeca36cd15984e49831ff376deca02bd5195",
+      "bytes": 28730,
       "path": "attribution-after.log",
-      "sha256": "4fa6441b5b02d1f4edb288c320601da9b5ce364ae983e3b32811b60ad6da0f2c"
+      "sha256": "fe05af0a42d921c449df85aea2041564b8cd9f11810630eaa25c5c8fd31f0392"
     },
     {
       "blob": "88469eddd329c13257338c4b962c97e9e33cfb30",
@@ -37,16 +37,28 @@
       "sha256": "172eb5a53eec3b9198792f7f07596d30857dfffd15eeedbaf6422e66ddb086d1"
     },
     {
-      "blob": "5fba513d4dd46f6a1aedd13dfa155c8bd6dc8876",
-      "bytes": 243,
+      "blob": "0dd9140facad829672ada7ee6675f6959756faaf",
+      "bytes": 317,
       "path": "ci.json",
-      "sha256": "4a5d6205ec4cc9cbecedd61e1b12712fd2ebec46821d8166b0eef5ac21030745"
+      "sha256": "893ef1dc3e6c0368e2e5ff570a618f1c5838676424ad766b860da92030ae04b7"
     },
     {
-      "blob": "9d05667b57e99f71ff455c7650f0d442f8a94701",
-      "bytes": 124226,
+      "blob": "d8279c9578b2e0bf134e3435ace41aba1de14d9c",
+      "bytes": 147,
+      "path": "foundation-exit.json",
+      "sha256": "f77a7bd9341ba08be37cb64178284841e4e572af6de3bab8d59db0d0d315091d"
+    },
+    {
+      "blob": "5911852bb683dd55198292363aed4d6b4918e33e",
+      "bytes": 119288,
+      "path": "foundation-first-final.log",
+      "sha256": "78e1d7182a93658ed435c43ac83863511792be33b077d662ee6704044e783284"
+    },
+    {
+      "blob": "8be05dd7c161e7507c9a01dc97ccbf1bf0a83c66",
+      "bytes": 117342,
       "path": "foundation.log",
-      "sha256": "452359be097c5d41ad49cd5225967ba0a740303aab9f34775888fa0b01a5cf03"
+      "sha256": "145d7076db820552e25eb7b3af952c2134ab101df1a99f2679613ba1c6d14525"
     },
     {
       "blob": "158aaa16ca861140105790e67bf58c5d97bdd0a8",
@@ -55,16 +67,22 @@
       "sha256": "13ab2aab3b993561f6e18726847508a3b123a335402c5c98f7ed2fd29e6cdd52"
     },
     {
-      "blob": "90e648ab201ec04548d2822fb5da8417394d1ef6",
+      "blob": "debcaeb5a2e3b28e63f067af7cc9d30a5d0fdaf3",
       "bytes": 270732,
       "path": "lock-check.log",
-      "sha256": "c24a239d9467455f114cbc5f008ea0ee890ab913cff0af931fc6e6b5676887f1"
+      "sha256": "641468d62bea86b1b87ba20fda5ac25491ff340217e8967b1a9c06d8a4c844e4"
     },
     {
-      "blob": "5019d9f6cfdf5366a4fd568018a76015b6f459c8",
-      "bytes": 4290,
+      "blob": "41773d596a79b240553123c4bba663d2981dec35",
+      "bytes": 301,
+      "path": "prior-ci-error.json",
+      "sha256": "ccf2a33e99dc0c1fa0004181b02593055d2b8442c3cb13ce24336d129381b6d6"
+    },
+    {
+      "blob": "f4a0ebb372739c9a0b1fd411b4aaa6eaca48b92c",
+      "bytes": 6236,
       "path": "receipt.json",
-      "sha256": "877fa946646304a48b97d674cbf9003fcc16be4f7f4028143bf5a9a7c0489fb5"
+      "sha256": "86fee509eba2fd4332c3a46d1c0aedcb7581d968fe655118c1b39f6b241bc534"
     },
     {
       "blob": "d885d40a36b6eb7ccf281788f2cb79844b8b945f",
@@ -92,7 +110,7 @@
     }
   ],
   "product_branch": "cloud/sx-glove-c-f259",
-  "product_head": "68cdca6afc8f78e628dcaa46f682e78a5842c87a",
+  "product_head": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
   "ref": "refs/heads/evidence/sx-glove-c-f259",
   "repository": "just-every/run-glove",
   "schema": 1,

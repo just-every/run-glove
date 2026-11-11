@@ -1,0 +1,1 @@
+{"run_id":43000933328,"head_sha":"68cdca6afc8f78e628dcaa46f682e78a5842c87a","command":"gh api repos/just-every/run-glove/actions/runs/43000933328 --jq {status,conclusion,head_sha,html_url}","exit":1,"error":"invalid character u looking for beginning of value","HTTP":"unknown, gh supplied no status"}

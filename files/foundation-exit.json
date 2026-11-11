@@ -1,0 +1,5 @@
+{
+  "command": "cloud_run timeout 1200 node scripts/verify-ci.mjs foundation",
+  "head": "4094bbf237dd15284cf86f7ae3d5048f6644e944",
+  "exit": 0
+}
