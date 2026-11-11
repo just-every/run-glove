@@ -10,22 +10,53 @@ const files = {
   portable: ['tests/portable.mjs'],
   browser: readdirSync('tests/browser').filter(file => file.endsWith('.spec.ts')).sort().map(file => `tests/browser/${file}`),
 }
+// Two API files run at once on the hosted runner's four cores; measured at
+// about two thirds of one-at-a-time wall time for the same files.
+const apiConcurrency = 2, apiSpeedup = 0.65
+const portableParts = ['archives', 'journey', 'payments']
+const quote = path => "'" + path.replaceAll("'", "'\\''") + "'"
+
+// Greedy longest-first packing of API files by their measured seconds into the
+// foundation shard (after its own work) and the API shards.
+export function packApi(names, timings, bins) {
+  const known = Object.values(timings.files).sort((a, b) => a - b)
+  const median = known[Math.floor(known.length / 2)] ?? 10
+  const loads = bins.map(name => ({ name, load: name === 'foundation' ? timings.foundationSeconds : 0, files: [] }))
+  for (const file of [...names].sort((a, b) => (timings.files[b.split('/').pop()] ?? median) - (timings.files[a.split('/').pop()] ?? median) || a.localeCompare(b))) {
+    const bin = loads.reduce((least, next) => next.load < least.load ? next : least)
+    bin.load += apiSpeedup * (timings.files[file.split('/').pop()] ?? median)
+    bin.files.push(file)
+  }
+  for (const bin of loads) bin.files.sort()
+  return loads
+}
+
 export async function verificationPlan({ ci = process.env.GLOVE_CI_PARTITION === '1' } = {}) {
   const plan = JSON.parse(await readFile(new URL('../verification.json', import.meta.url), 'utf8'))
   if (!ci) return plan
-  // Keep the maintained command inventory intact. CI only partitions its two
-  // serial collections; each API file and each Playwright test still runs once.
+  const timings = JSON.parse(await readFile(new URL('./verify-timings.json', import.meta.url), 'utf8'))
+  const apiCommand = 'node --test --test-concurrency=1 tests/api/*.test.mjs'
+  const apiBins = packApi(files.api, timings, ['foundation', 'api-1', 'api-2'])
+  const apiRun = bin => {
+    if (!bin.files.length) throw Error('Empty API partition')
+    return `node --test --test-concurrency=${apiConcurrency} ${bin.files.map(quote).join(' ')}`
+  }
+  // Keep the maintained command inventory intact. CI only partitions its
+  // serial collections; each API file, portable part and Playwright test
+  // still runs exactly once.
   const push = plan.push.flatMap(shard => {
-    const count = shard.name === 'api' ? 2 : shard.name === 'browser' ? 4 : 1
+    if (shard.name === 'api') return apiBins.filter(bin => bin.name !== 'foundation').map(bin => ({
+      ...shard, name: bin.name, commands: shard.commands.map(command => command === apiCommand ? apiRun(bin) : command),
+    }))
+    if (shard.name === 'foundation') return [{ ...shard, commands: [...shard.commands, apiRun(apiBins[0])] }]
+    if (shard.name === 'portable') return [{ ...shard, commands: shard.commands.map(command => command === 'node tests/portable.mjs'
+      // The three parts own separate scratch folders, recorders and ports.
+      ? `node scripts/verify-parallel.mjs ${portableParts.map(part => quote(`GLOVE_PORTABLE_PART=${part} node tests/portable.mjs`)).join(' ')}` : command) }]
+    const count = shard.name === 'browser' ? 4 : 1
     return Array.from({ length: count }, (_, index) => ({
       ...shard,
       name: count === 1 ? shard.name : `${shard.name}-${index + 1}`,
       commands: shard.commands.map(command => {
-        if (command === 'node --test --test-concurrency=1 tests/api/*.test.mjs') {
-          const selected = files.api.filter((_, file) => file % count === index)
-          if (!selected.length) throw Error('Empty API partition')
-          return `node --test --test-concurrency=1 ${selected.map(path => "'" + path.replaceAll("'", "'\\''") + "'").join(' ')}`
-        }
         if (command === 'node tests/browser/run.mjs') {
           // Keep the original ordered journey file intact. Routing also uses
           // its installation's business timezone before forwarding to its own
@@ -37,7 +68,7 @@ export async function verificationPlan({ ci = process.env.GLOVE_CI_PARTITION ===
             return dependency % count === index
           })
           if (!selected.length) throw Error('Empty browser partition')
-          return `node --import ./scripts/verify-progress.mjs tests/browser/run.mjs ${selected.map(path => "'" + path.replaceAll("'", "'\\''") + "'").join(' ')}`
+          return `node --import ./scripts/verify-progress.mjs tests/browser/run.mjs ${selected.map(quote).join(' ')}`
         }
         return command
       }),

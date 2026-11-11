@@ -5,6 +5,8 @@ import { readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import { installation, fixedMonthlyReports, assertTrail } from './harness.mjs'
 import { scenario } from '../fixtures/scenario.mjs'
+import * as billing from '../fixtures/recurring-billing-steps.mjs'
+import * as captures from '../fixtures/recurring-billing-captures.mjs'
 
 // Parse quoted cells and records so each downloaded row is checked, including
 // service descriptions and customer names containing commas.
@@ -246,4 +248,22 @@ test('PLAN-013 fixed-monthly dates survive approval boundaries, aging, exports a
     assert.equal(h.outbound.attempts, calls)
     assert.deepEqual(terminal.payments, [])
   })
+
+  await scenario(t, 'PLAN-005 point 1: three months give exactly three per-visit drafts, three $240.00 month-end drafts and one on-close draft', billing.schedules)
+
+  await scenario(t, 'PLAN-005 point 2: only a signed-in Owner sets a rule at creation, at a dated change and through series billing', billing.ownerRules)
+
+  await scenario(t, 'PLAN-005 point 3: numbered revisions apply from today or later, refuse past dates and keep earlier drafts', billing.revisions)
+
+  await scenario(t, 'PLAN-005 point 4: each mode produces exactly its own schedule and as-needed raises only a month-end reminder', billing.modes)
+
+  await scenario(t, 'PLAN-005 point 5: fixed drafts keep the rule lines and per-visit drafts carry only their own visit captures and expenses', captures.contents)
+
+  await scenario(t, 'PLAN-005 point 6: skipped, cancelled and paused work bills nothing while months without a visit still bill', captures.nothingBills)
+
+  await scenario(t, 'PLAN-005 point 7: replay, repeated cron, two racing isolates and a Worker restart never duplicate a key', captures.neverTwice)
+
+  await scenario(t, 'PLAN-005 point 8: a capture claimed by one invoice is never billed again after a forward rule change', captures.claimedOnce)
+
+  await scenario(t, 'PLAN-005 point 8: an explicit progress stage claims no unbilled material, so enabling per-visit billing afterwards still bills the $21.00 of filters once', captures.progressStageClaimsNothing)
 })

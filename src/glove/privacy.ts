@@ -52,7 +52,7 @@ export const privacy: Handler = async (c, type, p, db) => {
   const payoutCustody = (value: unknown) => { const body = typeof value === 'string' ? value : JSON.stringify(value); return !!body && [...payoutIds].some(id => body.includes(id)) }
   const allEvents = (await db.prepare('SELECT * FROM glove_events ORDER BY sequence').all<Row>()).results
   const events = allEvents.filter(scope.matches), erasedEvents = allEvents.filter(e => scope.matches(e) || payoutCustody(e))
-  const erasedCommands = (await db.prepare('SELECT id,result FROM glove_commands').all<Row>()).results.filter(r => scope.matches(r.result) || payoutCustody(r.result))
+  const erasedCommands = (await db.prepare('SELECT id,result FROM glove_commands').all<Row>()).results.filter(r => scope.matches(r.result) || payoutCustody(r.result) || scope.mentionsPersonal(r.id))
   const importedPeers = new Set((await db.prepare('SELECT id FROM glove_records WHERE revision IS NOT NULL').all<{id: string}>()).results.map(r => r.id))
   const preview = await erasurePreview(db, c.s, scope, type === 'privacy.preview' ? c.s.version + 1 : c.s.version)
   if (payoutIds.size) { preview.counts.payouts = payoutIds.size; preview.counts.glove_events = erasedEvents.length; preview.counts.glove_commands = erasedCommands.length }
@@ -148,9 +148,11 @@ export const privacy: Handler = async (c, type, p, db) => {
       }
     }
     c.sql.push(sql('INSERT INTO glove_privacy_guard(id) VALUES(1)'))
-    const anonymousId = (value: string) => [...scope.personal].some(p => value.includes(p)) ? `privacy-${newId()}` : value
+    // One random identity per rewritten value, so an event, its command outcome and their peers stay related.
+    const renamed = new Map<string, string>()
+    const anonymousId = (value: string) => !scope.mentionsPersonal(value) ? value : renamed.get(value) ?? (renamed.set(value, `privacy-${newId()}`), renamed.get(value)!)
     for (const e of erasedEvents) c.sql.push(sql("UPDATE glove_events SET id=?,command_id=?,summary='Customer personal data erased',data='{}',actor_name=CASE WHEN actor_role IN ('customer','quote-link') THEN 'Customer' ELSE actor_name END WHERE id=?", anonymousId(e.id), anonymousId(e.command_id), e.id))
-    for (const row of erasedCommands) c.sql.push(sql('UPDATE glove_commands SET result=? WHERE id=?', JSON.stringify({ ok: false, error: { code: 'ERASED', message: 'This earlier outcome was erased for customer privacy.' } }), row.id))
+    for (const row of erasedCommands) c.sql.push(sql('UPDATE glove_commands SET id=?,result=? WHERE id=?', anonymousId(row.id), JSON.stringify({ ok: false, error: { code: 'ERASED', message: 'This earlier outcome was erased for customer privacy.' } }), row.id))
     c.sql.push(sql('DELETE FROM glove_quote_signed_chunks WHERE quote_id IN (SELECT value FROM json_each(?))', JSON.stringify([...scope.records.quotes.map(q => q.id), ...preview.sharedSignedCopies.map(q => q.quoteId)])))
     for (const f of files) c.sql.push(sql('DELETE FROM glove_files WHERE id=?', f.id))
     for (const f of certificates) c.sql.push(sql('DELETE FROM glove_tax_certificate_chunks WHERE file_id=?', f.id), sql('DELETE FROM glove_tax_certificates WHERE id=?', f.id))
