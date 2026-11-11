@@ -1,0 +1,1 @@
+{"conclusion":null,"event":"push","head_branch":"cloud/sx-glove-c-f255-pc1","head_sha":"f0937b4f1bf4a1bafc48de2a2b44a2d859375766","html_url":"https://github.com/just-every/run-glove/actions/runs/42989731892","id":42989731892,"name":"Verify","status":"in_progress"}

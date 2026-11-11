@@ -1,0 +1,52 @@
+{
+  "commands": [
+    {
+      "command": "node scripts/contract-docs.mjs write --clauses PAY-010 PAY-012",
+      "exit": 0,
+      "result": "Wrote 0 contract documents."
+    },
+    {
+      "command": "node scripts/contract-docs.mjs check",
+      "exit": 0,
+      "result": "Contract documents are current."
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs lock",
+      "exit": 0
+    },
+    {
+      "command": "node scripts/edition-authoring/cli.mjs check",
+      "exit": 0,
+      "ok": true
+    },
+    {
+      "command": "pnpm typecheck",
+      "exit": 0
+    },
+    {
+      "command": "cloud_run node --test --test-concurrency=1 tests/api/flows.test.mjs",
+      "exit": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "duration_ms": 76296.574408
+    }
+  ],
+  "sources_lock_sha256": "c01c3b61685ebe8d2a0932dee747638763a6e8c51a628450433b8ffe459b7696",
+  "locked_file_count": 1620,
+  "setup": {
+    "command": "cloud_run npx -y @runeditrun/rer setup --owner-email fleet@runeditrun.com --non-interactive",
+    "exit": 0,
+    "build": true,
+    "migrations": true,
+    "private_log_retained_outside_packet": true
+  },
+  "toolchain": {
+    "direct_node": "v24.19.0",
+    "pnpm": "10.12.4",
+    "rer_selected_node": "22.20.0"
+  },
+  "route_tree_setup_whitespace_restored": true,
+  "local_browser_portable_suites": "not run as explicitly instructed; exact-SHA CI provides those checks"
+}

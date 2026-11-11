@@ -1,0 +1,13 @@
+{
+  "head": "f0937b4f1bf4a1bafc48de2a2b44a2d859375766",
+  "unchanged_from_merged_main": {
+    "tests/browser/arrival-windows.spec.ts": true,
+    "tests/browser/harness-route.ts": true,
+    "scripts/verify-ci.mjs": true,
+    ".github/workflows/verify.yml": true
+  },
+  "main_failure_not_independently_queried": true,
+  "local_browser_rerun_not_performed_per_brief": true,
+  "tests_weakened": false,
+  "ci_rerun_not_requested": true
+}

@@ -1,0 +1,29 @@
+{
+  "product_head": "f0937b4f1bf4a1bafc48de2a2b44a2d859375766",
+  "main_documents": {
+    "CONTRACT.md": {
+      "identical_to_main": true,
+      "sha256": "9357c4decea4780a3b94beef21dc3d1380a97e941f2dcffbb9a6200949c42ee6"
+    },
+    "ACCEPTANCE.md": {
+      "identical_to_main": true,
+      "sha256": "e008a266bc847e37c4ec9abb47e228972a72a0dc6104f2cedf708b6cd1fef03a"
+    },
+    "docs/CLAIMS.md": {
+      "identical_to_main": true,
+      "sha256": "a2b19b3a1c652610dd52ead726373a2439c9412320d4e99b62ab65e31bb4009e"
+    },
+    "docs/contract/ID-MAP.json": {
+      "identical_to_main": true,
+      "sha256": "9d1149cffa862c30a2094bd25b08a4cf97b1d74fd529c03ea6644f1b8fe5d7cc"
+    }
+  },
+  "source_lock_sha256": "c01c3b61685ebe8d2a0932dee747638763a6e8c51a628450433b8ffe459b7696",
+  "worktree_clean": true,
+  "product_delta_paths": [
+    "sources.lock.json",
+    "tests/api/flows.test.mjs",
+    "tests/fixtures/statement-journey.mjs"
+  ],
+  "product_delta_stat": "sources.lock.json                    |   6 +-\n tests/api/flows.test.mjs             | 222 +++++++++++++++++++++++++++++++++++\n tests/fixtures/statement-journey.mjs | 118 +++++++++++++++++++\n 3 files changed, 345 insertions(+), 1 deletion(-)"
+}

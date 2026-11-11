@@ -1,0 +1,185 @@
+{
+  "conclusion": "failure",
+  "event": "push",
+  "head_branch": "cloud/sx-glove-c-f255-pc1",
+  "head_sha": "f0937b4f1bf4a1bafc48de2a2b44a2d859375766",
+  "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892",
+  "id": 42989731892,
+  "name": "Verify",
+  "status": "completed",
+  "jobs": [
+    {
+      "completed_at": "2026-11-11T08:46:58Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419371830",
+      "id": 130419371830,
+      "name": "plan",
+      "started_at": "2026-11-11T08:46:50Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:47:25Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419453539",
+      "id": 130419453539,
+      "name": "build",
+      "started_at": "2026-11-11T08:47:00Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:46:59Z",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419455652",
+      "id": 130419455652,
+      "name": "light",
+      "started_at": "2026-11-11T08:46:59Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:55:18Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419642966",
+      "id": 130419642966,
+      "name": "shards (browser-2)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:48:48Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419642989",
+      "id": 130419642989,
+      "name": "shards (foundation)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:04:26Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419643003",
+      "id": 130419643003,
+      "name": "shards (api-1)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:04:44Z",
+      "conclusion": "cancelled",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419643016",
+      "id": 130419643016,
+      "name": "shards (api-2)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:53:50Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419643017",
+      "id": 130419643017,
+      "name": "shards (browser-4)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:58:43Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419643030",
+      "id": 130419643030,
+      "name": "shards (portable)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T08:56:40Z",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419643032",
+      "id": 130419643032,
+      "name": "shards (browser-1)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Run this shard",
+          "number": 16
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-11T08:55:37Z",
+      "conclusion": "success",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130419643219",
+      "id": 130419643219,
+      "name": "shards (browser-3)",
+      "started_at": "2026-11-11T08:47:27Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:04:49Z",
+      "conclusion": "failure",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130427289958",
+      "id": 130427289958,
+      "name": "verify",
+      "started_at": "2026-11-11T09:04:46Z",
+      "status": "completed",
+      "steps": [
+        {
+          "conclusion": "failure",
+          "name": "Require the selected coverage and its proof",
+          "number": 2
+        }
+      ]
+    },
+    {
+      "completed_at": "2026-11-11T09:04:44Z",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130427290686",
+      "id": 130427290686,
+      "name": "full-push-proof",
+      "started_at": "2026-11-11T09:04:45Z",
+      "status": "completed",
+      "steps": []
+    },
+    {
+      "completed_at": "2026-11-11T09:04:44Z",
+      "conclusion": "skipped",
+      "html_url": "https://github.com/just-every/run-glove/actions/runs/42989731892/job/130427291539",
+      "id": 130427291539,
+      "name": "nightly-proof",
+      "started_at": "2026-11-11T09:04:45Z",
+      "status": "completed",
+      "steps": []
+    }
+  ],
+  "ready": false,
+  "contract_view_only_exception": false,
+  "blockers": [
+    {
+      "job": 130419643032,
+      "name": "shards (browser-1)",
+      "test": "tests/browser/arrival-windows.spec.ts:10:1",
+      "reason": "240000ms test timeout; browserContext.close error at tests/browser/harness-route.ts:80"
+    },
+    {
+      "job": 130419643016,
+      "name": "shards (api-2)",
+      "reason": "cancelled after 17m17s; --log-failed returned no lines; workflow job timeout is 17 minutes"
+    },
+    {
+      "job": 130427289958,
+      "name": "verify",
+      "reason": "aggregate failed because required selected coverage did not succeed"
+    }
+  ],
+  "github_calls_used": 9
+}

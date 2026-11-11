@@ -1,0 +1,66 @@
+{
+  "base_candidate": "bca70d3c98a6ae2f9cd31847e337afe8ec0cb0c2",
+  "merged_main": "14d10155020b230c5cba59aa9f78be5185b7e0fa",
+  "parent_lines_preserved": true,
+  "flow_registration_counts": {
+    "bca70d3c98a6ae2f9cd31847e337afe8ec0cb0c2": {
+      "nonblank_lines": 1461,
+      "test_registrations": 9,
+      "scenario_calls": 17
+    },
+    "14d10155020b230c5cba59aa9f78be5185b7e0fa": {
+      "nonblank_lines": 1242,
+      "test_registrations": 9,
+      "scenario_calls": 11
+    },
+    "merged": {
+      "test_registrations": 9,
+      "scenario_calls": 17
+    }
+  },
+  "main_files_identical": {
+    "CONTRACT.md": true,
+    "ACCEPTANCE.md": true,
+    "docs/CLAIMS.md": true,
+    "docs/contract/ID-MAP.json": true
+  },
+  "migration_collision": false,
+  "main_shard_replan_present": false,
+  "clauses": {
+    "bca70d3c98a6ae2f9cd31847e337afe8ec0cb0c2": {
+      "counts": [
+        "| Core | 43 | 178 | 16 | 237 |",
+        "| Agent surface | 0 | 13 | 13 | 26 |",
+        "| Later | 0 | 0 | 0 | 0 |",
+        "| Full target | 43 | 191 | 29 | 263 |"
+      ],
+      "PAY-010_row": "| `PAY-010` | Customer statements | target | partial | `src/glove/statements.ts`, `src/glove/unbilled-reminders.ts`, `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`, `tests/api/email.test.mjs`, `tests/browser/invoice-batch.spec.ts` | External invoice delivery on reconnect remains unbuilt; its preparatory reconnect action creates a draft only. Customer-facing payment links remain engineering work under PAY-002 and RL-106. Progress invoices use explicitly priced stages within the frozen accepted gross cap; changed scope requires reviewed reconciliation before later stages. RL-105 resolves the separate field grant and offline approved-invoice custody policy hold. |"
+    },
+    "14d10155020b230c5cba59aa9f78be5185b7e0fa": {
+      "counts": [
+        "| Core | 45 | 176 | 16 | 237 |",
+        "| Agent surface | 0 | 13 | 13 | 26 |",
+        "| Later | 0 | 0 | 0 | 0 |",
+        "| Full target | 45 | 189 | 29 | 263 |"
+      ],
+      "PAY-010_row": "| `PAY-010` | Customer statements | target | partial | `src/glove/statements.ts`, `src/glove/unbilled-reminders.ts`, `src/glove/commands/invoices.ts`, `tests/api/flows.test.mjs`, `tests/api/email.test.mjs`, `tests/browser/invoice-batch.spec.ts` | External invoice delivery on reconnect remains unbuilt; its preparatory reconnect action creates a draft only. Customer-facing payment links remain engineering work under PAY-002 and RL-106. Progress invoices use explicitly priced stages within the frozen accepted gross cap; changed scope requires reviewed reconciliation before later stages. RL-105 resolves the separate field grant and offline approved-invoice custody policy hold. |"
+    }
+  },
+  "candidate_delta_paths": [
+    "sources.lock.json",
+    "tests/api/flows.test.mjs",
+    "tests/fixtures/statement-journey.mjs"
+  ],
+  "inherited_clause_status_changes": [
+    {
+      "clause": "BOOK-017",
+      "before": "partial",
+      "after": "done"
+    },
+    {
+      "clause": "QUOTE-002",
+      "before": "partial",
+      "after": "done"
+    }
+  ]
+}

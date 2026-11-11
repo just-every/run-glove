@@ -1,0 +1,59 @@
+[
+  {
+    "call": 7,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42989731892",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "130419643032",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "returned_bytes": 18862,
+    "returned_sha256": "141ee24bcffe5ddb08cdbc06be181690e9bfe0047c45248bcea737a161deca69",
+    "public_excerpt": "browser-1-failure.log",
+    "note": "Complete archive command output retained outside the public packet because workflow step headers contain environment dumps."
+  },
+  {
+    "call": 8,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42989731892",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "130419643016",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "returned_bytes": 0,
+    "returned_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "public_excerpt": null,
+    "note": "Command succeeded but returned no failed-step log for the cancelled job."
+  },
+  {
+    "call": 9,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42989731892",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "130427289958",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "returned_bytes": 2778,
+    "returned_sha256": "0af6fc02012442bcf50f1ad04c45b53338cb26f40db644250fb9e23451c0e0e2",
+    "public_excerpt": "aggregate-failure.log",
+    "note": "Complete archive command output retained outside the public packet because workflow step headers contain environment dumps."
+  }
+]

@@ -1,0 +1,45 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+▶ API-001 Glove first release: quote to booked visit to field evidence to invoice export
+  ✔ 03 an enquiry becomes a quote whose exact revision a person prices and approves (2520.121966ms)
+  ℹ 01 owner sets up the business, price book, team and roles
+  ℹ 02 desk records a customer and the sites where work happens
+  ℹ 03 an enquiry becomes a quote whose exact revision a person prices and approves
+  ✔ 04 recorded sends and customer answers retain exact provenance and freeze accepted revisions (2551.801839ms)
+  ✔ 09 office prepares the invoice, approves it, exports it once and corrects it with a trail (10844.506787ms)
+  ℹ 05 the accepted quote becomes a job and a visit booked for a technician in the business timezone
+  ℹ 06 the technician captures checklist, notes, photos and materials through a connectivity interruption
+  ℹ 07 a dispatch change needs conflict review and keeps late evidence for review
+  ℹ 08 completion needs arrival, the required checklist and the customer sign-off or why it is missing
+  ℹ 09 office prepares the invoice, approves it, exports it once and corrects it with a trail
+  ℹ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 selected completed jobs prepare independent invoice drafts with replay, refusals and branch isolation
+  ℹ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 named progress drafts preserve the contract cap, exact final remainder, tax, approval and correction trail
+  ✔ 10 an agent prepares quotes, dispatch and invoices; a person approves each and the approval is recorded (1902.154645ms)
+  ℹ GLOVE-10 point 1: an agent-prepared invoice is decided by named people and the record keeps preparation and decision apart
+  ✔ 11 owner moves in from ServiceM8 with a dry run, a journaled commit and undo (487.126795ms)
+  ✔ 12 the job timeline names every step and person, and the business export carries it (132.126844ms)
+✔ API-001 Glove first release: quote to booked visit to field evidence to invoice export (18449.688855ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 owner-granted technician draft requests replay once and expose only approved invoices under current assignment and permission (2668.951423ms)
+✔ PAY-001, PAY-010, PAY-011, PAY-012, PAY-013, PAY-014, PAY-015, PAY-016 customer statements retain approved dated balances, confirmed payments, credits and corrections without cross-customer or branch disclosure (46157.682693ms)
+ℹ PAY-010 point 1: every role and token holding report authority reads the same dated JSON and CSV statement, each CSV column parsing to its JSON row
+ℹ PAY-010 point 2: approved revisions, moved-in opening balances and confirmed Office and Checkout payments are dated in each branch’s local day, one total per currency
+ℹ PAY-010 point 2: only USD can be created in a USD installation and only AUD in an AUD one; each installation has exactly one currency total
+ℹ PAY-010 point 3: an unapproved correction, pending, failed and returned bank or card payments, an owner-set tip and Stripe fees reduce no balance
+ℹ PAY-010 point 4: an overpayment’s credit stays on its invoice until an Owner or Office allocation moves exactly the allocated cents to another invoice of the same customer
+ℹ PAY-010 point 6: roles and tokens without report authority, signed-out readers and other branches are refused, and an erased customer leaves no value on any statement
+ℹ PAY-010 point 7: statement reads issue no credential, Checkout, link, message, invoice or state change, and are identical after an actual Worker restart
+ℹ PAY-012 point 1: UTC and Chicago jobs get nothing at 07:59 local, one on the first pass at or after 08:00 even across a UTC date change, nothing more that local date or after restart, and one more the next local date
+ℹ PAY-012 point 1: a draft-only job stays reminded each day, an approved or exported job never is, and each reminder is one internal Activity fact linked to its job, readable and exported only for that job's branch
+ℹ PAY-012 point 1: an invoice approval committed between a pass's state load and its insert stops that job's reminder on that and every later pass
+ℹ PAY-012 point 1: Owner privacy erasure, committed between a pass's load and insert or before a later pass, stops that job's reminder on that and every later pass
+ℹ PAY-012 point 2: with mail, reminders, payments and consent connected, passes send no customer or office email, push, text, provider request, message row or invoice
+✔ AGENT-004, AGENT-011, AGENT-012, AGENT-013 prepares unbilled work, chases only approved reminder steps and proposes reconciliation without posting or moving money (3720.530952ms)
+ℹ tests 9
+ℹ suites 1
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 76296.574408

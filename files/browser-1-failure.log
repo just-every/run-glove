@@ -1,0 +1,26 @@
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4559272Z   1) tests/browser/arrival-windows.spec.ts:10:1 › Arrival promises survive desk booking and reload and appear on the assigned technician phone 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4559903Z 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4560029Z     Test timeout of 240000ms exceeded.
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4560202Z 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4560431Z     Error: browserContext.close: Target page, context or browser has been closed
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4560688Z 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4560784Z        at harness-route.ts:80
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4560916Z 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4561132Z       78 |     const failure = results.find(result => result.status === 'rejected')
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4561734Z       79 |     if (failure?.status === 'rejected') throw failure.reason
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4562426Z     > 80 |   } finally { await context.close() }
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4562765Z          |               ^
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4562960Z       81 | }
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4563199Z       82 |
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4563677Z       83 | // New reads wait on the same route while the actual Worker restarts. Existing
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4564356Z         at closeHarnessContext ([REDACTED]/tests/browser/harness-route.ts:80:15)
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4564827Z         at [REDACTED]/tests/browser/arrival-windows.spec.ts:147:15
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4565044Z 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4565506Z     Error Context: ../../../../../tmp/glove-browser-evidence/results/journeys/arrival-windows-Arrival-pr-0b954-e-assigned-technician-phone/error-context.md
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4565955Z 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4566032Z   1 failed
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4566634Z     tests/browser/arrival-windows.spec.ts:10:1 › Arrival promises survive desk booking and reload and appear on the assigned technician phone 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4567104Z   13 passed (7.8m)
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.4567218Z 
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.5270258Z  ELIFECYCLE  Command failed with exit code 1.
+shards (browser-1)	Run this shard	2026-11-11T08:56:38.5476855Z ##[error]Process completed with exit code 1.

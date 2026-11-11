@@ -1,0 +1,131 @@
+[
+  {
+    "call": 1,
+    "time": 1794386810.2078803,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=f0937b4&per_page=100",
+      "--jq",
+      ".workflow_runs[] | {id,name,status,conclusion,head_sha,html_url}"
+    ],
+    "exit": 0,
+    "run_observation": true
+  },
+  {
+    "call": 2,
+    "time": 1794387111.2526858,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs?head_sha=f0937b4f1bf4a1bafc48de2a2b44a2d859375766&per_page=100",
+      "--jq",
+      "[.workflow_runs[] | {id,name,status,conclusion,head_sha,html_url,event,head_branch}]"
+    ],
+    "exit": 0,
+    "run_observation": true
+  },
+  {
+    "call": 3,
+    "time": 1794387412.3030193,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42989731892",
+      "--jq",
+      "{id,name,status,conclusion,head_sha,html_url,event,head_branch}"
+    ],
+    "exit": 0,
+    "run_observation": true
+  },
+  {
+    "call": 4,
+    "time": 1794387713.3570175,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42989731892",
+      "--jq",
+      "{id,name,status,conclusion,head_sha,html_url,event,head_branch}"
+    ],
+    "exit": 0,
+    "run_observation": true
+  },
+  {
+    "call": 5,
+    "time": 1794388014.412927,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42989731892",
+      "--jq",
+      "{id,name,status,conclusion,head_sha,html_url,event,head_branch}"
+    ],
+    "exit": 0,
+    "run_observation": true
+  },
+  {
+    "call": 6,
+    "time": 1794388019.7481058,
+    "command": [
+      "gh",
+      "api",
+      "repos/just-every/run-glove/actions/runs/42989731892/jobs?per_page=100",
+      "--jq",
+      "[.jobs[] | {id,name,status,conclusion,started_at,completed_at,html_url,steps:[.steps[]|select(.conclusion == \"failure\")|{name,number,conclusion}]}]"
+    ],
+    "exit": 0,
+    "run_observation": false
+  },
+  {
+    "call": 7,
+    "time": 1794388037.6395285,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42989731892",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "130419643032",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "run_observation": false
+  },
+  {
+    "call": 8,
+    "time": 1794388045.4220674,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42989731892",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "130419643016",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "run_observation": false
+  },
+  {
+    "call": 9,
+    "time": 1794388060.9482548,
+    "command": [
+      "gh",
+      "run",
+      "view",
+      "42989731892",
+      "--repo",
+      "just-every/run-glove",
+      "--job",
+      "130427289958",
+      "--log-failed"
+    ],
+    "exit": 0,
+    "run_observation": false
+  }
+]

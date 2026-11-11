@@ -1,0 +1,23 @@
+{
+  "repository": "just-every/run-glove",
+  "branch": "cloud/sx-glove-c-f255-pc1",
+  "head": "f0937b4f1bf4a1bafc48de2a2b44a2d859375766",
+  "parents": [
+    "bca70d3c98a6ae2f9cd31847e337afe8ec0cb0c2",
+    "14d10155020b230c5cba59aa9f78be5185b7e0fa"
+  ],
+  "merged_main": "14d10155020b230c5cba59aa9f78be5185b7e0fa",
+  "push_success": true,
+  "push_attempts": 1,
+  "product_delta_files": [
+    "sources.lock.json",
+    "tests/api/flows.test.mjs",
+    "tests/fixtures/statement-journey.mjs"
+  ],
+  "product_status_clean": true,
+  "product_ref": "refs/heads/cloud/sx-glove-c-f255-pc1",
+  "default_branch_pushed": false,
+  "PR": null,
+  "claims_changed": false,
+  "publication_scan": "Fleet Mac publication scan is not available in cloud; identity and trailer audit passed for every candidate commit, including side parents."
+}
