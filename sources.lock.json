@@ -5500,7 +5500,7 @@
       "executable": false
     },
     "tests/agent-native-attribution.mjs": {
-      "sha256": "e50046b4a88295cba7518697373a07c56d5be7b583f53108f3f5d170563d24f1",
+      "sha256": "82b9dc723f85690d46c81cd600b339e37e3294ace203a5c51e6c3354f7037ab9",
       "executable": false
     },
     "tests/agent-native-journey.mjs": {

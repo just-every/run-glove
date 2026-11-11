@@ -97,13 +97,13 @@ export async function afterAttributionStep(context) {
   const { phase, step, args, result } = context
   if (!['autonomous', 'held'].includes(phase) || !kinds[step.tool]) return
   const snapshot = await doors(context)
-  const event = snapshot.events.find(row => row.actorRole === 'agent' && row.kind === kinds[step.tool] && (step.tool === 'glove.pricebook.update' ? row.subjectId === args.id : row.summary.includes(step.tool === 'glove.pricebook.category' ? args.name : args.category)))
+  const event = snapshot.events.find(row => row.kind === kinds[step.tool] && (step.tool === 'glove.pricebook.update' ? row.subjectId === args.id : row.summary.includes(step.tool === 'glove.pricebook.category' ? args.name : args.category)))
   agentEvent(snapshot, event)
   for (const retained of snapshot.events.filter(row => row.actorRole === 'agent' && Object.values(kinds).includes(row.kind))) agentEvent(snapshot, retained)
   if (step.tool === 'glove.pricebook.update') exportedItem(snapshot, args.id, event)
   if (step.tool === 'glove.pricebook.category') {
     assert.deepEqual(snapshot.exported.business, snapshot.state.business)
-    assert.ok(event.recordChanges.some(change => change.kind === 'business' && change.id === 'business'))
+    assert.ok(event.recordChanges.some(change => change.kind === 'business' && change.id === 'business' && change.toVersion === snapshot.exported.business[0].version))
     for (const item of result.repriced) exportedItem(snapshot, item.id, event)
   }
   if (step.tool === 'glove.pricebook.adjust') {
