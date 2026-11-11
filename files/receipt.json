@@ -1,5 +1,6 @@
 {
   "base": "26ff9e2042a685e409e262fe6ceca9b25b70af0c",
+  "blockers": [],
   "branch": "cloud/sx-glove-pricebook-fields-1",
   "checks": [
     {
@@ -73,9 +74,17 @@
     }
   ],
   "ci": {
+    "api_call": 5,
+    "api_calls_total": 5,
+    "conclusion": "success",
+    "exit": 0,
+    "failed_jobs": [],
     "head_sha": "5f69e7993d7412aa396bc8b524bdd2957ca4bcf6",
+    "html_url": "https://github.com/just-every/run-glove/actions/runs/43000536001",
+    "observed_at": "2026-11-11T10:25:03.608511+00:00",
+    "required_workflow": "Verify",
     "run_id": 43000536001,
-    "status": "in_progress",
+    "status": "completed",
     "url": "https://github.com/just-every/run-glove/actions/runs/43000536001"
   },
   "clauses": {
@@ -109,6 +118,8 @@
   "local_browser_runs": 0,
   "local_portable_runs": 0,
   "pr": null,
+  "product_checkout_clean": true,
+  "product_custody": "READY",
   "product_push": {
     "attempts": 1,
     "command": "python3 $HOME/rer-consolidation/.tools/cloud-push.py origin cloud/sx-glove-pricebook-fields-1",

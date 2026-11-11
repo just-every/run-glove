@@ -49,8 +49,16 @@ No clause status, Gap, Evidence or wording changed. SURFACE-015 remains done. It
 Verify push run 43000536001 is for the exact product head above:
 https://github.com/just-every/run-glove/actions/runs/43000536001
 
-The REST discovery and timestamped polls are retained separately. Terminal outcome will be appended after the single watcher finishes. Ten-call GitHub API budget applies; polling is no faster than one call per 300 seconds including discovery. No green result from another commit is accepted.
+Verify completed successfully on the exact candidate SHA at the 10:25:03 UTC observation on 11 November 2026. No timeout or generated-view exception was needed. The single watcher used five total REST calls (one discovery and four polls), spaced at least 300 seconds apart. ci-discovery.json, ci-polls.jsonl and ci-terminal.json retain the actual observations. There were no failed jobs to diagnose.
 
 ## Plan
 
 The complete executed plan is in PLAN.md. No missing ruling or account was needed; the brief's stated field-preservation decision was applied. Product custody and report-only evidence publication remain separate from acceptance or landing.
+
+Publication scans and landing remain with the fleet on its own machine; this cloud task does not substitute for that scan or modify main.
+
+## Terminal handoff
+
+Product is READY on the named branch and exact head above. All local touched checks and exact-SHA Verify passed. There are no blockers. No PR was required or created. The plan and actual report/receipt files are published separately to refs/heads/evidence/sx-glove-pricebook-fields-1. The evidence transfer is not a landing signal.
+
+POST lanes/sx/INBOX.md: sx-glove-pricebook-fields-1 fixes omitted-field data loss through desk and agent price-book saves; clauses unchanged (SURFACE-015 done→done; full target 46 done/188 partial/29 missing); tests 198→198/200; head=5f69e7993d7412aa396bc8b524bdd2957ca4bcf6; Verify run 43000536001 completed/success on that SHA; READY for fleet publication scan and landing.
