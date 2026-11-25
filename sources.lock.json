@@ -543,6 +543,10 @@
       "sha256": "51aa39622d866b987d71b6e37c9a8300e7f24c54a55611edaab669ed051b01cd",
       "executable": false
     },
+    "migrations/core/0059_scheduled_read_indexes.sql": {
+      "sha256": "1553d13902953b846bba7d3d88cfa4b69d0c6b12acd77d0fd42e0d358807c458",
+      "executable": false
+    },
     "ONBOARDING.md": {
       "sha256": "96498a6c2cd54c1c35fa67ea13c1300ca5070e4ee88dec067a36bf23caae40c0",
       "executable": false
@@ -2433,6 +2437,10 @@
     },
     "src/glove/request-photo-policy.ts": {
       "sha256": "736c86880f6ef12f5f78a3a245874f525c8644b5425d2a6bd4483fcca922bf2c",
+      "executable": false
+    },
+    "src/glove/revalidate.ts": {
+      "sha256": "676de7356f12cca563308192038e6b41ad408f9e23a4928a1dcd45ac2329bab3",
       "executable": false
     },
     "src/glove/review-requests.ts": {
@@ -5585,6 +5593,14 @@
     },
     "tests/api/customers.test.mjs": {
       "sha256": "a76e8dfc7db35c2afe9c16d60a69a8ce4857a544c89dd2613a58aef20d2eeb35",
+      "executable": false
+    },
+    "tests/api/d1-meter.ts": {
+      "sha256": "18c05f8ff62d4bec828e68346c255a0f7696407858cb4a20785c5b2fd2f31ec4",
+      "executable": false
+    },
+    "tests/api/d1-read-budget.test.mjs": {
+      "sha256": "7ba6dd052f6d4e3975eefcae942c3b013ac7a4c015959b6256423c6a5bab4cf1",
       "executable": false
     },
     "tests/api/delays.test.mjs": {
