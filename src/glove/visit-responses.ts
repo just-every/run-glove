@@ -1,7 +1,7 @@
 import { sha256 } from '../modules/import-kit/src/d1/index'
 import { allow } from './access'
 import { bump, business, event, expectVersion, fail, find, newId, type Context, type Row } from './model'
-import { address, queueEmail } from './mail'
+import { address, queueEmail, requireOutboundMail } from './mail'
 import type { Handler } from './commands/types'
 
 export const visitReplyHash = (token: string) => sha256(`glove-visit-response:${token}`)
@@ -14,6 +14,7 @@ export const visitResponseCommands: Handler = async (c, type, p) => {
   if (type !== 'visit.replyLink') return undefined
   allow(c.actor, type)
   if (c.actor.role !== 'owner' || c.actor.branch || c.actor.token) fail('FORBIDDEN', 'Only the signed-in unscoped owner sends a visit response link.', null, 403)
+  requireOutboundMail(c)
   const visit = find(c.s, 'visits', p.visitId); expectVersion(visit, p.version)
   if (visit.status !== 'booked' || Date.parse(visit.startAt) <= Date.parse(c.now) || !visit.notice?.key) fail('VISIT_STATE', 'Choose a future booked visit.', null, 409)
   const job = find(c.s, 'jobs', visit.jobId), customer = find(c.s, 'customers', job.customerId)

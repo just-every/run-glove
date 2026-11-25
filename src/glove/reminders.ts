@@ -1,4 +1,5 @@
 import { quoteEmailFooter } from './email-preferences'
+import type { Bindings } from '../auth.server'
 import { queueSms, deliverSms, type Sms } from './sms-channel'
 import { consentReason, smsText } from './sms-shared'
 import { allow, roleSql } from './access'
@@ -132,7 +133,8 @@ function dueReminders(s: State, at: string, policy: Row): Reminder[] {
 
 /** Each cron pass reserves one message at a time under the ordinary version guard.
  * A lost race recomputes next time; a committed uncertain attempt never replays. */
-export async function runReminders(db: D1Database, at: string, origin: string, local = false, invoiceId?: string) {
+export async function runReminders(env: Bindings, at: string, invoiceId?: string) {
+  const db = env.DB, origin = new URL(env.AUTH_ORIGIN).origin, local = env.AUTH_LOCAL === 'true', mailOff = env.MAIL_PROVIDER === 'none'
   for (let count = 0; count < 50; count++) {
     const before = await load(db), policy = before.business[0]?.messageAutomation
     if (!policy?.by?.id) return
@@ -141,7 +143,7 @@ export async function runReminders(db: D1Database, at: string, origin: string, l
     const limit = before.branchAccess.find(b => b.id === id)
     if (!owner || owner.role !== 'owner' || (limit && limit.limited !== false)) return
     const actor: Actor = { id, name: owner.name, role: 'owner', sessionId: '', operatorVersion: owner.version, branchRevision: limit?.version ?? 0, reminderRun: true }
-    const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [], origin, local }
+    const c: Context = { s: structuredClone(before), actor, now: at, commandId: `reminder-${crypto.randomUUID()}`, events: [], files: [], sql: [], origin, local, mailOff }
     if (!invoiceId) stopQuoteCallTasks(c)
     if (c.events.length) {
       try { await commit(db, c, before, 'reminder.stopCallTasks', c.commandId, { stopped: true }) }
@@ -157,7 +159,7 @@ export async function runReminders(db: D1Database, at: string, origin: string, l
       if (!customer || suppressed(customer)) return false
       if (r.channel === 'sms') return !!c.s.business[0]?.sms?.enabled && !consentReason(customer, customer.phone, r.kind, new Date().toISOString())
       if (r.kind === 'quoteFollowup' && r.channel !== 'call' && !c.s.business[0]?.address?.trim()) return false
-      if (r.channel !== 'call' && (!c.s.business[0]?.mail || !consent?.enabled || consent.address !== address || !isAddress(address))) return false
+      if (r.channel !== 'call' && (mailOff || !c.s.business[0]?.mail || !consent?.enabled || consent.address !== address || !isAddress(address))) return false
       const time = localParts(new Date().toISOString(), branchZone(c.s, r.row)).time
       return time >= '08:00' && time < '18:00'
     })

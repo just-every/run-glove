@@ -2,10 +2,8 @@
 
 Glove serves the copied Base door at `/mcp`, `/agents`, the named approval pages,
 `/api/rer/agent-policy` and canonical protected-resource metadata. MCP supports
-2026-07-28 and 2025-11-25. The runtime and CLI are pinned to released rer
-0.2.87 (Base `5381ab872b5ab4de80e811bcb4b1a803dd713e0f`), a descendant
-of the required `f96363bf919ea3e7ed1837daba6894810a50e4a6` pin. Runtime
-provenance is recorded separately in `base-copies.json`. A signed company policy decides whether an admitted
+2026-07-28 and 2025-11-25. The checkout pins rer 0.2.134. The copied Worker
+runtime has its own provenance in `base-copies.json`. A signed company policy decides whether an admitted
 operation proceeds, waits for review or approval, or refuses. A missing policy
 never grants authority. Native sessions retain their Origin and CSRF checks.
 

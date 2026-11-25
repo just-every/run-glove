@@ -1,7 +1,7 @@
 import { allow } from '../access'
 import { callbackAuth, hash, password, snsSettings } from '../mail-callbacks'
 import { sesKey } from '../mail-send'
-import { address, connection, mailProviders, providerName, queueEmail } from '../mail'
+import { address, connection, mailProviders, outboundMailConnection, providerName, queueEmail } from '../mail'
 import { optionsOf } from './quotes'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, text, type Context, type Row } from '../model'
 import type { Handler } from './types'
@@ -85,7 +85,8 @@ export const mail: Handler = async (c, type, p, db) => {
   if (type !== 'email.send') return undefined
   allow(c.actor, type)
   if (c.actor.token) fail('FORBIDDEN', 'A signed-in person sends document email.', null, 403)
-  const b = business(c.s); connection(c.s)
+  outboundMailConnection(c)
+  const b = business(c.s)
   const kind = oneOf(p.kind, ['quote', 'invoice', 'purchaseOrder'] as const, 'kind')
   if (kind === 'quote') {
     allow(c.actor, 'quote.markSent')

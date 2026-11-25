@@ -22,7 +22,7 @@ async function context(env: Bindings, hash: string) {
   const limit = before.branchAccess.find(r => r.id === id)
   const actor = await withRole(env.DB, { id, name: operator!.name, operatorVersion: operator!.version, sessionId: '', branchRevision: limit?.version ?? 0, branch: limit && limit.limited !== false ? { id: limit.branchId, version: limit.version } : undefined, quoteLink: { id: link!.id, version: link!.version, hash } }, operator!.role)
   allow(actor, 'quote.link'); allow(actor, 'quote.markSent')
-  const c: Context = { s: structuredClone(before), actor, commandId: crypto.randomUUID(), now, events: [], files: [], sql: [] }
+  const c: Context = { s: structuredClone(before), actor, commandId: crypto.randomUUID(), now, events: [], files: [], sql: [], mailOff: env.MAIL_PROVIDER === 'none' }
   const sent = link!.emailMessageId && await env.DB.prepare("SELECT 1 AS sent FROM glove_events WHERE subject_kind='message' AND subject_id=? AND actor_role='provider' AND kind IN ('email.accepted','email.delivered','email.deferred','email.bounced','email.complained','email.failed') LIMIT 1").bind(link!.emailMessageId).first()
   const delegated: Row = { ...link!, authenticationBasis: sent ? 'link sent by Glove to the address on record' : 'link handed out by staff, recipient unverified' }
   return { before, link: delegated, c }

@@ -26,11 +26,20 @@ export function connection(s: State): Row {
   return business(s).mail ?? fail('MAIL', 'The owner connects customer email (SendGrid, Resend, Postmark or Amazon SES) first.')
 }
 
+export function requireOutboundMail(c: Context) {
+  if (c.mailOff) fail('mail_off', 'Outbound email is disabled for this installation.', null, 503)
+}
+
+export function outboundMailConnection(c: Context): Row {
+  requireOutboundMail(c)
+  return connection(c.s)
+}
+
 export type Email = { kind: 'reviewRequest' | 'visitResponse' | 'reportReady' | 'leadReply' | 'confirmation' | 'moved' | 'cancelled' | 'visitReminder' | 'paymentReminder' | 'quoteFollowup' | 'paymentReceipt' | 'quote' | 'invoice' | 'purchaseOrder' | 'bookingLink' | 'quoteLink' | 'quoteConfirmation'; subjectKind: string; subjectId: string; customerId: string | null; jobId: string | null; to: string; subject: string; text: string; html?: string; label: string }
 
 /** Queue one email with this command; it goes to the provider once the command commits. */
 export function queueEmail(c: Context, m: Email): Row {
-  const mail = connection(c.s)
+  const mail = outboundMailConnection(c)
   const row = put(c.s, 'messages', { id: newId(), version: 1, createdAt: c.now, kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, customerId: m.customerId, jobId: m.jobId, to: m.to, subject: m.subject, provider: mail.provider, from: mail.fromEmail, by: { id: c.actor.id, name: c.actor.name, role: c.actor.role } })
   ;(c.mail ??= []).push({ messageId: row.id, to: m.to, subject: m.subject, text: m.text, ...(m.html ? { html: m.html } : {}) })
   event(c, { jobId: m.jobId, subjectKind: 'message', subjectId: row.id, kind: 'email.queued', summary: `${c.actor.name} emailed ${m.label} to ${m.to} through ${providerName(mail.provider)}; delivery is not yet reported`, data: { messageId: row.id, kind: m.kind, subjectKind: m.subjectKind, subjectId: m.subjectId, to: m.to, provider: mail.provider } })
@@ -41,7 +50,7 @@ const sentSummary: Record<string, string> = { accepted: 'accepted the email; del
 
 /** After the command commits: one attempt per queued email, its answer recorded as a provider fact. No retry. */
 export async function deliverMail(db: D1Database, c: Context) {
-  if (!c.mail?.length) return
+  if (c.mailOff || !c.mail?.length) return
   const mail = c.s.business[0]?.mail
   const key = mail && (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='mail'").first<{ value: string }>())?.value
   const office = c.s.business[0]?.email

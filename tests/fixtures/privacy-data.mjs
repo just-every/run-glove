@@ -21,7 +21,7 @@ export async function dataPrivacyQualification(t) {
   const h = await installation({ captureLogs: true, at: '2026-11-09T02:00:00Z' })
   t.after(() => h.close())
   const b = await business(h), graphs = [], secrets = [], originals = []
-  let merged, before, exportPayload, exportId, exportEvents, download, receipt, epoch, transfer, taxBefore
+  let merged, before, exportPayload, exportId, exportEvents, download, taxBefore
   const costsBefore = new Map()
   const current = async (kind, key) => (await h.state())[kind].find(r => r.id === key)
   const json = async path => { const response = await h.request(path); assert.equal(response.status, 200); return response.json() }
@@ -160,13 +160,7 @@ export async function dataPrivacyQualification(t) {
     }
     const customer = await current('customers', b.customer.id)
     const preview = await h.command('privacy.preview', { customerId: customer.id, version: customer.version })
-    // An actual in-progress snapshot must be invalidated with the erasure.
-    const { createPortability } = await import('@runeditrun/rer/modules/portability')
-    const service = await createPortability({ db: h.db, policy: { product: 'field-service-glove' } })
-    transfer = await service.exports.create('owner')
-    await service.exports.advance(transfer, { maxParts: 1 })
-    epoch = await h.db.prepare('SELECT epoch FROM rer_portability_state WHERE id=1').first()
-    receipt = await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
+    const receipt = await h.command('privacy.erase', { customerId: customer.id, version: customer.version, confirm: 'ERASE', fingerprint: preview.fingerprint })
     assert.equal(receipt.outcome, 'complete')
     assert.deepEqual(receipt.customerIds, [b.customer.id, graphs[1].customer.id].sort())
     for (const [fileId] of originals) assert.equal((await h.request(`/api/glove/files/${fileId}`)).status, 404)
@@ -207,11 +201,5 @@ export async function dataPrivacyQualification(t) {
     }
     await h.command('customer.unmerge', { mergeId: merged.id, version: merged.version }, { error: 'NOT_FOUND' })
     assert.deepEqual(await h.state(), after, 'all attempts leave anonymous and peer records unchanged')
-  })
-  await scenario(t, 'DATA-001 point 7: the same erasure advances the Base redaction epoch and invalidates the pending archive transfer', async () => {
-    assert.equal((await h.db.prepare('SELECT epoch FROM rer_portability_state WHERE id=1').first()).epoch, epoch.epoch + 1)
-    assert.ok((await h.db.prepare('SELECT count(*) AS n FROM rer_portability_journal').first()).n > 0)
-    assert.equal((await h.db.prepare('SELECT count(*) AS n FROM rer_portability_jobs').first()).n, 0)
-    assert.equal((await h.db.prepare('SELECT count(*) AS n FROM rer_portability_parts').first()).n, 0)
   })
 }

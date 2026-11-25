@@ -3,7 +3,7 @@ import { documentIdentity, documentTemplate } from './documents'
 import { allow } from './access'
 import { optionsOf } from './commands/quotes'
 import { sha256, canonicalJson } from '../modules/import-kit/src/d1/index'
-import { address, connection, queueEmail } from './mail'
+import { address, outboundMailConnection, queueEmail } from './mail'
 import { business, bump, event, expectVersion, fail, find, newId, put, type Context, type Row } from './model'
 import type { Handler } from './commands/types'
 import { configureQuoteConsent, signingDisclosure } from './quote-signing'
@@ -48,7 +48,7 @@ export const quoteLinks: Handler = async (c, type, p) => {
   if (!r.validUntil) fail('VALIDITY', 'Create and approve a new revision with a validity date before issuing a customer link.')
   if (r.linkExpiresAt <= c.now) fail('EXPIRED', 'This revision is too old for a link; prepare an updated quote.')
   const customer = find(c.s, 'customers', q.customerId)
-  const emailTo = p.email === true ? (connection(c.s), address(customer.email, 'customer email')) : null
+  const emailTo = p.email === true ? (outboundMailConnection(c), address(customer.email, 'customer email')) : null
   for (const old of c.s.quoteLinks.filter(l => l.quoteId === q.id && l.revision === r.n && !l.revokedAt)) bump(c.s, 'quoteLinks', old, { revokedAt: c.now })
   const token = 'glq_' + btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
   // A decided quote keeps the document its decision was made on: the link the decision came through, else the revision's last link.

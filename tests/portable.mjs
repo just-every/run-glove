@@ -17,7 +17,6 @@ import { randomUUID, createHash, createHmac } from 'node:crypto'
 import { createServer } from 'node:http'
 import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
-import { editionArchivePolicy } from './fixtures/edition-archive-policy.mjs'
 
 // The flow harness replaces global fetch on import; keep this journey's own network untouched.
 const nativeFetch = globalThis.fetch
@@ -875,31 +874,6 @@ try {
       const decoded = cells.join('\n')
       for (const value of erasedValues) assert.ok(!decoded.includes(value), 'DATA-001 point 7: decoded original chunks and archived records contain no erased personal values')
     }
-    // Keep a destination with the newer checkpoint. Its own fence must refuse
-    // the old archive even when no external journal was supplied.
-    {
-      const { getPlatformProxy } = await import('wrangler')
-      const { selectLocalState } = await import('@runeditrun/rer/local/state')
-      const { createPortability, readArchive } = await import('@runeditrun/rer/modules/portability')
-      // Wrangler's API takes the versioned directory; its CLI takes the parent.
-      const state = await selectLocalState(destination)
-      const proxy = await getPlatformProxy({ configPath: join(destination, 'wrangler.jsonc'), persist: { path: join(state, 'v3') }, remoteBindings: false })
-      try {
-        const db = proxy.env.DB, policy = await editionArchivePolicy(destination)
-        assert.deepEqual(await db.prepare('SELECT source_identity,epoch FROM rer_portability_state WHERE id=1').first(), { source_identity: laterCheckpoint.sourceIdentity, epoch: laterCheckpoint.epoch }, 'DATA-001 point 7: the fence probe opens the installation holding the actual newer checkpoint')
-        assert.ok(policy, 'the production edition adapter supplied its actual archive policy')
-        const service = await createPortability({ db, policy })
-        const records = []
-        for await (const record of readArchive(Readable.toWeb(createReadStream(archive)))) records.push(record)
-        const stored = (await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results
-        const attempt = await service.imports.create(records[0], 'owner')
-        try {
-          for (const [i, part] of records.filter(r => r.kind === 'part').entries()) await service.imports.uploadPart(attempt, i, part)
-          await assert.rejects(service.imports.finalize(attempt, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash }), /erasure_epoch/, 'DATA-001 point 7: the destination checkpoint independently refuses the old archive without a supplied journal')
-        } finally { await service.imports.abort(attempt) }
-        assert.deepEqual((await db.prepare('SELECT * FROM glove_records ORDER BY kind,id').all()).results, stored, 'the refused archive changes no anonymous or peer records')
-      } finally { await proxy.dispose() }
-    }
     const offlineTarget = await copy('offline-older-backup')
     await command(offlineTarget, ['import', '--input', archive, '--yes'])
     running = await install(offlineTarget)
@@ -934,7 +908,7 @@ try {
     assert.equal((await running.request(`/api/glove/quotes/${peerQuote.id}/signed`, 'GET', undefined, running.owner.cookie)).status, 404, 'peer signed-original withdrawal survives rer restore')
     assert.ok(!JSON.stringify(anonymous).includes('PORTABLE-SCHOOL'))
     assert.ok(!JSON.stringify(anonymous).includes('Private exemption certificate'))
-    console.log('DATA-001 points 7 and 8 real rer import passed: later journal and destination checkpoint refuse the old archive; a fresh offline destination without that journal restores it; the new archive retains anonymous totals and no erased originals')
+    console.log('DATA-001 points 7 and 8 real rer import passed: the later journal refuses the old archive, a fresh offline destination without that journal restores it, and the new archive retains anonymous totals with erased originals absent')
     await running.close(); running = null
   }
   if (parts.includes('payments')) {

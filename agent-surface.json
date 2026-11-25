@@ -152,6 +152,10 @@
           "pointer": "/services/0/version"
         }
       },
+      "resource": {
+        "uriTemplate": "glove://services/{id}",
+        "state": { "unitPrice": "29.00" }
+      },
       "expect": [
         {
           "class": "standard",

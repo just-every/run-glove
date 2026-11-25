@@ -22,7 +22,7 @@ import { join } from 'node:path'
 import { randomUUID, randomBytes, generateKeyPairSync, sign, createHmac } from 'node:crypto'
 import assert from 'node:assert/strict'
 
-export async function installation({ isolates = 1, at = null, captureLogs = false, workerPlugins = [] } = {}) {
+export async function installation({ isolates = 1, at = null, captureLogs = false, workerPlugins = [], mailOff = false } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'glove-api-'))
   // The loopback service represents callback errors as HTTP 500. Translate
   // the marketing transport-failure marker and calendar timeout marker at
@@ -70,7 +70,8 @@ globalThis.fetch = async (input, options) => {
       ...(captureLogs ? { log: new CapturedLog(LogLevel.VERBOSE), handleStructuredLogs: entry => logs.push(entry.message) } : {}),
       host: '127.0.0.1', https: true, modules: true, script: bundled.outputFiles[0].text, compatibilityDate: '2026-09-08', compatibilityFlags: ['nodejs_compat'], d1Databases: { DB: 'glove-shared-db' },
       durableObjects: { MAIL_REJECTIONS: { className: 'MailRejections', scriptName: 'app', useSQLite: true } },
-      bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup, MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' },
+      bindings: { AUTH_LOCAL: 'false', AUTH_ORIGIN: origin, OWNER_EMAIL: 'owner@example.test', SESSION_SECRET: randomBytes(32).toString('hex'), SETUP_TOKEN: setup,
+        ...(mailOff ? { MAIL_PROVIDER: 'none' } : { MAIL_PROVIDER: 'resend', MAIL_FROM: 'auth@example.test', MAIL_API_KEY: 'test-only-key' }) },
       // Test-only provider edge: the Worker's mail facade is unchanged.
       outboundService: async request => {
         outbound.attempts++

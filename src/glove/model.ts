@@ -50,6 +50,8 @@ export type Context = {
   reveal?: Record<string, string>
   /** This installation's own origin, for links in customer email (COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018). */
   origin?: string
+  /** This deployment has explicitly disabled outbound mail. */
+  mailOff?: boolean
   /** COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: email bodies handed to the owner's provider after this command commits; never stored. */
   mail?: { messageId: string; to: string; subject: string; text: string; html?: string }[]
 }

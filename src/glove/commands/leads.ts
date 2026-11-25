@@ -1,6 +1,6 @@
 import { allow } from '../access'
 import { fail, text, oneOf, find, expectVersion, bump, event, business } from '../model'
-import { address, queueEmail } from '../mail'
+import { address, queueEmail, requireOutboundMail } from '../mail'
 import { cents, dollars } from '../money'
 import { password, hash } from '../mail-callbacks'
 import { providers, providerLabel, googleLeads, land } from '../leads'
@@ -64,6 +64,7 @@ export const leads: Handler = async (c, type, p, db) => {
     }
     case 'enquiry.reply': {
       allow(c.actor, type)
+      requireOutboundMail(c)
       const request = find(c.s, 'enquiries', p.enquiryId)
       expectVersion(request, p.version)
       if (p.confirm !== true) fail('CONSENT', 'Explicitly approve this acknowledgment before sending it.', null, 400)

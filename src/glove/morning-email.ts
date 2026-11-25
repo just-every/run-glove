@@ -29,7 +29,8 @@ function briefText(name: string, brief: ReturnType<typeof morningBrief>) {
 /** The result of one scheduled run: what it did and why, for tests and logs. */
 export type Delivery = 'off' | 'not_connected' | 'early' | 'no_owner' | 'already' | 'sent'
 
-export async function deliverMorningBrief(db: D1Database, at: string): Promise<Delivery> {
+export async function deliverMorningBrief(db: D1Database, at: string, mailOff = false): Promise<Delivery> {
+  if (mailOff) return 'off'
   const s = await load(db), b = s.business[0], mail = b?.mail
   if (!mail?.morning?.enabled) return 'off'
   const key = (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='mail'").first<{ value: string }>())?.value
@@ -55,7 +56,7 @@ export async function deliverMorningBrief(db: D1Database, at: string): Promise<D
 /** Cloudflare cron entry: every run delivers what is due for the instant it was scheduled. */
 export function scheduled(controller: { scheduledTime: number }, env: Bindings, execution: { waitUntil(p: Promise<unknown>): void }) {
   const db = runtimeBindings(env).DB, at = new Date(controller.scheduledTime).toISOString()
-  execution.waitUntil(deliverMorningBrief(db, at))
+  execution.waitUntil(deliverMorningBrief(db, at, env.MAIL_PROVIDER === 'none'))
   // BOOK-004, BOOK-014, BOOK-015, BOOK-016, BOOK-017: Google's Local Services leads have no push; each run reads the new ones, and a failed read is on the record.
   execution.waitUntil(pullGoogle(db).catch(error => providerEvent(db, { id: `leads:google:${at}`, at, commandId: `leads:google:${at}`, provider: 'Google Local Services', subjectKind: 'business', subjectId: 'business', kind: 'lead.readFailed', summary: `Google Local Services leads could not be read: ${error instanceof Problem ? error.message : 'unexpected error'}`, data: { provider: 'google' } }).run()))
 }

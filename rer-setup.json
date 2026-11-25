@@ -77,6 +77,10 @@
           "label": "Local review only (no mail)"
         },
         {
+          "value": "none",
+          "label": "Mail off"
+        },
+        {
           "value": "rer",
           "label": "RER managed mail"
         },
@@ -93,7 +97,7 @@
           "label": "Cloudflare Email Sending"
         }
       ],
-      "help": "Local review suppresses mail. For hosting, choose a provider and supply its verified sender and private credential. Managed hosting assigns RER mail."
+      "help": "Local review suppresses mail. With mail off, the owner signs in using rer signin. To send email from a hosted installation, supply a provider, verified sender and private credential."
     },
     {
       "name": "MAIL_FROM",

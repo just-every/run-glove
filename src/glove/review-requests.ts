@@ -1,6 +1,6 @@
 import { bump, business, event, expectVersion, fail, find, text } from './model'
 import { invoiceBalance } from './balances'
-import { isAddress, queueEmail } from './mail'
+import { isAddress, queueEmail, requireOutboundMail } from './mail'
 import { quoteEmailFooter } from './email-preferences'
 import type { Handler } from './commands/types'
 import type { State, Row } from './model'
@@ -53,6 +53,7 @@ export const reviewRequests: Handler = async (c, type, p) => {
     event(c, { jobId: null, subjectKind: 'customer', subjectId: customer.id, kind: type, summary: 'Owner recorded review-email consent or withdrawal', data: { enabled: p.enabled } })
     return bump(c.s, 'customers', customer, { automaticEmail: { ...customer.automaticEmail, reviews: { enabled: p.enabled, address: customer.email, reference, at: c.now } } })
   }
+  requireOutboundMail(c)
   const job = find(c.s, 'jobs', p.jobId), customer = find(c.s, 'customers', job.customerId), config = b.reviewRequests
   const confirmation = p.confirmation
   if (!confirmation || confirmation.businessVersion !== b.version || confirmation.customerVersion !== customer.version || confirmation.address !== customer.email) {

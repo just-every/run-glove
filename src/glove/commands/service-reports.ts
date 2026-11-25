@@ -1,5 +1,5 @@
 import { allow } from '../access'
-import { address, queueEmail } from '../mail'
+import { address, queueEmail, requireOutboundMail } from '../mail'
 import { reminderText } from '../reminders'
 import { bump, event, expectVersion, fail, find, newId, put, text, type Row } from '../model'
 import { newReportToken, reportTokenHash, type Recommendation } from '../service-reports'
@@ -12,14 +12,16 @@ export const serviceReports: Handler = async (c, type, p, db) => {
   if (!['report.link', 'report.revoke', 'report.quote'].includes(type)) return undefined
   allow(c.actor, type)
   if (type === 'report.link') {
-    const report = find(c.s, 'serviceReports', p.reportId), token = newReportToken()
+    const report = find(c.s, 'serviceReports', p.reportId)
     const customer = find(c.s, 'customers', report.customerId), policy = c.s.business[0]?.messageAutomation
     if (p.email !== undefined && typeof p.email !== 'boolean') fail('INPUT', 'email is true or false.', null, 400)
     if (p.email === true) {
       if (c.actor.role !== 'owner' || c.actor.branch || c.actor.token) fail('FORBIDDEN', 'Only the signed-in unscoped owner emails a report link.', null, 403)
+      requireOutboundMail(c)
       const consent = customer.automaticEmail?.visits
       if (!policy?.enabled || !policy.templates?.reportReady || !consent?.enabled || consent.address !== customer.email || customer.doNotContact || customer.marketingOptOut || (customer.tags ?? []).some((tag: string) => tag.toLowerCase() === 'do not contact')) fail('CONSENT', 'Approve the report-ready template and record current customer visit-email consent first.')
     }
+    const token = newReportToken()
     const row = put(c.s, 'serviceReportLinks', { id: newId(), version: 1, createdAt: c.now, jobId: report.jobId, reportId: report.id, expiresAt: new Date(Date.parse(c.now) + 7 * 86400000).toISOString(), revokedAt: null })
     c.sql.push({ sql: 'INSERT INTO glove_report_secrets(link_id,hash) VALUES(?,?)', params: [row.id, reportTokenHash(token)] })
     if (p.email !== true) c.reveal = { token }

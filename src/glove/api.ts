@@ -604,7 +604,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     // The import journal commits before its batch record is settled below.
     // Keep the original schedule for the notification after that final commit.
     const notificationBefore = before
-    const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true', origin: new URL(env.AUTH_ORIGIN).origin })
+    const fresh = (): Context => ({ s: structuredClone(before), actor, commandId, now: new Date().toISOString(), events: [], files: [], sql: [], local: env.AUTH_LOCAL === 'true', origin: new URL(env.AUTH_ORIGIN).origin, mailOff: env.MAIL_PROVIDER === 'none' })
     let c = fresh(), result: unknown
     if (actor.role === 'agent' && before.business[0]?.agentsPaused) fail('PAUSED', 'The owner has paused every agent.', null, 403)
     result = await inBranch(c, async () => {
@@ -651,7 +651,7 @@ async function command(request: Request, env: Bindings, actor: Actor): Promise<R
     await deliverMail(env.DB, c)
     await deliverSms(env.DB, c)
     await deliverCalendars(env.DB)
-    if (c.reminderInvoiceId) await runReminders(env.DB, c.now, c.origin!, c.local, c.reminderInvoiceId)
+    if (c.reminderInvoiceId) await runReminders(env, c.now, c.reminderInvoiceId)
     // API-002, API-006, API-007: a new token is in this response only; the saved outcome a replay returns never holds it.
     return json(visibleOutcome(c.reveal ? { ...committed, result: { ...(committed.result as object), ...c.reveal } } : committed, type, actor))
   }

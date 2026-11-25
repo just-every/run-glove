@@ -2,7 +2,7 @@ import { allow } from '../access'
 import { bump, business, event, expectVersion, fail, find, newId, oneOf, put, text } from '../model'
 import { cents, dollars } from '../money'
 import { invoicePaid, stripeRequest } from '../payments'
-import { address, queueEmail } from '../mail'
+import { address, queueEmail, requireOutboundMail } from '../mail'
 import type { Handler } from './types'
 
 export const payments: Handler = async (c, type, p, db) => {
@@ -65,6 +65,7 @@ export const payments: Handler = async (c, type, p, db) => {
   if (type === 'payment.receipt') {
     allow(c.actor, type)
     if (c.actor.token || !['owner', 'office'].includes(c.actor.role)) fail('FORBIDDEN', 'Only a signed-in owner or office person emails a receipt in this slice.', null, 403)
+    requireOutboundMail(c)
     const payment = find(c.s, 'payments', p.paymentId); expectVersion(payment, p.version)
     if (payment.status !== 'paid' || payment.kind === 'allocation' || payment.kind === 'credit') fail('PAYMENT_STATE', 'Only a confirmed payment gets a receipt.')
     if (payment.xeroImported) fail('XERO_RECEIPT_STATE', 'A Xero remittance receipt requires its reviewed invoice allocations; no receipt was sent.')

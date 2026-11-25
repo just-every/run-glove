@@ -12,5 +12,5 @@ export async function runBackground(env: Bindings, at: string) {
   await deliverCalendars(db)
   await runRoutingJobs(db, at)
   await runRecurringBilling(db, at, env)
-  await runReminders(db, at, new URL(env.AUTH_ORIGIN).origin, env.AUTH_LOCAL === 'true')
+  await runReminders(env, at)
 }

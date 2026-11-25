@@ -4,7 +4,7 @@ import { agreementVisits } from './agreement-due'
 import { autoAssign, dispatch, slot, conflicts } from './commands/dispatch'
 import { bump, event, expectVersion, fail, find, newId, put, text, type Context, type Row } from './model'
 import { sha256 } from '../modules/import-kit/src/d1/index'
-import { address, connection, queueEmail } from './mail'
+import { address, outboundMailConnection, queueEmail } from './mail'
 import type { Handler } from './commands/types'
 
 export const bookingHash = (token: string) => sha256(`glove-booking-link:${token}`)
@@ -59,7 +59,7 @@ export const bookingOffers: Handler = async (c, type, p, db) => {
     if (!Array.isArray(p.slots) || !p.slots.length || p.slots.length > 10) fail('INPUT', 'Offer 1 to 10 slots.', null, 400)
     // COMM-001, COMM-010, COMM-011, COMM-012, COMM-013, COMM-014, COMM-015, COMM-016, COMM-017, COMM-018: an emailed link goes only to the customer's own address on record; it is still shown once, as ruled.
     const customer = find(c.s, 'customers', a.customerId)
-    const emailTo = p.email === true ? (connection(c.s), customer.email ? address(customer.email, 'the customer\'s email') : fail('EMAIL', `${customer.name} has no email address; add it on the customer first.`)) : null
+    const emailTo = p.email === true ? (outboundMailConnection(c), customer.email ? address(customer.email, 'the customer\'s email') : fail('EMAIL', `${customer.name} has no email address; add it on the customer first.`)) : null
     const job = v.jobId ? find(c.s, 'jobs', v.jobId) : (allow(c.actor, 'job.create'), await dispatch(c, 'job.create', { customerId: a.customerId, siteId: ('siteId' in v ? v.siteId : null) ?? a.siteId, agreementId: a.id, agreementVisitIndex: v.index, title: `${a.plan.visitServiceName} (${a.plan.name})` }, db) as Row)
     const slots = p.slots.map((value: unknown) => ({ id: newId(), ...slot(c, value) }))
     for (const offer of slots) {

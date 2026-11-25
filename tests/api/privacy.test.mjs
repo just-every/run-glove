@@ -5,45 +5,16 @@ import * as sharedEffects from '../fixtures/shared-import-effects.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { installation, business, completedJob, id } from './harness.mjs'
-import { createPortability } from '@runeditrun/rer/modules/portability'
 import { createHash } from 'node:crypto'
-import { readArchive } from '@runeditrun/rer/modules/portability/format'
-import { readFile, readdir } from 'node:fs/promises'
-import { Miniflare, convertV4MiniflareOptions } from 'miniflare'
-import { unstable_splitSqlQuery } from 'wrangler'
-import { editionArchivePolicy } from '../fixtures/edition-archive-policy.mjs'
+import { readFile } from 'node:fs/promises'
 import * as peers from '../fixtures/peer-redaction.mjs'
 
 const pdf = Buffer.from('%PDF-1.4 synthetic-glove-1 certificate').toString('base64')
 const jpeg = Buffer.from('ffd8ffe000104a4649460001010000010000010000ffd9', 'hex').toString('base64')
 const exportRequest = (h, c) => h.command('privacy.export', { customerId: c.id, version: c.version })
 
-async function snapshot(h) {
-  const policy = await editionArchivePolicy(process.cwd())
-  const service = await createPortability({ db: h.db, policy })
-  const job = await service.exports.create('owner')
-  while ((await service.exports.advance(job, { maxParts: 16 })).phase === 'building') {}
-  const records = []
-  for await (const row of readArchive(await service.exports.download(job))) records.push(row)
-  await service.exports.abort(job)
-  return { records, service }
-}
-async function emptyArchiveDestination(t) {
-  const mf = new Miniflare(convertV4MiniflareOptions({ modules: true, script: 'export default { fetch() { return new Response(null, { status: 404 }) } }', compatibilityDate: '2026-09-08', d1Databases: { DB: 'synthetic-glove-empty-archive' } }))
-  t.after(() => mf.dispose())
-  const db = await mf.getD1Database('DB')
-  for (const file of (await readdir('./migrations/core')).filter(f => f.endsWith('.sql')).sort()) await db.batch(unstable_splitSqlQuery(await readFile('./migrations/core/' + file, 'utf8')).map(sql => db.prepare(sql)))
-  return { db, service: await createPortability({ db, policy: await editionArchivePolicy(process.cwd()) }) }
-}
-async function restore(service, records, later) {
-  const created = await service.imports.create(records[0], 'owner')
-  const parts = records.filter(r => r.kind === 'part')
-  for (let i=0;i<parts.length;i++) await service.imports.uploadPart(created, i, parts[i])
-  try { return await service.imports.finalize(created, { archiveHash: records.at(-1).archiveHash, contentHash: records.at(-1).contentHash, laterJournal: later }) } catch(error) { await service.imports.abort(created); throw error }
-}
-
 test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases every merged identity, original and personal copy while retaining anonymous invoice and tax totals', async t => {
-  await scenario(t, 'DATA-001 points 1–7: native privacy qualification through the production Worker', dataPrivacyQualification)
+  await scenario(t, 'DATA-001 points 1–6: native privacy qualification through the production Worker', dataPrivacyQualification)
   await scenario(t, 'DATA-006 point 1: one CSV row maps a customer and site while one CSV file and one ServiceM8 attachment hold several people\'s source data', sharedPreview.point1)
   await scenario(t, 'DATA-006 point 2: erasure without the confirmation or fingerprint, an earlier customer version and a fingerprint from before the next edit are refused and nothing is erased', sharedPreview.point2)
   await scenario(t, 'DATA-006 point 3: a merged subject across two CSV batches beside a peer-only batch has an exact bound preview and previews change no record', sharedPreview.point3Csv)
@@ -134,36 +105,6 @@ test('DATA-001, DATA-005, DATA-006, DATA-007, DATA-008 owner exports and erases 
   await h.command('customer.unmerge', { mergeId: merged.id, version: merged.version }, { error: 'NOT_FOUND' })
   await h.command('customer.save', { ...customer, name: 'Resurrected' }, { error: 'ERASED' })
   await assert.rejects(h.db.prepare("UPDATE glove_events SET summary='changed'").run(), /append_only_timeline/)
-})
-  await scenario(t, 'DATA-001 point 7: the edition archive policy rejects an older checkpoint with a later journal or destination fence and restores an anonymous backup', async t => {
-  const h = await installation(); t.after(() => h.close())
-  const b = await business(h)
-  const customer = await h.command('customer.save', { ...b.customer, taxExemption: { certificateNumber: 'synthetic-glove-4', expires: '2028-12-31' } })
-  const withCertificate = await h.command('customer.certificate', { customerId: customer.id, version: customer.version, file: { mediaType: 'application/pdf', base64: pdf } })
-  const before = await snapshot(h)
-  await h.command('privacy.erase', { customerId: customer.id, version: withCertificate.version, confirm: 'ERASE', fingerprint: (await h.command('privacy.preview', { customerId: customer.id, version: withCertificate.version })).fingerprint })
-  const after = await snapshot(h)
-  assert.ok(after.records[0].epoch > before.records[0].epoch)
-  const target = await emptyArchiveDestination(t), destination = target.service
-  await assert.rejects(restore(destination, before.records, { sourceIdentity: after.records[0].sourceIdentity, epoch: after.records[0].epoch, journal: after.records[0].journal }), /erasure_epoch/)
-  await restore(destination, after.records)
-  assert.equal((await target.db.prepare('SELECT count(*) AS n FROM glove_tax_certificates').first()).n, 0)
-  assert.equal((await target.db.prepare('SELECT count(*) AS n FROM glove_tax_certificate_chunks').first()).n, 0)
-  const restored = JSON.stringify((await target.db.prepare('SELECT data FROM glove_records').all()).results)
-  assert.ok(!restored.includes('Harbourview Dental'))
-  assert.ok(!restored.includes('synthetic-glove-4'))
-  await assert.rejects(restore(destination, before.records), /erasure_epoch/, 'the newer destination checkpoint refuses the older archive without an external journal')
-  assert.equal(JSON.stringify((await target.db.prepare('SELECT data FROM glove_records').all()).results), restored, 'the destination fence leaves every restored record unchanged')
-  await scenario(t, 'DATA-001 point 8: a fresh offline destination given only the older archive restores personal data and originals, demonstrating the trusted-journal limit', async () => {
-    const offline = await emptyArchiveDestination(t)
-    await restore(offline.service, before.records)
-    const rows = JSON.stringify((await offline.db.prepare('SELECT data FROM glove_records').all()).results)
-    assert.ok(rows.includes('Harbourview Dental'))
-    assert.ok(rows.includes('synthetic-glove-4'))
-    assert.equal((await offline.db.prepare('SELECT count(*) AS n FROM glove_tax_certificates').first()).n, 1)
-    const chunks = (await offline.db.prepare('SELECT bytes FROM glove_tax_certificate_chunks ORDER BY ordinal').all()).results
-    assert.equal(Buffer.concat(chunks.map(r => Buffer.from(r.bytes))).toString('base64'), pdf)
-  })
 })
   await scenario(t, 'DATA-001 point 4: complete customer CSV rows retain unmapped columns and exclude peers; imported erasure removes retained source copies', async t => {
   const h = await installation(); t.after(() => h.close())

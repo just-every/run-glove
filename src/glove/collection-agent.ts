@@ -1,6 +1,7 @@
 import { payoutComparison } from './collection-payout'
 import { allow } from './access'
 import { invoiceBalance } from './balances'
+import { requireOutboundMail } from './mail'
 import { paymentReminders, paymentReminderState } from './reminders'
 import { business, bump, event, expectVersion, fail, find, newId, oneOf, put, text, type Context, type Row } from './model'
 import type { Handler } from './commands/types'
@@ -18,6 +19,7 @@ export const collectionAgent: Handler = async (c, type, p) => {
   if (!['invoice.chase', 'reconciliation.prepare', 'reconciliation.decide'].includes(type)) return undefined
   allow(c.actor, type)
   if (type === 'invoice.chase') {
+    requireOutboundMail(c)
     const invoice = find(c.s, 'invoices', p.invoiceId); expectVersion(invoice, p.version)
     const policy = business(c.s).messageAutomation
     const due = policy?.enabled ? paymentReminders(c.s, c.now, policy).filter(r => r.row.id === invoice.id) : []

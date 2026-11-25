@@ -114,7 +114,8 @@ export async function signQuote(c: Context, db: D1Database, link: Row, payload: 
   const copy = await frozenCopy(c, db, q, selected.document, evidence)
   const accepted = find(c.s, 'quotes', q.id)
   let confirmation: any = { status: 'not_connected', messageId: null, to: null }
-  if (business(c.s).mail) {
+  if (c.mailOff) confirmation = { status: 'mail_off', messageId: null, to: null, text: 'Customer confirmation email is disabled for this installation.' }
+  else if (business(c.s).mail) {
     const customer = find(c.s, 'customers', q.customerId), to = typeof customer.email === 'string' ? customer.email.trim() : ''
     // Only an on-record address receives the copy; without one the signature still commits and no delivery is claimed.
     if (!isAddress(to)) confirmation = { status: 'not_sent', reason: 'no_on_record_email', messageId: null, to: null }
