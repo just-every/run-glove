@@ -5,11 +5,12 @@ import { readFile } from 'node:fs/promises'
 import { scenario } from '../fixtures/scenario.mjs'
 import { installation, business, assertTrail } from './harness.mjs'
 import { phoneKeys, decrypt, vapid } from '../fixtures/push-service.mjs'
+import { utcWeekday } from '../fixtures/calendar.mjs'
 
 const initial = '2026-11-09T12:00:00.000Z'
 const newLine = 'New visit on your schedule'
 
-async function fixture(t, overrides = {}) {
+async function fixture(t, overrides = {}, startedAt = initial) {
   // Miniflare converts an outbound-service exception to HTTP 500. Reject at
   // fetch instead, using the harness's existing network-boundary plugin seam.
   const transport = { name: 'synthetic-glove-unreachable-push', setup(build) {
@@ -24,7 +25,7 @@ globalThis.fetch = async (input, options) => {
   return pushNetworkFetch(input, options);
 };` }))
   } }
-  const h = await installation({ at: initial, captureLogs: true, workerPlugins: [transport] })
+  const h = await installation({ at: startedAt, captureLogs: true, workerPlugins: [transport] })
   t.after(() => h.close())
   const b = await business(h, { timezone: 'UTC', ...overrides })
   await h.command('push.setup', {})
@@ -35,7 +36,7 @@ globalThis.fetch = async (input, options) => {
     phones.push({ name, person, phone, endpoint, subscription })
   }
   const job = title => b.dispatcher.run('job.create', { customerId: b.customer.id, siteId: b.site.id, title, lines: [{ serviceId: b.service.id, description: 'Private service note', quantity: '1', unitPrice: '50.00' }] })
-  let at = initial
+  let at = startedAt
   const clock = async value => { at = value; await h.setTime(value) }
   const check = async (action, expected = []) => {
     const start = h.pushes.sent.length
@@ -74,10 +75,11 @@ globalThis.fetch = async (input, options) => {
 // One journey follows the committed schedule through its producers and phone outcomes.
 test('FIELD-010 points 1–5: every schedule producer sends private once-only phone outcomes with attributable failures and subscription control', async t => {
   await scenario(t, 'point 1 and point 2: dispatcher, crew, rule, series, granted agent and public choice send only the independently expected private lines', async step => {
-    const { h, b, phones, job, check, priya, tom } = await fixture(step)
+    const { at, date } = utcWeekday(1)
+    const { h, b, phones, job, check, priya, tom } = await fixture(step, {}, at)
     const j = await check(() => job('Private rooftop customer work'))
     const book = (technicianId, date, start = '09:00', end = '10:00', extra = {}) => b.dispatcher.run('visit.book', { jobId: j.id, technicianId, date, start, end, ...extra })
-    const bookId = randomUUID(), bookPayload = { jobId: j.id, technicianId: b.priya.id, date: '2026-11-11', start: '09:00', end: '10:00' }
+    const bookId = randomUUID(), bookPayload = { jobId: j.id, technicianId: b.priya.id, date: date(2), start: '09:00', end: '10:00' }
     let v = await check(() => b.dispatcher.run('visit.book', bookPayload, { commandId: bookId }), priya(newLine, j.id))
     await check(() => b.dispatcher.run('visit.book', bookPayload, { commandId: bookId }))
     await assert.rejects(() => decrypt(h.pushes.sent[0].body, phones[1].phone), 'another phone cannot decrypt this body')
@@ -86,15 +88,15 @@ test('FIELD-010 points 1–5: every schedule producer sends private once-only ph
     v = await check(() => b.dispatcher.run('visit.change', { visitId: v.id, version: v.version, reason: 'Unchanged schedule' }))
     v = await check(() => b.dispatcher.run('visit.change', { visitId: v.id, version: v.version, technicianId: b.tom.id, reason: 'Handover' }), [...priya('Visit moved off your schedule', j.id), ...tom(newLine, j.id)])
     await check(() => b.dispatcher.run('visit.cancel', { visitId: v.id, version: v.version, reason: 'Customer postponed' }), tom('Visit canceled', j.id))
-    let ended = await check(() => book(b.priya.id, '2026-11-08'))
+    let ended = await check(() => book(b.priya.id, date(-1)))
     ended = await check(() => b.dispatcher.run('visit.change', { visitId: ended.id, version: ended.version, start: '10:00', end: '11:00', reason: 'Correct past time' }))
     await check(() => b.dispatcher.run('visit.cancel', { visitId: ended.id, version: ended.version, reason: 'Past booking correction' }))
     const crew = await check(() => h.command('crew.save', { name: 'Service crew', memberIds: [b.priya.id, b.tom.id] }))
-    let group = await check(() => b.dispatcher.run('visit.book', { jobId: j.id, crewId: crew.id, date: '2026-11-12', start: '09:00', end: '10:00' }), [...priya(newLine, j.id), ...tom(newLine, j.id)])
+    let group = await check(() => b.dispatcher.run('visit.book', { jobId: j.id, crewId: crew.id, date: date(3), start: '09:00', end: '10:00' }), [...priya(newLine, j.id), ...tom(newLine, j.id)])
     group = group.visits[0]
     group = await check(() => b.dispatcher.run('visit.change', { visitId: group.id, version: group.version, start: '11:00', end: '12:00', reason: 'Move the crew' }), [...priya('Visit moved', j.id), ...tom('Visit moved', j.id)])
     await check(() => b.dispatcher.run('visit.cancel', { visitId: group.id, version: group.version, reason: 'Cancel crew work' }), [...priya('Visit canceled', j.id), ...tom('Visit canceled', j.id)])
-    let agentVisit = await check(() => book(b.priya.id, '2026-11-13', '09:00', '10:00', { window: { start: '08:00', end: '16:00' } }), priya(newLine, j.id))
+    let agentVisit = await check(() => book(b.priya.id, date(4), '09:00', '10:00', { window: { start: '08:00', end: '16:00' } }), priya(newLine, j.id))
     const move = { visitId: agentVisit.id, version: agentVisit.version, start: '12:00', end: '13:00', reason: 'Customer requested move' }
     const beforeRefusal = await h.state()
     await check(() => b.agent.run('visit.change', move, { error: 'FORBIDDEN' }))
@@ -110,19 +112,19 @@ test('FIELD-010 points 1–5: every schedule producer sends private once-only ph
     const rule = await check(() => h.command('rule.save', { name: 'Owner first visit', trigger: 'job.created', action: { kind: 'book', technicianId: b.priya.id, afterDays: 2, start: '14:00', end: '15:00' } }))
     const ruleJobId = randomUUID(), rulePayload = { customerId: b.customer.id, siteId: b.site.id, title: 'Private rule-created work' }
     const ruleJob = await check(() => b.dispatcher.run('job.create', rulePayload, { commandId: ruleJobId }), result => priya(newLine, result.id))
-    assert.deepEqual((await h.state()).visits.filter(x => x.jobId === ruleJob.id).map(x => [x.technicianId, x.local.date, x.local.start]), [[b.priya.id, '2026-11-11', '14:00']])
+    assert.deepEqual((await h.state()).visits.filter(x => x.jobId === ruleJob.id).map(x => [x.technicianId, x.local.date, x.local.start]), [[b.priya.id, date(2), '14:00']])
     await check(() => b.dispatcher.run('job.create', rulePayload, { commandId: ruleJobId }))
     await check(() => h.command('rule.save', { ...rule, enabled: false }))
     const repeated = await check(() => job('Private repeated work'))
-    const seriesPayload = { jobId: repeated.id, version: repeated.version, date: '2026-11-10', rule: { unit: 'week' }, technicianId: b.priya.id, start: '07:00', end: '08:00', horizonDays: 14, until: '2026-11-17' }
+    const seriesPayload = { jobId: repeated.id, version: repeated.version, date: date(1), rule: { unit: 'week' }, technicianId: b.priya.id, start: '07:00', end: '08:00', horizonDays: 14, until: date(8) }
     const seriesId = randomUUID()
     await check(() => h.command('series.create', seriesPayload, { commandId: seriesId }), priya('2 changes to your schedule'))
-    assert.deepEqual((await h.state()).visits.filter(x => x.jobId === repeated.id).map(x => x.local.date).sort(), ['2026-11-10', '2026-11-17'])
+    assert.deepEqual((await h.state()).visits.filter(x => x.jobId === repeated.id).map(x => x.local.date).sort(), [date(1), date(8)])
     await check(() => h.command('series.create', seriesPayload, { commandId: seriesId }))
     // The public choice has exactly one free technician; the other has real competing work.
-    await check(() => book(b.tom.id, '2026-11-15', '14:00', '15:00'), tom(newLine, j.id))
+    await check(() => book(b.tom.id, date(6), '14:00', '15:00'), tom(newLine, j.id))
     const online = await check(() => job('Private online service'))
-    const offer = await check(() => h.command('booking.offer', { jobId: online.id, slots: [{ date: '2026-11-15', start: '14:00', end: '15:00', window: { start: '13:00', end: '16:00' } }] }))
+    const offer = await check(() => h.command('booking.offer', { jobId: online.id, slots: [{ date: date(6), start: '14:00', end: '15:00', window: { start: '13:00', end: '16:00' } }] }))
     const choose = () => h.request('/api/glove/public/booking', { as: '', method: 'POST', headers: { authorization: `Bearer ${offer.token}` }, body: { slotId: offer.slots[0].id } })
     assert.equal((await check(choose, priya(newLine, online.id))).status, 200)
     assert.equal((await check(choose)).status, 404)

@@ -20,7 +20,7 @@ async function fixture(t) {
     const checkout = await h.command('payment.checkout', { invoiceId: invoice.id, version: invoice.version, method: 'card', amount: '100.00' })
     const pi = h.stripePayments.intents.get(h.stripePayments.sessions.at(-1).intentId)
     Object.assign(pi, { status: paid ? 'succeeded' : 'processing', amount_received: paid ? 10000 : 0, latest_charge: { id: `synthetic-glove-source-${n}`, created: seconds, status: paid ? 'succeeded' : 'pending', balance_transaction: { fee } } })
-    assert.equal((await paymentEvent(h, pi, paid ? 'payment_intent.succeeded' : 'payment_intent.processing', { at: seconds })).status, 200)
+    assert.equal((await paymentEvent(h, pi, paid ? 'payment_intent.succeeded' : 'payment_intent.processing', { created: seconds })).status, 200)
     const payment = (await h.state()).payments.find(p => p.id === checkout.id)
     return { invoice, pi, payment, tx: { id: `synthetic-glove-balance-${n}`, type: 'charge', source: { id: pi.latest_charge.id }, amount: 10000, fee: fee ?? 100, net: 10000 - (fee ?? 100), currency: 'usd' } }
   }
@@ -76,9 +76,7 @@ test('PAY-007 point 1: six Checkout payments, a refund, missing source and Insta
   const missing = await f.inspect(payload)
   assert.deepEqual([missing.reconciled, missing.net, missing.difference, missing.unmatched.map(i => [i.providerReference, i.reason])], [false, '596.17', '0.00', [['synthetic-glove-missing-payment', 'missing payment']]])
   await h.command('payout.feeSchedule', { version: (await h.state()).business[0].version, basisPoints: 150, minimum: '0.50', source: 'Owner recorded test schedule' })
-  await h.setTime(null)
-  const funding = await instantFunding(h, b)
-  await h.setTime(at)
+  const funding = await instantFunding(h, b, '2026-11-01', { at: seconds })
   const preview = await h.command('payout.instantPreview', { amount: '1000.00', destination: 'synthetic-glove-debit-1', paymentIds: [funding.payment.id] })
   const instant = await h.command('payout.instantConfirm', { payoutId: preview.id, version: preview.version, confirmAmount: '1000.00', confirmFee: '15.00' })
   const result = await f.inspect({ providerId: instant.providerId })

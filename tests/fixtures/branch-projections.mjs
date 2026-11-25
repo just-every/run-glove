@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { installation, business } from '../api/harness.mjs'
+import { utcWeekday } from './calendar.mjs'
 
 // All fixtures enter through production HTTP commands. Expected roots and
 // amounts below are enumerated here, independently of the reporting code.
@@ -33,14 +34,15 @@ export async function projectionFixture(t, at = '2026-11-01T12:00:00.000Z') {
 }
 
 export async function bookingProjection(t) {
-  const { h, b, roots, job, refuse } = await projectionFixture(t)
+  const { at, date } = utcWeekday(0)
+  const { h, b, roots, job, refuse } = await projectionFixture(t, at)
   const service = await h.command('service.save', { code: 'BRANCH-CALL', name: 'Branch inspection', unitPrice: '20.00', tax: 'FREE', checklist: [] })
   const plan = await h.command('plan.save', { name: 'Branch care', price: '100.00', termMonths: 12, includedVisits: 2, visitServiceId: b.service.id, formIds: [] })
   for (const [i, r] of roots.entries()) {
     t.diagnostic?.(`TEAM-004 booking root: ${r.name}`)
     const other = roots[(i + 1) % roots.length]
     const work = await job(r, `${r.name} booking`)
-    const slot = { date: '2026-11-06', start: '09:00', end: '10:00' }
+    const slot = { date: date(5), start: '09:00', end: '10:00' }
     await refuse('visit.book', { jobId: work.id, technicianId: other.tech.id, ...slot })
     const crew = await h.command('crew.save', { name: `${other.name} cross-door crew`, memberIds: [other.tech.id, other.second.id] })
     await refuse('visit.book', { jobId: work.id, crewId: crew.id, ...slot })
@@ -54,37 +56,37 @@ export async function bookingProjection(t) {
     const assessment = await h.command('assessment.book', { enquiryId: enquiry.id, technicianId: r.tech.id, ...slot })
     assert.equal(assessment.visit.technicianId, r.tech.id)
     const repeat = await job(r, `${r.name} series`)
-    const repeating = { jobId: repeat.id, version: repeat.version, date: '2026-11-07', until: '2026-11-14', start: '11:00', end: '12:00', rule: { unit: 'week', interval: 1 } }
+    const repeating = { jobId: repeat.id, version: repeat.version, date: date(6), until: date(13), start: '11:00', end: '12:00', rule: { unit: 'week', interval: 1 } }
     await refuse('series.create', { ...repeating, technicianId: other.tech.id })
     const series = await h.command('series.create', { ...repeating, technicianId: r.tech.id })
-    assert.deepEqual((await h.state()).visits.filter(v => v.jobId === repeat.id).map(v => [v.technicianId, v.local.date]).sort(), [[r.tech.id, '2026-11-07'], [r.tech.id, '2026-11-14']])
-    await refuse('series.change', { jobId: repeat.id, version: series.version, from: '2026-11-14', technicianId: other.tech.id, reason: 'Different branch' })
-    const agreement = await h.command('agreement.sell', { planId: plan.id, customerId: r.customer.id, siteId: r.site.id, via: 'phone', startDate: '2026-11-01' })
-    const offer = { agreementId: agreement.id, index: 0, slots: [{ ...slot, date: '2026-11-08', technicianId: other.tech.id }] }
+    assert.deepEqual((await h.state()).visits.filter(v => v.jobId === repeat.id).map(v => [v.technicianId, v.local.date]).sort(), [[r.tech.id, date(6)], [r.tech.id, date(13)]])
+    await refuse('series.change', { jobId: repeat.id, version: series.version, from: date(13), technicianId: other.tech.id, reason: 'Different branch' })
+    const agreement = await h.command('agreement.sell', { planId: plan.id, customerId: r.customer.id, siteId: r.site.id, via: 'phone', startDate: date(0) })
+    const offer = { agreementId: agreement.id, index: 0, slots: [{ ...slot, date: date(7), technicianId: other.tech.id }] }
     await refuse('agreement.offer', offer)
     const offered = await h.command('agreement.offer', { ...offer, slots: [{ ...offer.slots[0], technicianId: r.tech.id }] })
     assert.deepEqual(offered.slots.map(s => [s.technicianId, s.local.timezone]), [[r.tech.id, r.zone]])
     await refuse('proposal.prepare', { kind: 'dispatch', plan: { jobId: work.id, technicianId: other.tech.id, ...slot }, rationale: 'Wrong branch' })
     await refuse('route.optimize', { date: slot.date, branchId: r.id, technicianId: other.tech.id })
     const automatic = await job(r, `${r.name} automatic`)
-    const assigned = await h.command('visit.book', { jobId: automatic.id, technicianId: 'auto', ...slot, date: '2026-11-09' })
+    const assigned = await h.command('visit.book', { jobId: automatic.id, technicianId: 'auto', ...slot, date: date(8) })
     assert.ok([r.tech.id, r.second.id].includes(assigned.technicianId), 'automatic assignment never chooses an idle technician of another root')
     // Removing all local availability must refuse, rather than falling back
     // to another branch with spare technicians.
     for (const tech of [r.tech, r.second]) {
       const current = (await h.state()).technicians.find(x => x.id === tech.id)
-      await h.command('technician.save', { ...current, timeOff: [{ from: '2026-11-10', to: '2026-11-10', reason: 'Unavailable' }] })
+      await h.command('technician.save', { ...current, timeOff: [{ from: date(9), to: date(9), reason: 'Unavailable' }] })
     }
-    await refuse('visit.book', { jobId: automatic.id, technicianId: 'auto', ...slot, date: '2026-11-10' }, 'NO_TECHNICIAN')
+    await refuse('visit.book', { jobId: automatic.id, technicianId: 'auto', ...slot, date: date(9) }, 'NO_TECHNICIAN')
     const ownCrew = await h.command('crew.save', { name: `${r.name} local crew`, memberIds: [r.tech.id, r.second.id] })
-    const group = await h.command('visit.book', { jobId: automatic.id, crewId: ownCrew.id, ...slot, date: '2026-11-11' })
+    const group = await h.command('visit.book', { jobId: automatic.id, crewId: ownCrew.id, ...slot, date: date(10) })
     assert.deepEqual(group.visits.map(v => v.technicianId).sort(), [r.tech.id, r.second.id].sort())
     const serviceJob = await job(r, `${r.name} public service booking`, [{ serviceId: service.id, description: service.name, quantity: '1', unitPrice: '20.00', tax: 'FREE' }])
-    const serviceLink = await h.command('booking.offer', { jobId: serviceJob.id, slots: [{ date: '2026-11-12', start: '15:00', end: '16:00', window: { start: '15:00', end: '16:00' } }] })
+    const serviceLink = await h.command('booking.offer', { jobId: serviceJob.id, slots: [{ date: date(11), start: '15:00', end: '16:00', window: { start: '15:00', end: '16:00' } }] })
     const beforeRead = await h.state()
     const publicView = await h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${serviceLink.token}` } })
     assert.equal(publicView.status, 200)
-    assert.deepEqual((await publicView.json()).offer.slots.map(s => [s.date, s.start, s.timezone]), [['2026-11-12', '15:00', r.zone]])
+    assert.deepEqual((await publicView.json()).offer.slots.map(s => [s.date, s.start, s.timezone]), [[date(11), '15:00', r.zone]])
     assert.deepEqual(await h.state(), beforeRead, 'public availability reserves nothing')
     const chosen = await h.request('/api/glove/public/booking', { as: '', headers: { authorization: `Bearer ${serviceLink.token}` }, method: 'POST', body: { slotId: serviceLink.slots[0].id } })
     assert.equal(chosen.status, 200, await chosen.clone().text())
@@ -98,7 +100,7 @@ export async function bookingProjection(t) {
   const work = await job(r, 'Outside branch area', undefined, outside)
   const tech = (await h.state()).technicians.find(x => x.id === r.tech.id)
   await h.command('technician.save', { ...tech, zips: ['27601'] })
-  const payload = { jobId: work.id, technicianId: tech.id, date: '2026-11-12', start: '09:00', end: '10:00' }
+  const payload = { jobId: work.id, technicianId: tech.id, date: date(11), start: '09:00', end: '10:00' }
   const warning = await refuse('visit.book', payload, 'CONFLICT_REVIEW')
   assert.deepEqual(warning.details.conflicts.map(x => x.code).sort(), ['area:27701', 'branch-area:27701'])
   const reviewed = await h.command('visit.book', { ...payload, acknowledge: ['area:27701', 'branch-area:27701'] })
@@ -119,15 +121,15 @@ export async function bookingProjection(t) {
   const routeTech = (await h.state()).technicians.find(x => x.id === tech.id)
   await h.command('technician.save', { ...routeTech, zips: [] })
   const visitsBeforeRoute = (await h.state()).visits
-  const queued = await h.command('route.optimize', { date: '2026-11-06', branchId: r.id })
-  await h.scheduled('2026-11-01T12:00:00.000Z')
+  const queued = await h.command('route.optimize', { date: date(5), branchId: r.id })
+  await h.scheduled(at)
   const route = (await h.state()).routes.find(x => x.id === queued.id)
   assert.equal(route.status, 'ready', JSON.stringify(route))
   assert.equal(route.moves.length, 2)
   assert.ok(route.moves.every(m => [r.tech.id, r.second.id].includes(m.after.technicianId)))
   assert.deepEqual((await h.state()).visits, visitsBeforeRoute, 'a route proposal never changes a booking')
   await h.command('route.accept', { routeId: route.id, version: route.version, reason: 'Reviewed own-branch route' })
-  assert.ok((await h.state()).visits.filter(v => v.local.date === '2026-11-06' && [r.tech.id, r.second.id].includes(v.technicianId)).every(v => v.local.timezone === r.zone))
+  assert.ok((await h.state()).visits.filter(v => v.local.date === date(5) && [r.tech.id, r.second.id].includes(v.technicianId)).every(v => v.local.timezone === r.zone))
 
   const zone = { name: 'Durham', points: [{ lat: 35.9, lng: -79 }, { lat: 36.1, lng: -79 }, { lat: 36.1, lng: -78.8 }, { lat: 35.9, lng: -78.8 }] }
   const withZip = (await h.state()).technicians.find(x => x.id === tech.id)
