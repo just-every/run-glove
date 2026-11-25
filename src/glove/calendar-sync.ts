@@ -124,24 +124,28 @@ export function queueCalendarSync(c: Context, before: State) {
 }
 
 /** A sending reservation is never automatically replayed after an uncertain provider outcome. */
+const record = async (db: D1Database, kind: string, id: string | null | undefined): Promise<any> => {
+  if (id === null || id === undefined) return undefined
+  const row = await db.prepare('SELECT data FROM glove_records WHERE kind=? AND id=?').bind(kind, id).first<{ data: string }>()
+  return row ? JSON.parse(row.data) : undefined
+}
+
 export async function deliverCalendars(db: D1Database) {
-  const work = (await db.prepare("SELECT * FROM glove_calendar_work WHERE state='pending' ORDER BY sequence LIMIT 30").all<Row>()).results
+  const work = (await db.prepare("SELECT * FROM glove_calendar_work INDEXED BY glove_calendar_work_pending WHERE state='pending' ORDER BY sequence LIMIT 30").all<Row>()).results
   for (const w of work) {
     const claimed = await db.prepare("UPDATE glove_calendar_work SET state='sending' WHERE id=? AND state='pending' AND NOT EXISTS(SELECT 1 FROM glove_calendar_work x WHERE x.technician_id=glove_calendar_work.technician_id AND x.connection_id=glove_calendar_work.connection_id AND x.sequence<glove_calendar_work.sequence AND x.state IN ('pending','sending','unknown','failed'))").bind(w.id).run()
     if (!claimed.meta.changes) continue
     let outcome = 'unknown', action = 'none'
     try {
-      const records = (await db.prepare("SELECT kind,data FROM glove_records WHERE kind IN ('technicians','visits','jobs','customers','sites')").all<Row>()).results
-      const rows = (kind: string) => records.filter(r => r.kind === kind).map(r => JSON.parse(r.data))
-      const tech = rows('technicians').find(t => t.id === w.technician_id)
+      const tech = await record(db, 'technicians', w.technician_id)
       if (tech?.calendarSync?.connectionId !== w.connection_id) { outcome = 'disconnected'; continue }
       const secret = await credential(db, tech), headers = await token(secret, db)
-      const visit = rows('visits').find(v => v.id === w.visit_id), job = visit && rows('jobs').find(j => j.id === visit.jobId)
+      const visit = await record(db, 'visits', w.visit_id), job = visit && await record(db, 'jobs', visit.jobId)
       const mapping = await db.prepare('SELECT event_id FROM glove_calendar_events WHERE connection_id=? AND visit_id=?').bind(w.connection_id, w.visit_id).first<{ event_id: string }>()
       const remove = !visit || visit.status === 'cancelled' || visit.technicianId !== tech.id || !job || job.erasedAt
       if (remove && !mapping) { outcome = 'obsolete'; continue }
       action = remove ? 'delete' : mapping ? 'update' : 'create'
-      const customer = job && rows('customers').find(r => r.id === job.customerId), site = job && rows('sites').find(r => r.id === job.siteId)
+      const customer = job && await record(db, 'customers', job.customerId), site = job && await record(db, 'sites', job.siteId)
       const title = tech.calendarSync.details ? `Glove visit: ${customer?.name ?? ''}` : 'Glove visit'
       const body = secret.provider === 'google' ? { summary: title, location: tech.calendarSync.details ? site?.address ?? '' : '', start: { dateTime: visit?.startAt }, end: { dateTime: visit?.endAt }, extendedProperties: { private: { gloveVisit: w.visit_id } }, ...(mapping ? {} : { id: w.visit_id.replaceAll('-', '') }) } : { subject: title, location: { displayName: tech.calendarSync.details ? site?.address ?? '' : '' }, start: { dateTime: visit?.startAt, timeZone: 'UTC' }, end: { dateTime: visit?.endAt, timeZone: 'UTC' }, ...(mapping ? {} : { transactionId: `glove-${w.connection_id}-${w.visit_id}` }) }
       const result = await jsonRequest(endpoint(secret.provider, secret.calendarId) + (mapping ? '/' + enc(mapping.event_id) : '') + (secret.provider === 'google' ? '?sendUpdates=none' : ''), { method: remove ? 'DELETE' : mapping ? 'PATCH' : 'POST', headers, ...(remove ? {} : { body: JSON.stringify(body) }) })

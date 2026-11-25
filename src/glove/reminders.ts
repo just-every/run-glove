@@ -8,7 +8,7 @@ import { deliverMail, isAddress, queueEmail } from './mail'
 import { bump, business, event, expectVersion, fail, find, oneOf, text, type Actor, type Context, type Row, type State } from './model'
 import { invoiceDates, addCalendarDays } from './receivables'
 import { dollars } from './money'
-import { load, commit } from './storage'
+import { load, loadBusiness, commit } from './storage'
 import { localParts } from './time'
 import { quoteFollowups, stopQuoteCallTasks } from './followups'
 import type { Handler } from './commands/types'
@@ -133,6 +133,10 @@ function dueReminders(s: State, at: string, policy: Row): Reminder[] {
 /** Each cron pass reserves one message at a time under the ordinary version guard.
  * A lost race recomputes next time; a committed uncertain attempt never replays. */
 export async function runReminders(db: D1Database, at: string, origin: string, local = false, invoiceId?: string) {
+  // Never configured: nothing to send. Configured but off: only a still-open call task needs the records.
+  const configured = (await loadBusiness(db))?.messageAutomation
+  if (!configured?.by?.id) return
+  if (!configured.enabled && !await db.prepare(`SELECT 1 FROM glove_records INDEXED BY glove_quotes_open_calls WHERE kind='quotes' AND data LIKE '%"followupTasks"%"status":"open"%' LIMIT 1`).first()) return
   for (let count = 0; count < 50; count++) {
     const before = await load(db), policy = before.business[0]?.messageAutomation
     if (!policy?.by?.id) return

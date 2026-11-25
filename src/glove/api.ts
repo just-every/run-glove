@@ -117,6 +117,7 @@ import { equipmentRecord, warrantyReport, refrigerantReport } from './equipment'
 import { stage, journal, settle, refuseUndoing, moveInFile } from './movein/kit'
 import { customersCsv } from './movein/csv'
 import { tokens, tokenList } from './tokens'
+import { stamp, unchanged } from './revalidate'
 
 // The public doors: GET /api/glove/state (what this role may see, with the
 // latest 500 events for Activity), GET /api/glove/jobs/<id>/timeline (one
@@ -182,9 +183,19 @@ async function streamEvents(db: D1Database, full: Parameters<typeof branchEvent>
   return (await db.prepare("SELECT id,at,actor_name AS actorName,actor_role AS actorRole,job_id AS jobId,subject_kind AS subjectKind,subject_id AS subjectId,kind,summary,json_extract(data,'$.jobIds') AS jobIds,json_extract(data,'$.technicianId') AS technicianId,json_extract(data,'$.status') AS status FROM glove_events WHERE actor_role='agent' OR kind='push.outcome' ORDER BY sequence").all<any>()).results.filter(e => branchEvent(full, actor, e))
 }
 
-async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
+async function read(url: URL, env: Bindings, actor: Actor, ifNoneMatch: string | null): Promise<Response> {
   const db = env.DB
   await current(db, actor)
+  // The polled doors answer 304 from a few small rows when nothing they read has changed (revalidate.ts); the role checks come first.
+  const polled = url.pathname === '/api/glove/state' ? 'state' : url.pathname === '/api/glove/map' || url.pathname === '/api/glove/delays' ? 'board' : null
+  let tag: string | null = null
+  if (polled) {
+    readRole(actor, 'state')
+    if (polled === 'board' && fieldRole(actor)) fail('FORBIDDEN', url.pathname === '/api/glove/map' ? 'The map board is the desk\'s.' : 'The delay watch is the desk\'s and the agent\'s.', null, 403)
+    tag = await stamp(db, actor, url.pathname + url.search, polled)
+    if (unchanged(ifNoneMatch, tag)) return new Response(null, { status: 304, headers: { ...headers, etag: tag } })
+  }
+  const send = (body: unknown) => tag ? Response.json(body, { headers: { ...headers, etag: tag } }) : json(body)
   const full = await load(db)
   let s = financialReadState(branchState(full, actor), actor)
   const filter = url.pathname.startsWith('/api/glove/reports/') ? url.searchParams.get('branchId') : null
@@ -226,7 +237,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     const subscription = actor.role === 'owner' && s.business[0]?.mail?.provider === 'ses' ? await db.prepare("SELECT kind,summary FROM glove_events WHERE kind LIKE 'mail.subscription.%' ORDER BY sequence DESC LIMIT 1").first<{ kind: string; summary: string }>() : null
     const clientFences = (await db.prepare('SELECT operator_id AS operatorId,visit_id AS visitId,job_id AS jobId FROM glove_privacy_client_fences').all<any>()).results.filter(f => fieldRole(actor) ? f.operatorId === actor.id : view.jobs.some(j => j.id === f.jobId))
     const privacyFences = [...new Set([...clientFences.flatMap(f => [f.visitId, f.jobId]), ...(!fieldRole(actor) ? [...view.customers, ...view.sites, ...view.jobs, ...view.invoices].filter((r: any) => r.erasedAt).map(r => r.id) : [])])]
-    return json({ ...view, privacyFences, ...mailState, ...(actor.role === 'owner' && !actor.branch && !actor.token ? { reviewJobs: view.jobs.filter(j => !j.erasedAt).map(j => ({ id: j.id, workReady: reviewWorkReady(s, j), reason: reviewReason(s, j, new Date().toISOString()) })) } : {}), ...(actor.role === 'owner' ? { mailCallbacks: { verifiedAt: callback?.verified_at ?? null, previousUntil: callback?.previous_until ?? null, warning: subscription && subscription.kind !== 'mail.subscription.confirmed' ? subscription.summary : null } } : {}), companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
+    return send({ ...view, privacyFences, ...mailState, ...(actor.role === 'owner' && !actor.branch && !actor.token ? { reviewJobs: view.jobs.filter(j => !j.erasedAt).map(j => ({ id: j.id, workReady: reviewWorkReady(s, j), reason: reviewReason(s, j, new Date().toISOString()) })) } : {}), ...(actor.role === 'owner' ? { mailCallbacks: { verifiedAt: callback?.verified_at ?? null, previousUntil: callback?.previous_until ?? null, warning: subscription && subscription.kind !== 'mail.subscription.confirmed' ? subscription.summary : null } } : {}), companycamConfigured, integrationTokens, actor: { branch: actor.branch, id: actor.id, name: actor.name, role: actor.role, roleName: actor.custom?.name ?? null, ...grants(actor) }, events: visibleChanges(events, view, actor.role === 'owner' && !actor.branch), operators, ...(actor.role === 'owner' ? { grantable } : {}) })
   }
   const paymentTimeline = /^\/api\/glove\/payments\/([A-Za-z0-9-]{1,100})\/timeline$/.exec(url.pathname)
   if (paymentTimeline) {
@@ -361,7 +372,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (url.pathname === '/api/glove/map') {
       const board = await mapBoard(db, view, date, branch)
       const delegates = actor.role === 'owner' && !actor.token ? await locationDelegates(db, view) : []
-      return json({ ...board, delegates: delegates.map(d => ({ technicianId: d.technician_id, operatorId: d.operator_id })), view: bounds, technicians: board.technicians.map(t => ({ ...t, live: positions.find(p => p.technicianId === t.id) ?? null })) })
+      return send({ ...board, delegates: delegates.map(d => ({ technicianId: d.technician_id, operatorId: d.operator_id })), view: bounds, technicians: board.technicians.map(t => ({ ...t, live: positions.find(p => p.technicianId === t.id) ?? null })) })
     }
     const key = await mapsKey(db, view) ?? fail('MAPS', 'The owner connects Google Maps first.', null, 404)
     const image = await baseMap(key, bounds ?? fail('MAPS', 'Nothing on this day is on the map yet.', null, 404))
@@ -434,7 +445,7 @@ async function read(url: URL, env: Bindings, actor: Actor): Promise<Response> {
     if (fieldRole(actor)) fail('FORBIDDEN', 'The delay watch is the desk\'s and the agent\'s.', null, 403)
     const at = url.searchParams.get('at') ?? new Date().toISOString()
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?Z$/.test(at) || Number.isNaN(Date.parse(at))) fail('INPUT', 'Give at as a UTC time such as 2026-10-21T13:00:00Z.', null, 400)
-    return json({ at: new Date(at).toISOString(), risks: await locationDelayWatch(db, s, actor, new Date(at).toISOString()) })
+    return send({ at: new Date(at).toISOString(), risks: await locationDelayWatch(db, s, actor, new Date(at).toISOString()) })
   }
   if (url.pathname === '/api/glove/dashboard') {
     readRole(actor, 'reports')
@@ -714,7 +725,7 @@ export async function gloveResponse(request: Request, original: Bindings): Promi
       }
       throw error
     }
-    if (request.method === 'GET') return await read(url, env, actor)
+    if (request.method === 'GET') return await read(url, env, actor, request.headers.get('if-none-match'))
     if (request.method === 'POST' && url.pathname === '/api/glove/commands') return await command(request, env, actor)
     return fail('METHOD', 'Use GET for reads and POST /api/glove/commands for changes.', null, 405)
   } catch (error) {

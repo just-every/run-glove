@@ -1,7 +1,7 @@
 import { customerMailSender } from './mail-send'
 import { foldedFacts, isAddress, label, providerName } from './mail'
 import { morningBrief } from './morning-brief'
-import { load } from './storage'
+import { load, loadBusiness } from './storage'
 import { localParts } from './time'
 import { providerEvent } from './timeline'
 import type { Bindings } from '../auth.server'
@@ -30,14 +30,17 @@ function briefText(name: string, brief: ReturnType<typeof morningBrief>) {
 export type Delivery = 'off' | 'not_connected' | 'early' | 'no_owner' | 'already' | 'sent'
 
 export async function deliverMorningBrief(db: D1Database, at: string): Promise<Delivery> {
-  const s = await load(db), b = s.business[0], mail = b?.mail
-  if (!mail?.morning?.enabled) return 'off'
+  const b = await loadBusiness(db), mail = b?.mail
+  if (!b || !mail?.morning?.enabled) return 'off'
   const key = (await db.prepare("SELECT value FROM glove_provider_keys WHERE provider='mail'").first<{ value: string }>())?.value
   if (!key) return 'not_connected'
   const { date, time } = localParts(at, b.timezone)
   if (time < mail.morning.time) return 'early'
   const owner = (await db.prepare("SELECT email FROM oa_operators WHERE role='owner' AND status='active' ORDER BY created_at LIMIT 1").first<{ email: string }>())?.email
   if (!owner || !isAddress(owner)) return 'no_owner'
+  // A brief already claimed for this date ends the run before any record is read for it.
+  if (await db.prepare('SELECT 1 FROM glove_events WHERE id=?').bind(`brief:${date}:queued`).first()) return 'already'
+  const s = await load(db)
   const id = `brief:${date}`, subject = `Morning brief for ${date} from ${b.name}`
   const claim = await providerEvent(db, { id: `${id}:queued`, at: new Date().toISOString(), commandId: id, provider: 'Glove', subjectKind: 'brief', subjectId: id, kind: 'email.queued', summary: `Glove emailed the ${date} morning brief to the owner at ${owner} through ${providerName(mail.provider)}; delivery is not yet reported`, data: { date, to: owner, provider: mail.provider, subject } }).run()
   if (!claim.meta.changes) return 'already'

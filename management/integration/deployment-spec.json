@@ -336,6 +336,12 @@
       "name": "0058_business_people.sql",
       "sha256": "51aa39622d866b987d71b6e37c9a8300e7f24c54a55611edaab669ed051b01cd",
       "sql": "ALTER TABLE bs_settings ADD COLUMN owner_id TEXT CHECK(owner_id IS NULL OR owner_id <> '');\nALTER TABLE bs_team ADD COLUMN business_id TEXT CHECK(business_id IS NULL OR business_id <> '');\nALTER TABLE bs_team ADD COLUMN business_role TEXT CHECK(business_role IS NULL OR business_role IN('admin','member'));\nCREATE UNIQUE INDEX bs_team_business_id ON bs_team(business_id) WHERE business_id IS NOT NULL;\n"
+    },
+    {
+      "binding": "DB",
+      "name": "0059_scheduled_read_indexes.sql",
+      "sha256": "1553d13902953b846bba7d3d88cfa4b69d0c6b12acd77d0fd42e0d358807c458",
+      "sql": "-- Scheduled passes and polls ask the records for a few narrow things (jobs that\n-- are completed, routes that are waiting, jobs with standing billing, quotes with\n-- an open call task, an invoice's job). These indexes answer each from the rows\n-- that match, so the cost follows the work in hand, never the history behind it.\n-- Queries name them (INDEXED BY): with no table statistics SQLite would otherwise\n-- scan the whole kind.\nCREATE INDEX glove_jobs_status ON glove_records(json_extract(data,'$.status')) WHERE kind='jobs';\nCREATE INDEX glove_jobs_standing_billing ON glove_records(id) WHERE kind='jobs' AND json_extract(data,'$.series.billing') IS NOT NULL;\nCREATE INDEX glove_routes_status ON glove_records(json_extract(data,'$.status')) WHERE kind='routes';\nCREATE INDEX glove_quotes_open_calls ON glove_records(id) WHERE kind='quotes' AND data LIKE '%\"followupTasks\"%\"status\":\"open\"%';\nCREATE INDEX glove_invoices_job ON glove_records(json_extract(data,'$.jobId')) WHERE kind='invoices';\n-- Pending calendar writes, in order, without reading the finished ones.\nCREATE INDEX glove_calendar_work_pending ON glove_calendar_work(sequence) WHERE state='pending';\n-- Provider facts (delivery states) by subject kind, without reading the owner's and agents' events.\nCREATE INDEX glove_events_provider ON glove_events(subject_kind, sequence) WHERE actor_role='provider';\n"
     }
   ],
   "compatibilityDate": "2026-09-08",

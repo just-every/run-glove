@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { ampm, type Glove, type Rec, type Run } from './api'
 import { Field, Problem, useAction } from './controls'
 import { can } from './roles'
@@ -22,17 +22,26 @@ export function DispatchMap({ s, run, date, branchId }: { s: Glove; run: Run; da
   const query = `date=${date}&branch=${encodeURIComponent(branchId || 'main')}`
   const [board, setBoard] = useState<Board | null>(null), [error, setError] = useState('')
   const [poll, setPoll] = useState(0)
-  useEffect(() => { const timer = window.setInterval(() => setPoll(n => n + 1), 30_000); return () => window.clearInterval(timer) }, [])
+  // Polled only while the page is showing; the server answers 304 from a few rows when the board is unchanged.
+  useEffect(() => { const timer = window.setInterval(() => { if (document.visibilityState === 'visible') setPoll(n => n + 1) }, 30_000); return () => window.clearInterval(timer) }, [])
+  const held = useRef(new Map<string, { tag: string; body: any }>())
   const [risks, setRisks] = useState<{ visitId: string; number: string; reasons: string[]; options: { note: string }[] }[]>([])
   const [drawing, setDrawing] = useState(false), [draft, setDraft] = useState({ technicianId: '', name: '', corners: '' })
   const place = useAction(), zone = useAction(), delegate = useAction()
   const [recipient, setRecipient] = useState('')
   useEffect(() => {
     let live = true
-    fetch(`/api/glove/map?${query}`, { credentials: 'same-origin', cache: 'no-store' })
-      .then(async r => { const body: any = await r.json(); if (!r.ok) throw new Error(body?.error?.message ?? 'The map could not load.'); return body as Board })
+    const get = async (url: string, init: RequestInit) => {
+      const prior = held.current.get(url), r = await fetch(url, { ...init, cache: 'no-store', headers: prior ? { 'if-none-match': prior.tag } : {} })
+      if (r.status === 304 && prior) return { ok: true, body: prior.body }
+      const body: any = await r.json(), tag = r.headers.get('etag')
+      if (r.ok && tag) held.current.set(url, { tag, body })
+      return { ok: r.ok, body }
+    }
+    get(`/api/glove/map?${query}`, { credentials: 'same-origin' })
+      .then(({ ok, body }) => { if (!ok) throw new Error(body?.error?.message ?? 'The map could not load.'); return body as Board })
       .then(b => { if (live) { setBoard(b); setError('') } }, (e: Error) => { if (live) setError(e.message) })
-    fetch('/api/glove/delays', { cache: 'no-store' }).then(r => r.ok ? r.json() : { risks: [] }).then((b: any) => { if (live) setRisks(b.risks ?? []) }).catch(() => { if (live) setRisks([]) })
+    get('/api/glove/delays', {}).then(({ ok, body }) => { if (live) setRisks(ok ? body.risks ?? [] : []) }).catch(() => { if (live) setRisks([]) })
     return () => { live = false }
   }, [query, s.version, poll])
   const owner = can(s.actor, 'technician.zones')

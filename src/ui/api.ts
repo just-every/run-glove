@@ -37,9 +37,11 @@ export function useGlove() {
   /** When the shown records are the phone's kept day rather than fresh ones. */
   const [keptAt, setKeptAt] = useState<string | null>(null)
   const flight = useRef(false)
+  const tag = useRef<string | null>(null)
   const refresh = useCallback(async () => {
     let response: Response
-    try { response = await fetch('/api/glove/state', { credentials: 'same-origin', cache: 'no-store' }) }
+    // The server answers 304 when nothing this person can see has changed.
+    try { response = await fetch('/api/glove/state', { credentials: 'same-origin', cache: 'no-store', headers: tag.current ? { 'if-none-match': tag.current } : {} }) }
     catch (error) {
       // FIELD-001: with no signal a technician's phone opens the day it kept.
       const kept = readDay()
@@ -47,8 +49,10 @@ export function useGlove() {
       throw error
     }
     if (response.status === 401) { window.location.href = '/signin?returnTo=%2Fapp'; return }
+    if (response.status === 304) { setKeptAt(null); setLoadError(''); return }
     const body: any = await response.json()
     if (!response.ok) throw new Error(body?.error?.message ?? 'Records could not load.')
+    tag.current = response.headers.get('etag')
     await eraseLocalCopies(body.privacyFences ?? [])
     setUnconfirmed(prior => prior && refersErased(prior, body.privacyFences ?? []) ? null : prior)
     setState(body)

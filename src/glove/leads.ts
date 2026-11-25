@@ -1,7 +1,7 @@
 import type { Bindings } from '../auth.server'
 import { basic, hash } from './mail-callbacks'
 import { Problem, fail, bump, event, type Actor, type Context, type Row } from './model'
-import { load, commit } from './storage'
+import { load, loadBusiness, commit } from './storage'
 import { setup } from './commands/setup'
 import { quotes } from './commands/quotes'
 import { runRules } from './rules'
@@ -185,8 +185,7 @@ export async function googleLeads(db: D1Database): Promise<Lead[]> {
 
 /** The scheduled run reads Google's new leads while Google is connected. */
 export async function pullGoogle(db: D1Database) {
-  const s = await load(db)
-  if (!s.business[0]?.leads?.google) return 0
+  if (!(await loadBusiness(db))?.leads?.google) return 0
   return receive(db, 'google', await googleLeads(db))
 }
 

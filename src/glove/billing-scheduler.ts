@@ -11,10 +11,14 @@ import { notify } from './push'
 /** Standing owner rules, with current owner/branch authority at every commit.
  * No browser session or a different person's consent is borrowed by cron. */
 export async function runRecurringBilling(db: D1Database, at: string, env: Bindings) {
+  // No job carries standing billing rules (the default): no record is read.
+  if (!await db.prepare("SELECT 1 FROM glove_records INDEXED BY glove_jobs_standing_billing WHERE kind='jobs' AND json_extract(data,'$.series.billing') IS NOT NULL LIMIT 1").first()) return
   const initial = await load(db)
   const owners = [...new Set(initial.jobs.flatMap(j => (j.series?.billing?.revisions ?? []).map((r: any) => r.by.id)))] as string[]
+  let latest: typeof initial | null = initial
   for (const id of owners) {
-    const before = await load(db)
+    const before = latest ?? await load(db)
+    latest = null
     const owner = await db.prepare(`SELECT id,display_name AS name,version,${roleSql('?')} AS role FROM oa_operators WHERE id=? AND status='active'`).bind(id, id, id).first<{ id: string; name: string; version: number; role: string }>()
     if (!owner || owner.role !== 'owner') continue
     const limit = before.branchAccess.find(b => b.id === id)

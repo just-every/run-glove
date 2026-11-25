@@ -143,6 +143,8 @@ async function requesterAllowed(db: D1Database, s: State, row: Row) {
 }
 
 export async function runRoutingJobs(db: D1Database, at = new Date().toISOString()) {
+  // Nothing queued or running (the usual case): no record is read.
+  if (!await db.prepare("SELECT 1 FROM glove_records INDEXED BY glove_routes_status WHERE kind='routes' AND json_extract(data,'$.status') IN ('queued','running') LIMIT 1").first()) return
   const initial = await load(db)
   const expired = initial.routes.find(r => r.status === 'running' && Date.parse(r.startedAt) + LEASE_MS <= Date.parse(at))
   if (expired) { await saveBackground(db, initial, expired, { status: 'failed', problem: 'The background run expired. Request another optimization.', finishedAt: at }, at).catch(() => {}); return }

@@ -7,17 +7,57 @@ import { branchState } from './branch-access'
 import { recordChanges, mergeChanges } from './timeline'
 import { authority } from './access'
 import { visibleOutcome } from './view'
-import { collections, fail, type Collection, type Context, type State, type Actor } from './model'
+import { collections, fail, type Collection, type Context, type Row, type State, type Actor } from './model'
 
+type Stored = { kind: string; data: string }
+
+// SQL returns records in primary-key order. A computed ORDER BY would make D1 read
+// every row twice, so each collection is put in creation order here, once.
+export const creation = (a: Row, b: Row) => {
+  const x = a.createdAt ?? '', y = b.createdAt ?? ''
+  return x < y ? -1 : x > y ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+}
+
+function assemble(version: number, rows: Stored[]): State {
+  const s = { version } as State
+  for (const kind of collections) s[kind] = []
+  for (const row of rows) if ((collections as readonly string[]).includes(row.kind)) s[row.kind as Collection].push(JSON.parse(row.data))
+  for (const kind of collections) if (s[kind].length > 1) s[kind].sort(creation)
+  return s
+}
+
+/** Every record: the whole installation. Reads one row per record; schedulers and polls use the narrower readers below. */
 export async function load(db: D1Database): Promise<State> {
   const [meta, records] = await db.batch<any>([
     db.prepare('SELECT version FROM glove_meta WHERE id=1'),
-    db.prepare("SELECT kind,data FROM glove_records ORDER BY kind,json_extract(data,'$.createdAt'),id"),
+    db.prepare('SELECT kind,data FROM glove_records'),
   ])
-  const s = { version: meta.results[0].version } as State
-  for (const kind of collections) s[kind] = []
-  for (const row of records.results) if ((collections as readonly string[]).includes(row.kind)) s[row.kind as Collection].push(JSON.parse(row.data))
-  return s
+  return assemble(meta.results[0].version, records.results)
+}
+
+/** Only these collections are filled (by the primary key's kind prefix); every other collection is empty. Never commit from it. */
+export async function loadKinds(db: D1Database, kinds: readonly Collection[]): Promise<State> {
+  const [meta, records] = await db.batch<any>([
+    db.prepare('SELECT version FROM glove_meta WHERE id=1'),
+    db.prepare(`SELECT kind,data FROM glove_records WHERE kind IN (${kinds.map(() => '?').join(',')})`).bind(...kinds),
+  ])
+  return assemble(meta.results[0].version, records.results)
+}
+
+/** The named records of one kind (primary-key lookups), in creation order. */
+export async function loadRows(db: D1Database, kind: Collection, ids: readonly string[]): Promise<Row[]> {
+  const rows: Row[] = []
+  for (let i = 0; i < ids.length; i += 90) {
+    const chunk = ids.slice(i, i + 90)
+    for (const r of (await db.prepare(`SELECT data FROM glove_records WHERE kind=? AND id IN (${chunk.map(() => '?').join(',')})`).bind(kind, ...chunk).all<{ data: string }>()).results) rows.push(JSON.parse(r.data))
+  }
+  return rows.sort(creation)
+}
+
+/** The singleton business settings record, or null before the owner sets it up. */
+export async function loadBusiness(db: D1Database): Promise<Row | null> {
+  const row = await db.prepare("SELECT data FROM glove_records WHERE kind='business' LIMIT 1").first<{ data: string }>()
+  return row ? JSON.parse(row.data) : null
 }
 
 /** The durable outcome of an earlier command with this identity, if any. */
