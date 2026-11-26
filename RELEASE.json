@@ -1,6 +1,6 @@
 {
   "version": "0.1.1",
-  "publicReleaseNotes": "Prepare Glove for hosted installation with rer 0.2.80, a digest-bound setup manifest, deployment specification and managed mail configuration. Keep reviewed move-ins, dispatch and field evidence unchanged.",
+  "publicReleaseNotes": "Glove 0.1.1 brings six weeks of field-service work since 0.1.0: request pipeline and online booking links, quote links and signed copies, maps and live technician locations, SMS, payment attempts and Wisetack, QuickBooks and Xero sync, service reports, the agent door with auth-first MCP on rer 0.2.134, owner sign-in, Business settings and people, and Business setup with outbound mail off. Adds migrations 0015 to 0061; no shipped migration changes.",
   "previousVersion": "0.1.0",
   "migrations": [
     "migrations/core/0015_request_pipeline.sql",
@@ -32,7 +32,20 @@
     "migrations/core/0041_visit_responses.sql",
     "migrations/core/0042_email_preferences.sql",
     "migrations/core/0043_calendar_sync.sql",
-    "migrations/core/0044_live_locations.sql"
+    "migrations/core/0044_live_locations.sql",
+    "migrations/core/0045_technician_portraits.sql",
+    "migrations/core/0050_location_delegates.sql",
+    "migrations/core/0051_review_email_preferences.sql",
+    "migrations/core/0052_quickbooks_sync.sql",
+    "migrations/core/0053_xero_inspection.sql",
+    "migrations/core/0054_xero_sync.sql",
+    "migrations/core/0055_company_action_policy.sql",
+    "migrations/core/0056_agent_door.sql",
+    "migrations/core/0057_business_settings.sql",
+    "migrations/core/0058_business_people.sql",
+    "migrations/core/0059_owner_signin.sql",
+    "migrations/core/0060_agent_door_relay_upgrade.sql",
+    "migrations/core/0061_business_retired.sql"
   ],
   "breaking": false,
   "agentUpdateInstructions": "Retain private configuration and a native export before upgrading. Preserve all applied migration names and bytes."

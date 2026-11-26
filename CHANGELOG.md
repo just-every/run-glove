@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1 (27 Nov 2026)
+
+- Win the work: one request pipeline with lead feeds and website requests, online booking links, and quote links with signed copies.
+- Dispatch and field: maps, live technician locations and portraits, location delegates, visit responses and service reports.
+- Talk and get paid: an SMS channel, email and review-email preferences, payment attempts, Wisetack test mode, tax certificates and AvaTax.
+- Books: QuickBooks Online sync, Xero inspection and sync.
+- Business harness: the agent door with auth-first MCP on rer 0.2.134, owner sign-in, company action policy, Business settings, people and retirement, and Business setup with outbound mail off.
+- Migrations 0015 to 0061 are added (listed in RELEASE.json); no shipped migration changed.
+
 ## Contract source before 73acfc9cdd114b268e18949c72a8db61a76ef5cc
 
 # Glove product contract

@@ -180,7 +180,7 @@
       "executable": false
     },
     "CHANGELOG.md": {
-      "sha256": "6fdb54a0e00a27b1d5f872709f6be9a4072c465b7d83085c062388922b155139",
+      "sha256": "1571ef970597bb3fe469d8bb954726593e701f985633ecd64eb67156a85afc4b",
       "executable": false
     },
     "composition.lock.json": {
@@ -892,7 +892,7 @@
       "executable": false
     },
     "RELEASE.json": {
-      "sha256": "3359e20e509acf0282bd56a10e03cb9662b37d9aa61101a14aa7c167fdbf8ec2",
+      "sha256": "69963d46c28058652e81eb9b8e4bb87992d1ebf38db7f95489927c9d504611e5",
       "executable": false
     },
     "rer-project.json": {
