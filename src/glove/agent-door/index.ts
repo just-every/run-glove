@@ -38,6 +38,6 @@ export function gloveBusinessSettings(original: Bindings) {
 export async function gloveAgentResponse(request: Request, env: Bindings): Promise<Response | null> {
   const path = new URL(request.url).pathname
   if (['/api/rer/business-settings', '/rer-business.css', '/rer-business-logo'].includes(path)) return gloveBusinessSettings(env).handle(request)
-  if (path === '/mcp' || path === '/agents' || path.startsWith('/agents/api/') || path.startsWith('/agents/approvals/') || ['/api/rer/agent-policy', '/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp'].includes(path)) return (await gloveAgentDoor(env)).handle(request)
+  if (path === '/mcp' || path === '/agents' || path.startsWith('/agents/api/') || path.startsWith('/agents/approvals/') || ['/api/rer/agent-policy', '/api/rer/agent-decisions', '/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp'].includes(path)) return (await gloveAgentDoor(env)).handle(request)
   return null
 }

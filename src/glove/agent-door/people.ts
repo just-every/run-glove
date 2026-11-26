@@ -27,6 +27,7 @@ export function glovePeople(env: Bindings): PeopleAdapter {
     person,
     // A locally promoted native admin is never a Business editor.
     businessRole: p => policyRoles.get(p.id) ?? null,
+    businessStopped: async () => !!await db.prepare('SELECT 1 FROM bs_settings WHERE singleton=1 AND stopped=1').first(),
     async sponsor({ sub }) {
       const settings = await db.prepare('SELECT owner_id FROM bs_settings WHERE singleton=1 AND stopped=0').first<{ owner_id: string | null }>()
       if (!settings) return null
